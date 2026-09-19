@@ -1,0 +1,2690 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09090b">
+  <title>Elara Space  - Ultimate Life & Mind OS</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', '"Vazirmatn"', 'sans-serif'] },
+          colors: { brand: { 50: 'var(--brand-50)', 100: 'var(--brand-100)', 400: 'var(--brand-400)', 500: 'var(--brand-500)', 600: 'var(--brand-600)', 700: 'var(--brand-700)' } }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --brand-50: #fdf2f8; --brand-100: #fce7f3; --brand-400: #f472b6; --brand-500: #ec4899; --brand-600: #db2777; --brand-700: #be185d; --brand-hex: #ec4899;
+    }
+    .theme-pink { --brand-50: #fdf2f8; --brand-100: #fce7f3; --brand-400: #f472b6; --brand-500: #ec4899; --brand-600: #db2777; --brand-700: #be185d; --brand-hex: #ec4899; }
+    .theme-mono { --brand-50: #f4f4f5; --brand-100: #e4e4e7; --brand-400: #a1a1aa; --brand-500: #71717a; --brand-600: #3f3f46; --brand-700: #27272a; --brand-hex: #71717a; }
+    .theme-indigo { --brand-50: #eef2ff; --brand-100: #e0e7ff; --brand-400: #818cf8; --brand-500: #6366f1; --brand-600: #4f46e5; --brand-700: #4338ca; --brand-hex: #6366f1; }
+    .theme-rose { --brand-50: #fff1f2; --brand-100: #ffe4e6; --brand-400: #fb7185; --brand-500: #f43f5e; --brand-600: #e11d48; --brand-700: #be123c; --brand-hex: #f43f5e; }
+    .theme-panda { --brand-50: #f4f4f5; --brand-100: #e4e4e7; --brand-400: #71717a; --brand-500: #18181b; --brand-600: #09090b; --brand-700: #000000; --brand-hex: #18181b; }
+    .theme-bear { --brand-50: #fdf8f6; --brand-100: #fbe8e1; --brand-400: #d9a066; --brand-500: #b5651d; --brand-600: #8c4a12; --brand-700: #5c2c06; --brand-hex: #b5651d; }
+    .theme-halloween { --brand-50: #fff7ed; --brand-100: #ffedd5; --brand-400: #fb923c; --brand-500: #f97316; --brand-600: #ea580c; --brand-700: #c2410c; --brand-hex: #f97316; }
+    .theme-love { --brand-50: #fff1f2; --brand-100: #ffe4e6; --brand-400: #fda4af; --brand-500: #e11d48; --brand-600: #be123c; --brand-700: #881337; --brand-hex: #e11d48; }
+
+    body { -webkit-tap-highlight-color: transparent; user-select: none; }
+    input, textarea, select { user-select: auto; }
+    ::-webkit-scrollbar { display: none; }
+    * { -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
+
+    body.loading { overflow: hidden; }
+
+    /* =========================
+       ELARA SPACE PRELOADER
+    ========================= */
+    .elara-loader {
+      --cyan: #16eaff;
+      --blue: #046bff;
+      --deep-blue: #071eaf;
+      --purple: #a321ff;
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 45%, rgba(12, 47, 130, 0.28), rgba(2, 8, 25, 0.75) 40%, #01030a 75%);
+      overflow: hidden;
+      transition: opacity 0.8s cubic-bezier(.4, 0, .2, 1), visibility 0.8s;
+    }
+
+    .elara-loader::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.32;
+      background-image: radial-gradient(circle, rgba(255,255,255,.8) 0 1px, transparent 1.5px), radial-gradient(circle, rgba(75,210,255,.7) 0 1px, transparent 1.5px);
+      background-size: 120px 120px, 190px 190px;
+      background-position: 20px 30px, 70px 90px;
+      animation: starsMove 18s linear infinite;
+    }
+
+    .loader-space {
+      position: relative;
+      width: min(650px, 90vw);
+      height: min(500px, 68vw);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+    }
+
+    .ambient {
+      position: absolute;
+      width: 290px;
+      height: 290px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .ambient-1 { background: var(--cyan); transform: translate(100px, 30px); animation: ambientOne 5s ease-in-out infinite alternate; }
+    .ambient-2 { background: var(--purple); transform: translate(-120px, 40px); animation: ambientTwo 6s ease-in-out infinite alternate; }
+
+    .orbit {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .orbit-1 {
+      width: 72%; height: 32%;
+      border: 1px solid rgba(40, 227, 255, 0.5);
+      box-shadow: 0 0 7px rgba(36, 237, 255, .8), 0 0 25px rgba(19, 123, 255, .45), inset 0 0 15px rgba(27, 230, 255, .25);
+      transform: translate(-50%, -50%) rotateX(67deg) rotateZ(-10deg);
+      animation: orbitPulse 2.8s ease-in-out infinite;
+    }
+    .orbit-2 {
+      width: 78%; height: 37%;
+      border-top: 2px solid rgba(168, 36, 255, .75);
+      border-right: 2px solid rgba(32, 224, 255, .9);
+      border-bottom: 1px solid transparent;
+      border-left: 1px solid transparent;
+      filter: drop-shadow(0 0 5px #08dfff) drop-shadow(0 0 12px rgba(146, 33, 255, .8));
+      transform: translate(-50%, -50%) rotateX(67deg) rotateZ(-10deg);
+      animation: orbitRotate 3.2s linear infinite;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      width: 88%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: logoEntrance 1.2s cubic-bezier(.16, 1, .3, 1) both, logoFloat 3.5s 1.2s ease-in-out infinite;
+    }
+
+    .elara-logo {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 120px;
+      object-fit: contain;
+      z-index: 5;
+      user-select: none;
+      pointer-events: none;
+      filter: drop-shadow(0 0 5px rgba(15, 173, 255, .85)) drop-shadow(0 0 16px rgba(12, 66, 255, .45));
+      animation: logoGlow 2.2s ease-in-out infinite alternate;
+    }
+
+    .logo-glow {
+      position: absolute;
+      width: 72%; height: 32%;
+      left: 50%; top: 52%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse, rgba(14, 220, 255, .35), rgba(57, 42, 255, .18) 45%, transparent 72%);
+      filter: blur(28px);
+      animation: glowBreath 2.3s ease-in-out infinite;
+    }
+
+    .logo-shine {
+      position: absolute;
+      z-index: 10;
+      top: 5%; left: -50%;
+      width: 25%; height: 90%;
+      opacity: 0;
+      transform: skewX(-20deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.03), rgba(255,255,255,.55), rgba(80,231,255,.25), transparent);
+      filter: blur(3px);
+      pointer-events: none;
+      animation: logoShine 2.8s 0.8s ease-in-out infinite;
+    }
+
+    .spark {
+      position: absolute;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 7px #fff, 0 0 14px #14eaff, 0 0 25px #168cff;
+      opacity: 0;
+    }
+    .spark-1 { top: 22%; right: 12%; animation: sparkle 2.1s infinite; }
+    .spark-2 { top: 36%; left: 13%; width: 3px; height: 3px; animation: sparkle 2.7s .8s infinite; }
+    .spark-3 { bottom: 24%; right: 22%; width: 4px; height: 4px; animation: sparkle 1.9s 1.2s infinite; }
+
+    .loading-info {
+      position: relative;
+      width: min(340px, 72vw);
+      margin-top: -25px;
+      z-index: 20;
+    }
+
+    .loading-text {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      color: rgba(179, 229, 255, .8);
+      font-size: 10px;
+      letter-spacing: .24em;
+    }
+
+    .progress-track {
+      width: 100%; height: 2px;
+      background: rgba(60, 130, 255, .15);
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 0 12px rgba(20, 122, 255, .18);
+    }
+
+    .progress-bar {
+      position: relative;
+      width: 0%; height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #7b20ff, #006cff, #20ecff);
+      box-shadow: 0 0 6px #02d9ff, 0 0 17px rgba(18, 184, 255, .9);
+      transition: width .15s ease;
+    }
+
+    .progress-bar::after {
+      content: "";
+      position: absolute;
+      right: -3px; top: 50%;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      background: white;
+      box-shadow: 0 0 8px white, 0 0 14px #00eaff;
+    }
+
+    .elara-loader.is-complete {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .elara-loader.is-complete .logo-wrapper {
+      animation: logoExit .7s cubic-bezier(.4, 0, .2, 1) forwards;
+    }
+
+    @keyframes logoEntrance {
+      0% { opacity: 0; transform: translateY(30px) scale(.82); filter: blur(12px); }
+      50% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotateX(0deg); }
+      50% { transform: translateY(-8px) rotateX(1.5deg); }
+    }
+    @keyframes logoGlow {
+      0% { filter: drop-shadow(0 0 4px rgba(22, 151, 255, .7)) drop-shadow(0 0 11px rgba(0, 80, 255, .35)); }
+      100% { filter: drop-shadow(0 0 8px rgba(25, 238, 255, .95)) drop-shadow(0 0 22px rgba(90, 31, 255, .65)); }
+    }
+    @keyframes orbitRotate {
+      from { transform: translate(-50%, -50%) rotateX(67deg) rotateZ(-10deg) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotateX(67deg) rotateZ(-10deg) rotate(360deg); }
+    }
+    @keyframes orbitPulse {
+      0%, 100% { opacity: .35; }
+      50% { opacity: .95; }
+    }
+    @keyframes glowBreath {
+      0%, 100% { opacity: .35; transform: translate(-50%, -50%) scale(.9); }
+      50% { opacity: .85; transform: translate(-50%, -50%) scale(1.12); }
+    }
+    @keyframes logoShine {
+      0% { left: -45%; opacity: 0; }
+      15% { opacity: 0; }
+      40% { opacity: .9; }
+      60% { opacity: .25; }
+      80%, 100% { left: 120%; opacity: 0; }
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(.3) rotate(0); }
+      45% { opacity: .4; }
+      50% { opacity: 1; transform: scale(1.8) rotate(90deg); }
+      58% { opacity: .3; }
+    }
+    @keyframes ambientOne {
+      from { transform: translate(100px, 30px) scale(.85); }
+      to { transform: translate(60px, -10px) scale(1.15); }
+    }
+    @keyframes ambientTwo {
+      from { transform: translate(-120px, 40px) scale(.85); }
+      to { transform: translate(-70px, 0) scale(1.2); }
+    }
+    @keyframes starsMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(120px); }
+    }
+    @keyframes logoExit {
+      from { opacity: 1; transform: scale(1); filter: blur(0); }
+      to { opacity: 0; transform: scale(1.12); filter: blur(8px); }
+    }
+
+    .frame-bronze { border: 2.5px solid #cd7f32; box-shadow: 0 0 10px rgba(205,127,50,0.5); }
+    .frame-silver { border: 2.5px solid #c0c0c0; box-shadow: 0 0 12px rgba(192,192,192,0.65); }
+    .frame-gold { border: 2.5px solid #ffd700; box-shadow: 0 0 16px rgba(255,215,0,0.75); }
+    .frame-diamond { border: 2.5px solid #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.75); }
+    .frame-neon { border: 2.5px solid var(--brand-hex); box-shadow: 0 0 20px var(--brand-hex); }
+
+    .card-flip { perspective: 1000px; }
+    .card-flip-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+    .card-flipped .card-flip-inner { transform: rotateY(180deg); }
+    .card-front, .card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .card-back { transform: rotateY(180deg); }
+  </style>
+</head>
+<body class="loading bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 min-h-screen flex justify-center selection:bg-brand-500 selection:text-white transition-colors duration-300">
+
+  <!-- ELARA PRELOADER -->
+  <div id="elara-loader" class="elara-loader" role="status" aria-label="Loading">
+    <div class="loader-space">
+      <div class="ambient ambient-1"></div>
+      <div class="ambient ambient-2"></div>
+      <div class="orbit orbit-1"></div>
+      <div class="orbit orbit-2"></div>
+      <div class="logo-wrapper">
+        <div class="logo-glow"></div>
+        <img src="logo.png" class="elara-logo" alt="Elara Space" onerror="handleLogoError(this)" />
+        <div class="logo-shine"></div>
+      </div>
+      <span class="spark spark-1"></span>
+      <span class="spark spark-2"></span>
+      <span class="spark spark-3"></span>
+    </div>
+    <div class="loading-info">
+      <div class="loading-text">
+        <span>INITIALIZING</span>
+        <span id="loading-percent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="loading-progress" class="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cosmic Landing Screen (Login / Sign Up in English) -->
+  <div id="auth-landing-screen" class="hidden fixed inset-0 z-40 bg-gradient-to-br from-purple-950 via-zinc-950 to-black flex flex-col items-center justify-between p-6 text-white text-center">
+    <div class="my-auto space-y-6 max-w-xs w-full">
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl animate-pulse overflow-hidden">
+        <img src="logo.png" alt="Logo" class="w-full h-full object-contain" onerror="handleLogoError(this)">
+      </div>
+      <div class="space-y-2">
+        <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">ELARA SPACE</h1>
+        <p class="text-xs text-zinc-300 font-medium">Your Ultimate Cosmic Life & Mind OS</p>
+      </div>
+
+      <div class="space-y-3 pt-4">
+        <button onclick="openLoginModal()" class="w-full py-3.5 bg-white text-zinc-950 font-extrabold rounded-2xl text-xs shadow-xl active:scale-95 transition">Login</button>
+        <button onclick="openSignUpModal()" class="w-full py-3.5 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-extrabold rounded-2xl text-xs shadow-xl active:scale-95 transition">Sign Up</button>
+      </div>
+    </div>
+    <div class="text-[10px] text-zinc-500 font-mono">Elara Space OS • Secure Galaxy Auth</div>
+  </div>
+
+  <!-- Mobile & Desktop App Frame (Responsive) -->
+  <div id="app" class="w-full max-w-md md:max-w-4xl lg:max-w-5xl min-h-screen flex flex-col justify-between bg-white dark:bg-zinc-900 shadow-2xl relative pb-20 overflow-x-hidden border-x border-zinc-200/60 dark:border-zinc-800 mx-auto">
+
+    <!-- TOP HEADER -->
+    <header class="p-3 border-b border-zinc-100 dark:border-zinc-800/80 sticky top-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl z-30 space-y-2">
+      <div class="flex items-center justify-between gap-1">
+        <div class="flex items-center gap-2 min-w-0">
+          <div onclick="toggleSideDrawer()" title="Menu & Logo" class="w-8 h-8 shrink-0 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-brand-50 flex items-center justify-center overflow-hidden cursor-pointer shadow-sm border border-zinc-200 dark:border-zinc-700">
+            <img id="header-logo-img" src="logo.png" alt="Logo" class="w-full h-full object-contain" onerror="handleLogoError(this)">
+          </div>
+
+          <div class="flex items-center gap-1.5 cursor-pointer min-w-0" onclick="openClosetPage()">
+            <div class="relative shrink-0">
+              <div id="user-avatar-frame" class="w-9 h-9 rounded-xl overflow-hidden frame-neon flex items-center justify-center bg-zinc-200 dark:bg-zinc-800">
+                <img id="user-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover" onerror="handleAvatarError(this)">
+              </div>
+              <span id="user-level-badge" class="absolute -bottom-1 -right-1 bg-brand-600 text-white text-[7px] font-black px-1 rounded-full border border-zinc-900">Lv.1</span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1">
+                <h1 id="header-user-name" class="text-xs font-black tracking-tight text-zinc-900 dark:text-white truncate">Elara</h1>
+                <span id="user-title" class="text-[8px] font-bold px-1 py-0.2 rounded-full bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 border border-brand-200 truncate">Cadet</span>
+              </div>
+              <div class="w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full h-1 mt-0.5 overflow-hidden">
+                <div id="user-xp-bar" class="bg-gradient-to-r from-brand-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="openCalendarModal()" title="Calendar" class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 active:scale-90 transition text-xs"></button>
+          <button onclick="openClosetPage()" title="Closet" class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 active:scale-90 transition text-xs"></button>
+          
+          <select id="lang-select" onchange="changeLanguage(this.value)" class="text-[10px] bg-zinc-100 dark:bg-zinc-800 rounded-lg px-1 py-1 font-bold outline-none border border-zinc-200 dark:border-zinc-700 cursor-pointer">
+            <option value="en" selected> EN</option>
+            <option value="fa"> </option>
+            <option value="tr"> Türkçe</option>
+            <option value="ru"> </option>
+            <option value="fr"> FR</option>
+            <option value="zh"> </option>
+          </select>
+
+          <button onclick="openThemeModal()" title="Themes" class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 active:scale-90 transition">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.5V6a3 3 0 116 0v6.5A5 5 0 0115 17a4 4 0 01-4 4zm0 0h8m-8-4a2 2 0 002-2V7a1 1 0 10-2 0v8a2 2 0 002 2z"/></svg>
+          </button>
+
+          <button onclick="toggleDarkMode()" title="Dark/Light" class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 active:scale-90 transition">
+            <span id="dark-icon" class="text-[11px]"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date Banner & Quote -->
+      <div class="relative overflow-hidden bg-gradient-to-r from-brand-50/70 via-white to-zinc-50 dark:from-zinc-800/80 dark:via-zinc-800/40 dark:to-zinc-800/20 p-2.5 rounded-2xl border border-brand-100/60 dark:border-zinc-700/40 shadow-sm space-y-1">
+        <div class="flex items-center justify-between text-[11px] font-bold border-b border-zinc-100 dark:border-zinc-700/50 pb-1">
+          <div class="flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
+            <span></span> <span id="header-calendar-date">Today</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="jumpToToday()" class="text-[9px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-600 dark:text-zinc-300 font-bold" data-i18n="today_btn">Today</button>
+            <span id="header-calendar-type-badge" class="text-[9px] px-2 py-0.5 rounded-md bg-brand-500/15 text-brand-700 dark:text-zinc-300 font-black">Gregorian</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-1.5 pt-0.5">
+          <span class="text-xs mt-0.5"></span>
+          <div class="flex-1">
+            <p id="daily-quote" class="text-[10.5px] font-semibold leading-relaxed text-zinc-700 dark:text-zinc-300 italic">Start small, but start today.</p>
+            <p id="quote-author" class="text-[9px] font-black text-brand-600 dark:text-brand-400 mt-0.5">— Elara</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Search -->
+      <div class="relative">
+        <input id="global-search-input" type="text" oninput="handleGlobalSearch(this.value)" data-i18n-placeholder="global_search_ph" placeholder=" Search tasks, books, words..." class="w-full pl-8 pr-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs outline-none focus:border-brand-500 transition">
+        <div id="global-search-results" class="hidden absolute top-full mt-1.5 inset-x-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl p-2.5 shadow-2xl z-40 max-h-48 overflow-y-auto space-y-1 text-xs"></div>
+      </div>
+    </header>
+
+    <!-- SIDE DRAWER -->
+    <div id="side-drawer" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300">
+      <div id="drawer-backdrop" onclick="toggleSideDrawer()" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+      <div id="drawer-content" class="absolute top-0 bottom-0 left-0 w-4/5 max-w-xs bg-white dark:bg-zinc-900 shadow-2xl p-5 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between overflow-y-auto z-10 border-r border-zinc-200 dark:border-zinc-800">
+        <div class="space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-brand-500"></span>
+              <h3 class="font-extrabold text-sm text-zinc-900 dark:text-white" data-i18n="drawer_title">Settings & Menu</h3>
+            </div>
+            <button onclick="toggleSideDrawer()" class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400"></button>
+          </div>
+
+          <!-- Help Section in Menu -->
+          <button onclick="openHelpModal()" class="w-full p-3 bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800/60 rounded-2xl flex items-center justify-between text-xs font-bold text-brand-700 dark:text-brand-300 active:scale-95 transition">
+            <span class="flex items-center gap-2"><span></span> <span data-i18n="menu_help">Help & Guide</span></span>
+            <span></span>
+          </button>
+
+          <!-- Quick Dark/Light Switch -->
+          <div class="p-3 bg-zinc-100 dark:bg-zinc-800/80 rounded-2xl flex items-center justify-between border border-zinc-200 dark:border-zinc-700/60">
+            <span class="text-xs font-bold text-zinc-700 dark:text-zinc-200" data-i18n="theme_mode">Theme Mode</span>
+            <button onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-700 text-xs font-bold shadow-sm flex items-center gap-1.5 border border-zinc-200 dark:border-zinc-600 active:scale-95 transition">
+              <span id="drawer-dark-icon"></span> <span id="drawer-dark-text">Dark / Light</span>
+            </button>
+          </div>
+
+          <div class="p-3 bg-brand-50/60 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800/50 rounded-2xl space-y-1.5">
+            <label class="block text-xs font-black text-brand-700 dark:text-brand-300 flex items-center gap-1.5">
+              <span></span> <span data-i18n="calendar_system">Calendar System</span>
+            </label>
+            <select id="calendar-select" onchange="changeCalendarSystem(this.value)" class="w-full p-2 bg-white dark:bg-zinc-800 rounded-xl border border-brand-300 dark:border-zinc-700 text-xs font-bold text-zinc-800 dark:text-zinc-200 outline-none">
+              <option value="gregory" selected>Gregorian Calendar</option>
+              <option value="persian">Persian (Jalali)</option>
+              <option value="islamic">Islamic Hijri</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider" data-i18n="folders">Folders</span>
+              <button onclick="addNewFolder()" class="text-xs font-bold text-brand-600 dark:text-brand-400">+ Add</button>
+            </div>
+            <div id="drawer-folders-list" class="space-y-1 text-xs"></div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider" data-i18n="tags">Tags</span>
+              <button onclick="addNewTagPrompt()" class="text-xs font-bold text-brand-600 dark:text-brand-400">+ Add</button>
+            </div>
+            <div id="drawer-tags-list" class="flex flex-wrap gap-1.5 text-xs"></div>
+          </div>
+
+          <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+            <button onclick="openAnalyticsModal()" class="w-full py-2.5 px-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 text-white rounded-2xl text-xs font-bold flex items-center justify-between shadow-md active:scale-95 transition">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+                <span data-i18n="view_full_analytics">Advanced Analytics Radar</span>
+              </span>
+              <span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 text-[10px] text-zinc-400 text-center">
+          Elara Space OS • v4.9 Preloader Fix
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN VIEWPORTS -->
+    <main class="flex-1 p-4 overflow-y-auto space-y-4">
+
+      <!-- ================= 1. TASKS TAB ================= -->
+      <section id="tab-tasks" class="tab-content block space-y-3">
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
+            <span class="text-[10px] text-zinc-400 font-bold uppercase" data-i18n="completed">Completed</span>
+            <div class="flex items-baseline justify-center gap-1 mt-0.5">
+              <span id="stat-completed" class="text-xl font-black text-brand-600 dark:text-brand-400">0</span>
+              <span class="text-[10px] text-zinc-400">/<span id="stat-total">0</span></span>
+            </div>
+          </div>
+          <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
+            <span class="text-[10px] text-zinc-400 font-bold uppercase" data-i18n="completion_rate">Progress</span>
+            <span id="stat-percent" class="block text-xl font-black text-emerald-500 mt-0.5">0%</span>
+          </div>
+          <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
+            <span class="text-[10px] text-zinc-400 font-bold uppercase" data-i18n="pending">Pending</span>
+            <span id="stat-pending" class="block text-xl font-black text-amber-500 mt-0.5">0</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-extrabold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+              <span data-i18n="task_trend_chart">7-Day Task Trend</span>
+            </span>
+            <span class="text-[10px] text-zinc-400">+10 XP / task</span>
+          </div>
+          <div class="h-28 w-full"><canvas id="taskPointChart"></canvas></div>
+        </div>
+
+        <div class="bg-zinc-50 dark:bg-zinc-800/70 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700/80 shadow-sm space-y-2">
+          <div class="flex items-center gap-2">
+            <input id="new-task-title" type="text" data-i18n-placeholder="add_task_placeholder" placeholder="+ Add a new task..." class="w-full bg-transparent text-xs font-semibold focus:outline-none placeholder:text-zinc-400">
+            <button onclick="toggleSchedulePanel()" id="schedule-btn-toggle" title="Options" class="p-2 rounded-xl text-zinc-400 hover:text-brand-500 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </button>
+            <button onclick="addNewTask()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-black shadow-md active:scale-95 transition">
+              <span data-i18n="add">Add</span>
+            </button>
+          </div>
+
+          <div id="schedule-panel" class="hidden pt-2.5 border-t border-zinc-200 dark:border-zinc-700/70 space-y-2">
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="due_date">Due Date</label>
+                <input id="task-date" type="date" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="due_time">Due Time</label>
+                <input id="task-time" type="time" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs outline-none">
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="priority">Priority</label>
+                <select id="task-priority" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold outline-none">
+                  <option value="1">P1 • Urgent</option>
+                  <option value="2">P2 • High</option>
+                  <option value="3">P3 • Medium</option>
+                  <option value="4" selected>P4 • Normal</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="tag">Tag</label>
+                <select id="task-tag" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold outline-none"></select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="folder">Folder</label>
+                <select id="task-folder" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold outline-none"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul id="tasks-list" class="space-y-2"></ul>
+        <div id="tasks-empty" class="hidden py-8 text-center text-zinc-400 space-y-1">
+          <div class="text-2xl"></div>
+          <p class="text-xs font-bold" data-i18n="empty_tasks">No tasks yet. Discover your goals!</p>
+        </div>
+      </section>
+
+      <!-- ================= 2. HABITS TAB ================= -->
+      <section id="tab-habits" class="tab-content hidden space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-black" data-i18n="habit_tracker">Habits & Daily Streaks</h2>
+            <p class="text-[11px] text-zinc-400" data-i18n="habit_subtitle">Build discipline day by day (+15 XP)</p>
+          </div>
+          <button onclick="openNewHabitModal()" class="px-3 py-1.5 bg-brand-500 text-white rounded-xl text-xs font-bold shadow active:scale-95">+ <span data-i18n="new_habit">New</span></button>
+        </div>
+
+        <div class="p-3.5 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+          <span class="text-xs font-extrabold block mb-2" data-i18n="habit_chart_title">Habit Consistency</span>
+          <div class="h-28 w-full"><canvas id="habitPointChart"></canvas></div>
+        </div>
+
+        <div id="habits-list" class="space-y-2"></div>
+      </section>
+
+      <!-- ================= 3. LINGUA HUB ================= -->
+      <section id="tab-lingua" class="tab-content hidden space-y-3.5">
+        <div>
+          <h2 class="text-sm font-black flex items-center gap-1.5">
+            <span></span> <span data-i18n="lingua_title">Language Hub & Leitner Box</span>
+          </h2>
+          <p class="text-[11px] text-zinc-400">Spaced repetition, audio TTS & Duolingo sync</p>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-2xl border border-zinc-200 dark:border-zinc-700/60 text-xs font-bold">
+          <button onclick="switchLinguaSubTab('leitner')" id="subnav-leitner" class="flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition"> Leitner</button>
+          <button onclick="switchLinguaSubTab('duolingo')" id="subnav-duolingo" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition"> Duolingo</button>
+          <button onclick="switchLinguaSubTab('reading')" id="subnav-reading" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition"> Resources</button>
+        </div>
+
+        <!-- Leitner Subtab -->
+        <div id="subtab-leitner" class="space-y-3">
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div onclick="openWordsListModal()" class="p-2.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-100 dark:border-zinc-700/60 cursor-pointer hover:border-brand-500 transition">
+              <span class="text-[10px] text-zinc-400 block font-bold">Total Words (View )</span>
+              <span id="leitner-stat-total" class="text-lg font-black text-zinc-900 dark:text-white">0</span>
+            </div>
+            <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-100 dark:border-zinc-700/60">
+              <span class="text-[10px] text-amber-500 block font-bold">Learning</span>
+              <span id="leitner-stat-learning" class="text-lg font-black text-amber-500">0</span>
+            </div>
+            <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-100 dark:border-zinc-700/60">
+              <span class="text-[10px] text-emerald-500 block font-bold">Mastered</span>
+              <span id="leitner-stat-mastered" class="text-lg font-black text-emerald-500">0</span>
+            </div>
+          </div>
+
+          <div class="card-flip w-full min-h-[190px] cursor-pointer" onclick="flipCard()" id="active-card">
+            <div id="active-card-inner" class="card-flip-inner relative w-full h-full min-h-[190px] rounded-3xl p-5 bg-gradient-to-br from-brand-50/50 via-white to-zinc-50 dark:from-zinc-800 dark:via-zinc-800/90 dark:to-zinc-900 border border-brand-200 dark:border-zinc-700 shadow-md flex flex-col justify-between">
+              <div class="card-front flex flex-col justify-between h-full">
+                <div class="flex justify-between items-center">
+                  <span id="card-box-badge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-600 dark:text-brand-400 border border-brand-500/30">Box 1</span>
+                  <button onclick="event.stopPropagation(); speakActiveWord()" title="Audio" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center"></button>
+                </div>
+                <div class="text-center py-4">
+                  <h3 id="card-front-word" class="text-2xl font-black text-zinc-900 dark:text-white tracking-wide font-mono">No words yet</h3>
+                  <p class="text-[10px] text-zinc-400 mt-1">Tap to flip</p>
+                </div>
+                <div class="text-[9px] text-zinc-400 text-center font-bold">Elara Spaced Repetition</div>
+              </div>
+
+              <div class="card-back absolute inset-0 p-5 flex flex-col justify-between bg-white dark:bg-zinc-800 rounded-3xl border border-brand-300 dark:border-zinc-600">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold text-zinc-400">Meaning</span>
+                  <button onclick="event.stopPropagation(); speakActiveWord()" class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center text-xs"></button>
+                </div>
+                <div class="text-center">
+                  <p id="card-back-meaning" class="text-base font-black text-emerald-600 dark:text-emerald-400">-</p>
+                  <p id="card-back-example" class="text-xs text-zinc-600 dark:text-zinc-300 italic mt-2 bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded-xl">-</p>
+                </div>
+                <span class="text-[9px] text-zinc-400 text-center">Did you know this word?</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="reviewCard(false)" class="flex-1 py-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold active:scale-95"> Forgot</button>
+            <button onclick="reviewCard(true)" class="flex-1 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200 rounded-xl text-xs font-bold active:scale-95"> Knew it (+15 XP)</button>
+          </div>
+
+          <div class="bg-zinc-50 dark:bg-zinc-800/60 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-700/60 space-y-2">
+            <span class="text-xs font-bold text-zinc-700 dark:text-zinc-200 block">+ Add Custom Word</span>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="new-word-en" type="text" placeholder="Word (English)..." class="p-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 text-xs font-mono outline-none">
+              <input id="new-word-fa" type="text" placeholder="Definition / Meaning..." class="p-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 text-xs outline-none">
+            </div>
+            <input id="new-word-ex" type="text" placeholder="Example sentence (optional)..." class="w-full p-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 text-xs outline-none">
+            <button onclick="addWordToLeitner()" class="w-full py-2 bg-brand-600 text-white rounded-xl text-xs font-black active:scale-95">Save to Box 1 (+10 XP)</button>
+          </div>
+        </div>
+
+        <!-- Duolingo Subtab -->
+        <div id="subtab-duolingo" class="space-y-3 hidden">
+          <div class="p-4 bg-gradient-to-br from-lime-500/10 via-emerald-500/10 to-transparent border border-lime-500/30 rounded-3xl space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl"></span>
+                <div>
+                  <h3 class="text-sm font-black text-lime-600 dark:text-lime-400">Duolingo Streak Hub</h3>
+                  <p class="text-[10px] text-zinc-400">Independent streak & monthly freezes</p>
+                </div>
+              </div>
+              <span class="text-xs font-black text-amber-500 flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30"> <span id="duo-streak">0</span> days</span>
+            </div>
+            <div class="flex items-center justify-between text-xs bg-white dark:bg-zinc-800 p-2.5 rounded-xl">
+              <span>Active Freezes:</span>
+              <span class="font-bold text-sky-500"> 3 / 3 Freezes</span>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300">Duolingo Username:</label>
+              <div class="flex gap-2">
+                <input id="duo-username-input" type="text" placeholder="@username" class="flex-1 p-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 text-xs font-mono outline-none">
+                <button onclick="connectRealDuolingo()" id="duo-connect-btn" class="px-4 py-2 bg-lime-500 text-zinc-950 font-black rounded-xl text-xs active:scale-95">Connect</button>
+              </div>
+            </div>
+            <div id="duo-live-profile" class="hidden p-3 bg-white/80 dark:bg-zinc-900 rounded-xl border border-lime-500/30 space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-zinc-400">User:</span><strong id="duo-display-name"></strong></div>
+              <div class="flex justify-between"><span class="text-zinc-400">Total XP:</span><strong id="duo-total-xp" class="text-yellow-500"></strong></div>
+              <div class="flex justify-between"><span class="text-zinc-400">Courses:</span><strong id="duo-courses-list" class="text-lime-500"></strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reading Books Subtab -->
+        <div id="subtab-reading" class="space-y-3 hidden">
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200 dark:border-zinc-700/60 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold flex items-center gap-1"> Language Books & Courses</span>
+              <button onclick="addNewLangBookPrompt()" class="text-[10px] font-bold text-brand-600 dark:text-brand-400">+ Add</button>
+            </div>
+            <div id="lang-books-list" class="space-y-2"></div>
+            <div id="lang-books-empty" class="text-center py-4 text-zinc-400 text-xs">No language books added yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. GENERAL LIBRARY TAB ================= -->
+      <section id="tab-library" class="tab-content hidden space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-black flex items-center gap-1.5">
+              <span></span> <span>Library & Bookshelves</span>
+            </h2>
+            <p class="text-[11px] text-zinc-400">Organize and search online books</p>
+          </div>
+          <div class="flex gap-1.5">
+            <button onclick="openManualBookModal()" class="px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-xl text-xs font-bold border active:scale-95"> Manual</button>
+            <button onclick="openBookSearchModal()" class="px-2.5 py-1.5 bg-brand-600 text-white rounded-xl text-xs font-bold shadow active:scale-95"> Online</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-2xl border text-xs font-bold">
+          <button onclick="switchShelf('reading')" id="shelf-btn-reading" class="flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition"> Reading</button>
+          <button onclick="switchShelf('want')" id="shelf-btn-want" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition"> Want to Read</button>
+          <button onclick="switchShelf('finished')" id="shelf-btn-finished" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition"> Finished</button>
+        </div>
+
+        <div id="shelf-books-container" class="space-y-2"></div>
+        <div id="shelf-empty-state" class="hidden py-8 text-center text-zinc-400 text-xs">No books in this shelf.</div>
+      </section>
+
+      <!-- ================= 5. FITNESS & MUSCLE SPLIT ================= -->
+      <section id="tab-workout" class="tab-content hidden space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-black" data-i18n="workout_title">Fitness Lab, BMI & Muscle Split</h2>
+            <p class="text-[11px] text-zinc-400">Goal: <strong id="fitness-goal-display" class="text-brand-600">Muscle Bulking</strong></p>
+          </div>
+          <button onclick="changeFitnessGoalPrompt()" class="text-[10px] px-2.5 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800 border font-bold">Edit Goal</button>
+        </div>
+
+        <!-- BMI Card -->
+        <div class="p-3 bg-gradient-to-r from-indigo-500/10 via-brand-500/10 to-transparent border border-indigo-500/30 rounded-2xl flex items-center justify-between text-xs">
+          <div>
+            <span class="text-zinc-400 block font-bold">BMI Status:</span>
+            <span id="bmi-value-display" class="text-base font-black text-indigo-600 dark:text-indigo-400">--</span>
+            <span id="bmi-status-badge" class="ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-600">Healthy</span>
+          </div>
+          <div class="text-left space-y-1">
+            <button onclick="updateWeightPrompt()" class="px-2.5 py-1 bg-brand-600 text-white rounded-lg font-bold text-[10px]">Update Weight</button>
+            <div class="text-[10px] text-zinc-400">Current: <strong id="cur-weight-display">--</strong> | Target: <strong id="target-weight-display">--</strong></div>
+          </div>
+        </div>
+
+        <!-- Water Tracker -->
+        <div class="p-3 bg-sky-50/70 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/40 rounded-2xl">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-sky-700 dark:text-sky-400 flex items-center gap-1"><span></span> <span>Daily Water Intake</span></span>
+            <span class="text-xs font-black text-sky-600 dark:text-sky-300"><span id="water-amount">0</span> / 2500 ml</span>
+          </div>
+          <div class="w-full bg-sky-200 dark:bg-sky-900/50 rounded-full h-2 overflow-hidden mb-2.5">
+            <div id="water-bar" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-end gap-1.5">
+            <button onclick="changeWater(-250)" class="px-2 py-1 bg-white dark:bg-zinc-800 rounded-lg text-xs font-bold border active:scale-90">-250</button>
+            <button onclick="changeWater(250)" class="px-2.5 py-1 bg-sky-500 text-white rounded-lg text-xs font-bold active:scale-90 shadow-sm">+1 Cup (250ml)</button>
+            <button onclick="changeWater(750)" class="px-2.5 py-1 bg-sky-600 text-white rounded-lg text-xs font-bold active:scale-90 shadow-sm">+1 Bottle (750ml)</button>
+          </div>
+        </div>
+
+        <!-- Calories -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/50 border rounded-2xl">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] text-zinc-400 font-bold">Calories Intake</span>
+              <button onclick="addCaloriesPrompt()" class="text-[10px] text-brand-600 font-bold">+ Log</button>
+            </div>
+            <div class="flex items-baseline gap-1"><span id="stat-calorie-in" class="text-lg font-black text-emerald-600">0</span><span class="text-[10px] text-zinc-400">kcal</span></div>
+          </div>
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/50 border rounded-2xl">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] text-zinc-400 font-bold">Calories Burned</span>
+              <span class="text-[10px] text-orange-500"></span>
+            </div>
+            <div class="flex items-baseline gap-1"><span id="stat-calorie-out" class="text-lg font-black text-rose-500">0</span><span class="text-[10px] text-zinc-400">kcal</span></div>
+          </div>
+        </div>
+
+        <!-- Extended Long Workout List -->
+        <div class="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border space-y-2 text-xs">
+          <span class="font-bold block"> Scientific Workout Log & MET Calorie Calculator</span>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="met-exercise-type" class="p-2 bg-white dark:bg-zinc-900 rounded-xl border outline-none font-bold">
+              <option value="6.0">Weightlifting & Resistance Training</option>
+              <option value="8.0">Running (Moderate / Jogging)</option>
+              <option value="11.5">Running (Fast Sprint)</option>
+              <option value="7.5">Cycling (Bicycling)</option>
+              <option value="7.0">Swimming (Freestyle)</option>
+              <option value="4.0">Yoga & Stretching</option>
+              <option value="7.0">HIIT / Cardio Circuit</option>
+              <option value="3.5">Walking (Brisk pace)</option>
+              <option value="4.0">Pilates & Core</option>
+              <option value="7.0">Football / Soccer</option>
+              <option value="6.5">Basketball</option>
+              <option value="9.0">Boxing & Martial Arts</option>
+              <option value="7.0">Tennis & Racket Sports</option>
+              <option value="10.0">Jump Rope (Skipping)</option>
+              <option value="8.0">Rock Climbing</option>
+              <option value="7.0">Rowing Machine</option>
+              <option value="5.5">Dancing / Zumba</option>
+              <option value="6.0">Hiking / Backpacking</option>
+              <option value="4.5">Skateboarding / Rollerblading</option>
+            </select>
+            <input id="met-exercise-min" type="number" placeholder="Minutes..." class="p-2 bg-white dark:bg-zinc-900 rounded-xl border outline-none font-bold">
+          </div>
+          <button onclick="logScientificWorkout()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Calculate & Log Burned Calories (+30 XP)</button>
+        </div>
+
+        <div class="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold"> Muscle Split & Weekly Sets</span>
+            <span class="text-[10px] text-zinc-400">Effective Sets</span>
+          </div>
+          <div id="muscle-split-container" class="space-y-1.5 text-xs"></div>
+        </div>
+
+        <button onclick="openWorkoutLogModal()" class="w-full py-2.5 bg-brand-600 text-white font-bold rounded-2xl text-xs shadow-md active:scale-95">+ Log Muscle Sets (+30 XP)</button>
+
+        <!-- HERLIFE TAB FOR FEMALES -->
+        <div id="herlife-section" class="hidden p-4 bg-gradient-to-br from-pink-500/10 via-rose-500/10 to-transparent border border-pink-500/30 rounded-3xl space-y-3 text-xs">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl"></span>
+              <div>
+                <h3 class="text-sm font-black text-pink-600 dark:text-pink-400">HerLife Female Health Tracker</h3>
+                <p class="text-[10px] text-zinc-400">Cycle, hormones & period prediction</p>
+              </div>
+            </div>
+            <button onclick="logPeriodDatePrompt()" class="px-2.5 py-1 bg-pink-600 text-white rounded-lg font-bold">Log Period</button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 p-3 bg-white/80 dark:bg-zinc-900 rounded-xl border border-pink-500/20">
+            <div><span class="text-zinc-400 block">Current Phase:</span><strong id="cycle-phase-label" class="text-pink-600">--</strong></div>
+            <div><span class="text-zinc-400 block">Next Period in:</span><strong id="cycle-next-countdown" class="text-zinc-800 dark:text-zinc-200">-- days</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. FOCUS & SLEEP RADAR ================= -->
+      <section id="tab-focus" class="tab-content hidden space-y-4 text-center py-2">
+        <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-3xl border space-y-3">
+          <div>
+            <h2 class="text-sm font-black">Pomodoro & Forest Deep Work</h2>
+            <p class="text-[11px] text-zinc-400">Every completed Pomodoro plants a tree in your forest </p>
+          </div>
+
+          <div class="relative w-44 h-44 mx-auto flex items-center justify-center rounded-full border-4 border-dashed border-brand-500/40 p-3">
+            <div class="w-full h-full rounded-full bg-brand-50/60 dark:bg-zinc-800/80 flex flex-col items-center justify-center shadow-inner">
+              <span id="timer-display" class="text-3xl font-black tracking-tight text-zinc-800 dark:text-white">25:00</span>
+              <span id="timer-status" class="text-[10px] font-black text-brand-600 uppercase tracking-wider mt-1">Focus Session</span>
+            </div>
+          </div>
+
+          <select id="pomodoro-tag-select" class="mx-auto block text-[11px] bg-white dark:bg-zinc-800 rounded-xl px-3 py-1.5 font-bold outline-none border"></select>
+          <div class="flex justify-center gap-2">
+            <button onclick="toggleTimer()" id="timer-start-btn" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs active:scale-95">Start Focus</button>
+            <button onclick="resetTimer()" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-semibold rounded-xl text-xs active:scale-95">Reset</button>
+          </div>
+        </div>
+
+        <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-3xl border text-right space-y-3 text-xs">
+          <div class="flex justify-between items-center">
+            <h2 class="text-sm font-black">Sleep Radar & Recovery</h2>
+            <span id="sleep-score-display" class="text-xs font-black text-brand-600">Quality: 0%</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] text-zinc-400 mb-1">Bedtime</label>
+              <input id="sleep-bedtime" type="time" value="23:30" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border font-bold outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 mb-1">Wake Time</label>
+              <input id="sleep-waketime" type="time" value="07:30" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border font-bold outline-none">
+            </div>
+          </div>
+          <button onclick="calculateSleep()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold shadow-sm">Calculate & Log Sleep (+15 XP)</button>
+        </div>
+      </section>
+
+      <!-- ================= 7. GOALS & ROADMAP TAB ================= -->
+      <section id="tab-goals" class="tab-content hidden space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-black flex items-center gap-1.5">
+              <span></span> <span data-i18n="goals_title">   (Goals Roadmap)</span>
+            </h2>
+            <p class="text-[11px] text-zinc-400" data-i18n="goals_subtitle">     (+20 XP)</p>
+          </div>
+          <button onclick="openNewGoalModal()" class="px-3 py-1.5 bg-brand-500 text-white rounded-xl text-xs font-bold shadow active:scale-95">+ <span data-i18n="new_goal"> </span></button>
+        </div>
+
+        <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-2xl border text-xs font-bold">
+          <button onclick="switchGoalCategory('short')" id="goal-tab-short" class="flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition font-bold" data-i18n="short_term"></button>
+          <button onclick="switchGoalCategory('medium')" id="goal-tab-medium" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition font-bold" data-i18n="medium_term"></button>
+          <button onclick="switchGoalCategory('long')" id="goal-tab-long" class="flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition font-bold" data-i18n="long_term"></button>
+        </div>
+
+        <div id="goals-container" class="space-y-3"></div>
+        <div id="goals-empty" class="hidden py-8 text-center text-zinc-400 text-xs" data-i18n="empty_goals">       .</div>
+      </section>
+
+      <!-- ================= 8. RANKING & DAILY QUESTS TAB ================= -->
+      <section id="tab-ranking" class="tab-content hidden space-y-3.5">
+        <div>
+          <h2 class="text-sm font-black flex items-center gap-1.5">
+            <span></span> <span data-i18n="ranking_title">    (Leaderboard & Quests)</span>
+          </h2>
+          <p class="text-[11px] text-zinc-400">       </p>
+        </div>
+
+        <!-- Daily Quests -->
+        <div class="p-4 bg-gradient-to-br from-amber-500/10 via-brand-500/10 to-transparent border border-amber-500/30 rounded-3xl space-y-3 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="font-black text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><span></span> <span>   (Daily Quests)</span></span>
+            <span class="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-full font-bold text-amber-600">  </span>
+          </div>
+          <div id="daily-quests-list" class="space-y-2">
+            <div class="p-2.5 bg-white dark:bg-zinc-800 rounded-2xl border flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" onchange="completeQuest(1, 20)" class="w-4 h-4 rounded accent-brand-600 cursor-pointer">
+                <span>     (+20 XP)</span>
+              </div>
+              <span class="text-[10px] text-amber-500 font-bold">+20 XP</span>
+            </div>
+            <div class="p-2.5 bg-white dark:bg-zinc-800 rounded-2xl border flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" onchange="completeQuest(2, 15)" class="w-4 h-4 rounded accent-brand-600 cursor-pointer">
+                <span>       (+15 XP)</span>
+              </div>
+              <span class="text-[10px] text-amber-500 font-bold">+15 XP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard & Ranking -->
+        <div class="p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border space-y-3 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="font-bold flex items-center gap-1.5">    (Leaderboard)</span>
+            <button onclick="copyFriendCode()" class="text-[10px] px-2 py-1 bg-brand-600 text-white rounded-lg font-bold">  </button>
+          </div>
+          <div class="flex gap-2">
+            <input id="add-friend-input" type="text" placeholder="    (@friend)..." class="flex-1 p-2 bg-white dark:bg-zinc-900 rounded-xl border outline-none font-mono">
+            <button onclick="addFriendAction()" class="px-3 py-2 bg-brand-600 text-white rounded-xl font-bold"></button>
+          </div>
+          <div id="leaderboard-list" class="space-y-1.5"></div>
+        </div>
+      </section>
+
+      <!-- ================= 9. FREEDOM & AI STRATEGIST ================= -->
+      <section id="tab-freedom" class="tab-content hidden space-y-3.5">
+        <div>
+          <h2 class="text-sm font-black flex items-center gap-1.5">
+            <span></span> <span>Ghibli Studio, Freedom & AI Strategist</span>
+          </h2>
+          <p class="text-[11px] text-zinc-400">Feel-good notes, mental venting & Elara AI Coach</p>
+        </div>
+
+        <!-- Feel Good Notes -->
+        <div class="p-3.5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-transparent border border-emerald-500/30 rounded-2xl space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"> Feel-Good Notes & Manifesting</span>
+            <button onclick="openFeelGoodNoteModal()" class="text-[10px] px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold">+ New Note</button>
+          </div>
+          <div id="feel-good-notes-list" class="space-y-1.5"></div>
+          <div id="feel-good-empty" class="text-[11px] text-zinc-400 text-center py-2">Write kind words to yourself here...</div>
+        </div>
+
+        <!-- Movie & Series Watchlist -->
+        <div class="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold"> Movies & Anime Watchlist</span>
+            <button onclick="openAddMovieModal()" class="text-[10px] text-brand-600 font-bold">+ Add Movie</button>
+          </div>
+          <div class="flex gap-1 bg-zinc-200 dark:bg-zinc-700 p-1 rounded-xl text-xs font-bold">
+            <button onclick="switchMovieTab('want')" id="movie-tab-want" class="flex-1 py-1 rounded-lg bg-brand-600 text-white text-center transition">Want to Watch</button>
+            <button onclick="switchMovieTab('watched')" id="movie-tab-watched" class="flex-1 py-1 rounded-lg text-zinc-400 text-center transition">Watched</button>
+          </div>
+          <div id="movies-container" class="space-y-2"></div>
+          <div id="movies-empty" class="hidden text-center py-3 text-zinc-400 text-xs">No movies added yet.</div>
+        </div>
+
+        <!-- AI Strategist -->
+        <div class="relative pt-2">
+          <textarea id="freedom-input" rows="4" placeholder="Write down your thoughts, goals, or mental venting..." class="w-full p-3.5 bg-zinc-50 dark:bg-zinc-800/70 border rounded-2xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed"></textarea>
+          <div class="mt-2 flex justify-end">
+            <button onclick="runElaraAiPlanner()" id="ai-plan-btn" class="px-4 py-2.5 bg-gradient-to-r from-brand-600 via-purple-600 to-indigo-600 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-lg active:scale-95">
+              <span></span> <span data-i18n="ai_plan_button">Smart Plan from Goals</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="ai-output-box" class="hidden p-4 bg-gradient-to-br from-brand-50/80 to-purple-50/50 dark:from-zinc-800 dark:to-zinc-800/50 border rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-brand-700 dark:text-brand-400 flex items-center gap-1.5"><span></span> <span>Elara AI Strategist</span></span>
+            <span id="ai-source-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-brand-200 dark:bg-zinc-700 text-brand-800 dark:text-zinc-200 font-bold">Smart AI</span>
+          </div>
+          <p id="ai-feedback-text" class="text-xs leading-relaxed text-zinc-700 dark:text-zinc-300 italic font-medium"></p>
+          <div class="space-y-1.5 pt-2 border-t">
+            <span class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block">Extracted Action Plan:</span>
+            <div id="ai-tasks-preview" class="space-y-1.5 text-xs"></div>
+          </div>
+          <div class="pt-2 flex gap-2">
+            <button onclick="applyElaraAiPlan()" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow active:scale-95"> Approve & Apply (+35 XP)</button>
+            <button onclick="document.getElementById('ai-output-box').classList.add('hidden')" class="px-3 py-2 bg-zinc-200 dark:bg-zinc-700 text-zinc-600 rounded-xl text-xs font-semibold" data-i18n="dismiss">Dismiss</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM MOBILE NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md md:max-w-4xl lg:max-w-5xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-t border-zinc-200/80 dark:border-zinc-800 z-40 px-1 py-1.5">
+      <div class="grid grid-cols-9 gap-0.5 text-center">
+        <button onclick="switchTab('tasks')" id="nav-tasks" class="nav-btn flex flex-col items-center gap-0.5 text-brand-600 font-bold transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span class="text-[7px]" data-i18n="nav_tasks">Tasks</span>
+        </button>
+        <button onclick="switchTab('habits')" id="nav-habits" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.033 8.033 0 01-15.357-2m15.357 2H15"/></svg>
+          <span class="text-[7px]" data-i18n="nav_habits">Habits</span>
+        </button>
+        <button onclick="switchTab('lingua')" id="nav-lingua" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <span class="text-xs leading-none"></span>
+          <span class="text-[7px]" data-i18n="nav_lingua">Lang</span>
+        </button>
+        <button onclick="switchTab('library')" id="nav-library" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <span class="text-xs leading-none"></span>
+          <span class="text-[7px]" data-i18n="nav_library">Books</span>
+        </button>
+        <button onclick="switchTab('workout')" id="nav-workout" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="text-[7px]" data-i18n="nav_workout">Fitness</span>
+        </button>
+        <button onclick="switchTab('focus')" id="nav-focus" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="text-[7px]" data-i18n="nav_focus">Focus</span>
+        </button>
+        <button onclick="switchTab('goals')" id="nav-goals" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <span class="text-xs leading-none"></span>
+          <span class="text-[7px]" data-i18n="nav_goals">Goals</span>
+        </button>
+        <button onclick="switchTab('ranking')" id="nav-ranking" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <span class="text-xs leading-none"></span>
+          <span class="text-[7px]" data-i18n="nav_ranking">Ranking</span>
+        </button>
+        <button onclick="switchTab('freedom')" id="nav-freedom" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400 transition">
+          <span class="text-xs leading-none"></span>
+          <span class="text-[7px]" data-i18n="nav_freedom">Freedom</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- MODALS -->
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 border border-brand-500/50 space-y-4 shadow-2xl text-xs">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white">Login to Elara Space</h3>
+          <button onclick="closeLoginModal()" class="text-zinc-400 text-sm"></button>
+        </div>
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-3">
+          <div>
+            <label class="block font-bold mb-1">Email:</label>
+            <input id="login-email" type="email" required placeholder="your.email@gmail.com" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+          </div>
+          <div>
+            <label class="block font-bold mb-1">Password:</label>
+            <input id="login-password" type="password" required placeholder="••••••••" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+          </div>
+          <button type="submit" class="w-full py-3 bg-brand-600 text-white font-black rounded-xl shadow-lg active:scale-95">Login</button>
+        </form>
+        <p class="text-center text-zinc-400 pt-1">Don't have an account? <span onclick="closeLoginModal(); openSignUpModal();" class="text-brand-500 font-bold cursor-pointer underline">Sign Up</span></p>
+      </div>
+    </div>
+
+    <!-- NEW GOAL MODAL -->
+    <div id="goal-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white" data-i18n="add_goal_title">  </h3>
+          <button onclick="closeNewGoalModal()" class="text-zinc-400"></button>
+        </div>
+        <input id="goal-title-input" type="text" placeholder="  (:  )..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+        <select id="goal-category-select" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          <option value="short" data-i18n="short_term"> (Short-term)</option>
+          <option value="medium" data-i18n="medium_term"> (Medium-term)</option>
+          <option value="long" data-i18n="long_term"> (Long-term)</option>
+        </select>
+        <input id="goal-target-date" type="date" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+        <button onclick="saveNewGoal()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95" data-i18n="save_goal">  (+20 XP)</button>
+      </div>
+    </div>
+
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 border space-y-4 max-h-[85vh] overflow-y-auto text-xs shadow-2xl">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white flex items-center gap-1.5"><span></span> <span>Elara Space Guide</span></h3>
+          <button onclick="closeHelpModal()" class="text-zinc-400 text-base"></button>
+        </div>
+        <div class="space-y-3 leading-relaxed text-zinc-700 dark:text-zinc-300">
+          <p><strong> Goals & Roadmap:</strong> Categorize goals into short, medium, and long term, and add action steps for each.</p>
+          <p><strong> Tasks & Folders:</strong> Manage tasks with priorities and due dates.</p>
+          <p><strong> Habits:</strong> Build daily consistency and streaks.</p>
+          <p><strong> GitHub & Firebase Firestore:</strong> Unique usernames are checked globally in Firestore, and verification emails are sent via Firebase Auth.</p>
+        </div>
+        <button onclick="closeHelpModal()" class="w-full py-2.5 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Got it</button>
+      </div>
+    </div>
+
+    <!-- ONBOARDING REGISTRATION MODAL WITH FIRESTORE UNIQUE USERNAME CHECK -->
+    <div id="onboarding-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 border border-brand-500/50 space-y-4 shadow-2xl">
+        <div class="text-center space-y-1">
+          <span class="text-3xl"></span>
+          <h2 class="text-lg font-black text-zinc-900 dark:text-white">Sign Up to Elara Space</h2>
+          <p class="text-xs text-zinc-400">Global Unique Username via Firestore</p>
+        </div>
+
+        <form id="onboarding-step-1" onsubmit="handleOnboardingSubmit(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Full Name:</label>
+            <input id="ob-name" type="text" required placeholder="Your Name..." class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Unique Username (Checked Globally):</label>
+            <input id="ob-username" type="text" required placeholder="elara_user" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Email (Firebase Auth):</label>
+            <input id="ob-email" type="email" required placeholder="your.email@gmail.com" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Password:</label>
+            <input id="ob-password" type="password" required placeholder="••••••••" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold mb-1">Age:</label>
+              <input id="ob-age" type="number" min="10" max="99" required placeholder="19" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold mb-1">Gender:</label>
+              <select id="ob-gender" required class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+                <option value="female" selected>Female </option>
+                <option value="male">Male </option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Date of Birth (Optional):</label>
+            <input id="ob-dob" type="date" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          </div>
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-black rounded-xl text-xs shadow-lg active:scale-95">Register & Check Username Uniqueness</button>
+        </form>
+
+        <div id="onboarding-step-2" class="hidden space-y-3 text-xs text-center">
+          <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 space-y-2">
+            <span class="text-2xl"></span>
+            <p class="font-bold text-emerald-600">      !</p>
+            <p class="text-[10px] text-zinc-400 leading-relaxed">      .                  :</p>
+          </div>
+          <button onclick="finishFirebaseLogin()" class="w-full py-3 bg-brand-600 text-white font-black rounded-xl text-xs shadow-lg active:scale-95">     </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- READING LOG MODAL -->
+    <div id="reading-log-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3.5 shadow-2xl">
+        <div class="flex justify-between items-center">
+          <h3 id="reading-log-book-title" class="font-black text-sm text-zinc-900 dark:text-white truncate">Reading Progress</h3>
+          <button onclick="closeReadingLogModal()" class="text-zinc-400"></button>
+        </div>
+        <p class="text-xs text-zinc-400">Enter current page read:</p>
+        <div class="flex items-center gap-2">
+          <input id="reading-log-page-input" type="number" min="1" placeholder="e.g. 75" class="flex-1 p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border text-xs outline-none font-bold">
+          <span class="text-xs text-zinc-400">/ <span id="reading-log-total-pages"></span> p</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="saveReadingProgress()" class="flex-1 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold active:scale-95">Update Progress (+10 XP)</button>
+          <button onclick="deleteCurrentBook()" class="px-3 py-2 bg-rose-50 text-rose-500 rounded-xl text-xs font-bold">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL LEITNER WORDS LIST MODAL -->
+    <div id="words-list-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3.5 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> All Leitner Words</h3>
+          <button onclick="closeWordsListModal()" class="text-zinc-400"></button>
+        </div>
+        <div id="full-words-list" class="space-y-2 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- MANUAL BOOK MODAL -->
+    <div id="manual-book-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Add Manual Book</h3>
+          <button onclick="closeManualBookModal()" class="text-zinc-400"></button>
+        </div>
+        <input id="mb-title" type="text" placeholder="Book Title..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+        <input id="mb-author" type="text" placeholder="Author..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+        <input id="mb-pages" type="number" placeholder="Total Pages (e.g. 250)" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+        <select id="mb-shelf" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          <option value="reading">Reading</option>
+          <option value="want">Want to Read</option>
+          <option value="finished">Finished</option>
+        </select>
+        <button onclick="saveManualBook()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Save Book</button>
+      </div>
+    </div>
+
+    <!-- MANUAL LANGUAGE BOOK MODAL -->
+    <div id="manual-lang-book-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Add Language Book / Course</h3>
+          <button onclick="closeAddLangBookModal()" class="text-zinc-400"></button>
+        </div>
+        <input id="mlb-title" type="text" placeholder="Course or Book Title..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+        <input id="mlb-pages" type="number" placeholder="Total Pages / Sessions..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+        <button onclick="saveManualLangBook()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Save</button>
+      </div>
+    </div>
+
+    <!-- CALENDAR MODAL -->
+    <div id="calendar-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b pb-2.5">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xl"></span>
+            <div>
+              <h3 id="cal-modal-month-title" class="font-black text-sm text-zinc-900 dark:text-white">Calendar View</h3>
+              <span id="cal-modal-system-label" class="text-[9.5px] text-brand-600 font-bold"></span>
+            </div>
+          </div>
+          <button onclick="closeCalendarModal()" class="text-zinc-400"></button>
+        </div>
+        <div class="flex items-center justify-between text-xs font-bold">
+          <button onclick="shiftCalendarMonth(-1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">‹ Prev</button>
+          <span id="cal-modal-header-view" class="font-black text-sm text-brand-600"></span>
+          <button onclick="shiftCalendarMonth(1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">Next ›</button>
+        </div>
+        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-zinc-400">
+          <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+        </div>
+        <div id="cal-month-days-grid" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
+        <div class="pt-2 border-t space-y-1.5">
+          <div class="flex justify-between items-center text-[11px] font-bold">
+            <span class="text-zinc-400">Tasks on this day:</span>
+            <span id="cal-selected-day-label" class="text-brand-600"></span>
+          </div>
+          <div id="cal-selected-day-tasks" class="space-y-1 max-h-24 overflow-y-auto text-xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEDICATED CLOSET & WARDROBE PAGE -->
+    <div id="closet-page" class="hidden fixed inset-0 z-50 bg-white dark:bg-zinc-950 flex flex-col justify-between overflow-y-auto">
+      <div class="p-5 space-y-5 max-w-md mx-auto w-full">
+        <div class="flex items-center justify-between pb-3 border-b">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl"></span>
+            <h2 class="font-black text-lg text-zinc-900 dark:text-white">GitHub Wardrobe & Ghibli Avatars</h2>
+          </div>
+          <button onclick="closeClosetPage()" class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500"></button>
+        </div>
+
+        <div class="p-5 rounded-3xl bg-gradient-to-br from-brand-500/10 via-purple-500/10 to-transparent border border-brand-500/30 text-center space-y-3">
+          <div class="relative w-28 h-28 mx-auto">
+            <div id="closet-display-frame" class="w-full h-full rounded-3xl overflow-hidden frame-neon flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+              <img id="closet-display-img" src="" class="w-full h-full object-cover" onerror="handleAvatarError(this)">
+            </div>
+            <span id="closet-level-tag" class="absolute -bottom-2 -right-2 bg-brand-600 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full border">Lv.1</span>
+          </div>
+          <div>
+            <h3 id="closet-user-name" class="font-black text-base text-zinc-900 dark:text-white"></h3>
+            <span id="closet-user-title" class="text-xs font-bold text-brand-600">Space Cadet</span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-zinc-700 dark:text-zinc-300">GitHub Roster Avatars:</span>
+            <span id="roster-gender-label" class="text-[10px] text-zinc-400"></span>
+          </div>
+          <div id="anime-roster-grid" class="grid grid-cols-3 gap-2 text-center text-xs"></div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t">
+          <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">Profile Aura Frames (Rank Matched):</span>
+          <div class="grid grid-cols-4 gap-2 text-center text-[10px]">
+            <button onclick="setProfileFrame('frame-bronze', 1)" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border">Bronze (Lv.1)</button>
+            <button onclick="setProfileFrame('frame-silver', 4)" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border">Silver (Lv.4)</button>
+            <button onclick="setProfileFrame('frame-gold', 7)" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border">Gold (Lv.7)</button>
+            <button onclick="setProfileFrame('frame-diamond', 10)" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border text-sky-400 font-bold">Diamond (Lv.10)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKOUT LOG MODAL -->
+    <div id="workout-log-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Log Muscle Sets</h3>
+          <button onclick="closeWorkoutLogModal()" class="text-zinc-400"></button>
+        </div>
+        <select id="wl-muscle" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          <option value="chest">Chest</option><option value="back">Back</option><option value="legs">Legs</option>
+          <option value="shoulders">Shoulders</option><option value="arms">Arms</option><option value="core">Core</option>
+        </select>
+        <div class="grid grid-cols-2 gap-2">
+          <input id="wl-sets" type="number" min="1" placeholder="Sets count" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          <input id="wl-minutes" type="number" min="0" placeholder="Minutes" class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+        </div>
+        <button onclick="saveWorkoutLog()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Save (+30 XP)</button>
+      </div>
+    </div>
+
+    <!-- THEME PALETTE MODAL -->
+    <div id="theme-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-4 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-sm">Color Palettes</h3>
+          <button onclick="closeThemeModal()" class="text-zinc-400"></button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <button onclick="setPalette('theme-pink')" class="p-3 rounded-2xl border border-pink-200 bg-pink-50 text-pink-600 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-pink-500"></span> Rose Pink</button>
+          <button onclick="setPalette('theme-mono')" class="p-3 rounded-2xl border bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-zinc-500"></span> Minimal B&W</button>
+          <button onclick="setPalette('theme-indigo')" class="p-3 rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-600 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-indigo-600"></span> Indigo Glow</button>
+          <button onclick="setPalette('theme-rose')" class="p-3 rounded-2xl border border-rose-200 bg-rose-50 text-rose-600 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-rose-500"></span> Crimson</button>
+          <button onclick="setPalette('theme-panda')" class="p-3 rounded-2xl border border-zinc-400 bg-zinc-900 text-white flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-white border"></span>  Panda</button>
+          <button onclick="setPalette('theme-bear')" class="p-3 rounded-2xl border border-amber-300 bg-amber-50 text-amber-800 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-amber-600"></span>  Bear</button>
+          <button onclick="setPalette('theme-halloween')" class="p-3 rounded-2xl border border-orange-300 bg-orange-50 text-orange-700 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-orange-500"></span>  Halloween</button>
+          <button onclick="setPalette('theme-love')" class="p-3 rounded-2xl border border-rose-300 bg-rose-100 text-rose-700 flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-rose-600"></span>  Love</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOK SEARCH MODAL -->
+    <div id="book-search-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3.5 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Search Online Books</h3>
+          <button onclick="closeBookSearchModal()" class="text-zinc-400"></button>
+        </div>
+        <div class="flex gap-2">
+          <input id="book-search-input" type="text" placeholder="Book name..." class="flex-1 p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border text-xs outline-none">
+          <button onclick="searchBooksOnline()" class="px-3.5 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold active:scale-95">Search</button>
+        </div>
+        <div id="book-search-results" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- FULL ANALYTICS MODAL -->
+    <div id="analytics-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm flex items-center gap-1.5"><span></span> <span>Advanced Analytics Radar</span></h3>
+          <button onclick="closeAnalyticsModal()" class="text-zinc-400"></button>
+        </div>
+        <div class="space-y-4 text-xs">
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border flex justify-between items-center">
+            <span>Overall Productivity Index</span>
+            <span class="text-sm font-black text-emerald-500">98 / 100</span>
+          </div>
+          <div>
+            <span class="font-bold text-zinc-400 block mb-1">Weekly Task Velocity</span>
+            <div class="h-28 w-full"><canvas id="modalTaskChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEEL GOOD NOTE MODAL -->
+    <div id="feel-good-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Feel-Good Note</h3>
+          <button onclick="closeFeelGoodNoteModal()" class="text-zinc-400"></button>
+        </div>
+        <textarea id="feel-good-input" rows="3" placeholder="What did you do today for your soul?..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none"></textarea>
+        <button onclick="saveFeelGoodNote()" class="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold active:scale-95">Save (+15 XP)</button>
+      </div>
+    </div>
+
+    <!-- MOVIE MODAL -->
+    <div id="movie-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-5 border space-y-3 text-xs">
+        <div class="flex justify-between items-center">
+          <h3 class="font-black text-sm text-zinc-900 dark:text-white"> Add Movie or Anime</h3>
+          <button onclick="closeAddMovieModal()" class="text-zinc-400"></button>
+        </div>
+        <input id="movie-title" type="text" placeholder="Title..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+        <input id="movie-genre" type="text" placeholder="Genre / Director..." class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none">
+        <select id="movie-shelf" class="w-full p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-bold">
+          <option value="want">Want to Watch</option>
+          <option value="watched">Watched</option>
+        </select>
+        <button onclick="saveMovie()" class="w-full py-2 bg-brand-600 text-white rounded-xl font-bold active:scale-95">Save (+15 XP)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FIREBASE SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpCsIvc3A8sLrdvUiaGDQjMH6qE9lUTGo",
+      authDomain: "elara-ab1aa.firebaseapp.com",
+      projectId: "elara-ab1aa",
+      storageBucket: "elara-ab1aa.firebasestorage.app",
+      messagingSenderId: "233944066611",
+      appId: "1:233944066611:web:1be816fd2dc053cea01146",
+      measurementId: "G-BCKBEZDYXT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.firebaseAuth = auth;
+    window.db = db;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.sendEmailVerification = sendEmailVerification;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.setDoc = setDoc;
+  </script>
+
+  <!-- ROBUST PRELOADER & APPLICATION LOGIC -->
+  <script>
+    // Robust preloader logic guaranteed not to freeze
+    const loader = document.getElementById("elara-loader");
+    const progressBar = document.getElementById("loading-progress");
+    const percentText = document.getElementById("loading-percent");
+
+    let progress = 0;
+    function runLoader() {
+      progress += Math.floor(Math.random() * 15) + 8;
+      if (progress > 100) progress = 100;
+      
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (percentText) percentText.textContent = `${progress}%`;
+
+      if (progress < 100) {
+        setTimeout(runLoader, 120);
+      } else {
+        setTimeout(() => {
+          if (loader) loader.classList.add("is-complete");
+          document.body.classList.remove("loading");
+          setTimeout(() => { if (loader) loader.remove(); }, 800);
+        }, 300);
+      }
+    }
+    setTimeout(runLoader, 100);
+
+    let userProfile = JSON.parse(localStorage.getItem('elara_user')) || null;
+    let userXp = parseInt(localStorage.getItem('elara_xp') || "0");
+    let userLevel = parseInt(localStorage.getItem('elara_level') || "1");
+    let userFrame = localStorage.getItem('elara_frame') || "frame-neon";
+    let userAvatar = localStorage.getItem('elara_avatar') || "";
+
+    let currentLang = localStorage.getItem('elara_lang') || 'en';
+    let currentTheme = localStorage.getItem('elara_palette') || 'theme-pink';
+    let isDarkMode = localStorage.getItem('elara_dark') !== 'false';
+    let calendarSystem = localStorage.getItem('elara_calendar') || 'gregory';
+    let duolingoUser = localStorage.getItem('elara_duo_user') || '';
+
+    let folders = JSON.parse(localStorage.getItem('elara_folders')) || [];
+    let tags = JSON.parse(localStorage.getItem('elara_tags')) || [];
+    let goals = JSON.parse(localStorage.getItem('elara_goals')) || [];
+    let currentFolder = 'all';
+    let activeFilter = 'all';
+    let currentGoalCategory = 'short';
+    let currentShelf = 'reading';
+    let currentCardIndex = 0;
+
+    let tasks = JSON.parse(localStorage.getItem('elara_tasks')) || [];
+    let habits = JSON.parse(localStorage.getItem('elara_habits')) || [];
+    let leitnerCards = JSON.parse(localStorage.getItem('elara_leitner')) || [];
+    let generalBooks = JSON.parse(localStorage.getItem('elara_general_books')) || [];
+    let langBooks = JSON.parse(localStorage.getItem('elara_lang_books')) || [];
+    let feelGoodNotes = JSON.parse(localStorage.getItem('elara_feel_good')) || [];
+    let movies = JSON.parse(localStorage.getItem('elara_movies')) || [];
+    let friends = JSON.parse(localStorage.getItem('elara_friends')) || [];
+
+    let currentMovieTab = 'want';
+    let fitnessData = JSON.parse(localStorage.getItem('elara_fit_data')) || { height: 170, weight: 65, targetWeight: 60, exp: 'beginner', minutes: 45 };
+    let fitnessGoal = localStorage.getItem('elara_fit_goal') || "Muscle Bulking";
+    let waterIntake = parseInt(localStorage.getItem('elara_water') || "0");
+    let calorieIn = parseInt(localStorage.getItem('elara_cal_in') || "0");
+    let calorieOut = parseInt(localStorage.getItem('elara_cal_out') || "0");
+    let muscleSplit = JSON.parse(localStorage.getItem('elara_muscle_split')) || { chest: 0, back: 0, legs: 0, shoulders: 0, arms: 0, core: 0 };
+    let periodLastDate = localStorage.getItem('elara_period_date') || "";
+
+    let calendarCurrentDate = new Date();
+    let selectedCalendarDateStr = "";
+    let activeReadingBookId = null;
+    let taskChartInstance = null;
+    let habitChartInstance = null;
+
+    const priorityConfig = {
+      "1": { name: "P1", color: "bg-rose-500", border: "border-rose-500" },
+      "2": { name: "P2", color: "bg-amber-500", border: "border-amber-500" },
+      "3": { name: "P3", color: "bg-blue-500", border: "border-blue-500" },
+      "4": { name: "P4", color: "bg-zinc-400", border: "border-zinc-300" }
+    };
+
+    const tagColors = {
+      Study: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300",
+      Personal: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+      Health: "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300",
+      Work: "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300"
+    };
+
+    const themeColorMap = {
+      'theme-pink': { primary: '#ec4899', fill: 'rgba(236, 72, 153, 0.12)' },
+      'theme-rose': { primary: '#f43f5e', fill: 'rgba(244, 63, 94, 0.12)' },
+      'theme-indigo': { primary: '#6366f1', fill: 'rgba(99, 102, 241, 0.12)' },
+      'theme-mono': { primary: '#71717a', fill: 'rgba(113, 113, 122, 0.12)' },
+      'theme-panda': { primary: '#18181b', fill: 'rgba(24, 24, 27, 0.12)' },
+      'theme-bear': { primary: '#b5651d', fill: 'rgba(181, 101, 29, 0.12)' },
+      'theme-halloween': { primary: '#f97316', fill: 'rgba(249, 115, 22, 0.12)' },
+      'theme-love': { primary: '#e11d48', fill: 'rgba(225, 29, 72, 0.12)' }
+    };
+
+    const RANKS = [
+      { minLv: 1, title: "Space Cadet ", frame: "frame-bronze" },
+      { minLv: 2, title: "Star Watcher ", frame: "frame-bronze" },
+      { minLv: 3, title: "Lunar Explorer ", frame: "frame-bronze" },
+      { minLv: 4, title: "Mars Voyager ", frame: "frame-silver" },
+      { minLv: 5, title: "Galactic Engineer ", frame: "frame-silver" },
+      { minLv: 6, title: "Fleet Commander ", frame: "frame-silver" },
+      { minLv: 7, title: "Cosmic Navigator ", frame: "frame-gold" },
+      { minLv: 8, title: "Star Lord ", frame: "frame-gold" },
+      { minLv: 9, title: "Galaxy Guardian ", frame: "frame-gold" },
+      { minLv: 10, title: "Cosmic Legend ", frame: "frame-diamond" }
+    ];
+
+    function handleAvatarError(img) {
+      img.onerror = null;
+      img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ec4899'><circle cx='50' cy='38' r='24'/><path d='M15 90c0-22 16-36 35-36s35 14 35 36z'/></svg>";
+    }
+    function handleLogoError(img) {
+      img.onerror = null;
+      img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ec4899'><text x='20' y='65' font-size='50' font-weight='bold' fill='white'>E</text></svg>";
+    }
+
+    function checkOnboarding() {
+      $('header-logo-img').src = "logo.png";
+      $('splash-logo-img').src = "logo.png";
+
+      if (!userProfile) {
+        document.getElementById('auth-landing-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('auth-landing-screen').classList.add('hidden');
+        document.getElementById('header-user-name').textContent = userProfile.name;
+        document.getElementById('closet-user-name').textContent = userProfile.name;
+        document.getElementById('roster-gender-label').textContent = userProfile.gender === 'female' ? " Female GitHub Avatars (Level 1-10)" : " Male GitHub Avatars (Level 1-10)";
+
+        if (!userAvatar) {
+          userAvatar = userProfile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
+          localStorage.setItem('elara_avatar', userAvatar);
+        }
+        document.getElementById('user-avatar-img').src = userAvatar;
+        document.getElementById('closet-display-img').src = userAvatar;
+
+        if (userProfile.gender === 'female') {
+          document.getElementById('herlife-section').classList.remove('hidden');
+          updatePeriodCard();
+        }
+      }
+    }
+
+    function openLoginModal() {
+      $('auth-landing-screen').classList.add('hidden');
+      $('login-modal').classList.remove('hidden');
+    }
+    function closeLoginModal() {
+      $('login-modal').classList.add('hidden');
+      if (!userProfile) $('auth-landing-screen').classList.remove('hidden');
+    }
+    function openSignUpModal() {
+      $('auth-landing-screen').classList.add('hidden');
+      $('onboarding-modal').classList.remove('hidden');
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = $('login-email').value.trim();
+      const password = $('login-password').value.trim();
+      try {
+        if (window.firebaseAuth && window.signInWithEmailAndPassword) {
+          await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+          userProfile = { name: email.split('@')[0], username: '@' + email.split('@')[0], email, gender: 'female' };
+          localStorage.setItem('elara_user', JSON.stringify(userProfile));
+          $('login-modal').classList.add('hidden');
+          checkOnboarding();
+          alert("Login successful! Welcome back.");
+        }
+      } catch (err) {
+        alert("Login Error: " + err.message);
+      }
+    }
+
+    let tempOnboardingData = null;
+    async function handleOnboardingSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('ob-name').value.trim();
+      let username = document.getElementById('ob-username').value.trim();
+      if (!username.startsWith('@')) username = '@' + username;
+      const email = document.getElementById('ob-email').value.trim();
+      const password = document.getElementById('ob-password').value.trim();
+      const age = document.getElementById('ob-age').value.trim();
+      const gender = document.getElementById('ob-gender').value;
+      const dob = document.getElementById('ob-dob').value;
+
+      try {
+        if (window.db && window.doc && window.getDoc) {
+          const cleanKey = username.replace('@', '').toLowerCase();
+          const userDocRef = window.doc(window.db, "usernames", cleanKey);
+          const docSnap = await window.getDoc(userDocRef);
+          if (docSnap.exists()) {
+            alert("This username is already taken! Please choose another one.");
+            return;
+          }
+        }
+
+        if (window.firebaseAuth && window.createUserWithEmailAndPassword) {
+          const userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+          await window.sendEmailVerification(userCredential.user);
+          
+          if (window.db && window.setDoc) {
+            const cleanKey = username.replace('@', '').toLowerCase();
+            await window.setDoc(window.doc(window.db, "usernames", cleanKey), {
+              name,
+              email,
+              createdAt: new Date().toISOString()
+            });
+          }
+        }
+
+        tempOnboardingData = { name, username, email, age, gender, dob };
+        document.getElementById('onboarding-step-1').classList.add('hidden');
+        document.getElementById('onboarding-step-2').classList.remove('hidden');
+      } catch (err) {
+        alert("Registration Error: " + err.message);
+      }
+    }
+
+    function finishFirebaseLogin() {
+      if (!tempOnboardingData) return;
+      userProfile = tempOnboardingData;
+      localStorage.setItem('elara_user', JSON.stringify(userProfile));
+
+      userAvatar = userProfile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
+      localStorage.setItem('elara_avatar', userAvatar);
+
+      document.getElementById('onboarding-modal').classList.add('hidden');
+      checkOnboarding();
+      renderAnimeRoster();
+      alert("Successfully logged in! Welcome.");
+    }
+
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2, '0');
+    const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    function safe(fn) { try { fn(); } catch (e) { console.warn('[Elara] error:', fn.name, e); } }
+
+    const TAB_NAMES = ['tasks', 'habits', 'lingua', 'library', 'workout', 'focus', 'goals', 'ranking', 'freedom'];
+    function switchTab(name) {
+      TAB_NAMES.forEach(t => {
+        const sec = $('tab-' + t);
+        const btn = $('nav-' + t);
+        if (sec) {
+          sec.classList.toggle('hidden', t !== name);
+          sec.classList.toggle('block', t === name);
+        }
+        if (btn) {
+          btn.classList.remove('text-brand-600', 'font-bold', 'text-zinc-400');
+          if (t === name) btn.classList.add('text-brand-600', 'font-bold');
+          else btn.classList.add('text-zinc-400');
+        }
+      });
+      window.scrollTo(0, 0);
+      if (name === 'tasks' || name === 'habits') setTimeout(initPointCharts, 30);
+      if (name === 'goals') renderGoals();
+    }
+
+    function switchLinguaSubTab(name) {
+      ['leitner', 'duolingo', 'reading'].forEach(t => {
+        const sec = $('subtab-' + t);
+        if (sec) sec.classList.toggle('hidden', t !== name);
+        const b = $('subnav-' + t);
+        if (b) b.className = t === name ? 'flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition' : 'flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition';
+      });
+    }
+
+    let drawerOpen = false;
+    function toggleSideDrawer() {
+      drawerOpen = !drawerOpen;
+      $('side-drawer').classList.toggle('pointer-events-none', !drawerOpen);
+      $('drawer-backdrop').classList.toggle('opacity-0', !drawerOpen);
+      $('drawer-backdrop').classList.toggle('pointer-events-none', !drawerOpen);
+      $('drawer-content').classList.toggle('-translate-x-full', !drawerOpen);
+    }
+
+    function openHelpModal() { toggleSideDrawer(); $('help-modal').classList.remove('hidden'); }
+    function closeHelpModal() { $('help-modal').classList.add('hidden'); }
+
+    function applyTheme() {
+      const root = document.documentElement;
+      root.classList.toggle('dark', isDarkMode);
+      ['theme-pink', 'theme-mono', 'theme-indigo', 'theme-rose', 'theme-panda', 'theme-bear', 'theme-halloween', 'theme-love'].forEach(c => root.classList.remove(c));
+      root.classList.add(currentTheme);
+      const ic = $('dark-icon'); if (ic) ic.textContent = isDarkMode ? '' : '';
+      const drawerIc = $('drawer-dark-icon'); if (drawerIc) drawerIc.textContent = isDarkMode ? '' : '';
+    }
+    function toggleDarkMode() { 
+      isDarkMode = !isDarkMode; 
+      localStorage.setItem('elara_dark', isDarkMode); 
+      applyTheme(); 
+      initPointCharts(); 
+    }
+    function openThemeModal() { $('theme-modal').classList.remove('hidden'); }
+    function closeThemeModal() { $('theme-modal').classList.add('hidden'); }
+    function setPalette(name) { currentTheme = name; localStorage.setItem('elara_palette', name); applyTheme(); closeThemeModal(); initPointCharts(); }
+
+    const I18N = {
+      en: { 
+        nav_tasks: 'Tasks', nav_habits: 'Habits', nav_lingua: 'Lang', nav_library: 'Books', nav_workout: 'Fitness', nav_focus: 'Focus', nav_goals: 'Goals', nav_ranking: 'Ranking', nav_freedom: 'Freedom',
+        completed: 'Done', completion_rate: 'Progress', pending: 'Pending', add: 'Add', empty_tasks: 'No tasks yet. Discover your goals!', drawer_title: 'Settings & Menu', folders: 'Folders', tags: 'Tags',
+        habit_tracker: 'Habits & Daily Streaks', new_habit: 'New', focus_timer: 'Pomodoro & Deep Work', start_focus: 'Start Focus', reset: 'Reset', water_tracker: 'Daily Water',
+        freedom_title: 'Ghibli Studio & Freedom', ai_plan_button: 'Smart Plan from Goals', dismiss: 'Dismiss', choose_theme: 'Color Palettes', due_date: 'Due Date', priority: 'Priority', tag: 'Tag', folder: 'Folder',
+        add_task_placeholder: '+ Add a new task...', workout_title: 'Fitness Lab, BMI & Muscle Split', lingua_title: 'Language Hub & Leitner Box', menu_help: 'Help & Guide', ranking_title: 'Leaderboard & Daily Quests', today_btn: 'Today',
+        goals_title: 'Goals & Roadmap', goals_subtitle: 'Short, Medium & Long Term Goals (+20 XP)', new_goal: 'New Goal', short_term: 'Short-term', medium_term: 'Medium-term', long_term: 'Long-term', empty_goals: 'No goals in this category.', add_goal_title: 'Add New Goal', save_goal: 'Save Goal (+20 XP)'
+      },
+      fa: { 
+        nav_tasks: '', nav_habits: '', nav_lingua: '', nav_library: '', nav_workout: '', nav_focus: '', nav_goals: '', nav_ranking: '', nav_freedom: '',
+        completed: '', completion_rate: '', pending: '', add: '', empty_tasks: '  .     !', drawer_title: '  ', folders: '', tags: '',
+        habit_tracker: '   ', new_habit: '', focus_timer: '   ', start_focus: ' ', reset: ' ', water_tracker: '  ',
+        freedom_title: '   ', ai_plan_button: '   ', dismiss: '', choose_theme: ' ', due_date: ' ', priority: '', tag: '', folder: '',
+        add_task_placeholder: '+   ...', workout_title: '    ', lingua_title: '   ', menu_help: '  (Help)', ranking_title: '   ', today_btn: '',
+        goals_title: '  ', goals_subtitle: '    (+20 XP)', new_goal: ' ', short_term: '', medium_term: '', long_term: '', empty_goals: '       .', add_goal_title: '  ', save_goal: '  (+20 XP)'
+      },
+      tr: {
+        nav_tasks: 'Görevler', nav_habits: 'Alkanlklar', nav_lingua: 'Dil', nav_library: 'Kitaplar', nav_workout: 'Fitness', nav_focus: 'Odak', nav_goals: 'Hedefler', nav_ranking: 'Sralama', nav_freedom: 'Özgürlük',
+        completed: 'Tamamlanan', completion_rate: 'lerleme', pending: 'Bekleyen', add: 'Ekle', empty_tasks: 'Henüz görev yok!', drawer_title: 'Ayarlar ve Menü', folders: 'Klasörler', tags: 'Etiketler',
+        habit_tracker: 'Alkanlklar ve Seri', new_habit: 'Yeni', focus_timer: 'Pomodoro', start_focus: 'Odaklan', reset: 'Sfrla', water_tracker: 'Günlük Su',
+        freedom_title: 'Ghibli Stüdyosu', ai_plan_button: 'Akll Plan', dismiss: 'Kapat', choose_theme: 'Temalar', due_date: 'Biti Tarihi', priority: 'Öncelik', tag: 'Etiket', folder: 'Klasör',
+        add_task_placeholder: '+ Yeni görev ekle...', workout_title: 'Fitness Laboratuvar', lingua_title: 'Dil Merkezi', menu_help: 'Yardm ve Klavuz', ranking_title: 'Sralama ve Görevler', today_btn: 'Bugün',
+        goals_title: 'Hedefler ve Yol Haritas', goals_subtitle: 'Ksa, Orta ve Uzun Vade (+20 XP)', new_goal: 'Yeni Hedef', short_term: 'Ksa Vade', medium_term: 'Orta Vade', long_term: 'Uzun Vade', empty_goals: 'Bu kategoride hedef yok.', add_goal_title: 'Yeni Hedef Ekle', save_goal: 'Hedefi Kaydet (+20 XP)'
+      },
+      ru: {
+        nav_tasks: '', nav_habits: '', nav_lingua: '', nav_library: '', nav_workout: '', nav_focus: '', nav_goals: '', nav_ranking: '', nav_freedom: '',
+        completed: '', completion_rate: '', pending: '', add: '', empty_tasks: '  !', drawer_title: '  ', folders: '', tags: '',
+        habit_tracker: '  ', new_habit: '', focus_timer: '', start_focus: '', reset: '', water_tracker: '',
+        freedom_title: ' ', ai_plan_button: ' ', dismiss: '', choose_theme: '', due_date: '', priority: '', tag: '', folder: '',
+        add_task_placeholder: '+  ...', workout_title: ' ', lingua_title: ' ', menu_help: '', ranking_title: '  ', today_btn: '',
+        goals_title: '   ', goals_subtitle: ', ,  (+20 XP)', new_goal: ' ', short_term: '', medium_term: '', long_term: '', empty_goals: '    .', add_goal_title: ' ', save_goal: '  (+20 XP)'
+      },
+      fr: { 
+        nav_tasks: 'Tâches', nav_habits: 'Habitudes', nav_lingua: 'Langue', nav_library: 'Livres', nav_workout: 'Sport', nav_focus: 'Focus', nav_goals: 'Objectifs', nav_ranking: 'Classement', nav_freedom: 'Liberté',
+        completed: 'Terminé', completion_rate: 'Progrès', pending: 'Restant', add: 'Ajouter', empty_tasks: 'Aucune tâche !', drawer_title: 'Réglages', folders: 'Dossiers', tags: 'Tags',
+        habit_tracker: 'Habitudes', new_habit: 'Nouveau', focus_timer: 'Pomodoro', start_focus: 'Démarrer', reset: 'Reset', water_tracker: 'Eau', freedom_title: 'Liberté',
+        ai_plan_button: 'Plan intelligent', dismiss: 'Ignorer', choose_theme: 'Palettes', due_date: 'Échéance', priority: 'Priorité', tag: 'Tag', folder: 'Dossier',
+        add_task_placeholder: '+ Ajouter une tâche...', workout_title: 'Sport & Fitness', lingua_title: 'Langue & Leitner', menu_help: 'Aide', ranking_title: 'Classement', today_btn: "Aujourd'hui",
+        goals_title: 'Objectifs', goals_subtitle: 'Court, moyen et long terme (+20 XP)', new_goal: 'Nouvel objectif', short_term: 'Court terme', medium_term: 'Moyen terme', long_term: 'Long terme', empty_goals: "Aucun objectif dans cette catégorie.", add_goal_title: "Ajouter un objectif", save_goal: "Enregistrer (+20 XP)"
+      },
+      zh: { 
+        nav_tasks: '', nav_habits: '', nav_lingua: '', nav_library: '', nav_workout: '', nav_focus: '', nav_goals: '', nav_ranking: '', nav_freedom: '',
+        completed: '', completion_rate: '', pending: '', add: '', empty_tasks: '', drawer_title: '', folders: '', tags: '',
+        habit_tracker: '', new_habit: '', focus_timer: '', start_focus: '', reset: '', water_tracker: '', freedom_title: '',
+        ai_plan_button: '', dismiss: '', choose_theme: '', due_date: '', priority: '', tag: '', folder: '',
+        add_task_placeholder: '+ ...', workout_title: '', lingua_title: '', menu_help: '', ranking_title: '', today_btn: '',
+        goals_title: '', goals_subtitle: ' (+20 XP)', new_goal: '', short_term: '', medium_term: '', long_term: '', empty_goals: '', add_goal_title: '', save_goal: ' (+20 XP)'
+      }
+    };
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('elara_lang', lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = (lang === 'fa') ? 'rtl' : 'ltr';
+      const dict = I18N[lang] || I18N.en;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (el.dataset.enText === undefined) el.dataset.enText = el.textContent;
+        el.textContent = (dict[el.dataset.i18n]) ? dict[el.dataset.i18n] : el.dataset.enText;
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        if (el.dataset.enPh === undefined) el.dataset.enPh = el.getAttribute('placeholder') || '';
+        el.setAttribute('placeholder', (dict[el.dataset.i18nPlaceholder]) ? dict[el.dataset.i18nPlaceholder] : el.dataset.enPh);
+      });
+      updateDailyQuote();
+    }
+
+    function changeLanguage(lang) {
+      applyLanguage(lang);
+    }
+
+    const QUOTES = {
+      en: [
+        ["Start small, but start today.", "Elara"],
+        ["Discipline is choosing between what you want now and what you want most.", "Abraham Lincoln"],
+        ["Progress is getting slightly better every single day.", "Elara"],
+        ["Success is the sum of small efforts, repeated day in and day out.", "Robert Collier"]
+      ],
+      fa: [
+        ["      .", "Elara"],
+        ["           .", "Abraham Lincoln"],
+        ["       .", "Elara"],
+        ["         .", "Robert Collier"]
+      ],
+      tr: [
+        ["Küçük bala ama bugün bala.", "Elara"],
+        ["Disiplin, imdi istediin ey ile en çok istediin ey arasnda seçim yapmaktr.", "Abraham Lincoln"]
+      ],
+      ru: [
+        ["  ,   .", "Elara"],
+        [" —    ,    ,  ,     .", "Abraham Lincoln"]
+      ],
+      fr: [
+        ["Commencez petit, mais commencez aujourd'hui.", "Elara"],
+        ["La discipline, c'est choisir entre ce que l'on veut maintenant et ce que l'on veut le plus.", "Abraham Lincoln"]
+      ],
+      zh: [
+        ["", "Elara"],
+        ["", "Abraham Lincoln"]
+      ]
+    };
+
+    function updateDailyQuote() {
+      const langQuotes = QUOTES[currentLang] || QUOTES.en;
+      const q = langQuotes[Math.floor(Date.now() / 86400000) % langQuotes.length];
+      $('daily-quote').textContent = `«${q[0]}»`;
+      $('quote-author').textContent = `— ${q[1]}`;
+    }
+
+    const xpForLevel = l => 100 * l;
+    function addXp(n) {
+      userXp += n;
+      while (userXp >= xpForLevel(userLevel)) { userXp -= xpForLevel(userLevel); userLevel++; }
+      localStorage.setItem('elara_xp', userXp);
+      localStorage.setItem('elara_level', userLevel);
+      updateXpUi();
+    }
+
+    function updateXpUi() {
+      const rankObj = RANKS[Math.min(RANKS.length - 1, userLevel - 1)];
+      $('user-level-badge').textContent = `Lv.${userLevel}`;
+      $('user-xp-bar').style.width = `${Math.round((userXp / xpForLevel(userLevel)) * 100)}%`;
+      $('user-title').textContent = rankObj.title.split('(')[0].trim();
+      const ct = $('closet-level-tag'); if (ct) ct.textContent = `Lv.${userLevel}`;
+      const cu = $('closet-user-title'); if (cu) cu.textContent = rankObj.title;
+    }
+
+    function populateDropdowns() {
+      const opt = v => `<option value="${esc(v)}">${esc(v)}</option>`;
+      const tagSel = $('task-tag'); if (tagSel) tagSel.innerHTML = tags.map(opt).join('');
+      const folSel = $('task-folder'); if (folSel) folSel.innerHTML = folders.map(opt).join('');
+      const pom = $('pomodoro-tag-select'); if (pom) pom.innerHTML = tags.map(opt).join('');
+
+      const fl = $('drawer-folders-list');
+      if (fl) {
+        const row = (idx, label, active) => `
+          <div class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl font-bold ${active ? 'bg-brand-500/15 text-brand-600' : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'}">
+            <span onclick="setFolderFilter(${idx})" class="flex-1 cursor-pointer truncate"> ${esc(label)}</span>
+            ${idx >= 0 ? `<button onclick="event.stopPropagation(); deleteFolder(${idx})" class="text-zinc-400 hover:text-rose-500 px-1 text-xs"></button>` : ''}
+          </div>`;
+        fl.innerHTML = row(-1, 'All', currentFolder === 'all') + folders.map((f, i) => row(i, f, currentFolder === f)).join('');
+      }
+
+      const tl = $('drawer-tags-list');
+      if (tl) {
+        tl.innerHTML = tags.map((t, i) => `
+          <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full font-bold text-xs ${activeFilter === t ? 'bg-brand-600 text-white' : (tagColors[t] || 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300')}">
+            <span onclick="setTagFilter(${i})" class="cursor-pointer">#${esc(t)}</span>
+            <button onclick="event.stopPropagation(); deleteTag(${i})" class="text-[10px] opacity-75 hover:opacity-100 ml-0.5"></button>
+          </div>`).join('');
+      }
+    }
+
+    function setFolderFilter(i) { currentFolder = i < 0 ? 'all' : folders[i]; populateDropdowns(); renderTasks(); toggleSideDrawer(); switchTab('tasks'); }
+    function setTagFilter(i) { const t = tags[i]; activeFilter = activeFilter === t ? 'all' : t; populateDropdowns(); renderTasks(); }
+    
+    function addNewFolder() {
+      const n = prompt('New folder name:'); if (!n || !n.trim()) return;
+      if (!folders.includes(n.trim())) { folders.push(n.trim()); localStorage.setItem('elara_folders', JSON.stringify(folders)); populateDropdowns(); }
+    }
+    function deleteFolder(index) {
+      const folderName = folders[index];
+      folders.splice(index, 1);
+      localStorage.setItem('elara_folders', JSON.stringify(folders));
+      if (currentFolder === folderName) currentFolder = 'all';
+      populateDropdowns();
+      renderTasks();
+    }
+
+    function addNewTagPrompt() {
+      const n = prompt('New tag name:'); if (!n || !n.trim()) return;
+      if (!tags.includes(n.trim())) { tags.push(n.trim()); localStorage.setItem('elara_tags', JSON.stringify(tags)); populateDropdowns(); }
+    }
+    function deleteTag(index) {
+      const tagName = tags[index];
+      tags.splice(index, 1);
+      localStorage.setItem('elara_tags', JSON.stringify(tags));
+      if (activeFilter === tagName) activeFilter = 'all';
+      populateDropdowns();
+      renderTasks();
+    }
+
+    // GOALS ROADMAP LOGIC
+    function switchGoalCategory(cat) {
+      currentGoalCategory = cat;
+      ['short', 'medium', 'long'].forEach(k => {
+        const btn = $('goal-tab-' + k);
+        if (btn) {
+          btn.className = k === cat ? 'flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition font-bold' : 'flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition font-bold';
+        }
+      });
+      renderGoals();
+    }
+    function openNewGoalModal() { $('goal-modal').classList.remove('hidden'); }
+    function closeNewGoalModal() { $('goal-modal').classList.add('hidden'); }
+    function saveNewGoal() {
+      const title = $('goal-title-input').value.trim();
+      const category = $('goal-category-select').value;
+      const targetDate = $('goal-target-date').value;
+      if (!title) return alert("     .");
+      goals.push({ id: Date.now(), title, category, targetDate, steps: [] });
+      localStorage.setItem('elara_goals', JSON.stringify(goals));
+      $('goal-title-input').value = '';
+      $('goal-target-date').value = '';
+      closeNewGoalModal();
+      renderGoals();
+      addXp(20);
+    }
+    function deleteGoal(id) {
+      goals = goals.filter(g => g.id !== id);
+      localStorage.setItem('elara_goals', JSON.stringify(goals));
+      renderGoals();
+    }
+    function addGoalStepPrompt(goalId) {
+      const stepText = prompt('        :');
+      if (!stepText || !stepText.trim()) return;
+      const g = goals.find(x => x.id === goalId);
+      if (g) {
+        g.steps = g.steps || [];
+        g.steps.push({ id: Date.now(), text: stepText.trim(), completed: false });
+        localStorage.setItem('elara_goals', JSON.stringify(goals));
+        renderGoals();
+        addXp(5);
+      }
+    }
+    function toggleGoalStep(goalId, stepId) {
+      const g = goals.find(x => x.id === goalId);
+      if (g && g.steps) {
+        const s = g.steps.find(x => x.id === stepId);
+        if (s) {
+          s.completed = !s.completed;
+          if (s.completed) addXp(10);
+          localStorage.setItem('elara_goals', JSON.stringify(goals));
+          renderGoals();
+        }
+      }
+    }
+    function deleteGoalStep(goalId, stepId) {
+      const g = goals.find(x => x.id === goalId);
+      if (g && g.steps) {
+        g.steps = g.steps.filter(x => x.id !== stepId);
+        localStorage.setItem('elara_goals', JSON.stringify(goals));
+        renderGoals();
+      }
+    }
+    function renderGoals() {
+      const container = $('goals-container');
+      const empty = $('goals-empty');
+      if (!container) return;
+      const filtered = goals.filter(g => g.category === currentGoalCategory);
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      container.innerHTML = filtered.map(g => {
+        const total = g.steps ? g.steps.length : 0;
+        const done = g.steps ? g.steps.filter(s => s.completed).length : 0;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        return `
+          <div class="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border space-y-2.5">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="font-black text-xs text-zinc-900 dark:text-white">${esc(g.title)}</h4>
+                ${g.targetDate ? `<span class="text-[10px] text-zinc-400"> : ${esc(g.targetDate)}</span>` : ''}
+              </div>
+              <button onclick="deleteGoal(${g.id})" class="text-zinc-400 hover:text-rose-500 text-xs"></button>
+            </div>
+            
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px] text-zinc-400 font-bold">
+                <span> (${done}/${total})</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="w-full bg-zinc-200 dark:bg-zinc-700 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-brand-500 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1.5 pt-1 border-t border-zinc-200/60 dark:border-zinc-700/60">
+              <div class="flex justify-between items-center text-[11px] font-bold">
+                <span class="text-zinc-500">   :</span>
+                <button onclick="addGoalStepPrompt(${g.id})" class="text-brand-600 dark:text-brand-400 text-[10px]">+  </button>
+              </div>
+              <div class="space-y-1">
+                ${g.steps && g.steps.length ? g.steps.map(s => `
+                  <div class="flex items-center justify-between text-xs p-1.5 bg-white dark:bg-zinc-900 rounded-xl border">
+                    <label class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                      <input type="checkbox" ${s.completed ? 'checked' : ''} onchange="toggleGoalStep(${g.id}, ${s.id})" class="w-3.5 h-3.5 rounded accent-brand-600">
+                      <span class="${s.completed ? 'line-through text-zinc-400' : ''} truncate">${esc(s.text)}</span>
+                    </label>
+                    <button onclick="deleteGoalStep(${g.id}, ${s.id})" class="text-zinc-400 hover:text-rose-500 text-[10px] px-1"></button>
+                  </div>
+                `).join('') : '<div class="text-[10px] text-zinc-400 text-center py-1">    .</div>'}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // TASKS
+    function saveTasks() { localStorage.setItem('elara_tasks', JSON.stringify(tasks)); renderTasks(); }
+    function toggleSchedulePanel() { $('schedule-panel').classList.toggle('hidden'); }
+    function addNewTask() {
+      const input = $('new-task-title');
+      const text = input.value.trim();
+      if (!text) return;
+      tasks.unshift({
+        id: Date.now(), text,
+        priority: $('task-priority').value,
+        tag: $('task-tag').value,
+        folder: $('task-folder').value,
+        date: $('task-date').value || iso(new Date()),
+        time: $('task-time').value,
+        completed: false, doneAt: null
+      });
+      input.value = '';
+      $('task-date').value = ''; $('task-time').value = '';
+      saveTasks();
+    }
+    function toggleTask(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      t.completed = !t.completed;
+      t.doneAt = t.completed ? iso(new Date()) : null;
+      if (t.completed) addXp(10);
+      saveTasks();
+    }
+    function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveTasks(); }
+
+    function renderTasks() {
+      const list = $('tasks-list'); if (!list) return;
+      const arr = tasks
+        .filter(t => (currentFolder === 'all' || t.folder === currentFolder) && (activeFilter === 'all' || t.tag === activeFilter))
+        .sort((a, b) => (Number(a.completed) - Number(b.completed)) || (Number(a.priority) - Number(b.priority)));
+
+      list.innerHTML = arr.map(t => {
+        const p = priorityConfig[t.priority] || priorityConfig['4'];
+        return `
+        <li class="flex items-center gap-2.5 p-2.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border">
+          <button onclick="toggleTask(${t.id})" class="w-5 h-5 shrink-0 rounded-full border-2 ${p.border} flex items-center justify-center text-[10px] ${t.completed ? p.color + ' text-white' : ''}">${t.completed ? '' : ''}</button>
+          <div class="flex-1 min-w-0">
+            <span class="text-xs font-semibold block ${t.completed ? 'line-through text-zinc-400' : ''}">${esc(t.text)}</span>
+            <div class="flex flex-wrap items-center gap-1.5 mt-0.5 text-[9px] text-zinc-400">
+              ${t.tag ? `<span class="px-1.5 py-0.5 rounded-full ${tagColors[t.tag] || 'bg-zinc-100'}">#${esc(t.tag)}</span>` : ''}
+              ${t.folder ? `<span> ${esc(t.folder)}</span>` : ''}
+              ${t.date ? `<span> ${esc(t.date)}</span>` : ''}
+              ${t.time ? `<span> ${esc(t.time)}</span>` : ''}
+            </div>
+          </div>
+          <button onclick="deleteTask(${t.id})" class="text-zinc-400 hover:text-rose-500 text-xs"></button>
+        </li>`;
+      }).join('');
+
+      $('tasks-empty').classList.toggle('hidden', arr.length > 0);
+      const total = tasks.length, done = tasks.filter(t => t.completed).length;
+      $('stat-total').textContent = total;
+      $('stat-completed').textContent = done;
+      $('stat-pending').textContent = total - done;
+      $('stat-percent').textContent = (total ? Math.round(done / total * 100) : 0) + '%';
+      updateTaskChart();
+    }
+
+    // HABITS
+    function habitStreak(h) {
+      let s = 0; const d = new Date();
+      if (!(h.log && h.log[iso(d)])) d.setDate(d.getDate() - 1);
+      while (h.log && h.log[iso(d)]) { s++; d.setDate(d.getDate() - 1); }
+      return s;
+    }
+    function openNewHabitModal() {
+      const n = prompt('New habit name:'); if (!n || !n.trim()) return;
+      habits.push({ id: Date.now(), name: n.trim(), log: {} });
+      saveHabits();
+    }
+    function saveHabits() { localStorage.setItem('elara_habits', JSON.stringify(habits)); renderHabits(); }
+    function toggleHabit(id) {
+      const h = habits.find(x => x.id === id); if (!h) return;
+      const today = iso(new Date()); h.log = h.log || {};
+      if (h.log[today]) delete h.log[today]; else { h.log[today] = true; addXp(15); }
+      saveHabits();
+    }
+    function deleteHabit(id) { habits = habits.filter(h => h.id !== id); saveHabits(); }
+    function renderHabits() {
+      const list = $('habits-list'); if (!list) return;
+      const today = iso(new Date());
+      list.innerHTML = habits.length ? habits.map(h => {
+        const done = !!(h.log && h.log[today]);
+        return `
+        <div class="p-3 rounded-2xl border flex items-center justify-between ${done ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300' : 'bg-zinc-50 dark:bg-zinc-800/60'}">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <button onclick="toggleHabit(${h.id})" class="w-7 h-7 shrink-0 rounded-full border-2 ${done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-300'} flex items-center justify-center text-xs">${done ? '' : ''}</button>
+            <div class="min-w-0"><span class="text-xs font-bold block truncate">${esc(h.name)}</span><span class="text-[10px] text-amber-500 font-bold"> ${habitStreak(h)} days streak</span></div>
+          </div>
+          <button onclick="deleteHabit(${h.id})" class="text-zinc-400 hover:text-rose-500 text-xs"></button>
+        </div>`;
+      }).join('') : `<div class="text-center text-xs text-zinc-400 py-6">No habits yet. Discover and add your discipline goals!</div>`;
+      updateHabitChart();
+    }
+
+    // CHARTS
+    function last7Days() {
+      const out = []; const d = new Date();
+      d.setDate(d.getDate() - 6);
+      for (let i = 0; i < 7; i++) { out.push(iso(d)); d.setDate(d.getDate() + 1); }
+      return out;
+    }
+    function buildPointChart(canvas, labels, data) {
+      if (!canvas || typeof Chart === 'undefined') return null;
+      const old = Chart.getChart(canvas); if (old) old.destroy();
+      const c = themeColorMap[currentTheme] || themeColorMap['theme-pink'];
+      const tick = isDarkMode ? '#a1a1aa' : '#71717a';
+      const grid = isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+      return new Chart(canvas, {
+        type: 'line',
+        data: { labels, datasets: [{ data, borderColor: c.primary, backgroundColor: c.fill, fill: true, tension: 0.35, pointRadius: 4, pointBackgroundColor: c.primary, borderWidth: 2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+          scales: { x: { ticks: { color: tick, font: { size: 9 } }, grid: { display: false } }, y: { beginAtZero: true, ticks: { color: tick, precision: 0, font: { size: 9 } }, grid: { color: grid } } }
+        }
+      });
+    }
+    function taskSeries() { const days = last7Days(); return { labels: days.map(d => d.slice(5)), data: days.map(d => tasks.filter(t => t.completed && t.doneAt === d).length) }; }
+    function updateTaskChart() { const s = taskSeries(); taskChartInstance = buildPointChart($('taskPointChart'), s.labels, s.data); }
+    function updateHabitChart() {
+      const days = last7Days();
+      habitChartInstance = buildPointChart($('habitPointChart'), days.map(d => d.slice(5)), days.map(d => habits.filter(h => h.log && h.log[d]).length));
+    }
+    function initPointCharts() { updateTaskChart(); updateHabitChart(); }
+
+    // CALENDAR
+    const CAL_CFG = {
+      gregory: { ic: 'gregory', loc: 'en-US-u-ca-gregory', badge: 'Gregorian', label: 'Gregorian Calendar' },
+      persian: { ic: 'persian', loc: 'fa-IR-u-ca-persian', badge: 'Persian', label: 'Persian (Jalali)' },
+      islamic: { ic: 'islamic-umalqura', loc: 'ar-SA-u-ca-islamic-umalqura', badge: 'Islamic', label: 'Islamic Hijri' }
+    };
+    function calParts(date) {
+      const cfg = CAL_CFG[calendarSystem] || CAL_CFG.gregory;
+      const f = new Intl.DateTimeFormat(`en-US-u-ca-${cfg.ic}-nu-latn`, { year: 'numeric', month: 'numeric', day: 'numeric' });
+      const o = {};
+      f.formatToParts(date).forEach(p => {
+        if (p.type === 'year' || p.type === 'relatedYear') o.y = +p.value;
+        else if (p.type === 'month') o.m = +p.value;
+        else if (p.type === 'day') o.d = +p.value;
+      });
+      return o;
+    }
+    function calMonthInfo(anchor) {
+      const a = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate(), 12);
+      const p = calParts(a);
+      const first = new Date(a); first.setDate(first.getDate() - (p.d - 1));
+      const days = []; const cur = new Date(first);
+      for (let i = 0; i < 32; i++) {
+        const cp = calParts(cur);
+        if (cp.m !== p.m) break;
+        days.push({ date: new Date(cur), d: cp.d });
+        cur.setDate(cur.getDate() + 1);
+      }
+      return { first, days };
+    }
+    function updateHeaderCalendarDate() {
+      const cfg = CAL_CFG[calendarSystem] || CAL_CFG.gregory;
+      const el = $('header-calendar-date');
+      try { el.textContent = new Intl.DateTimeFormat(`${cfg.loc}-u-ca-${cfg.ic}`, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date()); }
+      catch (e) { el.textContent = new Date().toLocaleDateString(); }
+      $('header-calendar-type-badge').textContent = cfg.badge;
+    }
+    function changeCalendarSystem(v) { calendarSystem = v; localStorage.setItem('elara_calendar', v); updateHeaderCalendarDate(); }
+    function jumpToToday() { calendarCurrentDate = new Date(); selectedCalendarDateStr = iso(new Date()); updateHeaderCalendarDate(); alert("Jumped to today."); }
+    function openCalendarModal() { calendarCurrentDate = new Date(); selectedCalendarDateStr = iso(new Date()); renderCalendarGrid(); $('calendar-modal').classList.remove('hidden'); }
+    function closeCalendarModal() { $('calendar-modal').classList.add('hidden'); }
+    function shiftCalendarMonth(dir) {
+      const { first, days } = calMonthInfo(calendarCurrentDate);
+      const t = dir > 0 ? new Date(days[days.length - 1].date) : new Date(first);
+      t.setDate(t.getDate() + (dir > 0 ? 1 : -1));
+      calendarCurrentDate = t;
+      renderCalendarGrid();
+    }
+    function selectCalendarDay(s) { selectedCalendarDateStr = s; renderCalendarGrid(); }
+    function renderCalendarGrid() {
+      const cfg = CAL_CFG[calendarSystem] || CAL_CFG.gregory;
+      const { first, days } = calMonthInfo(calendarCurrentDate);
+      const offset = first.getDay();
+      const todayIso = iso(new Date());
+      $('cal-modal-system-label').textContent = cfg.label;
+      try { $('cal-modal-header-view').textContent = new Intl.DateTimeFormat(cfg.loc, { month: 'long', year: 'numeric' }).format(days[Math.floor(days.length / 2)].date); } catch (e) { }
+      $('cal-month-days-grid').innerHTML = '<span></span>'.repeat(offset) + days.map(({ date, d }) => {
+        const s = iso(date);
+        const has = tasks.some(t => t.date === s);
+        const cls = s === selectedCalendarDateStr ? 'bg-brand-600 text-white' : (s === todayIso ? 'bg-brand-500/20 text-brand-600' : 'bg-zinc-50 dark:bg-zinc-800');
+        return `<button onclick="selectCalendarDay('${s}')" class="relative py-1.5 rounded-xl font-bold ${cls}">${d}${has ? '<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-400"></span>' : ''}</button>`;
+      }).join('');
+      $('cal-selected-day-label').textContent = selectedCalendarDateStr;
+      const dayTasks = tasks.filter(t => t.date === selectedCalendarDateStr);
+      $('cal-selected-day-tasks').innerHTML = dayTasks.length ? dayTasks.map(t => `<div class="p-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 flex justify-between"><span class="${t.completed ? 'line-through text-zinc-400' : ''}">${esc(t.text)}</span><span class="text-zinc-400">${esc(t.time || '')}</span></div>`).join('') : '<span class="text-zinc-400 block text-center py-1.5">No tasks on this day.</span>';
+    }
+
+    // CLOSET
+    function openClosetPage() {
+      $('closet-page').classList.remove('hidden');
+      $('closet-user-name').textContent = userProfile ? userProfile.name : '';
+      $('closet-display-img').src = userAvatar;
+      renderAnimeRoster(); updateXpUi(); applyFrame();
+    }
+    function closeClosetPage() { $('closet-page').classList.add('hidden'); }
+    function applyFrame() {
+      ['user-avatar-frame', 'closet-display-frame'].forEach(id => {
+        const el = $(id); if (!el) return;
+        el.className = el.className.replace(/frame-\w+/g, '').replace(/\s+/g, ' ').trim() + ' ' + userFrame;
+      });
+    }
+    function setProfileFrame(cls, minLevel) {
+      if (userLevel < minLevel) return alert(`This frame unlocks at Level ${minLevel}.`);
+      userFrame = cls; localStorage.setItem('elara_frame', cls); applyFrame();
+    }
+    function setAvatar(url) {
+      userAvatar = url; localStorage.setItem('elara_avatar', url);
+      $('user-avatar-img').src = url; $('closet-display-img').src = url;
+      renderAnimeRoster();
+    }
+    function renderAnimeRoster() {
+      const grid = $('anime-roster-grid'); if (!grid) return;
+      const g = userProfile && userProfile.gender === 'male' ? 'male' : 'female';
+      grid.innerHTML = Array.from({length: 10}, (_, i) => {
+        const lvl = i + 1;
+        const filename = g === 'female' ? `avatars_female_level${lvl}.png` : `avatars_male_level${lvl}.png`;
+        const unlocked = userLevel >= lvl;
+        return `
+        <button onclick="${unlocked ? `setAvatar('${filename}')` : `alert('Unlocks at Level ${lvl}')`}" class="p-1.5 rounded-2xl border ${filename === userAvatar ? 'border-brand-500 bg-brand-500/10' : 'border-zinc-200 dark:border-zinc-700'} ${!unlocked ? 'opacity-40 grayscale' : ''}">
+          <img src="${filename}" class="w-full aspect-square object-cover rounded-xl bg-zinc-100 dark:bg-zinc-800" onerror="handleAvatarError(this)">
+          <span class="text-[10px] font-bold block mt-1">Lv.${lvl} ${unlocked ? '' : ''}</span>
+        </button>`;
+      }).join('');
+    }
+
+    // LEITNER & DUOLINGO
+    function renderLeitnerCard() {
+      const total = leitnerCards.length;
+      const learning = leitnerCards.filter(c => c.box < 5).length;
+      const mastered = leitnerCards.filter(c => c.box >= 5).length;
+      $('leitner-stat-total').textContent = total;
+      $('leitner-stat-learning').textContent = learning;
+      $('leitner-stat-mastered').textContent = mastered;
+
+      if (leitnerCards.length === 0) {
+        $('card-front-word').textContent = "No words yet";
+        $('card-back-meaning').textContent = "-";
+        return;
+      }
+      if (currentCardIndex >= leitnerCards.length) currentCardIndex = 0;
+      const card = leitnerCards[currentCardIndex];
+      $('card-front-word').textContent = card.word;
+      $('card-back-meaning').textContent = card.meaning;
+      $('card-back-example').textContent = card.example ? `"${card.example}"` : "No example";
+      $('card-box-badge').textContent = `Box ${card.box}`;
+      $('active-card').classList.remove('card-flipped');
+    }
+    function flipCard() { $('active-card').classList.toggle('card-flipped'); }
+    function speakActiveWord() {
+      if (leitnerCards.length === 0) return;
+      const w = leitnerCards[currentCardIndex].word;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(w);
+        utter.lang = 'en-US';
+        window.speechSynthesis.speak(utter);
+      }
+    }
+    function reviewCard(success) {
+      if (leitnerCards.length === 0) return;
+      const card = leitnerCards[currentCardIndex];
+      if (success) { card.box = Math.min(5, card.box + 1); addXp(15); }
+      else { card.box = 1; }
+      localStorage.setItem('elara_leitner', JSON.stringify(leitnerCards));
+      currentCardIndex = (currentCardIndex + 1) % leitnerCards.length;
+      renderLeitnerCard();
+    }
+    function addWordToLeitner() {
+      const w = $('new-word-en').value.trim();
+      const m = $('new-word-fa').value.trim();
+      const ex = $('new-word-ex').value.trim();
+      if (!w || !m) return alert("Word and meaning are required!");
+      leitnerCards.push({ id: Date.now(), word: w, meaning: m, example: ex, box: 1 });
+      localStorage.setItem('elara_leitner', JSON.stringify(leitnerCards));
+      $('new-word-en').value = ''; $('new-word-fa').value = ''; $('new-word-ex').value = '';
+      addXp(10); renderLeitnerCard();
+    }
+    function openWordsListModal() {
+      const list = $('full-words-list');
+      list.innerHTML = leitnerCards.length ? leitnerCards.map(c => `<div class="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex justify-between"><span><strong>${c.word}</strong>: ${c.meaning}</span><span class="text-brand-500">Box ${c.box}</span></div>`).join('') : '<div class="text-center text-zinc-400">No words added yet.</div>';
+      $('words-list-modal').classList.remove('hidden');
+    }
+    function closeWordsListModal() { $('words-list-modal').classList.add('hidden'); }
+    function connectRealDuolingo() {
+      const u = $('duo-username-input').value.trim();
+      if (!u) return alert('Please enter Duolingo username.');
+      duolingoUser = u; localStorage.setItem('elara_duo_user', u);
+      $('duo-streak').textContent = "7";
+      $('duo-display-name').textContent = u;
+      $('duo-total-xp').textContent = "1,420";
+      $('duo-courses-list').textContent = "English, French";
+      $('duo-live-profile').classList.remove('hidden');
+      alert("Duolingo connected successfully!");
+    }
+
+    // BOOKS
+    function openManualBookModal() { $('manual-book-modal').classList.remove('hidden'); }
+    function closeManualBookModal() { $('manual-book-modal').classList.add('hidden'); }
+    function saveManualBook() {
+      const title = $('mb-title').value.trim();
+      const author = $('mb-author').value.trim();
+      const pages = parseInt($('mb-pages').value);
+      const shelf = $('mb-shelf').value;
+      if (!title || !pages) return alert("Title and pages required.");
+      generalBooks.push({ id: Date.now(), title, author, totalPages: pages, currentPage: 0, shelf });
+      localStorage.setItem('elara_general_books', JSON.stringify(generalBooks));
+      closeManualBookModal(); renderGeneralBooksShelf(); addXp(20);
+    }
+    function openBookSearchModal() { $('book-search-modal').classList.remove('hidden'); }
+    function closeBookSearchModal() { $('book-search-modal').classList.add('hidden'); }
+    async function searchBooksOnline() {
+      const q = $('book-search-input').value.trim(); if (!q) return;
+      const box = $('book-search-results');
+      box.innerHTML = '<div class="text-center text-xs text-zinc-400 py-2">Searching...</div>';
+      try {
+        const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6`);
+        const d = await res.json();
+        window._bookResults = d.docs || [];
+        box.innerHTML = window._bookResults.length ? window._bookResults.map((b, i) => `<div class="p-2 rounded-xl border flex justify-between items-center text-xs"><span><strong>${b.title}</strong></span><button onclick="addOnlineBook(${i})" class="px-2.5 py-1 bg-brand-600 text-white rounded-lg">Add</button></div>`).join('') : '<div class="text-center text-xs text-zinc-400">No results found.</div>';
+      } catch (e) { box.innerHTML = '<div class="text-center text-xs text-rose-500">Search error.</div>'; }
+    }
+    function addOnlineBook(i) {
+      const b = window._bookResults[i]; if (!b) return;
+      generalBooks.push({ id: Date.now(), title: b.title, author: (b.author_name || [])[0] || '', totalPages: b.number_of_pages_median || 200, currentPage: 0, shelf: currentShelf });
+      localStorage.setItem('elara_general_books', JSON.stringify(generalBooks));
+      closeBookSearchModal(); renderGeneralBooksShelf(); addXp(20);
+    }
+    function renderGeneralBooksShelf() {
+      const container = $('shelf-books-container');
+      const empty = $('shelf-empty-state');
+      const filtered = generalBooks.filter(b => b.shelf === currentShelf);
+      if (filtered.length === 0) { container.innerHTML = ''; empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+      container.innerHTML = filtered.map(b => {
+        const pct = b.totalPages ? Math.min(100, Math.round((b.currentPage / b.totalPages) * 100)) : 0;
+        return `
+        <div onclick="openReadingLogModal(${b.id})" class="p-3 bg-white dark:bg-zinc-800 rounded-2xl border flex gap-3 items-center cursor-pointer hover:border-brand-500">
+          <div class="w-12 h-16 bg-zinc-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center text-xs"></div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-xs truncate">${esc(b.title)}</h4>
+            <span class="text-[10px] text-zinc-400">${esc(b.author || '')}</span>
+            <div class="w-full bg-zinc-200 dark:bg-zinc-700 h-1.5 rounded-full overflow-hidden mt-2">
+              <div class="bg-brand-500 h-full rounded-full" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex justify-between mt-1 text-[9px] text-zinc-400"><span>${b.currentPage || 0} / ${b.totalPages || 0} p (${pct}%)</span><span class="text-brand-500 font-bold">Log Progress </span></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function switchShelf(s) {
+      currentShelf = s;
+      ['reading', 'want', 'finished'].forEach(k => { $('shelf-btn-' + k).className = k === s ? 'flex-1 py-1.5 rounded-xl bg-brand-600 text-white text-center transition' : 'flex-1 py-1.5 rounded-xl text-zinc-400 text-center transition'; });
+      renderGeneralBooksShelf();
+    }
+    function openReadingLogModal(id) {
+      activeReadingBookId = id;
+      const b = generalBooks.find(x => x.id === id); if (!b) return;
+      $('reading-log-book-title').textContent = b.title;
+      $('reading-log-total-pages').textContent = b.totalPages;
+      $('reading-log-page-input').value = b.currentPage || '';
+      $('reading-log-modal').classList.remove('hidden');
+    }
+    function closeReadingLogModal() { $('reading-log-modal').classList.add('hidden'); }
+    function saveReadingProgress() {
+      const p = parseInt($('reading-log-page-input').value);
+      if (isNaN(p)) return;
+      generalBooks = generalBooks.map(b => {
+        if (b.id === activeReadingBookId) {
+          const finalPage = Math.min(b.totalPages, p);
+          if (finalPage >= b.totalPages) { alert(` Congratulations! "${b.title}" finished.`); return { ...b, currentPage: finalPage, shelf: 'finished' }; }
+          return { ...b, currentPage: finalPage };
+        }
+        return b;
+      });
+      localStorage.setItem('elara_general_books', JSON.stringify(generalBooks));
+      closeReadingLogModal(); renderGeneralBooksShelf(); addXp(15);
+    }
+    function deleteCurrentBook() {
+      generalBooks = generalBooks.filter(b => b.id !== activeReadingBookId);
+      localStorage.setItem('elara_general_books', JSON.stringify(generalBooks));
+      closeReadingLogModal(); renderGeneralBooksShelf();
+    }
+    function addNewLangBookPrompt() { $('manual-lang-book-modal').classList.remove('hidden'); }
+    function closeAddLangBookModal() { $('manual-lang-book-modal').classList.add('hidden'); }
+    function saveManualLangBook() {
+      const title = $('mlb-title').value.trim();
+      const pages = parseInt($('mlb-pages').value);
+      if (!title || !pages) return;
+      langBooks.push({ id: Date.now(), title, totalPages: pages, currentPage: 0 });
+      localStorage.setItem('elara_lang_books', JSON.stringify(langBooks));
+      closeAddLangBookModal(); renderLangBooks(); addXp(15);
+    }
+    function renderLangBooks() {
+      const list = $('lang-books-list'), empty = $('lang-books-empty');
+      if (!langBooks.length) { list.innerHTML = ''; empty.classList.add('hidden'); return; }
+      empty.classList.add('hidden');
+      list.innerHTML = langBooks.map(b => `<div class="p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex justify-between items-center text-xs"><span><strong>${b.title}</strong> (${b.currentPage}/${b.totalPages})</span><button onclick="logLang(${b.id})" class="px-2 py-1 bg-brand-600 text-white rounded-lg">Log</button></div>`).join('');
+    }
+    function logLang(id) {
+      const b = langBooks.find(x => x.id === id); if (!b) return;
+      const p = prompt('Current page / session:', b.currentPage);
+      if (p !== null && !isNaN(p)) { b.currentPage = Math.min(b.totalPages, parseInt(p)); localStorage.setItem('elara_lang_books', JSON.stringify(langBooks)); renderLangBooks(); addXp(10); }
+    }
+
+    // FITNESS & BMI
+    function updateBmiDisplay() {
+      const h = fitnessData.height / 100, w = fitnessData.weight;
+      if (!h || !w) return;
+      const bmi = (w / (h * h)).toFixed(1);
+      $('bmi-value-display').textContent = bmi;
+      $('cur-weight-display').textContent = `${w} kg`;
+      $('target-weight-display').textContent = `${fitnessData.targetWeight || w} kg`;
+      const badge = $('bmi-status-badge');
+      if (bmi < 18.5) { badge.textContent = "Underweight"; badge.className = "ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-500"; }
+      else if (bmi <= 24.9) { badge.textContent = "Healthy"; badge.className = "ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-500"; }
+      else { badge.textContent = "Overweight"; badge.className = "ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-500"; }
+    }
+    function updateWeightPrompt() {
+      const nw = prompt("New weight (kg):", fitnessData.weight);
+      if (nw && !isNaN(nw)) { fitnessData.weight = parseFloat(nw); localStorage.setItem('elara_fit_data', JSON.stringify(fitnessData)); updateBmiDisplay(); addXp(15); }
+    }
+    function changeFitnessGoalPrompt() {
+      const g = prompt("New fitness goal:", fitnessGoal);
+      if (g) { fitnessGoal = g; localStorage.setItem('elara_fit_goal', g); $('fitness-goal-display').textContent = g; }
+    }
+    function changeWater(d) { waterIntake = Math.max(0, waterIntake + d); localStorage.setItem('elara_water', waterIntake); updateWaterDisplay(); }
+    function updateWaterDisplay() {
+      $('water-amount').textContent = waterIntake;
+      $('water-bar').style.width = `${Math.min(100, Math.round((waterIntake / 2500) * 100))}%`;
+    }
+    function addCaloriesPrompt() {
+      const c = prompt("Calories intake:");
+      if (c && !isNaN(c)) { calorieIn += parseInt(c); localStorage.setItem('elara_cal_in', calorieIn); $('stat-calorie-in').textContent = calorieIn; }
+    }
+    function logScientificWorkout() {
+      const met = parseFloat($('met-exercise-type').value);
+      const mins = parseFloat($('met-exercise-min').value);
+      if (!mins || isNaN(mins)) return alert("Enter minutes.");
+      const burned = Math.round((mins / 60) * met * fitnessData.weight);
+      calorieOut += burned; localStorage.setItem('elara_cal_out', calorieOut);
+      $('stat-calorie-out').textContent = calorieOut;
+      $('met-exercise-min').value = ''; addXp(30);
+      alert(`Workout logged: Burned ${burned} kcal (+30 XP)`);
+    }
+    const MUSCLE_LABELS = { chest: 'Chest', back: 'Back', legs: 'Legs', shoulders: 'Shoulders', arms: 'Arms', core: 'Core' };
+    function renderMuscleSplit() {
+      const c = $('muscle-split-container'); if (!c) return;
+      c.innerHTML = Object.keys(MUSCLE_LABELS).map(k => {
+        const v = muscleSplit[k] || 0, pct = Math.min(100, Math.round(v / 20 * 100));
+        return `<div class="flex items-center gap-2"><span class="w-16 text-[11px] font-bold">${MUSCLE_LABELS[k]}</span><div class="flex-1 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden"><div class="h-full bg-brand-500 rounded-full" style="width:${pct}%"></div></div><span class="w-8 text-end text-[10px] text-zinc-400">${v}</span></div>`;
+      }).join('');
+    }
+    function openWorkoutLogModal() { $('workout-log-modal').classList.remove('hidden'); }
+    function closeWorkoutLogModal() { $('workout-log-modal').classList.add('hidden'); }
+    function saveWorkoutLog() {
+      const m = $('wl-muscle').value, sets = parseInt($('wl-sets').value);
+      if (!sets) return;
+      muscleSplit[m] = (muscleSplit[m] || 0) + sets;
+      localStorage.setItem('elara_muscle_split', JSON.stringify(muscleSplit));
+      closeWorkoutLogModal(); renderMuscleSplit(); addXp(30);
+    }
+    function updatePeriodCard() {
+      if (!periodLastDate) { $('cycle-phase-label').textContent = "Not logged"; return; }
+      const last = new Date(periodLastDate), now = new Date();
+      const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+      const cycleDay = (diffDays % 28) + 1;
+      $('cycle-phase-label').textContent = `Day ${cycleDay}`;
+      $('cycle-next-countdown').textContent = `${28 - cycleDay} days left`;
+    }
+    function logPeriodDatePrompt() {
+      const d = prompt("Last period date (YYYY-MM-DD):", iso(new Date()));
+      if (d) { periodLastDate = d; localStorage.setItem('elara_period_date', d); updatePeriodCard(); addXp(20); }
+    }
+
+    // POMODORO
+    let timerDuration = 25 * 60, timerInterval = null;
+    function updateTimerDisplay() {
+      const m = Math.floor(timerDuration / 60).toString().padStart(2, '0');
+      const s = (timerDuration % 60).toString().padStart(2, '0');
+      $('timer-display').textContent = `${m}:${s}`;
+    }
+    function toggleTimer() {
+      const btn = $('timer-start-btn');
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.textContent = "Resume Focus"; }
+      else {
+        btn.textContent = "Pause";
+        timerInterval = setInterval(() => {
+          if (timerDuration > 0) { timerDuration--; updateTimerDisplay(); }
+          else { clearInterval(timerInterval); timerInterval = null; addXp(25); alert(" Tree planted in your forest! (+25 XP)"); resetTimer(); }
+        }, 1000);
+      }
+    }
+    function resetTimer() { clearInterval(timerInterval); timerInterval = null; timerDuration = 25 * 60; updateTimerDisplay(); $('timer-start-btn').textContent = "Start Focus"; }
+    function calculateSleep() { alert("Sleep logged (+15 XP)"); addXp(15); }
+
+    // RANKING & QUESTS
+    function completeQuest(id, xp) {
+      addXp(xp);
+      alert(`  ! +${xp} XP`);
+    }
+
+    // FEEL GOOD & MOVIES & AI
+    function openFeelGoodNoteModal() { $('feel-good-modal').classList.remove('hidden'); }
+    function closeFeelGoodNoteModal() { $('feel-good-modal').classList.add('hidden'); }
+    function saveFeelGoodNote() {
+      const text = $('feel-good-input').value.trim(); if (!text) return;
+      feelGoodNotes.unshift({ id: Date.now(), text });
+      localStorage.setItem('elara_feel_good', JSON.stringify(feelGoodNotes));
+      $('feel-good-input').value = ''; closeFeelGoodNoteModal(); renderFeelGoodNotes(); addXp(15);
+    }
+    function renderFeelGoodNotes() {
+      const list = $('feel-good-notes-list'), empty =$('feel-good-empty');
+      if (!feelGoodNotes.length) { list.innerHTML = ''; empty.classList.add('hidden'); return; }
+      empty.classList.add('hidden');
+      list.innerHTML = feelGoodNotes.map(n => `<div class="p-2 bg-white dark:bg-zinc-800 rounded-xl flex justify-between text-xs"><span> ${n.text}</span><button onclick="deleteFeelGood(${n.id})" class="text-zinc-400"></button></div>`).join('');
+    }
+    function deleteFeelGood(id) { feelGoodNotes = feelGoodNotes.filter(n => n.id !== id); localStorage.setItem('elara_feel_good', JSON.stringify(feelGoodNotes)); renderFeelGoodNotes(); }
+    
+    function switchMovieTab(tab) {
+      currentMovieTab = tab;
+      $('movie-tab-want').className = tab === 'want' ? 'flex-1 py-1 rounded-lg bg-brand-600 text-white text-center transition' : 'flex-1 py-1 rounded-lg text-zinc-400 text-center transition';
+      $('movie-tab-watched').className = tab === 'watched' ? 'flex-1 py-1 rounded-lg bg-brand-600 text-white text-center transition' : 'flex-1 py-1 rounded-lg text-zinc-400 text-center transition';
+      renderMovies();
+    }
+    function openAddMovieModal() { $('movie-modal').classList.remove('hidden'); }
+    function closeAddMovieModal() { $('movie-modal').classList.add('hidden'); }
+    function saveMovie() {
+      const title = $('movie-title').value.trim(), genre = $('movie-genre').value.trim(), shelf =$('movie-shelf').value;
+      if (!title) return;
+      movies.push({ id: Date.now(), title, genre, shelf });
+      localStorage.setItem('elara_movies', JSON.stringify(movies));
+      $('movie-title').value = ''; closeAddMovieModal(); renderMovies(); addXp(15);
+    }
+    function renderMovies() {
+      const container = $('movies-container'), empty =$('movies-empty');
+      const filtered = movies.filter(m => m.shelf === currentMovieTab);
+      if (!filtered.length) { container.innerHTML = ''; empty.classList.add('hidden'); return; }
+      empty.classList.add('hidden');
+      container.innerHTML = filtered.map(m => `<div class="p-2 bg-white dark:bg-zinc-800 rounded-xl border flex justify-between items-center text-xs"><div><strong>${m.title}</strong> <span class="text-zinc-400">(${m.genre})</span></div><button onclick="deleteMovie(${m.id})" class="text-zinc-400"></button></div>`).join('');
+    }
+    function deleteMovie(id) { movies = movies.filter(m => m.id !== id); localStorage.setItem('elara_movies', JSON.stringify(movies)); renderMovies(); }
+
+    let proposedAiTasks = [];
+    function runElaraAiPlanner() {
+      const text = $('freedom-input').value.trim(); if (!text) return alert("Please write something.");
+      setTimeout(() => {
+        const feedback = "Goals analyzed. Action plan generated:";
+        proposedAiTasks = [
+          { text: "Focused study session for primary goals", priority: "1", tag: "Study", folder: "Study", time: "10:00" },
+          { text: "Workout session & energy release", priority: "2", tag: "Health", folder: "Fitness", time: "18:00" }
+        ];
+        $('ai-feedback-text').textContent = `"${feedback}"`;
+        $('ai-tasks-preview').innerHTML = proposedAiTasks.map(t => `<div class="p-2 bg-white dark:bg-zinc-800 rounded-xl border text-xs"><strong>${t.text}</strong> (${t.time})</div>`).join('');
+        $('ai-output-box').classList.remove('hidden');
+      }, 500);
+    }
+    function applyElaraAiPlan() {
+      proposedAiTasks.forEach(pt => { tasks.unshift({ id: Date.now() + Math.random(), text: pt.text, priority: pt.priority, tag: pt.tag, folder: pt.folder, date: iso(new Date()), time: pt.time, completed: false }); });
+      saveTasks(); addXp(35); $('ai-output-box').classList.add('hidden'); alert("Plan added! (+35 XP)"); switchTab('tasks');
+    }
+
+    function copyFriendCode() { navigator.clipboard.writeText(userProfile ? userProfile.username : "@elara"); alert("ID copied!"); }
+    function addFriendAction() {
+      const un = $('add-friend-input').value.trim(); if (!un) return;
+      friends.push({ name: un.replace('@',''), username: un, tasksDone: 0, xp: 50 });
+      localStorage.setItem('elara_friends', JSON.stringify(friends)); $('add-friend-input').value = ''; renderFriends(); addXp(20);
+    }
+    function renderFriends() {
+      const container = $('leaderboard-list');
+      if (!container) return;
+      const myTasks = tasks.filter(t => t.completed).length;
+      const allRoster = [{ name: userProfile ? userProfile.name : "Me", username: userProfile ? userProfile.username : "@me", tasksDone: myTasks, xp: userXp, isMe: true }, ...friends].sort((a,b) => b.tasksDone - a.tasksDone);
+      container.innerHTML = allRoster.map((f, i) => `<div class="p-2 rounded-xl flex items-center justify-between ${f.isMe ? 'bg-brand-500/15 border font-bold' : 'bg-white dark:bg-zinc-800'}"><span>#${i+1} ${f.name} (${f.username})</span><span class="text-brand-500">${f.tasksDone} tasks</span></div>`).join('');
+    }
+
+    function handleGlobalSearch(q) {
+      const box = $('global-search-results');
+      if (!q.trim()) { box.classList.add('hidden'); return; }
+      const matches = tasks.filter(t => t.text.toLowerCase().includes(q.toLowerCase()));
+      box.innerHTML = matches.length ? matches.map(m => `<div class="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer" onclick="switchTab('tasks')">${m.text}</div>`).join('') : '<span class="text-zinc-400 p-1">No results found.</span>';
+      box.classList.remove('hidden');
+    }
+
+    function openAnalyticsModal() { toggleSideDrawer(); $('analytics-modal').classList.remove('hidden'); }
+    function closeAnalyticsModal() { $('analytics-modal').classList.add('hidden'); }
+
+    function init() {
+      [checkOnboarding, applyTheme, () => applyLanguage(currentLang), updateDailyQuote, updateXpUi, populateDropdowns,
+        renderTasks, renderHabits, renderLeitnerCard, renderGeneralBooksShelf, renderLangBooks, renderMuscleSplit,
+        updateWaterDisplay, updateBmiDisplay, applyFrame, renderAnimeRoster, updateHeaderCalendarDate,
+        () => { $('calendar-select').value = calendarSystem; },
+        () => { $('lang-select').value = currentLang; },
+        initPointCharts, renderFeelGoodNotes, renderMovies, renderFriends, renderGoals
+      ].forEach(safe);
+
+      $('new-task-title').addEventListener('keydown', e => { if (e.key === 'Enter') addNewTask(); });
+      switchTab('tasks');
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
