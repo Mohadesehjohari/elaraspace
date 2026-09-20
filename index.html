@@ -302,6 +302,56 @@
     .card-flipped .card-flip-inner { transform: rotateY(180deg); }
     .card-front, .card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
     .card-back { transform: rotateY(180deg); }
+
+    /* Desktop-only layout. All original mobile rules and markup remain unchanged. */
+    @media (min-width: 1024px) {
+      body { align-items: flex-start; }
+      #app {
+        display: grid;
+        grid-template-columns: 224px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        width: calc(100% - 40px);
+        max-width: 1540px;
+        min-height: calc(100vh - 40px);
+        margin: 20px auto;
+        padding-bottom: 0;
+        border-radius: 24px;
+        overflow-x: clip;
+      }
+      #app > header { grid-column: 2; grid-row: 1; padding: 20px 28px; }
+      #app > main { grid-column: 2; grid-row: 2; min-width: 0; width: 100%; padding: 26px 30px 56px; }
+      #app > nav {
+        grid-column: 1; grid-row: 1 / 3;
+        position: sticky; top: 0; left: auto; bottom: auto;
+        align-self: start;
+        transform: none !important;
+        width: 224px; max-width: none; height: 100vh;
+        padding: 22px 12px;
+        border-top: 0; border-right: 1px solid rgba(113,113,122,.2);
+        border-radius: 24px 0 0 24px;
+      }
+      #app > nav > div { display: flex; flex-direction: column; gap: 8px; }
+      #app > nav .nav-btn {
+        width: 100%; flex-direction: row; justify-content: flex-start;
+        gap: 12px; padding: 13px 14px; border-radius: 12px;
+      }
+      #app > nav .nav-btn > span:last-child { font-size: 13px; }
+      #app > nav .nav-btn svg { width: 20px; height: 20px; }
+      #app > nav .nav-btn > span:first-child { font-size: 20px; }
+      #tab-tasks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; align-content: start; }
+      #tab-tasks.hidden { display: none; }
+      #tab-tasks > :first-child, #tab-tasks > #tasks-list, #tab-tasks > #tasks-empty { grid-column: 1 / -1; }
+      #tab-tasks > * { min-width: 0; margin-top: 0; }
+      #app > main .tab-content { width: 100%; }
+      #app > main .tab-content > .grid { min-width: 0; }
+      #app > main .tab-content .text-xs { font-size: 0.875rem; }
+      #app > main .tab-content .text-\[10px\] { font-size: 0.75rem; }
+      #app > main .tab-content .text-\[11px\] { font-size: 0.8rem; }
+      #app > main input, #app > main select, #app > main textarea { min-width: 0; }
+    }
+    /* Authentication form must remain reachable on short mobile screens. */
+    #onboarding-modal { overflow-y: auto; }
+    #onboarding-modal > div { max-height: calc(100dvh - 32px); overflow-y: auto; }
   </style>
 </head>
 <body class="loading bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 min-h-screen flex justify-center selection:bg-brand-500 selection:text-white transition-colors duration-300">
@@ -334,7 +384,7 @@
   </div>
 
   <!-- Cosmic Landing Screen (Login / Sign Up in English) with z-[60] -->
-  <div id="auth-landing-screen" class="hidden fixed inset-0 z-[60] bg-gradient-to-br from-purple-950 via-zinc-950 to-black flex flex-col items-center justify-between p-6 text-white text-center">
+  <div id="auth-landing-screen" class="fixed inset-0 z-[60] bg-gradient-to-br from-purple-950 via-zinc-950 to-black flex flex-col items-center justify-between p-6 text-white text-center">
     <div class="my-auto space-y-6 max-w-xs w-full">
       <div class="w-20 h-20 mx-auto rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl animate-pulse overflow-hidden">
         <img src="logo.png" alt="Logo" class="w-full h-full object-contain" onerror="handleLogoError(this)">
@@ -349,7 +399,7 @@
         <button onclick="openSignUpModal()" class="w-full py-3.5 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-extrabold rounded-2xl text-xs shadow-xl active:scale-95 transition">Sign Up</button>
       </div>
     </div>
-    <div class="text-[10px] text-zinc-500 font-mono">Elara Space OS Â• Secure Galaxy Auth</div>
+    <div class="text-[10px] text-zinc-500 font-mono">Elara Space OS • Secure Galaxy Auth</div>
   </div>
 
   <!-- Mobile App Frame Container -->
@@ -389,7 +439,7 @@
           <select id="lang-select" onchange="changeLanguage(this.value)" class="text-[10px] bg-zinc-100 dark:bg-zinc-800 rounded-lg px-1.5 py-1 font-bold outline-none border border-zinc-200 dark:border-zinc-700 cursor-pointer">
             <option value="en" selected> EN</option>
             <option value="fa"> </option>
-            <option value="tr"> TÃ¼rkÃ§e</option>
+            <option value="tr"> Türkçe</option>
             <option value="ru"> </option>
             <option value="fr"> FR</option>
             <option value="zh"> </option>
@@ -420,7 +470,7 @@
           <span class="text-xs mt-0.5"></span>
           <div class="flex-1">
             <p id="daily-quote" class="text-[10.5px] font-semibold leading-relaxed text-zinc-700 dark:text-zinc-300 italic">Start small, but start today.</p>
-            <p id="quote-author" class="text-[9px] font-black text-brand-600 dark:text-brand-400 mt-0.5">Â— Elara</p>
+            <p id="quote-author" class="text-[9px] font-black text-brand-600 dark:text-brand-400 mt-0.5">— Elara</p>
           </div>
         </div>
       </div>
@@ -491,7 +541,7 @@
             <span> Log Out (  )</span>
             <span></span>
           </button>
-          <div class="text-[10px] text-zinc-400 text-center">Elara Space OS Â• v5.1</div>
+          <div class="text-[10px] text-zinc-400 text-center">Elara Space OS • v5.1</div>
         </div>
       </div>
     </div>
@@ -556,10 +606,10 @@
               <div>
                 <label class="block text-[10px] text-zinc-400 mb-1" data-i18n="priority">Priority</label>
                 <select id="task-priority" class="w-full bg-white dark:bg-zinc-800 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[11px] font-bold outline-none">
-                  <option value="1">P1 Â• Urgent</option>
-                  <option value="2">P2 Â• High</option>
-                  <option value="3">P3 Â• Medium</option>
-                  <option value="4" selected>P4 Â• Normal</option>
+                  <option value="1">P1 • Urgent</option>
+                  <option value="2">P2 • High</option>
+                  <option value="3">P3 • Medium</option>
+                  <option value="4" selected>P4 • Normal</option>
                 </select>
               </div>
               <div>
@@ -1090,7 +1140,7 @@
           </div>
           <div>
             <label class="block font-bold mb-1">Password:</label>
-            <input id="login-password" type="password" required placeholder="Â•Â•Â•Â•Â•Â•Â•Â•" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+            <input id="login-password" type="password" required placeholder="••••••••" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
           </div>
           <button type="submit" class="w-full py-3 bg-brand-600 text-white font-black rounded-xl shadow-lg active:scale-95">Login</button>
         </form>
@@ -1135,9 +1185,10 @@
 
     <!-- ONBOARDING REGISTRATION MODAL WITH FIRESTORE UNIQUE USERNAME CHECK -->
     <div id="onboarding-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-      <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 border border-brand-500/50 space-y-4 shadow-2xl">
+      <div class="relative bg-white dark:bg-zinc-900 w-full max-w-sm rounded-3xl p-6 border border-brand-500/50 space-y-4 shadow-2xl">
         <div class="text-center space-y-1">
           <span class="text-3xl"></span>
+          <button type="button" onclick="closeSignUpModal()" class="absolute top-4 right-5 text-zinc-400 text-sm" aria-label="Close sign up">&#10005;</button>
           <h2 class="text-lg font-black text-zinc-900 dark:text-white">Sign Up to Elara Space</h2>
           <p class="text-xs text-zinc-400">Global Unique Username via Firestore</p>
         </div>
@@ -1157,7 +1208,7 @@
           </div>
           <div>
             <label class="block text-[11px] font-bold mb-1">Password:</label>
-            <input id="ob-password" type="password" required placeholder="Â•Â•Â•Â•Â•Â•Â•Â•" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
+            <input id="ob-password" type="password" required placeholder="••••••••" class="w-full p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border outline-none font-mono" dir="ltr">
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -1266,9 +1317,9 @@
           <button onclick="closeCalendarModal()" class="text-zinc-400"></button>
         </div>
         <div class="flex items-center justify-between text-xs font-bold">
-          <button onclick="shiftCalendarMonth(-1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">Â‹ Prev</button>
+          <button onclick="shiftCalendarMonth(-1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">‹ Prev</button>
           <span id="cal-modal-header-view" class="font-black text-sm text-brand-600"></span>
-          <button onclick="shiftCalendarMonth(1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">Next Â›</button>
+          <button onclick="shiftCalendarMonth(1)" class="p-1.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 active:scale-95">Next ›</button>
         </div>
         <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-zinc-400">
           <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
@@ -1434,10 +1485,24 @@
   </div>
 
   <!-- FIREBASE SDKs -->
+  <script>
+    window.elaraAuthReady = new Promise((resolve, reject) => {
+      window.elaraResolveAuthReady = resolve;
+      window.elaraRejectAuthReady = reject;
+    });
+    // Import/CDN failure must not leave login buttons silently doing nothing.
+    window.setTimeout(() => {
+      if (!window.firebaseAuth) {
+        const message = new Error('Firebase could not load. Check your internet connection and authorized domain.');
+        window.elaraAuthFailure = message;
+        window.elaraRejectAuthReady(message);
+      }
+    }, 12000);
+  </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -1451,7 +1516,9 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    if (location.protocol === 'https:') {
+      try { getAnalytics(app); } catch (err) { console.warn('[Elara] Analytics unavailable:', err); }
+    }
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -1464,6 +1531,21 @@
     window.doc = doc;
     window.getDoc = getDoc;
     window.setDoc = setDoc;
+    // The auth listener is authoritative for refreshes, expired sessions and sign-out.
+    onAuthStateChanged(auth, async firebaseUser => {
+      try {
+        await window.elaraHandleAuthState(firebaseUser);
+        window.elaraResolveAuthReady();
+      } catch (err) {
+        window.elaraAuthFailure = err;
+        window.elaraRejectAuthReady(err);
+        console.error('[Elara] Authentication state error:', err);
+      }
+    }, err => {
+      window.elaraAuthFailure = err;
+      window.elaraRejectAuthReady(err);
+      console.error('[Elara] Firebase Auth error:', err);
+    });
   </script>
 
   <!-- APPLICATION LOGIC WITH LOGOUT & STREAKS -->
@@ -1491,7 +1573,7 @@
     }
     setTimeout(runLoader, 100);
 
-    let userProfile = JSON.parse(localStorage.getItem('elara_user')) || null;
+    let userProfile = null; // Firebase Auth, not localStorage, decides whether the app is unlocked.
     let userXp = parseInt(localStorage.getItem('elara_xp') || "0");
     let userLevel = parseInt(localStorage.getItem('elara_level') || "1");
     let userFrame = localStorage.getItem('elara_frame') || "frame-neon";
@@ -1583,132 +1665,225 @@
       img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ec4899'><text x='20' y='65' font-size='50' font-weight='bold' fill='white'>E</text></svg>";
     }
 
-    function checkOnboarding() {
-      $('header-logo-img').src = "logo.png";
-      $('splash-logo-img').src = "logo.png";
+    // Keep the user's original UI; do not display account content without Firebase Auth.
+    let signupPending = false;
+    let tempOnboardingData = null;
+    let signedInUid = null;
+    let authBusy = false;
+    const profileKey = uid => 'elara_profile_' + uid;
+    const firebaseAvailable = async () => {
+      if (window.elaraAuthFailure) throw window.elaraAuthFailure;
+      return window.elaraAuthReady;
+    };
 
-      if (!userProfile) {
-        document.getElementById('auth-landing-screen').classList.remove('hidden');
-      } else {
-        document.getElementById('auth-landing-screen').classList.add('hidden');
-        document.getElementById('header-user-name').textContent = userProfile.name;
-        document.getElementById('closet-user-name').textContent = userProfile.name;
-        document.getElementById('roster-gender-label').textContent = userProfile.gender === 'female' ? " Female GitHub Avatars (Level 1-10)" : " Male GitHub Avatars (Level 1-10)";
-
-        if (!userAvatar) {
-          userAvatar = userProfile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
-          localStorage.setItem('elara_avatar', userAvatar);
-        }
-        document.getElementById('user-avatar-img').src = userAvatar;
-        document.getElementById('closet-display-img').src = userAvatar;
-
-        if (userProfile.gender === 'female') {
-          document.getElementById('herlife-section').classList.remove('hidden');
-          updatePeriodCard();
-        }
+    async function profileForUser(firebaseUser) {
+      const uid = firebaseUser.uid;
+      let stored = null;
+      try { stored = JSON.parse(localStorage.getItem(profileKey(uid)) || 'null'); } catch (_) {}
+      // A Firestore profile is optional: Auth login works even when profile reads are denied.
+      if (!stored && window.db && window.getDoc && window.doc) {
+        try {
+          const snapshot = await window.getDoc(window.doc(window.db, 'users', uid));
+          if (snapshot.exists()) stored = snapshot.data();
+        } catch (err) { console.warn('[Elara] User profile not available in Firestore:', err.code || err.message); }
       }
+      const prefix = (firebaseUser.email || '').split('@')[0];
+      return {
+        name: (stored && stored.name) || firebaseUser.displayName || prefix || 'Elara',
+        username: (stored && stored.username) || '@' + prefix,
+        email: firebaseUser.email || '',
+        gender: (stored && stored.gender) || 'female',
+        age: (stored && stored.age) || '',
+        dob: (stored && stored.dob) || '',
+        uid
+      };
+    }
+
+    async function elaraHandleAuthState(firebaseUser) {
+      // Firebase signs a user in immediately after createUserWithEmailAndPassword.
+      // Keep the existing second sign-up step visible until the user finishes it.
+      if (signupPending && firebaseUser) return;
+      if (!firebaseUser) {
+        signedInUid = null;
+        userProfile = null;
+        localStorage.removeItem('elara_user');
+        $('login-modal').classList.add('hidden');
+        $('onboarding-modal').classList.add('hidden');
+        checkOnboarding();
+        return;
+      }
+      const uid = firebaseUser.uid;
+      const profile = await profileForUser(firebaseUser);
+      // Do not resurrect an earlier session if the account changed while reading its profile.
+      if (window.firebaseAuth.currentUser?.uid !== uid || signupPending) return;
+      signedInUid = uid;
+      userProfile = profile;
+      localStorage.setItem('elara_user', JSON.stringify(profile));
+      $('login-modal').classList.add('hidden');
+      $('onboarding-modal').classList.add('hidden');
+      checkOnboarding();
+    }
+    window.elaraHandleAuthState = elaraHandleAuthState;
+
+    function checkOnboarding() {
+      $('header-logo-img').src = 'logo.png';
+      if ($('splash-logo-img')) $('splash-logo-img').src = 'logo.png';
+      const authenticated = Boolean(userProfile && window.firebaseAuth?.currentUser &&
+        userProfile.uid === window.firebaseAuth.currentUser.uid);
+      $('auth-landing-screen').classList.toggle('hidden', authenticated);
+      if (!authenticated) return;
+      $('header-user-name').textContent = userProfile.name;
+      $('closet-user-name').textContent = userProfile.name;
+      $('roster-gender-label').textContent = userProfile.gender === 'female'
+        ? 'Female GitHub Avatars (Level 1-10)' : 'Male GitHub Avatars (Level 1-10)';
+      if (!userAvatar) {
+        userAvatar = userProfile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
+        localStorage.setItem('elara_avatar', userAvatar);
+      }
+      $('user-avatar-img').src = userAvatar;
+      $('closet-display-img').src = userAvatar;
+      $('herlife-section').classList.toggle('hidden', userProfile.gender !== 'female');
+      if (userProfile.gender === 'female') updatePeriodCard();
     }
 
     function openLoginModal() {
       $('auth-landing-screen').classList.add('hidden');
+      $('onboarding-modal').classList.add('hidden');
       $('login-modal').classList.remove('hidden');
     }
     function closeLoginModal() {
       $('login-modal').classList.add('hidden');
-      if (!userProfile) $('auth-landing-screen').classList.remove('hidden');
+      checkOnboarding();
     }
     function openSignUpModal() {
       $('auth-landing-screen').classList.add('hidden');
+      $('login-modal').classList.add('hidden');
+      $('onboarding-step-1').classList.remove('hidden');
+      $('onboarding-step-2').classList.add('hidden');
       $('onboarding-modal').classList.remove('hidden');
     }
+    function closeSignUpModal() {
+      if (signupPending) return; // Do not interrupt Firebase account creation.
+      $('onboarding-modal').classList.add('hidden');
+      checkOnboarding();
+    }
+    const authErrorMessage = err => {
+      const code = err?.code || '';
+      return ({
+        'auth/invalid-credential': 'Incorrect email or password.',
+        'auth/invalid-email': 'Please enter a valid email.',
+        'auth/email-already-in-use': 'This email is already registered. Please log in.',
+        'auth/weak-password': 'Password is too weak (minimum 6 characters).',
+        'auth/operation-not-allowed': 'Enable Email/Password in Firebase Authentication > Sign-in method.',
+        'auth/unauthorized-domain': 'Add this site domain in Firebase Authentication > Settings > Authorized domains.',
+        'permission-denied': 'Firestore permission denied. Check the Firestore security rules.'
+      })[code] || (err?.message || 'Please try again.');
+    };
 
     async function handleLoginSubmit(e) {
       e.preventDefault();
+      if (authBusy) return;
       const email = $('login-email').value.trim();
-      const password = $('login-password').value.trim();
+      const password = $('login-password').value; // Do not trim passwords.
+      const submit = e.currentTarget.querySelector('[type=submit]');
+      authBusy = true; submit.disabled = true;
       try {
-        if (window.firebaseAuth && window.signInWithEmailAndPassword) {
-          await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
-          userProfile = { name: email.split('@')[0], username: '@' + email.split('@')[0], email, gender: 'female' };
-          localStorage.setItem('elara_user', JSON.stringify(userProfile));
-          $('login-modal').classList.add('hidden');
-          checkOnboarding();
-          alert("Login successful! Welcome back.");
-        }
+        await firebaseAvailable();
+        const result = await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+        await elaraHandleAuthState(result.user);
+        $('login-password').value = '';
       } catch (err) {
-        alert("Login Error: " + err.message);
-      }
+        alert('Login Error: ' + authErrorMessage(err));
+        checkOnboarding();
+        $('auth-landing-screen').classList.add('hidden');
+        $('login-modal').classList.remove('hidden');
+      } finally { authBusy = false; submit.disabled = false; }
     }
 
     async function logoutUser() {
+      if (authBusy) return;
+      authBusy = true;
       try {
-        if (window.firebaseAuth && window.signOut) {
-          await window.signOut(window.firebaseAuth);
-        }
-      } catch (e) {}
-      localStorage.removeItem('elara_user');
-      userProfile = null;
-      toggleSideDrawer();
-      checkOnboarding();
+        await firebaseAvailable();
+        await window.signOut(window.firebaseAuth);
+        signedInUid = null;
+        userProfile = null;
+        localStorage.removeItem('elara_user');
+        $('login-password').value = '';
+        $('onboarding-step-1').classList.remove('hidden');
+        $('onboarding-step-2').classList.add('hidden');
+        if (drawerOpen) toggleSideDrawer();
+        $('closet-page').classList.add('hidden');
+        checkOnboarding();
+      } catch (err) {
+        alert('Logout Error: ' + authErrorMessage(err));
+      } finally { authBusy = false; }
     }
 
-    let tempOnboardingData = null;
     async function handleOnboardingSubmit(e) {
       e.preventDefault();
-      const name = document.getElementById('ob-name').value.trim();
-      let username = document.getElementById('ob-username').value.trim();
+      if (authBusy || signupPending) return;
+      const name = $('ob-name').value.trim();
+      let username = $('ob-username').value.trim();
       if (!username.startsWith('@')) username = '@' + username;
-      const email = document.getElementById('ob-email').value.trim();
-      const password = document.getElementById('ob-password').value.trim();
-      const age = document.getElementById('ob-age').value.trim();
-      const gender = document.getElementById('ob-gender').value;
-      const dob = document.getElementById('ob-dob').value;
-
+      const email = $('ob-email').value.trim();
+      const password = $('ob-password').value;
+      const age = $('ob-age').value.trim();
+      const gender = $('ob-gender').value;
+      const dob = $('ob-dob').value;
+      const submit = e.currentTarget.querySelector('[type=submit]');
+      authBusy = true; submit.disabled = true;
+      let firebaseUser = null;
       try {
-        if (window.db && window.doc && window.getDoc) {
-          const cleanKey = username.replace('@', '').toLowerCase();
-          const userDocRef = window.doc(window.db, "usernames", cleanKey);
-          const docSnap = await window.getDoc(userDocRef);
-          if (docSnap.exists()) {
-            alert("This username is already taken! Please choose another one.");
-            return;
-          }
+        await firebaseAvailable();
+        if (!window.db || !window.getDoc || !window.setDoc) throw new Error('Firebase Firestore is not available.');
+        const cleanKey = username.replace(/^@/, '').toLowerCase();
+        const usernameRef = window.doc(window.db, 'usernames', cleanKey);
+        const usernameDoc = await window.getDoc(usernameRef);
+        if (usernameDoc.exists()) { alert('This username is already taken.'); return; }
+        signupPending = true;
+        const credential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        firebaseUser = credential.user;
+        const profile = {uid: firebaseUser.uid, name, username, email, age, gender, dob};
+        tempOnboardingData = profile;
+        // Save locally first so a failed Firestore write never strands a created Auth account.
+        localStorage.setItem(profileKey(firebaseUser.uid), JSON.stringify(profile));
+        localStorage.setItem('elara_user', JSON.stringify(profile));
+        try {
+          await window.setDoc(usernameRef, {uid: firebaseUser.uid, name, email, createdAt: new Date().toISOString()});
+          await window.setDoc(window.doc(window.db, 'users', firebaseUser.uid), profile);
+        } catch (err) {
+          console.warn('[Elara] Firestore profile/username save failed:', err);
+          alert('Account created, but Firestore profile save failed: ' + authErrorMessage(err));
         }
-
-        if (window.firebaseAuth && window.createUserWithEmailAndPassword) {
-          const userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-          await window.sendEmailVerification(userCredential.user);
-          
-          if (window.db && window.setDoc) {
-            const cleanKey = username.replace('@', '').toLowerCase();
-            await window.setDoc(window.doc(window.db, "usernames", cleanKey), {
-              name,
-              email,
-              createdAt: new Date().toISOString()
-            });
-          }
-        }
-
-        tempOnboardingData = { name, username, email, age, gender, dob };
-        document.getElementById('onboarding-step-1').classList.add('hidden');
-        document.getElementById('onboarding-step-2').classList.remove('hidden');
+        try { await window.sendEmailVerification(firebaseUser); }
+        catch (err) { console.warn('[Elara] Verification email not sent:', err); }
+        $('ob-password').value = '';
+        $('onboarding-step-1').classList.add('hidden');
+        $('onboarding-step-2').classList.remove('hidden');
       } catch (err) {
-        alert("Registration Error: " + err.message);
-      }
+        signupPending = false;
+        alert('Registration Error: ' + authErrorMessage(err));
+        // If an account was created despite another failure, show its signed-in session.
+        if (firebaseUser) await elaraHandleAuthState(firebaseUser);
+      } finally { authBusy = false; submit.disabled = false; }
     }
 
-    function finishFirebaseLogin() {
-      if (!tempOnboardingData) return;
-      userProfile = tempOnboardingData;
-      localStorage.setItem('elara_user', JSON.stringify(userProfile));
-
-      userAvatar = userProfile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
+    async function finishFirebaseLogin() {
+      if (!tempOnboardingData || !window.firebaseAuth?.currentUser ||
+          tempOnboardingData.uid !== window.firebaseAuth.currentUser.uid) return;
+      const profile = tempOnboardingData;
+      signupPending = false;
+      signedInUid = profile.uid;
+      userProfile = profile;
+      localStorage.setItem(profileKey(profile.uid), JSON.stringify(profile));
+      localStorage.setItem('elara_user', JSON.stringify(profile));
+      userAvatar = profile.gender === 'female' ? 'avatars_female_level1.png' : 'avatars_male_level1.png';
       localStorage.setItem('elara_avatar', userAvatar);
-
-      document.getElementById('onboarding-modal').classList.add('hidden');
+      tempOnboardingData = null;
+      $('onboarding-modal').classList.add('hidden');
       checkOnboarding();
       renderAnimeRoster();
-      alert("Successfully logged in! Welcome.");
     }
 
     const $ = id => document.getElementById(id);
@@ -1794,11 +1969,11 @@
         goals_title: '  ', goals_subtitle: '    (+20 XP)', new_goal: ' ', short_term: '', medium_term: '', long_term: '', empty_goals: '       .', add_goal_title: '  ', save_goal: '  (+20 XP)'
       },
       tr: {
-        nav_tasks: 'GÃ¶revler', nav_habits: 'Alkanlklar', nav_lingua: 'Dil', nav_library: 'Kitaplar', nav_workout: 'Fitness', nav_focus: 'Odak', nav_goals: 'Hedefler', nav_ranking: 'Sralama', nav_freedom: 'Ã–zgÃ¼rlÃ¼k',
-        completed: 'Tamamlanan', completion_rate: 'lerleme', pending: 'Bekleyen', add: 'Ekle', empty_tasks: 'HenÃ¼z gÃ¶rev yok!', drawer_title: 'Ayarlar ve MenÃ¼', folders: 'KlasÃ¶rler', tags: 'Etiketler',
-        habit_tracker: 'Alkanlklar ve Seri', new_habit: 'Yeni', focus_timer: 'Pomodoro', start_focus: 'Odaklan', reset: 'Sfrla', water_tracker: 'GÃ¼nlÃ¼k Su',
-        freedom_title: 'Ghibli StÃ¼dyosu', ai_plan_button: 'Akll Plan', dismiss: 'Kapat', choose_theme: 'Temalar', due_date: 'Biti Tarihi', priority: 'Ã–ncelik', tag: 'Etiket', folder: 'KlasÃ¶r',
-        add_task_placeholder: '+ Yeni gÃ¶rev ekle...', workout_title: 'Fitness Laboratuvar', lingua_title: 'Dil Merkezi', menu_help: 'Yardm ve Klavuz', ranking_title: 'Sralama ve GÃ¶revler', today_btn: 'BugÃ¼n',
+        nav_tasks: 'Görevler', nav_habits: 'Alkanlklar', nav_lingua: 'Dil', nav_library: 'Kitaplar', nav_workout: 'Fitness', nav_focus: 'Odak', nav_goals: 'Hedefler', nav_ranking: 'Sralama', nav_freedom: 'Özgürlük',
+        completed: 'Tamamlanan', completion_rate: 'lerleme', pending: 'Bekleyen', add: 'Ekle', empty_tasks: 'Henüz görev yok!', drawer_title: 'Ayarlar ve Menü', folders: 'Klasörler', tags: 'Etiketler',
+        habit_tracker: 'Alkanlklar ve Seri', new_habit: 'Yeni', focus_timer: 'Pomodoro', start_focus: 'Odaklan', reset: 'Sfrla', water_tracker: 'Günlük Su',
+        freedom_title: 'Ghibli Stüdyosu', ai_plan_button: 'Akll Plan', dismiss: 'Kapat', choose_theme: 'Temalar', due_date: 'Biti Tarihi', priority: 'Öncelik', tag: 'Etiket', folder: 'Klasör',
+        add_task_placeholder: '+ Yeni görev ekle...', workout_title: 'Fitness Laboratuvar', lingua_title: 'Dil Merkezi', menu_help: 'Yardm ve Klavuz', ranking_title: 'Sralama ve Görevler', today_btn: 'Bugün',
         goals_title: 'Hedefler ve Yol Haritas', goals_subtitle: 'Ksa, Orta ve Uzun Vade (+20 XP)', new_goal: 'Yeni Hedef', short_term: 'Ksa Vade', medium_term: 'Orta Vade', long_term: 'Uzun Vade', empty_goals: 'Bu kategoride hedef yok.', add_goal_title: 'Yeni Hedef Ekle', save_goal: 'Hedefi Kaydet (+20 XP)'
       },
       ru: {
@@ -1810,12 +1985,12 @@
         goals_title: '   ', goals_subtitle: ', ,  (+20 XP)', new_goal: ' ', short_term: '', medium_term: '', long_term: '', empty_goals: '    .', add_goal_title: ' ', save_goal: '  (+20 XP)'
       },
       fr: { 
-        nav_tasks: 'TÃ¢ches', nav_habits: 'Habitudes', nav_lingua: 'Langue', nav_library: 'Livres', nav_workout: 'Sport', nav_focus: 'Focus', nav_goals: 'Objectifs', nav_ranking: 'Classement', nav_freedom: 'LibertÃ©',
-        completed: 'TerminÃ©', completion_rate: 'ProgrÃ¨s', pending: 'Restant', add: 'Ajouter', empty_tasks: 'Aucune tÃ¢che !', drawer_title: 'RÃ©glages', folders: 'Dossiers', tags: 'Tags',
-        habit_tracker: 'Habitudes', new_habit: 'Nouveau', focus_timer: 'Pomodoro', start_focus: 'DÃ©marrer', reset: 'Reset', water_tracker: 'Eau', freedom_title: 'LibertÃ©',
-        ai_plan_button: 'Plan intelligent', dismiss: 'Ignorer', choose_theme: 'Palettes', due_date: 'Ã‰chÃ©ance', priority: 'PrioritÃ©', tag: 'Tag', folder: 'Dossier',
-        add_task_placeholder: '+ Ajouter une tÃ¢che...', workout_title: 'Sport & Fitness', lingua_title: 'Langue & Leitner', menu_help: 'Aide', ranking_title: 'Classement', today_btn: "Aujourd'hui",
-        goals_title: 'Objectifs', goals_subtitle: 'Court, moyen et long terme (+20 XP)', new_goal: 'Nouvel objectif', short_term: 'Court terme', medium_term: 'Moyen terme', long_term: 'Long terme', empty_goals: "Aucun objectif dans cette catÃ©gorie.", add_goal_title: "Ajouter un objectif", save_goal: "Enregistrer (+20 XP)"
+        nav_tasks: 'Tâches', nav_habits: 'Habitudes', nav_lingua: 'Langue', nav_library: 'Livres', nav_workout: 'Sport', nav_focus: 'Focus', nav_goals: 'Objectifs', nav_ranking: 'Classement', nav_freedom: 'Liberté',
+        completed: 'Terminé', completion_rate: 'Progrès', pending: 'Restant', add: 'Ajouter', empty_tasks: 'Aucune tâche !', drawer_title: 'Réglages', folders: 'Dossiers', tags: 'Tags',
+        habit_tracker: 'Habitudes', new_habit: 'Nouveau', focus_timer: 'Pomodoro', start_focus: 'Démarrer', reset: 'Reset', water_tracker: 'Eau', freedom_title: 'Liberté',
+        ai_plan_button: 'Plan intelligent', dismiss: 'Ignorer', choose_theme: 'Palettes', due_date: 'Échéance', priority: 'Priorité', tag: 'Tag', folder: 'Dossier',
+        add_task_placeholder: '+ Ajouter une tâche...', workout_title: 'Sport & Fitness', lingua_title: 'Langue & Leitner', menu_help: 'Aide', ranking_title: 'Classement', today_btn: "Aujourd'hui",
+        goals_title: 'Objectifs', goals_subtitle: 'Court, moyen et long terme (+20 XP)', new_goal: 'Nouvel objectif', short_term: 'Court terme', medium_term: 'Moyen terme', long_term: 'Long terme', empty_goals: "Aucun objectif dans cette catégorie.", add_goal_title: "Ajouter un objectif", save_goal: "Enregistrer (+20 XP)"
       },
       zh: { 
         nav_tasks: '', nav_habits: '', nav_lingua: '', nav_library: '', nav_workout: '', nav_focus: '', nav_goals: '', nav_ranking: '', nav_freedom: '',
@@ -1862,12 +2037,12 @@
         ["         .", "Robert Collier"]
       ],
       tr: [
-        ["KÃ¼Ã§Ã¼k bala ama bugÃ¼n bala.", "Elara"],
-        ["Disiplin, imdi istediin ey ile en Ã§ok istediin ey arasnda seÃ§im yapmaktr.", "Abraham Lincoln"]
+        ["Küçük bala ama bugün bala.", "Elara"],
+        ["Disiplin, imdi istediin ey ile en çok istediin ey arasnda seçim yapmaktr.", "Abraham Lincoln"]
       ],
       ru: [
         ["  ,   .", "Elara"],
-        [" Â—    ,    ,  ,     .", "Abraham Lincoln"]
+        [" —    ,    ,  ,     .", "Abraham Lincoln"]
       ],
       fr: [
         ["Commencez petit, mais commencez aujourd'hui.", "Elara"],
@@ -1882,8 +2057,8 @@
     function updateDailyQuote() {
       const langQuotes = QUOTES[currentLang] || QUOTES.en;
       const q = langQuotes[Math.floor(Date.now() / 86400000) % langQuotes.length];
-      $('daily-quote').textContent = `Â«${q[0]}Â»`;
-      $('quote-author').textContent = `Â— ${q[1]}`;
+      $('daily-quote').textContent = `«${q[0]}»`;
+      $('quote-author').textContent = `— ${q[1]}`;
     }
 
     const xpForLevel = l => 100 * l;
