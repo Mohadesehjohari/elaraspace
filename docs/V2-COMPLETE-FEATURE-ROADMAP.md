@@ -52,8 +52,8 @@
 - 🟡 جداسازی دادهٔ حساب پیاده شده؛ تست دو حساب/تعویض حساب/refresh/دو دستگاه ضروری است.
 
 ### پروفایل
-- ⬜ صفحهٔ پروفایل کامل: Name، Username، Bio، ID، Level، XP، Rank، Titles، Medals، Achievements، Streak، Wins، Clubs، Forest، Activity.
-- ⬜ تغییر Name / Bio / Username با قواعد امن و تاریخچه/محدودیت مناسب.
+- 🟡 صفحهٔ Profile Self/Public و نمایش Name/Username/Bio/Level/XP/Title کدنویسی پایه شده؛ Rank، Medals، Achievements، Streak، Wins، Clubs، Forest و Activity profile هنوز باقی‌اند.
+- 🟡 تغییر Name / Bio / Username با رزرو اتمیک Username در کد/Rules اضافه شده؛ Rate limit/history و تست هم‌زمانی واقعی هنوز لازم است.
 - ⬜ Security Center: تغییر رمز با تأیید ایمیل، نشست‌ها، خروج از همهٔ دستگاه‌ها.
 - ⬜ Privacy Center برای تعیین Public / Friends / Only me به تفکیک هر داده.
 - ⬜ پروفایل مربعی مطابق نسبت فایل‌های Frame/Avatar طراحی شود.
@@ -105,7 +105,7 @@
 - ✅ Light / Dark / System.
 - ✅ هشت رنگ قالب.
 - 🟡 «مشکی» فعلی بیشتر رنگ Accent است؛ **Pure Black/AMOLED Theme مستقل** لازم است.
-- ⬜ Themeهای کامل: Minimal، Forest، Love، Space، Study، Anime/Fantasy، Animal، Seasonal و Custom.
+- ⬜ **Style Familyهای واقعی و محسوس:** Default/Elara فعلی (با Accent قابل تغییر)، Minimal ظریف، Dark/Rugged گنگ و خشن، Anime/Fantasy؛ هرکدام Design Token، تایپوگرافی، Card geometry، background/graphics، icon/motion متفاوت داشته باشند، نه صرفاً تغییر Accent. سپس Forest/Love/Space/Study/Animal/Seasonal/Custom در فازهای بعد. Pure Black/AMOLED مستقل و Default بازگشت‌پذیر الزامی است.
 - ⬜ همهٔ Chart/Progress/Graphها باید از Design Tokens مرکزی Theme استفاده کنند؛ با تغییر Theme رنگ قبلی در Habit chart باقی نماند.
 - ⬜ Preview، Favorite، Admin enable/disable، Theme unlock بر اساس Level/Achievement.
 
@@ -266,7 +266,7 @@
 ### Relationship circle
 - ⬜ نوع رابطه: Partner (حداکثر ۱)، Companion، Best Friend محدود، Family چندنفره، Friend.
 - ⬜ Relationship request دوطرفه و قابل لغو.
-- ⬜ Nickname خصوصی جدا از Relationship عمومی.
+- ⬜ لقب اجتماعی برای دوست در کنار نام اصلی نمایش داده شود و نام اصلی هرگز جایگزین نشود؛ **nickname خصوصیِ فقط برای خود کاربر مدنظر نیست**. برای لقب عمومی/اشتراکی Moderation، Report و قواعد سوءاستفاده لازم است.
 - ⬜ نمایش بصری Relationship Circle با Privacy.
 - ⬜ Partner بودن خودکار هیچ مجوزی برای دادهٔ سلامت ایجاد نکند.
 
@@ -290,7 +290,8 @@
 - ⬜ Challenge History در پروفایل.
 - ⬜ آمار Wins / Losses / Draws / Win rate / Win streak.
 - ⬜ Rematch و در فاز بعد Best-of-3/Group challenge.
-- ⬜ Quick Chat آماده و کنترل‌شده برای کل‌کل دوستانه: «شروع کنیم»، «منتظرتم»، «می‌بینمت خط پایان»، «ریمچ؟»، «تبریک بردی» و مشابه؛ Mute و جلوگیری از توهین/تهدید.
+- ⬜ Quick Chat آماده و کنترل‌شده برای کل‌کل دوستانه: «شروع کنیم»، «منتظرتم»، «می‌بینمت خط پایان»، «ریمچ؟»، «تبریک بردی» و مشابه؛ پیام‌ها در Message Center کاربر نیز ثبت شوند؛ Mute/Rate-limit/Block/Report و جلوگیری از توهین/تهدید.
+- ⬜ درخواست Challenge از زمان معتبر سرور **۳۰ ثانیه** فرصت Accept داشته باشد؛ بعد expiresAt منقضی و Accept سمت سرور رد شود. Client countdown فقط نمایش است و مرجع امنیتی نیست.
 - ⬜ Unlock شدن بعضی Quick Chatها با Rank/Achievement.
 - 🔒 نتیجه Challenge فقط از Activity معتبر سمت سرور محاسبه شود؛ کاربر نتیجه را دستی تغییر ندهد.
 
@@ -443,6 +444,9 @@
 - ⬜ AI/Gemini keys/models/prompts/limits/usage/cost.
 - ⬜ Feature flags، languages، global settings، announcements.
 - ⬜ Privacy-preserving analytics؛ Admin به Journal/درددل/سلامت خصوصی به‌صورت پیش‌فرض دسترسی نداشته باشد.
+- ⬜ پنل **Site Preview** حرفه‌ای در Admin با نوار جدا برای انتخاب route/device/refresh و مشاهدهٔ ظاهر نسخهٔ سایت، بدون افشای credential ادمین به Preview یا دادن دسترسی خصوصی بیشتر از کاربر عادی.
+- ⬜ آمار بازدید واقعی: page view/session/active users/referrer/device در حد نیاز و با retention مشخص؛ IP خام و دادهٔ حساس به‌طور پیش‌فرض ذخیره نشود، Bot/abuse تفکیک و شمارش ساختگی ممنوع.
+- ⬜ مدیریت System Message/Announcement از Admin با target/audience، زمان‌بندی، expiry، audit log و ارسال امن سمت سرور؛ کلاینت عادی نتواند پیام سیستمی جعل کند.
 - 🔒 Audit log و re-auth برای عملیات حساس.
 
 ---
@@ -475,14 +479,18 @@
 - ⬜ Icon system حرفه‌ای و یکپارچه.
 - ⬜ Logo رسمی از assets پروژه کنار نام سایت؛ Light/Dark/Favicon/App icon.
 - ⬜ More Drawer/Bottom Sheet برای قابلیت‌های کم‌کاربرد در موبایل؛ Sidebar گروه‌بندی‌شده در Desktop.
-- ⬜ Settings > Help: Getting Started، Tasks، Habits، Goals، Focus، XP/Level، Friends، Privacy، FAQ، Support، Shortcuts.
+- 🟡 ورودی Help در More و صفحهٔ پایه کدنویسی شده؛ محتوای کامل Getting Started، Tasks، Habits، Goals، Focus، XP/Level، Friends، Privacy، FAQ، Support و Shortcuts هنوز باید تکمیل و چندزبانه شود.
+- ⬜ Dashboard موبایل به‌صورت محسوس **box/card-based** بازطراحی شود؛ اطلاعات پراکنده به کارت‌های منظم با hierarchy، tap target و spacing مناسب تبدیل شوند و طرح فعلی موبایل مرجع نهایی نیست.
 - ⬜ Accessibility: Reduce Motion، Disable sounds، Font size، High contrast، Keyboard nav.
 - ⬜ تمام Animation/Soundهای Login/Level/Streak قابلیت خاموش‌شدن داشته باشند.
 
 ---
 
-# ۲۱) اعلان‌ها و Notification Center
+# ۲۱) Message Center، اعلان‌ها و Notification Center
 
+- ⬜ Inbox مستقل «پیام‌ها / پیام سیستم» با read/unread، timestamp، history، deep-link و دسته‌های mission_complete، system/admin، friend، challenge_request/result و challenge_quick_chat.
+- ⬜ تکمیل Mission علاوه بر Toast کوتاه ۲–۳ ثانیه‌ای و صدای قابل خاموش‌کردن، رکورد زمان‌دار در Message Center بسازد و مأموریت بعدی را لینک/نمایش دهد.
+- ⬜ پیام System/Admin فقط از backend/admin مجاز تولید شود و کلاینت نتواند sender/type سیستمی را جعل کند.
 - ⬜ Task/Habit/Focus/Books/Language/Fitness/Friends/Messages/Relationship/Missions/Level/Streak/Gifts/Cycle/Event.
 - ⬜ Notification center مستقل با read/unread.
 - ⬜ per-category preferences.
@@ -553,3 +561,28 @@ Google Calendar، TickTick، Goodreads، Health integrations، Finance، Scam AI
 - Loading/Error/Empty/Offline state واقعی داشته باشد.
 - در Admin، عملیات حساس audit log، role check و re-auth داشته باشند.
 - وضعیت «کدنویسی شده»، «E2E تست شده» و «آماده انتشار» جدا ثبت شود.
+
+# ۲۶) Assetهای تأییدشده و گام بعدی
+
+- 📌 قرارداد کامل نام‌گذاری در [PROJECT-ASSETS-CONVENTION.md](PROJECT-ASSETS-CONVENTION.md).
+- 📌 آواتارهای Male: `avatars-male-level1.png` تا `avatars-male-level10.png`.
+- 📌 آواتارهای Female: `avatars_female_level1.png` تا `avatars_female_level10.png`.
+- 📌 Frameها: `frames_bronze.png`، `frames_silver.png`، `frames_gold.png`، `frames_diamond.png`.
+- 📌 لوگوی اصلی موردنظر برای ادامهٔ طراحی: `logo.png`.
+- 📌 مرجع Rank/Level همان تصویر تأییدشدهٔ کاربر است و نگاشت ۱۰ عنوان فضایی در سند Asset ثبت شده است.
+- ⬜ **گام بعدی بعد از تست فعلی:** Preloader/Login animation فضایی-نئونی با `logo.png`، Progress واقعی، Glow/Orbit/Shine/Spark، Mobile و Reduced Motion؛ سپس همسان‌سازی GitHub و ZIP کامل.
+- ⛔ در این ثبت فقط مستندسازی انجام شده؛ Loader هنوز ساخته نشده است.
+
+
+## افزودهٔ اجرایی — Task Details / Dialog / Private Drawer
+
+### Task Details / Dialog / Private Drawer [کدنویسی پایه / نیازمند تست]
+- 🟡 Task: Short Description + Long Description + Detail Modal و ویرایش Date/Time/Priority/Folder/Tag/Recurrence.
+- 🟡 Folder/Tag inline creation باید Draft فرم Task را بدون ریست حفظ کند.
+- 🟡 Dialog System مشترک، وسط صفحه، Theme-aware و بدون browser-native alert/prompt/confirm.
+- 🟡 Mission Reward XP در کارت مأموریت نمایش داده و Claim روزانه idempotent ثبت شود.
+- 🟡 Private Profile Drawer با سه‌نقطه برای Desktop/Mobile؛ Profile summary، Theme toggle، Account، Privacy/Password reset، Folders/Tags، Notifications, Appearance, Help, Calendar, Logout.
+- 🟡 Folder Drawer: نمایش Tasks هر Folder و Add Task داخل همان Folder.
+- 🟡 Public Profile به Modal مستطیلی وسط صفحه تبدیل شود؛ Self Profile داخل Drawer/Account flow باشد.
+- 🟡 Refresh روی Profile route خالی نشود.
+- 🟡 Profile save: Name/Bio مستقل از Username/Privacy ذخیره شود تا Permission یک قابلیت کل فرم را fail نکند؛ Rules جدید برای Username/Privacy باید Publish و با دو UID تست شوند.

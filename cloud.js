@@ -1,6 +1,6 @@
 /* Elara online phase: real accounts, private data, username reservations, and friends. */
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,updateProfile} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,updateProfile,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp,runTransaction,collection,query,where,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const app = initializeApp({
@@ -11,7 +11,7 @@ const app = initializeApp({
 });
 const auth=getAuth(app), db=getFirestore(app), $=id=>document.getElementById(id);
 const layer=$('cloud-layer'), status=$('cloud-status'), retry=$('cloud-retry');
-const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],xp:0,theme:'dark'});
+const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],focusSessions:[],activeFocus:null,missionRewardClaims:[],xp:0,theme:'dark'});
 const safe=s=>String(s??'').trim();
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 let user=null, profile=null, loaded=false, saving=false, dirty=false, timer=null, lastPayload='';
@@ -52,8 +52,10 @@ function form(mode='login'){
   const passwordField=(name,placeholder,autocomplete)=>{
     const wrap=document.createElement('div');wrap.className='password-field';
     const input=inp(name,placeholder,'password');input.autocomplete=autocomplete;
-    const toggle=document.createElement('button');toggle.type='button';toggle.className='password-toggle';toggle.textContent='👁';toggle.setAttribute('aria-label','نمایش رمز عبور');toggle.setAttribute('aria-pressed','false');
-    toggle.addEventListener('click',()=>{const show=input.type==='password';input.type=show?'text':'password';toggle.textContent=show?'🙈':'👁';toggle.setAttribute('aria-label',show?'پنهان کردن رمز عبور':'نمایش رمز عبور');toggle.setAttribute('aria-pressed',String(show));input.focus({preventScroll:true});});
+    const toggle=document.createElement('button');toggle.type='button';toggle.className='password-toggle';toggle.setAttribute('aria-label','نمایش رمز عبور');toggle.setAttribute('aria-pressed','false');
+    const eye=hidden=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/>'+(hidden?'<path d="m4 4 16 16"/>':'')+'</svg>';
+    toggle.innerHTML=eye(false);
+    toggle.addEventListener('click',()=>{const show=input.type==='password';input.type=show?'text':'password';toggle.innerHTML=eye(show);toggle.setAttribute('aria-label',show?'پنهان کردن رمز عبور':'نمایش رمز عبور');toggle.setAttribute('aria-pressed',String(show));input.focus({preventScroll:true});});
     wrap.append(input,toggle);return {wrap,input};
   };
   const email=inp('email','Email','email');f.append(email);
@@ -206,6 +208,7 @@ function renderAccount(){
   $('cloud-sync').textContent='✓ اطلاعات حساب بارگذاری شد';
   refreshFriends().catch(e=>notify(actionError(e)));
 }
+window.ElaraAccount={logout:async()=>{await flush();await signOut(auth);},sendPasswordReset:async()=>{if(!auth.currentUser?.email)throw new Error('ایمیل حساب در دسترس نیست.');await sendPasswordResetEmail(auth,auth.currentUser.email);return auth.currentUser.email;},getUser:()=>auth.currentUser};
 onAuthStateChanged(auth,async current=>{
   clearTimeout(timer);locked();
   try{

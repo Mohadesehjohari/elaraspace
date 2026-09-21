@@ -46,3 +46,15 @@
 - [ ] سطح اعتماد Activityها به‌صورت `self_reported` / `app_tracked` / `ai_checked` / `integrated` ثبت شود و قوانین Challenge مشخص کنند کدام سطح معتبر است.
 - [ ] Random spot-check، rate limit، سقف هزینه و جلوگیری از پرسش‌های تکراری/قابل حفظ شدن.
 - [ ] نتیجهٔ Challenge و XP/Rank رقابتی در سمت سرور ثبت شود؛ کاربر یا Owner Club نتواند آن را دستی تغییر دهد.
+
+
+## ۵. Site Preview و Visitor Analytics [درخواست‌شده]
+
+- [ ] پنل Admin یک بخش مستقل **Preview سایت** با نوار کنترل Route، اندازهٔ Desktop/Tablet/Mobile، Reload و نمایش نسخهٔ فعلی داشته باشد. Preview نباید توکن/credential ادمین یا دسترسی Firestore مدیریتی را به صفحهٔ پیش‌نمایش بدهد؛ رفتار آن باید مانند کاربر عادی/محیط Preview ایزوله باشد.
+- [ ] Overview حرفه‌ای‌تر با آمار واقعی Page view، Session، Active users، Referrer و Device در بازه‌های زمانی. دادهٔ نمونه ممنوع؛ روش جمع‌آوری باید rate-limited، privacy-preserving و دارای retention مشخص باشد و IP خام/محتوای خصوصی کاربران را پیش‌فرض ذخیره نکند.
+- [ ] بخش «System Messages» برای ساخت/زمان‌بندی/لغو پیام عمومی یا هدفمند؛ عملیات Admin audit شود و ارسال نهایی از backend معتبر انجام شود، نه نوشتن قابل جعل از JavaScript کاربر.
+
+## ۶. Message Center کاربر و Challenge delivery [درخواست‌شده]
+
+- [ ] پیام‌های سیستم، تکمیل Mission، Friend/Challenge و Quick Chat در Inbox زمان‌دار با read/unread نگه‌داری شوند. Challenge Request دارای createdAt/expiresAt معتبر سمت سرور و TTL منطقی حدود ۳۰ ثانیه باشد؛ Accept پس از expiry در backend رد شود.
+- [ ] Quick Chat چالش به Inbox برسد و با template/rate-limit/mute/block/report کنترل شود. Admin فقط متادیتای لازم برای moderation/audit را با حداقل دسترسی ببیند و محتوای خصوصی نامرتبط نمایش داده نشود.
