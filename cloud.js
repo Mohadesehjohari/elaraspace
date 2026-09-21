@@ -11,7 +11,7 @@ const app = initializeApp({
 });
 const auth=getAuth(app), db=getFirestore(app), $=id=>document.getElementById(id);
 const layer=$('cloud-layer'), status=$('cloud-status'), retry=$('cloud-retry');
-const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],focusSessions:[],activeFocus:null,missionRewardClaims:[],xp:0,theme:'dark'});
+const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],focusSessions:[],activeFocus:null,taskCompletionHistory:[],missionRewardClaims:[],xp:0,theme:'dark'});
 const safe=s=>String(s??'').trim();
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 let user=null, profile=null, loaded=false, saving=false, dirty=false, timer=null, lastPayload='';

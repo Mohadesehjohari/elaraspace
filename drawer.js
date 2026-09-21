@@ -115,18 +115,24 @@
     const items=[['home','⌂','خانه'],['tasks','☑','تسک'],['habits','♧','عادت'],['goals','◎','هدف'],['focus','◷','تمرکز'],['books','▤','کتاب'],['words','◇','زبان'],['missions','✦','مأموریت'],['social','♧','دوستان'],['ranking','♛','رنکینگ']];
     bottom.innerHTML=items.map(([key,icon,label])=>`<button type="button" data-elara-tab="${key}"><span>${icon}</span><small>${label}</small></button>`).join('');
   }
-  function syncLegacyUI(){
-    syncLegacyUI();setTimeout(syncLegacyUI,0);setTimeout(syncLegacyUI,250);setTimeout(syncLegacyUI,1000);
+  function removeLegacyMore(){
+    document.getElementById('elara-more-drawer')?.remove();
+    document.querySelectorAll('[data-elara-more],.elara-more-trigger').forEach(x=>x.remove());
   }
 
   function build(){
     if(document.querySelector('.elara-private-drawer'))return;
-    const trigger=document.createElement('button');trigger.type='button';trigger.className='elara-corner-more';trigger.setAttribute('aria-label','باز کردن منوی حساب');trigger.textContent='⋯';trigger.addEventListener('click',()=>open('home'));document.body.append(trigger);
+    removeLegacyMore();
+    document.getElementById('elara-account-menu-trigger')?.remove();
+    const trigger=document.createElement('button');trigger.id='elara-account-menu-trigger';trigger.type='button';trigger.className='icon-button elara-top-more';trigger.setAttribute('aria-label','باز کردن حساب و تنظیمات');trigger.title='حساب و تنظیمات';trigger.textContent='⋮';trigger.addEventListener('click',()=>open('home'));
+    const mountTrigger=()=>{const theme=document.getElementById('theme-toggle'),actions=document.querySelector('.topbar-actions');if(!actions)return false;if(theme){theme.insertAdjacentElement('afterend',trigger)}else actions.append(trigger);return true};
+    mountTrigger();setTimeout(mountTrigger,0);setTimeout(mountTrigger,250);setTimeout(mountTrigger,1000);
     root=document.createElement('div');root.className='elara-private-drawer hidden';
     root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div class="drawer-avatar" id="drawer-profile-avatar">E</div><div class="drawer-profile-text"><strong id="drawer-profile-name">پروفایل من</strong><small id="drawer-profile-meta"></small><p id="drawer-profile-bio"></p><div id="drawer-profile-medals" class="drawer-medals"></div></div><button type="button" class="drawer-theme-toggle" data-drawer-theme title="دارک / روشن">◐</button><button type="button" class="drawer-close" data-drawer-close>×</button></header><nav class="drawer-menu"><button data-drawer-nav="account"><span>⚙</span><b>حساب کاربری</b><small>پروفایل و اطلاعات</small></button><button data-drawer-nav="privacy"><span>🔒</span><b>حریم خصوصی</b><small>امنیت و رمز عبور</small></button><button data-drawer-nav="folders"><span>▤</span><b>پوشه‌ها و تگ‌ها</b><small>مدیریت و تسک داخل پوشه</small></button><button data-drawer-nav="notifications"><span>◉</span><b>نوتیف و پیام‌ها</b><small>اعلان‌ها و تاریخچه</small></button><button data-drawer-nav="appearance"><span>✦</span><b>ظاهر و تم‌ها</b><small>Mode، Style و رنگ‌ها</small></button><button data-drawer-nav="help"><span>؟</span><b>راهنما</b><small>راهنمای استفاده</small></button><button data-drawer-nav="calendar"><span>◫</span><b>تقویم</b><small id="drawer-calendar-label">${calendarLabel()}</small></button><button class="danger" data-drawer-action="logout"><span>↪</span><b>خروج از حساب</b><small>خروج امن از Elara</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="notifications" class="hidden"><div id="drawer-notification-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
     document.body.append(root);panel=root.querySelector('.elara-private-drawer-panel');
     root.querySelector('.elara-private-drawer-scrim').addEventListener('click',close);root.querySelector('[data-drawer-close]').addEventListener('click',close);
-    document.querySelectorAll('.elara-more-drawer,.elara-more-trigger,[data-elara-more]').forEach(x=>x.classList.add('elara-legacy-more-hidden'));
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&root&&!root.classList.contains('hidden'))close()});
+    removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
     rebuildMobileNav();
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
     renderProfile();updateCalendarLabels();

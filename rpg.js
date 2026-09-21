@@ -12,12 +12,14 @@
     const goals = Array.isArray(data.goals) ? data.goals : [];
     const books = Array.isArray(data.books) ? data.books : [];
     const day = today();
+    const history=Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[],historyToday=new Set(history.filter(x=>x?.date===day).map(x=>x.key||String(x.taskId||'')+':'+day));
+    const fallbackToday=tasks.filter(t => t?.recurrenceRule ? Array.isArray(t.occurrenceDone) && t.occurrenceDone.includes(day) : t?.completed && t.doneAt === day).length;
     return {
-      tasks: tasks.filter(t => t?.recurrenceRule ? Array.isArray(t.occurrenceDone) && t.occurrenceDone.includes(day) : t?.completed && t.doneAt === day).length,
+      tasks: historyToday.size||fallbackToday,
       habits: habits.filter(h => Array.isArray(h?.days) && h.days.includes(day)).length,
       steps: goals.reduce((n,g) => n + (Array.isArray(g?.steps) ? g.steps.filter(s => s?.done).length : 0), 0),
       books: books.filter(b => b?.shelf === 'finished').length,
-      totalDone: tasks.reduce((n,t) => n + (t?.recurrenceRule ? (Array.isArray(t.occurrenceDone)?t.occurrenceDone.length:0) : (t?.completed?1:0)), 0),
+      totalDone: history.length||tasks.reduce((n,t) => n + (t?.recurrenceRule ? (Array.isArray(t.occurrenceDone)?t.occurrenceDone.length:0) : (t?.completed?1:0)), 0),
       words: Array.isArray(data.words) ? data.words.length : 0
     };
   };

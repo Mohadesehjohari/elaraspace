@@ -25,7 +25,7 @@
   const readState=()=>{try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');return s&&typeof s==='object'?s:{}}catch{return{}}};
   const ensureState=s=>{
     s.version=1;
-    for(const key of ['tasks','habits','goals','books','words','folders','tags','focusSessions'])if(!Array.isArray(s[key]))s[key]=[];
+    for(const key of ['tasks','habits','goals','books','words','folders','tags','focusSessions','taskCompletionHistory'])if(!Array.isArray(s[key]))s[key]=[];
     if(!Number.isFinite(Number(s.xp)))s.xp=0;
     return s;
   };
@@ -60,6 +60,33 @@
     const days=r.weekdays.length===7?'هر روز':weekOrder.filter(d=>r.weekdays.includes(d)).map(d=>weekNames[d]).join('، ');
     return `تکرار: ${days}${r.endDate?' · تا '+labelDate(r.endDate):' · بدون پایان'}`;
   };
+  const completionKey=(taskId,date)=>String(taskId||'')+':'+String(date||'');
+  const ensureCompletionHistory=state=>{
+    state.taskCompletionHistory=Array.isArray(state.taskCompletionHistory)?state.taskCompletionHistory:[];
+    const map=new Map();
+    for(const entry of state.taskCompletionHistory){
+      if(!entry||!validDate(entry.date))continue;
+      const taskId=String(entry.taskId||'').slice(0,100),key=String(entry.key||'').slice(0,240)||(taskId?completionKey(taskId,entry.date):'');
+      if(key)map.set(key,{key,taskId,date:entry.date,title:String(entry.title||'').slice(0,180),completedAt:Number(entry.completedAt)||0});
+    }
+    for(const task of state.tasks){
+      if(task.recurrenceRule){
+        for(const date of dateList(task.occurrenceDone)){const key=completionKey(task.id,date);if(!map.has(key))map.set(key,{key,taskId:task.id,date,title:task.text||'',completedAt:0})}
+      }else if(task.completed&&validDate(task.doneAt)){
+        const key=completionKey(task.id,task.doneAt);if(!map.has(key))map.set(key,{key,taskId:task.id,date:task.doneAt,title:task.text||'',completedAt:0});
+      }
+    }
+    state.taskCompletionHistory=[...map.values()].slice(-20000);
+    return state.taskCompletionHistory;
+  };
+  const recordCompletion=(state,task,date)=>{
+    const list=ensureCompletionHistory(state),key=completionKey(task.id,date);
+    if(!list.some(x=>x.key===key))list.push({key,taskId:task.id,date,title:task.text||'',completedAt:Date.now()});
+  };
+  const removeCompletion=(state,task,date)=>{
+    const key=completionKey(task.id,date);ensureCompletionHistory(state);state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>x.key!==key);
+  };
+  const completedTodayCount=(state,date=today())=>ensureCompletionHistory(state).filter(x=>x.date===date).length;
   const taskDone=(task,date=today())=>task.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task.completed;
   const taskView=(task,date=today())=>{
     if(!task.recurrenceRule||!applies(task,date))return task;
@@ -185,8 +212,8 @@
     }).join('');
     $('task-empty')?.classList.toggle('hidden',visible.length!==0);
     if($('task-visible-count'))$('task-visible-count').textContent=fa(visible.length);
-    const total=state.tasks.length,doneCount=state.tasks.filter(t=>taskDone(t,now)).length,pct=total?Math.round(doneCount/total*100):0;
-    if($('stat-total'))$('stat-total').textContent=fa(total);if($('stat-done'))$('stat-done').textContent=fa(doneCount);if($('stat-pending'))$('stat-pending').textContent=fa(Math.max(0,total-doneCount));if($('stat-progress'))$('stat-progress').textContent=fa(pct)+'٪';if($('progress-bar'))$('progress-bar').style.width=pct+'%';
+    const activeDone=state.tasks.filter(t=>taskDone(t,now)).length,doneCount=completedTodayCount(state,now),activeIds=new Set(state.tasks.map(t=>t.id)),archivedDone=state.taskCompletionHistory.filter(x=>x.date===now&&!activeIds.has(x.taskId)).length,total=state.tasks.length+archivedDone,pct=total?Math.round(doneCount/total*100):0;
+    if($('stat-total'))$('stat-total').textContent=fa(total);if($('stat-done'))$('stat-done').textContent=fa(doneCount);if($('stat-pending'))$('stat-pending').textContent=fa(Math.max(0,state.tasks.length-activeDone));if($('stat-progress'))$('stat-progress').textContent=fa(Math.min(100,pct))+'٪';if($('progress-bar'))$('progress-bar').style.width=Math.min(100,pct)+'%';
   }
   function resetTaskForm(){
     editingTask=null;editingTaskScope='series';const f=$('task-form');f?.reset();if($('task-form-heading'))$('task-form-heading').textContent='تسک جدید';if($('task-submit'))$('task-submit').textContent='+ افزودن';$('task-cancel')?.classList.add('hidden');if($('task-short-description'))$('task-short-description').value='';if($('task-description'))$('task-description').value='';setRuleForm('task',null,today());syncRecurrenceVisibility('task');
@@ -210,7 +237,7 @@
   }
   async function taskAction(action,id){
     const state=ensureState(readState()),task=state.tasks.find(t=>t.id===id);if(!task)return;const now=today();
-    if(action==='toggle-task'){if(task.recurrenceRule){if(!applies(task,now)){notify('این تسک برای امروز برنامه‌ریزی نشده.');return}task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);if(task.occurrenceDone.includes(now))task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);else{task.occurrenceDone.push(now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}}else{task.completed=!task.completed;task.doneAt=task.completed?now:null;if(task.completed&&!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}writeState(state);renderTasks();return;}
+    if(action==='toggle-task'){if(task.recurrenceRule){if(!applies(task,now)){notify('این تسک برای امروز برنامه‌ریزی نشده.');return}task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);if(task.occurrenceDone.includes(now)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now)}else{task.occurrenceDone.push(now);recordCompletion(state,task,now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}}else{const oldDate=task.doneAt;task.completed=!task.completed;task.doneAt=task.completed?now:null;if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}else if(oldDate){removeCompletion(state,task,oldDate)}}writeState(state);renderTasks();return;}
     if(action==='view-task'){await openTaskDetails(task);return}
     if(action==='edit-task'){let scope='series';if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'ویرایش تسک تکرارشونده',message:'می‌خواهی تغییر برای کدام بخش اعمال شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'از امروز به بعد',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillTaskForm(task,scope);return;}
     if(action==='delete-task'){if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'حذف تسک تکرارشونده',message:'کدام بخش حذف شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'کل سری',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){task.skippedDates=dateList(task.skippedDates);if(!task.skippedDates.includes(now))task.skippedDates.push(now);task.occurrenceDone=dateList(task.occurrenceDone).filter(x=>x!==now);writeState(state);renderTasks();notify('نوبت امروز حذف شد.');return}}if(await window.ElaraDialog.confirm(task.recurrenceRule?'کل سری این تسک حذف شود؟':'این تسک حذف شود؟',{title:'حذف تسک',confirmText:'حذف',danger:true})){state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks()}}
@@ -282,7 +309,16 @@
     const durationMin=focusSelectedMinutes(),tag=$('focus-tag')?.value||'',id=makeId(),startedAt=Date.now();
     state.activeFocus={id,durationMin,tag,startedAt,endAt:startedAt+durationMin*60000,remainingSec:durationMin*60,status:'running'};writeState(state);
   }
-  async function resetFocus(){const state=focusState();if(state.activeFocus&&!await window.ElaraDialog.confirm('جلسهٔ فعلی لغو و زمان‌سنج از نو آماده شود؟',{title:'لغو جلسهٔ تمرکز',confirmText:'لغو جلسه',danger:true}))return;state.activeFocus=null;writeState(state);notify('زمان‌سنج برای جلسهٔ جدید آماده شد.')}
+  async function resetFocus(){
+    const state=focusState(),active=state.activeFocus;
+    if(!active){updateFocusDisplay();return}
+    const confirmed=await window.ElaraDialog.confirm('جلسهٔ فعلی پایان داده شود و زمان‌سنج برای شروع دوباره آماده شود؟',{title:'شروع دوبارهٔ تمرکز',confirmText:'شروع دوباره',cancelText:'ادامهٔ جلسه',danger:true});
+    if(!confirmed)return;
+    clearInterval(focusInterval);focusInterval=null;
+    state.activeFocus=null;
+    writeState(state);
+    notify('زمان‌سنج برای جلسهٔ جدید آماده شد.');
+  }
   function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHistory();updateFocusDisplay()}
 
   function bind(){

@@ -10,7 +10,7 @@
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
-  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], words:[], folders:[], tags:[], focusSessions:[], activeFocus:null, missionRewardClaims:[], xp:0, theme:'dark'});
+  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], words:[], folders:[], tags:[], focusSessions:[], activeFocus:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
   const uniqueNames = values => Array.isArray(values) ? [...new Set(values.map(v => asText(v,60)).filter(Boolean))].slice(0,250) : [];
   const normalize = raw => {
@@ -51,6 +51,21 @@
       return out;
     };
     data.tasks = (raw.tasks || []).slice(0,10000).filter(t => t && typeof t === 'object').map(t => ({id:safeId(t.id),text:asText(t.text ?? t.title),shortDescription:asText(t.shortDescription,280),description:asText(t.description,4000),date:validDate(t.date) ? t.date : '',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(t.time ?? '') ? t.time : '',priority:['1','2','3','4'].includes(String(t.priority)) ? String(t.priority) : '4',folder:asText(t.folder,60),tag:asText(t.tag,60),completed:!!t.completed,doneAt:validDate(t.doneAt) ? t.doneAt : null,xpAwarded:!!(t.xpAwarded || t.completed),createdAt:Number(t.createdAt) || Date.now(),recurrenceRule:safeRule(t.recurrenceRule,t.date),occurrenceDone:safeDates(t.occurrenceDone),occurrenceRewardDays:safeDates(t.occurrenceRewardDays),skippedDates:safeDates(t.skippedDates),occurrenceOverrides:safeOverrides(t.occurrenceOverrides)})).filter(t => t.text);
+    const completionMap=new Map();
+    for(const h of (Array.isArray(raw.taskCompletionHistory)?raw.taskCompletionHistory:[]).slice(-20000)){
+      if(!h||typeof h!=='object'||!validDate(h.date))continue;
+      const taskId=asText(h.taskId,100),key=asText(h.key,240)||(taskId?taskId+':'+h.date:'');
+      if(!key)continue;
+      completionMap.set(key,{key,taskId,date:h.date,title:asText(h.title,180),completedAt:Number(h.completedAt)||0});
+    }
+    for(const task of data.tasks){
+      if(task.recurrenceRule){
+        for(const date of task.occurrenceDone){const key=task.id+':'+date;if(!completionMap.has(key))completionMap.set(key,{key,taskId:task.id,date,title:task.text,completedAt:0})}
+      }else if(task.completed&&validDate(task.doneAt)){
+        const key=task.id+':'+task.doneAt;if(!completionMap.has(key))completionMap.set(key,{key,taskId:task.id,date:task.doneAt,title:task.text,completedAt:0});
+      }
+    }
+    data.taskCompletionHistory=[...completionMap.values()].slice(-20000);
     data.habits = (raw.habits || []).slice(0,2000).filter(Boolean).map(h => ({id:safeId(h.id),title:asText(h.title ?? h.name,120),days:[...new Set((Array.isArray(h.days) ? h.days : (Array.isArray(h.history) ? h.history : [])).filter(validDate))].slice(-3650),rewardDays:[...new Set((Array.isArray(h.rewardDays) ? h.rewardDays : (Array.isArray(h.days) ? h.days : [])).filter(validDate))].slice(-3650),recurrenceRule:safeRule(h.recurrenceRule,h.recurrenceRule?.startDate),skippedDates:safeDates(h.skippedDates),occurrenceOverrides:safeOverrides(h.occurrenceOverrides)})).filter(h => h.title);
     data.goals = (raw.goals || []).slice(0,2000).filter(Boolean).map(g => ({id:safeId(g.id),title:asText(g.title,180),horizon:['short','medium','long'].includes(g.horizon) ? g.horizon : 'short',steps:(Array.isArray(g.steps) ? g.steps : []).slice(0,1000).filter(Boolean).map(step => ({id:safeId(step.id),text:asText(step.text ?? step.title,180),done:!!(step.done || step.completed)})).filter(step => step.text)})).filter(g => g.title);
     data.books = (raw.books || []).slice(0,3000).filter(Boolean).map(b => ({id:safeId(b.id),title:asText(b.title,180),shelf:['want','reading','finished'].includes(b.shelf) ? b.shelf : 'want'})).filter(b => b.title);
@@ -83,6 +98,26 @@
   const wordIntervals = [1,3,7,14,30];
   const taskSort = (a,b) => Number(a.completed)-Number(b.completed) || Number(a.priority)-Number(b.priority) || (a.date || '9999').localeCompare(b.date || '9999') || b.createdAt-a.createdAt;
   const optionHTML = (items,placeholder) => `<option value="">${esc(placeholder)}</option>` + items.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  const taskCompletionKey=(taskId,date)=>String(taskId||'')+':'+String(date||'');
+  function canonicalTaskCompletionHistory(){
+    const map=new Map();
+    for(const entry of Array.isArray(state.taskCompletionHistory)?state.taskCompletionHistory:[]){
+      if(!entry||!validDate(entry.date))continue;
+      const taskId=asText(entry.taskId,100),key=asText(entry.key,240)||(taskId?taskCompletionKey(taskId,entry.date):'');
+      if(key)map.set(key,{key,taskId,date:entry.date,title:asText(entry.title,180),completedAt:Number(entry.completedAt)||0});
+    }
+    state.taskCompletionHistory=[...map.values()].slice(-20000);
+    return state.taskCompletionHistory;
+  }
+  function recordTaskCompletion(task,date){
+    const list=canonicalTaskCompletionHistory(),key=taskCompletionKey(task.id,date);
+    if(!list.some(entry=>entry.key===key))list.push({key,taskId:task.id,date,title:task.text||'',completedAt:Date.now()});
+  }
+  function removeTaskCompletion(task,date){
+    const key=taskCompletionKey(task.id,date);
+    state.taskCompletionHistory=canonicalTaskCompletionHistory().filter(entry=>entry.key!==key);
+  }
+  const baseTaskDone=(task,date=today())=>task.recurrenceRule?Array.isArray(task.occurrenceDone)&&task.occurrenceDone.includes(date):!!task.completed;
   function syncSelectors() {
     const fields = [['task-folder',state.folders,'بدون پوشه'],['task-tag',state.tags,'بدون برچسب'],['task-folder-filter',state.folders,'همهٔ پوشه‌ها'],['task-tag-filter',state.tags,'همهٔ برچسب‌ها']];
     for (const [id,names,placeholder] of fields) { const el = $(id),prev = el.value; el.innerHTML = optionHTML(names,placeholder); if (names.includes(prev)) el.value = prev; }
@@ -94,8 +129,8 @@
     $('task-list').innerHTML = visible.map(t => `<li class="item priority-${t.priority} ${t.completed ? 'done':''}"><button class="check-button" type="button" data-action="toggle-task" data-id="${esc(t.id)}" aria-label="${t.completed?'بازگرداندن':'تکمیل'} ${esc(t.text)}" aria-pressed="${t.completed}">${t.completed?'✓':''}</button><div class="item-content"><div class="item-title">${esc(t.text)}</div><div class="item-meta"><span>P${t.priority}</span>${t.date ? `<span class="${!t.completed && t.date < today()?'overdue':''}">◷ ${esc(labelDate(t.date))}${t.time?' · '+esc(t.time):''}</span>`:''}${t.folder?`<span>▤ ${esc(t.folder)}</span>`:''}${t.tag?`<span>#${esc(t.tag)}</span>`:''}</div></div><div class="item-actions"><button class="mini-button" type="button" data-action="edit-task" data-id="${esc(t.id)}" aria-label="ویرایش ${esc(t.text)}">ویرایش</button><button class="mini-button danger" type="button" data-action="delete-task" data-id="${esc(t.id)}" aria-label="حذف ${esc(t.text)}">حذف</button></div></li>`).join('');
     $('task-empty').classList.toggle('hidden',visible.length!==0);
     $('task-visible-count').textContent = fmt(visible.length);
-    const done = state.tasks.filter(t => t.completed).length,total = state.tasks.length,pct = total ? Math.round(done/total*100):0;
-    $('stat-total').textContent=fmt(total); $('stat-done').textContent=fmt(done); $('stat-pending').textContent=fmt(total-done); $('stat-progress').textContent=fmt(pct)+'٪'; $('progress-bar').style.width=pct+'%';
+    const day=today(),history=canonicalTaskCompletionHistory(),done=new Set(history.filter(entry=>entry.date===day).map(entry=>entry.key)).size,activeDone=state.tasks.filter(task=>baseTaskDone(task,day)).length,activeIds=new Set(state.tasks.map(task=>task.id)),archivedDone=history.filter(entry=>entry.date===day&&!activeIds.has(entry.taskId)).length,total=state.tasks.length+archivedDone,pending=Math.max(0,state.tasks.length-activeDone),pct=total?Math.round(done/total*100):0;
+    $('stat-total').textContent=fmt(total); $('stat-done').textContent=fmt(done); $('stat-pending').textContent=fmt(pending); $('stat-progress').textContent=fmt(Math.min(100,pct))+'٪'; $('progress-bar').style.width=Math.min(100,pct)+'%';
   }
   function resetTaskForm() { editingTask=null; $('task-form').reset(); $('task-form-heading').textContent='تسک جدید'; $('task-submit').textContent='+ افزودن'; $('task-cancel').classList.add('hidden'); }
   function handleTaskSubmit(event) {
@@ -107,7 +142,22 @@
   }
   async function handleTaskClick(event){
     const button=event.target.closest('[data-action]');if(!button)return;const task=state.tasks.find(t=>t.id===button.dataset.id);if(!task)return;
-    if(button.dataset.action==='toggle-task'){task.completed=!task.completed;task.doneAt=task.completed?today():null;if(task.completed&&!task.xpAwarded){task.xpAwarded=true;state.xp+=10;}save();renderTasks();renderHeader();}
+    if(button.dataset.action==='toggle-task'){
+      const day=today();
+      if(task.recurrenceRule){
+        task.occurrenceDone=Array.isArray(task.occurrenceDone)?task.occurrenceDone:[];
+        task.occurrenceRewardDays=Array.isArray(task.occurrenceRewardDays)?task.occurrenceRewardDays:[];
+        if(task.occurrenceDone.includes(day)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==day);removeTaskCompletion(task,day);}
+        else{task.occurrenceDone.push(day);recordTaskCompletion(task,day);if(!task.occurrenceRewardDays.includes(day)){task.occurrenceRewardDays.push(day);state.xp+=10;}}
+      }else{
+        const oldDate=task.doneAt;
+        task.completed=!task.completed;
+        task.doneAt=task.completed?day:null;
+        if(task.completed){recordTaskCompletion(task,day);if(!task.xpAwarded){task.xpAwarded=true;state.xp+=10;}}
+        else if(oldDate)removeTaskCompletion(task,oldDate);
+      }
+      save();renderTasks();renderHeader();
+    }
     if(button.dataset.action==='edit-task'){editingTask=task.id;$('task-title').value=task.text;$('task-due').value=task.date;$('task-time').value=task.time;$('task-priority').value=task.priority;$('task-folder').value=state.folders.includes(task.folder)?task.folder:'';$('task-tag').value=state.tags.includes(task.tag)?task.tag:'';$('task-form-heading').textContent='ویرایش تسک';$('task-submit').textContent='ذخیره';$('task-cancel').classList.remove('hidden');$('task-form').scrollIntoView({behavior:'smooth',block:'center'});$('task-title').focus();}
     if(button.dataset.action==='delete-task'&&await window.ElaraDialog.confirm('این تسک حذف شود؟',{title:'حذف تسک',confirmText:'حذف',danger:true})){state.tasks=state.tasks.filter(t=>t.id!==task.id);if(editingTask===task.id)resetTaskForm();save();renderTasks();}
   }

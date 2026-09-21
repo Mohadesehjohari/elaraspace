@@ -28,3 +28,10 @@ body:not(.cloud-ready) .shell,body.cloud-locked .shell,body:not(.cloud-ready) .b
 
 /* Password eye placement fix */
 .password-field input{padding-right:52px!important;padding-left:12px!important}.cloud-card .password-field .password-toggle{right:5px!important;left:auto!important;inset-inline-start:auto!important;inset-inline-end:auto!important}
+
+/* Dialog placement guard: dialogs must never fall into normal page flow. */
+body>.elara-dialog-root{position:fixed!important;inset:0!important;z-index:12000!important;display:grid!important;place-items:center!important;width:100vw!important;height:100dvh!important;padding:18px!important;overflow:hidden!important}
+body>.elara-dialog-root.hidden{display:none!important}
+body>.elara-dialog-root>.elara-dialog-scrim{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+body>.elara-dialog-root>.elara-dialog-panel{position:relative!important;inset:auto!important;margin:auto!important;align-self:center!important;justify-self:center!important}
+@media(max-width:700px){body>.elara-dialog-root{padding:14px!important}body>.elara-dialog-root>.elara-dialog-panel{width:min(92vw,520px)!important;max-height:82dvh!important;border-radius:20px!important}}

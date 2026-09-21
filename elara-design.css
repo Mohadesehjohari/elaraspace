@@ -30,3 +30,13 @@ body[data-elara-style="anime"]{background-image:radial-gradient(circle at 18% 14
 
 /* Mobile primary navigation mirrors desktop sections instead of hiding them in More. */
 @media(max-width:700px){.bottom-nav{overflow-x:auto!important;overflow-y:hidden!important;justify-content:flex-start!important;scrollbar-width:none;gap:2px}.bottom-nav::-webkit-scrollbar{display:none}.bottom-nav button{flex:0 0 64px!important;min-width:64px!important}.elara-corner-more{top:auto;bottom:calc(82px + env(safe-area-inset-bottom));inset-inline-end:12px;width:44px;height:44px}.elara-private-drawer-panel{inset-block:auto 0;width:100%;max-height:78vh;border-inline-start:0;border-top:1px solid color-mix(in srgb,var(--elara-accent) 25%,var(--border));border-radius:22px 22px 0 0;padding:14px max(12px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.drawer-profile-head{grid-template-columns:auto minmax(0,1fr) auto;padding:11px}.drawer-avatar{width:50px;height:50px;border-radius:15px}.drawer-profile-text>p{max-height:38px;overflow:hidden}.drawer-form{grid-template-columns:1fr}.drawer-form .wide{grid-column:auto}.drawer-choice-grid,.drawer-color-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Three-dot trigger belongs in the topbar beside the light/dark toggle. */
+.topbar-actions .elara-corner-more,.topbar-actions .elara-top-more{position:static!important;inset:auto!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;z-index:auto;width:42px;height:42px;flex:0 0 42px;margin:0;border-radius:14px;box-shadow:none;backdrop-filter:none}
+@media(max-width:700px){.topbar-actions .elara-corner-more,.topbar-actions .elara-top-more{position:static!important;inset:auto!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;width:46px;height:46px;flex-basis:46px;margin:0}.elara-corner-more:not(.topbar-actions .elara-corner-more){display:none!important}}
+
+
+/* P0 account/settings drawer: the only ellipsis trigger lives in the topbar; mobile stays a partial-height sheet. */
+.topbar-actions>#elara-account-menu-trigger{position:static!important;inset:auto!important;display:inline-grid!important;place-items:center;width:42px;height:42px;flex:0 0 42px;margin:0;box-shadow:none}
+body>#elara-account-menu-trigger{display:none!important}
+@media(max-width:700px){.topbar-actions>#elara-account-menu-trigger{width:46px;height:46px;flex-basis:46px}.elara-private-drawer-panel{height:min(58dvh,640px)!important;max-height:min(58dvh,640px)!important}}
