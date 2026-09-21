@@ -14,6 +14,19 @@ const app=initializeApp(firebaseConfig,'elara-admin');
 const auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
 let currentUser=null,currentAdmin=null;
 
+function authErrorMessage(error){
+  console.error('Elara admin auth:',error);
+  return ({
+    'auth/invalid-credential':'ایمیل یا رمز عبور اشتباه است.',
+    'auth/invalid-email':'فرمت ایمیل درست نیست.',
+    'auth/user-disabled':'این حساب غیرفعال شده است.',
+    'auth/too-many-requests':'تلاش‌های زیادی انجام شده؛ چند دقیقه صبر کن و دوباره امتحان کن.',
+    'auth/operation-not-allowed':'ورود ایمیل/رمز در Firebase فعال نیست.',
+    'auth/unauthorized-domain':'دامنهٔ فعلی در Firebase Authentication مجاز نشده است.',
+    'auth/network-request-failed':'ارتباط این دستگاه با Firebase Auth برقرار نشد. VPN/Proxy/DNS یا تنظیمات شبکهٔ همین دستگاه را بررسی کن.'
+  })[error?.code] || (error?.code ? error.code+': '+(error.message||'خطا') : (error?.message||'خطای ورود'));
+}
+
 function toast(message){
   const el=$('toast');el.textContent=message;el.classList.remove('hidden');
   clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.add('hidden'),4500);
@@ -79,15 +92,21 @@ async function saveSiteSettings(){
   finally{button.disabled=false;}
 }
 
+$('admin-password-toggle').addEventListener('click',()=>{
+  const input=$('admin-password'),button=$('admin-password-toggle'),show=input.type==='password';
+  input.type=show?'text':'password';button.textContent=show?'🙈':'👁';
+  button.setAttribute('aria-label',show?'پنهان کردن رمز عبور':'نمایش رمز عبور');
+  button.setAttribute('aria-pressed',String(show));input.focus({preventScroll:true});
+});
 $('admin-login').addEventListener('submit',async event=>{
   event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;
   try{await signInWithEmailAndPassword(auth,$('admin-email').value.trim(),$('admin-password').value);}
-  catch(error){console.error(error);toast('ورود ناموفق بود. ایمیل، رمز و دسترسی مدیر را بررسی کن.');button.disabled=false;}
+  catch(error){toast(authErrorMessage(error));button.disabled=false;}
 });
 $('admin-reset-password').addEventListener('click',async()=>{
   const email=$('admin-email').value.trim();if(!email){toast('اول ایمیل را وارد کن.');return}
   try{await sendPasswordResetEmail(auth,email);toast('اگر حساب وجود داشته باشد، لینک بازیابی ارسال می‌شود. پوشه Spam را هم بررسی کن.');}
-  catch(error){console.error(error);toast('ارسال لینک بازیابی ناموفق بود.');}
+  catch(error){toast(authErrorMessage(error));}
 });
 $('gate-signout').addEventListener('click',()=>signOut(auth));
 $('admin-signout').addEventListener('click',()=>signOut(auth));

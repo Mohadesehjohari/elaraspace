@@ -17,7 +17,22 @@ const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 let user=null, profile=null, loaded=false, saving=false, dirty=false, timer=null, lastPayload='';
 function message(s){status.textContent=s;}
 function notify(s){const t=$('toast');if(!t)return;t.textContent=s;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),4500);}
-function actionError(e){ console.error('Elara account:',e); return ({'auth/email-already-in-use':'این ایمیل از قبل ثبت شده. از ورود استفاده کن.','auth/invalid-credential':'ایمیل یا رمز اشتباه است.','auth/weak-password':'رمز عبور باید حداقل ۶ نویسه باشد.','auth/invalid-email':'فرمت ایمیل درست نیست.','permission-denied':'دسترسی Firestore رد شد. قوانین firestore.rules باید در پروژه اعمال شوند.','unavailable':'اتصال به دیتابیس برقرار نیست. اینترنت را بررسی کن.'})[e.code] || e.message || 'خطایی رخ داد.';}
+function actionError(e){
+  console.error('Elara account:',e);
+  return ({
+    'auth/email-already-in-use':'این ایمیل از قبل ثبت شده. از ورود استفاده کن.',
+    'auth/invalid-credential':'ایمیل یا رمز اشتباه است.',
+    'auth/weak-password':'رمز عبور باید حداقل ۶ نویسه باشد.',
+    'auth/invalid-email':'فرمت ایمیل درست نیست.',
+    'auth/user-disabled':'این حساب غیرفعال شده است.',
+    'auth/too-many-requests':'تلاش‌های زیادی انجام شده؛ چند دقیقه صبر کن و دوباره امتحان کن.',
+    'auth/operation-not-allowed':'ورود ایمیل/رمز در Firebase فعال نیست.',
+    'auth/unauthorized-domain':'این دامنه در Firebase Authentication مجاز نشده است.',
+    'auth/network-request-failed':'ارتباط مرورگر با Firebase Auth برقرار نشد. VPN/Proxy/DNS یا تنظیمات شبکهٔ همین دستگاه را بررسی کن.',
+    'permission-denied':'دسترسی Firestore رد شد. قوانین firestore.rules باید در پروژه اعمال شوند.',
+    'unavailable':'اتصال به دیتابیس برقرار نیست. اینترنت را بررسی کن.'
+  })[e.code] || (e.code ? e.code+': '+(e.message||'خطا') : (e.message||'خطایی رخ داد.'));
+}
 function locked(){loaded=false;document.body.classList.add('cloud-locked');document.body.classList.remove('cloud-ready');layer.hidden=false;}
 function unlocked(){document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');layer.hidden=true;}
 function clearAccount(){
@@ -34,10 +49,17 @@ function form(mode='login'){
   const sub=document.createElement('p');sub.className='muted';sub.textContent=mode==='register'?'حساب اختصاصی و دوستان واقعی':'برای نمایش اطلاعات خصوصی خودت وارد شو.';
   const f=document.createElement('form');f.id='cloud-form';
   const inp=(name,placeholder,type='text',required=true)=>{const el=document.createElement('input');el.name=name;el.placeholder=placeholder;el.type=type;el.required=required;el.autocomplete=name==='password'?'current-password':name==='email'?'email':'off';el.maxLength=name==='username'?20:120;return el;};
+  const passwordField=(name,placeholder,autocomplete)=>{
+    const wrap=document.createElement('div');wrap.className='password-field';
+    const input=inp(name,placeholder,'password');input.autocomplete=autocomplete;
+    const toggle=document.createElement('button');toggle.type='button';toggle.className='password-toggle';toggle.textContent='👁';toggle.setAttribute('aria-label','نمایش رمز عبور');toggle.setAttribute('aria-pressed','false');
+    toggle.addEventListener('click',()=>{const show=input.type==='password';input.type=show?'text':'password';toggle.textContent=show?'🙈':'👁';toggle.setAttribute('aria-label',show?'پنهان کردن رمز عبور':'نمایش رمز عبور');toggle.setAttribute('aria-pressed',String(show));input.focus({preventScroll:true});});
+    wrap.append(input,toggle);return {wrap,input};
+  };
   const email=inp('email','Email','email');f.append(email);
-  const pass=inp('password','Password','password');pass.minLength=6;f.append(pass);
+  const passField=passwordField('password','Password',mode==='register'?'new-password':'current-password');const pass=passField.input;pass.minLength=6;f.append(passField.wrap);
   if(mode==='register'){
-    const conf=inp('confirm','Confirm password','password');f.append(conf);
+    const confField=passwordField('confirm','Confirm password','new-password');f.append(confField.wrap);
     const uname=inp('username','Username (a-z, 0-9, _)');uname.pattern='[a-z][a-z0-9_]{2,19}';uname.autocomplete='username';f.append(uname);
     f.append(inp('name','Display name'));
   }
