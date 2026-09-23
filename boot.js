@@ -8,7 +8,7 @@
     if(!await loadScript('approved-navigation-extension.js'))return;
     if(!await loadScript('elara-design.js'))return;
     if(!await loadScript('approved-visual.js'))return;
-    for(const name of ['approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','p0-home-2026.js','reference-home-shell-2026.js'])await loadScript(name);
+    for(const name of ['approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','p0-home-2026.js','reference-shell-compat-2026.js','reference-home-shell-2026.js'])await loadScript(name);
   })();
   const launch=async()=>{
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
