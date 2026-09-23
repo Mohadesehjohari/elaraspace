@@ -14,6 +14,15 @@
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
     try{
       if(status)status.textContent='در حال اتصال امن به Firebase…';if(retry)retry.hidden=true;
+// Show a recoverable error if auth/CDN/Firestore stalls instead of leaving an endless spinner.
+setTimeout(()=>{
+  if(document.body.classList.contains('cloud-ready')||document.getElementById('cloud-form'))return;
+  const text=status?.textContent||'';
+  if(text.startsWith('در حال اتصال')||text.startsWith('در حال دریافت')){
+    status.textContent='راه‌اندازی حساب بیش از حد طول کشید. اگر با تلاش دوباره رفع نشد، اتصال Firebase را در مرورگر و شبکه بررسی کن.';
+    if(retry)retry.hidden=false;
+  }
+},15000);
       await import('./cloud.js');
       try{await import('./elara-social.js')}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
     }catch(error){console.error('Elara cloud startup:',error);if(status)status.textContent='ارتباط با حساب Firebase برقرار نشد. اتصال اینترنت را بررسی کن و دوباره تلاش کن.';if(retry)retry.hidden=false}

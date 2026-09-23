@@ -1,7 +1,7 @@
 /* Elara online phase: real accounts, private data, username reservations, and friends. */
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,updateProfile,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {initializeFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp,runTransaction,collection,query,where,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp,runTransaction,collection,query,where,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const app = initializeApp({
   apiKey:'AIzaSyBpCsIvc3A8sLrdvUiaGDQjMH6qE9lUTGo',
@@ -9,8 +9,8 @@ const app = initializeApp({
   projectId:'elara-ab1aa', storageBucket:'elara-ab1aa.firebasestorage.app',
   messagingSenderId:'233944066611', appId:'1:233944066611:web:1be816fd2dc053cea01146'
 });
-// Force the long-polling transport to accommodate buffering proxies that can break Firestore WebChannel.
-const auth=getAuth(app), db=initializeFirestore(app,{experimentalForceLongPolling:true}), $=id=>document.getElementById(id);
+// Use the Firebase SDK default transport with automatic long-polling detection when needed.
+const auth=getAuth(app), db=getFirestore(app), $=id=>document.getElementById(id);
 const layer=$('cloud-layer'), status=$('cloud-status'), retry=$('cloud-retry');
 const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],focusSessions:[],activeFocus:null,taskCompletionHistory:[],missionRewardClaims:[],xp:0,theme:'dark'});
 const safe=s=>String(s??'').trim();
@@ -121,9 +121,11 @@ function chooseUsername(){
 }
 async function readyUser(current){
   locked();user=current;
+  message('در حال دریافت پروفایل حساب…');
   const p=await getDoc(doc(db,'profiles',user.uid));
   if(!p.exists()){chooseUsername();return;}
   profile=p.data();
+  message('در حال دریافت اطلاعات شخصی از Firestore…');
   const remote=await getDoc(doc(db,'private',user.uid,'app','main'));
   if(auth.currentUser?.uid!==current.uid) return;
   const content=remote.exists()?remote.data().payload:empty();
