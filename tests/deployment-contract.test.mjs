@@ -34,7 +34,7 @@ for(const source of [adminJs,adminHtml]){
 }
 assert.match(gateway,/^<\?php/m);
 assert.match(gateway,/HTTP_AUTHORIZATION/);
-assert.match(gateway,/Bearer\\s\+/);
+assert.ok(gateway.includes('Bearer\\\\s+'),'gateway must require Bearer auth');
 assert.match(runtime,/public const OWNER = 'Mohadesehjohari'/);
 assert.match(runtime,/public const REPO = 'elaraspace'/);
 assert.match(runtime,/public const BRANCH = 'main'/);
