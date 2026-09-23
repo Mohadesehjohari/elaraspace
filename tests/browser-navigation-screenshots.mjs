@@ -27,10 +27,13 @@ for(const width of [1440,1648,1920]){
  assert.equal(await visible(page.locator('#elara-account-menu-trigger')),false,'Desktop hamburger must be hidden');
  assert.equal(await visible(page.locator('#ref-library-focus')),false,'Library timer must not show in Home');
  const sidebar=await bounds(page,'.sidebar'),tasks=await bounds(page,'.ref-tasks'),habits=await bounds(page,'.ref-habits'),wellness=await bounds(page,'.ref-wellness-card'),hero=await bounds(page,'.ref-hero');
+ const heroCopy=await bounds(page,'.ref-hero .hero-copy'),heroQuote=await bounds(page,'.ref-hero-quote');
  assert.ok(sidebar.x<=1&&sidebar.width>=210&&sidebar.width<=240,'Desktop sidebar wrong position/width');
  assert.ok(Math.abs(tasks.y-habits.y)<=3&&Math.abs(tasks.y-wellness.y)<=3,'Desktop first-row cards misaligned');
  assert.ok(tasks.x<habits.x&&habits.x<wellness.x,'Desktop card order not left to right');
  assert.ok(hero.width>width-290,'Desktop hero not using available width');
+ assert.ok(heroCopy.x<heroQuote.x,'Desktop hero heading must be left of quote as in reference');
+ assert.equal(await visible(page.locator('#elara-stats')),false,'Legacy five-stat row must not appear on reference Home');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'Horizontal overflow '+overflow);
  measurements.push({viewport:width,sidebar,hero,tasks,habits,wellness,overflow});
  await page.screenshot({path:out+'/after-desktop-'+width+'-full.png',fullPage:true});
