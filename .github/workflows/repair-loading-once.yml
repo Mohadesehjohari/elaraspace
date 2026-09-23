@@ -1,0 +1,64 @@
+name: Repair Firestore startup loading (one time)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/repair-loading-once.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Revert forced polling and add a bounded startup diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          cloud_path = Path('cloud.js')
+          cloud = cloud_path.read_text(encoding='utf-8')
+          old_import = 'import {initializeFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp,runTransaction,collection,query,where,getDocs,deleteDoc}'
+          old_init = 'db=initializeFirestore(app,{experimentalForceLongPolling:true})'
+          assert cloud.count(old_import) == 1 and cloud.count(old_init) == 1, 'Firestore setup changed; refusing an unsafe blind edit'
+          cloud = cloud.replace(old_import, old_import.replace('initializeFirestore', 'getFirestore'), 1)
+          cloud = cloud.replace(old_init, 'db=getFirestore(app)', 1)
+          cloud = cloud.replace('// Force the long-polling transport to accommodate buffering proxies that can break Firestore WebChannel.', '// Use the Firebase SDK default transport with automatic long-polling detection when needed.', 1)
+          needle = "  const p=await getDoc(doc(db,'profiles',user.uid));"
+          assert cloud.count(needle) == 1, 'Account bootstrap changed'
+          cloud = cloud.replace(needle, "  message('در حال دریافت پروفایل حساب…');\n" + needle, 1)
+          needle = "  const remote=await getDoc(doc(db,'private',user.uid,'app','main'));"
+          assert cloud.count(needle) == 1, 'Account data retrieval changed'
+          cloud = cloud.replace(needle, "  message('در حال دریافت اطلاعات شخصی از Firestore…');\n" + needle, 1)
+          cloud_path.write_text(cloud, encoding='utf-8')
+          boot_path = Path('boot.js')
+          boot = boot_path.read_text(encoding='utf-8')
+          old = "      if(status)status.textContent='در حال اتصال امن به Firebase…';if(retry)retry.hidden=true;"
+          assert boot.count(old) == 1, 'Boot flow changed'
+          new = """      if(status)status.textContent='در حال اتصال امن به Firebase…';if(retry)retry.hidden=true;
+          // Show a recoverable error if auth/CDN/Firestore stalls instead of leaving an endless spinner.
+          setTimeout(()=>{
+            if(document.body.classList.contains('cloud-ready')||document.getElementById('cloud-form'))return;
+            const text=status?.textContent||'';
+            if(text.startsWith('در حال اتصال')||text.startsWith('در حال دریافت')){
+              status.textContent='راه‌اندازی حساب بیش از حد طول کشید. اگر با تلاش دوباره رفع نشد، اتصال Firebase را در مرورگر و شبکه بررسی کن.';
+              if(retry)retry.hidden=false;
+            }
+          },15000);"""
+          boot = boot.replace(old, new, 1)
+          boot_path.write_text(boot, encoding='utf-8')
+          PY
+          node --check boot.js
+          node --input-type=module --check < cloud.js
+          node tests/static-check.mjs
+          git diff --check
+      - name: Commit only to the new public repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cloud.js boot.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: restore adaptive Firestore transport and surface stalled startup'
+          git push origin HEAD:main
