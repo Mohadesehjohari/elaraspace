@@ -8,6 +8,9 @@ on:
       - 'visual-fidelity-pass2.js'
       - 'approved-visual.js'
       - 'drawer.js'
+      - 'boot.js'
+      - 'reference-home-shell-2026.*'
+      - 'reference-shell-compat-2026.js'
       - 'tests/browser-navigation-screenshots.mjs'
       - '.github/workflows/browser-navigation-check.yml'
 permissions:
@@ -35,7 +38,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: p0-sidebar-browser-screenshots
+          name: reference-shell-browser-screenshots
           path: browser-artifacts/
           if-no-files-found: error
           retention-days: 14
