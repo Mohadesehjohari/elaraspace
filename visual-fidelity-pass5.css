@@ -1,0 +1,706 @@
+/* Visual Fidelity Pass 5A — re-audit of Account / Profile / Wardrobe / Theme.
+   Loaded after Pass 4. Keeps data contracts intact while matching the approved neon art direction. */
+:root{
+  --pass5-neon:#8f6bff;
+  --pass5-cyan:#52d8ff;
+  --pass5-panel-shadow:0 26px 76px color-mix(in srgb,#000 58%,transparent);
+  --pass5-inner:inset 0 1px 0 color-mix(in srgb,#fff 10%,transparent);
+}
+body[data-elara-style="default"]{
+  --pass5-card-radius:18px;
+  --pass5-panel-radius:24px;
+  --pass5-glow:color-mix(in srgb,var(--elara-accent) 30%,transparent);
+}
+body.dark[data-elara-style="default"]{
+  background:
+    radial-gradient(900px 520px at 72% -8%,color-mix(in srgb,var(--elara-accent) 18%,transparent),transparent 66%),
+    radial-gradient(700px 430px at 8% 20%,#2752ad22,transparent 68%),
+    linear-gradient(180deg,#050d1b 0%,#071326 45%,#040a14 100%)!important;
+}
+body.dark[data-elara-style="default"] .elara-card,
+body.dark[data-elara-style="default"] .elara-stat,
+body.dark[data-elara-style="default"] .surface{
+  border-color:color-mix(in srgb,var(--border) 64%,var(--elara-accent) 36%);
+  background:
+    linear-gradient(145deg,color-mix(in srgb,#17345e 38%,var(--surface) 62%),color-mix(in srgb,#061326 44%,var(--surface) 56%));
+  box-shadow:var(--pass5-inner),0 16px 44px #0004;
+}
+body[data-elara-style="default"] .primary-button{
+  border-color:color-mix(in srgb,var(--elara-accent) 76%,#b7d7ff 24%);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--elara-accent) 82%,#5b4cff 18%),color-mix(in srgb,var(--elara-accent) 62%,#315dff 38%));
+  box-shadow:0 8px 24px color-mix(in srgb,var(--elara-accent) 30%,transparent),inset 0 1px #ffffff2b;
+}
+body[data-elara-style="default"] .quiet-button{
+  border-color:color-mix(in srgb,var(--border) 66%,var(--elara-accent) 34%);
+  background:color-mix(in srgb,var(--surface2) 83%,var(--elara-accent) 17%);
+}
+body[data-elara-style="default"] .elara-track i,
+body[data-elara-style="default"] .elara-profile-xp-track i{
+  background:linear-gradient(90deg,#6754ff,var(--elara-accent),#6edcff);
+  box-shadow:0 0 16px color-mix(in srgb,var(--elara-accent) 52%,transparent);
+}
+
+/* Desktop Account is still the canonical private drawer, but becomes a reference-like
+   settings workspace: identity header on top, menu rail + content area below. */
+@media(min-width:701px){
+  .elara-private-drawer-panel{
+    width:min(780px,calc(100vw - 34px))!important;
+    display:grid!important;
+    grid-template-columns:minmax(188px,220px) minmax(0,1fr)!important;
+    grid-template-rows:auto minmax(0,1fr)!important;
+    gap:14px!important;
+    overflow:hidden!important;
+    padding:14px!important;
+    border-radius:26px 0 0 26px!important;
+    border:1px solid color-mix(in srgb,var(--border) 68%,var(--elara-accent) 32%)!important;
+    border-inline-end:0!important;
+    box-shadow:-32px 0 90px #0009,0 0 38px color-mix(in srgb,var(--elara-accent) 10%,transparent)!important;
+  }
+  .drawer-profile-head{grid-column:1/-1!important;grid-row:1!important;margin:0!important}
+  .drawer-menu{
+    grid-column:1!important;grid-row:2!important;
+    min-height:0;overflow:auto;align-content:start;
+    margin:0!important;padding:4px 4px 12px!important;
+    border-inline-end:1px solid color-mix(in srgb,var(--border) 72%,transparent);
+  }
+  .elara-private-drawer-panel>[data-drawer-section]{
+    grid-column:2!important;grid-row:2!important;
+    min-width:0;min-height:0;overflow:auto;
+    padding:0 5px 18px!important;
+    overscroll-behavior:contain;
+  }
+  .drawer-menu>button{min-height:54px!important}
+}
+
+/* Fix the previous conflicting mobile sheet/side-drawer rules: the approved hamburger opens
+   one coherent side drawer, not a top-aligned partial-height hybrid. */
+@media(max-width:700px){
+  .elara-private-drawer-panel{
+    inset-block:0!important;inset-inline-end:0!important;inset-inline-start:auto!important;
+    width:min(92vw,430px)!important;height:100dvh!important;max-height:100dvh!important;
+    display:block!important;overflow:auto!important;
+    border-radius:0!important;border:1px solid color-mix(in srgb,var(--border) 68%,var(--elara-accent) 32%)!important;
+    border-inline-end:0!important;
+    border-start-start-radius:24px!important;border-end-start-radius:24px!important;
+    padding:12px 12px calc(18px + env(safe-area-inset-bottom))!important;
+    box-shadow:-26px 0 72px #0009!important;
+  }
+  .drawer-menu{margin-top:10px!important}
+  .elara-private-drawer-panel>[data-drawer-section]{overflow:visible!important;padding-bottom:20px}
+}
+
+/* Shared profile composition: cinematic banner, readable identity, real XP progress. */
+.elara-profile-composition{
+  min-height:210px;
+  grid-template-columns:136px minmax(0,1fr);
+  padding:82px 20px 20px;
+  border-radius:24px;
+  border-color:color-mix(in srgb,var(--border) 60%,var(--elara-accent) 40%);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,#040a18 86%,transparent),color-mix(in srgb,#081a38 36%,transparent) 58%,color-mix(in srgb,#030813 68%,transparent)),
+    linear-gradient(0deg,color-mix(in srgb,var(--surface) 88%,transparent),transparent 64%),
+    var(--elara-profile-banner) center/cover no-repeat;
+  box-shadow:var(--pass5-inner),0 18px 52px #0006,0 0 28px color-mix(in srgb,var(--elara-accent) 11%,transparent);
+}
+.elara-profile-composition:before{
+  background:
+    radial-gradient(circle at 18% 38%,color-mix(in srgb,var(--elara-accent) 24%,transparent),transparent 29%),
+    linear-gradient(90deg,color-mix(in srgb,#030814 72%,transparent),transparent 74%);
+}
+.elara-profile-avatar-shell{
+  width:124px;height:124px;
+  filter:drop-shadow(0 12px 22px #0008);
+}
+.elara-profile-avatar-shell:before{
+  inset:4px;
+  border:2px solid color-mix(in srgb,var(--elara-accent) 76%,#84c9ff 24%);
+  background:radial-gradient(circle at 35% 24%,color-mix(in srgb,var(--elara-accent) 34%,#243f74),var(--surface) 68%);
+  box-shadow:0 0 0 4px #0b1536aa,0 0 26px color-mix(in srgb,var(--elara-accent) 55%,transparent),0 0 58px color-mix(in srgb,#516eff 22%,transparent);
+}
+.elara-profile-composition-copy{display:grid;gap:8px;padding-bottom:1px}
+.elara-profile-identity-line{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.elara-profile-identity-line>div{min-width:0}
+.elara-profile-identity-line strong{font-size:1.22rem!important;line-height:1.35}
+.elara-profile-identity-line small{margin-top:4px!important;color:color-mix(in srgb,var(--text) 72%,var(--elara-accent))!important}
+.elara-profile-level-pill{
+  flex:0 0 auto;padding:5px 9px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--elara-accent) 50%,var(--border));
+  background:color-mix(in srgb,var(--surface2) 72%,var(--elara-accent) 28%);
+  color:var(--text);font-size:.62rem;font-weight:900;
+  box-shadow:0 0 16px color-mix(in srgb,var(--elara-accent) 16%,transparent);
+}
+.elara-profile-xp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:.62rem}
+.elara-profile-xp-row b{color:var(--text);font-size:.67rem}
+.elara-profile-xp-track{height:7px;overflow:hidden;border-radius:999px;background:color-mix(in srgb,var(--surface2) 82%,#000 18%);border:1px solid color-mix(in srgb,var(--border) 76%,transparent)}
+.elara-profile-xp-track i{display:block;height:100%;border-radius:inherit}
+.elara-profile-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:24px}
+.elara-profile-chips span{
+  padding:4px 8px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+  background:color-mix(in srgb,var(--surface2) 80%,transparent);
+  color:var(--muted);font-size:.58rem;
+}
+.elara-profile-composition-compact{
+  min-height:132px;grid-template-columns:84px minmax(0,1fr);padding:36px 13px 13px;border-radius:18px;
+}
+.elara-profile-composition-compact .elara-profile-avatar-shell{width:78px;height:78px}
+.elara-profile-composition-compact .elara-profile-identity-line strong{font-size:.92rem!important}
+.elara-profile-composition-compact .elara-profile-level-pill{font-size:.54rem;padding:4px 6px}
+.elara-profile-composition-compact .elara-profile-xp-row{font-size:.53rem}
+.elara-profile-composition-compact .elara-profile-chips{display:none}
+
+/* Account presentation and edit dialog */
+.drawer-profile-head{
+  border-color:color-mix(in srgb,var(--border) 62%,var(--elara-accent) 38%)!important;
+  box-shadow:var(--pass5-inner),0 12px 34px #0004;
+}
+.drawer-profile-summary .elara-profile-composition{min-height:154px!important}
+.pass4-account-card{gap:14px}
+.pass4-account-bio{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 91%,var(--elara-accent) 9%),var(--surface2));
+  border-color:color-mix(in srgb,var(--border) 74%,var(--elara-accent) 26%);
+}
+.pass4-profile-facts span{
+  border-color:color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+  background:color-mix(in srgb,var(--surface2) 86%,var(--elara-accent) 14%);
+}
+.pass4-account-actions button{min-height:44px}
+.pass5-profile-edit-preview{margin:-2px 0 4px}
+.pass5-profile-edit-preview .elara-profile-composition{box-shadow:var(--pass5-inner),0 12px 34px #0004}
+.pass4-profile-edit-form{gap:12px}
+.pass4-profile-edit-form label{font-weight:700}
+.pass4-profile-edit-form input,.pass4-profile-edit-form textarea{
+  min-height:43px;
+  border-color:color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+  background:color-mix(in srgb,var(--input,var(--surface2)) 94%,var(--elara-accent) 6%);
+}
+.elara-dialog-root .elara-dialog-panel{
+  border-radius:24px!important;
+  box-shadow:0 28px 90px #000b,0 0 36px color-mix(in srgb,var(--elara-accent) 13%,transparent)!important;
+}
+.elara-dialog-root .elara-dialog-scrim{background:color-mix(in srgb,#020611 68%,transparent)!important;backdrop-filter:blur(7px)!important}
+
+/* Wardrobe feels collectible rather than a flat settings list. */
+.approved-wardrobe-window{
+  width:min(1100px,100%)!important;
+  border-color:color-mix(in srgb,var(--border) 58%,var(--elara-accent) 42%)!important;
+  background:
+    radial-gradient(620px 260px at 18% 0%,color-mix(in srgb,var(--elara-accent) 15%,transparent),transparent 66%),
+    linear-gradient(145deg,color-mix(in srgb,var(--surface2) 90%,#172f62 10%),var(--surface))!important;
+  box-shadow:0 34px 100px #000c,0 0 40px color-mix(in srgb,var(--elara-accent) 12%,transparent)!important;
+}
+.pass4-wardrobe-preview{
+  min-height:260px;
+  border-color:color-mix(in srgb,var(--border) 58%,var(--elara-accent) 42%);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,#020714 84%,transparent),color-mix(in srgb,#081831 36%,transparent) 60%,color-mix(in srgb,#020714 65%,transparent)),
+    var(--wardrobe-preview-banner) center/cover no-repeat;
+  box-shadow:var(--pass5-inner),0 16px 44px #0005;
+}
+.wardrobe-section{
+  border-color:color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 88%,var(--elara-accent) 12%),color-mix(in srgb,var(--surface) 86%,transparent))!important;
+}
+.wardrobe-item{
+  overflow:hidden;
+  border-color:color-mix(in srgb,var(--border) 78%,var(--elara-accent) 22%)!important;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--surface2) 82%,var(--elara-accent) 18%),var(--surface))!important;
+  box-shadow:inset 0 1px #ffffff08,0 8px 22px #0003;
+}
+.wardrobe-item:before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 24%,color-mix(in srgb,var(--elara-accent) 16%,transparent),transparent 44%);
+}
+.wardrobe-item[aria-pressed=true]{
+  border-color:color-mix(in srgb,var(--elara-accent) 80%,#7edaff 20%)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--elara-accent) 24%,transparent),0 0 28px color-mix(in srgb,var(--elara-accent) 30%,transparent)!important;
+}
+.wardrobe-item[aria-disabled=true] .wardrobe-item-media,
+.wardrobe-item[aria-disabled=true] .wardrobe-banner{opacity:.54;filter:saturate(.62) brightness(.8)}
+.wardrobe-lock-mark{backdrop-filter:blur(8px)}
+
+/* Theme previews show meaningful family differences while retaining stored keys. */
+.pass4-theme-tile{min-height:72px;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.pass4-theme-tile:hover{transform:translateY(-1px)}
+body[data-elara-style="minimal"] .elara-profile-composition,
+body[data-elara-style="minimal"] .approved-wardrobe-window,
+body[data-elara-style="minimal"] .elara-private-drawer-panel,
+body[data-elara-style="minimal"] .elara-dialog-root .elara-dialog-panel{
+  box-shadow:none!important;border-radius:10px!important;background:var(--surface)!important;
+}
+body[data-elara-style="minimal"] .elara-profile-avatar-shell:before{box-shadow:none!important}
+body[data-elara-style="rugged"] .elara-profile-composition,
+body[data-elara-style="rugged"] .approved-wardrobe-window,
+body[data-elara-style="rugged"] .elara-private-drawer-panel{border-radius:5px!important}
+body[data-elara-style="rugged"] .elara-profile-avatar-shell:before{border-radius:12px}
+body[data-elara-style="rugged"] .elara-profile-avatar-img{border-radius:9px}
+body[data-elara-style="anime"] .elara-profile-composition,
+body[data-elara-style="anime"] .approved-wardrobe-window,
+body[data-elara-style="anime"] .elara-dialog-root .elara-dialog-panel{border-radius:30px!important}
+body[data-elara-style="anime"] .elara-profile-composition:before{
+  background:radial-gradient(circle at 18% 32%,color-mix(in srgb,var(--elara-accent) 30%,transparent),transparent 36%),linear-gradient(90deg,color-mix(in srgb,var(--surface) 72%,transparent),transparent);
+}
+
+/* Light and AMOLED retain readability instead of inheriting dark-only hard-codes. */
+body.light .elara-profile-composition{
+  background:
+    linear-gradient(90deg,color-mix(in srgb,#eef4ff 91%,transparent),color-mix(in srgb,#eef4ff 36%,transparent) 64%,color-mix(in srgb,#eef4ff 72%,transparent)),
+    var(--elara-profile-banner) center/cover no-repeat;
+  box-shadow:0 16px 42px #2c4b7722;
+}
+body.light .elara-profile-composition:before{background:linear-gradient(90deg,#f6f9ffbf,transparent)}
+body.light .elara-profile-xp-track{background:#d6e0f0}
+body.dark.amoled .elara-profile-composition,
+body.dark.amoled .approved-wardrobe-window,
+body.dark.amoled .elara-private-drawer-panel{
+  background-color:#030303!important;
+  box-shadow:0 18px 54px #000!important;
+}
+
+@media(max-width:700px){
+  .elara-profile-composition{
+    min-height:176px;grid-template-columns:92px minmax(0,1fr);padding:60px 12px 12px;gap:11px;
+  }
+  .elara-profile-avatar-shell{width:86px;height:86px}
+  .elara-profile-identity-line{gap:7px}
+  .elara-profile-identity-line strong{font-size:.94rem!important}
+  .elara-profile-level-pill{font-size:.52rem;padding:4px 6px}
+  .elara-profile-xp-row{font-size:.52rem}
+  .elara-profile-chips span{font-size:.52rem;padding:3px 6px}
+  .pass4-wardrobe-preview{min-height:0}
+}
+@media(max-width:390px){
+  .elara-profile-composition{grid-template-columns:76px minmax(0,1fr);padding-top:54px}
+  .elara-profile-avatar-shell{width:70px;height:70px}
+  .elara-profile-chips{display:none}
+  .elara-profile-xp-row span{display:none}
+}
+@media(max-width:340px){
+  .elara-private-drawer-panel{width:96vw!important}
+  .pass4-profile-facts{gap:4px}
+  .pass4-profile-facts span{font-size:.56rem;padding:4px 6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pass4-theme-tile{transition:none!important;transform:none!important}
+}
+
+
+/* Pass 5B — Home reference fidelity.
+   Uses only existing Home data and Pass 3 DOM ownership. */
+.pass5-drawer-hub{display:grid;gap:14px;padding:4px 2px 18px}
+.pass5-drawer-hub-copy{
+  position:relative;overflow:hidden;padding:18px;border-radius:18px;
+  border:1px solid color-mix(in srgb,var(--border) 64%,var(--elara-accent) 36%);
+  background:
+    linear-gradient(125deg,color-mix(in srgb,var(--surface2) 82%,var(--elara-accent) 18%),color-mix(in srgb,var(--surface) 94%,transparent)),
+    url('assets/banner-moon.svg') center/cover no-repeat;
+  box-shadow:var(--pass5-inner),0 14px 36px #0004;
+}
+.pass5-drawer-hub-copy:after{content:'';position:absolute;inset:auto -8% -45% 38%;height:80%;background:radial-gradient(ellipse,color-mix(in srgb,var(--elara-accent) 28%,transparent),transparent 68%);pointer-events:none}
+.pass5-drawer-hub-copy>*{position:relative;z-index:1}
+.pass5-drawer-hub-copy h2{margin:4px 0;font-size:1.2rem}
+.pass5-drawer-hub-copy p{margin:4px 0;color:var(--muted);font-size:.7rem;line-height:1.9}
+.pass5-drawer-hub-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pass5-drawer-hub-meta span{padding:4px 8px;border-radius:999px;border:1px solid color-mix(in srgb,var(--border) 68%,var(--elara-accent) 32%);background:color-mix(in srgb,var(--surface) 76%,transparent);font-size:.58rem}
+.pass5-drawer-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pass5-drawer-hub-grid button{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;text-align:start;min-height:74px;padding:10px;border:1px solid var(--border);border-radius:14px;background:var(--surface2);color:var(--text)}
+.pass5-drawer-hub-grid button:hover,.pass5-drawer-hub-grid button:focus-visible{border-color:var(--elara-accent);outline:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--elara-accent) 15%,transparent)}
+.pass5-drawer-hub-grid button>.elara-icon{width:32px;height:32px}
+.pass5-drawer-hub-grid b,.pass5-drawer-hub-grid small{display:block}.pass5-drawer-hub-grid b{font-size:.7rem}.pass5-drawer-hub-grid small{margin-top:2px;color:var(--muted);font-size:.56rem}
+
+/* The approved neon Home is cinematic at the top and dense/card-based below. */
+.pass3-home{max-width:1320px!important}
+body[data-elara-style="default"] .pass3-home .pass3-home-hero{
+  min-height:232px!important;
+  padding:28px 30px!important;
+  border-color:color-mix(in srgb,#587bb0 62%,var(--elara-accent) 38%)!important;
+  background:
+    radial-gradient(circle at 76% 18%,#e5ebff 0 2.6%,#9dafff80 3.2%,transparent 7.2%),
+    linear-gradient(90deg,#030c1de8 0%,#071831c2 36%,#17184f6f 67%,#030b1bcc 100%),
+    url('assets/hero.svg') center 57%/cover no-repeat!important;
+  box-shadow:inset 0 1px #ffffff19,0 22px 62px #0007,0 0 44px color-mix(in srgb,var(--elara-accent) 15%,transparent)!important;
+}
+body[data-elara-style="default"] .pass3-home .pass3-home-hero:before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 48%,#02071352 100%);
+}
+.pass3-home .hero-copy{max-width:600px!important}
+.pass3-home .hero-copy h1{font-size:clamp(1.45rem,2.5vw,2.18rem)!important;line-height:1.55!important}
+.pass3-home .hero-copy>p:not(.elara-kicker){max-width:500px!important;color:#dce5ff!important}
+.pass3-home .elara-hero-xp{
+  min-width:250px!important;max-width:340px!important;padding:13px 14px!important;
+  border-color:color-mix(in srgb,#7186bd 56%,var(--elara-accent) 44%)!important;
+  background:linear-gradient(145deg,#07152ed9,#111b48c7)!important;
+  box-shadow:inset 0 1px #ffffff17,0 14px 32px #0005,0 0 24px color-mix(in srgb,var(--elara-accent) 13%,transparent)!important;
+}
+.pass3-home .elara-stats{gap:10px!important;margin:12px 0 14px!important}
+.pass3-home .elara-stat{min-height:82px!important;border-radius:15px!important}
+.pass3-home .elara-stat strong{font-size:1.14rem!important}
+.pass3-home .elara-stat small{font-size:.64rem!important}
+.pass3-home .elara-dashboard-grid>.elara-card{
+  overflow:hidden;
+  border-color:color-mix(in srgb,var(--border) 70%,var(--elara-accent) 30%)!important;
+  box-shadow:var(--pass5-inner),0 12px 32px #00035!important;
+}
+.pass3-home .elara-dashboard-grid>.elara-card:after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(120deg,color-mix(in srgb,var(--elara-accent) 5%,transparent),transparent 38%);
+}
+.pass3-home .elara-dashboard-grid>.elara-card>*{position:relative;z-index:1}
+.pass3-home .pass3-task-row,.pass3-home .pass3-habit-row,.pass3-home .pass3-goal-row,.pass3-home .pass3-mission-row{min-height:44px}
+.pass3-home .pass3-priority{box-shadow:0 0 12px currentColor22}
+.pass3-home .pass3-focus-subcard{
+  background:
+    radial-gradient(circle at 8% 0%,color-mix(in srgb,var(--elara-accent) 17%,transparent),transparent 42%),
+    linear-gradient(120deg,color-mix(in srgb,var(--surface2) 90%,#07152e),color-mix(in srgb,var(--surface) 88%,#17133a))!important;
+}
+.pass3-home .pass3-focus-subcard #elara-mirror-timer{text-shadow:0 0 18px color-mix(in srgb,var(--elara-accent) 45%,transparent)}
+
+@media(min-width:1100px){
+  .pass3-home .elara-dashboard-grid{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:12px!important}
+  .pass3-home .pass3-tasks-card{grid-column:span 5!important}
+  .pass3-home .pass3-habits-card{grid-column:span 4!important}
+  .pass3-home .pass3-missions-card{grid-column:span 3!important}
+  .pass3-home .pass3-goals-card{grid-column:span 4!important}
+  .pass3-home .pass3-ranking-home{grid-column:span 4!important}
+  .pass3-home .pass3-friends-home{grid-column:span 4!important}
+  .pass3-home .pass3-secondary-card{grid-column:span 6!important}
+}
+@media(max-width:1099px) and (min-width:701px){
+  .pass3-home .elara-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pass3-home .pass3-tasks-card,.pass3-home .pass3-habits-card{grid-column:1/-1!important}
+  .pass3-home .pass3-missions-card,.pass3-home .pass3-ranking-home{grid-column:1!important}
+  .pass3-home .pass3-goals-card,.pass3-home .pass3-friends-home{grid-column:2!important}
+}
+@media(max-width:700px){
+  .pass5-drawer-hub-grid{grid-template-columns:1fr}
+  .pass3-home .pass3-home-hero{min-height:184px!important;padding:16px!important}
+  .pass3-home .hero-copy h1{font-size:1.22rem!important}
+  .pass3-home .elara-hero-xp{min-width:0!important;max-width:100%!important;width:100%!important;padding:9px 10px!important}
+  .pass3-home .elara-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .pass3-home .elara-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .pass3-home .pass3-tasks-card,.pass3-home .pass3-habits-card{grid-column:1/-1!important}
+  .pass3-home .pass3-missions-card,.pass3-home .pass3-ranking-home{grid-column:1!important}
+  .pass3-home .pass3-goals-card,.pass3-home .pass3-friends-home{grid-column:2!important}
+  .pass3-home .pass3-secondary-card{grid-column:1/-1!important}
+}
+@media(max-width:430px){
+  .pass3-home .elara-dashboard-grid>.elara-card{padding:10px!important}
+  .pass3-home .pass3-missions-card,.pass3-home .pass3-goals-card,.pass3-home .pass3-ranking-home,.pass3-home .pass3-friends-home{min-height:146px!important}
+}
+@media(max-width:340px){
+  .pass3-home .elara-dashboard-grid{grid-template-columns:1fr!important}
+  .pass3-home .pass3-missions-card,.pass3-home .pass3-goals-card,.pass3-home .pass3-ranking-home,.pass3-home .pass3-friends-home{grid-column:1!important}
+}
+body.light .pass5-drawer-hub-copy{background:linear-gradient(120deg,#f6f8ffdc,#edf2ffed),url('assets/banner-moon.svg') center/cover no-repeat}
+body.light .pass3-home .elara-dashboard-grid>.elara-card{box-shadow:inset 0 1px #fff,0 10px 28px #28456b17!important}
+body.dark.amoled .pass5-drawer-hub-copy{background:linear-gradient(120deg,#050505e8,#090909e8),url('assets/banner-moon.svg') center/cover no-repeat}
+
+
+/* Pass 5C — Language reference fidelity.
+   Keeps the four canonical blocks and real data sources; presentation only. */
+.pass3-language{max-width:1280px!important}
+body[data-elara-style="default"] .pass3-language .pass3-language-hero{
+  min-height:224px!important;
+  padding:28px 30px!important;
+  border-color:color-mix(in srgb,#5f79a8 58%,var(--elara-accent) 42%)!important;
+  background:
+    radial-gradient(circle at 78% 18%,#e3e8ff 0 2.4%,#a59dff70 3%,transparent 7%),
+    linear-gradient(90deg,#031024e8 0%,#08162fbd 42%,#25185965 70%,#040d20ce 100%),
+    url('assets/banner-castle.svg') center/cover no-repeat!important;
+  box-shadow:inset 0 1px #ffffff1a,0 22px 60px #0006,0 0 42px color-mix(in srgb,var(--elara-accent) 14%,transparent)!important;
+}
+.pass3-language .pass3-language-hero:after{
+  content:'';position:absolute;inset:auto -8% -48% 32%;height:82%;pointer-events:none;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--elara-accent) 22%,transparent),transparent 68%);
+}
+.pass3-language .pass3-language-hero h1{font-size:clamp(1.45rem,2.4vw,2.08rem)!important;line-height:1.6!important}
+.pass3-language .pass3-language-hero p{color:#d8e1fb!important;max-width:580px}
+.pass3-language .pass3-language-grid{
+  display:grid!important;
+  grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin-top:13px!important;
+}
+.pass3-language [data-language-block="leitner"]{grid-column:span 5!important}
+.pass3-language [data-language-block="books"]{grid-column:span 7!important}
+.pass3-language [data-language-block="report"]{grid-column:span 5!important}
+.pass3-language [data-language-block="courses"]{grid-column:span 7!important}
+.pass3-language .pass3-language-block{
+  position:relative;overflow:hidden;min-height:180px!important;padding:15px!important;
+  border-color:color-mix(in srgb,var(--border) 68%,var(--elara-accent) 32%)!important;
+  box-shadow:var(--pass5-inner),0 13px 34px #00038!important;
+}
+.pass3-language .pass3-language-block:after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 8% 0%,color-mix(in srgb,var(--elara-accent) 8%,transparent),transparent 40%);
+}
+.pass3-language .pass3-language-block>*{position:relative;z-index:1}
+.pass3-language .pass3-language-block>header{
+  min-height:44px;align-items:center;
+  border-color:color-mix(in srgb,var(--border) 72%,var(--elara-accent) 18%)!important;
+}
+.pass3-language .pass3-language-block>header h2 .elara-icon{
+  width:36px!important;height:36px!important;border-radius:12px!important;
+  box-shadow:0 8px 18px #0003,0 0 20px color-mix(in srgb,var(--elara-accent) 18%,transparent)!important;
+}
+.pass3-language [data-language-block="leitner"]{
+  background:
+    radial-gradient(circle at 14% 18%,#8d5dff26,transparent 38%),
+    linear-gradient(145deg,color-mix(in srgb,var(--surface2) 88%,#151443 12%),var(--surface))!important;
+}
+.pass3-language .lang-stat-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.pass3-language .lang-stat-row>div{
+  min-height:78px;display:grid;place-items:center;align-content:center;gap:3px;
+  border-color:color-mix(in srgb,var(--border) 66%,var(--elara-accent) 34%);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 84%,var(--elara-accent) 16%),var(--surface2));
+  box-shadow:inset 0 1px #ffffff0e;
+}
+.pass3-language .lang-stat-row strong{font-size:1.3rem!important;text-shadow:0 0 18px color-mix(in srgb,var(--elara-accent) 32%,transparent)}
+.pass3-language .pass3-leitner-source-cta{width:100%;min-height:42px;margin-top:4px}
+.pass3-language .pass3-language-book{
+  border-color:color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 88%,var(--elara-accent) 12%),var(--surface2));
+  box-shadow:inset 0 1px #ffffff08,0 7px 18px #0002;
+}
+.pass3-language .pass3-book-cover{
+  border:1px solid color-mix(in srgb,var(--border) 62%,var(--elara-accent) 38%);
+  background:
+    radial-gradient(circle at 35% 20%,color-mix(in srgb,var(--elara-accent) 32%,transparent),transparent 42%),
+    linear-gradient(150deg,#172855,#08152d)!important;
+  box-shadow:inset 0 1px #ffffff16,0 8px 18px #0004,0 0 18px color-mix(in srgb,var(--elara-accent) 12%,transparent)!important;
+}
+.pass3-language #language-book-form{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(120px,.36fr) auto!important;gap:7px!important;
+  padding:9px;margin-top:8px;border:1px solid color-mix(in srgb,var(--border) 78%,transparent);border-radius:12px;
+  background:color-mix(in srgb,var(--surface) 76%,transparent);
+}
+.pass3-language #language-book-form input,.pass3-language #language-book-form select{min-width:0}
+.pass3-language .pass3-mini-chart{height:126px!important;background:linear-gradient(180deg,color-mix(in srgb,var(--surface2) 86%,var(--elara-accent) 14%),color-mix(in srgb,var(--surface) 90%,transparent))!important}
+.pass3-language .pass3-mini-chart i{background:linear-gradient(180deg,#9b72ff,#4d6dff 58%,#4ed5d2)!important;box-shadow:0 0 15px color-mix(in srgb,var(--elara-accent) 34%,transparent)!important}
+.pass3-language .pass3-coming-soon{
+  min-height:118px;
+  border-color:color-mix(in srgb,var(--border) 62%,var(--elara-accent) 38%);
+  background:
+    radial-gradient(circle at 12% 22%,color-mix(in srgb,var(--elara-accent) 17%,transparent),transparent 38%),
+    color-mix(in srgb,var(--surface2) 84%,transparent);
+}
+.pass3-language .pass3-coming-soon>.elara-icon,.pass3-language .pass3-coming-soon>span>.elara-icon{width:52px!important;height:52px!important}
+
+@media(max-width:900px){
+  .pass3-language .pass3-language-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pass3-language [data-language-block="leitner"],.pass3-language [data-language-block="books"]{grid-column:1/-1!important}
+  .pass3-language [data-language-block="report"]{grid-column:1!important}
+  .pass3-language [data-language-block="courses"]{grid-column:2!important}
+}
+@media(max-width:700px){
+  .pass3-language .pass3-language-hero{min-height:178px!important;padding:16px!important}
+  .pass3-language .pass3-language-hero h1{font-size:1.2rem!important}
+  .pass3-language .pass3-language-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .pass3-language [data-language-block="leitner"],.pass3-language [data-language-block="books"]{grid-column:1/-1!important}
+  .pass3-language [data-language-block="report"]{grid-column:1!important}
+  .pass3-language [data-language-block="courses"]{grid-column:2!important}
+  .pass3-language .pass3-language-block{padding:10px!important;min-height:0!important}
+  .pass3-language #language-book-form{grid-template-columns:1fr!important}
+  .pass3-language .pass3-coming-soon{min-height:100%}
+}
+@media(max-width:375px){
+  .pass3-language [data-language-block="report"],.pass3-language [data-language-block="courses"]{grid-column:1/-1!important}
+  .pass3-language .lang-stat-row{gap:5px!important}
+  .pass3-language .lang-stat-row>div{min-height:66px;padding:7px!important}
+  .pass3-language .lang-stat-row strong{font-size:1.05rem!important}
+}
+body.light .pass3-language .pass3-language-block{box-shadow:inset 0 1px #fff,0 10px 26px #2b456916!important}
+body.dark.amoled .pass3-language .pass3-language-block{background:#050505!important}
+
+
+/* Pass 5D — Social and Ranking reference fidelity.
+   The existing Firebase-backed friend/ranking renderer remains the data owner.
+   No fake users, online state, global leaderboard or private activity fields are introduced. */
+.pass3-ranking-page,.pass3-social-page{max-width:1280px!important}
+#panel-ranking>h1,#panel-social>h1{
+  position:relative;overflow:hidden;min-height:112px;display:flex;align-items:flex-end;
+  margin:0 0 12px;padding:22px 24px;border:1px solid color-mix(in srgb,var(--border) 58%,var(--elara-accent) 42%);
+  border-radius:21px;color:#f5f2ff;
+  background:
+    linear-gradient(90deg,#040d1fe8 0%,#091a38b8 48%,#24164f7a 74%,#040b1bd8 100%),
+    url('assets/banner-moon.svg') center 54%/cover no-repeat;
+  box-shadow:inset 0 1px #ffffff16,0 18px 48px #0005,0 0 36px color-mix(in srgb,var(--elara-accent) 13%,transparent);
+}
+#panel-ranking>h1:after,#panel-social>h1:after{
+  content:'';position:absolute;inset:auto -8% -58% 36%;height:100%;pointer-events:none;
+  background:radial-gradient(ellipse,color-mix(in srgb,var(--elara-accent) 28%,transparent),transparent 68%);
+}
+
+/* Turn the first three existing real ranking rows into a podium without changing rank data. */
+.pass3-ranking-card{
+  position:relative;overflow:hidden;padding:16px!important;
+  border-color:color-mix(in srgb,var(--border) 61%,var(--elara-accent) 39%)!important;
+  background:
+    radial-gradient(circle at 50% -8%,color-mix(in srgb,var(--elara-accent) 16%,transparent),transparent 38%),
+    linear-gradient(145deg,color-mix(in srgb,var(--surface2) 89%,#111b43 11%),var(--surface))!important;
+}
+.pass3-ranking-card>header{
+  min-height:68px;padding:3px 3px 11px;border-bottom:1px solid color-mix(in srgb,var(--border) 66%,var(--elara-accent) 20%);
+}
+.pass3-ranking-card>header h2 .elara-icon{width:38px;height:38px;border-radius:12px}
+.pass3-ranking-list{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;align-items:end!important;padding-top:18px;
+}
+.pass3-ranking-list .pass3-rank-line{
+  min-width:0;position:relative;
+}
+.pass3-ranking-list .pass3-rank-line.is-top-1,
+.pass3-ranking-list .pass3-rank-line.is-top-2,
+.pass3-ranking-list .pass3-rank-line.is-top-3{
+  grid-template-columns:1fr!important;grid-template-rows:auto auto auto auto;
+  justify-items:center;text-align:center;gap:6px!important;min-height:178px;
+  padding:16px 8px 12px!important;border-radius:18px!important;
+}
+.pass3-ranking-list .pass3-rank-line.is-top-1{order:2;min-height:202px;transform:translateY(-12px);border-color:#e9c56a88!important;background:linear-gradient(180deg,#d9ad5d1f,color-mix(in srgb,var(--surface2) 92%,#7a5420 8%))!important;box-shadow:0 14px 34px #0004,0 0 25px #d9ad5d24!important}
+.pass3-ranking-list .pass3-rank-line.is-top-2{order:1;border-color:#b7c8e26b!important;background:linear-gradient(180deg,#b9cae51a,color-mix(in srgb,var(--surface2) 94%,#7587a4 6%))!important}
+.pass3-ranking-list .pass3-rank-line.is-top-3{order:3;border-color:#d08b626b!important;background:linear-gradient(180deg,#d08b621a,color-mix(in srgb,var(--surface2) 94%,#8b4f32 6%))!important}
+.pass3-ranking-list .pass3-rank-line:nth-child(n+4){order:4;grid-column:1/-1}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-avatar,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-avatar,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-avatar{
+  width:68px;height:68px;font-size:1.05rem;border-width:2px;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--surface) 78%,transparent),0 0 24px color-mix(in srgb,var(--elara-accent) 32%,transparent);
+}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-avatar{width:78px;height:78px;box-shadow:0 0 0 4px #17162fe6,0 0 30px #e8bd5a47}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .pass3-rank-number,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .pass3-rank-number,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .pass3-rank-number{
+  position:absolute;z-index:2;top:6px;inset-inline-start:7px;width:27px;height:27px;font-weight:900;
+}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .pass3-rank-number{background:#b98c2d;color:#fff8d9}
+.pass3-ranking-list .pass3-rank-line.is-top-2 .pass3-rank-number{background:#72849e;color:#f5f8ff}
+.pass3-ranking-list .pass3-rank-line.is-top-3 .pass3-rank-number{background:#995f3d;color:#fff2e9}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-info,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-info,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-info{width:100%;text-align:center}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-info strong,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-info strong,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-info strong{font-size:.76rem}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-info small,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-info small,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-info small{font-size:.55rem;white-space:normal}
+.pass3-ranking-list .pass3-rank-line.is-top-1 .pass3-rank-xp,
+.pass3-ranking-list .pass3-rank-line.is-top-2 .pass3-rank-xp,
+.pass3-ranking-list .pass3-rank-line.is-top-3 .pass3-rank-xp{font-weight:900;color:var(--text);font-size:.64rem}
+.pass3-ranking-list .pass3-rank-line.is-self{
+  border-color:color-mix(in srgb,var(--elara-accent) 70%,#74c9ff 30%)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--elara-accent) 24%,transparent),0 0 24px color-mix(in srgb,var(--elara-accent) 17%,transparent)!important;
+}
+
+/* Ranking support cards keep real social entry and clearly-blocked future clubs. */
+.pass3-ranking-grid{grid-template-columns:repeat(12,minmax(0,1fr))!important}
+.pass3-ranking-grid>.pass3-ranking-card{grid-column:1/-1!important}
+.pass3-ranking-grid>.pass3-social-entry{grid-column:span 5!important}
+.pass3-ranking-grid>.pass3-coming-card{grid-column:span 7!important}
+.pass3-ranking-grid>.elara-card.wide:last-child{grid-column:1/-1!important}
+.pass3-social-entry,.pass3-coming-card{
+  border-color:color-mix(in srgb,var(--border) 70%,var(--elara-accent) 30%)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 88%,var(--elara-accent) 12%),var(--surface))!important;
+}
+.pass3-coming-card{background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 91%,#201548 9%),var(--surface))!important}
+.pass3-soon-pill{border:1px solid color-mix(in srgb,var(--border) 55%,var(--elara-accent) 45%);padding:5px 9px}
+
+/* Social page: compact stats + search, requests, friends and consented activity. */
+.pass3-social-page>.elara-stats{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;margin:0 0 11px!important;
+}
+.pass3-social-page>.elara-stats .elara-stat{
+  min-height:78px!important;border-color:color-mix(in srgb,var(--border) 70%,var(--elara-accent) 30%)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 88%,var(--elara-accent) 12%),var(--surface))!important;
+}
+.pass3-social-page .elara-social-grid{
+  display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:11px!important;
+}
+.pass3-social-page .elara-social-grid>section{
+  border-color:color-mix(in srgb,var(--border) 70%,var(--elara-accent) 30%)!important;
+  box-shadow:var(--pass5-inner),0 12px 30px #0003!important;
+}
+.pass3-social-page .elara-social-grid>section:nth-child(1){grid-column:1/-1!important;background:linear-gradient(120deg,color-mix(in srgb,var(--surface2) 87%,#182052 13%),var(--surface))!important}
+.pass3-social-page .elara-social-grid>section:nth-child(2){grid-column:span 5!important}
+.pass3-social-page .elara-social-grid>section:nth-child(3){grid-column:span 7!important}
+.pass3-social-page .elara-social-grid>section:nth-child(4){grid-column:1/-1!important}
+.pass3-social-page #elara-add-friend{display:grid!important;grid-template-columns:minmax(180px,1fr) auto auto auto!important;gap:7px!important}
+.pass3-social-page #elara-add-friend input{
+  min-width:0;border-color:color-mix(in srgb,var(--border) 66%,var(--elara-accent) 34%);
+  background:color-mix(in srgb,var(--input) 94%,var(--elara-accent) 6%);
+}
+.pass3-social-page .elara-item{
+  min-height:54px!important;gap:8px!important;
+  border-color:color-mix(in srgb,var(--border) 77%,var(--elara-accent) 23%)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 91%,var(--elara-accent) 9%),var(--surface2))!important;
+}
+.pass3-social-page .elara-social-avatar{
+  width:38px;height:38px;border-color:color-mix(in srgb,var(--elara-accent) 75%,#74c9ff 25%);
+  box-shadow:0 0 14px color-mix(in srgb,var(--elara-accent) 20%,transparent);
+}
+.pass3-social-page .elara-profile-link{border-radius:9px}
+.pass3-social-page .elara-profile-link:hover,.pass3-social-page .elara-profile-link:focus-visible{
+  outline:none;background:color-mix(in srgb,var(--elara-accent) 8%,transparent);
+}
+.pass3-social-page .elara-message{min-height:1.2em;margin-bottom:0}
+
+/* Public profile dialog remains shared-composition based; only visual framing changes. */
+.elara-profile-dialog .pass4-public-profile-card{
+  border-color:color-mix(in srgb,var(--border) 62%,var(--elara-accent) 38%)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 90%,var(--elara-accent) 10%),var(--surface))!important;
+}
+.elara-profile-dialog .elara-profile-bio{
+  margin:12px 0;padding:12px 13px;border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+  border-radius:13px;background:color-mix(in srgb,var(--surface2) 86%,transparent);line-height:1.9;
+}
+
+@media(max-width:900px){
+  .pass3-ranking-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pass3-ranking-grid>.pass3-social-entry{grid-column:1!important}
+  .pass3-ranking-grid>.pass3-coming-card{grid-column:2!important}
+  .pass3-social-page .elara-social-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pass3-social-page .elara-social-grid>section:nth-child(1),.pass3-social-page .elara-social-grid>section:nth-child(4){grid-column:1/-1!important}
+  .pass3-social-page .elara-social-grid>section:nth-child(2){grid-column:1!important}
+  .pass3-social-page .elara-social-grid>section:nth-child(3){grid-column:2!important}
+}
+@media(max-width:700px){
+  #panel-ranking>h1,#panel-social>h1{min-height:88px;padding:16px 17px;border-radius:17px;font-size:1.15rem}
+  .pass3-ranking-card{padding:10px!important}
+  .pass3-ranking-list{gap:6px!important;padding-top:14px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1,.pass3-ranking-list .pass3-rank-line.is-top-2,.pass3-ranking-list .pass3-rank-line.is-top-3{min-height:150px;padding:12px 5px 9px!important}
+  .pass3-ranking-list .pass3-rank-line.is-top-1{min-height:168px;transform:translateY(-8px)}
+  .pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-avatar{width:62px;height:62px}
+  .pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-avatar,.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-avatar{width:54px;height:54px}
+  .pass3-ranking-grid>.pass3-social-entry,.pass3-ranking-grid>.pass3-coming-card{min-height:140px}
+  .pass3-social-page #elara-add-friend{grid-template-columns:1fr 1fr!important}
+  .pass3-social-page #elara-add-friend input{grid-column:1/-1}
+}
+@media(max-width:430px){
+  .pass3-ranking-list .pass3-rank-line.is-top-1,.pass3-ranking-list .pass3-rank-line.is-top-2,.pass3-ranking-list .pass3-rank-line.is-top-3{min-height:138px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1{min-height:154px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-avatar{width:54px;height:54px}
+  .pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-avatar,.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-avatar{width:48px;height:48px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-info small,
+  .pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-info small,
+  .pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-info small{display:none}
+  .pass3-social-page .elara-social-grid{grid-template-columns:1fr!important}
+  .pass3-social-page .elara-social-grid>section:nth-child(1),.pass3-social-page .elara-social-grid>section:nth-child(2),.pass3-social-page .elara-social-grid>section:nth-child(3),.pass3-social-page .elara-social-grid>section:nth-child(4){grid-column:1!important}
+}
+@media(max-width:340px){
+  .pass3-ranking-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+  .pass3-ranking-list .pass3-rank-line.is-top-1,.pass3-ranking-list .pass3-rank-line.is-top-2,.pass3-ranking-list .pass3-rank-line.is-top-3{min-height:126px;padding-inline:3px!important}
+  .pass3-ranking-list .pass3-rank-line.is-top-1{min-height:140px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1 .elara-social-avatar{width:48px;height:48px}
+  .pass3-ranking-list .pass3-rank-line.is-top-2 .elara-social-avatar,.pass3-ranking-list .pass3-rank-line.is-top-3 .elara-social-avatar{width:42px;height:42px}
+  .pass3-ranking-list .pass3-rank-line.is-top-1 .pass3-rank-xp,.pass3-ranking-list .pass3-rank-line.is-top-2 .pass3-rank-xp,.pass3-ranking-list .pass3-rank-line.is-top-3 .pass3-rank-xp{font-size:.53rem}
+  .pass3-social-page>.elara-stats{gap:5px!important}
+  .pass3-social-page>.elara-stats .elara-stat{padding:7px!important}
+}
+body.light #panel-ranking>h1,body.light #panel-social>h1{color:#fff}
+body.light .pass3-ranking-card,body.light .pass3-social-page .elara-social-grid>section{box-shadow:inset 0 1px #fff,0 10px 28px #27446517!important}
+body.dark.amoled .pass3-ranking-card,body.dark.amoled .pass3-social-page .elara-social-grid>section{background:#050505!important}
+@media(prefers-reduced-motion:reduce){
+  .pass3-ranking-list .pass3-rank-line.is-top-1{transform:none!important}
+}

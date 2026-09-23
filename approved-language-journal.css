@@ -1,0 +1,14 @@
+/* Real learning reports, integrated into the existing four-section Language page. */
+.learning-journal{border-top:1px solid var(--border);margin-top:16px;padding-top:14px;min-width:0}
+.learning-journal h3{font-size:1rem;margin:0 0 6px}
+.learning-journal form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.learning-journal form label{display:grid;gap:5px;min-width:0;font-size:.77rem;color:var(--muted)}
+.learning-journal input,.learning-journal textarea{width:100%;min-width:0;border:1px solid var(--border);background:var(--input);color:var(--text);border-radius:12px;padding:9px;font:inherit}
+.learning-journal-notes,.learning-journal form>.learning-journal-actions{grid-column:1/-1}
+.learning-journal-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.learning-journal-entry{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-top:1px solid var(--border);padding:10px 0;overflow-wrap:anywhere}
+.learning-journal-entry>div:first-child{flex:1;min-width:145px}
+.learning-journal-entry small{display:block;font-size:.72rem;color:var(--muted)}
+.learning-journal-entry p{white-space:pre-wrap;margin:5px 0;font-size:.8rem}
+.learning-journal-total{font-weight:750;color:var(--elara-accent)}
+@media(max-width:360px){.learning-journal form{grid-template-columns:1fr}.learning-journal-notes,.learning-journal form>.learning-journal-actions{grid-column:auto}}

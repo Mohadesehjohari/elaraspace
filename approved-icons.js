@@ -1,0 +1,10 @@
+/* Small optimized transparent PNG icon crops taken from the three user-approved images. */
+(()=>{'use strict';const icons={'elara-home-tasks':'book','elara-home-habits':'leaf','elara-home-missions':'rocket','elara-home-social':'friends','elara-home-ranks':'trophy'};
+const labels={flame:'شعلهٔ استریک',book:'کتاب سه‌بعدی',leaf:'برگ سه‌بعدی',rocket:'موشک سه‌بعدی',friends:'دوستان',trophy:'جام سه‌بعدی',brain:'مغز سه‌بعدی'};
+function apply(){const stats=document.querySelectorAll('#elara-stats>.elara-stat');if(stats[0]){const icon=stats[0].querySelector('.elara-visual-icon');if(icon)icon.innerHTML='<img src="assets/icon-flame.png" alt="" loading="lazy">'}
+ for(const [id,name] of Object.entries(icons)){const h=document.getElementById(id)?.closest('.elara-card')?.querySelector('header h2 .elara-visual-icon');if(h)h.innerHTML=`<img src="assets/icon-${name}.png" alt="" loading="lazy">`}
+ const language=document.querySelectorAll('#panel-language .approved-language-grid>.elara-card');for(const [i,name] of [[0,'brain'],[1,'book'],[2,'trophy'],[3,'rocket']]){const h=language[i]?.querySelector('header h2 .elara-visual-icon');if(h)h.innerHTML=`<img src="assets/icon-${name}.png" alt="" loading="lazy">`}
+}
+const style=document.createElement('style');style.textContent='.elara-visual-icon img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 5px #9d7fff66)}.elara-stat .elara-visual-icon:has(img),.elara-card h2 .elara-visual-icon:has(img){background:transparent;border:0;box-shadow:none;filter:none}';document.head.append(style);
+window.addEventListener('elara:open',apply);window.addEventListener('elara:data-changed',apply);window.addEventListener('elara:social-updated',apply);window.addEventListener('elara:hydrate',apply);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+})();

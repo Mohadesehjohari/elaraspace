@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+const read=name=>readFileSync(new URL(name,root),'utf8');
+const boot=read('boot.js'),wellness=read('approved-wellness.js'),navigation=read('approved-navigation-extension.js'),style=read('approved-navigation-extension.css');
+for(const file of ['index.html','admin/index.html','approved-wellness.js','approved-wellness.css','approved-navigation-extension.js','approved-navigation-extension.css','approved-seasonal.css','assets/banner-autumn.svg'])assert.ok(existsSync(new URL(file,root)),`${file} missing`);
+for(const name of ['approved-wellness.js','approved-navigation-extension.js','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css'])assert.ok(boot.includes(name),`${name} not loaded`);
+for(const route of ['exercise','language','tasks','home','ranking','books','freedom'])assert.ok(navigation.includes(`route:'${route}'`),`${route} missing in canonical seven-route navigation`);
+assert.ok(navigation.includes('window.ElaraNavigation={routes:MAIN')&&navigation.includes('renderMainNav')&&navigation.includes('ensureDock'),'Mobile and desktop navigation must share the canonical renderer');
+assert.ok(wellness.includes('elara_private_wellness_v1_')&&wellness.includes('uid()'),'Wellness must be account scoped');
+for(const id of ['wellness-water-total','wellness-sleep-list','wellness-workout-list','wellness-cycle','wellness-water-chart','wellness-sleep-chart'])assert.ok(wellness.includes(`id="${id}"`),`${id} missing`);
+assert.ok(wellness.includes("s.gender!=='woman'")&&wellness.includes("kind==='cycle'&&read().gender!=='woman'"),'Cycle must be gated by voluntary choice');
+assert.ok(wellness.includes('window.ElaraDialog.open'),'Entries must use the existing themed modal');
+assert.ok(wellness.includes('data-wellness-home')&&wellness.includes('relocateFocus'),'Home must expose water/sleep and inline focus');
+assert.ok(style.includes('.elara-desktop-dock')&&style.includes('.bottom-nav'),'Desktop and mobile navigation styles required');
+console.log('Static extension contract check passed. This is NOT an E2E/browser/Firebase verification.');

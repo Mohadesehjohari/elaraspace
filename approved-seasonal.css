@@ -1,0 +1,8 @@
+/* Distinct in-repository seasonal landscape; preserves the lunar Home reference. */
+.wellness-banner{background-image:linear-gradient(90deg,#071124bd 0%,#0b13348c 50%,#11173365 100%),url('assets/banner-autumn.svg')!important;background-position:center!important;background-size:cover!important}
+.wellness-banner strong{text-shadow:0 3px 14px #060717,0 0 18px #e49a7245}
+body.light .wellness-banner{background-image:linear-gradient(90deg,#0a1534b2,#19224870),url('assets/banner-autumn.svg')!important;color:#fff}
+/* Keep the actual Focus timer in its themed centered overlay; no duplicate timer state. */
+.wellness-inline-focus #elara-home-focus>.primary-button{display:none!important}
+.wellness-inline-focus #elara-home-focus>[data-approved-focus]{display:inline-grid!important;place-items:center;flex:1;min-width:90px;min-height:44px;color:#fff!important;border:1px solid #a485ff!important;background:linear-gradient(110deg,#7756ff,#4b53f1)!important;box-shadow:0 0 16px #744eff64;font-size:0!important}
+.wellness-inline-focus #elara-home-focus>[data-approved-focus]::after{content:'▶ شروع تمرکز';font-size:.76rem;font-family:Vazirmatn,sans-serif}
