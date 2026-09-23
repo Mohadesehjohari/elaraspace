@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 const b=await chromium.launch({headless:true});
-for(const width of [390,1648]){
+for(const width of [320,375,390,430,1648]){
  const p=await b.newPage({viewport:{width,height:928}});await p.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded'});await p.waitForFunction(()=>window.ElaraReferenceHome&&document.querySelector('.ref-home-grid'));
  await p.evaluate(()=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');window.ElaraReferenceHome.render()});
  const diag=await p.evaluate(()=>{
