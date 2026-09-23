@@ -12,6 +12,7 @@ on:
       - 'reference-home-shell-2026.*'
       - 'reference-shell-compat-2026.js'
       - 'tests/browser-navigation-screenshots.mjs'
+      - 'tests/reference-geometry-assertions.mjs'
       - '.github/workflows/browser-navigation-check.yml'
 permissions:
   contents: read
@@ -34,6 +35,8 @@ jobs:
           sleep 2
       - name: Run browser acceptance
         run: node tests/browser-navigation-screenshots.mjs
+      - name: Assert reference geometry across seven viewports
+        run: node tests/reference-geometry-assertions.mjs
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
