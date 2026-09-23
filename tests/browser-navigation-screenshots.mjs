@@ -1,78 +1,54 @@
 import assert from 'node:assert/strict';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-
-const out='browser-artifacts';
-mkdirSync(out,{recursive:true});
+const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const primary=['exercise','language','tasks','home','ranking','books','freedom'];
-
+const mobileRoutes=['exercise','language','tasks','home','ranking','books','freedom'];
+const desktopRoutes=['home','tasks','language','books','exercise','ranking','freedom'];
+const measurements=[];
 async function ready(page){
-  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>window.ElaraNavigation&&typeof window.ElaraOpen==='function'&&document.querySelector('.sidebar .navigation'),null,{timeout:20000});
-  await page.addStyleTag({content:
-    '#cloud-layer{display:none!important}'+
-    'body:not(.cloud-ready) .shell,body.cloud-locked .shell,body:not(.cloud-ready) .bottom-nav{visibility:visible!important}'+
-    '*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'
-  });
-  await page.evaluate(()=>{
-    document.body.classList.add('cloud-ready');
-    document.body.classList.remove('cloud-locked');
-    const layer=document.getElementById('cloud-layer');
-    if(layer){layer.hidden=true;layer.setAttribute('hidden','')}
-    window.ElaraNavigation.render();
-    window.ElaraNavigation.active();
-  });
-  await page.waitForTimeout(300);
+ await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraNavigation&&window.ElaraReferenceHome&&typeof window.ElaraOpen==='function'&&document.querySelector('.ref-home-grid'),null,{timeout:30000});
+ await page.addStyleTag({content:'#cloud-layer{display:none!important}body:not(.cloud-ready) .shell,body.cloud-locked .shell,body:not(.cloud-ready) .bottom-nav{visibility:visible!important}*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'});
+ await page.evaluate(()=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.setAttribute('hidden','')}window.ElaraNavigation.render();window.ElaraReferenceHome.render();window.ElaraOpen('home',{history:'replace'})});
+ await page.waitForTimeout(350);
 }
-async function isVisible(locator){
-  const box=await locator.boundingBox();
-  return !!box&&box.width>0&&box.height>0;
+async function visible(locator){const b=await locator.boundingBox();return !!b&&b.width>0&&b.height>0}
+async function bounds(page,selector){return page.locator(selector).evaluate(el=>{const x=el.getBoundingClientRect();return {x:Math.round(x.x),y:Math.round(x.y),width:Math.round(x.width),height:Math.round(x.height)}})}
+for(const width of [1440,1648,1920]){
+ const page=await browser.newPage({viewport:{width,height:width===1648?928:1000},deviceScaleFactor:1});await ready(page);
+ assert.deepEqual(await page.locator('.sidebar .elara-sidebar-primary [data-elara-tab]').evaluateAll(n=>n.map(x=>x.dataset.elaraTab)),desktopRoutes);
+ for(const route of desktopRoutes)assert.equal(await visible(page.locator('.sidebar .elara-sidebar-primary [data-elara-tab="'+route+'"]')),true,'desktop route hidden: '+route);
+ assert.equal(await visible(page.locator('.sidebar .elara-sidebar-secondary [data-elara-tab="reports"]')),true);
+ assert.equal(await visible(page.locator('.bottom-nav')),false,'Bottom Nav must be hidden on desktop');
+ assert.equal(await visible(page.locator('#ref-header-search input')),true,'Desktop typed search missing');
+ assert.equal(await visible(page.locator('#ref-header-account')),true,'Desktop account opener missing');
+ assert.equal(await visible(page.locator('#elara-account-menu-trigger')),false,'Desktop hamburger must be hidden');
+ assert.equal(await visible(page.locator('#ref-library-focus')),false,'Library timer must not show in Home');
+ const sidebar=await bounds(page,'.sidebar'),tasks=await bounds(page,'.ref-tasks'),habits=await bounds(page,'.ref-habits'),wellness=await bounds(page,'.ref-wellness-card'),hero=await bounds(page,'.ref-hero');
+ assert.ok(sidebar.x<=1&&sidebar.width>=210&&sidebar.width<=240,'Desktop sidebar wrong position/width');
+ assert.ok(Math.abs(tasks.y-habits.y)<=3&&Math.abs(tasks.y-wellness.y)<=3,'Desktop first-row cards misaligned');
+ assert.ok(tasks.x<habits.x&&habits.x<wellness.x,'Desktop card order not left to right');
+ assert.ok(hero.width>width-290,'Desktop hero not using available width');
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'Horizontal overflow '+overflow);
+ measurements.push({viewport:width,sidebar,hero,tasks,habits,wellness,overflow});
+ await page.screenshot({path:out+'/after-desktop-'+width+'-full.png',fullPage:true});
+ if(width===1440){await page.locator('.sidebar [data-elara-tab="books"]').click();await page.waitForFunction(()=>location.hash==='#books');assert.equal(await page.locator('.sidebar [data-elara-tab="books"]').getAttribute('aria-current'),'page');assert.equal(await visible(page.locator('#ref-library-focus .focus-card')),true,'Operational library timer missing');await page.screenshot({path:out+'/after-desktop-library-active.png'});await ready(page);await page.locator('#ref-header-account').click();await page.waitForFunction(()=>!document.querySelector('.elara-private-drawer')?.classList.contains('hidden'));await page.screenshot({path:out+'/after-desktop-drawer-open.png'});await page.locator('.elara-private-drawer [data-approved-wardrobe]').first().click();await page.waitForFunction(()=>!document.querySelector('.approved-wardrobe')?.hidden);await page.screenshot({path:out+'/after-desktop-drawer-popup.png'});await page.locator('.approved-wardrobe-window [data-close-wardrobe]').click();await page.waitForFunction(()=>document.querySelector('.approved-wardrobe')?.hidden);assert.equal(await page.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer closed after popup');await page.screenshot({path:out+'/after-desktop-drawer-restored.png'});}
+ await page.close();
 }
-
-const desktop=await browser.newPage({viewport:{width:1440,height:1000}});
-await ready(desktop);
-assert.equal(await desktop.locator('.sidebar .navigation').getAttribute('data-elara-nav-owner'),'canonical');
-assert.deepEqual(
-  await desktop.locator('.sidebar .elara-sidebar-primary [data-elara-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.elaraTab)),
-  primary
-);
-for(const route of primary)assert.equal(await isVisible(desktop.locator('.sidebar .elara-sidebar-primary [data-elara-tab="'+route+'"]')),true,'desktop route hidden: '+route);
-assert.equal(await isVisible(desktop.locator('.sidebar .elara-sidebar-secondary [data-elara-tab="reports"]')),true,'Reports secondary hidden');
-assert.equal(await desktop.locator('.sidebar [data-elara-tab="home"]').getAttribute('aria-current'),'page');
-await desktop.screenshot({path:out+'/01-desktop-1440-sidebar-home.png'});
-
-await desktop.locator('.sidebar [data-elara-tab="books"]').click();
-await desktop.waitForFunction(()=>location.hash==='#books');
-assert.equal(await desktop.locator('.sidebar [data-elara-tab="books"]').getAttribute('aria-current'),'page');
-assert.notEqual(await desktop.locator('.sidebar [data-elara-tab="home"]').getAttribute('aria-current'),'page');
-await desktop.screenshot({path:out+'/02-desktop-1440-library-active.png'});
-
-const mobile=await browser.newPage({viewport:{width:390,height:844}});
-await ready(mobile);
-assert.equal(await mobile.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');
-assert.deepEqual(
-  await mobile.locator('.bottom-nav [data-elara-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.elaraTab)),
-  primary
-);
-for(const route of primary)assert.equal(await isVisible(mobile.locator('.bottom-nav [data-elara-tab="'+route+'"]')),true,'mobile route hidden: '+route);
-assert.equal(await mobile.locator('.bottom-nav [data-elara-tab="home"]').getAttribute('aria-current'),'page');
-await mobile.screenshot({path:out+'/03-mobile-390-bottom-nav.png'});
-
-await ready(desktop);
-await desktop.locator('#elara-account-menu-trigger').click();
-await desktop.waitForFunction(()=>!document.querySelector('.elara-private-drawer')?.classList.contains('hidden'));
-assert.equal(await isVisible(desktop.locator('.elara-private-drawer-panel')),true);
-await desktop.screenshot({path:out+'/04-desktop-drawer-open.png'});
-
-await desktop.locator('.elara-private-drawer [data-approved-wardrobe]').first().click();
-await desktop.waitForFunction(()=>{const x=document.querySelector('.approved-wardrobe');return x&&!x.hidden},{timeout:10000});
-assert.equal(await desktop.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer closed behind Wardrobe');
-await desktop.screenshot({path:out+'/05-desktop-drawer-plus-wardrobe.png'});
-await desktop.locator('.approved-wardrobe-window [data-close-wardrobe]').click();
-await desktop.waitForFunction(()=>document.querySelector('.approved-wardrobe')?.hidden===true);
-assert.equal(await desktop.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer did not survive popup close');
-await desktop.screenshot({path:out+'/06-desktop-drawer-after-popup-close.png'});
-
-await browser.close();
-console.log('PASS: Chromium desktop/mobile navigation and Drawer popup-state screenshots created.');
+for(const width of [320,375,390,430]){
+ const page=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:1});await ready(page);
+ assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');
+ assert.deepEqual(await page.locator('.bottom-nav [data-elara-tab]').evaluateAll(n=>n.map(x=>x.dataset.elaraTab)),mobileRoutes);
+ for(const route of mobileRoutes)assert.equal(await visible(page.locator('.bottom-nav [data-elara-tab="'+route+'"]')),true,'mobile route hidden: '+route);
+ assert.equal(await page.locator('.bottom-nav [data-elara-tab="home"]').getAttribute('aria-current'),'page');
+ assert.equal(await visible(page.locator('#elara-account-menu-trigger')),true,'Mobile hamburger hidden');
+ assert.equal(await visible(page.locator('#ref-streak-card')),true,'Mobile streak missing');
+ assert.equal(await visible(page.locator('.ref-wellness-card')),true,'Mobile Wellness summary missing');
+ assert.equal(await visible(page.locator('.ref-tasks')),true);assert.equal(await visible(page.locator('.ref-habits')),true);
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'Mobile horizontal overflow '+width+': '+overflow);
+ measurements.push({viewport:width,hero:await bounds(page,'.ref-hero'),streak:await bounds(page,'#ref-streak-card'),tasks:await bounds(page,'.ref-tasks'),habits:await bounds(page,'.ref-habits'),wellness:await bounds(page,'.ref-wellness-card'),overflow});
+ await page.screenshot({path:out+'/after-mobile-'+width+'-full.png',fullPage:true});await page.close();
+}
+writeFileSync(out+'/geometry.json',JSON.stringify(measurements,null,2));await browser.close();
+console.log('PASS: real Chromium shell/Home 1440/1648/1920, mobile 320/375/390/430, Library focus, Drawer/popup and screenshots.');
