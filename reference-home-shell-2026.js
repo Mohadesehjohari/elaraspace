@@ -11,6 +11,20 @@ const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const done=(t,d=today())=>t?.recurrenceRule?arr(t.occurrenceDone).includes(d):!!t?.completed;
 function due(t,d=today()){if(!t?.recurrenceRule)return !t.date||t.date===d;const r=t.recurrenceRule,weekdays=arr(r.weekdays).map(Number),weekday=new Date(d+'T12:00:00').getDay();return weekdays.includes(weekday)&&(!r.startDate||r.startDate<=d)&&(!r.endDate||r.endDate>=d)&&!arr(t.skippedDates).includes(d)}
 function streak(){const s=read(),dates=new Set();for(const row of arr(s.taskCompletionHistory))if(row?.date)dates.add(row.date);for(const h of arr(s.habits))for(const d of arr(h.days))dates.add(d);const d=new Date();d.setHours(12,0,0,0);if(!dates.has(iso(d)))d.setDate(d.getDate()-1);let n=0;while(dates.has(iso(d))){n++;d.setDate(d.getDate()-1)}return n}
+
+function localSearch(q){
+ const query=String(q||'').trim().toLocaleLowerCase();if(!query)return[];
+ const data=read(),results=[];const add=(route,label,detail,searchText)=>{if(String(searchText||'').toLocaleLowerCase().includes(query))results.push({route,label,detail})};
+ const routes=[['home','خانه','داشبورد'],['tasks','تسک‌ها','کارها'],['language','زبان','واژه لایتنر'],['books','کتابخانه','کتاب'],['exercise','ورزش','سلامت آب خواب تمرین'],['ranking','رنکینگ','رتبه'],['freedom','آزادی','ایده'],['reports','گزارش‌ها','گزارش'],['social','دوستان','دوست درخواست']];
+ for(const [route,label,terms] of routes)add(route,label,'بخش برنامه',label+' '+terms);
+ for(const t of arr(data.tasks))add('tasks',t.text||t.title||'تسک','تسک',`${t.text||''} ${t.shortDescription||''} ${t.description||''} ${t.folder||''} ${t.tag||''}`);
+ for(const h of arr(data.habits))add('habits',h.title||h.name||'عادت','عادت شخصی',h.title||h.name||'');
+ for(const g of arr(data.goals))add('goals',g.title||g.name||'هدف','هدف',`${g.title||g.name||''} ${arr(g.steps).map(s=>s.text||'').join(' ')}`);
+ for(const b of arr(data.books))add('books',b.title||'کتاب','کتابخانه',b.title||'');
+ for(const w of arr(data.words))add('language',w.front||'واژه',w.back||'واژه',`${w.front||''} ${w.back||''}`);
+ return results.slice(0,12);
+}
+
 function element(tag,cls,id){const e=document.createElement(tag);e.className=cls;if(id)e.id=id;return e}
 function homeStructure(){
  const panel=$('panel-home'),grid=panel?.querySelector('.elara-dashboard-grid');if(!panel||!grid)return;
@@ -26,12 +40,12 @@ function homeStructure(){
  grid.append(side,theme);
  const extra=card('elara-home-books');if(extra){extra.hidden=true;grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
- if(tasks){const h=tasks.querySelector('header h2');if(h)h.textContent='کارهای امروز'}
- if(habits){const h=habits.querySelector('header h2');if(h)h.textContent='عادت‌های امروز'}
- if(missions){const h=missions.querySelector('header h2');if(h)h.textContent='مأموریت‌های امروز'}
- if(goals){const h=goals.querySelector('header h2');if(h)h.textContent='اهداف من'}
- if(ranks){const h=ranks.querySelector('header h2');if(h)h.textContent='رنکینگ این هفته'}
- if(activity){const h=activity.querySelector('header h2');if(h)h.textContent='فعالیت دوستان'}
+ if(tasks){const h=tasks.querySelector('header h2');if(h)h.innerHTML=`${icon('tasks')} کارهای امروز`}
+ if(habits){const h=habits.querySelector('header h2');if(h)h.innerHTML=`${icon('habits')} عادت‌های امروز`}
+ if(missions){const h=missions.querySelector('header h2');if(h)h.innerHTML=`${icon('missions')} مأموریت‌های امروز`}
+ if(goals){const h=goals.querySelector('header h2');if(h)h.innerHTML=`${icon('goals')} اهداف من`}
+ if(ranks){const h=ranks.querySelector('header h2');if(h)h.innerHTML=`${icon('ranking')} رنکینگ این هفته`}
+ if(activity){const h=activity.querySelector('header h2');if(h)h.innerHTML=`${icon('friends')} فعالیت دوستان`}
  const stats=$('elara-stats');if(stats)stats.hidden=true;
  let streakCard=$('ref-streak-card');if(!streakCard){streakCard=element('section','ref-streak-card','ref-streak-card');const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('ref-hero');const heading=hero.querySelector('.hero-copy h1');if(heading)heading.textContent='قدم‌های کوچک، آینده‌های بزرگ می‌سازند.';let quote=$('ref-hero-quote');if(!quote){quote=element('aside','ref-hero-quote','ref-hero-quote');quote.innerHTML='<strong>امروز بهتر از دیروز!</strong><span>همیشه ممکن است.</span>';hero.append(quote)}}
@@ -56,11 +70,11 @@ function wellness(){const target=$('ref-wellness-data');if(!target)return;const 
  target.innerHTML=`<div class="ref-wellness-summaries">${cells.map(([ic,label,value,unit,section])=>`<button type="button" data-ref-exercise="${section}" class="ref-wellness-cell"><span>${icon(ic)}</span><small>${label}</small><strong>${value}</strong><small>${unit}</small></button>`).join('')}</div><button class="ref-wellness-banner" type="button" data-elara-tab="exercise"><strong>بدن سالم، ذهن قوی‌تر</strong><span>ثبت و مدیریت در بخش ورزش ←</span></button>`;
 }
 function streakView(){const root=$('ref-streak-card');if(!root)return;const n=streak(),d=new Date();d.setHours(12,0,0,0);const days=Array.from({length:7},(_,i)=>{const v=new Date(d);v.setDate(v.getDate()-6+i);return `<span class="ref-streak-day ${i===6?'today':''}"><b>${v.toLocaleDateString('fa-IR',{weekday:'narrow'})}</b><strong>${v.toLocaleDateString('fa-IR',{day:'numeric'})}</strong></span>`}).join('');root.innerHTML=`<div class="ref-streak-summary">${icon('flame')}<strong>${fa(n)}</strong><small>روز تداوم</small></div><div class="ref-streak-days">${days}</div>`}
-function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar?.querySelector('.topbar-actions');if(!bar||!actions)return;bar.classList.add('ref-topbar');
+function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar?.querySelector('.topbar-actions'),leading=bar?.querySelector('.topbar-leading');if(!bar||!actions)return;bar.classList.add('ref-topbar');document.querySelectorAll('.elara-toolbar,.topbar-actions .elara-profile').forEach(x=>x.remove());if(leading&&!leading.querySelector('.ref-mobile-brand')){leading.replaceChildren();const brand=element('a','ref-mobile-brand','ref-mobile-brand');brand.href='#home';brand.setAttribute('aria-label','Elara Space');brand.innerHTML='<img src="assets/logo.svg" alt=""><span><b>Elara</b><small>زندگی بهتر، هر روز</small></span>';leading.append(brand)}
  let account=$('ref-header-account');if(!account){account=element('button','ref-header-account','ref-header-account');account.type='button';account.setAttribute('aria-label','حساب و تنظیمات');account.addEventListener('click',()=>window.ElaraPrivateDrawer?.open?.('home'));bar.prepend(account)}
  const me=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},v=window.ElaraProfileSystem?.viewModel?.(me,{self:true})||{},xp=Number(v.xp??me.xp??read().xp)||0,level=v.level||window.ElaraLevels?.level?.(xp)||1,avatar=v.avatarSrc||window.ElaraAccount?.user?.photoURL||'',name=String(v.name||me.name||'حساب من');
  account.innerHTML=`<span class="ref-account-avatar">${avatar?`<img src="${esc(avatar)}" alt="">`:esc(name.trim()[0]||'E')}</span><span class="ref-account-copy"><strong>${esc(name)}</strong><small>سطح ${fa(level)} · ${fa(xp)} XP</small><span class="ref-xp-track"><i style="width:${Math.min(100,(xp%1000)/10)}%"></i></span></span>`;
- let search=$('ref-header-search');if(!search){search=element('div','ref-header-search','ref-header-search');search.innerHTML=`<label for="ref-search-input" class="sr-only">جستجو در Elara</label><input id="ref-search-input" type="search" autocomplete="off" placeholder="جستجو در Elara…"><div class="ref-search-results" id="ref-search-results" hidden></div>`;bar.insertBefore(search,actions);const input=$('ref-search-input'),results=$('ref-search-results');input.addEventListener('input',()=>{const q=input.value.trim(),rows=window.ElaraP0HomeTest?.localSearch?.(q)||[];results.hidden=!q;results.innerHTML=q?(rows.length?rows.map(r=>`<button type="button" data-ref-search-route="${esc(r.route)}"><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></button>`).join(''):'<p class="muted">نتیجه‌ای پیدا نشد.</p>'):''});input.addEventListener('keydown',e=>{if(e.key==='Escape'){results.hidden=true;input.blur()}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click()}});results.addEventListener('click',e=>{const b=e.target.closest('[data-ref-search-route]');if(!b)return;const q=input.value.trim();results.hidden=true;window.ElaraOpen?.(b.dataset.refSearchRoute);if(b.dataset.refSearchRoute==='tasks')setTimeout(()=>{const field=$('task-search');if(field){field.value=q;field.dispatchEvent(new Event('input',{bubbles:true}))}},0)});document.addEventListener('click',e=>{if(!search.contains(e.target))results.hidden=true})}
+ let search=$('ref-header-search');if(!search){search=element('div','ref-header-search','ref-header-search');search.innerHTML=`<label for="ref-search-input" class="sr-only">جستجو در Elara</label><input id="ref-search-input" type="search" autocomplete="off" placeholder="جستجو در Elara…"><div class="ref-search-results" id="ref-search-results" hidden></div>`;bar.insertBefore(search,actions);const input=$('ref-search-input'),results=$('ref-search-results');input.addEventListener('input',()=>{const q=input.value.trim(),rows=localSearch(q);results.hidden=!q;results.innerHTML=q?(rows.length?rows.map(r=>`<button type="button" data-ref-search-route="${esc(r.route)}"><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></button>`).join(''):'<p class="muted">نتیجه‌ای پیدا نشد.</p>'):''});input.addEventListener('keydown',e=>{if(e.key==='Escape'){results.hidden=true;input.blur()}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click()}});results.addEventListener('click',e=>{const b=e.target.closest('[data-ref-search-route]');if(!b)return;const q=input.value.trim();results.hidden=true;window.ElaraOpen?.(b.dataset.refSearchRoute);if(b.dataset.refSearchRoute==='tasks')setTimeout(()=>{const field=$('task-search');if(field){field.value=q;field.dispatchEvent(new Event('input',{bubbles:true}))}},0)});document.addEventListener('click',e=>{if(!search.contains(e.target))results.hidden=true})}
  let notify=$('ref-header-notifications');if(!notify){notify=element('button','icon-button ref-header-notifications','ref-header-notifications');notify.type='button';notify.setAttribute('aria-label','اعلان‌ها');notify.innerHTML=icon('notification');notify.addEventListener('click',()=>window.ElaraPrivateDrawer?.open?.('notifications'));actions.append(notify)}
  let edit=$('ref-header-edit');if(!edit){edit=element('button','icon-button ref-header-edit','ref-header-edit');edit.type='button';edit.setAttribute('aria-label','ویرایش پروفایل');edit.innerHTML=icon('edit');edit.addEventListener('click',()=>window.ElaraProfileSystem?.openEditor?.());actions.append(edit)}
 }
@@ -75,6 +89,6 @@ function actions(e){
  const focus=e.target.closest('[data-elara-tab="focus"]');if(focus){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('books');setTimeout(()=>document.querySelector('#ref-library-focus')?.scrollIntoView({block:'start'}),70)}
 }
 function init(){render();document.addEventListener('click',actions,true);for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:social-updated','elara:account-ready','elara:privacy-local-changed','elara:wardrobe-changed','elara:profile-saved'])window.addEventListener(name,schedule);window.addEventListener('storage',schedule);window.addEventListener('hashchange',()=>{if(location.hash==='#focus')window.ElaraOpen?.('books');schedule()});setTimeout(render,220)}
-window.ElaraReferenceHome={render,homeStructure,libraryFocus};
+window.ElaraReferenceHome={render,homeStructure,libraryFocus,localSearch};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
