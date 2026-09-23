@@ -1,0 +1,56 @@
+name: Fix drawer mutation hang (one time)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fix-drawer-hang-once.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stop the self-triggering drawer MutationObserver loop
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('visual-fidelity-pass2.js')
+          source=path.read_text(encoding='utf-8')
+          # ElaraIcons.icon renders class="elara-icon", not "pass2-icon". The previous
+          # predicate replaced the icon on every drawer mutation and triggered the
+          # drawer's own childList MutationObserver again without end.
+          for old,new in (
+            ("if(logout&&!logout.classList.contains('pass2-icon'))", "if(logout&&!logout.classList.contains('elara-icon'))"),
+            ("if(wardrobeIcon&&!wardrobeIcon.classList.contains('pass2-icon'))", "if(wardrobeIcon&&!wardrobeIcon.classList.contains('elara-icon'))"),
+          ):
+            assert source.count(old)==1, 'Unexpected Pass 2 source; refusing blind edit: '+old
+            source=source.replace(old,new,1)
+          path.write_text(source,encoding='utf-8')
+          test=Path('tests/visual-fidelity-pass2.test.mjs')
+          content=test.read_text(encoding='utf-8')
+          marker="console.log('PASS: Pass 2 route/privacy helpers"
+          assert content.count(marker)==1, 'Pass 2 test changed; refusing blind edit'
+          assertion="""// The drawer MutationObserver must not replace its own output forever.
+          for(const field of ['logout','wardrobeIcon']){
+            assert.ok(pass2.includes(`!${field}.classList.contains('elara-icon')`), `Non-idempotent drawer icon rewrite: ${field}`);
+            assert.ok(!pass2.includes(`!${field}.classList.contains('pass2-icon')`), `Self-triggering drawer observer still present: ${field}`);
+          }
+          """
+          test.write_text(content.replace(marker,assertion+marker,1),encoding='utf-8')
+          PY
+          node --check visual-fidelity-pass2.js
+          node tests/visual-fidelity-pass2.test.mjs
+          node tests/static-check.mjs
+          git diff --check
+      - name: Commit tested hang fix to the new repository only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add visual-fidelity-pass2.js tests/visual-fidelity-pass2.test.mjs
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: prevent infinite drawer observer loop on startup'
+          git push origin HEAD:main
