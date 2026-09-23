@@ -47,4 +47,9 @@ assert.doesNotMatch(line,/wellness-chart-track/);
 for(const token of ['wellness-water-glass-fill','wellness-target-weight','targetWeight','wellness-personal-settings'])assert.ok(wellness.includes(token),`wellness missing ${token}`);
 assert.ok(!wellness.includes('حریم خصوصی و انتخاب اختیاری'),'legacy wellness privacy heading must be removed');
 
+// The drawer MutationObserver must not replace its own output forever.
+for(const field of ['logout','wardrobeIcon']){
+  assert.ok(pass2.includes(`!${field}.classList.contains('elara-icon')`), `Non-idempotent drawer icon rewrite: ${field}`);
+  assert.ok(!pass2.includes(`!${field}.classList.contains('pass2-icon')`), `Self-triggering drawer observer still present: ${field}`);
+}
 console.log('PASS: Pass 2 route/privacy helpers, Leitner contract tokens, target weight and compact sleep line-chart helpers. Browser/Firebase not tested.');
