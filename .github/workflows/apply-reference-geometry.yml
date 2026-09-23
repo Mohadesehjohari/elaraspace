@@ -1,0 +1,48 @@
+name: Apply reference geometry correction
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-reference-geometry.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fix grid geometry in source CSS and record latest approved precedence
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('reference-home-shell-2026.css')
+          s=p.read_text()
+          def change(old,new):
+              global s
+              assert old in s, 'CSS anchor missing: '+old[:90]
+              s=s.replace(old,new,1)
+          change('.ref-home .ref-hero{height:175px!important;min-height:175px!important;max-height:none!important;', '.ref-home .ref-hero{height:175px!important;min-height:175px!important;max-height:175px!important;box-sizing:border-box!important;')
+          change('grid-column:auto!important;grid-row:auto!important;', '')
+          change('.ref-home .ref-home-grid{display:grid!important;direction:rtl!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;', '.ref-home .ref-home-grid{display:grid!important;direction:ltr!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;')
+          change('.ref-home .ref-hero{height:auto!important;min-height:143px!important;max-height:none!important;', '.ref-home .ref-hero{height:150px!important;min-height:150px!important;max-height:150px!important;box-sizing:border-box!important;')
+          p.write_text(s)
+          # Make the newest user instruction an explicit dated addendum, retaining historical text.
+          addendum='''\n\n## تصمیم نهایی ۲۳ سپتامبر ۲۰۲۶ — مرجع هندسهٔ Desktop و Mobile (مقدم بر چیدمان‌های متعارض پیشین)\n\nاین الحاقیه بر بندهای چیدمانی قبلی همین سند و سایر رودمپ‌ها مقدم است؛ متن تاریخی صرفاً برای سابقه حفظ می‌شود. تنها مخزن توسعه و انتشار کد: `Mohadesehjohari/elaraspace/main`.\n\n- در دسکتاپ Sidebar دائمی سمت **چپ**، عرض حدود ۲۲۸ پیکسل با هفت مقصد (خانه، تسک‌ها، زبان، کتابخانه، ورزش، رنکینگ، آزادی) و گزارش‌ها به‌صورت ثانویه است. Header تمام عرضِ بعد از Sidebar با پروفایل/XP چپ، Search قابل تایپ وسط، Mode و اعلان راست؛ دکمهٔ سه‌خط و Bottom Nav دسکتاپ حذف و Drawer با کلیک پروفایل باز می‌شود.\n- Home دسکتاپ بدون max-width محدودکننده: Hero پهن با ارتفاع هدف حدود ۱۷۵px، سپس سه ستون فشرده `Tasks/Habits/Wellness` و `Missions/Goals/(Ranking+Friends)`، و Theme Strip زیر دو ستون نخست؛ کتابخانه از Home حذف و در مقصد خودش حفظ می‌شود. کارت Focus از Home حذف و همان تایمر واقعی به Library منتقل می‌شود؛ route و دادهٔ تمرکز حذف نمی‌شوند.\n- Home موبایل: Header با hamburger، Hero، Streak، Tasks+Habits، خلاصهٔ Wellness سراسری، Missions+Ranking، Friends سراسری و Bottom Nav هفت‌تایی. عرض‌های ۳۲۰/۳۷۵/۳۹۰/۴۳۰ و دسکتاپ ۱۴۴۰/۱۶۴۸/۱۹۲۰ باید در مرورگر واقعی بررسی شوند؛ ۳۲۰ می‌تواند برای خوانایی تک‌ستونه باشد.\n- آب/خواب در Home فقط خلاصهٔ خصوصی دادهٔ واقعی هستند و ثبت/لیوان/ویرایش فقط در Exercise انجام می‌شود. دادهٔ تصویر مرجع دادهٔ واقعی کاربران تلقی نمی‌شود.\n- این مرحله فقط اصلاح ساختار و نسبت‌هاست؛ بازطراحی آواتار/فریم/لوگو و ورود Asset تازه انجام نمی‌شود. تأیید بصری نیازمند اسکرین‌شات مرورگر واقعی و سنجش اندازهٔ کارت‌ها است؛ GitHub Pages به‌تنهایی گواه Production cPanel یا Firebase نیست.\n'''
+          for name in ['APPROVED-VISUAL-REDESIGN-AND-NEXT-PHASE.md','APPROVED-VISUAL-2026-09-22-EXTENSION-ROADMAP.md']:
+              doc=Path('docs')/name
+              old=doc.read_text()
+              if 'تصمیم نهایی ۲۳ سپتامبر ۲۰۲۶ — مرجع هندسهٔ Desktop و Mobile' not in old:
+                  doc.write_text(old+addendum)
+          PY
+      - name: Commit focused geometry and roadmap correction
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reference-home-shell-2026.css docs/APPROVED-VISUAL-REDESIGN-AND-NEXT-PHASE.md docs/APPROVED-VISUAL-2026-09-22-EXTENSION-ROADMAP.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: correct responsive reference grid and record latest layout contract'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
