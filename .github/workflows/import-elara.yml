@@ -16,10 +16,10 @@ jobs:
     steps:
       - name: Require read-only access to the private source
         env:
-          SOURCE_TOKEN: ${{ secrets.ELARA_SOURCE_READ_TOKEN }}
+          SOURCE_TOKEN: ${{ secrets.ELARA }}
         run: |
           if [ -z "$SOURCE_TOKEN" ]; then
-            echo '::error::Set the ELARA_SOURCE_READ_TOKEN Actions secret to a fine-grained token with Contents: Read access only to ArenParsi/elaraspace.'
+            echo '::error::Set the ELARA Actions repository secret to a token with Contents: Read access to ArenParsi/elaraspace.'
             exit 1
           fi
       - name: Check out the NEW public destination
@@ -31,7 +31,7 @@ jobs:
         with:
           repository: ArenParsi/elaraspace
           ref: 0db0dc691b8d7d24c1012e262eb337a732c6b16c
-          token: ${{ secrets.ELARA_SOURCE_READ_TOKEN }}
+          token: ${{ secrets.ELARA }}
           path: _elara_source
           persist-credentials: false
       - name: Copy allowlisted site files and run basic checks
