@@ -1,0 +1,31 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Never serve development/server-only artifacts if they somehow land in the document root.
+RewriteRule (^|/)(?:\.git|\.github|deploy|tests|docs|backups|logs)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)(?:firestore\.rules|[^/]+\.(?:md|rules|map|pem|key|p12|pfx|log|sql|bak))$ - [F,L,NC]
+RewriteRule (^|/)\.env(?:\.|$) - [F,L,NC]
+
+# Keep cPanel/ACME and the authenticated admin/deploy path reachable during maintenance.
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/ [NC]
+RewriteCond %{REQUEST_URI} !^/admin(?:/|$) [NC]
+RewriteCond %{REQUEST_URI} !^/maintenance\.html$ [NC]
+RewriteCond %{DOCUMENT_ROOT}/.elara-maintenance -f
+RewriteRule ^ - [R=503,L]
+</IfModule>
+
+ErrorDocument 503 /maintenance.html
+
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always set Cache-Control "no-store" "expr=%{REQUEST_URI} =~ m#^/admin/#"
+</IfModule>
+
+<FilesMatch "^(?:\.elara-maintenance|\.env(?:\..*)?|.*\.(?:pem|key|p12|pfx|log|sql|bak|rules|map|md))$">
+Require all denied
+</FilesMatch>

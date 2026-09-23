@@ -175,3 +175,16 @@
 - Bottom Nav موبایل همان هفت مقصد canonical را نگه می‌دارد و Home active glow حفظ می‌شود.
 - ساختار P0 Home rollback نمی‌شود و Water/Sleep به Home برنمی‌گردد؛ این داده‌ها در Exercise/Wellness باقی می‌مانند.
 - Browser PASS فقط با اجرای مرورگر واقعی و اسکرین‌شات Desktop 1440، route غیر Home، Mobile 390، Drawer و Drawer+popup قابل اعلام است.
+
+
+## P0 Production Hosting / cPanel — ۲۳ سپتامبر ۲۰۲۶
+
+- مخزن فعال Production فقط `Mohadesehjohari/elaraspace` روی `main` است؛ workflowهای import یک‌باره از مخزن قدیمی دیگر بخشی از مسیر فعال نیستند.
+- Source repository باید خارج Document Root باشد؛ server-only config/state/backups/logs/runtime زیر `$HOME/elara-deploy/` و خارج `public_html` نگهداری می‌شوند.
+- `deploy/production-manifest.json` تنها source-of-truth فایل‌های قابل انتشار است. `.git/.github/tests/docs/firestore.rules/README/roadmap/secrets/backups/logs` در Production manifest نیستند.
+- Maintenance واقعی server-side با flag و `.htaccess`/HTTP 503 اجرا می‌شود؛ Admin و gateway احراز‌شده برای ادامهٔ deploy مستثنا هستند.
+- One-Click Admin باید Firebase ID token را به Backend بفرستد؛ Backend UID و `admins/{uid}` را verify می‌کند و فقط roleهای `owner/admin` مجازند. Moderator اجازهٔ Production Deploy ندارد.
+- Update flow: exact main SHA → non-blocking deploy lock → maintenance → staging → manifest validation → backup → atomic file replacement → checksum health check → deployed SHA state → maintenance off. Failure پس از تغییر live باید rollback کند؛ failure rollback maintenance را روشن نگه می‌دارد.
+- GitHub repo فعلاً Public است؛ token لازم نیست. credential احتمالی آینده فقط در server-only config خارج Document Root قرار می‌گیرد. Browser هیچ git/shell/cPanel token/secret دریافت نمی‌کند.
+- راهنمای نصب رسمی: `docs/CPANEL-PRODUCTION-INSTALL-FA.md`. Commit شدن `firestore.rules` به معنی Publish واقعی Rules نیست؛ Authorized Domain، Auth provider، Rules و دو حساب واقعی باید جدا در Firebase واقعی تست شوند.
+- این Pass Visual/Home/Search/Icon redesign جدید ایجاد نمی‌کند. بدون تست واقعی cPanel و Firebase، وضعیت `deployed-to-production` و `release-ready` باید NO بماند.

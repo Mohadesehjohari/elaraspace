@@ -2,7 +2,7 @@ name: Validate Elara site
 on:
   push:
     branches: [main]
-    paths: ['*.html', '*.css', '*.js', 'assets/**', 'admin/**', 'tests/**']
+    paths: ['*.html', '*.css', '*.js', '*.php', '.htaccess', '.cpanel.yml', 'assets/**', 'admin/**', 'deploy/**', 'tests/**']
 permissions:
   contents: read
 jobs:
@@ -20,8 +20,15 @@ jobs:
           for file in ./*.js; do
             case "$file" in ./cloud.js|./elara-social.js) node --input-type=module --check < "$file" ;; *) node --check "$file" ;; esac
           done
-      - name: Verify app structure
+          node --check admin/admin.js
+      - name: Check PHP and deployment shell
+        run: |
+          find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          bash -n deploy/cpanel-deploy.sh
+      - name: Verify app and production deployment contracts
         run: |
           node tests/static-check.mjs
           node tests/p0-home-contract.test.mjs
           node tests/navigation-sidebar-contract.test.mjs
+          node tests/deployment-contract.test.mjs
+          php tests/deployment-runtime.test.php

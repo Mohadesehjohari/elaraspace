@@ -80,7 +80,7 @@
             <div class="heading"><div><p class="kicker">SYSTEM</p><h2>تنظیمات سایت</h2></div></div>
             <article class="card form-card">
               <label class="toggle-row">
-                <span><strong>Maintenance Mode</strong><small>فعلاً فقط تنظیم را امن ذخیره می‌کند؛ اتصال نمایش این حالت به سایت اصلی گام بعد است.</small></span>
+                <span><strong>Maintenance Mode</strong><small>در Production cPanel این کنترل flag سروری و پاسخ 503 واقعی را مدیریت می‌کند؛ Firestore فقط mirror تنظیم مدیریتی است.</small></span>
                 <input id="maintenance-enabled" type="checkbox">
               </label>
               <label>پیام تعمیر و نگهداری
@@ -108,10 +108,33 @@
           </div>
 
           <div id="panel-deployment" class="panel hidden">
-            <div class="heading"><div><p class="kicker">CPANEL DEPLOYMENT</p><h2>انتشار</h2></div></div>
-            <article class="card placeholder">
-              <h3>آماده برای گام CI/CD</h3>
-              <p>با توجه به cPanel، در مرحلهٔ بعد روش امن Git → Build → cPanel، Maintenance و Rollback را متناسب با امکانات هاست شما پیاده می‌کنیم. اجرای دستور دلخواه از مرورگر در این نسخه وجود ندارد.</p>
+            <div class="heading">
+              <div><p class="kicker">CPANEL PRODUCTION</p><h2>انتشار</h2></div>
+              <button id="deploy-refresh-status" class="secondary" type="button">به‌روزرسانی وضعیت</button>
+            </div>
+            <div class="stats deployment-stats">
+              <article class="card stat"><span>نسخهٔ فعلی Production</span><strong><code id="deploy-current-sha">—</code></strong><small>SHA ثبت‌شده در server state</small></article>
+              <article class="card stat"><span>آخرین main در GitHub</span><strong><code id="deploy-latest-sha">—</code></strong><small>Mohadesehjohari/elaraspace · main</small></article>
+              <article class="card stat"><span>آخرین Deploy</span><strong id="deploy-last-time">—</strong><small>زمان ثبت‌شدهٔ سرور</small></article>
+              <article class="card stat"><span>وضعیت</span><strong id="deploy-status">—</strong><small id="deploy-phase">phase: —</small></article>
+            </div>
+            <article class="card deployment-card">
+              <h3>One-Click Update</h3>
+              <p class="muted">Browser فقط Firebase ID token و action ثابت می‌فرستد. دانلود exact SHA، staging، lock، backup، deploy و rollback همگی server-side انجام می‌شوند.</p>
+              <div class="actions deployment-actions">
+                <button id="deploy-check" class="secondary" type="button">بررسی آپدیت</button>
+                <button id="deploy-apply" class="primary" type="button">اعمال آپدیت از GitHub</button>
+                <button id="deploy-rollback" class="secondary danger" type="button">Rollback به نسخه قبلی</button>
+              </div>
+              <p id="deployment-status-message" class="muted" role="status" aria-live="polite"></p>
+            </article>
+            <article class="card">
+              <h3>Audit Log آخر</h3>
+              <pre id="deployment-audit" class="deployment-audit">هنوز رویدادی دریافت نشده است.</pre>
+            </article>
+            <article class="card">
+              <h3>مرز امنیتی</h3>
+              <p class="muted">roleهای owner/admin مجازند؛ moderator از Backend رد می‌شود. هیچ cPanel password/token، GitHub private token، service-account key یا command دلخواه در Frontend وجود ندارد.</p>
             </article>
           </div>
         </section>
