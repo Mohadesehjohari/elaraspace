@@ -63,7 +63,8 @@ for(const source of [js,phase2,drawer,design]) assert.ok(!/\bwindow\.(?:alert|co
 for (const token of ['ElaraDialog','role="dialog"','aria-modal="true"']) assert.ok(dialog.includes(token),`Dialog system missing ${token}`);
 for (const token of ['task-short-description','task-description','view-task','openTaskDetails']) assert.ok(phase2.includes(token),`Task details missing ${token}`);
 assert.ok(!/<script[^>]+src="http/.test(html),'Core functionality must not depend on remote scripts');
-for(const token of ['pruneSidebar','restoreLeitner','reorderHome','enforceWellnessPrivacy']) assert.ok(pass2.includes(token),`Visual Pass 2 missing ${token}`);
+for(const token of ['restoreLeitner','reorderHome','enforceWellnessPrivacy']) assert.ok(pass2.includes(token),`Visual Pass 2 missing ${token}`);
+assert.ok(!pass2.includes('function pruneSidebar')&&!pass2.includes("remove=new Set(['tasks'"),'Visual Pass 2 must not mutate canonical Sidebar navigation');
 assert.ok(drawer.includes("if(section==='privacy')renderPrivacy()")&&drawer.includes('pass2-privacy-list'),'Drawer must render the complete Privacy Center directly');
 assert.ok(!pass2.includes('function upgradePrivacy')&&!pass2.includes('setTimeout(upgradePrivacy'),'Privacy must not depend on a delayed Pass 2 overwrite');
 assert.ok(css.includes('@media(max-width:700px)'),'Mobile layout is missing');
