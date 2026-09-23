@@ -21,4 +21,6 @@ jobs:
             case "$file" in ./cloud.js|./elara-social.js) node --input-type=module --check < "$file" ;; *) node --check "$file" ;; esac
           done
       - name: Verify app structure
-        run: node tests/static-check.mjs
+        run: |
+          node tests/static-check.mjs
+          node tests/p0-home-contract.test.mjs

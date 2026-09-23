@@ -9,15 +9,7 @@ const MAIN=Object.freeze([
   Object.freeze({route:'books',label:'کتابخانه',icon:'book'}),
   Object.freeze({route:'freedom',label:'آزادی',icon:'freedom'})
 ]);
-const SIDEBAR=Object.freeze([
-  Object.freeze({route:'home',label:'خانه',icon:'home'}),
-  Object.freeze({route:'habits',label:'عادت‌ها',icon:'habits'}),
-  Object.freeze({route:'goals',label:'هدف‌ها',icon:'goals'}),
-  Object.freeze({route:'focus',label:'تمرکز',icon:'focus'}),
-  Object.freeze({route:'missions',label:'مأموریت‌ها',icon:'missions'}),
-  Object.freeze({route:'social',label:'دوستان',icon:'friends'}),
-  Object.freeze({route:'reports',label:'گزارش‌ها',icon:'chart'})
-]);
+const SIDEBAR=MAIN;
 const icon=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 function button(def,kind='main'){
   const b=document.createElement('button');

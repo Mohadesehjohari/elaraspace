@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const nav=read('approved-navigation-extension.js'),boot=read('boot.js'),home=read('p0-home-2026.js'),css=read('p0-home-2026.css'),wellness=read('approved-wellness.js'),drawer=read('drawer.js');
+for(const route of ['exercise','language','tasks','home','ranking','books','freedom'])assert.match(nav,new RegExp("route:'"+route+"'"));
+assert.match(nav,/const SIDEBAR=MAIN;/);
+for(const forbidden of ["route:'habits'","route:'goals'","route:'focus'"])assert.doesNotMatch(nav.split('const SIDEBAR=MAIN;')[1]||'',new RegExp(forbidden));
+assert.match(boot,/p0-home-2026\.css/);assert.match(boot,/p0-home-2026\.js/);
+for(const token of ['elara-home-books','data-p0-quick-task','data-p0-focus-toggle','p0-search-input','localSearch','compactTasks'])assert.ok(home.includes(token),'home missing '+token);
+assert.match(home,/جستجوی کاربران از این پنل انجام نمی‌شود/);
+assert.match(css,/grid-template-columns:repeat\(12/);assert.match(css,/#panel-tasks #task-list/);
+assert.doesNotMatch(wellness,/row\.dataset\.wellnessHome/);
+assert.match(drawer,/function topOverlayOpen/);assert.match(drawer,/data-drawer-route="reports"/);assert.doesNotMatch(drawer,/if\(edit\)\{close\(\);await window\.ElaraProfileSystem/);
+console.log('PASS: P0 navigation, Home DOM contract, Wellness boundary, search and drawer layering guards.');

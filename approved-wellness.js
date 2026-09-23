@@ -60,13 +60,7 @@ function refresh(){
  home()
 }
 function home(){
- const card=$('elara-home-habits');if(!card)return;card.querySelectorAll('[data-wellness-home]').forEach(x=>x.remove());
- if(window.ElaraPrivacyLocal?.wellnessHomeVisible?.()===false)return;
- const s=read(),amount=Number(s.water[today()]||0),sleep=s.sleep.filter(x=>x.date===today()).reduce((n,x)=>n+sleepMinutes(x),0),sleepPct=Math.min(100,sleep/480*100),waterPct=Math.min(100,amount/num(s.goal,250,10000)*100);
- for(const [kind,label,description,pct] of [['water','آب امروز',`${fmt(Math.round(amount/num(s.glass,50,1000)))} لیوان`,waterPct],['sleep','خواب امروز',sleep?`${fmt(Math.round(sleep/60*10)/10)} ساعت`:'هنوز ثبت نشده',sleepPct]]){
-   const row=document.createElement('button');row.type='button';row.className='elara-rowbar wellness-home-row';row.dataset.wellnessHome='';row.dataset.extensionRoute='exercise';
-   row.innerHTML=`<span class="elara-row-icon">${svgIcon(kind==='sleep'?'sleep':'water')}</span><span><strong>${label} · ${description}</strong><span class="elara-track"><i style="width:${pct}%"></i></span></span><b>${fmt(Math.round(pct))}٪</b>`;card.append(row)
- }
+ const card=$('elara-home-habits');if(card)card.querySelectorAll('[data-wellness-home]').forEach(x=>x.remove());
 }
 async function editor(kind,id){
  if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return message('پنجرهٔ ثبت هنوز آماده نیست.');

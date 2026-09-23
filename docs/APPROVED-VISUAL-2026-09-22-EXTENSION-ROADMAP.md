@@ -152,3 +152,13 @@
 - **Responsive:** podium سه‌تایی در موبایل حفظ شده، Social cards در <=430px تک‌ستونه و در desktop چندستونه‌اند؛ narrow guard برای <=340px اضافه شد.
 - **تست قرارداد:** Pass 5 contract برای وجود لایهٔ 5D، podium واقعی و responsive Social گسترش یافت.
 - **Browser/Firebase هنوز PASS نیست:** ترتیب و ارتفاع واقعی podium، focus، long Persian names، دو حساب واقعی، Rules و activity consent باید در browser/Firebase واقعی بررسی شوند.
+
+
+## الحاقیهٔ اجرایی ۲۳ سپتامبر ۲۰۲۶ — مخزن و ساختار P0
+
+- **مخزن واحد توسعه و انتشار از این تاریخ:** `Mohadesehjohari/elaraspace`، شاخهٔ `main`. هر اشارهٔ قدیمی به `ArenParsi/elaraspace` در بخش‌های تاریخی این سند فقط سابقهٔ تصمیم‌های گذشته است و مخزن توسعهٔ فعال محسوب نمی‌شود.
+- قرارداد اصلی ناوبری هفت‌مقصدی: **ورزش | زبان | تسک‌ها | خانه | رنکینگ | کتابخانه | آزادی**. عادت‌ها، اهداف و Focus قابلیت و route خود را حفظ می‌کنند اما ورودی مستقل ناوبری اصلی ندارند؛ گزارش‌ها از Drawer حساب قابل دسترسی می‌مانند.
+- Home در این فاز باید ساختار واقعی DOM/Grid داشته باشد: Hero فشرده؛ Tasks + Focus؛ Habits + Goals؛ Missions + Library؛ Ranking + Friends. ویجت‌های خودکار Water/Sleep فقط در Exercise می‌مانند و عادت شخصی کاربر حذف نمی‌شود.
+- Topbar فقط یک کنترل Mode مستقیم دارد؛ زبان رابط فقط در «زبان برنامه» داخل Settings/Drawer مدیریت می‌شود. جستجو باید ورودی واقعی، focus، پاک‌کردن، Enter/Escape و نتایج محلی واقعی داشته باشد.
+- Assetهای جدید لوگو/بنر/آیکن این مرحله وارد نمی‌شوند؛ فقط Asset فعلی و fallback تمیز مجاز است.
+- Browser visual verification در 1280/1440 و 320/375/390/430، Firebase واقعی و performance timing واقعی شرط اعلام release-ready است؛ تست static یا syntax به‌تنهایی معادل این تأییدها نیست.
