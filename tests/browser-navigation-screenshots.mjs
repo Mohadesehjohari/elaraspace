@@ -23,7 +23,7 @@ for(const width of [1440,1648,1920]){
  assert.equal(await visible(page.locator('.bottom-nav')),false,'Bottom Nav must be hidden on desktop');
  assert.equal(await visible(page.locator('#ref-header-search input')),true,'Desktop typed search missing');
  assert.equal(await visible(page.locator('#ref-header-account')),true,'Desktop account opener missing');
- assert.equal(await page.locator('.topbar .elara-profile').count(),0,'Legacy profile control must not duplicate header account');
+ assert.equal(await visible(page.locator('.topbar .elara-profile')),false,'Legacy profile control must stay visually hidden');
  assert.equal(await visible(page.locator('#elara-account-menu-trigger')),false,'Desktop hamburger must be hidden');
  assert.equal(await visible(page.locator('#ref-library-focus')),false,'Library timer must not show in Home');
  const sidebar=await bounds(page,'.sidebar'),tasks=await bounds(page,'.ref-tasks'),habits=await bounds(page,'.ref-habits'),wellness=await bounds(page,'.ref-wellness-card'),hero=await bounds(page,'.ref-hero');
@@ -45,7 +45,7 @@ for(const width of [320,375,390,430]){
  assert.equal(await page.locator('.bottom-nav [data-elara-tab="home"]').getAttribute('aria-current'),'page');
  assert.equal(await visible(page.locator('#elara-account-menu-trigger')),true,'Mobile hamburger hidden');
  assert.equal(await page.locator('#ref-mobile-brand').count(),1,'Duplicate mobile brand');
- assert.equal(await page.locator('.topbar .elara-profile').count(),0,'Legacy mobile profile control duplicated');
+ assert.equal(await visible(page.locator('.topbar .elara-profile')),false,'Legacy mobile profile control duplicated');
  assert.equal(await visible(page.locator('#ref-streak-card')),true,'Mobile streak missing');
  assert.equal(await visible(page.locator('.ref-wellness-card')),true,'Mobile Wellness summary missing');
  assert.equal(await visible(page.locator('.ref-tasks')),true);assert.equal(await visible(page.locator('.ref-habits')),true);
