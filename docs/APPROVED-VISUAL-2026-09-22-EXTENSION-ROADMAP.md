@@ -188,3 +188,14 @@
 - GitHub repo فعلاً Public است؛ token لازم نیست. credential احتمالی آینده فقط در server-only config خارج Document Root قرار می‌گیرد. Browser هیچ git/shell/cPanel token/secret دریافت نمی‌کند.
 - راهنمای نصب رسمی: `docs/CPANEL-PRODUCTION-INSTALL-FA.md`. Commit شدن `firestore.rules` به معنی Publish واقعی Rules نیست؛ Authorized Domain، Auth provider، Rules و دو حساب واقعی باید جدا در Firebase واقعی تست شوند.
 - این Pass Visual/Home/Search/Icon redesign جدید ایجاد نمی‌کند. بدون تست واقعی cPanel و Firebase، وضعیت `deployed-to-production` و `release-ready` باید NO بماند.
+
+
+## تصمیم نهایی ۲۳ سپتامبر ۲۰۲۶ — مرجع هندسهٔ Desktop و Mobile (مقدم بر چیدمان‌های متعارض پیشین)
+
+این الحاقیه بر بندهای چیدمانی قبلی همین سند و سایر رودمپ‌ها مقدم است؛ متن تاریخی صرفاً برای سابقه حفظ می‌شود. تنها مخزن توسعه و انتشار کد: `Mohadesehjohari/elaraspace/main`.
+
+- در دسکتاپ Sidebar دائمی سمت **چپ**، عرض حدود ۲۲۸ پیکسل با هفت مقصد (خانه، تسک‌ها، زبان، کتابخانه، ورزش، رنکینگ، آزادی) و گزارش‌ها به‌صورت ثانویه است. Header تمام عرضِ بعد از Sidebar با پروفایل/XP چپ، Search قابل تایپ وسط، Mode و اعلان راست؛ دکمهٔ سه‌خط و Bottom Nav دسکتاپ حذف و Drawer با کلیک پروفایل باز می‌شود.
+- Home دسکتاپ بدون max-width محدودکننده: Hero پهن با ارتفاع هدف حدود ۱۷۵px، سپس سه ستون فشرده `Tasks/Habits/Wellness` و `Missions/Goals/(Ranking+Friends)`، و Theme Strip زیر دو ستون نخست؛ کتابخانه از Home حذف و در مقصد خودش حفظ می‌شود. کارت Focus از Home حذف و همان تایمر واقعی به Library منتقل می‌شود؛ route و دادهٔ تمرکز حذف نمی‌شوند.
+- Home موبایل: Header با hamburger، Hero، Streak، Tasks+Habits، خلاصهٔ Wellness سراسری، Missions+Ranking، Friends سراسری و Bottom Nav هفت‌تایی. عرض‌های ۳۲۰/۳۷۵/۳۹۰/۴۳۰ و دسکتاپ ۱۴۴۰/۱۶۴۸/۱۹۲۰ باید در مرورگر واقعی بررسی شوند؛ ۳۲۰ می‌تواند برای خوانایی تک‌ستونه باشد.
+- آب/خواب در Home فقط خلاصهٔ خصوصی دادهٔ واقعی هستند و ثبت/لیوان/ویرایش فقط در Exercise انجام می‌شود. دادهٔ تصویر مرجع دادهٔ واقعی کاربران تلقی نمی‌شود.
+- این مرحله فقط اصلاح ساختار و نسبت‌هاست؛ بازطراحی آواتار/فریم/لوگو و ورود Asset تازه انجام نمی‌شود. تأیید بصری نیازمند اسکرین‌شات مرورگر واقعی و سنجش اندازهٔ کارت‌ها است؛ GitHub Pages به‌تنهایی گواه Production cPanel یا Firebase نیست.
