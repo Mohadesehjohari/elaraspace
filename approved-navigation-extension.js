@@ -10,11 +10,14 @@ const MAIN=Object.freeze([
   Object.freeze({route:'freedom',label:'آزادی',icon:'freedom'})
 ]);
 const SIDEBAR=MAIN;
+const SECONDARY=Object.freeze([Object.freeze({route:'reports',label:'گزارش‌ها',icon:'chart'})]);
 const icon=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 function button(def,kind='main'){
   const b=document.createElement('button');
   b.type='button';
-  b.className=kind==='sidebar'?'nav-item elara-nav elara-canonical-sidebar':'elara-extension-nav elara-canonical-main';
+  const sidebarKind=kind==='sidebar'||kind==='secondary';
+  b.className=sidebarKind?'nav-item elara-nav elara-canonical-sidebar':'elara-extension-nav elara-canonical-main';
+  if(kind==='secondary')b.classList.add('elara-sidebar-secondary-item');
   b.dataset.elaraTab=def.route;
   b.dataset.elaraNavKind=kind;
   b.setAttribute('aria-label',def.label);
@@ -30,7 +33,9 @@ function renderMainNav(root){
 function renderSidebar(root){
   if(!root)return;
   root.dataset.elaraNavOwner='canonical';
-  root.replaceChildren(...SIDEBAR.map(def=>button(def,'sidebar')));
+  const primary=document.createElement('div');primary.className='elara-sidebar-primary';primary.setAttribute('role','group');primary.setAttribute('aria-label','مقصدهای اصلی');primary.append(...SIDEBAR.map(def=>button(def,'sidebar')));
+  const secondary=document.createElement('div');secondary.className='elara-sidebar-secondary';secondary.setAttribute('role','group');secondary.setAttribute('aria-label','دسترسی‌های تکمیلی');secondary.append(...SECONDARY.map(def=>button(def,'secondary')));
+  root.replaceChildren(primary,secondary);
 }
 function ensureDock(){
   let dock=document.querySelector('.elara-desktop-dock');
@@ -65,6 +70,6 @@ function setup(){
   window.addEventListener('popstate',active);
   window.addEventListener('hashchange',active);
 }
-window.ElaraNavigation={routes:MAIN,sidebarRoutes:SIDEBAR,render,renderMainNav,renderSidebar,active};
+window.ElaraNavigation={routes:MAIN,sidebarRoutes:SIDEBAR,secondaryRoutes:SECONDARY,render,renderMainNav,renderSidebar,active};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
