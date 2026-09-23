@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const nav=read('approved-navigation-extension.js');
+const pass2=read('visual-fidelity-pass2.js');
+const visual=read('approved-visual.js');
+const drawer=read('drawer.js');
+for(const route of ['exercise','language','tasks','home','ranking','books','freedom'])assert.match(nav,new RegExp("route:'"+route+"'"));
+assert.match(nav,/const SIDEBAR=MAIN;/);
+assert.match(nav,/route:'reports',label:'گزارش‌ها'/);
+assert.match(nav,/elara-sidebar-primary/);
+assert.match(nav,/elara-sidebar-secondary/);
+assert.match(nav,/root\.replaceChildren\(primary,secondary\)/);
+assert.doesNotMatch(pass2,/function pruneSidebar/);
+assert.doesNotMatch(pass2,/remove=new Set\(\['tasks'/);
+assert.doesNotMatch(visual,/ElaraPrivateDrawer\?\.close\?\.\(\)/);
+assert.doesNotMatch(drawer,/data-drawer-route="reports"/);
+console.log('PASS: canonical sidebar ownership, seven main routes, Reports secondary, and Drawer popup preservation.');

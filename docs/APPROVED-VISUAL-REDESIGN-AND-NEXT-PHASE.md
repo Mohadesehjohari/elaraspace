@@ -52,3 +52,16 @@
 - Topbar فقط یک کنترل Mode مستقیم دارد؛ زبان رابط فقط در «زبان برنامه» داخل Settings/Drawer مدیریت می‌شود. جستجو باید ورودی واقعی، focus، پاک‌کردن، Enter/Escape و نتایج محلی واقعی داشته باشد.
 - Assetهای جدید لوگو/بنر/آیکن این مرحله وارد نمی‌شوند؛ فقط Asset فعلی و fallback تمیز مجاز است.
 - Browser visual verification در 1280/1440 و 320/375/390/430، Firebase واقعی و performance timing واقعی شرط اعلام release-ready است؛ تست static یا syntax به‌تنهایی معادل این تأییدها نیست.
+
+
+## تصمیم نهایی P0 Desktop Sidebar — ۲۳ سپتامبر ۲۰۲۶
+
+- **مخزن فعال:** فقط `Mohadesehjohari/elaraspace` روی `main`.
+- Sidebar دسکتاپ حذف نمی‌شود. مالک واحد DOM ناوبری Sidebar و Bottom Nav، `approved-navigation-extension.js` است؛ هیچ Pass بصری دیگری حق حذف یا بازنویسی ردیف‌های Sidebar را ندارد.
+- Sidebar اصلی دقیقاً هفت مقصد canonical دارد: **ورزش، زبان، تسک‌ها، خانه، رنکینگ، کتابخانه، آزادی** و active state بر اساس route واقعی همگام می‌شود.
+- **گزارش‌ها** route موجود خود را حفظ می‌کند اما مقصد اصلی نیست و در بخش secondary پایین Sidebar با جداکننده نمایش داده می‌شود.
+- **عادت‌ها، اهداف، Focus، مأموریت‌ها و دوستان** مقصد مستقل main navigation نیستند؛ دسترسی آن‌ها از Home یا Ranking/Social context حفظ می‌شود و هیچ route یا داده‌ای حذف نمی‌شود.
+- Drawer حساب/تنظیمات از Sidebar مستقل است و مقصدهای اصلی را تکرار نمی‌کند. باز کردن Profile/Wardrobe/Dialog از Drawer باید Drawer را در پشت popup باز نگه دارد و با بستن popup کاربر به همان Drawer برگردد.
+- Bottom Nav موبایل همان هفت مقصد canonical را نگه می‌دارد و Home active glow حفظ می‌شود.
+- ساختار P0 Home rollback نمی‌شود و Water/Sleep به Home برنمی‌گردد؛ این داده‌ها در Exercise/Wellness باقی می‌مانند.
+- Browser PASS فقط با اجرای مرورگر واقعی و اسکرین‌شات Desktop 1440، route غیر Home، Mobile 390، Drawer و Drawer+popup قابل اعلام است.

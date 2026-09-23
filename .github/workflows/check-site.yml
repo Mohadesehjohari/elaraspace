@@ -24,3 +24,4 @@ jobs:
         run: |
           node tests/static-check.mjs
           node tests/p0-home-contract.test.mjs
+          node tests/navigation-sidebar-contract.test.mjs
