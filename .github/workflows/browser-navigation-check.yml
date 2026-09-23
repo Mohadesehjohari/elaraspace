@@ -1,0 +1,41 @@
+name: Browser navigation acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'approved-navigation-extension.js'
+      - 'approved-navigation-extension.css'
+      - 'visual-fidelity-pass2.js'
+      - 'approved-visual.js'
+      - 'drawer.js'
+      - 'tests/browser-navigation-screenshots.mjs'
+      - '.github/workflows/browser-navigation-check.yml'
+permissions:
+  contents: read
+jobs:
+  browser-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
+          sleep 2
+      - name: Run browser acceptance
+        run: node tests/browser-navigation-screenshots.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-sidebar-browser-screenshots
+          path: browser-artifacts/
+          if-no-files-found: error
+          retention-days: 14
