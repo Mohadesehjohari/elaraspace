@@ -48,7 +48,6 @@ for(const width of [320,375,390,430]){
  assert.equal(await page.locator('.bottom-nav [data-elara-tab="home"]').getAttribute('aria-current'),'page');
  assert.equal(await visible(page.locator('#elara-account-menu-trigger')),true,'Mobile hamburger hidden');
  assert.equal(await page.locator('#ref-mobile-brand').count(),1,'Duplicate mobile brand');
- console.log('MOBILE_TOPBAR_DOM',width,await page.locator('.topbar').evaluate(el=>el.innerHTML));
  assert.equal(await visible(page.locator('.topbar .elara-profile')),false,'Legacy mobile profile control duplicated');
  assert.equal(await visible(page.locator('#ref-streak-card')),true,'Mobile streak missing');
  assert.equal(await visible(page.locator('.ref-wellness-card')),true,'Mobile Wellness summary missing');
