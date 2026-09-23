@@ -1,0 +1,15 @@
+name: Start approved Elara import
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/start-elara-import.yml']
+permissions:
+  actions: write
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start existing one-time import
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run import-elara.yml --repo "$GITHUB_REPOSITORY" --ref main
