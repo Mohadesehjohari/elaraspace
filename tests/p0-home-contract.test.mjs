@@ -13,5 +13,5 @@ assert.match(home,/setTimeout\(render,0\)/);
 assert.match(home,/panel\.addEventListener\('keydown'/);
 assert.match(css,/grid-template-columns:repeat\(12/);assert.match(css,/#panel-tasks #task-list/);
 assert.doesNotMatch(wellness,/row\.dataset\.wellnessHome/);
-assert.match(drawer,/function topOverlayOpen/);assert.match(drawer,/data-drawer-route="reports"/);assert.doesNotMatch(drawer,/if\(edit\)\{close\(\);await window\.ElaraProfileSystem/);
+assert.match(drawer,/function topOverlayOpen/);assert.doesNotMatch(drawer,/data-drawer-route="reports"/);assert.doesNotMatch(drawer,/if\(edit\)\{close\(\);await window\.ElaraProfileSystem/);
 console.log('PASS: P0 navigation, Home DOM contract, Wellness boundary, search and drawer layering guards.');
