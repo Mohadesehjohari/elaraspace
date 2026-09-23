@@ -8,6 +8,9 @@ for(const forbidden of ["route:'habits'","route:'goals'","route:'focus'"])assert
 assert.match(boot,/p0-home-2026\.css/);assert.match(boot,/p0-home-2026\.js/);
 for(const token of ['elara-home-books','data-p0-quick-task','data-p0-focus-toggle','p0-search-input','localSearch','compactTasks'])assert.ok(home.includes(token),'home missing '+token);
 assert.match(home,/جستجوی کاربران از این پنل انجام نمی‌شود/);
+assert.match(home,/querySelectorAll\('\.elara-toolbar'\)/);
+assert.match(home,/setTimeout\(render,0\)/);
+assert.match(home,/panel\.addEventListener\('keydown'/);
 assert.match(css,/grid-template-columns:repeat\(12/);assert.match(css,/#panel-tasks #task-list/);
 assert.doesNotMatch(wellness,/row\.dataset\.wellnessHome/);
 assert.match(drawer,/function topOverlayOpen/);assert.match(drawer,/data-drawer-route="reports"/);assert.doesNotMatch(drawer,/if\(edit\)\{close\(\);await window\.ElaraProfileSystem/);
