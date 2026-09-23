@@ -25,7 +25,7 @@ jobs:
       - name: Check out the NEW public destination
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
       - name: Check out the approved private source snapshot
         uses: actions/checkout@v4
         with:
@@ -34,7 +34,7 @@ jobs:
           token: ${{ secrets.ELARA_SOURCE_READ_TOKEN }}
           path: _elara_source
           persist-credentials: false
-      - name: Copy site, project docs and tests without overwriting destination-only avatars
+      - name: Copy allowlisted site files and run basic checks
         shell: bash
         run: |
           set -euo pipefail
@@ -42,17 +42,16 @@ jobs:
           from pathlib import Path
           import re, shutil, sys
           source = Path('_elara_source')
-          destination = Path('.')
           root_ext = {'.html', '.css', '.js', '.md', '.rules'}
           site_ext = {'.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf'}
-          extra_ext = {'.mjs', '.md', '.json', '.txt'}
+          test_ext = {'.mjs', '.md', '.json', '.txt', '.js'}
           picked = [p for p in source.iterdir() if p.is_file() and p.suffix.lower() in root_ext and not p.name.startswith('.')]
-          for folder, allowed in (('assets', site_ext), ('admin', site_ext), ('tests', extra_ext | {'.js'}), ('docs', {'.md', '.txt'})):
+          for folder, allowed in (('assets', site_ext), ('admin', site_ext), ('tests', test_ext), ('docs', {'.md', '.txt'})):
               base = source / folder
               if base.is_dir():
                   picked.extend(p for p in base.rglob('*') if p.is_file() and p.suffix.lower() in allowed and not any(part.startswith('.') for part in p.relative_to(source).parts))
           if not (source / 'index.html').is_file():
-              sys.exit('Missing source index.html; aborting without changing the destination.')
+              sys.exit('Missing index.html in private source; destination unchanged.')
           signatures = [
               re.compile(rb'-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----'),
               re.compile(rb'ghp_[A-Za-z0-9]{25,}'),
@@ -63,15 +62,13 @@ jobs:
           for file in picked:
               if file.is_symlink():
                   sys.exit(f'Refusing to copy symlink: {file}')
-              if file.suffix.lower() in {'.js', '.html', '.css', '.json', '.md', '.txt'}:
-                  data = file.read_bytes()
-                  if any(pattern.search(data) for pattern in signatures):
-                      sys.exit(f'Potential credential in {file}; manual review needed before public import.')
+              if file.suffix.lower() in {'.js', '.html', '.css', '.json', '.md', '.txt'} and any(p.search(file.read_bytes()) for p in signatures):
+                  sys.exit(f'Possible private credential in {file}; manual review required.')
           for file in picked:
-              target = destination / file.relative_to(source)
+              target = Path('.') / file.relative_to(source)
               target.parent.mkdir(parents=True, exist_ok=True)
               shutil.copy2(file, target)
-          print(f'Copied {len(picked)} allowlisted files; destination-only avatar and frame images are retained.')
+          print(f'Copied {len(picked)} selected files. Existing destination-only avatars and frames are preserved.')
           PY
           test -s index.html
           test -s styles.css
@@ -81,16 +78,20 @@ jobs:
           done
           node tests/static-check.mjs
           rm -rf -- _elara_source
-      - name: Commit the imported snapshot to the new repository only
+      - name: Commit import to the NEW repository only
         shell: bash
+        env:
+          PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           if git diff --cached --quiet; then
-            echo 'The new repository already has this source snapshot.'
+            echo 'The destination already contains this source snapshot.'
           else
-            git commit -m 'feat: import approved Elara site from ArenParsi source snapshot'
+            git commit -m 'feat: import approved Elara site from private source snapshot'
+            trap 'git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"' EXIT
+            git remote set-url origin "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
             git push origin HEAD:main
           fi
