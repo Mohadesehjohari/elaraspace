@@ -69,7 +69,7 @@ await desktop.locator('.elara-private-drawer [data-approved-wardrobe]').first().
 await desktop.waitForFunction(()=>{const x=document.querySelector('.approved-wardrobe');return x&&!x.hidden},{timeout:10000});
 assert.equal(await desktop.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer closed behind Wardrobe');
 await desktop.screenshot({path:out+'/05-desktop-drawer-plus-wardrobe.png'});
-await desktop.locator('.approved-wardrobe [data-close-wardrobe]').first().click();
+await desktop.locator('.approved-wardrobe-window [data-close-wardrobe]').click();
 await desktop.waitForFunction(()=>document.querySelector('.approved-wardrobe')?.hidden===true);
 assert.equal(await desktop.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer did not survive popup close');
 await desktop.screenshot({path:out+'/06-desktop-drawer-after-popup-close.png'});
