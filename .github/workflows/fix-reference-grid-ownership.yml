@@ -1,0 +1,48 @@
+name: Fix reference grid ownership
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fix-reference-grid-ownership.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct reference CSS at its owning selectors
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          f=Path('reference-home-shell-2026.css');s=f.read_text()
+          def change(a,b):
+              global s
+              assert a in s,'missing CSS anchor '+a[:100]
+              s=s.replace(a,b,1)
+          # Higher specificity than legacy Pass3/P0 declarations, without global zoom or visual redesign.
+          change('.ref-home .ref-hero{height:175px!important;min-height:175px!important;max-height:175px!important;', '#panel-home.ref-home .elara-hero.ref-hero{height:175px!important;min-height:175px!important;max-height:175px!important;')
+          change('.ref-home .ref-hero{height:150px!important;min-height:150px!important;max-height:150px!important;', '#panel-home.ref-home .elara-hero.ref-hero{height:150px!important;min-height:150px!important;max-height:150px!important;')
+          change('.ref-home .ref-home-grid{display:grid!important;direction:ltr!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;', '#panel-home.ref-home .elara-dashboard-grid.ref-home-grid{display:grid!important;direction:ltr!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;')
+          slots={
+            '.ref-home .ref-home-grid>.ref-tasks{grid-area:tasks!important}':'#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-tasks{grid-area:tasks!important;grid-column:1/2!important;grid-row:1!important}',
+            '.ref-home .ref-home-grid>.ref-habits{grid-area:habits!important}':'#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-habits{grid-area:habits!important;grid-column:2/3!important;grid-row:1!important}',
+            '.ref-home .ref-home-grid>.ref-wellness-card{grid-area:wellness!important}':'#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-wellness-card{grid-area:wellness!important;grid-column:1/-1!important;grid-row:2!important}',
+            '.ref-home .ref-home-grid>.ref-missions{grid-area:missions!important}':'#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-missions{grid-area:missions!important;grid-column:1/2!important;grid-row:3!important}',
+            '.ref-home .ref-home-grid>.ref-goals{grid-area:goals!important}':'#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-goals{grid-area:goals!important;grid-column:1/-1!important;grid-row:5!important}',
+            '.ref-home .ref-right-stack>.ref-ranks{grid-area:ranks!important}':'#panel-home.ref-home .ref-right-stack>.ref-ranks{grid-area:ranks!important;grid-column:2/3!important;grid-row:3!important}',
+            '.ref-home .ref-right-stack>.ref-activity{grid-area:activity!important}':'#panel-home.ref-home .ref-right-stack>.ref-activity{grid-area:activity!important;grid-column:1/-1!important;grid-row:4!important}'
+          }
+          for a,b in slots.items():change(a,b)
+          # At 320 the reference explicitly permits single-column presentation for readability.
+          small='''#panel-home.ref-home .elara-dashboard-grid.ref-home-grid{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:'tasks' 'habits' 'wellness' 'missions' 'ranks' 'activity' 'goals'!important}#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-tasks{grid-column:1!important;grid-row:1!important}#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-habits{grid-column:1!important;grid-row:2!important}#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-wellness-card{grid-column:1!important;grid-row:3!important}#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-missions{grid-column:1!important;grid-row:4!important}#panel-home.ref-home .ref-right-stack>.ref-ranks{grid-column:1!important;grid-row:5!important}#panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1!important;grid-row:6!important}#panel-home.ref-home .elara-dashboard-grid.ref-home-grid>.ref-goals{grid-column:1!important;grid-row:7!important}'''
+          assert s.endswith('}\n'),'CSS end changed';s=s[:-2]+small+'}\n'
+          f.write_text(s)
+          PY
+      - name: Commit source CSS repair
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reference-home-shell-2026.css
+          git commit -m 'fix: make reference grid own mobile slots and hero height'
+          git pull --rebase origin main
+          git push origin HEAD:main
