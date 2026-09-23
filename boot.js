@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  for(const name of ['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','visual-fidelity-pass5.css','p0-home-2026.css']){const css=document.createElement('link');css.rel='stylesheet';css.href=name;document.head.append(css)}
+  for(const name of ['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','visual-fidelity-pass5.css','p0-home-2026.css','reference-home-shell-2026.css']){const css=document.createElement('link');css.rel='stylesheet';css.href=name;document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href='assets/logo.svg';document.head.append(icon);
   const loadScript=name=>new Promise(resolve=>{const script=document.createElement('script');script.src=name;script.onload=()=>resolve(true);script.onerror=()=>{console.error('Elara module not loaded:',name);resolve(false)};document.head.append(script)});
   void (async()=>{
@@ -8,13 +8,12 @@
     if(!await loadScript('approved-navigation-extension.js'))return;
     if(!await loadScript('elara-design.js'))return;
     if(!await loadScript('approved-visual.js'))return;
-    for(const name of ['approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','p0-home-2026.js'])await loadScript(name);
+    for(const name of ['approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','p0-home-2026.js','reference-home-shell-2026.js'])await loadScript(name);
   })();
   const launch=async()=>{
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
     try{
       if(status)status.textContent='در حال اتصال امن به Firebase…';if(retry)retry.hidden=true;
-// Show a recoverable error if auth/CDN/Firestore stalls instead of leaving an endless spinner.
 setTimeout(()=>{
   if(document.body.classList.contains('cloud-ready')||document.getElementById('cloud-form'))return;
   const text=status?.textContent||'';
