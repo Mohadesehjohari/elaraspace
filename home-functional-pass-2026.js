@@ -1,0 +1,32 @@
+/* Home-only controls: canonical task/goal forms and delegated actions own data, XP and persistence. */
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const read=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const day=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+function canonicalClick(list,selector,attributes){const host=$(list);if(!host)return false;let button=host.querySelector(selector),temporary=false;if(!button){button=document.createElement('button');button.type='button';for(const [name,value] of Object.entries(attributes))button.dataset[name]=value;host.append(button);temporary=true}button.click();if(temporary)button.remove();return true}
+function toggleTask(id){if(!read().tasks?.some(t=>String(t.id)===String(id)))return false;return canonicalClick('task-list',`[data-action="toggle-task"][data-id="${CSS.escape(id)}"]`,{action:'toggle-task',id})}
+function toggleHabit(id){if(!read().habits?.some(h=>String(h.id)===String(id)))return false;return canonicalClick('habit-list',`[data-action="toggle-habit"][data-id="${CSS.escape(id)}"]`,{action:'toggle-habit',id})}
+function toggleGoal(goalId,stepId){const goal=read().goals?.find(g=>String(g.id)===String(goalId));if(!goal?.steps?.some(s=>String(s.id)===String(stepId)))return false;return canonicalClick('goal-list',`[data-action="toggle-step"][data-goal="${CSS.escape(goalId)}"][data-id="${CSS.escape(stepId)}"]`,{action:'toggle-step',goal:goalId,id:stepId})}
+function quickAdd(kind,title){const form=$(kind==='task'?'task-form':'goal-form');if(!form)return false;
+ if(kind==='task'){$('task-cancel')?.click();$('task-title').value=title;$('task-due').value=day();$('task-time').value='';$('task-priority').value='4';$('task-folder').value='';$('task-tag').value=''}
+ else{$('goal-title').value=title;$('goal-horizon').value='short'}
+ form.requestSubmit();return true;
+}
+function quickDialog(kind){const isTask=kind==='task',dialog=window.ElaraDialog;if(!dialog?.open)return;const form=document.createElement('form');form.className='elara-home-quick-form';form.innerHTML=`<label for="elara-home-quick-title">${isTask?'عنوان تسک':'عنوان هدف'}</label><input id="elara-home-quick-title" name="title" type="text" maxlength="180" required autocomplete="off" placeholder="${isTask?'کار جدید…':'هدف جدید…'}"><div class="elara-home-quick-actions"><button class="primary-button" type="submit">افزودن</button><button class="quiet-button" type="button" data-more>تنظیمات بیشتر</button></div>`;
+ form.addEventListener('submit',e=>{e.preventDefault();const value=form.elements.title.value.trim();if(!value)return;if(quickAdd(kind,value)){dialog.close();window.ElaraReferenceHome?.render?.()}});
+ form.querySelector('[data-more]').addEventListener('click',()=>{const draft=form.elements.title.value.trim();dialog.close();window.ElaraOpen?.(isTask?'tasks':'goals');setTimeout(()=>{const input=$(isTask?'task-title':'goal-title');if(!input)return;if(isTask){$('task-cancel')?.click();$('task-due').value=day()}input.value=draft;input.focus();$(isTask?'task-form':'goal-form')?.scrollIntoView({block:'start'})},80)});
+ void dialog.open({title:isTask?'افزودن سریع تسک':'افزودن سریع هدف',content:form,actions:[{label:'انصراف',value:false}]});setTimeout(()=>form.elements.title.focus(),60);
+}
+function decorate(){for(const [card,kind,label] of [['.ref-tasks','task','افزودن سریع تسک'],['.ref-goals','goal','افزودن سریع هدف']]){const header=document.querySelector('#panel-home '+card+' > header');if(!header||header.querySelector('[data-home-quick]'))continue;const b=document.createElement('button');b.type='button';b.className='elara-home-quick-button';b.dataset.homeQuick=kind;b.setAttribute('aria-label',label);b.textContent='+';header.append(b)}
+ const rows=document.querySelectorAll('#panel-home .ref-goal-row');const goals=Array.isArray(read().goals)?read().goals:[];rows.forEach((row,i)=>{const g=goals[i],step=g?.steps?.find(s=>!s.done)||g?.steps?.at(-1);if(!g||!step||row.querySelector('[data-home-goal-step]'))return;
+ const control=document.createElement('span');control.className='elara-home-goal-step';control.dataset.homeGoalStep=step.id;control.dataset.goalId=g.id;control.setAttribute('role','checkbox');control.setAttribute('tabindex','0');control.setAttribute('aria-checked',String(!!step.done));control.setAttribute('aria-label',`${step.done?'برداشتن تیک':'تکمیل'} قدم ${step.text}`);control.textContent=step.done?'✓':'○';row.prepend(control)});
+ const avatar=$('ref-header-account')?.querySelector('.ref-account-avatar');const model=window.ElaraProfileSystem?.viewModel?.(window.ElaraSocial?.me||window.ElaraAccount?.profile||{},{self:true});if(avatar&&model?.frameSrc&&!avatar.querySelector('.ref-account-equipped-frame')){const frame=document.createElement('img');frame.className='ref-account-equipped-frame';frame.alt='';frame.src=model.frameSrc;frame.addEventListener('error',()=>frame.remove());avatar.append(frame)}
+}
+function handleClick(e){const quick=e.target.closest('[data-home-quick]');if(quick){e.preventDefault();e.stopImmediatePropagation();quickDialog(quick.dataset.homeQuick);return}
+ const task=e.target.closest('#panel-home [data-ref-task]');if(task){e.preventDefault();e.stopImmediatePropagation();toggleTask(task.dataset.refTask);window.ElaraReferenceHome?.render?.();return}
+ const habit=e.target.closest('#panel-home [data-ref-habit]');if(habit){e.preventDefault();e.stopImmediatePropagation();toggleHabit(habit.dataset.refHabit);window.ElaraReferenceHome?.render?.();return}
+ const step=e.target.closest('#panel-home [data-home-goal-step]');if(step){e.preventDefault();e.stopImmediatePropagation();toggleGoal(step.dataset.goalId,step.dataset.homeGoalStep);window.ElaraReferenceHome?.render?.();decorate();return}
+}
+function init(){window.addEventListener('click',handleClick,true);document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-home-goal-step]')){e.preventDefault();e.target.click()}},true);decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:profile-saved','elara:wardrobe-changed'])window.addEventListener(name,()=>{setTimeout(decorate,170);setTimeout(decorate,350)});window.addEventListener('hashchange',()=>setTimeout(decorate,180))}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
