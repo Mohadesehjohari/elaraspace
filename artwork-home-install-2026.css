@@ -1,19 +1,23 @@
-/* Checkpoint A — appended after the reference Home owner, without replacing its shell or data. */
+/* Checkpoint A artwork and streak presentation; the reference Home and canonical navigation still own data and DOM. */
 :root{--elara-art-glow-strong:color-mix(in srgb,var(--elara-accent) 45%,transparent);--elara-art-glow-soft:color-mix(in srgb,var(--elara-accent) 17%,transparent)}
-.elara-art-img{display:block;flex:none;object-fit:contain;object-position:center;width:24px;height:24px;max-width:100%;mix-blend-mode:screen;filter:drop-shadow(0 0 3px var(--elara-art-glow-soft))}
-.elara-nav-has-art>.elara-icon{display:none!important}.elara-nav-art{width:25px;height:25px;justify-self:center;align-self:center;transition:filter .16s ease,opacity .16s ease;opacity:.82}
-.elara-nav-has-art:hover>.elara-nav-art,.elara-nav-has-art:focus-visible>.elara-nav-art,.elara-nav-has-art.active>.elara-nav-art{opacity:1;filter:drop-shadow(0 0 6px var(--elara-art-glow-strong))}
+.elara-art-img{display:block;flex:none;object-fit:contain;object-position:center;width:28px;height:28px;max-width:100%;mix-blend-mode:screen;filter:drop-shadow(0 0 3px var(--elara-art-glow-soft))}
+.elara-nav-has-art>.elara-icon{display:none!important}.elara-nav-art{width:26px;height:26px;justify-self:center;align-self:center;transition:filter .16s ease,opacity .16s ease;opacity:.9}
+.elara-nav-has-art:hover>.elara-nav-art,.elara-nav-has-art:focus-visible>.elara-nav-art,.elara-nav-has-art.active>.elara-nav-art{opacity:1;filter:drop-shadow(0 0 5px var(--elara-art-glow-strong))}
 .elara-nav-has-art.active{box-shadow:inset 0 0 12px var(--elara-art-glow-soft),0 0 10px var(--elara-art-glow-soft)}
-.sidebar .navigation .nav-item>.elara-nav-art{width:27px;height:27px;margin:0}
-#panel-home.ref-home .ref-card>header h2 .elara-card-art{width:26px;height:26px;object-fit:contain}
+.sidebar .navigation .nav-item>.elara-nav-art{width:39px;height:39px;margin:0}
+#panel-home.ref-home .ref-card>header h2 .elara-card-art{width:32px;height:32px;object-fit:contain}
 #panel-home.ref-home .ref-card>header h2 .elara-card-art[hidden]{display:none}
-.ref-wellness-cell>span{display:grid;place-items:center;width:30px;height:30px;min-height:0}.ref-wellness-cell .elara-wellness-art{width:29px;height:29px}
+.ref-wellness-cell>span{display:grid;place-items:center;width:34px;height:34px;min-height:0}.ref-wellness-cell .elara-wellness-art{width:32px;height:32px}
 #panel-home.ref-home .ref-hero{box-shadow:0 0 13px var(--elara-art-glow-soft),inset 0 0 18px #050b244d!important}
-#panel-home.ref-home .ref-card,.ref-home .ref-streak-card{box-shadow:inset 0 1px #ffffff09,0 0 7px color-mix(in srgb,var(--elara-accent) 7%,transparent)}
+#panel-home.ref-home .ref-card,.ref-home .ref-streak-card{box-shadow:inset 0 1px #ffffff09,0 0 9px color-mix(in srgb,var(--elara-accent) 10%,transparent)}
 #panel-home .ref-card-link:hover,#panel-home .elara-link:hover,#panel-home .ref-streak-day.today{box-shadow:0 0 12px var(--elara-art-glow-strong)}
-#panel-home .ref-habit-row .elara-track,#panel-home .ref-goal-row .elara-track{background:color-mix(in srgb,var(--surface2) 78%,#050b21 22%);border-radius:99px;overflow:visible}
-#panel-home .ref-habit-row .elara-track>i,#panel-home .ref-goal-row .elara-track>i{display:block;min-height:inherit;height:100%;border-radius:inherit;box-shadow:0 0 7px var(--elara-art-glow-soft)}
-/* Home-only rank preview: the existing social renderer supplies actual people, XP and ranks. */
+/* Do not rely on glowing a hairline: tracks and fills have measurable height. */
+#panel-home .ref-habit-row .elara-track,#panel-home .ref-goal-row .elara-track{display:block;height:8px;min-height:8px;background:color-mix(in srgb,var(--surface2) 70%,#050b21 30%);border-radius:99px;overflow:hidden}
+#panel-home .ref-habit-row .elara-track>i,#panel-home .ref-goal-row .elara-track>i{display:block;min-height:8px;height:100%;border-radius:inherit;box-shadow:0 0 7px var(--elara-art-glow-soft)}
+#panel-home .ref-habit-row:nth-child(4n+2) .elara-track>i,#panel-home .ref-goal-row:nth-child(4n+2) .elara-track>i{background:linear-gradient(90deg,#15c4aa,#59ffdf)!important}
+#panel-home .ref-habit-row:nth-child(4n+3) .elara-track>i,#panel-home .ref-goal-row:nth-child(4n+3) .elara-track>i{background:linear-gradient(90deg,#f762a6,#ff9dca)!important}
+#panel-home .ref-habit-row:nth-child(4n+4) .elara-track>i,#panel-home .ref-goal-row:nth-child(4n+4) .elara-track>i{background:linear-gradient(90deg,#e5a835,#ffd76d)!important}
+/* Home ranking is still rendered from the actual authorized social renderer. */
 #panel-home #elara-home-ranks{display:flex!important;align-items:start;justify-content:space-around;direction:ltr;gap:5px;max-height:none!important;min-width:0;overflow:hidden!important}
 #panel-home #elara-home-ranks>.elara-rank-line{display:flex!important;flex-direction:column;align-items:center;justify-content:start;flex:0 1 32%;width:32%;min-width:0;gap:2px;padding:2px 1px!important;margin:0!important;background:transparent!important;border:0!important;text-align:center}
 #panel-home #elara-home-ranks>.elara-rank-line[hidden],#panel-home #elara-home-ranks>.elara-rank-line:nth-child(n+4){display:none!important}
@@ -28,11 +32,12 @@
 #panel-home #elara-home-ranks .elara-profile-link small{display:none!important}
 #panel-home #elara-home-ranks .pass3-rank-xp{display:block!important;white-space:nowrap;font-size:.53rem;color:var(--muted)}
 @media(min-width:1180px){
- #panel-home.ref-home .ref-streak-card{display:grid!important;direction:ltr!important;grid-template-columns:220px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;width:100%!important;height:56px!important;min-height:56px!important;margin:0 0 7px!important;padding:4px 14px!important;overflow:hidden!important}
- #panel-home.ref-home .ref-streak-card .ref-streak-flame{width:47px;height:47px}
- #panel-home.ref-home .ref-streak-card .ref-streak-summary{gap:9px}.ref-streak-card .ref-streak-summary>strong{font-size:1.2rem}
+ #panel-home.ref-home .ref-streak-card{display:grid!important;direction:ltr!important;grid-template-columns:220px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;width:100%!important;height:clamp(88px,6.4vw,108px)!important;min-height:clamp(88px,6.4vw,108px)!important;margin:0 0 9px!important;padding:7px 14px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-streak-card .ref-streak-flame{width:75px;height:75px;max-width:none}
+ #panel-home.ref-home .ref-streak-card .ref-streak-summary{gap:10px;min-width:0}.ref-streak-card .ref-streak-summary>strong{font-size:1.55rem}.ref-streak-card .ref-streak-summary>small{font-size:.78rem}
  #panel-home.ref-home .ref-streak-card .ref-streak-days{direction:rtl!important;gap:8px!important}
- #panel-home.ref-home .ref-streak-card .ref-streak-day{min-height:43px;padding:2px 4px}
+ #panel-home.ref-home .ref-streak-card .ref-streak-day{min-height:clamp(63px,4.8vw,81px);padding:6px 4px;font-size:.65rem}.ref-streak-card .ref-streak-day strong{font-size:.86rem}
+ #panel-home.ref-home .ref-streak-card .ref-streak-day.today{border-width:2px;box-shadow:0 0 16px color-mix(in srgb,var(--elara-accent) 50%,transparent)}
  #panel-home.ref-home #ref-desktop-streak{display:none!important}
  #panel-home.ref-home .elara-hero.ref-hero{margin-bottom:7px!important}
  #panel-home.ref-home .ref-home-grid>.ref-tasks,#panel-home.ref-home .ref-home-grid>.ref-habits,#panel-home.ref-home .ref-home-grid>.ref-wellness-card{height:260px!important;min-height:260px!important}
@@ -45,16 +50,16 @@
 @media(max-width:700px){
  .bottom-nav{overflow-x:hidden!important;gap:0!important;justify-content:space-between!important}
  .bottom-nav button{flex:1 1 0!important;min-width:0!important;width:0!important;max-width:none!important;min-height:52px!important;padding:3px 0!important;gap:2px!important;touch-action:manipulation}
- .bottom-nav button .elara-nav-art{width:21px;height:21px;min-height:21px;margin:auto}
+ .bottom-nav button .elara-nav-art{width:25px!important;height:25px!important;min-height:25px;margin:auto}
  .bottom-nav button small{display:block!important;white-space:nowrap!important;text-align:center;font-size:clamp(8px,2.2vw,10px)!important;line-height:1.2!important}
- #panel-home.ref-home .ref-card>header h2 .elara-card-art{width:18px!important;height:18px!important}
- #panel-home.ref-home .ref-wellness-cell>span{width:19px;height:19px}
- #panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:19px;height:19px}
+ #panel-home.ref-home .ref-card>header h2 .elara-card-art{width:25px!important;height:25px!important}
+ #panel-home.ref-home .ref-wellness-cell>span{width:25px;height:25px}
+ #panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:25px;height:25px}
  #panel-home #elara-home-ranks{height:72px!important;max-height:72px!important;gap:1px!important}
  #panel-home #elara-home-ranks .elara-social-avatar{width:28px;height:28px;min-width:28px;min-height:28px;font-size:.55rem}
  #panel-home #elara-home-ranks .pass3-rank-number{width:13px;height:13px;transform:translate(12px,19px);font-size:.43rem}
  #panel-home #elara-home-ranks .elara-profile-link strong{font-size:.49rem!important}
  #panel-home #elara-home-ranks .pass3-rank-xp{font-size:.45rem!important}
 }
-@media(max-width:340px){.bottom-nav button .elara-nav-art{width:19px;height:19px}.bottom-nav button small{font-size:8px!important}}
+@media(max-width:340px){.bottom-nav button .elara-nav-art{width:22px!important;height:22px!important}.bottom-nav button small{font-size:8px!important}}
 @media(prefers-reduced-motion:reduce){.elara-nav-art{transition:none!important}}
