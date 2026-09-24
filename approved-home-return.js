@@ -1,81 +1,10 @@
-/* Approved Home -> full-page navigation: preserve the existing routes and task drafts. */
-(() => {
-  'use strict';
-  const routes = {tasks: 'تسک‌ها', habits: 'عادت‌ها', goals: 'اهداف'};
-  let openedFromHome = null;
-  let pendingFromHome = null;
-  const currentRoute = () => decodeURIComponent(location.hash.replace(/^#/, '')) || 'home';
-
-  function ensureHomeLinks() {
-    for (const [route, title] of Object.entries(routes)) {
-      const content = document.getElementById('elara-home-' + route);
-      const card = content?.closest('.elara-card');
-      const header = card?.querySelector('header');
-      if (!header || header.querySelector(`[data-elara-tab="${route}"]`)) continue;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'elara-link elara-home-all';
-      button.dataset.elaraTab = route;
-      button.textContent = 'همه ›';
-      button.setAttribute('aria-label', `نمایش همهٔ ${title}`);
-      header.append(button);
-    }
-  }
-
-  function ensureBackControls() {
-    for (const [route, title] of Object.entries(routes)) {
-      const panel = document.getElementById('panel-' + route);
-      const heading = panel?.querySelector('.section-heading');
-      if (!heading) continue;
-      let back = heading.querySelector('[data-elara-home-return]');
-      if (!back) {
-        back = document.createElement('button');
-        back.type = 'button';
-        back.className = 'quiet-button elara-home-return';
-        back.dataset.elaraHomeReturn = route;
-        back.textContent = '→ بازگشت به خانه';
-        back.setAttribute('aria-label', `بازگشت از ${title} به خانه`);
-        heading.append(back);
-      }
-      back.hidden = openedFromHome !== route || currentRoute() !== route;
-    }
-  }
-
-  function sync(route) {
-    if (pendingFromHome === route) openedFromHome = route;
-    else if (route !== openedFromHome) openedFromHome = null;
-    pendingFromHome = null;
-    ensureHomeLinks();
-    ensureBackControls();
-  }
-
-  function onClick(event) {
-    const back = event.target.closest('[data-elara-home-return]');
-    if (back) {
-      event.preventDefault();
-      event.stopPropagation();
-      openedFromHome = null;
-      pendingFromHome = null;
-      window.ElaraOpen?.('home');
-      sync('home');
-      return;
-    }
-    const link = event.target.closest('[data-elara-tab]');
-    const route = link?.dataset.elaraTab;
-    if (!routes[route]) return;
-    const card = link.closest('.elara-card');
-    pendingFromHome = currentRoute() === 'home' &&
-      !!card?.querySelector('#elara-home-' + route) ? route : null;
-  }
-
-  function initialize() {
-    ensureHomeLinks();
-    sync(currentRoute());
-    document.addEventListener('click', onClick, true);
-    window.addEventListener('elara:open', event => sync(event.detail?.tab || currentRoute()));
-    window.addEventListener('popstate', () => sync(currentRoute()));
-    window.addEventListener('hashchange', () => sync(currentRoute()));
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, {once: true});
-  else initialize();
+/* Return control for real subviews; idempotent across repeat navigation and shell rerenders. */
+(()=>{'use strict';
+const routes={tasks:'تسک‌ها',habits:'عادت‌ها',goals:'اهداف',books:'کتابخانه'};
+const current=()=>decodeURIComponent(location.hash.replace(/^#/,''))||'home';
+function ensureLinks(){for(const [route,label] of Object.entries(routes)){const content=document.getElementById('elara-home-'+route),header=content?.closest('.elara-card')?.querySelector('header');if(!header||header.querySelector(`[data-elara-tab="${route}"]`))continue;const b=document.createElement('button');b.type='button';b.className='elara-link elara-home-all';b.dataset.elaraTab=route;b.textContent='همه ›';b.setAttribute('aria-label','نمایش همهٔ '+label);header.append(b)}}
+function sync(){ensureLinks();const route=current();for(const [name,title] of Object.entries(routes)){const panel=document.getElementById('panel-'+name),heading=panel?.querySelector('.section-heading');if(!heading)continue;let back=heading.querySelector('[data-elara-home-return]');if(!back){back=document.createElement('button');back.type='button';back.className='quiet-button elara-home-return';back.dataset.elaraHomeReturn=name;back.textContent='→ بازگشت به خانه';back.setAttribute('aria-label','بازگشت از '+title+' به خانه');heading.append(back)}back.hidden=route!==name}}
+function schedule(){queueMicrotask(sync);setTimeout(sync,100)}
+function init(){sync();document.addEventListener('click',event=>{const back=event.target.closest('[data-elara-home-return]');if(!back)return;event.preventDefault();event.stopPropagation();window.ElaraOpen?.('home');schedule()},true);for(const name of ['elara:open','elara:hydrate','popstate','hashchange'])window.addEventListener(name,schedule);const main=document.getElementById('main');if(main)new MutationObserver(schedule).observe(main,{childList:true,subtree:false});setTimeout(sync,220)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
