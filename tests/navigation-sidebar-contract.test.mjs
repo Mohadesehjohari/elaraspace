@@ -11,7 +11,7 @@ assert.match(nav,/\['home','tasks','language','books','exercise','ranking','soci
 assert.match(nav,/route:'reports',label:'گزارش‌ها'/);
 assert.match(nav,/elara-sidebar-primary/);
 assert.match(nav,/elara-sidebar-secondary/);
-assert.match(nav,/root\.replaceChildren\(primary,secondary\)/);
+assert.match(nav,/host\.replaceChildren\(primary,secondary\)/);
 assert.doesNotMatch(pass2,/function pruneSidebar/);
 assert.doesNotMatch(pass2,/remove=new Set\(\['tasks'/);
 assert.doesNotMatch(visual,/ElaraPrivateDrawer\?\.close\?\.\(\)/);
