@@ -61,6 +61,8 @@ for(const width of [320,375,390,430]){
  assert.equal(await page.locator('.topbar-leading').evaluate(el=>getComputedStyle(el,'::before').content),'none','Legacy pseudo brand must be removed');
  assert.equal(await visible(page.locator('.topbar .elara-profile')),false,'Legacy mobile profile control duplicated');
  assert.equal(await visible(page.locator('#ref-streak-card')),true,'Mobile streak missing');
+ assert.equal(await visible(page.locator('.ref-hero-quote')),true,'Mobile Hero quote missing');
+ const mobileHeroCopy=await bounds(page,'.ref-hero .hero-copy'),mobileHeroQuote=await bounds(page,'.ref-hero-quote');assert.ok(mobileHeroCopy.x<mobileHeroQuote.x,'Mobile Hero title/quote composition must match reference');
  assert.equal(await visible(page.locator('.ref-wellness-card')),true,'Mobile Wellness summary missing');
  assert.equal(await visible(page.locator('.ref-tasks')),true);assert.equal(await visible(page.locator('.ref-habits')),true);
  assert.equal(await visible(page.locator('.ref-goals')),false,'Goals preview must be removed only from Mobile Home');
