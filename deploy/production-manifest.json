@@ -21,14 +21,9 @@
     "visual-fidelity-pass2.css", "visual-fidelity-pass2.js", "visual-fidelity-pass3.css", "visual-fidelity-pass3.js", "visual-fidelity-pass4.css", "visual-fidelity-pass5.css",
     "assets/banner-autumn.svg", "assets/banner-castle.svg", "assets/banner-dream.svg", "assets/banner-moon.svg", "assets/hero.svg",
     "assets/icon-book.png", "assets/icon-brain.png", "assets/icon-flame.png", "assets/icon-friends.png", "assets/icon-leaf.png", "assets/icon-rocket.png", "assets/icon-trophy.png", "assets/logo.svg",
-    "assets/ui/hero-landscape.webp", "assets/ui/missions-rocket.webp", "assets/ui/streak-flame.webp",
-    "assets/ui/nav-home-default.webp", "assets/ui/nav-home-active.webp", "assets/ui/nav-tasks-default.webp", "assets/ui/nav-tasks-active.webp",
-    "assets/ui/nav-language-default.webp", "assets/ui/nav-language-active.webp", "assets/ui/nav-library-default.webp", "assets/ui/nav-library-active.webp",
-    "assets/ui/nav-ranking-default.webp", "assets/ui/nav-ranking-active.webp", "assets/ui/nav-exercise-default.webp", "assets/ui/nav-exercise-active.webp",
-    "assets/ui/friends-tab.webp", "assets/ui/friends-group-icon.webp", "assets/ui/icon-habits-sprout.webp", "assets/ui/icon-wellness-heartbeat.webp",
-    "assets/ui/icon-wellness-water.webp", "assets/ui/icon-night-crescent-moon.webp", "assets/ui/icon-exercise-dumbbell.webp", "assets/ui/icon-ranking-trophy.webp",
+    "assets/ui/hero-landscape.webp", "assets/ui/missions-rocket.webp", "assets/ui/streak-flame.webp", "assets/ui/friends-tab.webp", "assets/ui/friends-group-icon.webp",
     "admin/index.html", "admin/admin.css", "admin/admin.js", "admin/deploy.php",
-    "assets/avatars-male-level1.png", "assets/avatars-male-level2.png", "assets/avatars-male-level3.png", "assets/avatars-male-level4.png", "assets/avatars-male-level5.png", "assets/avatars-male-level6.png", "assets/avatars-male-level7.png", "assets/avatars-male-level8.png", "assets/avatars-male-level9.png", "assets/avatars-male-level10.png",
+    "assets/avatars-male-level1.png", "assets/avatars-male-level2.png", "assets/avatars-male-level3.png", "assets/avatars-male-level4.png", "assets/avatars-male-level5.png", "assets/avatars-male-level6.png", "assets/avatars-male-level7.png", "assets/avatars-male-level8.png", "assets/avatars-male_level9.png", "assets/avatars-male-level10.png",
     "assets/avatars_female_level1.png", "assets/avatars_female_level2.png", "assets/avatars_female_level3.png", "assets/avatars_female_level4.png", "assets/avatars_female_level5.png", "assets/avatars_female_level6.png", "assets/avatars_female_level7.png", "assets/avatars_female_level8.png", "assets/avatars_female_level9.png", "assets/avatars_female_level10.png",
     "assets/frames_bronze.png", "assets/frames_silver.png", "assets/frames_gold.png", "assets/frames_diamond.png"
   ]
