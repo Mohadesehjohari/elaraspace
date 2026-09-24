@@ -6,6 +6,7 @@ on:
       - 'approved-navigation-extension.js'
       - 'approved-navigation-extension.css'
       - 'visual-fidelity-pass2.js'
+      - 'visual-fidelity-pass3.js'
       - 'approved-visual.js'
       - 'drawer.js'
       - 'boot.js'
@@ -33,6 +34,7 @@ jobs:
       - name: Validate Home owner and bridge syntax
         run: |
           node --check elara-design.js
+          node --check visual-fidelity-pass3.js
           node --check reference-home-shell-2026.js
           node --check home-functional-pass-2026.js
           node --check artwork-home-install-2026.js
