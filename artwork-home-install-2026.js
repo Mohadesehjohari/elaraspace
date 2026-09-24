@@ -11,6 +11,8 @@ const NAV=Object.freeze({
  social:['friends-tab.webp','friends-tab.webp']
 });
 const art=(file,kind)=>{const img=document.createElement('img');img.className='elara-art-img '+kind;img.alt='';img.setAttribute('aria-hidden','true');img.decoding='async';img.src=DIR+file;return img};
+const hideFallback=node=>{if(node){node.hidden=true;node.style.setProperty('display','none','important')}};
+const restoreFallback=node=>{if(node){node.hidden=false;node.style.removeProperty('display')}};
 function navState(button){
  const pair=NAV[button.dataset.elaraTab],img=button.querySelector(':scope > .elara-nav-art');if(!pair||!img)return;
  const selected=button.classList.contains('active')||button.getAttribute('aria-current')==='page';
@@ -38,15 +40,15 @@ const HOME_HEADERS=[
  ['.ref-activity','friends-group-icon.webp']
 ];
 function decorateHeader(cardSelector,file){
- const heading=document.querySelector('#panel-home '+cardSelector+' > header h2');if(!heading)return;
+ const heading=document.querySelector('#panel-home '+cardSelector+' > header h2');if(!heading||heading.querySelector('.elara-card-art'))return;
  const old=heading.querySelector('.elara-icon');if(!old)return;
- const img=art(file,'elara-card-art');img.addEventListener('error',()=>{img.remove();old.hidden=false});old.hidden=true;old.before(img);
+ const img=art(file,'elara-card-art');img.addEventListener('error',()=>{img.remove();restoreFallback(old)});hideFallback(old);old.before(img);
 }
 function decorateWellness(){
  const cells=document.querySelectorAll('#panel-home .ref-wellness-summaries > .ref-wellness-cell');
  const files=['icon-wellness-water.webp','icon-night-crescent-moon.webp','icon-exercise-dumbbell.webp'];
  files.forEach((file,i)=>{const cell=cells[i],slot=cell?.querySelector(':scope > span');if(!slot||slot.querySelector('.elara-wellness-art'))return;
-  const fallback=slot.querySelector('.elara-icon'),img=art(file,'elara-wellness-art');img.addEventListener('error',()=>{img.remove();if(fallback)fallback.hidden=false});if(fallback)fallback.hidden=true;slot.prepend(img);
+  const fallback=slot.querySelector('.elara-icon'),img=art(file,'elara-wellness-art');img.addEventListener('error',()=>{img.remove();restoreFallback(fallback)});hideFallback(fallback);slot.prepend(img);
  });
 }
 function decorateRanking(){
@@ -55,6 +57,7 @@ function decorateRanking(){
  host.querySelectorAll(':scope > .elara-rank-line').forEach((row,index)=>{
   row.hidden=index>=3;
   if(index>=3)return;
+  row.style.position='relative';
   const target=row.querySelector('[data-open-profile]')?.dataset.openProfile;
   const person=persons.find(p=>p.uid===target);if(!person)return;
   const avatar=window.ElaraProfileSystem?.viewModel?.(person,{self:person.uid===social?.me?.uid})?.avatarSrc;
