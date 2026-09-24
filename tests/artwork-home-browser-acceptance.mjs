@@ -38,6 +38,7 @@ for(const [width,height] of sizes){
   if(width<=700){assert.ok(item.header.h<=54,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');const friends=page.locator('.bottom-nav [data-elara-tab="social"]');await friends.click();assert.equal(await friends.getAttribute('aria-current'),'page');await page.locator('.bottom-nav [data-elara-tab="home"]').click()}
   else{assert.equal(await page.locator('.bottom-nav').isVisible(),false);assert.ok(item.streak.h>=46&&item.streak.h<=65,'desktop Streak invalid')}
   if(width===390){
+    console.log('QA_DIAG',JSON.stringify(await page.evaluate(()=>({store:localStorage.getItem('elara_space_v1'),taskHtml:document.getElementById('elara-home-tasks')?.innerHTML,hash:location.hash,html:document.querySelector('.ref-task-list')?.innerHTML}))));
     assert.equal(await page.locator('.ref-task-check[data-ref-task="qa-task"]').count(),1,'test-only task fixture absent');
     await page.locator('.ref-task-check[data-ref-task="qa-task"]').click();await page.waitForTimeout(180);
     let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.equal(state.tasks[0].completed,true);assert.equal(state.xp,10);
