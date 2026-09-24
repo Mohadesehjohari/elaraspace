@@ -11,6 +11,8 @@ on:
       - 'boot.js'
       - 'reference-home-shell-2026.*'
       - 'reference-shell-compat-2026.js'
+      - 'assets/ui/*.webp'
+      - 'deploy/production-manifest.json'
       - 'tests/browser-navigation-screenshots.mjs'
       - 'tests/reference-geometry-assertions.mjs'
       - 'tests/reference-computed-css.mjs'

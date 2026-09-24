@@ -39,3 +39,15 @@ i18n یکپارچه برای `fa-IR`/RTL، `en`/LTR و `tr`/LTR در تمام م
 `A: requirements recorded; integration and production tests pending.`
 `B: requirements recorded only; implementation not authorized yet.`
 `C: requirements recorded only; implementation not authorized yet.`
+
+
+## الحاقیهٔ اجرایی قطعی Checkpoint A — ۲۴ سپتامبر ۲۰۲۶
+
+**HEAD شروع این اجرای واقعی:** `dde7281e7a10b6eaeb515340c305fe38f4223df1`. این بخش آخرین تصمیم کاربر در Checkpoint A است و در تعارض با بندهای قدیمی، بر آن‌ها مقدم است.
+
+- **فرمت Artwork:** بنرهای بزرگ و آیکن‌های سه‌بعدیِ raster به‌صورت WebP واقعی استفاده می‌شوند؛ SVG فقط برای منبع واقعاً برداری است و JPG/PNG داخل SVG پنهان نمی‌شود. Originalهای کاربر دست‌نخورده می‌مانند و نسخهٔ نمایشی در صورت نیاز جدا ساخته می‌شود. Glow و Alpha آیکن‌ها باید حفظ شوند.
+- **Mobile Home:** اولویت، بیشترین شباهت به مرجع گوشی کاربر با هندسهٔ واقعی و کمترین ارتفاع/اسکرول اضافی است. ترتیب اصلی `Header → Hero → Streak → Tasks/Habits → Wellness → Missions/Ranking → Friends → Bottom Navigation` است. Goals، Theme Strip و Previewهای کم‌اولویت می‌توانند فقط از Home موبایل حذف/فشرده شوند؛ route، داده و قابلیت اصلی آن‌ها حذف نمی‌شود. `zoom` و `transform: scale` برای کوچک‌کردن کل صفحه ممنوع است.
+- **Desktop Streak:** شعله و شمارندهٔ واقعی Streak در Desktop نیز دیده می‌شوند، اما به‌صورت عنصر فشرده در Hero/Header و بدون افزودن ردیف بلند بین Hero و Grid سه‌ستونه.
+- **Assetهای مصوب این نوبت:** `assets/ui/hero-landscape.webp` برای پس‌زمینهٔ Hero با متن HTML زنده، `assets/ui/missions-rocket.webp` برای عنوان Missions، و `assets/ui/streak-flame.webp` برای Streak موبایل و دسکتاپ. دادهٔ Streak، روزها، Missions و XP باید از state واقعی فعلی خوانده شوند.
+- **روش Fidelity:** مرجع + Screenshot واقعی در viewport هم‌اندازه → اندازه‌گیری Header/Hero/Streak/Card/Gap/Scroll → اصلاح مالک واحد `reference-home-shell-2026.js/css` → Browser test → مقایسهٔ مجدد. Pages PASS به‌تنهایی Browser/cPanel/Firebase PASS نیست.
+- Checkpointهای **B و C همچنان STOP** هستند تا کاربر نتیجهٔ تصویری A را تأیید کند.
