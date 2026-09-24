@@ -1,0 +1,32 @@
+name: Elara Home fixture diagnostic once
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/elara-test-debug-once.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Instrument real browser fixture only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/artwork-home-browser-acceptance.mjs');s=p.read_text()
+          a="    assert.equal(await page.locator('.ref-task-check[data-ref-task=\"qa-task\"]').count(),1,'test-only task fixture absent');"
+          b="    console.log('QA_DIAG',JSON.stringify(await page.evaluate(()=>({store:localStorage.getItem('elara_space_v1'),taskHtml:document.getElementById('elara-home-tasks')?.innerHTML,hash:location.hash,html:document.querySelector('.ref-task-list')?.innerHTML}))));\n"+a
+          if s.count(a)!=1:raise SystemExit('test statement not found once')
+          p.write_text(s.replace(a,b,1))
+          Path('.github/workflows/elara-test-debug-once.yml').unlink()
+          PY
+          node --check tests/artwork-home-browser-acceptance.mjs
+          git diff --check
+      - name: Commit test diagnostics once
+        run: |
+          git config user.name 'Elara Home Pass'
+          git config user.email '139713890+Mohadesehjohari@users.noreply.github.com'
+          git add tests/artwork-home-browser-acceptance.mjs .github/workflows/elara-test-debug-once.yml
+          git commit -m 'test(home): log fixture state and actual Home Task markup at failing viewport'
+          git push origin HEAD:main
