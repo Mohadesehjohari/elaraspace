@@ -12,6 +12,7 @@ on:
       - 'reference-home-shell-2026.*'
       - 'reference-shell-compat-2026.js'
       - 'artwork-home-install-2026.*'
+      - 'home-functional-pass-2026.*'
       - 'assets/ui/*.webp'
       - 'deploy/production-manifest.json'
       - 'tests/artwork-home-browser-acceptance.mjs'
