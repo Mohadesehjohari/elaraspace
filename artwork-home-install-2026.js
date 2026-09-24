@@ -1,22 +1,27 @@
-/* Temporary image-free Home and Navigation state until approved transparent artwork is uploaded.
-   Canonical navigation owns its SVG icons, labels, selection and route handlers. */
+/* Checkpoint A: decoration only. Reference Home owns cards/data; canonical navigation owns routes. */
 (()=>{'use strict';
-function decorateRanking(){
- const host=document.getElementById('elara-home-ranks');if(!host)return;
- const social=window.ElaraSocial,persons=[social?.me,...(Array.isArray(social?.friends)?social.friends:[])].filter(Boolean);
- host.querySelectorAll(':scope > .elara-rank-line').forEach((row,index)=>{
-  row.hidden=index>=3;
-  if(index>=3)return;
-  row.style.position='relative';
-  const target=row.querySelector('[data-open-profile]')?.dataset.openProfile;
-  const person=persons.find(p=>p.uid===target);if(!person)return;
-  const avatar=window.ElaraProfileSystem?.viewModel?.(person,{self:person.uid===social?.me?.uid})?.avatarSrc;
-  const holder=row.querySelector('.elara-social-avatar');if(!avatar||!holder||holder.querySelector('img'))return;
-  const img=document.createElement('img');img.className='elara-real-rank-avatar';img.alt='';img.decoding='async';img.src=avatar;
-  img.addEventListener('error',()=>img.remove());holder.prepend(img);
- });
+const ROOT='assets/ui/';
+const PAIRS=Object.freeze({home:['nav-home-default.webp','nav-home-active.webp'],tasks:['nav-tasks-default.webp','nav-tasks-active.webp'],language:['nav-language-default.webp','nav-language-active.webp'],books:['nav-library-default.webp','nav-library-active.webp'],ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],social:['friends-tab.webp','friends-tab.webp']});
+const HEADERS=[['.ref-tasks','nav-tasks-default.webp'],['.ref-habits','icon-habits-sprout.webp'],['.ref-wellness-card','icon-wellness-heartbeat.webp'],['.ref-ranks','icon-ranking-trophy.webp'],['.ref-activity','friends-group-icon.webp']];
+const WELLNESS=['icon-wellness-water.webp','icon-night-crescent-moon.webp','icon-exercise-dumbbell.webp'];
+function img(file,kind){const n=document.createElement('img');n.className='elara-art-img '+kind;n.alt='';n.setAttribute('aria-hidden','true');n.decoding='async';n.src=ROOT+file;return n}
+function navState(button){const pair=PAIRS[button.dataset.elaraTab],art=button.querySelector(':scope > .elara-nav-art');if(!pair||!art)return;
+ const active=button.getAttribute('aria-current')==='page'||button.classList.contains('active');
+ const preview=button.matches(':focus-visible')||(matchMedia('(hover:hover) and (pointer:fine)').matches&&button.matches(':hover'));
+ const file=pair[active||preview?1:0];if(art.dataset.file!==file){art.dataset.file=file;art.src=ROOT+file}button.classList.toggle('elara-art-selected',active);
 }
-let queued=false;function schedule(){if(queued)return;queued=true;setTimeout(()=>{queued=false;decorateRanking()},160)}
-function init(){decorateRanking();setTimeout(decorateRanking,350);for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:social-updated','elara:account-ready','elara:privacy-local-changed','elara:profile-saved'])window.addEventListener(name,schedule);window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule)}
+function decorateNav(){document.querySelectorAll('.bottom-nav [data-elara-nav-kind="main"],.sidebar .navigation [data-elara-nav-kind="sidebar"],.elara-desktop-dock [data-elara-nav-kind="main"]').forEach(button=>{
+ const pair=PAIRS[button.dataset.elaraTab];if(!pair)return;let art=button.querySelector(':scope > .elara-nav-art');if(!art){art=img(pair[0],'elara-nav-art');art.dataset.file=pair[0];art.addEventListener('error',()=>{button.classList.remove('elara-nav-has-art');art.hidden=true});art.addEventListener('load',()=>{art.hidden=false;button.classList.add('elara-nav-has-art')});const fallback=button.querySelector(':scope > .elara-icon');if(fallback)fallback.before(art);else button.prepend(art);['pointerenter','pointerleave','focusin','focusout'].forEach(type=>button.addEventListener(type,()=>navState(button)))}navState(button);
+ });}
+function decorateIcon(slot,file,kind){if(!slot||slot.querySelector(':scope > .'+kind))return;const fallback=slot.querySelector(':scope > .elara-icon'),art=img(file,kind);art.addEventListener('load',()=>{if(fallback)fallback.hidden=true});art.addEventListener('error',()=>{art.remove();if(fallback)fallback.hidden=false});if(fallback)fallback.before(art);else slot.prepend(art)}
+function decorateHome(){for(const [card,file] of HEADERS){const heading=document.querySelector('#panel-home '+card+' > header h2');decorateIcon(heading,file,'elara-card-art')}
+ const cells=document.querySelectorAll('#panel-home .ref-wellness-summaries > .ref-wellness-cell');WELLNESS.forEach((file,i)=>decorateIcon(cells[i]?.querySelector(':scope > span'),file,'elara-wellness-art'));
+ const host=document.getElementById('elara-home-ranks');if(!host)return;const social=window.ElaraSocial,persons=[social?.me,...(Array.isArray(social?.friends)?social.friends:[])].filter(Boolean);
+ host.querySelectorAll(':scope > .elara-rank-line').forEach((row,i)=>{row.hidden=i>=3;if(i>=3)return;const uid=row.querySelector('[data-open-profile]')?.dataset.openProfile,person=persons.find(p=>p.uid===uid),holder=row.querySelector('.elara-social-avatar');if(!person||!holder||holder.querySelector('img'))return;const avatar=window.ElaraProfileSystem?.viewModel?.(person,{self:person.uid===social?.me?.uid})?.avatarSrc;if(!avatar)return;const art=document.createElement('img');art.className='elara-real-rank-avatar';art.alt='';art.src=avatar;art.addEventListener('error',()=>art.remove());holder.prepend(art)});
+}
+function decorateMode(){const button=document.getElementById('theme-toggle');if(!button||button.querySelector('.elara-mode-art'))return;const fallback=button.querySelector('.elara-icon'),art=img('icon-mode-night-default.webp','elara-mode-art');art.addEventListener('load',()=>{if(fallback)fallback.hidden=document.body.classList.contains('dark')});art.addEventListener('error',()=>{art.remove();if(fallback)fallback.hidden=false});button.prepend(art);const paint=()=>{const dark=document.body.classList.contains('dark');art.hidden=!dark;if(fallback)fallback.hidden=dark&&!art.naturalWidth?false:dark;art.src=ROOT+((dark&&(button.matches(':focus-visible')||(matchMedia('(hover:hover) and (pointer:fine)').matches&&button.matches(':hover'))))?'icon-mode-night-active.webp':'icon-mode-night-default.webp')};['pointerenter','pointerleave','focusin','focusout'].forEach(t=>button.addEventListener(t,paint));paint()}
+function decorate(){decorateNav();decorateHome();decorateMode()}
+let pending=false;function schedule(){if(pending)return;pending=true;setTimeout(()=>{pending=false;decorate()},100)}
+function init(){decorate();setTimeout(decorate,350);for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:social-updated','elara:account-ready','elara:wardrobe-changed','elara:profile-saved'])window.addEventListener(name,schedule);window.addEventListener('hashchange',schedule);window.addEventListener('popstate',schedule);document.getElementById('theme-toggle')?.addEventListener('click',schedule)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
