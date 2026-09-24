@@ -29,6 +29,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validate Home owner and bridge syntax
+        run: |
+          node --check reference-home-shell-2026.js
+          node --check home-functional-pass-2026.js
+          node --check artwork-home-install-2026.js
+          node --check boot.js
       - name: Install Playwright
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
