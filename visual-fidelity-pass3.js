@@ -44,9 +44,9 @@ function renderHome(){
  ensureFocusInsideTasks();
  for(const id of HOME_ORDER){const card=$(id)?.closest('.elara-card');if(card)grid.append(card)}
  const model=homeModel(),tasksHost=$('elara-home-tasks'),stats=$('elara-stats');if(stats?.firstElementChild?.querySelector('strong'))stats.firstElementChild.querySelector('strong').textContent=fmt(streakCount());
- if(tasksHost){tasksHost.innerHTML=model.tasks.length?model.tasks.map(taskRow).join(''):'<div class="pass3-empty-state">برای امروز کاری ثبت نشده؛ از صفحهٔ تسک‌ها یک قدم کوچک اضافه کن.</div>';tasksHost.closest('.elara-card')?.classList.add('pass3-primary-card','pass3-tasks-card')}
+ if(tasksHost&&!window.ElaraReferenceHome){tasksHost.innerHTML=model.tasks.length?model.tasks.map(taskRow).join(''):'<div class="pass3-empty-state">برای امروز کاری ثبت نشده؛ از صفحهٔ تسک‌ها یک قدم کوچک اضافه کن.</div>';tasksHost.closest('.elara-card')?.classList.add('pass3-primary-card','pass3-tasks-card')}
  const habits=$('elara-home-habits');
- if(habits){
+ if(habits&&!window.ElaraReferenceHome){
    const wellness=[...habits.querySelectorAll('[data-wellness-home]')];
    habits.querySelectorAll('[data-wellness-home]').forEach(x=>x.remove());
    const done=model.habits.filter(h=>habitPct(h)===100).length,total=model.habits.length,pct=total?Math.round(done/total*100):0;
@@ -54,9 +54,9 @@ function renderHome(){
    wellness.forEach(x=>habits.append(x));habits.closest('.elara-card')?.classList.add('pass3-primary-card','pass3-habits-card');
  }
  const missions=$('elara-home-missions');
- if(missions){missions.innerHTML=model.missions.length?model.missions.map(m=>{const amount=Math.min(Number(m.amount)||0,Number(m.target)||0),target=Math.max(1,Number(m.target)||1),pct=Math.round(amount/target*100);return `<div class="pass3-mission-row ${m.completed?'is-done':''}"><span>${icon('missions')}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${fmt(amount)} / ${fmt(target)}</small><span class="elara-track"><i style="width:${pct}%"></i></span></div><b>+${fmt(m.rewardXp||0)} XP${m.claimed?' · دریافت‌شده':''}</b></div>`}).join(''):'<div class="pass3-empty-state">مأموریت فعالی برای نمایش نیست.</div>';missions.closest('.elara-card')?.classList.add('pass3-compact-card','pass3-missions-card')}
+ if(missions&&!window.ElaraReferenceHome){missions.innerHTML=model.missions.length?model.missions.map(m=>{const amount=Math.min(Number(m.amount)||0,Number(m.target)||0),target=Math.max(1,Number(m.target)||1),pct=Math.round(amount/target*100);return `<div class="pass3-mission-row ${m.completed?'is-done':''}"><span>${icon('missions')}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${fmt(amount)} / ${fmt(target)}</small><span class="elara-track"><i style="width:${pct}%"></i></span></div><b>+${fmt(m.rewardXp||0)} XP${m.claimed?' · دریافت‌شده':''}</b></div>`}).join(''):'<div class="pass3-empty-state">مأموریت فعالی برای نمایش نیست.</div>';missions.closest('.elara-card')?.classList.add('pass3-compact-card','pass3-missions-card')}
  const goals=$('elara-home-goals');
- if(goals){goals.innerHTML=model.goals.length?model.goals.map(g=>{const pct=goalPct(g);return `<div class="pass3-goal-row"><span>${icon('goals')}</span><div><strong>${esc(g.title||g.name||'هدف')}</strong><span class="elara-track"><i style="width:${pct}%"></i></span></div><b>${fmt(pct)}٪</b></div>`}).join(''):'<div class="pass3-empty-state">هنوز هدفی ثبت نشده است.</div>';goals.closest('.elara-card')?.classList.add('pass3-compact-card','pass3-goals-card')}
+ if(goals&&!window.ElaraReferenceHome){goals.innerHTML=model.goals.length?model.goals.map(g=>{const pct=goalPct(g);return `<div class="pass3-goal-row"><span>${icon('goals')}</span><div><strong>${esc(g.title||g.name||'هدف')}</strong><span class="elara-track"><i style="width:${pct}%"></i></span></div><b>${fmt(pct)}٪</b></div>`}).join(''):'<div class="pass3-empty-state">هنوز هدفی ثبت نشده است.</div>';goals.closest('.elara-card')?.classList.add('pass3-compact-card','pass3-goals-card')}
  for(const [id,cls] of [['elara-home-ranks','pass3-ranking-home'],['elara-home-social','pass3-friends-home'],['elara-home-activity','pass3-secondary-card'],['elara-home-freedom','pass3-secondary-card']])$(id)?.closest('.elara-card')?.classList.add(cls);
  const focus=$('elara-home-focus');if(focus){const timer=focus.querySelector('#elara-mirror-timer');if(timer)timer.closest('.elara-focus-ring')?.classList.add('pass3-focus-timer');const cta=focus.querySelector('[data-elara-tab="focus"],[data-approved-focus]');if(cta){cta.classList.add('pass3-focus-cta');cta.textContent='شروع تمرکز'}}
 }
