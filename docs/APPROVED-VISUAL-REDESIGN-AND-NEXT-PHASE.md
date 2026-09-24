@@ -107,3 +107,20 @@
 - cPanel production-tested = NO؛ Firebase production-tested = NO.
 - Checkpoint B و C تا تأیید صریح کاربر **STOP** هستند.
 - چت جدید باید قبل از هر write، HEAD واقعی و هر سه Roadmap را دوباره بخواند.
+
+
+---
+
+## آخرین Override نظارتی و Visual — ۲۴ سپتامبر ۲۰۲۶
+
+برای ادامهٔ پروژه، تصمیم‌های جدید و وضعیت اجرایی در `docs/APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md` مرجع نهایی هستند. در تعارض با بندهای قدیمی این سند، الحاقیهٔ ۲۴ سپتامبر مقدم است.
+
+نکات تازهٔ لازم‌الاجرا:
+- Assistant در چت جدید نقش **ناظر فنی/طراحی/کیفیت/پیشرفت** دارد، نه مجری اصلی؛ در شروع هر Stage باید HEAD واقعی `Mohadesehjohari/elaraspace/main` و هر سه سند رسمی را مستقل بخواند و گزارش اجرایی را بدون راستی‌آزمایی نپذیرد.
+- مسیر Asset جدید سه‌مرحله‌ای است: ابتدا فقط تبدیل/نام‌گذاری/ZIP باکیفیت و بدون تغییر GitHub؛ سپس Upload دستی کاربر؛ بعد اتصال واقعی UI/Manifest/Browser test.
+- Mobile Bottom Nav از این تصمیم جدید می‌تواند **Friends** را نیز به‌عنوان مقصد مستقیم داشته باشد؛ این بند جدیدتر بر قرارداد «فقط هفت مقصد» برای Mobile مقدم است. این تغییر فقط Navigation/Visual است و مجوز ساخت دادهٔ جعلی یا Presence جعلی نیست.
+- Preview «رنکینگ این هفته» در Home باید Top 3 را با آواتارهای کاملاً گرد و چیدمان podium-like فشرده نشان دهد؛ اطلاعات کامل XP/لقب/جدول در صفحهٔ کامل باقی می‌ماند.
+- Desktop Streak باید زیر/نزدیک Hero به‌صورت strip پهن و فشرده شبیه مرجع موبایل باشد و Flame بزرگ‌تر شود، بدون تخریب Grid سه‌ستونه.
+- لوگوی قبلی فعلاً از UI اصلی برداشته می‌شود ولی slot/ساختار آن حفظ می‌شود تا Asset جدید بعداً جایگزین شود.
+- Neon polish باید روی سایت زنده با CSS واقعی اجرا شود؛ Progress Barهای Habits/Goals پهن‌تر و با رنگ‌های مستقل باشند؛ تصویر Task Check فقط در state واقعی Completed نمایش داده شود.
+- Checkpoint B همچنان STOP است. Checkpoint C نیز به‌جز همین دو استثنای صریحِ Friends در Mobile Nav و Visual Preview رنکینگ، برای Backend/Presence/i18n/Store و تغییرات وسیع‌تر STOP می‌ماند.
