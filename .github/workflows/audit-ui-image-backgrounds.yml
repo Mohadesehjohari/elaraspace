@@ -1,0 +1,51 @@
+name: Inspect UI image backgrounds
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-ui-image-backgrounds.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install Pillow
+      - name: Inspect actual pixels and create labeled contact sheets
+        run: |
+          python - <<'PY'
+          from PIL import Image,ImageDraw
+          import os,json,math
+          folder='assets/ui'; out='ui-background-audit';os.makedirs(out,exist_ok=True)
+          names=sorted(n for n in os.listdir(folder) if n.lower().endswith(('.webp','.png','.jpg','.jpeg')))
+          rows=[]; TW,TH=245,190; COLS=5
+          sheet=Image.new('RGB',(TW*COLS,TH*math.ceil(len(names)/COLS)),'#23334a');draw=ImageDraw.Draw(sheet)
+          for i,name in enumerate(names):
+            im=Image.open(os.path.join(folder,name));rgba=im.convert('RGBA');w,h=im.size
+            corners=[rgba.getpixel((x,y)) for x,y in ((0,0),(w-1,0),(0,h-1),(w-1,h-1))]
+            edge=[]
+            for j in range(60):
+              x=round((w-1)*j/59);y=round((h-1)*j/59)
+              edge.extend((rgba.getpixel((x,0)),rgba.getpixel((x,h-1)),rgba.getpixel((0,y)),rgba.getpixel((w-1,y))))
+            black=lambda p:p[3]>245 and max(p[:3])<8
+            alpha=im.getchannel('A').getextrema() if 'A' in im.getbands() else None
+            rows.append({'name':name,'mode':im.mode,'size':[w,h],'alphaRange':alpha,'corners':corners,'edgeBlackFraction':round(sum(map(black,edge))/len(edge),3)})
+            thumb=rgba.copy();thumb.thumbnail((222,144))
+            x=(i%COLS)*TW;y=(i//COLS)*TH
+            draw.rectangle((x+1,y+1,x+TW-2,y+TH-2),outline='#7990af',width=1)
+            bg=Image.new('RGBA',thumb.size,'#263b54');bg.alpha_composite(thumb)
+            sheet.paste(bg.convert('RGB'),(x+(TW-thumb.width)//2,y+4))
+            draw.text((x+6,y+150),name[:37],fill='white')
+            draw.text((x+6,y+168),f'{im.mode} {w}x{h} black edge {rows[-1]["edgeBlackFraction"]}',fill='#c9d8e7')
+          with open(os.path.join(out,'inspection.json'),'w') as f:json.dump(rows,f,ensure_ascii=False,indent=2)
+          sheet.save(os.path.join(out,'contact-sheet.jpg'),quality=93)
+          print('INSPECTED',len(rows),'assets/ui images')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: actual-ui-image-background-audit
+          path: ui-background-audit/
+          retention-days: 2
