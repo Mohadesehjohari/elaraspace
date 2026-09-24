@@ -199,3 +199,21 @@
 - Home موبایل: Header با hamburger، Hero، Streak، Tasks+Habits، خلاصهٔ Wellness سراسری، Missions+Ranking، Friends سراسری و Bottom Nav هفت‌تایی. عرض‌های ۳۲۰/۳۷۵/۳۹۰/۴۳۰ و دسکتاپ ۱۴۴۰/۱۶۴۸/۱۹۲۰ باید در مرورگر واقعی بررسی شوند؛ ۳۲۰ می‌تواند برای خوانایی تک‌ستونه باشد.
 - آب/خواب در Home فقط خلاصهٔ خصوصی دادهٔ واقعی هستند و ثبت/لیوان/ویرایش فقط در Exercise انجام می‌شود. دادهٔ تصویر مرجع دادهٔ واقعی کاربران تلقی نمی‌شود.
 - این مرحله فقط اصلاح ساختار و نسبت‌هاست؛ بازطراحی آواتار/فریم/لوگو و ورود Asset تازه انجام نمی‌شود. تأیید بصری نیازمند اسکرین‌شات مرورگر واقعی و سنجش اندازهٔ کارت‌ها است؛ GitHub Pages به‌تنهایی گواه Production cPanel یا Firebase نیست.
+
+
+---
+
+## همگام‌سازی Roadmap / Handoff — ۲۴ سپتامبر ۲۰۲۶
+
+مرجع کامل ادامهٔ پروژه اکنون در بخش **HANDOFF قطعی برای ادامه در چت جدید — ۲۴ سپتامبر ۲۰۲۶** از سند `docs/APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md` ثبت شده است.
+
+نکات الزام‌آور:
+- active repo فقط `Mohadesehjohari/elaraspace/main`
+- baseline پیاده‌سازی پیش از Commit صرفاً Roadmap/Handoff: `27203792fcd9a92f1a99fef5b2bdc3b49dba0f9d`
+- سه Artwork واقعی نصب‌شده: `assets/ui/hero-landscape.webp`, `assets/ui/missions-rocket.webp`, `assets/ui/streak-flame.webp`
+- Mobile one-screen geometry روی 320/375/390/430 با Chromium تست شده؛ در 320 و 390 scroll باقی‌مانده 0px بوده است.
+- Desktop 1440/1648/1920 تست شده؛ Streak تصویری روی Desktop نیز اجباری است و Grid سه‌ستونه نباید پایین رانده شود.
+- آخرین Browser/Validate/Pages برای baseline فوق SUCCESS بوده‌اند.
+- cPanel production-tested = NO؛ Firebase production-tested = NO.
+- Checkpoint B و C تا تأیید صریح کاربر **STOP** هستند.
+- چت جدید باید قبل از هر write، HEAD واقعی و هر سه Roadmap را دوباره بخواند.

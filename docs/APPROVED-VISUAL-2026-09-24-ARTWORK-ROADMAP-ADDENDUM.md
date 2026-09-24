@@ -51,3 +51,227 @@ i18n یکپارچه برای `fa-IR`/RTL، `en`/LTR و `tr`/LTR در تمام م
 - **Assetهای مصوب این نوبت:** `assets/ui/hero-landscape.webp` برای پس‌زمینهٔ Hero با متن HTML زنده، `assets/ui/missions-rocket.webp` برای عنوان Missions، و `assets/ui/streak-flame.webp` برای Streak موبایل و دسکتاپ. دادهٔ Streak، روزها، Missions و XP باید از state واقعی فعلی خوانده شوند.
 - **روش Fidelity:** مرجع + Screenshot واقعی در viewport هم‌اندازه → اندازه‌گیری Header/Hero/Streak/Card/Gap/Scroll → اصلاح مالک واحد `reference-home-shell-2026.js/css` → Browser test → مقایسهٔ مجدد. Pages PASS به‌تنهایی Browser/cPanel/Firebase PASS نیست.
 - Checkpointهای **B و C همچنان STOP** هستند تا کاربر نتیجهٔ تصویری A را تأیید کند.
+
+
+---
+
+## HANDOFF قطعی برای ادامه در چت جدید — ۲۴ سپتامبر ۲۰۲۶
+
+این بخش آخرین snapshot اجرایی و مرجع ادامهٔ پروژه است. در تعارض با توضیحات قدیمی‌تر دربارهٔ وضعیت اجرا، این snapshot جدیدتر اولویت دارد.
+
+### 1) مخزن و مالکیت توسعه
+
+- **تنها مخزن فعال برای توسعه و Commit:** `Mohadesehjohari/elaraspace`
+- **Branch فعال:** `main`
+- مخزن `ArenParsi/elaraspace` فقط سابقهٔ تاریخی است و بدون درخواست صریح کاربر نباید تغییر کند.
+- **Baseline پیاده‌سازی قبل از Commit صرفاً Roadmap/Handoff حاضر:** `27203792fcd9a92f1a99fef5b2bdc3b49dba0f9d`
+- هر چت جدید باید **قبل از هر write، HEAD واقعی main را دوباره بخواند** و به SHA بالا اعتماد کور نکند.
+
+### 2) وضعیت Checkpoint A — Artwork + Home Fidelity
+
+Checkpoint A در کد واقعی main تا مرحلهٔ Browser acceptance پیش رفته است. Checkpointهای B و C هنوز **STOP** هستند تا کاربر نتیجهٔ بصری A را صریحاً تأیید کند.
+
+Assetهای واقعی نصب‌شده در GitHub:
+- `assets/ui/hero-landscape.webp` — Hero landscape، با متن UI زندهٔ HTML
+- `assets/ui/missions-rocket.webp` — آیکن سه‌بعدی Missions
+- `assets/ui/streak-flame.webp` — شعلهٔ Streak برای Mobile و Desktop
+
+قاعدهٔ Artwork:
+- بنرهای raster بزرگ: WebP
+- آیکن‌های سه‌بعدی raster: WebP بهینه با transparency واقعی
+- SVG فقط وقتی واقعاً vector است؛ raster نباید داخل SVG پنهان شود.
+- Original کاربر حفظ می‌شود؛ نسخهٔ نمایشی جداگانه مجاز است.
+- Glow/alpha نباید تخریب شود.
+
+### 3) Home فعلی و قرارداد بصری
+
+مالک اصلی Home/Shell این مرحله:
+- `reference-home-shell-2026.js`
+- `reference-home-shell-2026.css`
+
+ساختار موفق فعلی نباید rollback یا از صفر بازنویسی شود.
+
+Desktop:
+- Sidebar چپ حدود 228px
+- Header فشرده
+- Hero حدود 175px
+- Grid سه‌ستونه
+- Theme Strip افقی
+- Bottom Navigation روی Desktop ممنوع
+- Streak در Desktop نیز با `assets/ui/streak-flame.webp` نمایش داده می‌شود، اما فشرده و داخل/نزدیک Hero؛ نباید ردیف بلند جدیدی بین Hero و Grid بسازد.
+
+Mobile:
+ترتیب اولویت Home:
+`Header → Hero → Streak → Tasks/Habits → Wellness → Missions/Ranking → Friends → Bottom Navigation`
+
+اهداف Mobile:
+- یک Header واقعی و فشرده؛ Brand تکراری نشود.
+- Hero کوتاه با crop کنترل‌شدهٔ تصویر.
+- Streak بلافاصله زیر Hero، با شعلهٔ واقعی، مقدار واقعی و نشان‌های روزها.
+- Tasks و Habits کنار هم و کوتاه.
+- Wellness فقط summaryهای فشرده آب/خواب/تمرین/وزن در Home؛ ثبت آب/خواب همچنان در Exercise.
+- Missions و Ranking کنار هم.
+- Friends نوار کوتاه پایین.
+- Goals و Theme Strip فقط از **Home موبایل** حذف/پنهان می‌شوند؛ route، داده و قابلیتشان حذف نشده است.
+- ممنوع: `zoom` یا `transform:scale` روی کل صفحه برای جعل one-screen.
+- اگر one-screen با خوانایی واقعی ممکن نباشد، اختلاف ارتفاع باید به px گزارش شود؛ قابلیت ضروری نباید حذف شود.
+
+### 4) اندازه‌های Browser تأییدشده روی baseline 27203792...
+
+Browser automation واقعی روی Chromium اجرا شده است.
+
+Mobile viewport height تست‌شده: **659 CSS px**
+
+در 390px:
+- Header: 52px
+- Hero: 104px
+- Streak: 48px
+- Tasks: 120px
+- Habits: 120px
+- Wellness: 96px
+- Missions: 104px
+- Ranking: 104px
+- Friends: 52px
+- horizontal overflow: 0
+- vertical scroll remaining: **0px**
+
+در 320px:
+- همان ترتیب و ارتفاع‌های اصلی
+- horizontal overflow: 0
+- vertical scroll remaining: **0px**
+
+Desktop 1648×928:
+- Sidebar: 228px
+- Header: 80px
+- Hero: 1380×175px
+- Desktop Streak: حدود 95×40px
+- Tasks/Habits/Wellness: هرکدام حدود 450×285px
+- Missions/Goals: حدود 450×225px
+- Theme Strip: حدود 915×100px
+- vertical scroll remaining: **7px**
+- Bottom Nav مخفی
+
+Desktop 1440 و 1920 نیز در Browser test بررسی شده‌اند.
+
+### 5) تست‌های موفق روی baseline 27203792...
+
+- Validate Elara site: SUCCESS
+  - Run: `35996952257`
+- Browser navigation acceptance / geometry / screenshots: SUCCESS
+  - Run: `35996952258`
+- GitHub Pages build and deployment: SUCCESS
+  - Run: `35996951433`
+
+این PASSها فقط برای همان کد و همان محدوده معتبرند.
+- GitHub Pages PASS ≠ cPanel production-tested
+- Browser geometry PASS ≠ Firebase production-tested
+- Pixel-perfect هنری هنوز نیازمند تأیید چشمی کاربر است.
+
+### 6) Production Manifest و Hosting
+
+هر سه Artwork جدید در `deploy/production-manifest.json → files` ثبت شده‌اند:
+- `assets/ui/hero-landscape.webp`
+- `assets/ui/missions-rocket.webp`
+- `assets/ui/streak-flame.webp`
+
+عمداً فقط به `files` اضافه شده‌اند و بدون دلیل معماری به `required` تحمیل نشده‌اند.
+
+زیرساخت cPanel/Production قبلاً کدنویسی شده است:
+- `.cpanel.yml`
+- deployment manifest
+- server-side maintenance
+- staging/backup/rollback
+- Admin one-click update gateway
+- مستند نصب فارسی
+
+اما وضعیت واقعی:
+- **cpanel production-tested: NO**
+- **deployed-to-cPanel-production: NO**
+- **firebase production-tested: NO**
+- Firestore Rules صرف وجود در repo به معنی Publish شدن نیست.
+- Firebase Authorized Domain و ثبت‌نام حساب دوم باید روی Production واقعی تست شوند.
+
+### 7) Navigation/Drawer — قرارداد تثبیت‌شده
+
+Canonical main navigation دقیقاً:
+`ورزش | زبان | تسک‌ها | خانه | رنکینگ | کتابخانه | آزادی`
+
+Desktop:
+- Sidebar باقی می‌ماند.
+- Reports یک secondary item پایین Sidebar است.
+- Habits / Goals / Focus / Missions / Friends main destination مستقل نیستند.
+
+Mobile:
+- Bottom Nav همان هفت مقصد canonical را دارد.
+- Sidebar مخفی است.
+
+Drawer:
+- سیستم جدا از Main Navigation است.
+- حساب، پروفایل، کمد، تنظیمات، Appearance، Privacy، Notifications، Messages، Help، Folder/Tag، Calendar، Logout و موارد تنظیماتی.
+- popup بازشده از Drawer نباید Drawer پشت آن را ببندد.
+- بستن popup باید کاربر را به Drawer باز برگرداند.
+
+### 8) داده‌ها و قابلیت‌هایی که نباید تخریب شوند
+
+- Firebase/Auth/Firestore flows را صرفاً برای Visual pass تغییر نده.
+- دادهٔ Streak باید واقعی باشد، نه mock.
+- Missions/XP واقعی بماند.
+- Tasks/Habits/Goals data و routeها حفظ شوند.
+- Water/Sleep write فقط در Exercise/Wellness؛ به Home برنگردد.
+- Focus main tab ساخته نشود؛ Focus در ساختار مرتبط فعلی/Library باقی بماند.
+- قابلیت حذف‌شده از Preview موبایل به معنی حذف route یا داده نیست.
+
+### 9) وضعیت Asset Upload
+
+مانع Binary Upload برای سه Asset فعلی حل شده است، چون کاربر آن‌ها را مستقیماً در GitHub main آپلود کرده است.
+برای Assetهای بعدی:
+- ابتدا بررسی کن فایل واقعاً در HEAD وجود دارد.
+- اگر فایل binary جدید هنوز در repo نیست و ابزار GitHub binary upload ندارد، فقط همان فایل موردنیاز را با نام و مسیر دقیق از کاربر بخواه؛ درخواست ارسال مجدد همه تصاویر ممنوع.
+- Asset فقط وقتی «نصب‌شده» محسوب می‌شود که واقعاً در GitHub HEAD باشد، در manifest لازم ثبت شود، به UI وصل شود و Browser بدون 404 آن را نشان دهد.
+
+### 10) مرحلهٔ بعد در چت جدید
+
+ترتیب اجباری شروع:
+1. HEAD واقعی main را refresh کن.
+2. هر سه Roadmap رسمی را بخوان.
+3. latest Actions را برای همان HEAD بررسی کن.
+4. Screenshotهای واقعی و مرجع جدیدی که کاربر در چت جدید می‌فرستد مبنای visual delta باشند.
+5. **Checkpoint A را فقط بر اساس feedback بصری کاربر ادامه بده.**
+6. Checkpoint B/C را تا اجازهٔ صریح کاربر شروع نکن.
+
+در ادامهٔ Checkpoint A، اولویت با این‌هاست:
+- اصلاح deltaهای باقی‌مانده نسبت به reference بدون بازسازی دوبارهٔ Home
+- حفظ one-screen Mobile در viewport واقعی
+- حفظ Desktop three-column geometry
+- استفاده از Assetهای WebP واقعی
+- اندازه‌گیری و گزارش عددی before/after
+- تست empty-state و seeded-data
+- Browser screenshots روی End HEAD
+
+### 11) قرارداد تحویل هر Pass بعدی
+
+گزارش باید شامل این موارد باشد:
+- Start HEAD
+- End HEAD
+- Commit SHA + URL
+- changed files
+- Assetهای واقعاً موجود/نصب‌شده
+- tests actually run
+- Browser viewports actually run
+- اندازهٔ Header/Hero/Streak/Card/Grid
+- horizontal overflow
+- vertical scroll remaining in px
+- Screenshot واقعی روی End HEAD
+- اختلاف‌های باقی‌مانده با reference
+- cPanel/Firebase status بدون ادعای تست‌نشده
+
+وضعیت فعلی پیش از شروع چت جدید:
+- Checkpoint A coded: YES
+- automated-tested: YES
+- browser-tested: YES
+- Pages deployed: YES
+- pixel-perfect user-approved: **PENDING USER VISUAL APPROVAL**
+- cPanel production-tested: NO
+- Firebase production-tested: NO
+- Checkpoint B: STOP
+- Checkpoint C: STOP
