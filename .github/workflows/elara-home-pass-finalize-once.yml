@@ -1,0 +1,49 @@
+name: Elara Home one-time owner patch
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/elara-home-pass-finalize-once.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch only approved existing owners
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          home=Path('reference-home-shell-2026.js')
+          source=home.read_text(encoding='utf-8')
+          def once(text,old,new,label):
+              actual=text.count(old)
+              if actual != 1: raise SystemExit(f'ABORT {label}: expected one occurrence, found {actual}')
+              return text.replace(old,new,1)
+          source=once(source,'filter(t=>!done(t)&&due(t))','filter(t=>due(t))','Home due tasks')
+          source=once(source,'.sort((a,b)=>(Number(a.priority)||4)-(Number(b.priority)||4)).slice(0,limit)','.sort((a,b)=>Number(done(a))-Number(done(b))||(Number(a.priority)||4)-(Number(b.priority)||4)).slice(0,limit)','pending first')
+          source=once(source,'class="ref-task-check"></button>','class="ref-task-check" aria-pressed="${done(t)}">${done(t)?\'✓\':\'\'}</button>','real completed preview')
+          source=once(source,'<div class="ref-task-row"><button','<div class="ref-task-row ${done(t)?\'done\':\'\'}"><button','completed row styling')
+          home.write_text(source,encoding='utf-8')
+          index=Path('index.html');html=index.read_text(encoding='utf-8')
+          html=once(html,'<html lang="fa" dir="rtl">','<html lang="fa" dir="rtl" data-elara-booting>','first-paint boot flag')
+          html=once(html,'<link rel="stylesheet" href="styles.css">','<style>html[data-elara-booting] .shell{visibility:hidden!important}html[data-elara-booting] body{background:#0d1b32}</style>\n  <link rel="stylesheet" href="styles.css">','inline paint guard')
+          index.write_text(html,encoding='utf-8')
+          Path('.github/workflows/elara-home-pass-finalize-once.yml').unlink()
+          subprocess.run(['git','diff','--check'],check=True)
+          PY
+          node --check reference-home-shell-2026.js
+          node --check home-functional-pass-2026.js
+          node --check artwork-home-install-2026.js
+          node --check boot.js
+      - name: Commit guarded modifications on main
+        run: |
+          git config user.name 'Elara Home Pass'
+          git config user.email '139713890+Mohadesehjohari@users.noreply.github.com'
+          git add index.html reference-home-shell-2026.js .github/workflows/elara-home-pass-finalize-once.yml
+          git commit -m 'fix(home): render real completed tasks for untoggle and suppress old shell before first paint'
+          git push origin HEAD:main
