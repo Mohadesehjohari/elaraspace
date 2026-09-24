@@ -8,7 +8,7 @@ const MAIN=Object.freeze([
  {route:'ranking',label:'رنکینگ',icon:'ranking'},
  {route:'books',label:'کتابخانه',icon:'book'},
  {route:'freedom',label:'آزادی',icon:'freedom'}
-].map(Object.freeze));
+]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
 const MOBILE=Object.freeze([...MAIN.slice(0,5),FRIEND,...MAIN.slice(5)]);
 const SIDEBAR=Object.freeze([...MAIN,FRIEND]);
