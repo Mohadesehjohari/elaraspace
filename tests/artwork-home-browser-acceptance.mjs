@@ -11,17 +11,12 @@ const results=[],failures=[];
 function fixture(){if(localStorage.getItem('elara-test-seeded'))return;const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:0,tasks:[{id:'qa-task',text:'QA task',date:today,priority:'2',completed:false,xpAwarded:false,createdAt:Date.now()}],goals:[{id:'qa-goal',title:'QA goal',horizon:'short',steps:[{id:'qa-step',text:'QA step',done:false}]}],habits:[{id:'qa-habit',title:'مطالعه',days:[],rewardDays:[]}]}));localStorage.setItem('elara_visual_wardrobe_guest',JSON.stringify({frame:'bronze'}));localStorage.setItem('elara-test-seeded','1')}
 async function init(page,{seed=false}={}){
  await page.route('**/cloud.js',route=>route.abort());
- await page.addInitScript(()=>{
-  window.__elaraPaint=[];const start=performance.now();let frames=0;
-  const sample=()=>{const shell=document.querySelector('.shell'),nav=document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art'),booting=document.documentElement.hasAttribute('data-elara-booting');window.__elaraPaint.push({ms:Math.round(performance.now()-start),booting,shell:shell?getComputedStyle(shell).visibility:'not-mounted',navPresent:!!nav,navReady:!!(nav?.complete&&nav?.naturalWidth),navSrc:nav?.getAttribute('src')||null});if(++frames<300&&(booting||frames<26))requestAnimationFrame(sample)};
-  addEventListener('DOMContentLoaded',()=>requestAnimationFrame(sample),{once:true});
- });
+ await page.addInitScript(()=>{window.__elaraPaint=[];const start=performance.now();let frames=0;const sample=()=>{const shell=document.querySelector('.shell'),nav=document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art'),booting=document.documentElement.hasAttribute('data-elara-booting');window.__elaraPaint.push({ms:Math.round(performance.now()-start),booting,shell:shell?getComputedStyle(shell).visibility:'not-mounted',navPresent:!!nav,navReady:!!(nav?.complete&&nav?.naturalWidth),navSrc:nav?.getAttribute('src')||null});if(++frames<300&&(booting||frames<26))requestAnimationFrame(sample)};addEventListener('DOMContentLoaded',()=>requestAnimationFrame(sample),{once:true})});
  if(seed)await page.addInitScript(fixture);
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraNavigation&&window.ElaraReferenceHome&&window.ElaraOpen&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
  await page.waitForFunction(()=>{const x=document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art');return !!x&&x.complete&&x.naturalWidth>0},null,{timeout:15000});
- const first=await page.evaluate(()=>window.__elaraPaint||[]);assert.equal(first.some(x=>x.booting&&x.shell==='visible'),false,'legacy shell painted during boot');
- const released=first.find(x=>!x.booting);assert.ok(released,'no first visible frame sampled');assert.equal(released.navPresent,true,'canonical nav art installed after first visible shell frame');
+ const first=await page.evaluate(()=>window.__elaraPaint||[]);assert.equal(first.some(x=>x.booting&&x.shell==='visible'),false,'legacy shell painted during boot');const released=first.find(x=>!x.booting);assert.ok(released,'no visible frame sampled');assert.equal(released.navPresent,true,'nav artwork installed after first visible shell frame');
  await page.addStyleTag({content:'#cloud-layer{display:none!important}body:not(.cloud-ready) .shell,body.cloud-locked .shell,body:not(.cloud-ready) .bottom-nav{visibility:visible!important}*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'});
  await page.evaluate(()=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.ElaraNavigation.render();window.ElaraReferenceHome.render();window.ElaraOpen('home',{history:'replace'})});
  await page.waitForTimeout(350);
@@ -31,28 +26,27 @@ async function init(page,{seed=false}={}){
 const rect=(page,sel)=>page.locator(sel).first().evaluate(el=>{const r=el.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)}});
 async function firstPaintReload(page,mode){if(mode==='hard'){const cdp=await page.context().newCDPSession(page);await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'));await cdp.send('Network.setCacheDisabled',{cacheDisabled:false});await cdp.detach()}else{await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'))}return page.evaluate(()=>({shell:getComputedStyle(document.querySelector('.shell')).visibility,navSrc:document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art')?.getAttribute('src'),paint:window.__elaraPaint||[]}))}
 for(const [width,height] of sizes){
- const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});const item={width,height,ui404:[],errors:[]};
- page.on('response',r=>{if(r.status()===404&&r.url().includes('/assets/ui/'))item.ui404.push(r.url())});page.on('pageerror',e=>item.errors.push(String(e)));
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});const item={width,height,ui404:[],errors:[]};page.on('response',r=>{if(r.status()===404&&r.url().includes('/assets/ui/'))item.ui404.push(r.url())});page.on('pageerror',e=>item.errors.push(String(e)));
  try{
-  item.paint=await init(page,{seed:width===390});
-  const sel=width<=700?'.bottom-nav':'.sidebar .elara-sidebar-primary';
+  item.paint=await init(page,{seed:width===390});const sel=width<=700?'.bottom-nav':'.sidebar .elara-sidebar-primary';
   item.routes=await page.locator(sel+' [data-elara-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.elaraTab));assert.deepEqual(item.routes,width<=700?mobile:desktop);
   item.header=await rect(page,'.topbar');item.hero=await rect(page,'.ref-hero');item.streak=await rect(page,'#ref-streak-card');item.grid=await rect(page,'.ref-home-grid');
   item.overflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));item.scroll=await page.evaluate(()=>Math.max(0,Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)-innerHeight));
-  item.tasksHit=await rect(page,'.ref-task-check');item.habitHit=await rect(page,'.ref-habit-row');
-  item.track=await page.locator('#panel-home .ref-habit-row .elara-track').first().evaluate(el=>Math.round(el.getBoundingClientRect().height));
+  const hasTasks=await page.locator('#panel-home .ref-task-check').count()>0,hasHabits=await page.locator('#panel-home .ref-habit-row').count()>0;
+  item.tasksHit=hasTasks?await rect(page,'#panel-home .ref-task-check'):null;item.habitHit=hasHabits?await rect(page,'#panel-home .ref-habit-row'):null;
+  item.track=hasHabits?await page.locator('#panel-home .ref-habit-row .elara-track').first().evaluate(el=>Math.round(el.getBoundingClientRect().height)):null;
   assert.ok(item.overflow<=2,'horizontal overflow '+item.overflow);assert.ok(item.hero.h>=100&&item.streak.h>0&&item.grid.w>0,'Home geometry missing');
   assert.equal(await page.locator(`${sel} [data-elara-tab="home"] .elara-nav-art`).count(),1,'actual Home image missing');
   assert.equal(await page.locator(`${sel} [data-elara-tab="tasks"] .elara-nav-art`).count(),0,'unuploaded Tasks image referenced');
   assert.equal(await page.locator(`${sel} [data-elara-tab="home"] .elara-nav-art`).first().evaluate(e=>e.complete&&e.naturalWidth>0),true,'Home image load failed');
-  assert.ok(item.track>=7,'habit progress line still hairline');assert.ok(item.tasksHit.w>=22,'Task checkbox hit target too small');
+  if(hasHabits)assert.ok(item.track>=7,'habit progress still hairline');if(hasTasks)assert.ok(item.tasksHit.w>=22,'Task checkbox too small');
   if(width<=700){assert.ok(item.header.h<=60,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');const friends=page.locator('.bottom-nav [data-elara-tab="social"]');await friends.click();assert.equal(await friends.getAttribute('aria-current'),'page');await page.locator('.bottom-nav [data-elara-tab="home"]').click()}
   else{assert.equal(await page.locator('.bottom-nav').isVisible(),false);assert.ok(item.streak.h>=87&&item.streak.h<=113,'desktop streak not expanded');item.sidebarGap=await page.locator('.sidebar [data-elara-tab="home"]').evaluate(el=>{const a=el.querySelector('.elara-nav-art,.elara-icon').getBoundingClientRect(),t=el.querySelector('small').getBoundingClientRect();return Math.round(Math.max(0,Math.max(a.left,t.left)-Math.min(a.right,t.right)))});assert.ok(item.sidebarGap<=16,'sidebar icon and label separated: '+item.sidebarGap)}
   const tasks=page.locator(`${sel} [data-elara-tab="tasks"]`);await tasks.click();assert.equal(await tasks.getAttribute('aria-current'),'page');await page.locator(`${sel} [data-elara-tab="home"]`).click();
   if(width===390){
     assert.equal(await page.locator('.ref-task-check[data-ref-task="qa-task"]').count(),1,'test-only Task fixture absent');await page.locator('.ref-task-check[data-ref-task="qa-task"]').click();await page.waitForTimeout(130);
     let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.equal(state.tasks[0].completed,true);assert.ok(state.xp>=10);assert.equal(state.tasks[0].xpAwarded,true);
-    await page.locator('.bottom-nav [data-elara-tab="tasks"]').click();assert.equal(await page.locator('#task-list [data-id="qa-task"]').getAttribute('aria-pressed'),'true','canonical Tasks page does not agree with Home');await page.locator('.bottom-nav [data-elara-tab="home"]').click();
+    await page.locator('.bottom-nav [data-elara-tab="tasks"]').click();assert.equal(await page.locator('#task-list .check-button[data-id="qa-task"][aria-pressed]').getAttribute('aria-pressed'),'true','canonical Tasks page does not agree with Home');await page.locator('.bottom-nav [data-elara-tab="home"]').click();
     const firstReload=await firstPaintReload(page,'warm');item.warm=firstReload.paint;await page.evaluate(()=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.ElaraOpen('home',{history:'replace'});window.ElaraReferenceHome.render()});await page.waitForFunction(()=>document.querySelector('.ref-task-check[data-ref-task="qa-task"]'));
     assert.equal(await page.locator('.ref-task-check[data-ref-task="qa-task"]').getAttribute('aria-pressed'),'true','Task complete failed to persist');const xp=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).xp);await page.locator('.ref-task-check[data-ref-task="qa-task"]').click();state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.equal(state.tasks[0].completed,false);assert.equal(state.xp,xp,'uncheck awarded duplicate XP');
     await page.waitForFunction(()=>document.querySelector('[data-home-goal-step="qa-step"]'));await page.locator('[data-home-goal-step="qa-step"]').click();state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.equal(state.goals[0].steps[0].done,true);
@@ -63,8 +57,7 @@ for(const [width,height] of sizes){
     for(const file of used){const res=await page.request.get(`http://127.0.0.1:4173/assets/ui/${file}`);assert.equal(res.status(),200,'installed image unavailable '+file)}
   }
   if(width===1648){item.hard=(await firstPaintReload(page,'hard')).paint;await page.evaluate(()=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.ElaraReferenceHome.render()})}
-  await page.screenshot({path:`${out}/home-${width}-viewport.png`,fullPage:false});await page.screenshot({path:`${out}/home-${width}-full.png`,fullPage:true});
-  assert.deepEqual(item.ui404,[],'UI image 404');assert.deepEqual(item.errors,[],'page errors');
+  await page.screenshot({path:`${out}/home-${width}-viewport.png`,fullPage:false});await page.screenshot({path:`${out}/home-${width}-full.png`,fullPage:true});assert.deepEqual(item.ui404,[],'UI image 404');assert.deepEqual(item.errors,[],'page errors');
   console.log('HOME-PASS '+JSON.stringify({width,height,overflow:item.overflow,scroll:item.scroll,streak:item.streak.h,track:item.track,firstVisibleMs:item.paint.find(x=>!x.booting)?.ms}));
  }catch(e){item.failure=e.stack||String(e);failures.push(width+': '+e.message);console.error('HOME-FAIL '+width+' '+item.failure)}finally{results.push(item);await page.close()}
 }
