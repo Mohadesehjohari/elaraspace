@@ -1,0 +1,26 @@
+# Elara Space — Approved Home Artwork Installation / 2026-09-24
+
+Repository ownership: `Mohadesehjohari/elaraspace`, `main` ONLY. This dated decision extends `APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md` and supersedes older conflicting navigation/alpha-upload requirements only for the explicitly authorized Home artwork pass below. The original roadmap and all earlier asset binaries remain intact.
+
+## User decision — 24 September 2026
+
+1. Install the already-uploaded original WebPs in `assets/ui/` directly in the real Home and Navigation. Do not postpone the entire artwork pass for generation/upload of alpha replacements. Use fixed image slots on dark card/navigation surfaces and `mix-blend-mode:screen` for black image backgrounds; if an individual image visually fails in a real browser, replace only that image with a verified alpha version after upload, or use the existing icon fallback. Do not transparize full-width/hero backgrounds.
+2. Mobile Bottom Navigation now has EIGHT canonical destinations in one row: ورزش، زبان، تسک‌ها، خانه، رنکینگ، دوستان، کتابخانه، آزادی. The newly authorized Friends destination is route `social`, not a mock page. Desktop Sidebar and desktop dock remain seven canonical destinations; Reports remains secondary. No new standalone Habits/Goals/Focus/Missions destination.
+3. Navigation `-default.webp` displays while idle/unselected; `-active.webp` displays on hover or keyboard focus, and remains active while its actual route is selected. On route change the previous destination returns to its default artwork. Friends currently has only one `friends-tab.webp`; its selected state uses the same artwork with CSS glow until an approved active pair exists. Freedom uses its existing SVG because no corresponding uploaded paired WebP was verified.
+4. Home card titles: Tasks uses `nav-tasks-default.webp` (NOT the completed-check artwork); Habits uses `icon-habits-sprout.webp`; Wellness uses `icon-wellness-heartbeat.webp`; weekly Ranking uses `icon-ranking-trophy.webp`; Friends activity uses `friends-group-icon.webp`. Actual Home Wellness summary slots use `icon-wellness-water.webp`, `icon-night-crescent-moon.webp` and `icon-exercise-dumbbell.webp`. The weight metric retains the existing icon to avoid showing the uploaded scale's baked-in `68.0 kg` as fake user data. Existing `hero-landscape.webp`, `missions-rocket.webp` and `streak-flame.webp` remain installed.
+5. `icon-tasks-check.webp` is strictly reserved for tasks with true completed state. Current Home preview intentionally lists outstanding tasks only, so this image is NOT inserted on those unchecked rows or the header. The complete Tasks page redesign is outside this pass.
+6. Home weekly Ranking uses only profiles/XP supplied by existing `ElaraSocial`; preview displays up to three real users with rank 1 centered. No fake users, XP or avatars; when a real avatar source is available through the existing profile system it may be displayed; otherwise the existing letter-avatar remains. Complete Ranking page rendering is unchanged.
+7. On desktop, show the existing REAL `ref-streak-card` below Hero as one horizontal strip with existing streak/day state; hide redundant small streak pill on Hero. Maintain left Sidebar, live HTML Hero, three-column grid and no desktop bottom bar. On mobile preserve Header -> Hero -> Streak -> Tasks/Habits -> Wellness -> Missions/Ranking -> Friends -> Bottom Nav and the existing underlying features/routes.
+8. Existing Firebase/Auth/Firestore, XP, missions, tasks, habits, water/sleep write locations, goals and navigation handlers remain unchanged. No B/C work is authorized. No fabricated data or one-screen zoom/scale.
+
+## Executed code scope and asset map
+
+- `artwork-home-install-2026.js`: presentation-only decoration after the reference Home shell, image-error SVG fallback, real-route nav state and Home-only rank presentation; does not replace the Home DOM owner.
+- `artwork-home-install-2026.css`: fixed artwork slots, dark-background blending, subtle neon, desktop real streak strip and eight-tab mobile sizing; no global scale/zoom.
+- `approved-navigation-extension.js`: canonical mobile Friends button using real `social` route; desktop MAIN unchanged.
+- `boot.js`: loads the two new presentation files after the reference Home files.
+- `deploy/production-manifest.json`: records only original WebP paths referenced by this UI pass and the new code files. Alpha candidates not present in GitHub are not referenced.
+
+## Acceptance status / stop gate
+
+This commit installs and activates code, NOT a completed visual acceptance. Actual browser viewport screenshots, post-deployment image 404 checks, vertical scroll/overflow measurements, cPanel production and Firebase production tests require separate observed results; do not call them PASS without evidence. Checkpoint A remains OPEN until user visual approval. Checkpoints B and C remain STOP. Do not redesign full Tasks/Ranking routes as part of this pass.
