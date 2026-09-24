@@ -1,0 +1,34 @@
+name: Elara canonical Home DOM ownership patch once
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/elara-home-dom-owner-once.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Stop legacy card markup overwriting canonical reference Home
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('elara-design.js');s=p.read_text()
+          a=";$('elara-home-tasks').innerHTML=tasks.slice(0,6)"
+          b=";$('elara-reports-page').innerHTML="
+          if s.count(a)!=1 or s.count(b)!=1:raise SystemExit('ABORT: unexpected legacy Home renderer shape')
+          s=s.replace(a,";if(!window.ElaraReferenceHome){$('elara-home-tasks').innerHTML=tasks.slice(0,6)",1)
+          s=s.replace(b,";} $('elara-reports-page').innerHTML=",1)
+          p.write_text(s)
+          Path('.github/workflows/elara-home-dom-owner-once.yml').unlink()
+          PY
+          node --check elara-design.js
+          git diff --check
+      - name: Commit owner guard
+        run: |
+          git config user.name 'Elara Home Pass'
+          git config user.email '139713890+Mohadesehjohari@users.noreply.github.com'
+          git add elara-design.js .github/workflows/elara-home-dom-owner-once.yml
+          git commit -m 'fix(home): remove legacy renderer ownership over canonical Home card content'
+          git push origin HEAD:main
