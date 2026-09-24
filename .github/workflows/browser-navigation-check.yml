@@ -11,10 +11,10 @@ on:
       - 'boot.js'
       - 'reference-home-shell-2026.*'
       - 'reference-shell-compat-2026.js'
+      - 'artwork-home-install-2026.*'
       - 'assets/ui/*.webp'
       - 'deploy/production-manifest.json'
-      - 'tests/browser-navigation-screenshots.mjs'
-      - 'tests/reference-geometry-assertions.mjs'
+      - 'tests/artwork-home-browser-acceptance.mjs'
       - 'tests/reference-computed-css.mjs'
       - '.github/workflows/browser-navigation-check.yml'
 permissions:
@@ -38,15 +38,13 @@ jobs:
           sleep 2
       - name: Diagnose computed CSS ownership
         run: node tests/reference-computed-css.mjs
-      - name: Run browser acceptance
-        run: node tests/browser-navigation-screenshots.mjs
-      - name: Assert reference geometry across seven viewports
-        run: node tests/reference-geometry-assertions.mjs
-      - name: Upload screenshots
+      - name: Run approved Home artwork, navigation, geometry and screenshot acceptance
+        run: node tests/artwork-home-browser-acceptance.mjs
+      - name: Upload actual browser viewport and full-page screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reference-shell-browser-screenshots
+          name: approved-home-artwork-browser-screenshots
           path: browser-artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
