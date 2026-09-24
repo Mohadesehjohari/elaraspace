@@ -9,6 +9,7 @@ on:
       - 'approved-visual.js'
       - 'drawer.js'
       - 'boot.js'
+      - 'elara-design.js'
       - 'reference-home-shell-2026.*'
       - 'reference-shell-compat-2026.js'
       - 'artwork-home-install-2026.*'
@@ -31,6 +32,7 @@ jobs:
           node-version: '22'
       - name: Validate Home owner and bridge syntax
         run: |
+          node --check elara-design.js
           node --check reference-home-shell-2026.js
           node --check home-functional-pass-2026.js
           node --check artwork-home-install-2026.js
