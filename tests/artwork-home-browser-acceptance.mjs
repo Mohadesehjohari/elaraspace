@@ -10,6 +10,7 @@ const sizes=[[320,659],[375,659],[390,659],[430,659],[1440,1000],[1648,928],[192
 const results=[],failures=[];
 function fixture(){if(localStorage.getItem('elara-test-seeded'))return;const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:0,tasks:[{id:'qa-task',text:'QA task',date:today,priority:'2',completed:false,xpAwarded:false,createdAt:Date.now()}],goals:[{id:'qa-goal',title:'QA goal',horizon:'short',steps:[{id:'qa-step',text:'QA step',done:false}]}],habits:[]}));localStorage.setItem('elara_visual_wardrobe_guest',JSON.stringify({frame:'bronze'}));localStorage.setItem('elara-test-seeded','1');}
 async function init(page,{seed=false}={}){
+ await page.route('**/cloud.js',route=>route.abort());
  await page.addInitScript(()=>{window.__elaraBootPaint=[];addEventListener('DOMContentLoaded',()=>{let n=0;const sample=()=>{const shell=document.querySelector('.shell');if(shell)window.__elaraBootPaint.push({booting:document.documentElement.hasAttribute('data-elara-booting'),visibility:getComputedStyle(shell).visibility});if(++n<90&&document.documentElement.hasAttribute('data-elara-booting'))requestAnimationFrame(sample)};requestAnimationFrame(sample)},{once:true})});
  if(seed)await page.addInitScript(fixture);
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
