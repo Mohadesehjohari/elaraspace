@@ -1,0 +1,34 @@
+name: Elara refresh diagnostics once
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/elara-reload-diagnostic-once.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Instrument the failing test without changing actual task or goal state
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/artwork-home-browser-acceptance.mjs');s=p.read_text()
+          a="    await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ElaraReferenceHome&&!document.documentElement.hasAttribute('data-elara-booting'));await page.evaluate(()=>{document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.ElaraOpen('home')});await page.waitForTimeout(250);"
+          b="    console.log('QA_BEFORE_REFRESH',JSON.stringify(await page.evaluate(()=>({seeded:localStorage.getItem('elara-test-seeded'),store:localStorage.getItem('elara_space_v1')}))));\n"+a+"\n    console.log('QA_AFTER_REFRESH',JSON.stringify(await page.evaluate(()=>({seeded:localStorage.getItem('elara-test-seeded'),store:localStorage.getItem('elara_space_v1'),refTask:document.querySelector('#elara-home-tasks')?.innerHTML,hash:location.hash,ready:document.documentElement.hasAttribute('data-elara-booting')}))));"
+          if s.count(a)!=1:raise SystemExit('ABORT test anchor mismatch')
+          s=s.replace(a,b,1)
+          s=s.replace("await page.locator('.ref-task-check[data-ref-task=\"qa-task\"]').getAttribute('aria-pressed'),'true','completed task failed to persist'","await page.locator('.ref-task-check[data-ref-task=\"qa-task\"]').getAttribute('aria-pressed',{timeout:1500}),'true','completed task failed to persist'",1)
+          p.write_text(s)
+          Path('.github/workflows/elara-reload-diagnostic-once.yml').unlink()
+          PY
+          node --check tests/artwork-home-browser-acceptance.mjs
+          git diff --check
+      - name: Push guarded browser diagnostic
+        run: |
+          git config user.name 'Elara Home Pass'
+          git config user.email '139713890+Mohadesehjohari@users.noreply.github.com'
+          git add tests/artwork-home-browser-acceptance.mjs .github/workflows/elara-reload-diagnostic-once.yml
+          git commit -m 'test(home): log persisted and rendered task state across Chromium reload'
+          git push origin HEAD:main
