@@ -9,8 +9,9 @@ const wellness=read('approved-wellness.js');
 const drawer=read('drawer.js');
 
 for(const route of ['exercise','language','tasks','home','ranking','books','freedom'])assert.match(nav,new RegExp("route:'"+route+"'"));
-assert.match(nav,/const SIDEBAR=MAIN;/);
-for(const forbidden of ["route:'habits'","route:'goals'","route:'focus'"])assert.doesNotMatch(nav.split('const SIDEBAR=MAIN;')[1]||'',new RegExp(forbidden));
+assert.match(nav,/const SIDEBAR=Object\.freeze\(\[\.\.\.MAIN,FRIEND\]\);/,'Desktop Sidebar must add the real Friends route');
+assert.match(nav,/const DESKTOP_ORDER=Object\.freeze\(\['home','tasks','language','books','exercise','ranking','social','freedom'\]\);/,'Friends belongs after ranking and before freedom');
+for(const forbidden of ["route:'habits'","route:'goals'","route:'focus'"])assert.doesNotMatch(nav.split('const SIDEBAR=Object.freeze([...MAIN,FRIEND]);')[1]||'',new RegExp(forbidden));
 
 assert.match(boot,/reference-home-shell-2026\.css/);
 assert.match(boot,/reference-home-shell-2026\.js/);
@@ -31,4 +32,4 @@ assert.doesNotMatch(wellness,/row\.dataset\.wellnessHome/);
 assert.match(drawer,/function topOverlayOpen/);
 assert.doesNotMatch(drawer,/data-drawer-route="reports"/);
 assert.doesNotMatch(drawer,/if\(edit\)\{close\(\);await window\.ElaraProfileSystem/);
-console.log('PASS: canonical navigation, artwork-backed reference Home, compact mobile preview, Library Focus, Wellness boundary and Drawer layering guards.');
+console.log('PASS: canonical navigation with desktop Friends, artwork-backed reference Home, compact mobile preview, Library Focus, Wellness boundary and Drawer layering guards.');
