@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate Home owner and bridge syntax
+      - name: Validate Home owner, bridge and acceptance script syntax
         run: |
           node --check elara-design.js
           node --check visual-fidelity-pass3.js
@@ -39,6 +39,7 @@ jobs:
           node --check home-functional-pass-2026.js
           node --check artwork-home-install-2026.js
           node --check boot.js
+          node --check tests/artwork-home-browser-acceptance.mjs
       - name: Install Playwright
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
