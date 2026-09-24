@@ -275,3 +275,213 @@ Drawer:
 - Firebase production-tested: NO
 - Checkpoint B: STOP
 - Checkpoint C: STOP
+
+
+---
+
+## FINAL SUPERVISOR HANDOFF + LATEST VISUAL OVERRIDE — ۲۴ سپتامبر ۲۰۲۶
+
+این بخش مرجع نهایی شروع چت بعدی است و در تعارض با بخش‌های قدیمی‌تر این سند، **همین بخش مقدم است**.
+
+### A) نقش و پروتکل ناظر
+
+- Assistant در چت جدید **ناظر فنی، طراحی، کیفیت و پیشرفت** است؛ مجری اصلی توسعه نیست.
+- چت اجرایی جداگانه تغییرات را روی GitHub انجام می‌دهد.
+- ناظر باید در آغاز **هر Stage** مستقل:
+  1. HEAD واقعی `Mohadesehjohari/elaraspace/main` را بخواند.
+  2. این سه سند را روی همان HEAD بخواند:
+     - `docs/APPROVED-VISUAL-REDESIGN-AND-NEXT-PHASE.md`
+     - `docs/APPROVED-VISUAL-2026-09-22-EXTENSION-ROADMAP.md`
+     - `docs/APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md`
+  3. فایل‌های مرتبط و در صورت ادعای تست، Actions/Browser artifacts همان End HEAD را بررسی کند.
+- گزارش چت اجرایی به‌تنهایی مدرک نیست. بین requested / coded / automated-tested / browser-tested / cPanel-tested / Firebase-tested / release-ready تفکیک شود.
+- مخزن `ArenParsi/elaraspace` تاریخی است و نباید تغییر جدید بگیرد.
+
+### B) Snapshot فعلی
+
+- Checkpoint A روی کد واقعی تا Browser acceptance اجرا شده است.
+- Baseline اجرایی Artwork/Home که Browser PASS داشت: `27203792fcd9a92f1a99fef5b2bdc3b49dba0f9d`.
+- HEAD بعدی ممکن است Docs-only یا Visual-pass جدید باشد؛ چت جدید باید HEAD را دوباره refresh کند و از این SHA به‌عنوان HEAD جاری فرضی استفاده نکند.
+- Assetهای نصب‌شده و متصل:
+  - `assets/ui/hero-landscape.webp`
+  - `assets/ui/missions-rocket.webp`
+  - `assets/ui/streak-flame.webp`
+- این سه مسیر در `deploy/production-manifest.json -> files` ثبت شده‌اند.
+- وضعیت محیط واقعی:
+  - cPanel production-tested: **NO**
+  - Firebase production-tested: **NO**
+  - Firestore Rules committed ≠ published
+  - Pages PASS ≠ cPanel/Firebase PASS
+
+### C) Workflow قطعی Assetهای بعدی
+
+این قرارداد برای همه تصاویر جدید کاربر لازم‌الاجرا است:
+
+**مرحله Asset Packaging — بدون تغییر کد**
+- کاربر تصاویر را در چت اجرایی می‌فرستد.
+- چت اجرایی فقط فایل‌ها را با مشاهدهٔ محتوای واقعی دسته‌بندی می‌کند.
+- نام‌گذاری: lowercase + kebab-case + کاربردمحور.
+- Raster artworkها و آیکن‌های سه‌بعدی به **WebP واقعی با کیفیت بالا** تبدیل می‌شوند.
+- Alpha/Transparency و Neon Glow باید حفظ شوند.
+- تغییر extension بدون conversion واقعی ممنوع.
+- Downscale باید در UI کوچک sharp بماند؛ over-compression ممنوع.
+- خروجی باید شامل:
+  - فایل‌های جداگانهٔ قابل دانلود
+  - یک ZIP واقعی
+  - manifest نام/ابعاد/حجم/transparency/کاربرد
+- در این مرحله GitHub، UI و Manifest پروژه تغییر نمی‌کنند.
+- کاربر فایل‌ها را دستی در GitHub Upload می‌کند.
+- فقط پس از پیام صریح «آپلود شد» اتصال UI شروع می‌شود.
+
+### D) Visual Pass بعدی — Desktop + Mobile
+
+#### Desktop Streak
+- Streak دسکتاپ باید از badge کوچک فعلی به **strip پهن، فشرده و شبیه ساختار مرجع موبایل** تبدیل شود.
+- Flame جدید بزرگ‌تر و واضح‌تر شود.
+- کنار Flame: عدد Streak و متن کوتاه.
+- ادامهٔ همان strip: روزهای هفته.
+- Current day glow واضح؛ completed/future state قابل تشخیص.
+- داده کاملاً واقعی از state فعلی؛ عدد یا روز mock ممنوع.
+- نباید Grid سه‌ستونه را خراب یا Home را بلند کند.
+- Bottom Nav دسکتاپ همچنان ممنوع.
+
+#### Mobile Navigation — تصمیم جدید
+- Bottom Nav موبایل باید **Friends / دوستان** را نیز به‌عنوان مقصد مستقیم اضافه کند.
+- این تصمیم جدیدتر بر قرارداد قدیمی «هفت مقصد فقط» مقدم است.
+- در 320/375/390/430:
+  - single row
+  - no wrap
+  - horizontal overflow = 0
+  - label/icon خوانا
+- اگر لازم شد اندازه icon/gap/padding کمی فشرده شود.
+
+#### Home Ranking Preview
+- «رنکینگ این هفته» در Home فقط Top 3 واقعی را به‌صورت فشرده نمایش دهد.
+- آواتارها کاملاً circular.
+- نفر اول برجسته‌تر/وسط؛ دوم و سوم اطراف.
+- نام + XP زیر هر Avatar.
+- جایگاه 1/2/3 واضح.
+- crown/medal مطابق جایگاه واقعی.
+- row/card بزرگ برای هر کاربر در Preview ممنوع.
+- کاربر جعلی برای پرکردن رتبه‌ها ممنوع.
+- صفحهٔ Ranking/Competition کامل همچنان محل اطلاعات تفصیلی است.
+
+#### Hero / Missions
+- Hero artwork background است و متن HTML زنده باقی می‌ماند.
+- Desktop/Mobile crop مستقل.
+- Rocket داخل slot کنترل‌شدهٔ Missions.
+- هیچ Artwork نباید ارتفاع Card را دیکته کند.
+
+#### Logo
+- لوگوی قدیمی UI فعلاً حذف/neutralize شود.
+- slot و ساختار Layout حفظ شود.
+- لوگوی جدید بدون تأیید کاربر خودکار انتخاب نشود.
+- Assetهای Logo بعداً پس از Packaging/Upload دستی متصل می‌شوند.
+
+### E) Neon Fidelity Pass
+
+Neon باید **Live CSS effect** باشد، نه صرفاً بخشی از تصویر.
+
+مجاز/مطلوب:
+- `box-shadow`
+- `filter: drop-shadow`
+- `text-shadow`
+- gradient border
+- pseudo-element aura
+- subtle active glow
+
+Hierarchy:
+- Primary/Active: glow قوی‌تر
+- Secondary: متوسط
+- Normal cards: بسیار ملایم
+
+موارد هدف:
+- Hero edge/atmosphere
+- Missions Rocket
+- Active Navigation
+- Current Streak day
+- CTAها
+- selected/checked states
+- Progress bars
+- بعضی Card borderها
+
+ممنوع:
+- blur سنگین روی کل صفحه
+- overexposure
+- unreadable text
+- animation سنگین روی موبایل
+
+`prefers-reduced-motion` و performance باید رعایت شود.
+
+### F) Habits / Goals Progress Bars
+
+- Barهای `عادت‌های امروز` و `اهداف من` از line بسیار باریک به Track + Filled Bar واضح‌تر و پهن‌تر تبدیل شوند.
+- رنگ‌ها token-based و مستقل باشند؛ مثال:
+  - Reading: purple
+  - Workout: cyan/turquoise
+  - Meditation: violet
+  - Water: blue
+  - Sleep: green/cyan
+  - Language: indigo
+- Goals نیز رنگ مستقل هماهنگ داشته باشند.
+- track تیره + fill روشن + glow ظریف + درصد خوانا.
+- Data/Calculation logic در Visual pass تغییر نکند مگر Bug واقعی اثبات شود.
+
+### G) Task Completed Artwork
+
+- Asset تیک جدید فقط وقتی Task واقعاً Completed است نمایش داده شود.
+- Contract:
+  - `task.completed === true` → completed artwork
+  - `task.completed === false` → artwork تیک نمایش داده نشود
+- unchecked state کنترل مستقل فعلی را حفظ کند.
+- Refresh و rerender تست شوند.
+- تیک Static برای همه Taskها ممنوع.
+
+### H) Notification Artwork
+
+اگر کاربر دو Asset زنگ Normal/Unread بدهد:
+- unread = 0 → normal bell
+- unread > 0 → active/unread bell
+- اگر data source واقعی برای unread وجود ندارد، mapping آماده شود ولی state جعلی ساخته نشود.
+
+### I) Scope Guard
+
+- Checkpoint B (Measured Habits/Goals backend/product logic) همچنان **STOP** تا تأیید صریح کاربر.
+- Checkpoint C همچنان **STOP**، با دو استثنای صریحی که اکنون مجازند:
+  1. افزودن Friends به Mobile Bottom Nav.
+  2. Restyle کردن Home Ranking Preview به Top-3 circular avatars.
+- این دو استثنا مجوز ساخت Presence، Online status، Store، Achievement backend، rename سراسری، i18n کامل یا دادهٔ اجتماعی جعلی نیستند.
+
+### J) معیار تحویل Passهای بعدی
+
+برای هر Pass کدنویسی:
+- Start HEAD
+- End HEAD
+- Commit SHA + URL
+- changed files
+- Assetهای واقعاً موجود در HEAD
+- manifest diff
+- tests actually run
+- Browser viewports actually run
+- Desktop screenshots: 1440 / 1648 / 1920
+- Mobile screenshots: 320 / 375 / 390 / 430
+- Header/Hero/Streak/Card/Grid sizes
+- horizontal overflow
+- vertical scroll remaining
+- remaining visual deltas
+- cPanel/Firebase status بدون ادعای تست‌نشده
+
+### K) Hosting که هنوز باز است
+
+پس از اتمام Visual checkpointهای تأییدشده، استقرار واقعی `elaraspace.ir` روی cPanel باید تکمیل شود:
+- Document Root جدا از پروژه‌های دیگر
+- Git source خارج webroot
+- Cloudflare DNS/SSL
+- Firebase Authorized Domain
+- Firestore Rules publish واقعی
+- تست دو UID
+- Admin one-click deploy + maintenance + rollback روی cPanel واقعی
+
+تا آن زمان:
+- deployed-to-cPanel-production = NO
+- release-ready = NO
