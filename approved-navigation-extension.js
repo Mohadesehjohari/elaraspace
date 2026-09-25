@@ -9,13 +9,13 @@ const MAIN=Object.freeze([
  {route:'books',label:'کتابخانه',icon:'book'},
  {route:'freedom',label:'آزادی',icon:'freedom'}
 ]);
-const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
-const MOBILE=Object.freeze([...MAIN.slice(0,5),FRIEND,...MAIN.slice(5)]);
-const SIDEBAR=Object.freeze([...MAIN,FRIEND]);
-const DESKTOP_ORDER=Object.freeze(['home','tasks','language','books','exercise','ranking','social','freedom']);
+/* Friends remains a real route but is intentionally reached from the Home friends card, not primary navigation. */
+const MOBILE=Object.freeze([...MAIN]);
+const SIDEBAR=Object.freeze([...MAIN]);
+const DESKTOP_ORDER=Object.freeze(['home','tasks','language','books','exercise','ranking','freedom']);
 const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'chart'}]);
 /* Only asset pairs verified in the repository are listed. No request is made for missing Tasks artwork. */
-const ASSETS=Object.freeze({home:['nav-home-default.webp','nav-home-active.webp'],language:['nav-language-default.webp','nav-language-active.webp'],books:['nav-library-default.webp','nav-library-active.webp'],ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],social:['friends-tab.webp','friends-tab.webp']});
+const ASSETS=Object.freeze({home:['nav-home-default.webp','nav-home-active.webp'],language:['nav-language-default.webp','nav-language-active.webp'],books:['nav-library-default.webp','nav-library-active.webp'],ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],exercise:['nav-exercise-default.webp','nav-exercise-active.webp']});
 const root='assets/ui/';
 const fallback=n=>window.ElaraIcons?.icon?.(n)||'<span class="elara-icon" aria-hidden="true"></span>';
 let current=(location.hash.replace(/^#/,'')||'home');
