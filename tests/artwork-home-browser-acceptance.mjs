@@ -3,8 +3,8 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const mobile=['exercise','language','tasks','home','ranking','social','books','freedom'];
-const desktop=['home','tasks','language','books','exercise','ranking','social','freedom'];
+const mobile=['exercise','language','tasks','home','ranking','books','freedom'];
+const desktop=['home','tasks','language','books','exercise','ranking','freedom'];
 const used=['hero-landscape.webp','missions-rocket.webp','streak-flame.webp','friends-tab.webp','friends-group-icon.webp','nav-home-default.webp','nav-home-active.webp','nav-language-default.webp','nav-language-active.webp','nav-library-default.webp','nav-library-active.webp','nav-ranking-default.webp','nav-ranking-active.webp','nav-exercise-default.webp','nav-exercise-active.webp'];
 const sizes=[[320,659],[375,659],[390,659],[430,659],[1440,1000],[1648,928],[1920,1000]];
 const results=[],failures=[];
@@ -40,7 +40,7 @@ for(const [width,height] of sizes){
   assert.equal(await page.locator(`${sel} [data-elara-tab="tasks"] .elara-nav-art`).count(),0,'unuploaded Tasks image referenced');
   assert.equal(await page.locator(`${sel} [data-elara-tab="home"] .elara-nav-art`).first().evaluate(e=>e.complete&&e.naturalWidth>0),true,'Home image load failed');
   if(hasHabits)assert.ok(item.track>=7,'habit progress still hairline');if(hasTasks)assert.ok(item.tasksHit.w>=22,'Task checkbox too small');
-  if(width<=700){assert.ok(item.header.h<=60,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');const friends=page.locator('.bottom-nav [data-elara-tab="social"]');await friends.click();assert.equal(await friends.getAttribute('aria-current'),'page');await page.locator('.bottom-nav [data-elara-tab="home"]').click()}
+  if(width<=700){assert.ok(item.header.h<=60,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');assert.equal(await page.locator('.bottom-nav [data-elara-tab="social"]').count(),0,'Friends must not be a mobile primary destination');const friends=page.locator('#panel-home [data-ref-friends-open]');assert.equal(await friends.count(),1,'Friends card entry missing');const friendsArt=friends.locator('.ref-friends-open-art');assert.equal(await friendsArt.count(),1,'Friends card artwork missing');assert.equal(await friendsArt.evaluate(e=>e.complete&&e.naturalWidth>0),true,'Friends card artwork failed');await friends.click();await page.waitForTimeout(80);assert.equal(await page.evaluate(()=>location.hash),'#social','Friends card did not open the real social route');await page.evaluate(()=>window.ElaraOpen('home'));await page.waitForTimeout(80)}
   else{assert.equal(await page.locator('.bottom-nav').isVisible(),false);assert.ok(item.streak.h>=87&&item.streak.h<=113,'desktop streak not expanded');item.sidebarGap=await page.locator('.sidebar [data-elara-tab="home"]').evaluate(el=>{const a=el.querySelector('.elara-nav-art,.elara-icon').getBoundingClientRect(),t=el.querySelector('small').getBoundingClientRect();return Math.round(Math.max(0,Math.max(a.left,t.left)-Math.min(a.right,t.right)))});assert.ok(item.sidebarGap<=16,'sidebar icon and label separated: '+item.sidebarGap)}
   const tasks=page.locator(`${sel} [data-elara-tab="tasks"]`);await tasks.click();assert.equal(await tasks.getAttribute('aria-current'),'page');await page.locator(`${sel} [data-elara-tab="home"]`).click();
   if(width===390){
@@ -61,4 +61,4 @@ for(const [width,height] of sizes){
   console.log('HOME-PASS '+JSON.stringify({width,height,overflow:item.overflow,scroll:item.scroll,streak:item.streak.h,track:item.track,firstVisibleMs:item.paint.find(x=>!x.booting)?.ms}));
  }catch(e){item.failure=e.stack||String(e);failures.push(width+': '+e.message);console.error('HOME-FAIL '+width+' '+item.failure)}finally{results.push(item);await page.close()}
 }
-writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, canonical Home data, 8-route desktop/mobile navigation, and sampled first paint.');
+writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, canonical Home data, seven primary routes plus Home-card Friends entry, and sampled first paint.');
