@@ -34,3 +34,149 @@
 - برای هر Pass: Start/End HEAD، Commit/changed files، تفکیک requested/coded/automated-tested/browser-tested/cPanel-tested/Firebase-tested/release-ready، تست‌ها و Screenshot واقعی End HEAD و اختلاف بصری باقیمانده گزارش شوند.
 
 **وضعیت ثبت:** برنامه‌ریزی و مستندسازی فقط. Stageهای Tasks و Ranking هنوز شروع/تأیید نشده‌اند؛ Checkpoint B و C همچنان STOP با دو استثنای مصوب Home Ranking Preview و Mobile Friends Navigation.
+
+
+---
+
+## الحاقیهٔ ۲۵ سپتامبر ۲۰۲۶ — مرجع جدید Tasks، Quick Add و Theme
+
+**HEAD مشاهده‌شده هنگام ثبت این الحاقیه:** `66be3bb3608962290cf21db0ab35948212ba2845`. این بخش ثبت نیازمندی آینده است و به‌تنهایی مجوز شروع Stage کامل Tasks قبل از تأیید Home نیست. تصاویر ارسالی کاربر شامل: اسکرین‌شات فعلی صفحهٔ Tasks در Desktop، مرجع بصری Tasks دسکتاپ/موبایل، و چند مرجع رفتاری از TickTick برای Quick Add، Priority، Tag/List/Folder، Drawer و Date/Repeat هستند. تصاویر TickTick **مرجع رفتار و الگوی تعامل** هستند؛ داده، رنگ، نام اولویت و ساختار Elara باید canonical باقی بماند.
+
+### TASK-UX-01 — Quick Add یک‌مرحله‌ای در Home
+
+در کارت‌های **کارهای امروز، عادت‌های امروز و اهداف من** یک کنترل `+` سریع و واضح وجود داشته باشد. کلیک روی `+` نباید کاربر را ناخواسته به صفحهٔ کامل ببرد و باید همان entity canonical را با همان persistence فعلی بسازد.
+
+- Tasks: Quick Add با عنوان، سپس دسترسی سریع به تاریخ/زمان، اولویت، تگ، پوشه/لیست و تکرار؛ گزینهٔ «تنظیمات بیشتر» همان فرم کامل موجود را با Draft حفظ‌شده باز کند.
+- Habits: فقط فیلدها و تنظیماتی که مدل Habit واقعی اکنون پشتیبانی می‌کند؛ قابلیت ساختگی اضافه نشود.
+- Goals: عنوان سریع و سپس همان تنظیمات واقعی Goal/steps/target/horizon موجود.
+- Submit باید همان handler/schema اصلی را مصرف کند؛ local-only یا رکورد موازی ممنوع.
+- نام و سطح‌های اولویت Elara تغییر نکنند و فعلاً **فارسی** باقی بمانند؛ مرجع انگلیسی TickTick فقط نمونهٔ Interaction است.
+- پس از Create، کارت Home و صفحهٔ کامل همان لحظه به‌روز شوند و Refresh داده را حفظ کند.
+
+### TASK-UX-02 — ساختار صفحهٔ کامل Tasks مطابق مرجع Elara
+
+پس از تأیید Home، صفحهٔ Tasks با استفاده از **مرجع نئونی Elara** بازآرایی شود و فرم بزرگ فعلی که بخش زیادی از Viewport را اشغال می‌کند، ساختار غالب صفحه نباشد.
+
+ساختار هدف:
+- Header/Topbar و Sidebar فعلی Elara حفظ شوند.
+- Hero/عنوان Tasks مطابق مرجع: عنوان برجسته، توضیح کوتاه و Artwork تأییدشده؛ دادهٔ نمایشی مرجع کپی نشود.
+- زیر Hero: فیلتر/Category chips فشرده و قابل‌استفاده.
+- یک دکمهٔ اصلی روشن **«+ افزودن تسک»** و در موبایل در صورت نیاز FAB مناسب، بدون ساختن صفحه/فرم موازی.
+- لیست Taskها مرکز اصلی صفحه باشد؛ هر ردیف شامل checkbox واقعی، عنوان، category/tag، جزئیات مرتبط، progress واقعی در صورت وجود، XP واقعی و منوی بیشتر.
+- کارت‌های «پیشرفت امروز» و «استریک تسک‌ها» از دادهٔ واقعی موجود ساخته شوند؛ عدد یا streak ساختگی ممنوع.
+- Desktop و Mobile از همان مدل داده و رفتار مشترک استفاده کنند؛ فرم طولانی ثابت فعلی به Modal/Sheet/Quick Add مناسب منتقل شود.
+- استایل، Glow، فاصله، ضخامت Border، ارتفاع ردیف، فونت و تراکم محتوا با مرجع Tasks ارسالی مقایسه شوند، نه صرفاً رنگ پس‌زمینه.
+
+### TASK-UX-03 — Quick Add/Composer الهام‌گرفته از TickTick
+
+با زدن `+` در Home یا صفحهٔ Tasks، Composer جمع‌وجور باز شود؛ UX مدنظر مشابه مرجع TickTick است، اما با Theme و زبان Elara.
+
+حداقل Actionهای Composer:
+- عنوان Task؛
+- تاریخ/زمان؛
+- Priority؛
+- Tag؛
+- List/Folder؛
+- گزینهٔ More برای تنظیمات کامل.
+
+در Mobile می‌تواند Bottom Sheet/Keyboard-safe composer باشد و در Desktop Popover/Dialog مرکزی یا Anchored panel. در هر دو حالت:
+- Keyboard و Focus صحیح؛
+- Escape/Back/Cancel بدون از دست‌دادن ناخواستهٔ Draft؛
+- Submit روشن؛
+- بازشدن pickerها روی composer بدون شکستن RTL؛
+- منوی Priority فارسی و با P1/P2/P3/P4 canonical فعلی Elara؛ نام‌ها یا meaningهای ذخیره‌شده بدون migration تغییر نکنند.
+
+### TASK-UX-04 — Date / Time / Repeat picker
+
+مرجع TickTick برای Date panel ثبت شد:
+- دسترسی سریع به امروز، فردا و گزینه‌های زمان مناسب؛
+- Calendar ماهانه؛
+- Time؛
+- Reminder در صورت وجود قابلیت canonical؛
+- Repeat با منطق recurrence موجود Elara.
+
+ظاهر باید Elara باشد، نه کپی رنگ/فونت TickTick. تاریخ محلی/RTL و موبایل واقعی تست شود. اگر Reminder backend/permission واقعی موجود نیست، کنترل جعلی فعال ایجاد نشود.
+
+### TASK-UX-05 — Task overflow menu و مدیریت List / Folder / Tag
+
+برای صفحهٔ Tasks یک منوی اختصاصی سه‌نقطه/More وجود داشته باشد. این منو باید **در سمت مقابل منوی اصلی برنامه** باز شود تا با Sidebar/Drawer اصلی تداخل نکند.
+
+از آن دسترسی به مدیریت ساختار Task فراهم شود:
+- List / لیست؛
+- Folder / پوشه؛
+- Tag / برچسب؛
+- Filterهای مرتبط؛
+- تنظیمات نمای Task در صورت وجود واقعی.
+
+کاربر باید بتواند:
+- لیست جدید بسازد؛
+- پوشه بسازد؛
+- تگ بسازد؛
+- آن‌ها را انتخاب/ویرایش/مدیریت کند طبق قابلیت‌های موجود؛
+- Task را به List/Folder/Tag واقعی متصل کند.
+
+منوی Task با Drawer اصلی Account/Settings یکی نشود و جای آن را نگیرد. در Desktop panel از سمت مقابل Sidebar باز شود؛ در Mobile Drawer/Sheet سازگار با فضای محدود و Back gesture. هیچ reset فرم یا از بین رفتن Draft هنگام افزودن Tag/Folder مجاز نیست.
+
+### TASK-UX-06 — رفتار checkbox و completion
+
+ظاهر checkbox صفحهٔ Tasks و Home باید به مرجع Elara نزدیک شود:
+- incomplete: حلقهٔ واضح؛
+- completed: Artwork/Glow تأییدشده در صورت وجود؛
+- toggle مستقیم همان Task canonical؛
+- persistence پس از Refresh؛
+- recurrence، XP و history فقط یک بار و طبق منطق موجود؛
+- کلیک checkbox نباید parent navigation را trigger کند.
+
+### THEME-NEW-01 — Theme مستقل Pink / White
+
+یک Theme **کاملاً جدید** با مرجع صورتی/سفید ارسالی کاربر به سیستم Theme اضافه شود؛ Theme فعلی Elara Neon/Dark **حذف یا جایگزین نشود**.
+
+ویژگی‌ها:
+- پس‌زمینه روشن سفید/صورتی بسیار ملایم؛
+- کارت‌های روشن با سایه و مرز نرم؛
+- accent صورتی؛
+- متن تیره و کنتراست قابل‌قبول؛
+- Modal/Bottom Sheet/Drawer/Input/Checkbox/Calendar/Tag/Priority و Bottom Navigation همگی Theme-aware باشند؛
+- انتخاب Theme persistence داشته باشد و پس از Refresh حفظ شود؛
+- Light/Dark/AMOLED فعلی خراب نشوند.
+
+کاربر بعداً مجموعهٔ آیکن‌های مخصوص Theme صورتی را می‌سازد. تا آن زمان:
+- آیکن‌های فعلی با fallback سازگار استفاده شوند؛
+- معماری Asset state از اکنون طوری طراحی شود که Theme-specific artwork قابل نگاشت باشد؛
+- نبود آیکن صورتی نباید باعث 404 یا آیکن نامرئی شود؛
+- هیچ فایل فرضی برای آیکن صورتی در Manifest ثبت نشود.
+
+### TASK-UX-07 — Mobile Tasks
+
+مرجع موبایل Tasks ارسالی کاربر برای Stage Tasks الزام‌آور است:
+- Hero فشرده؛
+- chips/folders؛
+- دکمهٔ Add بزرگ و واضح؛
+- list/grid toggle فقط اگر عملکرد واقعی دارد؛
+- Task rows full-width و قابل لمس؛
+- checkbox بزرگ؛
+- progress/metadata خوانا؛
+- overflow menu سه‌نقطه؛
+- Bottom Nav Elara حفظ شود.
+- Keyboard بازشده نباید composer، sheet یا submit را بپوشاند.
+
+عرض‌های 320/375/390/430 با کیبورد، Bottom Sheet و Drawer تست شوند.
+
+### معیار پذیرش Stage Tasks آینده
+
+برای بستن Stage Tasks صرف شباهت یک Screenshot کافی نیست. گزارش باید حداقل این موارد را جداگانه اثبات کند:
+- Quick Add از Home برای Tasks/Habits/Goals؛
+- Full Task Add از `+`؛
+- Priority فارسی و canonical؛
+- Date/Time/Repeat؛
+- List/Folder/Tag creation؛
+- Task overflow menu؛
+- checkbox/persistence/XP/recurrence؛
+- Desktop reference fidelity؛
+- Mobile reference fidelity؛
+- Pink/White theme و حفظ Themeهای فعلی؛
+- keyboard/focus/back/RTL؛
+- no horizontal overflow؛
+- Firebase/cPanel فقط در صورت تست واقعی.
+
+**ترتیب همچنان:** Home تأیید شود → Stage Tasks با این الحاقیه اجرا شود → پس از پذیرش Tasks، Ranking/Social کامل. در گزارش اجرایی بعدی، ناظر باید این شناسه‌ها را به Prompt اجرایی تبدیل کند و هرکدام را جداگانه پیگیری کند.
