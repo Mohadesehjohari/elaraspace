@@ -11,7 +11,7 @@ const results=[],failures=[];
 // Visual audit sheet: lets the acceptance artifact prove the real content of ambiguous/new assets.
 {
  const assetPage=await browser.newPage({viewport:{width:1100,height:760},deviceScaleFactor:1});
- await assetPage.setContent(`<style>body{margin:0;background:#08162b;color:white;font:16px sans-serif;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.cell{height:330px;border:1px solid #40527d;border-radius:14px;display:grid;grid-template-rows:1fr auto;place-items:center;background:#0d1b32;overflow:hidden}.cell img{max-width:280px;max-height:270px;object-fit:contain}.cell b{padding:8px;font-size:13px}</style>
+ await assetPage.setContent(`<base href="http://127.0.0.1:4173/"><style>body{margin:0;background:#08162b;color:white;font:16px sans-serif;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.cell{height:330px;border:1px solid #40527d;border-radius:14px;display:grid;grid-template-rows:1fr auto;place-items:center;background:#0d1b32;overflow:hidden}.cell img{max-width:280px;max-height:270px;object-fit:contain}.cell b{padding:8px;font-size:13px}</style>
  <div class="cell"><img src="assets/ui/d0c0ad2f-d54b-5634-a886-1bf2de26718a.webp"><b>UUID</b></div>
  <div class="cell"><img src="assets/ui/notification-button.webp"><b>notification-button</b></div>
  <div class="cell"><img src="assets/ui/icon-wellness-weight-scale.webp"><b>weight-scale</b></div>
