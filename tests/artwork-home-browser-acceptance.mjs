@@ -8,6 +8,13 @@ const desktop=['home','tasks','language','books','exercise','ranking','freedom']
 const used=['hero-landscape.webp','missions-rocket.webp','streak-flame.webp','friends-tab.webp','friends-group-icon.webp','nav-home-default.webp','nav-home-active.webp','nav-language-default.webp','nav-language-active.webp','nav-library-default.webp','nav-library-active.webp','nav-ranking-default.webp','nav-ranking-active.webp','nav-exercise-default.webp','nav-exercise-active.webp'];
 const sizes=[[320,659],[375,659],[390,659],[430,659],[1440,1000],[1648,928],[1920,1000]];
 const results=[],failures=[];
+// Diagnostic evidence for the newly uploaded UUID asset: render its real pixels before any naming decision.
+{
+ const assetPage=await browser.newPage({viewport:{width:700,height:700},deviceScaleFactor:1});
+ await assetPage.goto('http://127.0.0.1:4173/assets/ui/d0c0ad2f-d54b-5634-a886-1bf2de26718a.webp',{waitUntil:'load',timeout:30000});
+ await assetPage.screenshot({path:out+'/asset-uuid-d0c0ad2f.png',fullPage:false});
+ await assetPage.close();
+}
 function fixture(){if(localStorage.getItem('elara-test-seeded'))return;const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:0,tasks:[{id:'qa-task',text:'QA task',date:today,priority:'2',completed:false,xpAwarded:false,createdAt:Date.now()}],goals:[{id:'qa-goal',title:'QA goal',horizon:'short',steps:[{id:'qa-step',text:'QA step',done:false}]}],habits:[{id:'qa-habit',title:'مطالعه',days:[],rewardDays:[]}]}));localStorage.setItem('elara_visual_wardrobe_guest',JSON.stringify({frame:'bronze'}));localStorage.setItem('elara-test-seeded','1')}
 async function init(page,{seed=false}={}){
  await page.route('**/cloud.js',route=>route.abort());
