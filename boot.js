@@ -5,8 +5,14 @@
   /* All of the shell CSS participates in first paint, not only the last three stylesheets. */
   for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=name;styleReady.push(new Promise((resolve,reject)=>{css.onload=resolve;css.onerror=()=>reject(new Error('Elara stylesheet unavailable: '+name))}));document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href='assets/logo.svg';document.head.append(icon);
-  /* Only the current Home artwork is prioritized; other illustrations are not mass-preloaded. */
-  if(!location.hash||location.hash==='#home')for(const src of ['assets/ui/hero-landscape.webp','assets/ui/nav-home-active.webp']){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
+  /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
+  const criticalImages=(!location.hash||location.hash==='#home')?[
+    'assets/ui/hero-landscape.webp','assets/ui/nav-home-active.webp','assets/ui/nav-tasks-default.webp','assets/ui/nav-language-default.webp','assets/ui/nav-library-default.webp','assets/ui/nav-ranking-default.webp','assets/ui/nav-exercise-default.webp','assets/ui/friends-group-icon.webp',
+    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-wellness-heartbeat.webp','assets/ui/icon-exercise-dumbbell.webp','assets/ui/icon-ranking-trophy.webp','assets/ui/missions-rocket.webp','assets/ui/streak-flame.webp','assets/ui/friends-tab.webp'
+  ]:[];
+  const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=src;if(typeof img.decode==='function')img.decode().then(done,done)});
+  for(const src of criticalImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
+  const firstPaintArtwork=Promise.all(criticalImages.map(decodeImage));
   const release=()=>document.documentElement.removeAttribute('data-elara-booting');
   const loadScript=name=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=name;script.onload=resolve;script.onerror=()=>reject(new Error('Elara module unavailable: '+name));document.head.append(script)});
   let ready=false;
@@ -16,6 +22,8 @@
       for(const name of ['approved-icon-system.js','approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js'])await loadScript(name);
       await Promise.all(styleReady);
       window.ElaraNavigation?.render?.();window.ElaraReferenceHome?.render?.();
+      /* Avoid multi-second blank screens on poor links, but normally release only after critical art decodes. */
+      await Promise.race([firstPaintArtwork,new Promise(resolve=>setTimeout(resolve,1400))]);
       ready=true;release();
     }catch(error){console.error('Elara final shell could not start:',error);const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بارگذاری پوستهٔ الارا کامل نشد. اتصال را بررسی کن و دوباره تلاش کن.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow)}
