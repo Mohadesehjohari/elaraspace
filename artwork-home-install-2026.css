@@ -64,8 +64,20 @@
 @media(max-width:340px){.bottom-nav button .elara-nav-art{width:22px!important;height:22px!important}.bottom-nav button small{font-size:8px!important}}
 @media(prefers-reduced-motion:reduce){.elara-nav-art{transition:none!important}}
 
-/* Friends is a Home-card action, not a primary navigation destination. */
+/* The Friends card keeps a direct list button even though Friends is also a primary navigation route. */
 #panel-home .ref-activity>header .ref-friends-open{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:76px;min-height:31px;padding:3px 9px;border:1px solid color-mix(in srgb,var(--elara-accent) 52%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--surface2) 84%,var(--elara-accent) 16%);color:var(--text);font:inherit;font-size:.58rem;font-weight:800;cursor:pointer;box-shadow:inset 0 1px #ffffff0d,0 0 8px var(--elara-art-glow-soft)}
 #panel-home .ref-activity>header .ref-friends-open:hover,#panel-home .ref-activity>header .ref-friends-open:focus-visible{border-color:var(--elara-accent);outline:2px solid color-mix(in srgb,var(--elara-accent) 48%,transparent);outline-offset:2px;box-shadow:0 0 12px var(--elara-art-glow-strong)}
 #panel-home .ref-activity>header .ref-friends-open-art{display:block;width:24px;height:24px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--elara-art-glow-soft))}
 @media(max-width:700px){#panel-home .ref-activity>header .ref-friends-open{min-width:64px;min-height:28px;padding:2px 6px;font-size:.52rem}#panel-home .ref-activity>header .ref-friends-open-art{width:21px;height:21px}}
+
+/* First-paint card and header artwork installed from the current repository binaries. */
+#panel-home.ref-home .ref-card>header h2 .elara-card-art{mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--elara-art-glow-soft))}
+#panel-home.ref-home .ref-tasks>header h2 .ref-tasks-heading-art,#panel-home.ref-home .ref-ranks>header h2 .ref-ranking-heading-art,#panel-home.ref-home .ref-wellness-card>header h2 .ref-wellness-heading-art,#panel-home.ref-home .ref-activity>header h2 .ref-friends-heading-art{width:34px!important;height:34px!important;flex:none}
+#theme-toggle.ref-theme-art-control,#ref-header-notifications{display:grid!important;place-items:center!important;overflow:visible!important}
+.ref-header-art{display:block;width:31px;height:31px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--elara-art-glow-soft));pointer-events:none}
+#theme-toggle.ref-theme-art-control .ref-theme-art{width:33px;height:33px}
+#theme-toggle.ref-theme-art-control[data-elara-theme-artwork="active"] .ref-theme-art{filter:brightness(1.07) drop-shadow(0 0 7px var(--elara-art-glow-strong))}
+#ref-header-notifications[data-unread-count]:not([data-unread-count="0"]) .ref-notification-art{filter:brightness(1.08) drop-shadow(0 0 8px #ff3e7b66)}
+#panel-home.ref-home .ref-wellness-cell .elara-wellness-art{display:block;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--elara-art-glow-soft))}
+@media(min-width:1180px){#panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:38px;height:38px}.ref-header-art{width:33px;height:33px}#theme-toggle.ref-theme-art-control .ref-theme-art{width:35px;height:35px}}
+@media(max-width:700px){#panel-home.ref-home .ref-tasks>header h2 .ref-tasks-heading-art,#panel-home.ref-home .ref-ranks>header h2 .ref-ranking-heading-art,#panel-home.ref-home .ref-wellness-card>header h2 .ref-wellness-heading-art,#panel-home.ref-home .ref-activity>header h2 .ref-friends-heading-art{width:26px!important;height:26px!important}.ref-header-art{width:27px;height:27px}#theme-toggle.ref-theme-art-control .ref-theme-art{width:29px;height:29px}}
