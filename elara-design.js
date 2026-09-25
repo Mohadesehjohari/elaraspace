@@ -41,7 +41,7 @@ function open(tab,options={}){
   if(historyMode==='push'&&changed)history.pushState({elaraTab:tab,elaraDepth:depth+1},'',routeUrl(tab));
   else if(historyMode==='replace')history.replaceState({elaraTab:tab,elaraDepth:depth},'',routeUrl(tab));
   current=tab;document.querySelectorAll('.panel').forEach(el=>el.classList.add('hidden'));panel.classList.remove('hidden');document.querySelectorAll('[data-elara-tab]').forEach(b=>b.classList.toggle('active',b.dataset.elaraTab===tab));$('page-title').textContent=t(tab);$('elara-back-button').hidden=tab==='home';
-  if(tab==='social'||tab==='ranking')window.ElaraSocial?.refresh?.();if(tab==='missions')window.ElaraMissions?.render?.();if(['home','social','ranking','reports'].includes(tab))render();else apply();window.dispatchEvent(new CustomEvent('elara:open',{detail:{tab}}));window.scrollTo(0,0)
+  if(tab==='social'||tab==='ranking')window.ElaraSocial?.refresh?.();if(tab==='missions')window.ElaraMissions?.render?.();if(['home','social','ranking','reports'].includes(tab))render();else apply();if(tab==='home')window.ElaraReferenceHome?.render?.();window.dispatchEvent(new CustomEvent('elara:open',{detail:{tab}}));window.scrollTo(0,0)
 }window.ElaraOpen=open;
 function setup(){
   navSetup();makeSections();apply();
