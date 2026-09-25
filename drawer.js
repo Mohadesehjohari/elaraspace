@@ -35,7 +35,7 @@
     if(section==='account')renderAccount();
     if(section==='privacy')renderPrivacy();
     if(section==='folders')renderFolders();
-    if(section==='notifications')renderNotifications();
+    if(section==='notifications'){markNotificationsRead();renderNotifications();}
     if(section==='appearance')renderAppearance();
     if(section==='language')renderLanguage();
     if(section==='help')renderHelp();
@@ -90,6 +90,13 @@
       return {title:'پاداش مأموریت دریافت شد',meta:parts.length>1?`${parts[0]} · ${parts.slice(1).join(':')}`:text};
     });
     return [...local.slice(-30).reverse(),...claims].slice(0,50);
+  }
+  function markNotificationsRead(){
+    let rows;try{rows=JSON.parse(localStorage.getItem(NOTIF)||'[]')}catch{rows=[]}
+    if(!Array.isArray(rows))return false;let changed=false;
+    const next=rows.map(row=>{if(!row||typeof row!=='object')return row;const unread=row.unread===true||row.read===false||row.status==='unread';if(!unread)return row;changed=true;return {...row,read:true,unread:false,...(row.status==='unread'?{status:'read'}:{})}});
+    if(changed){localStorage.setItem(NOTIF,JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:notifications-changed',{detail:{unread:0}}))}
+    return changed;
   }
   function renderNotifications(){
     const host=$('drawer-notification-area');if(!host)return;const rows=notificationRows();
