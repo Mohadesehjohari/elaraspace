@@ -81,3 +81,9 @@
 #panel-home.ref-home .ref-wellness-cell .elara-wellness-art{display:block;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--elara-art-glow-soft))}
 @media(min-width:1180px){#panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:38px;height:38px}.ref-header-art{width:33px;height:33px}#theme-toggle.ref-theme-art-control .ref-theme-art{width:35px;height:35px}}
 @media(max-width:700px){#panel-home.ref-home .ref-tasks>header h2 .ref-tasks-heading-art,#panel-home.ref-home .ref-ranks>header h2 .ref-ranking-heading-art,#panel-home.ref-home .ref-wellness-card>header h2 .ref-wellness-heading-art,#panel-home.ref-home .ref-activity>header h2 .ref-friends-heading-art{width:26px!important;height:26px!important}.ref-header-art{width:27px;height:27px}#theme-toggle.ref-theme-art-control .ref-theme-art{width:29px;height:29px}}
+
+/* Inspected UUID asset is the Elara app mark; retain live HTML wordmark beside it. */
+.identity .elara-brand-app-mark,.ref-mobile-brand .elara-brand-app-mark{display:block;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 7px var(--elara-art-glow-soft))}
+.identity .elara-brand-app-mark{width:40px!important;height:40px!important;flex:none;border-radius:11px}
+.ref-mobile-brand .elara-brand-app-mark{width:32px!important;height:32px!important;border-radius:9px}
+@media(max-width:700px){.ref-mobile-brand .elara-brand-app-mark{width:29px!important;height:29px!important}}
