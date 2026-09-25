@@ -8,7 +8,7 @@ const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${Str
 const today=()=>iso(new Date()),fa=v=>Number(v||0).toLocaleString('fa-IR');
 const card=id=>$(id)?.closest('.elara-card');
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
-const UI_ASSETS={hero:'assets/ui/hero-landscape.webp',mission:'assets/ui/missions-rocket.webp',flame:'assets/ui/streak-flame.webp'};
+const UI_ASSETS={hero:'assets/ui/hero-landscape.webp',mission:'assets/ui/missions-rocket.webp',flame:'assets/ui/streak-flame.webp',friends:'assets/ui/friends-tab.webp'};
 const art=(src,cls,alt='')=>`<img class="${cls}" src="${src}" alt="${esc(alt)}" decoding="async">`;
 const isMobile=()=>matchMedia('(max-width:700px)').matches;
 const done=(t,d=today())=>t?.recurrenceRule?arr(t.occurrenceDone).includes(d):!!t?.completed;
@@ -49,7 +49,7 @@ function homeStructure(){
  if(missions){const h=missions.querySelector('header h2');if(h)h.innerHTML=`${art(UI_ASSETS.mission,'ref-art-icon ref-missions-art','')} مأموریت‌های امروز`}
  if(goals){const h=goals.querySelector('header h2');if(h)h.innerHTML=`${icon('goals')} اهداف من`}
  if(ranks){const h=ranks.querySelector('header h2');if(h)h.innerHTML=`${icon('ranking')} رنکینگ این هفته`}
- if(activity){const h=activity.querySelector('header h2');if(h)h.innerHTML=`${icon('friends')} فعالیت دوستان`}
+ if(activity){const header=activity.querySelector('header'),h=header?.querySelector('h2');if(h)h.innerHTML=`${icon('friends')} فعالیت دوستان`;if(header){let open=header.querySelector('[data-ref-friends-open]')||header.querySelector('[data-elara-tab="social"]');if(!open){open=document.createElement('button');open.type='button';header.append(open)}open.className='elara-link ref-friends-open';open.dataset.refFriendsOpen='1';open.dataset.elaraTab='social';open.setAttribute('aria-label','باز کردن فهرست دوستان');open.innerHTML=`${art(UI_ASSETS.friends,'ref-friends-open-art','')}<span>دوستان</span>`}}
  const stats=$('elara-stats');if(stats)stats.hidden=true;
  let streakCard=$('ref-streak-card');if(!streakCard){streakCard=element('section','ref-streak-card','ref-streak-card');const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('ref-hero');const heading=hero.querySelector('.hero-copy h1');if(heading)heading.textContent='قدم‌های کوچک، آینده‌های بزرگ می‌سازند.';let quote=$('ref-hero-quote');if(!quote){quote=element('aside','ref-hero-quote','ref-hero-quote');quote.innerHTML='<strong>امروز بهتر از دیروز!</strong><span>همیشه ممکن است.</span>';hero.append(quote)}let desktopStreak=$('ref-desktop-streak');if(!desktopStreak){desktopStreak=element('div','ref-desktop-streak','ref-desktop-streak');desktopStreak.setAttribute('aria-label','استریک روزانه');hero.append(desktopStreak)}}
@@ -92,6 +92,7 @@ function actions(e){
  const exercise=e.target.closest('[data-ref-exercise]');if(exercise){window.ElaraOpen?.('exercise');setTimeout(()=>document.querySelector('.'+exercise.dataset.refExercise)?.scrollIntoView({block:'start',behavior:'smooth'}),120);return}
  const color=e.target.closest('[data-ref-theme]');if(color){document.querySelector(`#elara-settings [data-color="${CSS.escape(color.dataset.refTheme)}"]`)?.click();schedule();return}
  if(e.target.closest('[data-drawer-appearance]')){window.ElaraPrivateDrawer?.open?.('appearance');return}
+ const friends=e.target.closest('[data-ref-friends-open]');if(friends){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('social');return}
  const focus=e.target.closest('[data-elara-tab="focus"]');if(focus){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('books');setTimeout(()=>document.querySelector('#ref-library-focus')?.scrollIntoView({block:'start'}),70)}
 }
 function init(){render();document.addEventListener('click',actions,true);for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:social-updated','elara:account-ready','elara:privacy-local-changed','elara:wardrobe-changed','elara:profile-saved'])window.addEventListener(name,schedule);window.addEventListener('storage',schedule);window.addEventListener('hashchange',()=>{if(location.hash==='#focus')window.ElaraOpen?.('books');schedule()});setTimeout(render,220)}
