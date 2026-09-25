@@ -3,17 +3,22 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const mobile=['exercise','language','tasks','home','ranking','books','freedom'];
-const desktop=['home','tasks','language','books','exercise','ranking','freedom'];
-const used=['hero-landscape.webp','missions-rocket.webp','streak-flame.webp','friends-tab.webp','friends-group-icon.webp','nav-home-default.webp','nav-home-active.webp','nav-language-default.webp','nav-language-active.webp','nav-library-default.webp','nav-library-active.webp','nav-ranking-default.webp','nav-ranking-active.webp','nav-exercise-default.webp','nav-exercise-active.webp'];
+const mobile=['exercise','language','tasks','home','ranking','social','books','freedom'];
+const desktop=['home','tasks','language','books','exercise','ranking','social','freedom'];
+const used=['hero-landscape.webp','missions-rocket.webp','streak-flame.webp','friends-tab.webp','friends-group-icon.webp','nav-home-default.webp','nav-home-active.webp','nav-tasks-default.webp','nav-tasks-active.webp','nav-language-default.webp','nav-language-active.webp','nav-library-default.webp','nav-library-active.webp','nav-ranking-default.webp','nav-ranking-active.webp','nav-exercise-default.webp','nav-exercise-active.webp','icon-mode-night-default.webp','icon-mode-night-active.webp','icon-notifications-read.webp','icon-notifications-unread.webp','icon-exercise-dumbbell.webp','icon-wellness-heartbeat.webp','icon-ranking-trophy.webp','brand-elara-app-mark.webp'];
 const sizes=[[320,659],[375,659],[390,659],[430,659],[1440,1000],[1648,928],[1920,1000]];
 const results=[],failures=[];
-// Diagnostic evidence for the newly uploaded UUID asset: render its real pixels before any naming decision.
+// Visual audit sheet: lets the acceptance artifact prove the real content of ambiguous/new assets.
 {
- const assetPage=await browser.newPage({viewport:{width:700,height:700},deviceScaleFactor:1});
- await assetPage.goto('http://127.0.0.1:4173/assets/ui/d0c0ad2f-d54b-5634-a886-1bf2de26718a.webp',{waitUntil:'load',timeout:30000});
- await assetPage.screenshot({path:out+'/asset-uuid-d0c0ad2f.png',fullPage:false});
- await assetPage.close();
+ const assetPage=await browser.newPage({viewport:{width:1100,height:760},deviceScaleFactor:1});
+ await assetPage.setContent(`<style>body{margin:0;background:#08162b;color:white;font:16px sans-serif;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}.cell{height:330px;border:1px solid #40527d;border-radius:14px;display:grid;grid-template-rows:1fr auto;place-items:center;background:#0d1b32;overflow:hidden}.cell img{max-width:280px;max-height:270px;object-fit:contain}.cell b{padding:8px;font-size:13px}</style>
+ <div class="cell"><img src="assets/ui/d0c0ad2f-d54b-5634-a886-1bf2de26718a.webp"><b>UUID</b></div>
+ <div class="cell"><img src="assets/ui/notification-button.webp"><b>notification-button</b></div>
+ <div class="cell"><img src="assets/ui/icon-wellness-weight-scale.webp"><b>weight-scale</b></div>
+ <div class="cell"><img src="assets/ui/friends-tab.webp"><b>friends-tab</b></div>
+ <div class="cell"><img src="assets/ui/friends-group-icon.webp"><b>friends-group</b></div>
+ <div class="cell"><img src="assets/ui/brand-elara-app-mark.webp"><b>named app mark</b></div>`,{waitUntil:'load'});
+ await assetPage.waitForTimeout(200);await assetPage.screenshot({path:out+'/asset-review-sheet.png',fullPage:false});await assetPage.close();
 }
 function fixture(){if(localStorage.getItem('elara-test-seeded'))return;const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:0,tasks:[{id:'qa-task',text:'QA task',date:today,priority:'2',completed:false,xpAwarded:false,createdAt:Date.now()}],goals:[{id:'qa-goal',title:'QA goal',horizon:'short',steps:[{id:'qa-step',text:'QA step',done:false}]}],habits:[{id:'qa-habit',title:'مطالعه',days:[],rewardDays:[]}]}));localStorage.setItem('elara_visual_wardrobe_guest',JSON.stringify({frame:'bronze'}));localStorage.setItem('elara-test-seeded','1')}
 async function init(page,{seed=false}={}){
@@ -32,6 +37,24 @@ async function init(page,{seed=false}={}){
 }
 const rect=(page,sel)=>page.locator(sel).first().evaluate(el=>{const r=el.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)}});
 async function firstPaintReload(page,mode){if(mode==='hard'){const cdp=await page.context().newCDPSession(page);await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'));await cdp.send('Network.setCacheDisabled',{cacheDisabled:false});await cdp.detach()}else{await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'))}return page.evaluate(()=>({shell:getComputedStyle(document.querySelector('.shell')).visibility,navSrc:document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art')?.getAttribute('src'),paint:window.__elaraPaint||[]}))}
+
+async function bootTriptych(width,height){
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+ await page.route('**/cloud.js',route=>route.abort());
+ await page.route('**/assets/ui/*.webp',async route=>{await new Promise(r=>setTimeout(r,220));await route.continue()});
+ await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:3000});
+ await page.waitForTimeout(70);
+ const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {shell:visible(document.querySelector('.shell')),bottom:visible(document.querySelector('.bottom-nav')),dock:visible(document.querySelector('.elara-desktop-dock'))}});
+ assert.deepEqual(before,{shell:false,bottom:false,dock:false},'partial navigation leaked during boot');
+ await page.screenshot({path:`${out}/boot-${width}-before-release.png`,fullPage:false});
+ await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:5000});
+ const releaseState=await page.evaluate(()=>[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>getComputedStyle(x).display!=='none').every(x=>x.complete&&x.naturalWidth>0));
+ assert.equal(releaseState,true,'nav artwork was not decoded at shell release');
+ await page.screenshot({path:`${out}/boot-${width}-release.png`,fullPage:false});await page.waitForTimeout(500);await page.screenshot({path:`${out}/boot-${width}-plus500ms.png`,fullPage:false});
+ await page.close();
+}
+await bootTriptych(390,659);await bootTriptych(1648,928);
 for(const [width,height] of sizes){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});const item={width,height,ui404:[],errors:[]};page.on('response',r=>{if(r.status()===404&&r.url().includes('/assets/ui/'))item.ui404.push(r.url())});page.on('pageerror',e=>item.errors.push(String(e)));
  try{
@@ -44,13 +67,21 @@ for(const [width,height] of sizes){
   item.track=hasHabits?await page.locator('#panel-home .ref-habit-row .elara-track').first().evaluate(el=>Math.round(el.getBoundingClientRect().height)):null;
   assert.ok(item.overflow<=2,'horizontal overflow '+item.overflow);assert.ok(item.hero.h>=100&&item.streak.h>0&&item.grid.w>0,'Home geometry missing');
   assert.equal(await page.locator(`${sel} [data-elara-tab="home"] .elara-nav-art`).count(),1,'actual Home image missing');
-  assert.equal(await page.locator(`${sel} [data-elara-tab="tasks"] .elara-nav-art`).count(),0,'unuploaded Tasks image referenced');
+  assert.equal(await page.locator(`${sel} [data-elara-tab="tasks"] .elara-nav-art`).count(),1,'Tasks artwork missing');
+  assert.ok((await page.locator(`${sel} [data-elara-tab="tasks"] .elara-nav-art`).getAttribute('src'))?.includes('nav-tasks-default.webp'),'Tasks default artwork not active at Home');
+  assert.equal(await page.locator(`${sel} [data-elara-tab="social"] .elara-nav-art`).count(),1,'Friends navigation artwork missing');
+  assert.ok((await page.locator(`${sel} [data-elara-tab="social"] .elara-nav-art`).getAttribute('src'))?.includes('friends-group-icon.webp'),'Friends nav uses wrong artwork');
   assert.equal(await page.locator(`${sel} [data-elara-tab="home"] .elara-nav-art`).first().evaluate(e=>e.complete&&e.naturalWidth>0),true,'Home image load failed');
   if(hasHabits)assert.ok(item.track>=7,'habit progress still hairline');if(hasTasks)assert.ok(item.tasksHit.w>=22,'Task checkbox too small');
-  if(width<=700){assert.ok(item.header.h<=60,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');assert.equal(await page.locator('.bottom-nav [data-elara-tab="social"]').count(),0,'Friends must not be a mobile primary destination');const friends=page.locator('#panel-home [data-ref-friends-open]');assert.equal(await friends.count(),1,'Friends card entry missing');const friendsArt=friends.locator('.ref-friends-open-art');assert.equal(await friendsArt.count(),1,'Friends card artwork missing');assert.equal(await friendsArt.evaluate(e=>e.complete&&e.naturalWidth>0),true,'Friends card artwork failed');await friends.click();await page.waitForTimeout(80);assert.equal(await page.evaluate(()=>location.hash),'#social','Friends card did not open the real social route');await page.evaluate(()=>window.ElaraOpen('home'));await page.waitForTimeout(80)}
+  if(width<=700){assert.ok(item.header.h<=60,'mobile Header too tall');assert.equal(await page.locator('.sidebar').evaluate(el=>getComputedStyle(el).display),'none');assert.equal(await page.locator('.bottom-nav [data-elara-tab="social"]').count(),1,'Friends must remain a mobile primary destination');const friends=page.locator('#panel-home [data-ref-friends-open]');assert.equal(await friends.count(),1,'Friends card entry missing');const friendsArt=friends.locator('.ref-friends-open-art');assert.equal(await friendsArt.count(),1,'Friends card artwork missing');assert.ok((await friendsArt.getAttribute('src'))?.includes('friends-tab.webp'),'Friends card button uses wrong artwork');assert.equal(await friendsArt.evaluate(e=>e.complete&&e.naturalWidth>0),true,'Friends card artwork failed');await friends.click();await page.waitForTimeout(80);assert.equal(await page.evaluate(()=>location.hash),'#social','Friends card did not open the real social route');await page.evaluate(()=>window.ElaraOpen('home'));await page.waitForTimeout(80)}
   else{assert.equal(await page.locator('.bottom-nav').isVisible(),false);assert.ok(item.streak.h>=87&&item.streak.h<=113,'desktop streak not expanded');item.sidebarGap=await page.locator('.sidebar [data-elara-tab="home"]').evaluate(el=>{const a=el.querySelector('.elara-nav-art,.elara-icon').getBoundingClientRect(),t=el.querySelector('small').getBoundingClientRect();return Math.round(Math.max(0,Math.max(a.left,t.left)-Math.min(a.right,t.right)))});assert.ok(item.sidebarGap<=16,'sidebar icon and label separated: '+item.sidebarGap)}
-  const tasks=page.locator(`${sel} [data-elara-tab="tasks"]`);await tasks.click();assert.equal(await tasks.getAttribute('aria-current'),'page');await page.locator(`${sel} [data-elara-tab="home"]`).click();
+  const tasks=page.locator(`${sel} [data-elara-tab="tasks"]`);await tasks.click();assert.equal(await tasks.getAttribute('aria-current'),'page');assert.ok((await tasks.locator('.elara-nav-art').getAttribute('src'))?.includes('nav-tasks-active.webp'),'Tasks active artwork not tied to current route');await page.locator(`${sel} [data-elara-tab="home"]`).click();
+  assert.equal(await page.locator('#panel-home .ref-wellness-heading-art').count(),1,'Wellness heading art missing');assert.equal(await page.locator('#panel-home .ref-ranking-heading-art').count(),1,'Ranking trophy art missing');assert.equal(await page.locator('#panel-home .ref-wellness-cell .elara-wellness-art').count(),2,'Sleep/Exercise artwork missing');assert.equal(await page.locator('.identity .elara-brand-app-mark, #ref-mobile-brand .elara-brand-app-mark').count()>0,true,'new brand app mark missing');
+  const themeArt=page.locator('#theme-toggle .ref-theme-art');assert.equal(await themeArt.count(),1,'Theme artwork missing');assert.ok((await themeArt.getAttribute('src'))?.includes('icon-mode-night-active.webp'),'Dark mode should use active night artwork');
+  const notifArt=page.locator('#ref-header-notifications .ref-notification-art');assert.equal(await notifArt.count(),1,'Notification artwork missing');assert.ok((await notifArt.getAttribute('src'))?.includes('icon-notifications-read.webp'),'Zero unread should use read artwork');
   if(width===390){
+    await page.evaluate(()=>{localStorage.setItem('elara_notifications_v1',JSON.stringify([{id:'qa-unread',title:'QA unread',unread:true}]));window.dispatchEvent(new CustomEvent('elara:notifications-changed'))});await page.waitForTimeout(160);assert.ok((await page.locator('#ref-header-notifications .ref-notification-art').getAttribute('src'))?.includes('icon-notifications-unread.webp'),'Unread artwork did not react to real unread record');await page.locator('#ref-header-notifications').click();await page.waitForTimeout(160);assert.ok((await page.locator('#ref-header-notifications .ref-notification-art').getAttribute('src'))?.includes('icon-notifications-read.webp'),'Bell did not return to read after notifications were opened');await page.keyboard.press('Escape');
+    await page.locator('#theme-toggle').click();await page.waitForTimeout(140);assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('light')),true,'Theme toggle did not enter light');assert.ok((await page.locator('#theme-toggle .ref-theme-art').getAttribute('src'))?.includes('icon-mode-night-default.webp'),'Light mode should use default night artwork');await page.evaluate(()=>window.ElaraDrawerTest?.setMode?.('amoled'));await page.waitForTimeout(140);assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('amoled')),true,'AMOLED state missing');assert.ok((await page.locator('#theme-toggle .ref-theme-art').getAttribute('src'))?.includes('icon-mode-night-active.webp'),'AMOLED should use active night artwork');await page.evaluate(()=>window.ElaraDrawerTest?.setMode?.('dark'));await page.waitForTimeout(100);
     assert.equal(await page.locator('.ref-task-check[data-ref-task="qa-task"]').count(),1,'test-only Task fixture absent');await page.locator('.ref-task-check[data-ref-task="qa-task"]').click();await page.waitForTimeout(130);
     let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.equal(state.tasks[0].completed,true);assert.ok(state.xp>=10);assert.equal(state.tasks[0].xpAwarded,true);
     await page.locator('.bottom-nav [data-elara-tab="tasks"]').click();assert.equal(await page.locator('#task-list .check-button[data-id="qa-task"][aria-pressed]').getAttribute('aria-pressed'),'true','canonical Tasks page does not agree with Home');await page.locator('.bottom-nav [data-elara-tab="home"]').click();
@@ -68,4 +99,4 @@ for(const [width,height] of sizes){
   console.log('HOME-PASS '+JSON.stringify({width,height,overflow:item.overflow,scroll:item.scroll,streak:item.streak.h,track:item.track,firstVisibleMs:item.paint.find(x=>!x.booting)?.ms}));
  }catch(e){item.failure=e.stack||String(e);failures.push(width+': '+e.message);console.error('HOME-FAIL '+width+' '+item.failure)}finally{results.push(item);await page.close()}
 }
-writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, canonical Home data, seven primary routes plus Home-card Friends entry, and sampled first paint.');
+writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, restored Friends navigation, installed Tasks/Header/Wellness artwork, boot triptychs, and sampled first paint.');
