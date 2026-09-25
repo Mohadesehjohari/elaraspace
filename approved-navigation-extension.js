@@ -24,11 +24,8 @@ function artworkState(button){
  const selected=button.dataset.elaraTab===current,hover=!matchMedia('(hover:none)').matches&&(button.matches(':hover')||button.matches(':focus-visible'));
  const filename=pair[selected||hover?1:0];button.classList.toggle('elara-art-selected',selected);
  if(img.dataset.file===filename)return;
- const ticket=String(Number(img.dataset.ticket||0)+1);img.dataset.ticket=ticket;
- /* Keep the previous visible bitmap until the next one is decoded; a quick pointer exit must not flash. */
- const next=new Image();next.src=root+filename;
- const ready=typeof next.decode==='function'?next.decode():new Promise((resolve,reject)=>{next.onload=resolve;next.onerror=reject});
- ready.then(()=>{if(img.isConnected&&img.dataset.ticket===ticket){img.src=next.src;img.dataset.file=filename;img.hidden=false;button.classList.add('elara-nav-has-art')}}).catch(()=>{});
+ /* Route state is synchronous; boot preloads both states so the bitmap swap does not lag aria-current. */
+ img.dataset.file=filename;img.src=root+filename;img.hidden=false;button.classList.add('elara-nav-has-art');
 }
 function button(def,kind='main'){
  const b=document.createElement('button');b.type='button';const side=kind==='sidebar'||kind==='secondary';
