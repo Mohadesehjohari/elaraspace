@@ -86,3 +86,85 @@
 #ref-sidebar-banner{margin:8px 10px 12px;padding:14px 12px;min-height:86px;border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);border-radius:14px;background-position:center;background-size:cover;color:var(--text);display:grid;align-content:end;gap:3px;overflow:hidden;box-shadow:inset 0 0 20px #0008}
 #ref-sidebar-banner strong{font-size:.72rem}#ref-sidebar-banner span{font-size:.55rem;color:var(--muted);line-height:1.6}
 @media(max-width:700px){#ref-sidebar-banner{display:none!important}}
+
+
+/* 2026-09-26 actual artwork + interaction pass */
+.ref-task-check,.ref-habit-mark,.ref-goal-step,.check-button{
+  box-sizing:border-box!important;border:2px solid var(--elara-accent,var(--accent))!important;
+  border-radius:50%!important;background:transparent!important;padding:0!important;overflow:hidden!important;
+  display:grid!important;place-items:center!important
+}
+.ref-task-check::before,.ref-task-check::after,
+.ref-habit-mark::before,.ref-habit-mark::after,
+.ref-goal-step::before,.ref-goal-step::after,
+.check-button::before,.check-button::after{content:none!important;display:none!important}
+.ref-task-check[aria-pressed="true"],.ref-habit-mark.done,.ref-goal-step[aria-pressed="true"],
+.check-button[aria-pressed="true"],.item.done>.check-button{border-color:transparent!important;background:transparent!important}
+.ref-task-check-art,.ref-habit-check-art,.ref-goal-check-art,.elara-check-art{
+  display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:cover!important;padding:0!important;margin:0!important;border:0!important;border-radius:50%!important
+}
+.ref-task-check,.ref-habit-mark,.ref-goal-step{width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important}
+.check-button{width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important}
+.ref-quick-add-button{
+  margin-inline-start:auto;width:24px;height:24px;min-width:24px;padding:0;
+  border:1px solid color-mix(in srgb,var(--elara-accent,var(--accent)) 55%,var(--border));
+  border-radius:50%;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--elara-accent,var(--accent)) 14%,transparent);
+  color:var(--text);font-size:1rem;font-weight:800;line-height:1
+}
+.ref-quick-add-button:hover,.ref-quick-add-button:focus-visible{
+  border-color:var(--elara-accent,var(--accent));
+  box-shadow:0 0 14px color-mix(in srgb,var(--elara-accent,var(--accent)) 36%,transparent)
+}
+.elara-home-quick-modal{
+  position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:18px;
+  background:#02061199;backdrop-filter:blur(6px)
+}
+.elara-home-quick-card{
+  width:min(430px,100%);border:1px solid color-mix(in srgb,var(--elara-accent,var(--accent)) 40%,var(--border));
+  border-radius:18px;padding:16px;background:color-mix(in srgb,var(--surface) 96%,transparent);box-shadow:0 24px 80px #0008
+}
+.elara-home-quick-form{display:grid;gap:12px}.elara-home-quick-form strong{font-size:.9rem}
+.elara-home-quick-form>div{display:flex;justify-content:flex-end;gap:8px}
+.ref-goals #elara-home-goals{height:178px!important;max-height:178px!important;min-height:0!important;overflow:hidden!important}
+.ref-goals-scroll{
+  height:100%;max-height:178px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-gutter:stable
+}
+.ref-goals .ref-goal-row{
+  grid-template-columns:24px minmax(0,1fr) 38px!important;min-height:34px!important;height:34px!important;padding:3px 5px!important
+}
+.ref-goal-main{min-width:0;display:grid;gap:4px;border:0;background:transparent;color:var(--text);text-align:start;padding:0}
+.ref-goal-main strong{font-size:.62rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ref-goal-main .elara-track{height:5px}.ref-goal-step-empty{opacity:.45}
+.ref-reward-star{width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-inline-end:3px}
+.ref-section-art{
+  width:34px;height:34px;object-fit:contain;vertical-align:middle;margin-inline-end:7px;
+  filter:drop-shadow(0 0 10px color-mix(in srgb,var(--elara-accent,var(--accent)) 35%,transparent))
+}
+.elara-brand-wordmark{display:block;max-width:100%;object-fit:contain}
+.identity .elara-brand-wordmark{width:178px;height:66px}
+#ref-mobile-brand .elara-brand-wordmark{width:86px!important;height:34px!important;object-fit:contain!important}
+.ref-wellness-cell .elara-wellness-art{width:30px!important;height:30px!important;object-fit:contain!important}
+
+@media(min-width:701px){
+  .sidebar [data-elara-tab]{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;
+    min-height:40px!important;padding:6px 9px!important
+  }
+  .sidebar [data-elara-tab] .elara-nav-art,.sidebar [data-elara-tab] .elara-icon{
+    width:28px!important;height:28px!important;min-width:28px!important;object-fit:contain!important
+  }
+  .sidebar [data-elara-tab] small{margin:0!important;line-height:1.25!important}
+  #panel-home.ref-home .ref-home-grid>.ref-goals{
+    height:225px!important;min-height:225px!important;max-height:225px!important;overflow:hidden!important
+  }
+}
+@media(max-width:700px){
+  .ref-task-row{grid-template-columns:22px minmax(0,1fr) 22px!important}
+  .ref-habit-row{grid-template-columns:22px minmax(0,1fr) 21px!important}
+  .ref-habit-row .elara-track{height:7px!important}
+  .ref-quick-add-button{width:22px;height:22px;min-width:22px;font-size:.9rem}
+  .ref-wellness-cell .elara-wellness-art{width:20px!important;height:20px!important}
+}
