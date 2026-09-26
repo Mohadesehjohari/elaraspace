@@ -234,3 +234,9 @@
 - لوگوی قبلی فعلاً از UI اصلی برداشته می‌شود ولی slot/ساختار آن حفظ می‌شود تا Asset جدید بعداً جایگزین شود.
 - Neon polish باید روی سایت زنده با CSS واقعی اجرا شود؛ Progress Barهای Habits/Goals پهن‌تر و با رنگ‌های مستقل باشند؛ تصویر Task Check فقط در state واقعی Completed نمایش داده شود.
 - Checkpoint B همچنان STOP است. Checkpoint C نیز به‌جز همین دو استثنای صریحِ Friends در Mobile Nav و Visual Preview رنکینگ، برای Backend/Presence/i18n/Store و تغییرات وسیع‌تر STOP می‌ماند.
+
+
+## ثبت Pass اجرایی ۲۶ سپتامبر ۲۰۲۶ — Theme deferred
+- Theme صورتی/سفید فقط در Roadmap ثبت است و در این Pass فعال نمی‌شود.
+- Themeهای فعلی Dark / Neon باید بدون regression حفظ شوند.
+- اجرای Theme جدید نیازمند Pass مستقل با Screenshot مرجع و Browser acceptance جداگانه است.
