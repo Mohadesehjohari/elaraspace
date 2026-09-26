@@ -102,3 +102,5 @@ for(const [width,height] of sizes){
  }catch(e){item.failure=e.stack||String(e);failures.push(width+': '+e.message);console.error('HOME-FAIL '+width+' '+item.failure)}finally{results.push(item);await page.close()}
 }
 writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, restored Friends navigation, installed Tasks/Header/Wellness artwork, boot triptychs, and sampled first paint.');
+
+// End-HEAD gate: 2026-09-26 — workflow must produce screenshots for this exact SHA.
