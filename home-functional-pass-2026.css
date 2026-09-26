@@ -30,3 +30,9 @@
 @media(prefers-reduced-motion:reduce){.elara-home-quick-button,.elara-home-goal-step{transition:none!important}}
 /* Goal is a real Home feature on mobile, not a hidden desktop-only placeholder. */
 @media(max-width:700px){#panel-home.ref-home .elara-dashboard-grid.ref-home-grid{grid-template-areas:'tasks habits' 'wellness wellness' 'missions ranks' 'goals goals' 'activity activity'!important}#panel-home.ref-home .ref-home-grid>.ref-goals{grid-area:goals!important;display:block!important;height:auto!important;min-height:66px!important;overflow:visible!important}#panel-home.ref-home .ref-goals .ref-goal-row{min-height:32px!important;padding:3px 4px!important;grid-template-columns:25px minmax(0,1fr) 34px!important;gap:4px!important}#panel-home.ref-home .ref-goals .ref-goal-row>span:nth-child(2){min-width:0}#panel-home.ref-home .ref-goals .ref-goal-row strong{font-size:.53rem!important}#panel-home.ref-home .ref-goals .ref-goal-row .elara-home-goal-step{min-width:24px;width:24px;height:24px}}
+
+/* 2026-09-26 real Add artwork + goal checkbox artwork */
+#panel-home .ref-card>header .elara-home-quick-button{padding:0!important;overflow:hidden}
+#panel-home .ref-card>header .elara-home-quick-button>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.elara-home-goal-step{border:2px solid var(--elara-accent)!important;border-radius:50%!important;background:transparent!important;padding:0!important}
+.elara-home-goal-step[aria-checked="true"]{border-color:transparent!important}
