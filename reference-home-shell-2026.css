@@ -74,12 +74,12 @@
 .ref-task-check-art,.check-button .elara-check-art,.elara-home-goal-step .elara-check-art{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;padding:0!important;margin:0!important;border-radius:50%}
 .item.done>.check-button,.item.done .check-button{background:url("assets/ui/icon-tasks-check-alpha.webp") center/cover no-repeat!important;color:transparent!important;border-color:transparent!important}
 #panel-home.ref-home .ref-goals{height:225px!important;min-height:225px!important;overflow:hidden!important}
-#panel-home.ref-home .ref-goals .ref-goal-scroll{max-height:164px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;padding-inline-end:3px}
+#panel-home.ref-home .ref-goals .ref-goal-scroll,#panel-home.ref-home .ref-goals .ref-goals-scroll{max-height:164px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;padding-inline-end:3px}
 #panel-home.ref-home .ref-goals .ref-goal-row{width:100%;flex:none}
 .ref-home .ref-habits-heading-art{width:28px;height:28px;object-fit:contain}
 .ref-wellness-cell .elara-wellness-art{width:34px!important;height:34px!important;object-fit:contain!important}
 .ref-mobile-brand .elara-brand-wordmark{display:block;width:104px;height:34px;object-fit:contain}
-@media(max-width:700px){#panel-home.ref-home .ref-goals{height:190px!important;min-height:190px!important;overflow:hidden!important}#panel-home.ref-home .ref-goals .ref-goal-scroll{max-height:130px}}
+@media(max-width:700px){#panel-home.ref-home .ref-goals{height:190px!important;min-height:190px!important;overflow:hidden!important}#panel-home.ref-home .ref-goals .ref-goal-scroll,#panel-home.ref-home .ref-goals .ref-goals-scroll{max-height:130px}}
 
 /* 2026-09-26 remaining artwork placements */
 .ref-mission-reward{display:inline-flex;align-items:center;gap:4px}.ref-reward-star{width:18px;height:18px;object-fit:contain;flex:none}.ref-library-heading-art{width:26px;height:26px;object-fit:contain}
