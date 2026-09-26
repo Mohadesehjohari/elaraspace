@@ -168,3 +168,8 @@
   .ref-quick-add-button{width:22px;height:22px;min-width:22px;font-size:.9rem}
   .ref-wellness-cell .elara-wellness-art{width:20px!important;height:20px!important}
 }
+
+/* Canonical Home Goal checkbox: plain ring unchecked, full artwork checked. */
+.ref-goal-step{display:grid;place-items:center;width:20px;height:20px;min-width:20px;padding:0!important;border:2px solid var(--elara-accent)!important;border-radius:50%;background:transparent!important;overflow:hidden}
+.ref-goal-step::before,.ref-goal-step::after{content:none!important;display:none!important}.ref-goal-step[aria-pressed="false"]{background:transparent!important;background-image:none!important}.ref-goal-step[aria-pressed="true"]{border-color:transparent!important}
+.ref-goal-check-art{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;padding:0!important;margin:0!important;border-radius:50%}
