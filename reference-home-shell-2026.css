@@ -99,7 +99,7 @@
 .ref-goal-step::before,.ref-goal-step::after,
 .check-button::before,.check-button::after{content:none!important;display:none!important}
 .ref-task-check[aria-pressed="true"],.ref-habit-mark.done,.ref-goal-step[aria-pressed="true"],
-.check-button[aria-pressed="true"],.item.done>.check-button{border-color:transparent!important;background:transparent!important}
+.check-button[aria-pressed="true"],.item.done>.check-button{border-color:transparent!important;border-width:0!important;background:transparent!important}
 .ref-task-check-art,.ref-habit-check-art,.ref-goal-check-art,.elara-check-art{
   display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
   object-fit:cover!important;padding:0!important;margin:0!important;border:0!important;border-radius:50%!important
