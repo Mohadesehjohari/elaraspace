@@ -77,7 +77,7 @@ function renderGoals(){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
   const row=element('div','ref-goal-row');
   const check=element(step?'button':'span','ref-goal-step'+(step?'':' ref-goal-step-empty'));
-  if(step){check.type='button';check.dataset.homeGoal=String(g.id||'');check.dataset.homeGoalStep=String(step.id||'');check.setAttribute('aria-label','تغییر وضعیت '+String(step.text||'قدم'));check.setAttribute('aria-pressed',String(!!step.done));if(step.done)check.innerHTML=art(UI_ASSETS.taskCheck,'ref-goal-check-art','')}
+  if(step){check.type='button';check.dataset.homeGoal=String(g.id||'');check.dataset.goalId=String(g.id||'');check.dataset.homeGoalStep=String(step.id||'');check.setAttribute('aria-label','تغییر وضعیت '+String(step.text||'قدم'));check.setAttribute('aria-pressed',String(!!step.done));if(step.done)check.innerHTML=art(UI_ASSETS.taskCheck,'ref-goal-check-art','')}
   const main=element('button','ref-goal-main');main.type='button';main.dataset.elaraTab='goals';main.innerHTML='<strong>'+esc(g.title||g.name||'هدف')+'</strong><i class="elara-track"><i style="width:'+p+'%"></i></i>';
   const pct=element('b','');pct.textContent=fa(p)+'٪';row.append(check,main,pct);wrap.append(row);
  }
