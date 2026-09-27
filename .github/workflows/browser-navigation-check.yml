@@ -5,6 +5,10 @@ on:
     paths:
       - 'approved-navigation-extension.js'
       - 'approved-navigation-extension.css'
+      - 'app.js'
+      - 'phase2.js'
+      - 'cloud.js'
+      - 'visual-fidelity-pass2.css'
       - 'visual-fidelity-pass2.js'
       - 'visual-fidelity-pass3.js'
       - 'approved-visual.js'
@@ -34,6 +38,8 @@ jobs:
       - name: Validate Home owner, bridge and acceptance script syntax
         run: |
           node --check elara-design.js
+          node --check app.js
+          node --check phase2.js
           node --check visual-fidelity-pass3.js
           node --check reference-home-shell-2026.js
           node --check home-functional-pass-2026.js
