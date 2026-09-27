@@ -10,7 +10,7 @@
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
-  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], words:[], folders:[], tags:[], focusSessions:[], activeFocus:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
+  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], words:[], taskLists:[], folders:[], tags:[], focusSessions:[], activeFocus:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
   const uniqueNames = values => Array.isArray(values) ? [...new Set(values.map(v => asText(v,60)).filter(Boolean))].slice(0,250) : [];
   const normalize = raw => {
@@ -18,6 +18,7 @@
     const data = initial();
     data.theme = raw.theme === 'light' ? 'light' : 'dark';
     data.xp = Number.isFinite(Number(raw.xp)) ? Math.max(0,Math.min(9999999,Math.floor(Number(raw.xp)))) : 0;
+    data.taskLists = uniqueNames(raw.taskLists);
     data.folders = uniqueNames(raw.folders);
     data.tags = uniqueNames(raw.tags);
     for (const key of ['tasks','habits','goals','books','words']) {
@@ -45,12 +46,13 @@
         if(v.title!=null)out[date].title=asText(v.title,120);
         if(v.time!=null&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.time))out[date].time=v.time;
         if(v.priority!=null&&['1','2','3','4'].includes(String(v.priority)))out[date].priority=String(v.priority);
+        if(v.list!=null)out[date].list=asText(v.list,60);
         if(v.folder!=null)out[date].folder=asText(v.folder,60);
         if(v.tag!=null)out[date].tag=asText(v.tag,60);
       }
       return out;
     };
-    data.tasks = (raw.tasks || []).slice(0,10000).filter(t => t && typeof t === 'object').map(t => ({id:safeId(t.id),text:asText(t.text ?? t.title),shortDescription:asText(t.shortDescription,280),description:asText(t.description,4000),date:validDate(t.date) ? t.date : '',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(t.time ?? '') ? t.time : '',priority:['1','2','3','4'].includes(String(t.priority)) ? String(t.priority) : '4',folder:asText(t.folder,60),tag:asText(t.tag,60),completed:!!t.completed,doneAt:validDate(t.doneAt) ? t.doneAt : null,xpAwarded:!!(t.xpAwarded || t.completed),createdAt:Number(t.createdAt) || Date.now(),recurrenceRule:safeRule(t.recurrenceRule,t.date),occurrenceDone:safeDates(t.occurrenceDone),occurrenceRewardDays:safeDates(t.occurrenceRewardDays),skippedDates:safeDates(t.skippedDates),occurrenceOverrides:safeOverrides(t.occurrenceOverrides)})).filter(t => t.text);
+    data.tasks = (raw.tasks || []).slice(0,10000).filter(t => t && typeof t === 'object').map(t => ({id:safeId(t.id),text:asText(t.text ?? t.title),shortDescription:asText(t.shortDescription,280),description:asText(t.description,4000),date:validDate(t.date) ? t.date : '',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(t.time ?? '') ? t.time : '',priority:['1','2','3','4'].includes(String(t.priority)) ? String(t.priority) : '4',list:asText(t.list,60),folder:asText(t.folder,60),tag:asText(t.tag,60),completed:!!t.completed,doneAt:validDate(t.doneAt) ? t.doneAt : null,xpAwarded:!!(t.xpAwarded || t.completed),createdAt:Number(t.createdAt) || Date.now(),recurrenceRule:safeRule(t.recurrenceRule,t.date),occurrenceDone:safeDates(t.occurrenceDone),occurrenceRewardDays:safeDates(t.occurrenceRewardDays),skippedDates:safeDates(t.skippedDates),occurrenceOverrides:safeOverrides(t.occurrenceOverrides)})).filter(t => t.text);
     const completionMap=new Map();
     for(const h of (Array.isArray(raw.taskCompletionHistory)?raw.taskCompletionHistory:[]).slice(-20000)){
       if(!h||typeof h!=='object'||!validDate(h.date))continue;
