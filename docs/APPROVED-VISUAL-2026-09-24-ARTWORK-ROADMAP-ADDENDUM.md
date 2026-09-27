@@ -485,3 +485,15 @@ Hierarchy:
 تا آن زمان:
 - deployed-to-cPanel-production = NO
 - release-ready = NO
+
+
+---
+
+## الحاقیه ۲۷ سپتامبر ۲۰۲۶ — Theme Pink / White و Tasks UX
+
+- Theme **Pink / White** به‌عنوان Theme مستقل آینده ثبت شد؛ جایگزین Dark/Neon فعلی نیست و فعال‌سازی runtime آن در این Pass انجام نمی‌شود.
+- معماری Theme آینده باید امکان map شدن Artworkهای اختصاصی صورتی را داشته باشد، اما تا وقتی فایل واقعی وجود ندارد هیچ مسیر فرضی در manifest ساخته نشود.
+- صفحهٔ Tasks در این Pass فقط با UX واقعی موجود توسعه می‌یابد: دکمهٔ بزرگ «+ افزودن تسک»، منوی اختصاصی سه‌نقطه در سمت مقابل Sidebar، ساخت واقعی List/Folder/Tag و دسترسی مستقیم به Filterها.
+- List جدید باید دادهٔ persistشوندهٔ Task باشد و با Folder/Tag قاطی نشود؛ Quick Add و فرم canonical همان state فعلی را مصرف می‌کنند.
+- Assetهای `icon-wellness-lotus.webp` و `button-view-all.webp` فقط در صورت وجود واقعی در `assets/ui/` قابل نصب هستند؛ نبودشان نباید با فایل جعلی یا alias نامرتبط پوشانده شود.
+- Artwork وزن دارای مقدار ثابت داخل تصویر نباید به‌عنوان وزن کاربر نمایش داده شود تا نسخهٔ clean دریافت شود.
