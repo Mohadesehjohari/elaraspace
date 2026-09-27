@@ -26,3 +26,74 @@ body.light .wellness-sleep-line{background:#f5f7ff;border-color:#c6d2ed}body.lig
 @media(max-width:430px){.bottom-nav{padding-inline:max(2px,env(safe-area-inset-left))!important}.bottom-nav button{padding-inline:0!important}.bottom-nav button svg{width:21px!important;height:21px!important}.bottom-nav button small{font-size:.52rem!important;letter-spacing:-.02em}.elara-desktop-dock{display:none!important}.pass2-streak-days span{font-size:.52rem}.pass2-streak-days b{font-size:.66rem}.pass2-leitner-stats{gap:6px}.wellness-water-visual{grid-template-columns:1fr}.wellness-water-summary{text-align:center}}
 @media(max-width:340px){.bottom-nav button small{font-size:.46rem!important}.bottom-nav button svg{width:19px!important;height:19px!important}.pass2-streak-days{gap:2px}.pass2-streak-days>div{border-radius:8px}.pass2-streak-total small{font-size:.57rem}#panel-tasks .filters{grid-template-columns:1fr}#panel-tasks .filters input{grid-column:auto}#panel-tasks #task-form .form-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.pass2-switch span,.pass2-switch span:after,.wellness-glass-fill{transition:none!important}}
+
+
+/* 2026-09-27 Tasks reference pass */
+#panel-tasks{position:relative}
+#panel-tasks .section-heading{align-items:flex-start}
+.elara-task-page-actions{display:flex;align-items:center;gap:9px;flex:none}
+.elara-task-add-main{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 16px;
+  border:1px solid color-mix(in srgb,var(--elara-accent,var(--accent)) 72%,var(--border));
+  border-radius:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--elara-accent,var(--accent)) 88%,#fff 12%),color-mix(in srgb,var(--accent2) 76%,var(--elara-accent,var(--accent))));
+  color:white;font-weight:900;box-shadow:0 0 20px color-mix(in srgb,var(--elara-accent,var(--accent)) 30%,transparent),inset 0 1px #ffffff45
+}
+.elara-task-add-main>span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#ffffff22;font-size:1.35rem;line-height:1}
+.elara-task-tools-toggle{
+  width:46px;height:46px;min-width:46px;padding:0;border:1px solid var(--border);border-radius:14px;
+  background:var(--surface2);color:var(--text);font-size:1.55rem;line-height:1;box-shadow:0 0 12px #0002
+}
+.elara-task-add-main:hover,.elara-task-add-main:focus-visible,.elara-task-tools-toggle:hover,.elara-task-tools-toggle:focus-visible{filter:brightness(1.08);border-color:var(--elara-accent,var(--accent))}
+.elara-task-tools-menu{
+  position:fixed;z-index:9500;top:112px;right:24px;width:min(270px,calc(100vw - 32px));padding:10px;
+  border:1px solid color-mix(in srgb,var(--elara-accent,var(--accent)) 34%,var(--border));border-radius:16px;
+  background:color-mix(in srgb,var(--surface) 96%,transparent);box-shadow:0 22px 70px #0008;backdrop-filter:blur(14px)
+}
+.elara-task-tools-menu[hidden]{display:none!important}
+.elara-task-tools-menu>strong{display:block;padding:8px 10px 10px;font-size:.75rem;color:var(--muted)}
+.elara-task-tools-menu>button{
+  display:flex;width:100%;align-items:center;min-height:42px;padding:8px 11px;border:0;border-radius:10px;
+  background:transparent;color:var(--text);text-align:start;font-size:.78rem;font-weight:800
+}
+.elara-task-tools-menu>button:hover,.elara-task-tools-menu>button:focus-visible{background:color-mix(in srgb,var(--elara-accent,var(--accent)) 12%,var(--surface2))}
+#panel-tasks #task-form[hidden]{display:none!important}
+#panel-tasks #task-form[data-elara-task-composer="open"]{
+  border-color:color-mix(in srgb,var(--elara-accent,var(--accent)) 40%,var(--border));
+  box-shadow:0 16px 50px #0004,0 0 24px color-mix(in srgb,var(--elara-accent,var(--accent)) 12%,transparent)
+}
+#panel-tasks #task-form .form-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#panel-tasks #task-form .task-list-field{position:relative}
+#panel-tasks #task-form .task-list-field .mini-create{margin-top:5px}
+#panel-tasks .list-toolbar{
+  padding:10px 12px;border:1px solid color-mix(in srgb,var(--border) 88%,transparent);
+  border-radius:14px;background:color-mix(in srgb,var(--surface) 70%,transparent)
+}
+#panel-tasks .filters{grid-template-columns:minmax(130px,1.35fr) repeat(5,minmax(96px,.8fr))!important;width:min(100%,890px)!important}
+#panel-tasks #task-list .item{transition:border-color .14s ease,transform .14s ease,box-shadow .14s ease}
+#panel-tasks #task-list .item:hover{border-color:color-mix(in srgb,var(--elara-accent,var(--accent)) 30%,var(--border));box-shadow:0 10px 26px #0002;transform:translateY(-1px)}
+#panel-tasks #task-list .check-button{width:27px!important;height:27px!important;min-width:27px!important;border-radius:50%!important}
+#panel-tasks #task-list .check-button[aria-pressed="true"]{border-width:0!important}
+#panel-tasks #task-list .check-button .elara-check-art{width:100%!important;height:100%!important;object-fit:cover!important;padding:0!important;border-radius:50%!important}
+#panel-tasks #task-list .check-button::before,#panel-tasks #task-list .check-button::after{content:none!important;display:none!important}
+
+@media(max-width:700px){
+  #panel-tasks .section-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+  #panel-tasks .section-heading>.date-chip{display:none!important}
+  .elara-task-page-actions{grid-column:1/-1;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 44px}
+  .elara-task-add-main{width:100%;min-height:44px}
+  .elara-task-tools-toggle{width:44px;height:44px;min-width:44px}
+  .elara-task-tools-menu{
+    top:auto;right:10px;left:10px;bottom:calc(82px + env(safe-area-inset-bottom));width:auto;max-height:min(48vh,360px);
+    border-radius:20px;padding:12px
+  }
+  #panel-tasks #task-form{margin-inline:0!important}
+  #panel-tasks #task-form .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #panel-tasks .filters{grid-template-columns:1fr 1fr!important;width:100%!important}
+  #panel-tasks .filters input{grid-column:1/-1}
+}
+@media(max-width:370px){
+  #panel-tasks #task-form .form-grid{grid-template-columns:1fr!important}
+  #panel-tasks .filters{grid-template-columns:1fr!important}
+  #panel-tasks .filters input{grid-column:auto}
+  .elara-task-add-main{padding-inline:10px}
+}
