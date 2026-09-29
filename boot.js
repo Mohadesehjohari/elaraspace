@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20260929-94ee6636';
+  const BUILD='20260929-critical-nav';
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css'];
@@ -10,7 +10,7 @@
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
   const criticalImages=(!location.hash||location.hash==='#home')?[
     'assets/ui/hero-landscape.webp','assets/ui/nav-home-active.webp','assets/ui/nav-tasks-default.webp','assets/ui/nav-tasks-active.webp','assets/ui/nav-language-default.webp','assets/ui/nav-language-active.webp','assets/ui/nav-library-default.webp','assets/ui/nav-library-active.webp','assets/ui/nav-ranking-default.webp','assets/ui/nav-ranking-active.webp','assets/ui/nav-exercise-default.webp','assets/ui/nav-exercise-active.webp','assets/ui/friends-group-icon.webp',
-    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-notifications-unread.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/icon-wellness-heartbeat.webp','assets/ui/icon-exercise-dumbbell.webp','assets/ui/icon-ranking-trophy.webp','assets/ui/icon-task-complete-astra-v2.webp','assets/ui/missions-rocket.webp','assets/ui/streak-flame.webp','assets/ui/friends-tab.webp'
+    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-notifications-unread.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/icon-wellness-heartbeat.webp','assets/ui/icon-exercise-dumbbell.webp','assets/ui/icon-ranking-trophy.webp','assets/ui/icon-freedom-lotus.webp','assets/ui/icon-task-complete-astra-v2.webp','assets/ui/missions-rocket.webp','assets/ui/streak-flame.webp','assets/ui/friends-tab.webp'
   ]:[];
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=assetUrl(src);if(typeof img.decode==='function')img.decode().then(done,done)});
   for(const src of criticalImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=assetUrl(src);preload.fetchPriority='high';document.head.append(preload)}
