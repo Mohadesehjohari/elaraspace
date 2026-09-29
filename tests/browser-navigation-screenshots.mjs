@@ -29,8 +29,8 @@ for(const width of [1440,1648,1920]){
  assert.equal(await visible(page.locator('.topbar .elara-profile')),false,'Legacy profile control must stay visually hidden');
  assert.equal(await visible(page.locator('#elara-account-menu-trigger')),false,'Desktop hamburger must be hidden');
  assert.equal(await visible(page.locator('#ref-library-focus')),false,'Library timer must not show in Home');
- assert.equal(await visible(page.locator('#ref-desktop-streak')),true,'Desktop compact streak missing');
- assert.equal(await visible(page.locator('#ref-streak-card')),false,'Mobile streak row must stay hidden on desktop');
+ assert.equal(await visible(page.locator('#ref-desktop-streak')),false,'Legacy compact desktop streak must stay hidden');
+ assert.equal(await visible(page.locator('#ref-streak-card')),true,'Approved full-width desktop streak missing');
  const assetRows=await assetsOk(page);assert.ok(assetRows.every(x=>x.ok),'Artwork request failed: '+JSON.stringify(assetRows));
  assert.ok((await page.locator('.ref-hero').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('hero-landscape.webp'),'Hero WebP not connected');
  assert.equal(await page.locator('#ref-desktop-streak .ref-streak-flame').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Desktop flame failed');
@@ -44,7 +44,7 @@ for(const width of [1440,1648,1920]){
  assert.ok(heroCopy.x<heroQuote.x,'Desktop hero heading must be left of quote as in reference');
  assert.equal(await visible(page.locator('#elara-stats')),false,'Legacy five-stat row must not appear on reference Home');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'Horizontal overflow '+overflow);
- measurements.push({mode:'empty',viewport:width,header:await bounds(page,'.topbar'),sidebar,hero,desktopStreak:await bounds(page,'#ref-desktop-streak'),tasks,habits,wellness,metrics:await pageMetrics(page),overflow});
+ measurements.push({mode:'empty',viewport:width,header:await bounds(page,'.topbar'),sidebar,hero,desktopStreak:await bounds(page,'#ref-streak-card'),tasks,habits,wellness,metrics:await pageMetrics(page),overflow});
  await page.screenshot({path:out+'/after-desktop-'+width+'-viewport.png',fullPage:false});
  await page.screenshot({path:out+'/after-desktop-'+width+'-full.png',fullPage:true});
  if(width===1440){await page.locator('.sidebar [data-elara-tab="books"]').click();await page.waitForFunction(()=>location.hash==='#books');assert.equal(await page.locator('.sidebar [data-elara-tab="books"]').getAttribute('aria-current'),'page');assert.equal(await visible(page.locator('#ref-library-focus .focus-card')),true,'Operational library timer missing');await page.screenshot({path:out+'/after-desktop-library-active.png'});await ready(page);await page.locator('#ref-header-account').click();await page.waitForFunction(()=>!document.querySelector('.elara-private-drawer')?.classList.contains('hidden'));await page.screenshot({path:out+'/after-desktop-drawer-open.png'});await page.locator('.elara-private-drawer [data-approved-wardrobe]').first().click();await page.waitForFunction(()=>!document.querySelector('.approved-wardrobe')?.hidden);await page.screenshot({path:out+'/after-desktop-drawer-popup.png'});await page.locator('.approved-wardrobe-window [data-close-wardrobe]').click();await page.waitForFunction(()=>document.querySelector('.approved-wardrobe')?.hidden);assert.equal(await page.locator('.elara-private-drawer').evaluate(el=>!el.classList.contains('hidden')),true,'Drawer closed after popup');await page.screenshot({path:out+'/after-desktop-drawer-restored.png'});}
