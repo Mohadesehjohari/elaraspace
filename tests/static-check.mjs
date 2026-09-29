@@ -28,7 +28,7 @@ assert.deepEqual(mainRoutes,[['exercise','ورزش'],['language','زبان'],['t
 assert.equal(mainRoutes[3][0],'home','Home must remain the visual center route');
 assert.match(html,/<nav class="bottom-nav"[^>]*data-elara-main-nav[^>]*><\/nav>/,'Initial Bottom Nav must be an empty canonical mount');
 assert.match(html,/<a class="identity" href="#home"/,'Initial identity must point to Home');
-for (const asset of ['styles.css','dialog.js','drawer.js','app.js','phase2.js']) assert.ok(html.includes(`"${asset}"`),`Missing asset: ${asset}`);
+for (const asset of ['styles.css','dialog.js','drawer.js','app.js','phase2.js']) assert.match(html,new RegExp(`(?:href|src)=["']${asset.replace('.', '\\.')}(?:\\?[^"']*)?["']`),`Missing asset: ${asset}`);
 for (const token of ['recurrenceRule','occurrenceDone','focusSessions','data-focus-preset','task-priority-filter']) assert.ok(phase2.includes(token),`Phase 2 missing ${token}`);
 for (const token of ['openSelfProfile','saveProfileValues','runTransaction','profilePublic','removeFriend']) assert.ok(social.includes(token),`Profile phase missing ${token}`);
 assert.ok(html.includes('approved-profile-system.js'),'Shared profile system must load before account UI');
