@@ -40,24 +40,11 @@
     window.dispatchEvent(new Event('elara:data-changed'));
   };
   const dateList=v=>Array.isArray(v)?[...new Set(v.filter(validDate))]:[];
-  const safeRule=(rule,startFallback=today())=>{
-    if(!rule||typeof rule!=='object')return null;
-    const weekdays=[...new Set((Array.isArray(rule.weekdays)?rule.weekdays:[]).map(Number).filter(n=>n>=0&&n<=6))];
-    if(!weekdays.length)return null;
-    const startDate=validDate(rule.startDate)?rule.startDate:(validDate(startFallback)?startFallback:today());
-    const endDate=validDate(rule.endDate)&&rule.endDate>=startDate?rule.endDate:null;
-    return {weekdays,startDate,endDate,timezone:String(rule.timezone||timezone()).slice(0,80)};
-  };
-  const applies=(item,date)=>{
-    const rule=safeRule(item.recurrenceRule,item.date||today());
-    if(!rule)return false;
-    if(date<rule.startDate||(rule.endDate&&date>rule.endDate))return false;
-    if(dateList(item.skippedDates).includes(date))return false;
-    return rule.weekdays.includes(dayOf(date));
-  };
+  const safeRule=(rule,fallback=today())=>window.ElaraSchedule.normalize(rule,fallback);
+  const applies=(item,date)=>window.ElaraSchedule.applies(item,date);
   const recurrenceLabel=rule=>{
     const r=safeRule(rule);if(!r)return'';
-    const days=r.weekdays.length===7?'Ù‡Ø± Ø±ÙˆØ²':weekOrder.filter(d=>r.weekdays.includes(d)).map(d=>weekNames[d]).join('ØŒ ');
+    const days=r.frequency==='monthly'?`Ù‡Ø± ${fa(r.interval)} Ù…Ø§Ù‡`:r.frequency==='daily'?`Ù‡Ø± ${fa(r.interval)} Ø±ÙˆØ²`:r.weekdays.length===7?'Ù‡Ø± Ø±ÙˆØ²':weekOrder.filter(d=>r.weekdays.includes(d)).map(d=>weekNames[d]).join('ØŒ ');
     return `ØªÚ©Ø±Ø§Ø±: ${days}${r.endDate?' Â· ØªØ§ '+labelDate(r.endDate):' Â· Ø¨Ø¯ÙˆÙ† Ù¾Ø§ÛŒØ§Ù†'}`;
   };
   const completionKey=(taskId,date)=>String(taskId||'')+':'+String(date||'');
@@ -117,263 +104,223 @@
     if(!enabled)return null;
     const start=validDate(startFallback)?startFallback:today();
     const weekdays=[...document.querySelectorAll(`input[name="${prefix}-weekday"]:checked`)].map(x=>Number(x.value));
-    if(!weekdays.length)throw new Error('Ø­Ø¯Ø§Ù‚Ù„ ÛŒÚ© Ø±ÙˆØ² Ù‡ÙØªÙ‡ Ø±Ø§ Ø¨Ø±Ø§ÛŒ ØªÚ©Ø±Ø§Ø± Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ù†.');
+    const frequency=$(`${prefix}-frequency`)?.value||'weekly',interval=Number($(`${prefix}-interval`)?.value)||1;if(!Number.isInteger(interval)||interval<1||interval>365)throw new Error('ÙØ§ØµÙ„Ù‡Ù” ØªÚ©Ø±Ø§Ø± Ø¨Ø§ÛŒØ¯ Ø¨ÛŒÙ† Û± Ùˆ Û³Û¶Ûµ Ø¨Ø§Ø´Ø¯.');
+    if(frequency==='weekly'&&!weekdays.length)throw new Error('Ø­Ø¯Ø§Ù‚Ù„ ÛŒÚ© Ø±ÙˆØ² Ù‡ÙØªÙ‡ Ø±Ø§ Ø¨Ø±Ø§ÛŒ ØªÚ©Ø±Ø§Ø± Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ù†.');
     const noEnd=$(`${prefix}-recurrence-no-end`)?.checked;
     const rawEnd=$(`${prefix}-recurrence-end`)?.value||'';
     const end=noEnd?'':rawEnd;
     if(end&&!validDate(end))throw new Error('ØªØ§Ø±ÛŒØ® Ù¾Ø§ÛŒØ§Ù† ØªÚ©Ø±Ø§Ø± Ù…Ø¹ØªØ¨Ø± Ù†ÛŒØ³Øª.');
     if(end&&end<start)throw new Error('ØªØ§Ø±ÛŒØ® Ù¾Ø§ÛŒØ§Ù† Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù‚Ø¨Ù„ Ø§Ø² ØªØ§Ø±ÛŒØ® Ø´Ø±ÙˆØ¹ Ø¨Ø§Ø´Ø¯.');
-    if(end&&daysBetween(start,end)>1830)throw new Error('Ø¨Ø§Ø²Ù‡Ù” ØªÚ©Ø±Ø§Ø± Ø¯Ø± Ø§ÛŒÙ† Ù†Ø³Ø®Ù‡ Ø­Ø¯Ø§Ú©Ø«Ø± Ûµ Ø³Ø§Ù„ Ø§Ø³Øª.');
-    return {weekdays:[...new Set(weekdays)],startDate:start,endDate:end||null,timezone:timezone()};
-  };
-  function setRuleForm(prefix,rule,startDate){
-    const r=safeRule(rule,startDate||today()),toggle=$(`${prefix}-recurrence`),options=$(`${prefix}-recurrence-options`);
-    if(toggle)toggle.checked=!!r;if(options)options.classList.toggle('hidden',!r);
-    document.querySelectorAll(`input[name="${prefix}-weekday"]`).forEach(x=>x.checked=!!r&&r.weekdays.includes(Number(x.value)));
-    const end=$(`${prefix}-recurrence-end`),noEnd=$(`${prefix}-recurrence-no-end`);
-    if(end){end.value=r?.endDate||'';end.disabled=!!r&&!r.endDate}
-    if(noEnd)noEnd.checked=!!r&&!r.endDate;
-  }
-  function syncRecurrenceVisibility(prefix){
-    const on=$(`${prefix}-recurrence`)?.checked,options=$(`${prefix}-recurrence-options`);
-    if(options)options.classList.toggle('hidden',!on);
-    if(on&&!document.querySelector(`input[name="${prefix}-weekday"]:checked`))document.querySelectorAll(`input[name="${prefix}-weekday"]`).forEach(x=>x.checked=true);
-  }
-  function syncSelect(id,items,placeholder){
-    const el=$(id);if(!el)return;const prev=el.value;
-    el.innerHTML=`<option value="">${esc(placeholder)}</option>`+items.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
-    if(items.includes(prev))el.value=prev;
-  }
-  function syncSelectors(){
-    const s=ensureState(readState());
-    syncSelect('task-list-name',s.taskLists,'Ø¨Ø¯ÙˆÙ† Ù„ÛŒØ³Øª');
-    syncSelect('task-list-filter',s.taskLists,'Ù‡Ù…Ù‡Ù” Ù„ÛŒØ³Øªâ€ŒÙ‡Ø§');
-    syncSelect('task-folder',s.folders,'Ø¨Ø¯ÙˆÙ† Ù¾ÙˆØ´Ù‡');
-    syncSelect('task-folder-filter',s.folders,'Ù‡Ù…Ù‡Ù” Ù¾ÙˆØ´Ù‡â€ŒÙ‡Ø§');
-    syncSelect('task-tag',s.tags,'Ø¨Ø¯ÙˆÙ† Ø¨Ø±Ú†Ø³Ø¨');
-    syncSelect('task-tag-filter',s.tags,'Ù‡Ù…Ù‡Ù” Ø¨Ø±Ú†Ø³Ø¨â€ŒÙ‡Ø§');
-    syncSelect('focus-tag',s.tags,'Ø¨Ø¯ÙˆÙ† Ø¨Ø±Ú†Ø³Ø¨');
-  }
-  function captureTaskDraft(){
-    return {title:$('task-title')?.value||'',shortDescription:$('task-short-description')?.value||'',description:$('task-description')?.value||'',due:$('task-due')?.value||'',time:$('task-time')?.value||'',priority:$('task-priority')?.value||'4',list:$('task-list-name')?.value||'',folder:$('task-folder')?.value||'',tag:$('task-tag')?.value||'',recurrence:$('task-recurrence')?.checked||false,recurrenceEnd:$('task-recurrence-end')?.value||'',noEnd:$('task-recurrence-no-end')?.checked||false,weekdays:[...document.querySelectorAll('input[name="task-weekday"]:checked')].map(x=>x.value)};
-  }
-  function restoreTaskDraft(draft){
-    if(!draft)return;if($('task-title'))$('task-title').value=draft.title;if($('task-short-description'))$('task-short-description').value=draft.shortDescription;if($('task-description'))$('task-description').value=draft.description;if($('task-due'))$('task-due').value=draft.due;if($('task-time'))$('task-time').value=draft.time;if($('task-priority'))$('task-priority').value=draft.priority;
-    syncSelectors();if($('task-list-name'))$('task-list-name').value=draft.list;if($('task-folder'))$('task-folder').value=draft.folder;if($('task-tag'))$('task-tag').value=draft.tag;if($('task-recurrence'))$('task-recurrence').checked=draft.recurrence;syncRecurrenceVisibility('task');document.querySelectorAll('input[name="task-weekday"]').forEach(x=>x.checked=draft.weekdays.includes(x.value));if($('task-recurrence-end')){$('task-recurrence-end').value=draft.recurrenceEnd;$('task-recurrence-end').disabled=draft.noEnd}if($('task-recurrence-no-end'))$('task-recurrence-no-end').checked=draft.noEnd;
-  }
-  async function inlineCreate(kind,targetId=''){
-    const map={list:'taskLists',folder:'folders',tag:'tags'},field=map[kind];if(!field)return'';
-    const state=ensureState(readState()),draft=targetId&&targetId.startsWith('task-')?captureTaskDraft():null;
-    const labels={list:['Ø§ÙØ²ÙˆØ¯Ù† Ù„ÛŒØ³Øª','Ø§Ø³Ù… Ù„ÛŒØ³Øª Ø¬Ø¯ÛŒØ¯ Ø±Ø§ Ø¨Ù†ÙˆÛŒØ³.','Ù†Ø§Ù… Ù„ÛŒØ³Øª','Ù…Ø«Ù„Ø§Ù‹ Ø§Ù…Ø±ÙˆØ²'],folder:['Ø§ÙØ²ÙˆØ¯Ù† Ù¾ÙˆØ´Ù‡','Ø§Ø³Ù… Ù¾ÙˆØ´Ù‡Ù” Ø¬Ø¯ÛŒØ¯ Ø±Ø§ Ø¨Ù†ÙˆÛŒØ³.','Ù†Ø§Ù… Ù¾ÙˆØ´Ù‡','Ù…Ø«Ù„Ø§Ù‹ Ø¯Ø§Ù†Ø´Ú¯Ø§Ù‡'],tag:['Ø§ÙØ²ÙˆØ¯Ù† Ø¨Ø±Ú†Ø³Ø¨','Ø§Ø³Ù… Ø¨Ø±Ú†Ø³Ø¨ Ø¬Ø¯ÛŒØ¯ Ø±Ø§ Ø¨Ù†ÙˆÛŒØ³.','Ù†Ø§Ù… Ø¨Ø±Ú†Ø³Ø¨','Ù…Ø«Ù„Ø§Ù‹ Ù…Ù‡Ù…']}[kind];
-    const value=await window.ElaraDialog.prompt(labels[1],{title:labels[0],label:labels[2],placeholder:labels[3],maxLength:60,confirmText:'Ø§ÙØ²ÙˆØ¯Ù†'});
-    const name=String(value||'').trim().slice(0,60);if(!name){restoreTaskDraft(draft);return''}
-    const existing=state[field].find(x=>x.toLocaleLowerCase()===name.toLocaleLowerCase());
-    if(existing){restoreTaskDraft(draft);syncSelectors();if(targetId&&$(targetId))$(targetId).value=existing;notify('Ø§ÛŒÙ† Ù†Ø§Ù… Ø§Ø² Ù‚Ø¨Ù„ ÙˆØ¬ÙˆØ¯ Ø¯Ø§Ø±Ø¯Ø› Ù‡Ù…Ø§Ù† Ù…ÙˆØ±Ø¯ Ø§Ù†ØªØ®Ø§Ø¨ Ø´Ø¯.');return existing}
-    state[field].push(name);writeState(state);restoreTaskDraft(draft);syncSelectors();if(targetId&&$(targetId))$(targetId).value=name;
-    notify(kind==='list'?'Ù„ÛŒØ³Øª Ø³Ø§Ø®ØªÙ‡ Ùˆ Ø§Ù†ØªØ®Ø§Ø¨ Ø´Ø¯.':kind==='folder'?'Ù¾ÙˆØ´Ù‡ Ø³Ø§Ø®ØªÙ‡ Ùˆ Ø§Ù†ØªØ®Ø§Ø¨ Ø´Ø¯.':'Ø¨Ø±Ú†Ø³Ø¨ Ø³Ø§Ø®ØªÙ‡ Ùˆ Ø§Ù†ØªØ®Ø§Ø¨ Ø´Ø¯.');return name;
-  }
-  function openTaskComposer({focus=true}={}){
-    const form=$('task-form');if(!form)return;form.hidden=false;form.dataset.elaraTaskComposer='open';
-    form.scrollIntoView({behavior:'smooth',block:'start'});if(focus)setTimeout(()=>$('task-title')?.focus(),40);
-  }
-  function closeTaskTools(){const menu=$('elara-task-tools-menu'),toggle=$('elara-task-tools-toggle');if(menu)menu.hidden=true;if(toggle)toggle.setAttribute('aria-expanded','false')}
-  function toggleTaskTools(){const menu=$('elara-task-tools-menu'),toggle=$('elara-task-tools-toggle');if(!menu||!toggle)return;menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden))}
-  async function handleTaskTools(action){
-    if(action==='filter'){closeTaskTools();document.querySelector('#panel-tasks .list-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('task-search')?.focus(),80);return}
-    const target={list:'task-list-name',folder:'task-folder',tag:'task-tag'}[action];if(!target)return;
-    openTaskComposer({focus:false});closeTaskTools();await inlineCreate(action,target);setTimeout(()=>$(target)?.focus(),40);
-  }
+    if(end&&daysBetween(start,end)>1830)throw new Error('Ø¨Ø§Ø²Ù‡Ù” Ø²È="24XÚ™\Ù]ÊZ[]\ÊNÜ™[™\‘›Øİ\Ò\İÜJ
+NÂˆBˆ[˜İ[Ûˆ™[™\‘›Øİ\Ò\İÜJ
+^ÂˆÛÛœİÜİI
+	Ù›Øİ\Ë\Ù\ÜÚ[ÛœÉÊNÚYŠZÜİ
+\™]\›ØÛÛœİ›İÜÏY›Øİ\Ôİ]J
+K™›Øİ\ÔÙ\ÜÚ[ÛœËœÛXÙJN
+Kœ™]™\œÙJ
+NÂˆÜİš[›™\’S\›İÜË›[™İÜ›İÜË›X\
+ÏO˜]ˆÛ\ÜÏH™[\˜KZ][H]İ›Û™Ï‰ÜËYÏÙ\ØÊËYÊN‰ö*¶av,vªv,ˆ6.vavb6avã	ßOÜİ›Û™ÏÛX[‰Ó˜]\‘\ØØ\YOÜÛX[Ù]Ü[‰Ù˜JË™\˜][Û“Z[Š_H6+ö`¶ã6`¶!H0­ø +H	Û™]È]JË™[™Y]Ëœİ\Y]
+KÓØØ[Q]Tİš[™Ê	Ù˜KRT‰Ê_OÜÜ[Ù]˜
+Kš›Ú[Š	ÉÊN‰ÏÛ\ÜÏH›]]Y¶aöa¶b6,ˆ6+6a6,öaø #6)öã6*¶av,vªv,¶ã6*¶av)öa8 #6-6+öaø #6)öã6a¶+ö)ö,vãÜ‰ÎÂˆBˆ[˜İ[Ûˆ[Y\•^
+ÙXÊ^Ü™]\›ˆ	Ôİš[™ÊX]™›ÛÜŠÙXËÍŒ
+JKœYİ\
+‹	Ì	Ê_N‰Ôİš[™ÊX]›X^
+ÙXÉMŒ
+JKœYİ\
+‹	Ì	Ê_XBˆ[˜İ[Ûˆš[š\Ú›Øİ\ÊXİ]™J^ÂˆÛX\’[\˜[
+›Øİ\Ò[\˜[
+NÙ›Øİ\Ò[\˜[[[ØÛÛœİİ]OY›Øİ\Ôİ]J
+Kİ\œ™[\İ]K˜Xİ]™Q›Øİ\ÎÂˆYŠXİ\œ™[İ\œ™[šYOOXXİ]™KšY
+\™]\›ÂˆYŠ\İ]K™›Øİ\ÔÙ\ÜÚ[ÛœËœÛÛYJÏOœËšYOOXXİ]™KšY
+J^Üİ]K™›Øİ\ÔÙ\ÜÚ[ÛœËœ\Ú
+ÚY˜Xİ]™KšYİ\Y]˜Xİ]™Kœİ\Y][™Y]‘]K››İÊ
+K\˜][Û“Z[˜Xİ]™K™\˜][Û“Z[‹YÎ˜Xİ]™KYß	ÉËÛÛ\]YY_JNÜİ]K™›Øİ\ÔÙ\ÜÚ[ÛœÏ\İ]K™›Øİ\ÔÙ\ÜÚ[ÛœËœÛXÙJLŒ
+NÜİ]KS[X™\Šİ]K
+JÌM_Bˆİ]K˜Xİ]™Q›Øİ\Ï[[İÜš]Tİ]Jİ]JNÛ›İYJ	Ù˜JXİ]™K™\˜][Û“Z[Š_H6+ö`¶ã6`¶aÈ6*¶av,vªv,ˆ6ªv)öava6-6+ÎÈ6ìvíH6«ö,v`v*¶ã˜
+NÂˆBˆ[˜İ[Ûˆ\]Q›Øİ\Ñ\Ü^J
+^ÂˆÛÛœİİ]OY›Øİ\Ôİ]J
+KO\İ]K˜Xİ]™Q›Øİ\Ë\Ü^OI
+	İ[Y\‹Y\Ü^IÊNÚYŠY\Ü^J\™]\›ÂˆYŠXJ^ØÛÛœİÙXÏY›Øİ\ÔÙ[XİYZ[]\Ê
+JŒÙ\Ü^K^ÛÛ[][Y\•^
+ÙXÊNÉ
+	Ù›Øİ\Ë\İ]\ÉÊK^ÛÛ[Iö(¶av)ö+öaöe6*¶av,vªv,‰ÎÉ
+	İ[Y\‹\İ\	ÊK^ÛÛ[Iö-6,vb6.IÎÙ›Øİ\ĞÛÛ›ÛÊ˜[ÙJNÜ™]\›ŸBˆÛÛœİÙXÏXKœİ]\ÏOOIÜ[›š[™ÉÏÓX]›X^
+X]˜ÙZ[
 
-  function recurrenceMarkup(prefix){
-    return `<div class="recurrence-box"><label class="recurrence-toggle"><input id="${prefix}-recurrence" type="checkbox"> ØªÚ©Ø±Ø§Ø± Ø²Ù…Ø§Ù†â€ŒØ¨Ù†Ø¯ÛŒâ€ŒØ´Ø¯Ù‡</label><div id="${prefix}-recurrence-options" class="recurrence-options hidden"><div class="weekday-picks">${weekOrder.map(d=>`<label><input type="checkbox" name="${prefix}-weekday" value="${d}"><span>${weekNames[d]}</span></label>`).join('')}</div><div class="recurrence-actions"><button type="button" class="quiet-button" data-weekdays-all="${prefix}">Ù‡Ø± Ø±ÙˆØ²</button><label>Ù¾Ø§ÛŒØ§Ù† <input id="${prefix}-recurrence-end" type="date"></label><label class="no-end"><input id="${prefix}-recurrence-no-end" type="checkbox"> Ø¨Ø¯ÙˆÙ† ØªØ§Ø±ÛŒØ® Ù¾Ø§ÛŒØ§Ù†</label></div><small class="muted">ØªÚ©Ù…ÛŒÙ„ Ù‡Ø± Ù†ÙˆØ¨Øª Ø¬Ø¯Ø§ Ø«Ø¨Øª Ù…ÛŒâ€ŒØ´ÙˆØ¯Ø› Ø³Ø±ÛŒ Ø¨ÛŒâ€ŒÙ†Ù‡Ø§ÛŒØª Ø±Ú©ÙˆØ±Ø¯ ØªÙˆÙ„ÛŒØ¯ Ù†Ù…ÛŒâ€ŒÚ©Ù†Ø¯.</small></div></div>`;
-  }
-  function injectUI(){
-    if(!$('task-recurrence')){
-      const taskForm=$('task-form'),grid=taskForm?.querySelector('.form-grid');
-      const folder=$('task-folder'),tag=$('task-tag');
-      if(grid&&!$('task-list-name'))grid.insertAdjacentHTML('beforeend','<div class="task-list-field"><label for="task-list-name">Ù„ÛŒØ³Øª</label><select id="task-list-name"></select><button type="button" class="mini-create" data-phase2-create="list" data-phase2-target="task-list-name">+ Ø¬Ø¯ÛŒØ¯</button></div>');
-      if(folder&&!folder.nextElementSibling?.matches('[data-phase2-create]'))folder.insertAdjacentHTML('afterend','<button type="button" class="mini-create" data-phase2-create="folder" data-phase2-target="task-folder">+ Ø¬Ø¯ÛŒØ¯</button>');
-      if(tag&&!tag.nextElementSibling?.matches('[data-phase2-create]'))tag.insertAdjacentHTML('afterend','<button type="button" class="mini-create" data-phase2-create="tag" data-phase2-target="task-tag">+ Ø¬Ø¯ÛŒØ¯</button>');
-      const dueLabel=document.querySelector('label[for="task-due"]');if(dueLabel)dueLabel.textContent='ØªØ§Ø±ÛŒØ® Ø´Ø±ÙˆØ¹ / Ø§Ù†Ø¬Ø§Ù…';
-      grid?.insertAdjacentHTML('afterend','<div class="task-description-fields"><label for="task-short-description">ØªÙˆØ¶ÛŒØ­ Ú©ÙˆØªØ§Ù‡<textarea id="task-short-description" maxlength="280" rows="2" placeholder="ÛŒÚ© Ø®Ù„Ø§ØµÙ‡Ù” Ú©ÙˆØªØ§Ù‡ Ø¨Ø±Ø§ÛŒ Ù„ÛŒØ³Øª ØªØ³Ú©â€¦"></textarea></label><label for="task-description">ØªÙˆØ¶ÛŒØ­Ø§Øª Ú©Ø§Ù…Ù„<textarea id="task-description" maxlength="4000" rows="5" placeholder="Ø¬Ø²Ø¦ÛŒØ§Øª Ú©Ø§Ù…Ù„ØŒ Ù†Ú©ØªÙ‡â€ŒÙ‡Ø§ØŒ Ù…Ø±Ø§Ø­Ù„ ÛŒØ§ Ù‡Ø± Ú†ÛŒØ²ÛŒ Ú©Ù‡ Ø¨Ø±Ø§ÛŒ Ø§ÛŒÙ† ØªØ³Ú© Ù„Ø§Ø²Ù… Ø¯Ø§Ø±ÛŒâ€¦"></textarea></label></div>');
-      taskForm?.querySelector('.task-description-fields')?.insertAdjacentHTML('afterend',recurrenceMarkup('task'));
-      const filters=taskForm?.parentElement?.querySelector('.filters');
-      if(filters&&!$('task-list-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-list-filter">ÙÛŒÙ„ØªØ± Ù„ÛŒØ³Øª</label><select id="task-list-filter"><option value="">Ù‡Ù…Ù‡Ù” Ù„ÛŒØ³Øªâ€ŒÙ‡Ø§</option></select>');
-      if(filters&&!$('task-priority-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-priority-filter">ÙÛŒÙ„ØªØ± Ø§ÙˆÙ„ÙˆÛŒØª</label><select id="task-priority-filter"><option value="">Ù‡Ù…Ù‡Ù” Ø§ÙˆÙ„ÙˆÛŒØªâ€ŒÙ‡Ø§</option><option value="1">ÙÙˆØ±ÛŒ Â· P1</option><option value="2">Ø¨Ø§Ù„Ø§ Â· P2</option><option value="3">Ù…ØªÙˆØ³Ø· Â· P3</option><option value="4">Ø¹Ø§Ø¯ÛŒ Â· P4</option></select>');
-      const priority=$('task-priority');if(priority)priority.innerHTML='<option value="4">Ø¹Ø§Ø¯ÛŒ Â· P4 Â· Ø®Ø§Ú©Ø³ØªØ±ÛŒ</option><option value="3">Ù…ØªÙˆØ³Ø· Â· P3 Â· Ø¢Ø¨ÛŒ</option><option value="2">Ø¨Ø§Ù„Ø§ Â· P2 Â· Ø²Ø±Ø¯</option><option value="1">ÙÙˆØ±ÛŒ Â· P1 Â· Ù‚Ø±Ù…Ø²</option>';
-    }
-    const taskPanel=$('panel-tasks'),taskForm=$('task-form'),heading=taskPanel?.querySelector('.section-heading');
-    if(heading&&!$('elara-task-page-actions')){const actions=document.createElement('div');actions.id='elara-task-page-actions';actions.className='elara-task-page-actions';actions.innerHTML='<button id="elara-task-add-main" type="button" class="elara-task-add-main" aria-label="Ø§ÙØ²ÙˆØ¯Ù† ØªØ³Ú© Ø¬Ø¯ÛŒØ¯"><span aria-hidden="true">+</span><strong>Ø§ÙØ²ÙˆØ¯Ù† ØªØ³Ú©</strong></button><button id="elara-task-tools-toggle" type="button" class="elara-task-tools-toggle" aria-label="Ù…Ù†ÙˆÛŒ Ø¨ÛŒØ´ØªØ± ØªØ³Ú©â€ŒÙ‡Ø§" aria-haspopup="menu" aria-expanded="false">â‹¯</button>';heading.append(actions)}
-    if(taskPanel&&!$('elara-task-tools-menu')){const menu=document.createElement('div');menu.id='elara-task-tools-menu';menu.className='elara-task-tools-menu';menu.setAttribute('role','menu');menu.hidden=true;menu.innerHTML='<strong>Ù…Ø¯ÛŒØ±ÛŒØª ØªØ³Ú©â€ŒÙ‡Ø§</strong><button type="button" role="menuitem" data-task-tools="list">Ø³Ø§Ø®Øª Ù„ÛŒØ³Øª</button><button type="button" role="menuitem" data-task-tools="folder">Ø³Ø§Ø®Øª Ù¾ÙˆØ´Ù‡</button><button type="button" role="menuitem" data-task-tools="tag">Ø³Ø§Ø®Øª ØªÚ¯</button><button type="button" role="menuitem" data-task-tools="filter">ÙÛŒÙ„ØªØ±</button>';taskPanel.append(menu)}
-    if(taskForm&&!taskForm.dataset.elaraTaskComposer){taskForm.hidden=true;taskForm.dataset.elaraTaskComposer='closed'}
-    if(!$('habit-recurrence')){
-      const form=$('habit-form');form?.classList.add('phase2-habit-form');
-      form?.insertAdjacentHTML('beforeend','<button id="habit-cancel" class="quiet-button hidden" type="button">Ù„ØºÙˆ ÙˆÛŒØ±Ø§ÛŒØ´</button><label class="phase2-date-label" for="habit-start">Ø´Ø±ÙˆØ¹</label><input id="habit-start" type="date">');
-      form?.insertAdjacentHTML('beforeend',recurrenceMarkup('habit'));
-    }
-    if(!$('focus-duration')){
-      const card=$('panel-focus')?.querySelector('.focus-card'),status=$('focus-status');const hint=card?.querySelector('.muted');if(hint)hint.textContent='Ù…Ø¯Øª ØªÙ…Ø±Ú©Ø² Ùˆ Ø¨Ø±Ú†Ø³Ø¨ Ø±Ø§ Ù‚Ø¨Ù„ Ø§Ø² Ø´Ø±ÙˆØ¹ Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ù†Ø› Ø¬Ù„Ø³Ù‡Ù” ÙØ¹Ø§Ù„ Ø¨Ø§ Ø¬Ø§Ø¨Ù‡â€ŒØ¬Ø§ÛŒÛŒ Ø¨ÛŒÙ† ØµÙØ­Ù‡â€ŒÙ‡Ø§ Ùˆ Refresh Ø§Ø² Ø¨ÛŒÙ† Ù†Ù…ÛŒâ€ŒØ±ÙˆØ¯.';
-      status?.insertAdjacentHTML('afterend','<div class="focus-config"><div><label for="focus-duration">Ù…Ø¯Øª ØªÙ…Ø±Ú©Ø² (Ø¯Ù‚ÛŒÙ‚Ù‡)</label><div class="focus-presets"><button type="button" data-focus-preset="15">Û±Ûµ</button><button type="button" data-focus-preset="25">Û²Ûµ</button><button type="button" data-focus-preset="45">Û´Ûµ</button><button type="button" data-focus-preset="60">Û¶Û°</button><input id="focus-duration" type="number" min="1" max="180" value="25" inputmode="numeric"></div></div><div><label for="focus-tag">Ø¨Ø±Ú†Ø³Ø¨ Ø¬Ù„Ø³Ù‡</label><div class="focus-tag-row"><select id="focus-tag"></select><button type="button" class="mini-create" data-phase2-create="tag" data-phase2-target="focus-tag">+ Ø¬Ø¯ÛŒØ¯</button></div></div></div>');
-      card?.insertAdjacentHTML('afterend','<section class="surface focus-history-card"><h2>ØªØ§Ø±ÛŒØ®Ú†Ù‡Ù” ØªÙ…Ø±Ú©Ø²</h2><p class="muted">Ø¬Ù„Ø³Ù‡â€ŒÙ‡Ø§ÛŒ ØªÚ©Ù…ÛŒÙ„â€ŒØ´Ø¯Ù‡ Ø¨Ø§ Ù…Ø¯Øª Ùˆ Ø¨Ø±Ú†Ø³Ø¨ Ø°Ø®ÛŒØ±Ù‡ Ù…ÛŒâ€ŒØ´ÙˆÙ†Ø¯.</p><div id="focus-history" class="focus-history"></div></section>');
-    }
-    syncSelectors();
-    if($('habit-start')&&!$('habit-start').value)$('habit-start').value=today();
-  }
+[X™\ŠK™[™]
+KQ]K››İÊ
+JKÌL
+JN“X]›X^
+[X™\ŠKœ™[XZ[š[™ÔÙXÊ_
+NÂˆ\Ü^K^ÛÛ[][Y\•^
+ÙXÊNÉ
+	Ù›Øİ\Ë\İ]\ÉÊK^ÛÛ[XKœİ]\ÏOOIÜ[›š[™ÉÏØ6+ö,H6+v)öa6*¶av,vªv,‰ØKYÏÉÈ0­ÈÉÊØKYÎ‰ÉßX‰öavªv*ÉÎÉ
+	İ[Y\‹\İ\	ÊK^ÛÛ[XKœİ]\ÏOOIÜ[›š[™ÉÏÉöavªv*ÉÎ‰ö)ö+ö)öavaÉÎÙ›Øİ\ĞÛÛ›ÛÊYJNÂˆYŠKœİ]\ÏOOIÜ[›š[™ÉÉ‰œÙXÏL
+Yš[š\Ú›Øİ\ÊJNÂˆBˆ[˜İ[Ûˆ™\İÜ™Q›Øİ\Ê
+^ÂˆÛX\’[\˜[
+›Øİ\Ò[\˜[
+NÙ›Øİ\Ò[\˜[[[ØÛÛœİİ]OY›Øİ\Ôİ]J
+KO\İ]K˜Xİ]™Q›Øİ\ÎÂˆŞ[˜ÔÙ[XİÜœÊ
+NÚYŠJ^ÚYŠ	
+	Ù›Øİ\ËY\˜][Û‰ÊJI
+	Ù›Øİ\ËY\˜][Û‰ÊK˜[YOXK™\˜][Û“Z[ŸNÚYŠ	
+	Ù›Øİ\Ë]YÉÊJI
+	Ù›Øİ\Ë]YÉÊK˜[YOXKYß	ÉßBˆ\]Q›Øİ\Ñ\Ü^J
+NÚYŠOËœİ]\ÏOOIÜ[›š[™ÉÉ‰“[X™\ŠK™[™]
+O‘]K››İÊ
+JY›Øİ\Ò[\˜[\Ù][\˜[
+\]Q›Øİ\Ñ\Ü^KL
+NÜ™[™\‘›Øİ\Ò\İÜJ
+NÂˆBˆ[˜İ[ÛˆÙÙÛQ›Øİ\Ê
+^ÂˆÛÛœİİ]OY›Øİ\Ôİ]J
+KO\İ]K˜Xİ]™Q›Øİ\ÎÂˆYŠOËœİ]\ÏOOIÜ[›š[™ÉÊ^ØKœ™[XZ[š[™ÔÙXÏSX]›X^
+X]˜ÙZ[
 
-  function renderTasks(){
-    const state=ensureState(readState()),list=$('task-list');if(!list)return;
-    const now=today(),search=($('task-search')?.value||'').trim().toLocaleLowerCase(),filter=$('task-filter')?.value||'all',listName=$('task-list-filter')?.value||'',folder=$('task-folder-filter')?.value||'',tag=$('task-tag-filter')?.value||'',priority=$('task-priority-filter')?.value||'';
-    const visible=state.tasks.filter(t=>{
-      const v=taskView(t,now),done=taskDone(t,now),todayDue=t.recurrenceRule?applies(t,now):t.date===now,rule=safeRule(t.recurrenceRule,t.date),expired=!!(rule?.endDate&&rule.endDate<now);
-      const hay=[v.text||t.text,v.shortDescription||t.shortDescription,v.description||t.description,v.list||t.list,v.tag||t.tag,v.folder||t.folder].map(x=>String(x||'').toLocaleLowerCase());
-      return (!search||hay.some(x=>x.includes(search)))&&(!listName||v.list===listName)&&(!folder||v.folder===folder)&&(!tag||v.tag===tag)&&(!priority||String(v.priority)===priority)&&(
-        filter==='all'||filter==='active'&&!done&&!expired||filter==='completed'&&done||filter==='today'&&todayDue||filter==='overdue'&&!t.recurrenceRule&&!t.completed&&t.date&&t.date<now
-      );
-    }).sort((a,b)=>Number(taskDone(a,now))-Number(taskDone(b,now))||Number(taskView(a,now).priority)-Number(taskView(b,now).priority)||(a.date||'9999').localeCompare(b.date||'9999'));
-    list.innerHTML=visible.map(t=>{
-      const v=taskView(t,now),done=taskDone(t,now),scheduled=!t.recurrenceRule||applies(t,now),p=priorityMeta[String(v.priority)]||priorityMeta['4'];
-      return `<li class="item priority-${esc(v.priority||'4')} ${done?'done':''}"><button class="check-button" type="button" data-phase2-action="toggle-task" data-id="${esc(t.id)}" aria-pressed="${done}" ${!scheduled?'disabled':''} aria-label="${scheduled?(done?'Ø¨Ø§Ø²Ú¯Ø±Ø¯Ø§Ù†Ø¯Ù†':'ØªÚ©Ù…ÛŒÙ„'):'Ø§Ù…Ø±ÙˆØ² Ø¨Ø±Ù†Ø§Ù…Ù‡â€ŒØ±ÛŒØ²ÛŒ Ù†Ø´Ø¯Ù‡'} ${esc(v.text||t.text)}">${done?'<img class="elara-check-art" src="assets/ui/icon-tasks-check-alpha.webp" alt="" decoding="async">':''}</button><div class="item-content"><button class="task-summary-button" type="button" data-phase2-action="view-task" data-id="${esc(t.id)}"><div class="item-title">${esc(v.text||t.text)}</div>${(v.shortDescription||t.shortDescription)?`<div class="task-short-description">${esc(v.shortDescription||t.shortDescription)}</div>`:''}</button><div class="item-meta"><span class="priority-badge ${p.className}">${p.label} Â· P${esc(v.priority||'4')}</span>${t.recurrenceRule?`<span>â†» ${esc(recurrenceLabel(t.recurrenceRule))}</span>`:(t.date?`<span class="${!t.completed&&t.date<now?'overdue':''}">Ø²Ù…Ø§Ù†: ${esc(labelDate(t.date))}${v.time?' Â· '+esc(v.time):''}</span>`:'')}${v.list?`<span>Ù„ÛŒØ³Øª: ${esc(v.list)}</span>`:''}${v.folder?`<span>Ù¾ÙˆØ´Ù‡: ${esc(v.folder)}</span>`:''}${v.tag?`<span>#${esc(v.tag)}</span>`:''}</div></div><div class="item-actions"><button class="mini-button" type="button" data-phase2-action="edit-task" data-id="${esc(t.id)}">ÙˆÛŒØ±Ø§ÛŒØ´ Ø¯Ø± ÙØ±Ù…</button><button class="mini-button danger" type="button" data-phase2-action="delete-task" data-id="${esc(t.id)}">Ø­Ø°Ù</button></div></li>`;
-    }).join('');
-    $('task-empty')?.classList.toggle('hidden',visible.length!==0);
-    if($('task-visible-count'))$('task-visible-count').textContent=fa(visible.length);
-    const activeDone=state.tasks.filter(t=>taskDone(t,now)).length,doneCount=completedTodayCount(state,now),activeIds=new Set(state.tasks.map(t=>t.id)),archivedDone=state.taskCompletionHistory.filter(x=>x.date===now&&!activeIds.has(x.taskId)).length,total=state.tasks.length+archivedDone,pct=total?Math.round(doneCount/total*100):0;
-    if($('stat-total'))$('stat-total').textContent=fa(total);if($('stat-done'))$('stat-done').textContent=fa(doneCount);if($('stat-pending'))$('stat-pending').textContent=fa(Math.max(0,state.tasks.length-activeDone));if($('stat-progress'))$('stat-progress').textContent=fa(Math.min(100,pct))+'Ùª';if($('progress-bar'))$('progress-bar').style.width=Math.min(100,pct)+'%';
-  }
-  function resetTaskForm(){
-    editingTask=null;editingTaskScope='series';const f=$('task-form');f?.reset();if(f){f.hidden=true;f.dataset.elaraTaskComposer='closed'}if($('task-form-heading'))$('task-form-heading').textContent='ØªØ³Ú© Ø¬Ø¯ÛŒØ¯';if($('task-submit'))$('task-submit').textContent='+ Ø§ÙØ²ÙˆØ¯Ù†';$('task-cancel')?.classList.add('hidden');if($('task-short-description'))$('task-short-description').value='';if($('task-description'))$('task-description').value='';setRuleForm('task',null,today());syncRecurrenceVisibility('task');
-  }
-  function fillTaskForm(task,scope){
-    const v=scope==='occurrence'?taskView(task,today()):task;editingTask=task.id;editingTaskScope=scope;openTaskComposer({focus:false});$('task-title').value=v.text||task.text||'';if($('task-short-description'))$('task-short-description').value=v.shortDescription||task.shortDescription||'';if($('task-description'))$('task-description').value=v.description||task.description||'';$('task-due').value=scope==='future'?today():(task.date||today());$('task-time').value=v.time||'';$('task-priority').value=String(v.priority||'4');syncSelectors();if($('task-list-name'))$('task-list-name').value=v.list||'';$('task-folder').value=v.folder||'';$('task-tag').value=v.tag||'';setRuleForm('task',task.recurrenceRule,task.date||today());syncRecurrenceVisibility('task');$('task-form-heading').textContent=scope==='occurrence'?'ÙˆÛŒØ±Ø§ÛŒØ´ ÙÙ‚Ø· Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ²':scope==='future'?'ÙˆÛŒØ±Ø§ÛŒØ´ Ø§Ø² Ø§Ù…Ø±ÙˆØ² Ø¨Ù‡ Ø¨Ø¹Ø¯':'ÙˆÛŒØ±Ø§ÛŒØ´ ØªØ³Ú©';$('task-submit').textContent='Ø°Ø®ÛŒØ±Ù‡';$('task-cancel').classList.remove('hidden');$('task-form').scrollIntoView({behavior:'smooth',block:'center'});$('task-title').focus();
-  }
-  function submitTask(){
-    const state=ensureState(readState()),text=String($('task-title').value||'').trim().slice(0,180);if(!text)return;const date=$('task-due').value||'',fields={text,shortDescription:String($('task-short-description')?.value||'').trim().slice(0,280),description:String($('task-description')?.value||'').trim().slice(0,4000),date,time:$('task-time').value||'',priority:$('task-priority').value||'4',list:$('task-list-name')?.value||'',folder:$('task-folder').value||'',tag:$('task-tag').value||''};let rule=null;try{rule=ruleFromForm('task',date||today())}catch(e){notify(e.message);return}if(rule&&!fields.date)fields.date=rule.startDate;
-    if(editingTask){const task=state.tasks.find(t=>t.id===editingTask);if(!task)return resetTaskForm();if(editingTaskScope==='occurrence'){task.occurrenceOverrides=task.occurrenceOverrides&&typeof task.occurrenceOverrides==='object'?task.occurrenceOverrides:{};task.occurrenceOverrides[today()]={text:fields.text,shortDescription:fields.shortDescription,description:fields.description,time:fields.time,priority:fields.priority,list:fields.list,folder:fields.folder,tag:fields.tag};}else{if(editingTaskScope==='future'&&rule)rule.startDate=today();Object.assign(task,fields,{recurrenceRule:rule});}notify('ØªØ³Ú© ÙˆÛŒØ±Ø§ÛŒØ´ Ø´Ø¯.');}else{state.tasks.unshift({id:makeId(),...fields,completed:false,doneAt:null,xpAwarded:false,createdAt:Date.now(),recurrenceRule:rule,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{}});notify('ØªØ³Ú© Ø§Ø¶Ø§ÙÙ‡ Ø´Ø¯.');}
-    writeState(state);resetTaskForm();renderTasks();
-  }
-  async function openTaskDetails(task){
-    const state=ensureState(readState()),wrap=document.createElement('form');wrap.className='task-detail-form';const rule=safeRule(task.recurrenceRule,task.date||today()),weekdays=rule?.weekdays||[];
-    wrap.innerHTML=`<label class="wide">Ø¹Ù†ÙˆØ§Ù†<input data-detail="text" maxlength="180" required value="${esc(task.text||'')}"></label><label class="wide">ØªÙˆØ¶ÛŒØ­ Ú©ÙˆØªØ§Ù‡<textarea data-detail="shortDescription" maxlength="280" rows="2">${esc(task.shortDescription||'')}</textarea></label><label class="wide">ØªÙˆØ¶ÛŒØ­Ø§Øª Ú©Ø§Ù…Ù„<textarea data-detail="description" maxlength="4000" rows="6">${esc(task.description||'')}</textarea></label><label>ØªØ§Ø±ÛŒØ® Ø´Ø±ÙˆØ¹ / Ø§Ù†Ø¬Ø§Ù…<input data-detail="date" type="date" value="${esc(task.date||'')}"></label><label>Ø³Ø§Ø¹Øª<input data-detail="time" type="time" value="${esc(task.time||'')}"></label><label>Ø§ÙˆÙ„ÙˆÛŒØª<select data-detail="priority"><option value="1">ÙÙˆØ±ÛŒ Â· P1</option><option value="2">Ø¨Ø§Ù„Ø§ Â· P2</option><option value="3">Ù…ØªÙˆØ³Ø· Â· P3</option><option value="4">Ø¹Ø§Ø¯ÛŒ Â· P4</option></select></label><label>Ù„ÛŒØ³Øª<select data-detail="list"><option value="">Ø¨Ø¯ÙˆÙ† Ù„ÛŒØ³Øª</option>${state.taskLists.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>Ù¾ÙˆØ´Ù‡<select data-detail="folder"><option value="">Ø¨Ø¯ÙˆÙ† Ù¾ÙˆØ´Ù‡</option>${state.folders.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>Ø¨Ø±Ú†Ø³Ø¨<select data-detail="tag"><option value="">Ø¨Ø¯ÙˆÙ† Ø¨Ø±Ú†Ø³Ø¨</option>${state.tags.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><div class="task-detail-recurrence"><label class="recurrence-toggle"><input data-detail="recurrence" type="checkbox" ${rule?'checked':''}> ØªÚ©Ø±Ø§Ø± Ø²Ù…Ø§Ù†â€ŒØ¨Ù†Ø¯ÛŒâ€ŒØ´Ø¯Ù‡</label><div class="weekday-picks">${weekOrder.map(d=>`<label><input data-detail-weekday type="checkbox" value="${d}" ${weekdays.includes(d)?'checked':''}><span>${weekNames[d]}</span></label>`).join('')}</div><div class="recurrence-actions"><label>Ù¾Ø§ÛŒØ§Ù† <input data-detail="endDate" type="date" value="${esc(rule?.endDate||'')}" ${rule&&!rule.endDate?'disabled':''}></label><label class="no-end"><input data-detail="noEnd" type="checkbox" ${rule&&!rule.endDate?'checked':''}> Ø¨Ø¯ÙˆÙ† ØªØ§Ø±ÛŒØ® Ù¾Ø§ÛŒØ§Ù†</label></div></div>`;
-    wrap.querySelector('[data-detail="priority"]').value=String(task.priority||'4');wrap.querySelector('[data-detail="list"]').value=task.list||'';wrap.querySelector('[data-detail="folder"]').value=task.folder||'';wrap.querySelector('[data-detail="tag"]').value=task.tag||'';
-    const recurrence=wrap.querySelector('[data-detail="recurrence"]'),end=wrap.querySelector('[data-detail="endDate"]'),noEnd=wrap.querySelector('[data-detail="noEnd"]');noEnd.addEventListener('change',()=>{end.disabled=noEnd.checked;if(noEnd.checked)end.value=''});
-    const save=await window.ElaraDialog.open({title:'Ø¬Ø²Ø¦ÛŒØ§Øª Ùˆ ÙˆÛŒØ±Ø§ÛŒØ´ ØªØ³Ú©',content:wrap,wide:true,actions:[{label:'Ø¨Ø³ØªÙ†',value:false},{label:'Ø°Ø®ÛŒØ±Ù‡ ØªØºÛŒÛŒØ±Ø§Øª',value:true,kind:'primary'}]});if(save!==true)return;
-    const text=String(wrap.querySelector('[data-detail="text"]').value||'').trim().slice(0,180);if(!text){notify('Ø¹Ù†ÙˆØ§Ù† ØªØ³Ú© Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯.');return}const date=wrap.querySelector('[data-detail="date"]').value||'';const newRule=recurrence.checked?{weekdays:[...wrap.querySelectorAll('[data-detail-weekday]:checked')].map(x=>Number(x.value)),startDate:date||today(),endDate:noEnd.checked?null:(end.value||null),timezone:timezone()}:null;if(newRule&&!newRule.weekdays.length){notify('Ø¨Ø±Ø§ÛŒ ØªÚ©Ø±Ø§Ø± Ø­Ø¯Ø§Ù‚Ù„ ÛŒÚ© Ø±ÙˆØ² Ù‡ÙØªÙ‡ Ø±Ø§ Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ù†.');return}
-    Object.assign(task,{text,shortDescription:String(wrap.querySelector('[data-detail="shortDescription"]').value||'').trim().slice(0,280),description:String(wrap.querySelector('[data-detail="description"]').value||'').trim().slice(0,4000),date,time:wrap.querySelector('[data-detail="time"]').value||'',priority:wrap.querySelector('[data-detail="priority"]').value||'4',list:wrap.querySelector('[data-detail="list"]').value||'',folder:wrap.querySelector('[data-detail="folder"]').value||'',tag:wrap.querySelector('[data-detail="tag"]').value||'',recurrenceRule:newRule});writeState(state);renderTasks();notify('Ø¬Ø²Ø¦ÛŒØ§Øª ØªØ³Ú© Ø°Ø®ÛŒØ±Ù‡ Ø´Ø¯.');
-  }
-  async function taskAction(action,id){
-    const state=ensureState(readState()),task=state.tasks.find(t=>t.id===id);if(!task)return;const now=today();
-    if(action==='toggle-task'){if(task.recurrenceRule){if(!applies(task,now)){notify('Ø§ÛŒÙ† ØªØ³Ú© Ø¨Ø±Ø§ÛŒ Ø§Ù…Ø±ÙˆØ² Ø¨Ø±Ù†Ø§Ù…Ù‡â€ŒØ±ÛŒØ²ÛŒ Ù†Ø´Ø¯Ù‡.');return}task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);if(task.occurrenceDone.includes(now)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now)}else{task.occurrenceDone.push(now);recordCompletion(state,task,now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}}else{const oldDate=task.doneAt;task.completed=!task.completed;task.doneAt=task.completed?now:null;if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}else if(oldDate){removeCompletion(state,task,oldDate)}}writeState(state);renderTasks();return;}
-    if(action==='view-task'){await openTaskDetails(task);return}
-    if(action==='edit-task'){let scope='series';if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'ÙˆÛŒØ±Ø§ÛŒØ´ ØªØ³Ú© ØªÚ©Ø±Ø§Ø±Ø´ÙˆÙ†Ø¯Ù‡',message:'Ù…ÛŒâ€ŒØ®ÙˆØ§Ù‡ÛŒ ØªØºÛŒÛŒØ± Ø¨Ø±Ø§ÛŒ Ú©Ø¯Ø§Ù… Ø¨Ø®Ø´ Ø§Ø¹Ù…Ø§Ù„ Ø´ÙˆØ¯ØŸ',options:[{label:'ÙÙ‚Ø· Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ²',value:'occurrence'},{label:'Ø§Ø² Ø§Ù…Ø±ÙˆØ² Ø¨Ù‡ Ø¨Ø¹Ø¯',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillTaskForm(task,scope);return;}
-    if(action==='delete-task'){if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'Ø­Ø°Ù ØªØ³Ú© ØªÚ©Ø±Ø§Ø±Ø´ÙˆÙ†Ø¯Ù‡',message:'Ú©Ø¯Ø§Ù… Ø¨Ø®Ø´ Ø­Ø°Ù Ø´ÙˆØ¯ØŸ',options:[{label:'ÙÙ‚Ø· Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ²',value:'occurrence'},{label:'Ú©Ù„ Ø³Ø±ÛŒ',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){task.skippedDates=dateList(task.skippedDates);if(!task.skippedDates.includes(now))task.skippedDates.push(now);task.occurrenceDone=dateList(task.occurrenceDone).filter(x=>x!==now);writeState(state);renderTasks();notify('Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ² Ø­Ø°Ù Ø´Ø¯.');return}}if(await window.ElaraDialog.confirm(task.recurrenceRule?'Ú©Ù„ Ø³Ø±ÛŒ Ø§ÛŒÙ† ØªØ³Ú© Ø­Ø°Ù Ø´ÙˆØ¯ØŸ':'Ø§ÛŒÙ† ØªØ³Ú© Ø­Ø°Ù Ø´ÙˆØ¯ØŸ',{title:'Ø­Ø°Ù ØªØ³Ú©',confirmText:'Ø­Ø°Ù',danger:true})){state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks()}}
-  }
+[X™\ŠK™[™]
+KQ]K››İÊ
+JKÌL
+JNØK™[™]LØKœİ]\ÏIÜ]\ÙY	ÎİÜš]Tİ]Jİ]JNÜ™]\›ŸBˆYŠOËœİ]\ÏOOIÜ]\ÙY	Ê^ØK™[™]Q]K››İÊ
+JÓX]›X^
+K[X™\ŠKœ™[XZ[š[™ÔÙXÊ_JJŒLØKœİ]\ÏIÜ[›š[™ÉÎİÜš]Tİ]Jİ]JNÜ™]\›ŸBˆÛÛœİ\˜][Û“Z[Y›Øİ\ÔÙ[XİYZ[]\Ê
+KYÏI
+	Ù›Øİ\Ë]YÉÊOË˜[Y_	ÉËY[XZÙRY
 
-  function renderHabits(){
-    const state=ensureState(readState()),list=$('habit-list');if(!list)return;const now=today();
-    list.innerHTML=state.habits.map(h=>{
-      const v=habitView(h,now),done=habitDone(h,now),scheduled=habitScheduled(h,now);
-      return `<li class="item ${done?'done':''}"><button type="button" class="check-button" data-phase2-action="toggle-habit" data-id="${esc(h.id)}" aria-pressed="${done}" ${!scheduled?'disabled':''} aria-label="${scheduled?'Ø«Ø¨Øª Ø§Ù…Ø±ÙˆØ²':'Ø§Ù…Ø±ÙˆØ² Ø²Ù…Ø§Ù†â€ŒØ¨Ù†Ø¯ÛŒ Ù†Ø´Ø¯Ù‡'} Ø¨Ø±Ø§ÛŒ ${esc(v.title||h.title)}">${done?'<img class="elara-check-art" src="assets/ui/icon-tasks-check-alpha.webp" alt="" decoding="async">':''}</button><div class="item-content"><div class="item-title">${esc(v.title||h.title)}</div><div class="item-meta"><span>ØªØ¯Ø§ÙˆÙ…: ${fa(scheduledStreak(h))} Ù†ÙˆØ¨Øª</span><span>Ú©Ù„ Ø«Ø¨Øªâ€ŒÙ‡Ø§: ${fa(dateList(h.days).length)}</span>${h.recurrenceRule?`<span>â†» ${esc(recurrenceLabel(h.recurrenceRule))}</span>`:'<span>Ù‡Ø± Ø±ÙˆØ²</span>'}</div></div><div class="item-actions"><button type="button" class="mini-button" data-phase2-action="edit-habit" data-id="${esc(h.id)}">ÙˆÛŒØ±Ø§ÛŒØ´</button><button type="button" class="mini-button danger" data-phase2-action="delete-habit" data-id="${esc(h.id)}">Ø­Ø°Ù</button></div></li>`;
-    }).join('');
-    $('habit-empty')?.classList.toggle('hidden',state.habits.length!==0);
-  }
-  function resetHabitForm(){
-    editingHabit=null;editingHabitScope='series';$('habit-form')?.reset();if($('habit-start'))$('habit-start').value=today();$('habit-cancel')?.classList.add('hidden');setRuleForm('habit',null,today());syncRecurrenceVisibility('habit');
-  }
-  function fillHabitForm(habit,scope){
-    const v=scope==='occurrence'?habitView(habit,today()):habit;editingHabit=habit.id;editingHabitScope=scope;$('habit-title').value=v.title||habit.title||'';$('habit-start').value=scope==='future'?today():(habit.recurrenceRule?.startDate||today());setRuleForm('habit',habit.recurrenceRule,$('habit-start').value);syncRecurrenceVisibility('habit');$('habit-cancel').classList.remove('hidden');$('habit-title').focus();
-  }
-  function submitHabit(){
-    const state=ensureState(readState()),title=String($('habit-title').value||'').trim().slice(0,120);if(!title)return;const start=$('habit-start').value||today();
-    let rule=null;try{rule=ruleFromForm('habit',start)}catch(e){notify(e.message);return}
-    if(editingHabit){
-      const h=state.habits.find(x=>x.id===editingHabit);if(!h)return resetHabitForm();
-      if(editingHabitScope==='occurrence'){h.occurrenceOverrides=h.occurrenceOverrides&&typeof h.occurrenceOverrides==='object'?h.occurrenceOverrides:{};h.occurrenceOverrides[today()]={title}}
-      else{if(editingHabitScope==='future'&&rule)rule.startDate=today();h.title=title;h.recurrenceRule=rule}
-      notify('Ø¹Ø§Ø¯Øª ÙˆÛŒØ±Ø§ÛŒØ´ Ø´Ø¯.');
-    }else{state.habits.unshift({id:makeId(),title,days:[],rewardDays:[],recurrenceRule:rule,skippedDates:[],occurrenceOverrides:{}});notify('Ø¹Ø§Ø¯Øª Ø§Ø¶Ø§ÙÙ‡ Ø´Ø¯.')}
-    writeState(state);resetHabitForm();renderHabits();
-  }
-  async function habitAction(action,id){
-    const state=ensureState(readState()),h=state.habits.find(x=>x.id===id);if(!h)return;const now=today();
-    if(action==='toggle-habit'){if(!habitScheduled(h,now)){notify('Ø§ÛŒÙ† Ø¹Ø§Ø¯Øª Ø¨Ø±Ø§ÛŒ Ø§Ù…Ø±ÙˆØ² Ø¨Ø±Ù†Ø§Ù…Ù‡â€ŒØ±ÛŒØ²ÛŒ Ù†Ø´Ø¯Ù‡.');return}h.days=dateList(h.days);h.rewardDays=dateList(h.rewardDays);if(h.days.includes(now))h.days=h.days.filter(x=>x!==now);else{h.days.push(now);if(!h.rewardDays.includes(now)){h.rewardDays.push(now);state.xp=Number(state.xp||0)+15}}writeState(state);renderHabits();return;}
-    if(action==='edit-habit'){let scope='series';if(h.recurrenceRule&&applies(h,now)){const choice=await window.ElaraDialog.choice({title:'ÙˆÛŒØ±Ø§ÛŒØ´ Ø¹Ø§Ø¯Øª ØªÚ©Ø±Ø§Ø±Ø´ÙˆÙ†Ø¯Ù‡',message:'ØªØºÛŒÛŒØ± Ø¨Ø±Ø§ÛŒ Ú©Ø¯Ø§Ù… Ø¨Ø®Ø´ Ø¨Ø§Ø´Ø¯ØŸ',options:[{label:'ÙÙ‚Ø· Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ²',value:'occurrence'},{label:'Ø§Ø² Ø§Ù…Ø±ÙˆØ² Ø¨Ù‡ Ø¨Ø¹Ø¯',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillHabitForm(h,scope);return;}
-    if(action==='delete-habit'){if(h.recurrenceRule&&applies(h,now)){const choice=await window.ElaraDialog.choice({title:'Ø­Ø°Ù Ø¹Ø§Ø¯Øª ØªÚ©Ø±Ø§Ø±Ø´ÙˆÙ†Ø¯Ù‡',message:'Ú©Ø¯Ø§Ù… Ø¨Ø®Ø´ Ø­Ø°Ù Ø´ÙˆØ¯ØŸ',options:[{label:'ÙÙ‚Ø· Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ²',value:'occurrence'},{label:'Ú©Ù„ Ø³Ø±ÛŒ',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){h.skippedDates=dateList(h.skippedDates);if(!h.skippedDates.includes(now))h.skippedDates.push(now);h.days=dateList(h.days).filter(x=>x!==now);writeState(state);renderHabits();notify('Ù†ÙˆØ¨Øª Ø§Ù…Ø±ÙˆØ² Ø­Ø°Ù Ø´Ø¯.');return}}if(await window.ElaraDialog.confirm(h.recurrenceRule?'Ú©Ù„ Ø³Ø±ÛŒ Ø§ÛŒÙ† Ø¹Ø§Ø¯Øª Ø­Ø°Ù Ø´ÙˆØ¯ØŸ':'Ø§ÛŒÙ† Ø¹Ø§Ø¯Øª Ø­Ø°Ù Ø´ÙˆØ¯ØŸ',{title:'Ø­Ø°Ù Ø¹Ø§Ø¯Øª',confirmText:'Ø­Ø°Ù',danger:true})){state.habits=state.habits.filter(x=>x.id!==id);writeState(state);resetHabitForm();renderHabits()}}
-  }
+Kİ\Y]Q]K››İÊ
+NÂˆİ]K˜Xİ]™Q›Øİ\Ï^ÚY\˜][Û“Z[‹YËİ\Y][™]œİ\Y]
+Ù\˜][Û“Z[ŠŒ™[XZ[š[™ÔÙXÎ™\˜][Û“Z[ŠŒİ]\Î‰Ü[›š[™ÉßNİÜš]Tİ]Jİ]JNÂˆBˆ\Ş[˜È[˜İ[Ûˆ™\Ù]›Øİ\Ê
+^ÂˆÛÛœİİ]OY›Øİ\Ôİ]J
+KXİ]™O\İ]K˜Xİ]™Q›Øİ\ÎÂˆYŠXXİ]™J^İ\]Q›Øİ\Ñ\Ü^J
+NÜ™]\›ŸBˆÛÛœİÛÛ™š\›YYX]ØZ]Ú[™İË‘[\˜QX[ÙË˜ÛÛ™š\›J	ö+6a6,öaöe6`v.va6ã6o¶)öã6)öaˆ6+ö)ö+öaÈ6-6b6+È6b6,¶av)öa¸ #6,öa¶+6*6,v)öã6-6,vb6.H6+öb6*6)ö,vaÈ6(¶av)ö+öaÈ6-6b6+ö'ÉËİ]N‰ö-6,vb6.H6+öb6*6)ö,vaöe6*¶av,vªv,‰ËÛÛ™š\›U^‰ö-6,vb6.H6+öb6*6)ö,vaÉËØ[˜Ù[^‰ö)ö+ö)öavaöe6+6a6,öaÉË[™Ù\Y_JNÂˆYŠXÛÛ™š\›YY
+\™]\›ÂˆÛX\’[\˜[
+›Øİ\Ò[\˜[
+NÙ›Øİ\Ò[\˜[[[Âˆİ]K˜Xİ]™Q›Øİ\Ï[[ÂˆÜš]Tİ]Jİ]JNÂˆ›İYJ	ö,¶av)öa¸ #6,öa¶+6*6,v)öã6+6a6,öaöe6+6+öã6+È6(¶av)ö+öaÈ6-6+Ë‰ÊNÂˆBˆ[˜İ[Ûˆ™Yœ™\Ú[
 
-  const focusState=()=>ensureState(readState());
-  function focusSelectedMinutes(){const n=Math.round(Number($('focus-duration')?.value||25));return Math.max(1,Math.min(180,Number.isFinite(n)?n:25))}
-  function focusControls(disabled){document.querySelectorAll('[data-focus-preset],#focus-duration,#focus-tag,[data-phase2-create][data-phase2-target="focus-tag"]').forEach(el=>el.disabled=disabled)}
-  function renderFocusHistory(){
-    const state=focusState(),box=$('focus-history');if(!box)return;
-    const sessions=[...state.focusSessions].sort((a,b)=>(b.endedAt||0)-(a.endedAt||0)).slice(0,20);
-    box.innerHTML=sessions.length?sessions.map(s=>`<div class="focus-history-row"><strong>${fa(s.durationMin)} Ø¯Ù‚ÛŒÙ‚Ù‡</strong><span>${s.tag?'#'+esc(s.tag):'Ø¨Ø¯ÙˆÙ† Ø¨Ø±Ú†Ø³Ø¨'}</span><small>${new Date(s.endedAt||s.startedAt||Date.now()).toLocaleString('fa-IR')}</small></div>`).join(''):'<p class="muted">Ù‡Ù†ÙˆØ² Ø¬Ù„Ø³Ù‡Ù” ØªÙ…Ø±Ú©Ø² ØªÚ©Ù…ÛŒÙ„â€ŒØ´Ø¯Ù‡â€ŒØ§ÛŒ Ù†Ø¯Ø§Ø±ÛŒ.</p>';
-  }
-  function timerText(sec){return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.max(0,sec%60)).padStart(2,'0')}`}
-  function finishFocus(active){
-    clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
-    if(!current||current.id!==active.id)return;
-    if(!state.focusSessions.some(s=>s.id===active.id)){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:active.durationMin,tag:active.tag||'',completed:true});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
-    state.activeFocus=null;writeState(state);notify(`${fa(active.durationMin)} Ø¯Ù‚ÛŒÙ‚Ù‡ ØªÙ…Ø±Ú©Ø² Ú©Ø§Ù…Ù„ Ø´Ø¯Ø› Û±Ûµ XP Ú¯Ø±ÙØªÛŒ.`);
-  }
-  function updateFocusDisplay(){
-    const state=focusState(),a=state.activeFocus,display=$('timer-display');if(!display)return;
-    if(!a){const sec=focusSelectedMinutes()*60;display.textContent=timerText(sec);$('focus-status').textContent='Ø¢Ù…Ø§Ø¯Ù‡Ù” ØªÙ…Ø±Ú©Ø²';$('timer-start').textContent='Ø´Ø±ÙˆØ¹';focusControls(false);return}
-    const sec=a.status==='running'?Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000)):Math.max(0,Number(a.remainingSec)||0);
-    display.textContent=timerText(sec);$('focus-status').textContent=a.status==='running'?`Ø¯Ø± Ø­Ø§Ù„ ØªÙ…Ø±Ú©Ø²${a.tag?' Â· #'+a.tag:''}`:'Ù…Ú©Ø«';$('timer-start').textContent=a.status==='running'?'Ù…Ú©Ø«':'Ø§Ø¯Ø§Ù…Ù‡';focusControls(true);
-    if(a.status==='running'&&sec<=0)finishFocus(a);
-  }
-  function restoreFocus(){
-    clearInterval(focusInterval);focusInterval=null;const state=focusState(),a=state.activeFocus;
-    syncSelectors();if(a){if($('focus-duration'))$('focus-duration').value=a.durationMin||25;if($('focus-tag'))$('focus-tag').value=a.tag||''}
-    updateFocusDisplay();if(a?.status==='running'&&Number(a.endAt)>Date.now())focusInterval=setInterval(updateFocusDisplay,250);renderFocusHistory();
-  }
-  function toggleFocus(){
-    const state=focusState(),a=state.activeFocus;
-    if(a?.status==='running'){a.remainingSec=Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000));a.endAt=0;a.status='paused';writeState(state);return}
-    if(a?.status==='paused'){a.endAt=Date.now()+Math.max(1,Number(a.remainingSec)||1)*1000;a.status='running';writeState(state);return}
-    const durationMin=focusSelectedMinutes(),tag=$('focus-tag')?.value||'',id=makeId(),startedAt=Date.now();
-    state.activeFocus={id,durationMin,tag,startedAt,endAt:startedAt+durationMin*60000,remainingSec:durationMin*60,status:'running'};writeState(state);
-  }
-  async function resetFocus(){
-    const state=focusState(),active=state.activeFocus;
-    if(!active){updateFocusDisplay();return}
-    const confirmed=await window.ElaraDialog.confirm('Ø¬Ù„Ø³Ù‡Ù” ÙØ¹Ù„ÛŒ Ù¾Ø§ÛŒØ§Ù† Ø¯Ø§Ø¯Ù‡ Ø´ÙˆØ¯ Ùˆ Ø²Ù…Ø§Ù†â€ŒØ³Ù†Ø¬ Ø¨Ø±Ø§ÛŒ Ø´Ø±ÙˆØ¹ Ø¯ÙˆØ¨Ø§Ø±Ù‡ Ø¢Ù…Ø§Ø¯Ù‡ Ø´ÙˆØ¯ØŸ',{title:'Ø´Ø±ÙˆØ¹ Ø¯ÙˆØ¨Ø§Ø±Ù‡Ù” ØªÙ…Ø±Ú©Ø²',confirmText:'Ø´Ø±ÙˆØ¹ Ø¯ÙˆØ¨Ø§Ø±Ù‡',cancelText:'Ø§Ø¯Ø§Ù…Ù‡Ù” Ø¬Ù„Ø³Ù‡',danger:true});
-    if(!confirmed)return;
-    clearInterval(focusInterval);focusInterval=null;
-    state.activeFocus=null;
-    writeState(state);
-    notify('Ø²Ù…Ø§Ù†â€ŒØ³Ù†Ø¬ Ø¨Ø±Ø§ÛŒ Ø¬Ù„Ø³Ù‡Ù” Ø¬Ø¯ÛŒØ¯ Ø¢Ù…Ø§Ø¯Ù‡ Ø´Ø¯.');
-  }
-  function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHistory();updateFocusDisplay()}
+^ÜŞ[˜ÔÙ[XİÜœÊ
+NÜ™[™\•\ÚÜÊ
+NÜ™[™\’Xš]Ê
+NÜ™[™\‘›Øİ\Ò\İÜJ
+Nİ\]Q›Øİ\Ñ\Ü^J
+_B‚ˆ[˜İ[Ûˆš[™
 
-  function bind(){
-    injectUI();resetTaskForm();resetHabitForm();refreshAll();restoreFocus();
-    document.addEventListener('submit',event=>{
-      if(event.target?.id==='task-form'){event.preventDefault();event.stopImmediatePropagation();submitTask()}
-      if(event.target?.id==='habit-form'){event.preventDefault();event.stopImmediatePropagation();submitHabit()}
-    },true);
-    document.addEventListener('click',async event=>{
-      const addMain=event.target.closest('#elara-task-add-main');if(addMain){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
-      const toolsToggle=event.target.closest('#elara-task-tools-toggle');if(toolsToggle){event.preventDefault();event.stopImmediatePropagation();toggleTaskTools();return}
-      const toolsAction=event.target.closest('[data-task-tools]');if(toolsAction){event.preventDefault();event.stopImmediatePropagation();await handleTaskTools(toolsAction.dataset.taskTools);return}
-      if(!$('elara-task-tools-menu')?.hidden&&!event.target.closest('#elara-task-tools-menu'))closeTaskTools();
-      const create=event.target.closest('[data-phase2-create]');if(create){event.preventDefault();event.stopImmediatePropagation();await inlineCreate(create.dataset.phase2Create,create.dataset.phase2Target);return}
-      const all=event.target.closest('[data-weekdays-all]');if(all){event.preventDefault();event.stopImmediatePropagation();document.querySelectorAll(`input[name="${all.dataset.weekdaysAll}-weekday"]`).forEach(x=>x.checked=true);return}
-      const preset=event.target.closest('[data-focus-preset]');if(preset){event.preventDefault();event.stopImmediatePropagation();if(!$('focus-duration')?.disabled){$('focus-duration').value=preset.dataset.focusPreset;updateFocusDisplay()}return}
-      if(event.target.closest('#timer-start')){event.preventDefault();event.stopImmediatePropagation();toggleFocus();return}
-      if(event.target.closest('#timer-reset')){event.preventDefault();event.stopImmediatePropagation();await resetFocus();return}
-      if(event.target.closest('#task-cancel')){event.preventDefault();event.stopImmediatePropagation();resetTaskForm();return}
-      if(event.target.closest('#habit-cancel')){event.preventDefault();event.stopImmediatePropagation();resetHabitForm();return}
-      const action=event.target.closest('[data-phase2-action]');if(action){event.preventDefault();event.stopImmediatePropagation();const type=action.dataset.phase2Action;if(type.endsWith('task'))await taskAction(type,action.dataset.id);else await habitAction(type,action.dataset.id);return}
-    },true);
-    for(const prefix of ['task','habit']){
-      $(`${prefix}-recurrence`)?.addEventListener('change',()=>syncRecurrenceVisibility(prefix));
-      $(`${prefix}-recurrence-no-end`)?.addEventListener('change',e=>{const end=$(`${prefix}-recurrence-end`);if(end){end.disabled=e.target.checked;if(e.target.checked)end.value=''}});
-    }
-    for(const id of ['task-search','task-filter','task-list-filter','task-folder-filter','task-tag-filter','task-priority-filter'])$(id)?.addEventListener(id==='task-search'?'input':'change',renderTasks);
-    document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeTaskTools();if(document.activeElement?.closest?.('#task-form'))resetTaskForm()}},true);
-    $('focus-duration')?.addEventListener('input',()=>{if(!focusState().activeFocus)updateFocusDisplay()});
-    window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
-    window.addEventListener('elara:data-changed',()=>setTimeout(refreshAll,0));
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
-})();
+^Âˆ[š™XİRJ
+NÜ™\Ù]\ÚÑ›Ü›J
+NÜ™\Ù]Xš]›Ü›J
+NÜ™Yœ™\Ú[
+
+NÜ™\İÜ™Q›Øİ\Ê
+NÂˆØİ[Y[˜Y]™[\İ[™\Š	ÜİX›Z]	Ë]™[OÂˆYŠ]™[\™Ù]ËšYOOIİ\ÚËY›Ü›IÊ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÜİX›Z]\ÚÊ
+_BˆYŠ]™[\™Ù]ËšYOOIÚXš]Y›Ü›IÊ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÜİX›Z]Xš]
+
+_BˆKYJNÂˆØİ[Y[˜Y]™[\İ[™\Š	ØÛXÚÉË\Ş[˜È]™[OÂˆÛÛœİYXZ[Y]™[\™Ù]˜ÛÜÙ\İ
+	ÈÙ[\˜K]\ÚËXY[XZ[‰ÊNÚYŠYXZ[Š^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÛÜ[•\ÚĞÛÛ\ÜÙ\Š
+NÜ™]\›ŸBˆÛÛœİÛÛÕÙÙÛOY]™[\™Ù]˜ÛÜÙ\İ
+	ÈÙ[\˜K]\ÚË]ÛÛË]ÙÙÛIÊNÚYŠÛÛÕÙÙÛJ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NİÙÙÛU\ÚÕÛÛÊ
+NÜ™]\›ŸBˆÛÛœİY]OY]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]K[Y]KYY]KÙ]K[Y]K\™[[İ™WIÊNÚYŠY]J^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NØ]ØZ]X[˜YÙSY]Y]JY]JNÜ™]\›ŸBˆÛÛœİÛÛĞXİ[ÛY]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]K]\ÚË]ÛÛ×IÊNÚYŠÛÛĞXİ[ÛŠ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NØ]ØZ][™U\ÚÕÛÛÊÛÛĞXİ[Û‹™]\Ù]\ÚÕÛÛÊNÜ™]\›ŸBˆYŠI
+	Ù[\˜K]\ÚË]ÛÛË[Y[IÊOËšY[‰‰ˆY]™[\™Ù]˜ÛÜÙ\İ
+	ÈÙ[\˜K]\ÚË]ÛÛË[Y[IÊJXÛÜÙU\ÚÕÛÛÊ
+NÂˆÛÛœİÜ™X]OY]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]K\\ÙL‹XÜ™X]WIÊNÚYŠÜ™X]J^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NØ]ØZ][›[™PÜ™X]JÜ™X]K™]\Ù]œ\ÙLÜ™X]KÜ™X]K™]\Ù]œ\ÙL•\™Ù]
+NÜ™]\›ŸBˆÛÛœİ[Y]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]K]ÙYZÙ^\ËX[IÊNÚYŠ[
+^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÙØİ[Y[œ]Y\TÙ[XİÜ[
+[œ]Û˜[YOH‰Ø[™]\Ù]ÙYZÙ^\Ğ[K]ÙYZÙ^H—X
+K™›Ü‘XXÚ
+O˜ÚXÚÙY]YJNÜ™]\›ŸBˆÛÛœİ™\Ù]Y]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]KY›Øİ\Ë\™\Ù]IÊNÚYŠ™\Ù]
+^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÚYŠI
+	Ù›Øİ\ËY\˜][Û‰ÊOË™\ØX›Y
+^É
+	Ù›Øİ\ËY\˜][Û‰ÊK˜[YO\™\Ù]™]\Ù]™›Øİ\Ô™\Ù]İ\]Q›Øİ\Ñ\Ü^J
+_\™]\›ŸBˆYŠ]™[\™Ù]˜ÛÜÙ\İ
+	Èİ[Y\‹\İ\	ÊJ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NİÙÙÛQ›Øİ\Ê
+NÜ™]\›ŸBˆYŠ]™[\™Ù]˜ÛÜÙ\İ
+	Èİ[Y\‹\™\Ù]	ÊJ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NØ]ØZ]™\Ù]›Øİ\Ê
+NÜ™]\›ŸBˆYŠ]™[\™Ù]˜ÛÜÙ\İ
+	Èİ\ÚËXØ[˜Ù[	ÊJ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÜ™\Ù]\ÚÑ›Ü›J
+NÜ™]\›ŸBˆYŠ]™[\™Ù]˜ÛÜÙ\İ
+	ÈÚXš]XØ[˜Ù[	ÊJ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NÜ™\Ù]Xš]›Ü›J
+NÜ™]\›ŸBˆÛÛœİXİ[ÛY]™[\™Ù]˜ÛÜÙ\İ
+	ÖÙ]K\\ÙL‹XXİ[Û—IÊNÚYŠXİ[ÛŠ^Ù]™[œ™]™[Y˜][
+
+NÙ]™[œİÜ[[YYX]T›ÜYØ][ÛŠ
+NØÛÛœİ\OXXİ[Û‹™]\Ù]œ\ÙLXİ[ÛÚYŠ\K™[™ÕÚ]
+	İ\ÚÉÊJX]ØZ]\ÚĞXİ[ÛŠ\KXİ[Û‹™]\Ù]šY
+NÙ[ÙH]ØZ]Xš]Xİ[ÛŠ\KXİ[Û‹™]\Ù]šY
+NÜ™]\›ŸBˆKYJNÂˆ›ÜŠÛÛœİ™Yš^ÙˆÉİ\ÚÉË	ÚXš]	×J^Âˆ	
+	Ü™Yš^K\™Xİ\œ™[˜ÙX
+OË˜Y]™[\İ[™\Š	ØÚ[™ÙIË
+
+OOœŞ[˜Ô™Xİ\œ™[˜ÙUš\ÚXš[]J™Yš^
+JNÂˆ	
+	Ü™Yš^K\™Xİ\œ™[˜ÙK[›ËY[™
+OË˜Y]™[\İ[™\Š	ØÚ[™ÙIËOOØÛÛœİ[™I
+	Ü™Yš^K\™Xİ\œ™[˜ÙKY[™
+NÚYŠ[™
+^Ù[™™\ØX›YYK\™Ù]˜ÚXÚÙYÚYŠK\™Ù]˜ÚXÚÙY
+Y[™˜[YOIÉß_JNÂˆBˆ›ÜŠÛÛœİYÙˆÉİ\ÚË\ÙX\˜Ú	Ë	İ\ÚËYš[\‰Ë	İ\ÚË[\İYš[\‰Ë	İ\ÚËY›Û\‹Yš[\‰Ë	İ\ÚË]YËYš[\‰Ë	İ\ÚË\š[Üš]KYš[\‰×JI
+Y
+OË˜Y]™[\İ[™\ŠYOOIİ\ÚË\ÙX\˜Ú	ÏÉÚ[œ]	Î‰ØÚ[™ÙIË™[™\•\ÚÜÊNÂˆØİ[Y[˜Y]™[\İ[™\Š	ÚÙ^YİÛ‰Ë]™[OÚYŠ]™[šÙ^OOOIÑ\ØØ\IÊ^ØÛÜÙU\ÚÕÛÛÊ
+NÚYŠØİ[Y[˜Xİ]™Q[[Y[Ë˜ÛÜÙ\İËŠ	Èİ\ÚËY›Ü›IÊJXÛÜÙPÛÛ\ÜÙ\Š
+__KYJNÂˆ	
+	Ù›Øİ\ËY\˜][Û‰ÊOË˜Y]™[\İ[™\Š	Ú[œ]	Ë
+
+OOÚYŠY›Øİ\Ôİ]J
+K˜Xİ]™Q›Øİ\Ê]\]Q›Øİ\Ñ\Ü^J
+_JNÂˆÚ[™İË˜Y]™[\İ[™\Š	Ù[\˜NšY˜]IË
+
+OOœÙ][Y[İ]
+
+
+OOÜ™Yœ™\Ú[
+
+NÜ™\İÜ™Q›Øİ\Ê
+_K
+JNÂˆÚ[™İË˜Y]™[\İ[™\Š	Ù[\˜N™]KXÚ[™ÙY	Ë
+
+OOœÙ][Y[İ]
+™Yœ™\Ú[
+JNÂˆBˆÚ[™İË‘[\˜U\ÚÜÏ^İ\ÚĞXİ[Û‹Xš]Xİ[Û‹\ÚÕšY]ËXš]šY]Ë\ÚÑÛ™KXš]ØÚY[YÜ[ÛÛ\ÜÙ\›Ü[•\ÚĞÛÛ\ÜÙ\‹™[™\œ™[™\•\ÚÜË™\Ù]œ™\Ù]\ÚÑ›Ü›_NÂˆYŠØİ[Y[œ™XYTİ]OOOIÛØY[™ÉÊYØİ[Y[˜Y]™[\İ[™\Š	ÑÓPÛÛ[ØYY	Ëš[™ÛÛ˜ÙNY_JNÙ[ÙHš[™
+
+NÂŸJJ
+NÂ

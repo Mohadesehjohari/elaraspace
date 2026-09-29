@@ -19,7 +19,7 @@
   const slow=setTimeout(()=>{if(ready)return;const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='آماده‌سازی صفحه طولانی شده است؛ اتصال اینترنت و بارگذاری فایل‌ها را بررسی کن.';if(retry)retry.hidden=false},9000);
   void(async()=>{
     try{
-      for(const name of ['approved-icon-system.js','approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js'])await loadScript(name);
+      for(const name of ['approved-icon-system.js','approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','reports.js'])await loadScript(name);
       await Promise.all(styleReady);
       window.ElaraNavigation?.render?.();window.ElaraReferenceHome?.render?.();
       /* Avoid multi-second blank screens on poor links, but normally release only after critical art decodes. */

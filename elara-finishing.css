@@ -1,5 +1,5 @@
 /* Final mobile + theme polish; applied after the selected dark dashboard stylesheet. */
-.elara-hero{background-image:linear-gradient(110deg,color-mix(in srgb,var(--elara-accent) 13%,rgba(8,17,31,.59)),rgba(8,17,31,.2)),url('assets/hero.webp'),url('assets/hero.svg');background-position:center,center 49%,center;background-size:cover,cover,cover}
+.elara-hero{background-image:linear-gradient(110deg,color-mix(in srgb,var(--elara-accent) 13%,rgba(8,17,31,.59)),rgba(8,17,31,.2)),url('assets/ui/hero-landscape.webp'),url('assets/hero.svg');background-position:center,center 49%,center;background-size:cover,cover,cover}
 .elara-logo{object-fit:contain;display:block}.elara-social-avatar{border:2px solid var(--elara-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--elara-accent) 16%,transparent)}
 body.dark .elara-card{box-shadow:0 10px 33px color-mix(in srgb,var(--elara-accent) 4%,transparent)}
 body[data-elara-color='red'] .elara-hero,body[data-elara-color='pink'] .elara-hero,body[data-elara-color='orange'] .elara-hero{background-blend-mode:screen,normal,normal}
