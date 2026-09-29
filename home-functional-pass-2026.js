@@ -4,9 +4,10 @@ const $=id=>document.getElementById(id);
 const read=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 const day=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 function canonicalClick(list,selector,attributes){const host=$(list);if(!host)return false;let button=host.querySelector(selector),temporary=false;if(!button){button=document.createElement('button');button.type='button';for(const [name,value] of Object.entries(attributes))button.dataset[name]=value;host.append(button);temporary=true}button.click();if(temporary)button.remove();return true}
-function toggleTask(id){return window.ElaraTasks.taskAction('toggle-task',id,window.ElaraHomeDay||day())}
-function toggleHabit(id){return window.ElaraTasks.habitAction('toggle-habit',id,window.ElaraHomeDay||day())}
-function toggleGoal(goalId,stepId){const goal=read().goals?.find(g=>String(g.id)===String(goalId));if(!goal?.steps?.some(s=>String(s.id)===String(stepId)))return false;return canonicalClick('goal-list',`[data-action="toggle-step"][data-goal="${CSS.escape(goalId)}"][data-id="${CSS.escape(stepId)}"]`,{action:'toggle-step',goal:goalId,id:stepId})}
+async function withDataHint(kind,fn){const prev=window.ElaraDataChangeHint;window.ElaraDataChangeHint=kind;try{return await fn()}finally{window.ElaraDataChangeHint=prev}}
+function toggleTask(id){return withDataHint('task',()=>window.ElaraTasks.taskAction('toggle-task',id,window.ElaraHomeDay||day()))}
+function toggleHabit(id){return withDataHint('habit',()=>window.ElaraTasks.habitAction('toggle-habit',id,window.ElaraHomeDay||day()))}
+function toggleGoal(goalId,stepId){const goal=read().goals?.find(g=>String(g.id)===String(goalId));if(!goal?.steps?.some(s=>String(s.id)===String(stepId)))return false;return withDataHint('goal',()=>canonicalClick('goal-list',`[data-action="toggle-step"][data-goal="${CSS.escape(goalId)}"][data-id="${CSS.escape(stepId)}"]`,{action:'toggle-step',goal:goalId,id:stepId}))}
 function quickAdd(kind,title){const form=$(kind==='task'?'task-form':kind==='habit'?'habit-form':'goal-form');if(!form)return false;
  if(kind==='task'){$('task-cancel')?.click();$('task-title').value=title;$('task-due').value=day();$('task-time').value='';$('task-priority').value='4';$('task-folder').value='';$('task-tag').value=''}
  else if(kind==='habit'){$('habit-title').value=title}
