@@ -64,16 +64,8 @@ function drawWardrobe(){
 function showWardrobe(){wardrobeWindow();selectedPreview=null;showAll={avatar:false,frame:false,banner:false};drawWardrobe();windowRoot.hidden=false;windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})}
 function closeWardrobe(){if(windowRoot)windowRoot.hidden=true;selectedPreview=null}
 window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe};
-function inlineCreate(button){
- const kind=button.dataset.phase2Create,targetId=button.dataset.phase2Target,select=$(targetId);if(!['folder','tag'].includes(kind)||!select)return;
- let host=button.parentElement.querySelector('.phase2-inline-creator');if(host){host.remove();return}
- host=document.createElement('div');host.className='phase2-inline-creator';host.innerHTML=`<input maxlength="60" placeholder="نام ${kind==='folder'?'پوشه':'برچسب'}" aria-label="نام جدید" required><button type="button" class="primary-button" data-inline-save>افزودن</button><button type="button" class="quiet-button" data-inline-cancel>لغو</button><span class="muted" role="status"></span>`;
- button.insertAdjacentElement('afterend',host);host.querySelector('input').focus();
- const save=()=>{const value=host.querySelector('input').value.trim(),key=kind==='folder'?'folders':'tags';if(!value){host.querySelector('[role=status]').textContent='نام را بنویس.';return}const state=data();state[key]=safeList(state[key]);const match=state[key].find(n=>n.toLocaleLowerCase()===value.toLocaleLowerCase());const name=match||value.slice(0,60);if(!match){state[key].push(name);localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}if(![...select.options].some(o=>o.value===name))select.add(new Option(name,name));select.value=name;host.remove();};
- host.querySelector('[data-inline-save]').addEventListener('click',save);host.querySelector('[data-inline-cancel]').addEventListener('click',()=>host.remove());host.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();save()}if(e.key==='Escape')host.remove()});
-}
 function wire(){
- window.addEventListener('click',e=>{const create=e.target.closest('[data-phase2-create]');if(create){e.preventDefault();e.stopImmediatePropagation();inlineCreate(create)}},true);
+ /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
   if(event.target.closest('[data-approved-wardrobe]')){showWardrobe();return}
   if(event.target.closest('[data-close-wardrobe]')){closeWardrobe();return}
