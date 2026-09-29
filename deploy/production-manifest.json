@@ -41,7 +41,9 @@
     "assets/frames_bronze.png",
     "assets/frames_silver.png",
     "assets/frames_gold.png",
-    "assets/frames_diamond.png"
+    "assets/frames_diamond.png",
+    "assets/ui/icon-task-complete-astra-v2.webp",
+    "assets/ui/hero-tasks-astra-v2.webp"
   ],
   "files": [
     ".htaccess",
