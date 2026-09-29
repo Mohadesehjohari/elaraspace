@@ -100,5 +100,3 @@ body.light #panel-home.ref-home .ref-card{background:var(--surface)!important;co
 #panel-home .ref-habit-row:nth-child(5n+4) .elara-track>i,#panel-home .ref-goal-row:nth-child(5n+4) .elara-track>i{background:linear-gradient(90deg,#f762a6,#ff9dca)!important}
 #panel-home .ref-habit-row:nth-child(5n+5) .elara-track>i,#panel-home .ref-goal-row:nth-child(5n+5) .elara-track>i{background:linear-gradient(90deg,#e5a835,#ffd76d)!important}
 @media(min-width:701px){#panel-home .ref-task-list{max-height:220px;overflow-y:auto;scrollbar-width:thin}}
-
-/* astra-validation-trigger */
