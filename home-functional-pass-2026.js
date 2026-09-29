@@ -25,10 +25,10 @@ function decorate(){for(const [card,kind,label] of [['.ref-tasks','task','افز
  if(avatar){if(!src){current?.remove()}else{const frame=current||document.createElement('img');if(!current){frame.className='ref-account-equipped-frame';frame.alt='';frame.addEventListener('error',()=>frame.remove());avatar.append(frame)}if(frame.dataset.src!==src){frame.dataset.src=src;frame.src=src}}}
 }
 async function handleClick(e){const quick=e.target.closest('[data-home-quick]');if(quick){e.preventDefault();e.stopImmediatePropagation();quickDialog(quick.dataset.homeQuick);return}
- const task=e.target.closest('#panel-home [data-ref-task]');if(task){e.preventDefault();e.stopImmediatePropagation();await toggleTask(task.dataset.refTask);window.ElaraReferenceHome?.render?.();return}
- const habit=e.target.closest('#panel-home [data-ref-habit]');if(habit){e.preventDefault();e.stopImmediatePropagation();await toggleHabit(habit.dataset.refHabit);window.ElaraReferenceHome?.render?.();return}
- const step=e.target.closest('#panel-home [data-home-goal-step]');if(step){e.preventDefault();e.stopImmediatePropagation();toggleGoal(step.dataset.goalId,step.dataset.homeGoalStep);window.ElaraReferenceHome?.render?.();decorate();return}
+ const task=e.target.closest('#panel-home [data-ref-task]');if(task){e.preventDefault();e.stopImmediatePropagation();await toggleTask(task.dataset.refTask);return}
+ const habit=e.target.closest('#panel-home [data-ref-habit]');if(habit){e.preventDefault();e.stopImmediatePropagation();await toggleHabit(habit.dataset.refHabit);return}
+ const step=e.target.closest('#panel-home [data-home-goal-step]');if(step){e.preventDefault();e.stopImmediatePropagation();toggleGoal(step.dataset.goalId,step.dataset.homeGoalStep);return}
 }
-function init(){window.addEventListener('click',handleClick,true);document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-home-goal-step]')){e.preventDefault();e.target.click()}},true);decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:profile-saved','elara:wardrobe-changed'])window.addEventListener(name,()=>{setTimeout(decorate,170);setTimeout(decorate,350)});window.addEventListener('hashchange',()=>setTimeout(decorate,180))}
+function init(){window.addEventListener('click',handleClick,true);document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-home-goal-step]')){e.preventDefault();e.target.click()}},true);decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:profile-saved','elara:wardrobe-changed'])window.addEventListener(name,()=>requestAnimationFrame(decorate));window.addEventListener('hashchange',()=>setTimeout(decorate,180))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
