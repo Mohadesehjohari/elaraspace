@@ -246,3 +246,22 @@ body.light #panel-home.ref-home .ref-card,body.light #panel-home.ref-home .ref-t
 }
 #panel-home .ref-activity>header .ref-friends-open{background:none!important;color:inherit!important;font-size:.76rem!important;width:auto!important;height:auto!important;min-width:0!important;padding:5px 10px!important}
 #panel-home .ref-activity>header .ref-friends-open img{display:none!important}
+
+/* 2026-09-30: Search overlay must stay above Hero/banner and linked Tasks keep section identity. */
+.ref-topbar{position:relative!important;z-index:5000!important;overflow:visible!important;isolation:isolate}
+.ref-header-search{position:relative!important;z-index:5100!important;overflow:visible!important}
+.ref-search-results{position:absolute!important;z-index:5200!important;top:calc(100% + 8px)!important;inset-inline:0!important;max-height:min(62vh,520px);overflow:auto!important;box-shadow:0 24px 60px #020714cc,0 0 0 1px #7c64ff55!important}
+.workspace,.topbar{overflow:visible!important}
+#panel-tasks .astra-task-row.source-goal{border-inline-start:4px solid #ad72ff!important}
+#panel-tasks .astra-task-row.source-exercise{border-inline-start:4px solid #25d9a8!important}
+#panel-tasks .astra-task-row.source-language{border-inline-start:4px solid #34bdf6!important}
+#panel-tasks .astra-task-row.source-book{border-inline-start:4px solid #f2b84b!important}
+#panel-tasks .astra-task-category.source-goal{border-color:#8258c7!important;background:#37245d!important;color:#dfc9ff!important}
+#panel-tasks .astra-task-category.source-exercise{border-color:#258d78!important;background:#123f3a!important;color:#98ffe5!important}
+#panel-tasks .astra-task-category.source-language{border-color:#2c7fa7!important;background:#133850!important;color:#aeeaff!important}
+#panel-tasks .astra-task-category.source-book{border-color:#9b7733!important;background:#493916!important;color:#ffe3a0!important}
+#panel-tasks .astra-task-row.source-goal .astra-row-track>i{background:linear-gradient(90deg,#a052ff,#d184ff)!important}
+#panel-tasks .astra-task-row.source-exercise .astra-row-track>i{background:linear-gradient(90deg,#0ccf98,#55f2c6)!important}
+#panel-tasks .astra-task-row.source-language .astra-row-track>i{background:linear-gradient(90deg,#1798e9,#51d9ff)!important}
+#panel-tasks .astra-task-row.source-book .astra-row-track>i{background:linear-gradient(90deg,#e7a925,#ffd66a)!important}
+#panel-tasks .astra-task-xp.is-source{font-size:.68rem!important;color:var(--muted)!important}
