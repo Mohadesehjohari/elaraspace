@@ -173,6 +173,12 @@
     "assets/ui/icon-achievement-star.webp",
     "assets/ui/icon-add-button.webp",
     "assets/ui/icon-wellness-weight-scale.webp",
-    "assets/ui/icon-reward-star.webp"
+    "assets/ui/icon-reward-star.webp",
+    "linked-tasks.js",
+    "assets/ui/button-view-all.webp",
+    "assets/ui/accept-request-button.webp",
+    "assets/ui/decline-request-button.webp",
+    "assets/ui/invite-friend-button.webp",
+    "assets/ui/search-button.webp"
   ]
 }
