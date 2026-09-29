@@ -42,7 +42,16 @@
       },15000);
       await import('./cloud.js');
       try{await import('./elara-social.js')}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
-    }catch(error){console.error('Elara cloud startup:',error);if(status)status.textContent='ارتباط با حساب Firebase برقرار نشد. اتصال اینترنت را بررسی کن و دوباره تلاش کن.';if(retry)retry.hidden=false}
+    }catch(error){
+      console.error('Elara cloud startup:',error);
+      // Cloud/account startup must never make the local application unusable.
+      // Keep existing device-local state available and surface the cloud outage non-blockingly.
+      document.body.classList.remove('cloud-locked');
+      document.body.classList.add('cloud-ready','cloud-offline');
+      const layer=document.getElementById('cloud-layer');if(layer)layer.hidden=true;
+      const toast=document.getElementById('toast');if(toast){toast.textContent='اتصال حساب ابری برقرار نشد؛ الارا فعلاً با داده‌های همین دستگاه در دسترس است.';toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),6500)}
+      window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:String(error?.message||error)}}));
+    }
   };
   document.addEventListener('DOMContentLoaded',()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());void launch()},{once:true});
 })();
