@@ -10,6 +10,7 @@ const META={
  'goal-step':{group:'goal',label:'هدف',priority:'3',locked:false},
  'book':{group:'book',label:'کتابخانه',priority:'3',locked:false},
  'language-review':{group:'language',label:'زبان',priority:'3',locked:true},
+ 'language-log':{group:'language',label:'زبان',priority:'3',locked:true},
  'exercise':{group:'exercise',label:'ورزش',priority:'3',locked:true}
 };
 let syncing=false;
@@ -89,6 +90,15 @@ function syncWorkoutRowsInState(input,rows,owner=''){
  return changed;
 }
 function currentUid(){return String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'')}
+function syncLanguageJournalState(state){
+ const uid=currentUid();if(!uid)return false;let rows=[];try{rows=JSON.parse(localStorage.getItem('elara_language_journal_v1_'+uid)||'[]');if(!Array.isArray(rows))rows=[]}catch{rows=[]}
+ const valid=new Set();let changed=false;
+ for(const row of rows){if(!row?.id||!validDate(row.date))continue;const id=String(row.id);valid.add(id);const minutes=Math.max(1,Number(row.minutes)||1),words=Math.max(0,Number(row.words)||0);
+  changed=upsert(state,{sourceType:'language-log',sourceId:id,sourceOwner:uid,title:`تمرین زبان · ${minutes.toLocaleString('fa-IR')} دقیقه`,shortDescription:row.note||`${words.toLocaleString('fa-IR')} واژه تمرین شد`,date:row.date,completed:true,completedDate:row.date}).changed||changed;
+ }
+ const before=state.tasks.length;state.tasks=state.tasks.filter(t=>!(t?.linkedTask&&t.sourceType==='language-log'&&t.sourceOwner===uid&&!valid.has(String(t.sourceId))));if(before!==state.tasks.length)changed=true;
+ return changed;
+}
 function syncWellnessState(state){
  const uid=currentUid();if(!uid)return false;let data={};try{data=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{}
  return syncWorkoutRowsInState(state,data.workouts||[],uid);
@@ -100,18 +110,19 @@ function commit(state){
 }
 function syncAll({fromTasks=false}={}){
  if(syncing)return false;syncing=true;
- try{const state=readCore();let changed=false;if(fromTasks)changed=syncSourcesFromTasks(state)||changed;changed=syncCoreState(state)||changed;changed=syncWellnessState(state)||changed;if(changed)commit(state);return changed}
+ try{const state=readCore();let changed=false;if(fromTasks)changed=syncSourcesFromTasks(state)||changed;changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed)commit(state);return changed}
  finally{syncing=false}
 }
 function stateCommitted(event){
  if(syncing)return;syncing=true;
- try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=syncSourcesFromTasks(state);changed=syncCoreState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
+ try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=syncSourcesFromTasks(state);changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
  finally{syncing=false}
 }
-window.ElaraLinkedTasks={META,today,upsert,syncCoreState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};
+window.ElaraLinkedTasks={META,today,upsert,syncCoreState,syncLanguageJournalState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};
 window.addEventListener('elara:state-committed',stateCommitted);
 window.addEventListener('elara:data-changed',()=>syncAll());
 window.addEventListener('elara:wellness-saved',()=>syncAll());
+window.addEventListener('elara:language-journal-changed',()=>syncAll());
 window.addEventListener('elara:account-ready',()=>syncAll());
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>syncAll(),{once:true});else queueMicrotask(()=>syncAll());
 })();
