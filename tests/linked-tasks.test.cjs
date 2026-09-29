@@ -43,4 +43,13 @@ const lt=state.tasks.find(t=>t.sourceType==='language-review'&&t.sourceId===day)
 assert.equal(lt.completed,true);
 api.syncWorkoutRowsInState(state,[],'u1');
 assert.equal(state.tasks.some(t=>t.sourceType==='exercise'),false);
+context.window.ElaraAccount={user:{uid:'u1'}};
+context.localStorage.setItem('elara_language_journal_v1_u1',JSON.stringify([{id:'l1',date:day,minutes:25,words:8,note:'تمرین شنیداری'}]));
+assert.equal(api.syncLanguageJournalState(state),true);
+const logTask=state.tasks.find(t=>t.sourceType==='language-log');
+assert.equal(logTask.sourceGroup,'language');
+assert.equal(logTask.completed,true);
+context.localStorage.setItem('elara_language_journal_v1_u1','[]');
+api.syncLanguageJournalState(state);
+assert.equal(state.tasks.some(t=>t.sourceType==='language-log'),false);
 console.log('linked tasks contract: PASS');
