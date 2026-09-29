@@ -1,10 +1,10 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20260929-b786d577';
+  const BUILD='20260929-a9277b6';
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
-  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','visual-fidelity-pass5.css','reference-home-shell-2026.css','artwork-home-install-2026.css','home-functional-pass-2026.css'];
-  /* All of the shell CSS participates in first paint, not only the last three stylesheets. */
+  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css'];
+  /* Load legacy artwork/functional layers first; canonical Home geometry and Tasks visual owner load last so stale !important rules cannot displace their DOM owners. */
   for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);styleReady.push(new Promise((resolve,reject)=>{css.onload=resolve;css.onerror=()=>reject(new Error('Elara stylesheet unavailable: '+name))}));document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
