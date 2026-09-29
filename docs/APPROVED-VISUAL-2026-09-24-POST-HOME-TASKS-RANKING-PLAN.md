@@ -195,7 +195,7 @@
 - **SEARCH-OVERLAY-01 — نتایج جستجو روی محتوا:** dropdown جستجو باید بالاتر از Hero/Banner/Cardها باشد و توسط stacking context یا overflow زیر بنر نرود.
 - **TASK-LINK-01 — Goal Steps → Tasks:** هر قدم واقعی هدف یک Linked Task با هویت منبع «هدف» بسازد؛ عنوان/حذف/تکمیل با منبع canonical همگام بماند و duplicate ایجاد نشود.
 - **TASK-LINK-02 — Library → Tasks:** هر کتاب ثبت‌شده یک Linked Task «مطالعه کتاب» بسازد؛ Finished با completion Task همگام باشد.
-- **TASK-LINK-03 — Language → Tasks:** در روزی که واژهٔ due وجود دارد یک Task واقعی «مرور واژه‌های زبان» ساخته شود و بعد از پایان مرورهای due همان روز تکمیل شود؛ برای هر واژه Task تکراری/اسپم ساخته نشود.
+- **TASK-LINK-03 — Language → Tasks:** در روزی که واژهٔ due وجود دارد یک Task واقعی «مرور واژه‌های زبان» ساخته شود و بعد از پایان مرورهای due همان روز تکمیل شود؛ برای هر واژه Task تکراری/اسپم ساخته نشود. همچنین هر رکورد واقعی «دفتر گزارش یادگیری» همان حساب یک Linked Task تاریخ‌دار و تکمیل‌شده در گروه زبان داشته باشد و حذف گزارش، representation آن را حذف کند.
 - **TASK-LINK-04 — Exercise → Tasks:** هر Workout ثبت‌شده در دادهٔ خصوصی همان کاربر یک Linked Task تاریخ‌دار و تکمیل‌شده در Tasks داشته باشد؛ حذف Workout، representation مربوط را نیز حذف کند. دادهٔ سلامت جعلی یا کاربر دیگر خوانده نشود.
 - **TASK-LINK-05 — رنگ منبع در Tasks:** Goal=بنفش، Exercise=سبز، Language=آبی، Library=طلایی/نارنجی؛ این رنگ‌ها هویت منبع هستند و جای Priority را نمی‌گیرند.
 - **TASK-LINK-06 — جلوگیری از XP دوباره:** Linked Task نمایندهٔ یک رویداد/آیتم بخش دیگر است؛ sync نباید XP مستقل دوباره اعطا کند. موارد source-locked از بخش منبع مدیریت می‌شوند.
