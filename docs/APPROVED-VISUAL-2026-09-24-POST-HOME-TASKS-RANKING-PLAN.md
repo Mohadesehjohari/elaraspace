@@ -180,3 +180,25 @@
 - Firebase/cPanel فقط در صورت تست واقعی.
 
 **ترتیب همچنان:** Home تأیید شود → Stage Tasks با این الحاقیه اجرا شود → پس از پذیرش Tasks، Ranking/Social کامل. در گزارش اجرایی بعدی، ناظر باید این شناسه‌ها را به Prompt اجرایی تبدیل کند و هرکدام را جداگانه پیگیری کند.
+
+
+---
+
+## الحاقیه اجرایی ۳۰ سپتامبر ۲۰۲۶ — ثبات UI، دکمه‌های واقعی، Search Overlay و Cross‑Feature Tasks
+
+**درخواست مستقیم کاربر و مجوز اجرا روی `main`:** این موارد فقط ثبت Roadmap نیستند؛ در همین Pass کدنویسی شده‌اند و Browser/Production verification باید روی End HEAD ثبت شود.
+
+- **UI-STABLE-01 — حذف چشمک/بازسازی فاحش پس از تیک:** تغییر Task/Habit نباید Full Hydrate یا بازسازی کامل Home را تحریک کند. State commitهای محلی بدون جایگزینی کل Shell/Artwork به ownerهای داده برسند؛ Home برای data-only event فقط بخش‌های پویا را refresh کند.
+- **HOME-CHECK-02 — تیک واقعی به‌جای جوانه:** کنترل completion عادت/تسک در حالت خالی ring تمیز و در حالت انجام‌شده Artwork تیک مصوب داشته باشد. آیکن معنایی عادت کنار عنوان بماند، نه داخل checkbox.
+- **FRIENDS-CTA-02 — دکمه «همه» فعالیت دوستان:** Artwork نامتناسب داخل دکمه حذف شود؛ CTA واقعی به Social/Friends route حفظ شود.
+- **BUTTON-ASSET-02 — استفاده از تصاویر دکمه‌های آپلودشده:** فقط assetهایی که binary آن‌ها بررسی شده استفاده شوند: `button-view-all.webp` برای CTA «همه»، `accept-request-button.webp`، `decline-request-button.webp`، `invite-friend-button.webp` و `search-button.webp`. HTML button، aria-label و عملیات واقعی حفظ شوند.
+- **SEARCH-OVERLAY-01 — نتایج جستجو روی محتوا:** dropdown جستجو باید بالاتر از Hero/Banner/Cardها باشد و توسط stacking context یا overflow زیر بنر نرود.
+- **TASK-LINK-01 — Goal Steps → Tasks:** هر قدم واقعی هدف یک Linked Task با هویت منبع «هدف» بسازد؛ عنوان/حذف/تکمیل با منبع canonical همگام بماند و duplicate ایجاد نشود.
+- **TASK-LINK-02 — Library → Tasks:** هر کتاب ثبت‌شده یک Linked Task «مطالعه کتاب» بسازد؛ Finished با completion Task همگام باشد.
+- **TASK-LINK-03 — Language → Tasks:** در روزی که واژهٔ due وجود دارد یک Task واقعی «مرور واژه‌های زبان» ساخته شود و بعد از پایان مرورهای due همان روز تکمیل شود؛ برای هر واژه Task تکراری/اسپم ساخته نشود.
+- **TASK-LINK-04 — Exercise → Tasks:** هر Workout ثبت‌شده در دادهٔ خصوصی همان کاربر یک Linked Task تاریخ‌دار و تکمیل‌شده در Tasks داشته باشد؛ حذف Workout، representation مربوط را نیز حذف کند. دادهٔ سلامت جعلی یا کاربر دیگر خوانده نشود.
+- **TASK-LINK-05 — رنگ منبع در Tasks:** Goal=بنفش، Exercise=سبز، Language=آبی، Library=طلایی/نارنجی؛ این رنگ‌ها هویت منبع هستند و جای Priority را نمی‌گیرند.
+- **TASK-LINK-06 — جلوگیری از XP دوباره:** Linked Task نمایندهٔ یک رویداد/آیتم بخش دیگر است؛ sync نباید XP مستقل دوباره اعطا کند. موارد source-locked از بخش منبع مدیریت می‌شوند.
+- **ACCEPTANCE:** Desktop/Mobile بدون flicker محسوس هنگام toggle، Search dropdown بالای Hero، Linked Task بدون duplicate بعد از refresh، حذف/ویرایش منبع sync، no 404 برای assetهای دکمه و عدم ایجاد fake data.
+
+**وضعیت این الحاقیه:** Requested + coded در Pass 30 Sep؛ Automated/Browser/Production verification باید روی End HEAD همان Pass ثبت شود.
