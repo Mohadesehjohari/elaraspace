@@ -115,4 +115,4 @@ for(const [width,height] of sizes){
 }
 writeFileSync(out+'/checkpoint-a-browser-evidence.json',JSON.stringify(results,null,2));await browser.close();assert.deepEqual(failures,[]);console.log('PASS: Chromium seven viewports, restored Friends navigation, installed Tasks/Header/Wellness artwork, boot triptychs, and sampled first paint.');
 
-// End-HEAD gate: 2026-09-27 — Tasks UX + Freedom artwork + real Home Quick Add acceptance.
+// End-HEAD gate: 2026-09-29 — approved Home + Tasks geometry, artwork, recurrence, completion and viewport acceptance.
