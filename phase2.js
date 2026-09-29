@@ -36,7 +36,7 @@
   const writeState=(state,{hydrate=true}={})=>{
     ensureState(state);
     localStorage.setItem(KEY,JSON.stringify(state));
-    if(hydrate)window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:state}));
+    if(hydrate)window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));
     window.dispatchEvent(new Event('elara:data-changed'));
   };
   const dateList=v=>Array.isArray(v)?[...new Set(v.filter(validDate))]:[];
