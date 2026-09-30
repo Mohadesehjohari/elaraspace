@@ -79,7 +79,8 @@ function homeStructure(){
  grid.append(theme);
  // Reassert the exact named-area DOM contract on every reference render. Old visual passes may
  // mutate the tree after first boot; the reference owner must repair that without rebuilding cards.
- for(const c of [tasks,habits,wellness,missions,goals,ranks,activity,theme])if(c&&c.parentElement!==grid)grid.append(c);
+ const namedAreas=[[tasks,'tasks'],[habits,'habits'],[wellness,'wellness'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity'],[theme,'themes']];
+ for(const [c,area] of namedAreas)if(c){if(c.parentElement!==grid)grid.append(c);c.style.setProperty('grid-area',area,'important');c.style.setProperty('position','relative','important');c.style.setProperty('inset','auto','important');c.style.setProperty('transform','none','important');}
  const extra=card('elara-home-books');if(extra){extra.hidden=true;grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
  ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
