@@ -21,7 +21,7 @@ async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;
  const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
  if(auth.currentUser?.uid!==mine)return;
  state.requests=enriched;state.friends=enriched.filter(r=>r.status==='accepted').map(r=>r.person).filter((p,i,a)=>a.findIndex(v=>v.uid===p.uid)===i);
- const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
+ const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
  if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';if(gen===generation)render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}finally{busy=false;if(rerun){rerun=false;void refresh()}}}
 window.ElaraSocial.refresh=refresh;
@@ -60,7 +60,7 @@ async function addFriend(value){
 }
 async function cancelRequest(request){if(request.from!==uid||request.status!=='pending')throw Error('درخواست قابل لغو نیست.');await deleteDoc(doc(db,'friendRequests',request.id));await refresh()}
 async function removeFriend(request){if(request.status!=='accepted'||(request.from!==uid&&request.to!==uid))throw Error('دوستی معتبر نیست.');await deleteDoc(doc(db,'friendRequests',request.id));await refresh()}
-async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}}else if(status==='accepted')await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
+async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}}else if(status==='accepted'){await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});window.ElaraNotify?.push?.({type:'friend',title:'دوستی تأیید شد',message:'حالا می‌توانید پیشرفت‌های مجاز را با هم ببینید.',dedupeKey:'friend-accepted:'+request.id})}else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
 
 async function profileUidFromUsername(value){const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');return claim.data().uid}
 function profileSummary(person){
@@ -147,7 +147,14 @@ function render(){
  window.dispatchEvent(new Event('elara:social-updated'));
 }
 
-async function publish(type){if(!uid||localStorage.getItem('elara_share_activity_'+uid)!=='yes'||!auth.currentUser?.emailVerified)return;const id=uid+'_'+crypto.randomUUID();try{await setDoc(doc(db,'activities',id),{uid,type,eventKey:id,createdAt:serverTimestamp()})}catch(error){console.warn('Activity sharing failed:',error);inform('ثبت فعالیت برای دوستان ناموفق بود: '+(error.code||error.message))}}
+async function publish(type,detail={}){
+ if(!uid||localStorage.getItem('elara_share_activity_'+uid)!=='yes'||!auth.currentUser?.emailVerified)return false;
+ const id=uid+'_'+crypto.randomUUID(),visibility=detail.visibility==='public'?'public':'friends';
+ const safe={uid,type:String(type||'activity').slice(0,32),eventKey:id,visibility,createdAt:serverTimestamp()};
+ if(type==='reading'){safe.pagesRead=Math.max(0,Math.min(10000,Number(detail.pagesRead)||0));safe.percentAfter=Math.max(0,Math.min(100,Number(detail.percentAfter)||0));safe.bookTitle=String(detail.bookTitle||'').slice(0,140)}
+ try{await setDoc(doc(db,'activities',id),safe);return true}catch(error){console.warn('Activity sharing failed:',error);inform('ثبت فعالیت برای دوستان ناموفق بود: '+(error.code||error.message));return false}
+}
+window.ElaraSocial.publishActivity=publish;
 function changed(){if(!uid||!state.me)return;let now;try{now=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return}if(!baseline){baseline=now;return}const day=new Date(),date=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`,beforeTasks=new Map((baseline.tasks||[]).map(x=>[x.id,x]));for(const task of now.tasks||[]){const before=beforeTasks.get(task.id);const completedNow=task.recurrenceRule?(task.occurrenceDone||[]).includes(date):task.completed;const completedBefore=task.recurrenceRule?(before?.occurrenceDone||[]).includes(date):before?.completed;if(completedNow&&!completedBefore)void publish('task')}const beforeHabits=new Map((baseline.habits||[]).map(x=>[x.id,x]));for(const habit of now.habits||[])if((habit.days||[]).includes(date)&&!(beforeHabits.get(habit.id)?.days||[]).includes(date))void publish('habit');baseline=now}
 window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};setTimeout(refresh,500)});window.addEventListener('elara:data-changed',changed);
 document.addEventListener('click',async e=>{
