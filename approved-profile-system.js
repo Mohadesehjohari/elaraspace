@@ -22,7 +22,7 @@ const levelFromXp=xp=>window.ElaraLevels?.level?.(Number(xp)||0)||Math.min(10,1+
 const titleForLevel=level=>TITLES[Math.min(10,Math.max(1,Number(level)||1))-1];
 function avatarPath(group,level,shape='circle'){
  const g=normalizeGroup(group),n=normalizeLevel(level),mode=SHAPES.includes(shape)?shape:'circle';if(!g||!n)return '';
- const modern='assets/avatars/level-'+String(n).padStart(2,'0')+'-'+(g==='female'?'f':'m')+'-'+mode+'.webp';
+ const modern='assets/avatars/level-'+String(n).padStart(2,'0')+'-'+(g==='female'?'f':'m')+'-'+mode+'.png';
  return modern;
 }
 function key(uid=currentUid()||'guest'){return PREFIX+String(uid||'guest')}
@@ -35,7 +35,7 @@ function normalizeWardrobe(value={}){const raw=value&&typeof value==='object'?va
 function readWardrobe(uid=currentUid()||'guest'){try{return normalizeWardrobe(JSON.parse(localStorage.getItem(key(uid))||'{}'))}catch{return normalizeWardrobe()}}
 function writeWardrobe(patch={}){const uid=currentUid()||'guest',next=normalizeWardrobe({...readWardrobe(uid),...patch});localStorage.setItem(key(uid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:wardrobe-changed',{detail:{uid,wardrobe:next}}));return next}
 function frameForLevel(level){const n=Math.min(10,Math.max(1,Number(level)||1));return n>=10?FRAMES[3]:n>=7?FRAMES[2]:n>=4?FRAMES[1]:FRAMES[0]}
-function frameVariantPath(frame,shape='circle'){const f=frameBy(frame);if(!f)return '';const mode=SHAPES.includes(shape)?shape:'circle';return 'assets/frames/'+f.id+'-'+mode+'.webp'}
+function frameVariantPath(frame,shape='circle'){const f=frameBy(frame);if(!f)return '';const mode=SHAPES.includes(shape)?shape:'circle';return 'assets/frames/'+f.id+'-'+mode+'.png'}
 const canEquipAvatar=(group,avatarLevel,userLevel)=>!!normalizeGroup(group)&&!!normalizeLevel(avatarLevel)&&Number(avatarLevel)<=Number(userLevel||0);
 const canEquipFrame=(frame,userLevel)=>{const f=frameBy(frame);return !!f&&f.required<=Number(userLevel||0)};
 const canEquipBanner=(banner,userLevel)=>{const b=bannerBy(banner);return !!b&&b.required<=Number(userLevel||0)};
