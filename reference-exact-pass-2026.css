@@ -474,3 +474,21 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
 #panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button::after{
  content:none!important;display:none!important;background:none!important;border:0!important;box-shadow:none!important
 }
+
+
+/* Final mobile View All geometry: override legacy 74px elara-link owner. */
+@media(max-width:700px){
+ #panel-home.ref-home .ref-card>header>.ref-view-all-button,
+ #panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button,
+ #panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button{
+  width:58px!important;min-width:58px!important;max-width:58px!important;
+  height:25px!important;min-height:25px!important;max-height:25px!important;
+  padding:0!important
+ }
+ #panel-home.ref-home .ref-card>header>.ref-view-all-button>.ref-view-all-art,
+ #panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button>.ref-view-all-art,
+ #panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button>.ref-view-all-art{
+  width:112px!important;min-width:112px!important;max-width:none!important;height:auto!important;
+  position:absolute!important;left:50%!important;top:50%!important;transform:translate(-54%,-50%)!important
+ }
+}
