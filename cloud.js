@@ -190,7 +190,7 @@ async function refreshFriends(){
     const el=document.createElement('div');el.className='item';el.textContent=`${i+1}. @${p.username} · ${Number(p.xp)||0} XP`;rank.append(el);
   }
 }
-async function decide(req,status){if(status==='declined')await deleteDoc(doc(db,'friendRequests',req.id));else await updateDoc(doc(db,'friendRequests',req.id),{status:'accepted'});await refreshFriends();}
+async function decide(req,status){if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',req.id))}catch(error){console.error('Elara cloud decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',req.id),{status:'declined'})}}else await updateDoc(doc(db,'friendRequests',req.id),{status:'accepted'});await refreshFriends();}
 async function addFriend(username){
   const v=safe(username).replace(/^@/,'').toLowerCase();if(!usernameValid(v))throw new Error('نام کاربری معتبر نیست.');
   const claim=await getDoc(doc(db,'usernames',v));if(!claim.exists())throw new Error('چنین نام کاربری‌ای پیدا نشد.');
