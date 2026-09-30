@@ -23,7 +23,7 @@ function seed(){
  localStorage.setItem('elara_locale_v1','fa');
 }
 const cloudStub=`window.ElaraAccount={user:null,profile:null};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));`;
-const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:[],error:'',refresh:async()=>{},saveProfileValues:async values=>({profile:values,warnings:[]}),publishActivity:async(type,detail)=>{(window.__published||(window.__published=[])).push({type,detail});return true},openSelfProfile(){},openProfile(){}};window.dispatchEvent(new Event('elara:social-updated'));`;
+const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:[],error:'',refresh:async()=>{},saveProfileValues:async values=>({profile:values,warnings:[]}),activityVisibility(){const u=this.me?.uid;if(!u)return 'private';return localStorage.getItem('elara_activity_visibility_'+u)||(localStorage.getItem('elara_share_activity_'+u)==='yes'?'friends':'private')},publishActivity:async function(type,detail){const visibility=this.activityVisibility();if(visibility==='private')return false;(window.__published||(window.__published=[])).push({type,detail:{...detail,visibility}});return true},openSelfProfile(){},openProfile(){}};window.dispatchEvent(new Event('elara:social-updated'));`;
 async function wire(page){
  const missing=[],errors=[],unhandled=[],badConsole=[];
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
@@ -132,6 +132,7 @@ for(const width of all){
 
   await openRoute(page,'books');
   await check(`${width}: reading report notification/privacy`,async()=>{
+   await page.evaluate(()=>{ElaraSocial.me={uid:'reader-qa',name:'Reader',username:'reader',xp:10};localStorage.setItem('elara_activity_visibility_reader-qa','friends')});
    await page.locator('[data-reading-report]').click();await page.locator('[data-reading-report-book="pp-book"]').click();await page.waitForTimeout(40);
    await page.locator('.library-log-form [name=pages]').fill('24');await page.locator('.library-log-form [type=submit]').click();await page.waitForTimeout(80);
    const data=await page.evaluate(()=>{const b=JSON.parse(localStorage.getItem('elara_space_v1')).books.find(x=>x.id==='pp-book');return{book:b,notifs:JSON.parse(localStorage.getItem('elara_notifications_v1')||'[]'),published:window.__published||[]}});assert.equal(data.book.currentPage,64);assert.equal(data.book.readingLogs.at(-1).pagesRead,24);assert.ok(data.notifs.some(x=>x.type==='reading'));assert.ok(data.published.some(x=>x.type==='reading'&&x.detail.visibility==='friends'));
@@ -148,7 +149,7 @@ for(const width of all){
    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/D/PwMDAwMDEwMDAwAANQUD/TehZAAAAABJRU5ErkJggg==','base64');
    await page.locator('#elara-central-profile-form input[type=file]').setInputFiles({name:'profile.png',mimeType:'image/png',buffer:png});await page.waitForTimeout(100);
    await page.locator('#elara-central-profile-form [name=shape]').selectOption('square');await page.locator('#elara-central-profile-form [name=nameFont]').selectOption('classic');await page.locator('#elara-central-profile-form [name=sex]').selectOption('male');await page.locator('#elara-central-profile-form [type=submit]').click();await page.waitForTimeout(100);
-   const stored=await page.evaluate(()=>({w:ElaraProfileSystem.readWardrobe(),p:ElaraProfileSystem.readPrivate()}));assert.equal(stored.w.shape,'square');assert.equal(stored.w.nameFont,'classic');assert.equal(stored.w.photoMode,'upload');assert.match(stored.w.photoSquare,/^data:image\/webp/);assert.equal(stored.p.sex,'male');
+   const stored=await page.evaluate(()=>({w:ElaraProfileSystem.readWardrobe(),p:ElaraProfileSystem.readPrivate(),circle:ElaraProfileSystem.avatarPath('female',1,'circle'),square:ElaraProfileSystem.avatarPath('female',1,'square'),frameCircle:ElaraProfileSystem.frameVariantPath('bronze','circle'),frameSquare:ElaraProfileSystem.frameVariantPath('bronze','square')}));assert.equal(stored.w.shape,'square');assert.equal(stored.w.nameFont,'classic');assert.equal(stored.w.photoMode,'upload');assert.match(stored.w.photoSquare,/^data:image\/webp/);assert.equal(stored.p.sex,'male');assert.match(stored.circle,/\.png$/);assert.match(stored.square,/\.png$/);assert.notEqual(stored.circle,stored.square);assert.notEqual(stored.frameCircle,stored.frameSquare);
    await page.evaluate(()=>ElaraWardrobeUI.open());await page.waitForTimeout(50);assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
    await page.evaluate(()=>ElaraWardrobeUI.close());await page.waitForTimeout(30);
    for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
@@ -161,9 +162,9 @@ for(const width of all){
   });
 
   await check(`${width}: English presentation no mixed system labels`,async()=>{
-   await page.evaluate(()=>ElaraI18n.set('en'));await openRoute(page,'home');await page.waitForTimeout(100);
-   const navText=await page.locator(mobile?'.bottom-nav':'.sidebar .navigation').innerText();assert.equal(fa.test(navText),false,'nav still Persian: '+navText);
-   await openRoute(page,'tasks');const taskUi=await page.locator('#panel-tasks .astra-task-toolbar').innerText();assert.equal(fa.test(taskUi),false,'task controls still Persian');
+   await page.evaluate(()=>ElaraI18n.set('en'));await page.waitForTimeout(80);
+   const selectors=['button:not([data-open-profile])','label','h1','h2','h3','summary','option','[role="tab"]','input[placeholder]'];
+   for(const route of routes){await openRoute(page,route);await page.waitForTimeout(45);const bad=await page.evaluate((selectors)=>{const rx=/[\u0600-\u06ff]/;return [...document.querySelectorAll(selectors.join(','))].filter(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return r.width&&r.height&&cs.display!=='none'&&cs.visibility!=='hidden'}).map(el=>(el.getAttribute('placeholder')||el.textContent||'').trim()).filter(t=>rx.test(t)).slice(0,8)},selectors);assert.deepEqual(bad,[],route+' has Persian system controls: '+bad.join(' | '))}
    await page.evaluate(()=>ElaraPrivateDrawer.open('language'));await page.waitForTimeout(50);const settingsText=await page.locator('.drawer-menu').innerText();assert.equal(fa.test(settingsText),false,'settings menu still Persian');
    await page.evaluate(()=>ElaraI18n.set('fa'));
   });
