@@ -1,9 +1,9 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20260930-boot-parallel-v1';
+  const BUILD='20260930-exact-reference-v2';
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
-  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css'];
+  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-exact-pass-2026.css'];
   /* Load legacy artwork/functional layers first; canonical Home geometry and Tasks visual owner load last so stale !important rules cannot displace their DOM owners. */
   for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);styleReady.push(new Promise((resolve,reject)=>{css.onload=resolve;css.onerror=()=>reject(new Error('Elara stylesheet unavailable: '+name))}));document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
@@ -11,7 +11,8 @@
   const essentialImages=(!location.hash||location.hash==='#home')?[
     'assets/ui/hero-landscape.webp',
     'assets/ui/nav-home-active.webp','assets/ui/nav-tasks-default.webp','assets/ui/nav-language-default.webp','assets/ui/nav-library-default.webp','assets/ui/nav-ranking-default.webp','assets/ui/nav-exercise-default.webp',
-    'assets/ui/friends-group-icon.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/streak-flame.webp','assets/ui/missions-rocket.webp'
+    'assets/ui/friends-group-icon.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/streak-flame.webp','assets/ui/missions-rocket.webp',
+    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-notifications-unread.webp','assets/ui/button-view-all.webp'
   ]:[];
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=assetUrl(src);if(typeof img.decode==='function')img.decode().then(done,done)});
   for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=assetUrl(src);preload.fetchPriority='high';document.head.append(preload)}
