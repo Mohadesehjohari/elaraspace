@@ -148,7 +148,14 @@ for(const width of all){
    await page.locator('#elara-central-profile-form input[type=file]').setInputFiles({name:'profile.png',mimeType:'image/png',buffer:png});await page.waitForTimeout(100);
    await page.locator('#elara-central-profile-form [name=shape]').selectOption('square');await page.locator('#elara-central-profile-form [name=nameFont]').selectOption('classic');await page.locator('#elara-central-profile-form [name=sex]').selectOption('male');await page.locator('#elara-central-profile-form [type=submit]').click();await page.waitForTimeout(100);
    const stored=await page.evaluate(()=>({w:ElaraProfileSystem.readWardrobe(),p:ElaraProfileSystem.readPrivate()}));assert.equal(stored.w.shape,'square');assert.equal(stored.w.nameFont,'classic');assert.equal(stored.w.photoMode,'upload');assert.match(stored.w.photoSquare,/^data:image\/webp/);assert.equal(stored.p.sex,'male');
-   await page.evaluate(()=>ElaraPrivateDrawer.open('wardrobe'));await page.waitForTimeout(50);assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
+   await page.evaluate(()=>ElaraWardrobeUI.open());await page.waitForTimeout(50);assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
+   await page.evaluate(()=>ElaraWardrobeUI.close());await page.waitForTimeout(30);
+   for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
+    await page.evaluate(section=>ElaraPrivateDrawer.open(section),section);await page.waitForTimeout(45);
+    assert.equal(await page.locator('#elara-dialog-root:not(.hidden) .drawer-section-dialog[data-drawer-section="'+section+'"]').count(),1,section+' must open in Elara Dialog');
+    assert.equal(await page.locator('.elara-private-drawer-panel>.drawer-section-dialog:not(.hidden)').count(),0,section+' leaked inline into Settings shell');
+    await page.evaluate(()=>ElaraDialog.close());await page.waitForTimeout(25);
+   }
    assert.equal(await page.locator('#main .drawer-account-area').count(),0,'Settings section leaked inline into page');
    await page.keyboard.press('Escape').catch(()=>{});
   });
