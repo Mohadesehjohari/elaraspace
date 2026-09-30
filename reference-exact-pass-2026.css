@@ -404,3 +404,10 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
  object-fit:contain!important;object-position:center!important;transform:none!important;border-radius:50%!important
 }
+
+
+/* Checked Habit has no residual legacy border; artwork reaches the control edge. */
+#panel-home.ref-home .ref-habit-mark.done,
+#panel-home.ref-home .ref-habit-mark[aria-pressed="true"]{
+ border:0!important;border-width:0!important
+}
