@@ -57,10 +57,10 @@ ps.writeWardrobe({avatarGroup:'male'});
 assert.equal(ps.readWardrobe().avatarGroup,'male');
 assert.equal(ps.readWardrobe().avatarLevel,null,'choosing a group must not silently equip level 1');
 
-assert.equal(ps.avatarPath('male',1),'assets/avatars-male-level1.png');
-assert.equal(ps.avatarPath('male',10),'assets/avatars-male-level10.png');
-assert.equal(ps.avatarPath('female',1),'assets/avatars_female_level1.png');
-assert.equal(ps.avatarPath('female',10),'assets/avatars_female_level10.png');
+assert.equal(ps.avatarPath('male',1,'circle'),'assets/avatars/level-01-m-circle.png');
+assert.equal(ps.avatarPath('male',10,'square'),'assets/avatars/level-10-m-square.png');
+assert.equal(ps.avatarPath('female',1,'circle'),'assets/avatars/level-01-f-circle.png');
+assert.equal(ps.avatarPath('female',10,'square'),'assets/avatars/level-10-f-square.png');
 assert.deepEqual(JSON.parse(JSON.stringify(ps.FRAMES.map(x=>[x.id,x.required,x.path]))),[
   ['bronze',1,'assets/frames_bronze.png'],
   ['silver',4,'assets/frames_silver.png'],
@@ -108,7 +108,8 @@ assert.match(wardrobeClickBlock,/if\(!locked&&system\.canEquipFrame/);
 assert.match(wardrobeClickBlock,/if\(!locked&&system\.canEquipBanner/);
 assert.ok(visualSource.includes("const p=wardrobe(),group=p.avatarGroup"),'Wardrobe must not default avatarGroup');
 assert.ok(!visualSource.includes("p.avatarGroup||'female'"));
-assert.ok(visualSource.includes('آپلود عکس شخصی Level 3 هنوز پیاده‌سازی نشده'),'Personal upload must be honestly marked unimplemented');
+assert.ok(profileSource.includes('async function photoVariants'),'Personal upload must generate safe circle/square variants');
+assert.ok(profileSource.includes("name=\"photoMode\""),'Profile editor must allow uploaded photo vs Elara avatar');
 
 assert.match(drawerSource,/function renderAccount\(\)/);
 assert.ok(drawerSource.includes('data-profile-edit'));
