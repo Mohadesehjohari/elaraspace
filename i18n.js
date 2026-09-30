@@ -52,11 +52,15 @@ function translate(value,node){
 function rememberAttr(el,name){let map=attrOrigin.get(el);if(!map){map={};attrOrigin.set(el,map)}if(!(name in map))map[name]=el.getAttribute(name)||'';return map[name]}
 let applying=false;
 function apply(root=document){
- if(applying)return;applying=true;try{
-  const lang=locale(),walker=document.createTreeWalker(root instanceof Document?root.documentElement:root,NodeFilter.SHOW_TEXT);
+ if(applying)return;
+ const target=root&&typeof root.nodeType==='number'?root:document;
+ const walkRoot=target.nodeType===9?target.documentElement:(target.nodeType===1?target:target.parentElement);
+ if(!walkRoot||!walkRoot.isConnected)return;
+ applying=true;try{
+  const lang=locale(),walker=document.createTreeWalker(walkRoot,NodeFilter.SHOW_TEXT);
   const nodes=[];let n;while((n=walker.nextNode()))nodes.push(n);
   for(const node of nodes){const parent=node.parentElement;if(!parent||['SCRIPT','STYLE','NOSCRIPT'].includes(parent.tagName))continue;if(!textOrigin.has(node)&&fa.test(node.nodeValue||''))textOrigin.set(node,node.nodeValue);const origin=textOrigin.get(node);if(origin!=null)node.nodeValue=lang==='en'?translate(origin,node):origin}
-  const scope=root instanceof Document?root:root.closest?.('html')||root;
+  const scope=target.nodeType===9?target:(walkRoot.closest?.('html')||walkRoot);
   scope.querySelectorAll?.('[placeholder],[title],[aria-label]').forEach(el=>{for(const name of ['placeholder','title','aria-label'])if(el.hasAttribute(name)){const origin=rememberAttr(el,name);el.setAttribute(name,lang==='en'?translate(origin,{parentElement:el}):origin)}});
   document.documentElement.lang=lang;document.documentElement.dir=lang==='en'?'ltr':'rtl';document.body?.classList.toggle('lang-en',lang==='en');document.body?.classList.toggle('lang-fa',lang!=='en');
  }finally{applying=false}
