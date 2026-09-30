@@ -19,7 +19,9 @@ jobs:
       - name: Start test server
         run: python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
       - name: End HEAD browser acceptance and screenshots
-        run: node tests/restore-browser.mjs
+        run: |
+          node tests/restore-browser.mjs
+          node tests/product-pass-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
