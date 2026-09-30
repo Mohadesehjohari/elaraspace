@@ -52,7 +52,7 @@ function open(id,editing=false){const book=getBooks().find(b=>b.id===id);if(!boo
    const last=next.readingLogs[next.readingLogs.length-1],pct=progress(next);
    window.ElaraNotify?.push?.({type:'reading',title:'گزارش مطالعه ثبت شد',message:'امروز '+fa(last.pagesRead)+' صفحه از «'+next.title+'» خوندی 📚🔥',dedupeKey:'reading:'+next.id+':'+last.timestamp,meta:{bookId:next.id,pagesRead:last.pagesRead,percentAfter:pct}});
    if(before.shelf!=='finished'&&next.shelf==='finished')window.ElaraNotify?.push?.({type:'book',title:'کتاب تموم شد',message:'«'+next.title+'» رو به پایان رسوندی 😎📖',dedupeKey:'book-finished:'+next.id});
-   window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title,visibility:'friends'});
+   window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title});
  }
  window.ElaraDialog.close()
 }catch(error){form.querySelector('[data-reading-error]').textContent=error.message}};
