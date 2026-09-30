@@ -101,7 +101,7 @@ assert.match(composition,/elara-profile-frame-img/);
 assert.match(composition,/banner-moon\.svg/);
 assert.match(composition,/Level 1/);
 
-const wardrobeClickBlock=visualSource.slice(visualSource.indexOf("const itemButton=event.target.closest('[data-wardrobe-item]')"),visualSource.indexOf("const toggle=event.target.closest('[data-language-book-toggle]')"));
+const wardrobeClickBlock=visualSource.slice(visualSource.indexOf("const itemButton=event.target.closest('[data-wardrobe-item]')"),visualSource.indexOf("const del=event.target.closest('[data-language-book-delete]')"));
 assert.match(wardrobeClickBlock,/selectedPreview=preview/);
 assert.match(wardrobeClickBlock,/if\(!locked&&system\.canEquipAvatar/);
 assert.match(wardrobeClickBlock,/if\(!locked&&system\.canEquipFrame/);
