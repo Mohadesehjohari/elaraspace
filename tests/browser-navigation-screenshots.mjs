@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const mobileRoutes=['exercise','language','tasks','home','ranking','books','freedom'];
+const mobileRoutes=['exercise','language','tasks','social','home','ranking','books','freedom'];
 const desktopRoutes=['home','tasks','language','books','exercise','ranking','freedom'];
 const measurements=[];
 async function ready(page,{seed=false}={}){
@@ -65,7 +65,7 @@ for(const width of [320,375,390,430]){
  const mobileHeroCopy=await bounds(page,'.ref-hero .hero-copy'),mobileHeroQuote=await bounds(page,'.ref-hero-quote');assert.ok(mobileHeroCopy.x<mobileHeroQuote.x,'Mobile Hero title/quote composition must match reference');
  assert.equal(await visible(page.locator('.ref-wellness-card')),true,'Mobile Wellness summary missing');
  assert.equal(await visible(page.locator('.ref-tasks')),true);assert.equal(await visible(page.locator('.ref-habits')),true);
- assert.equal(await visible(page.locator('.ref-goals')),false,'Goals preview must be removed only from Mobile Home');
+ assert.equal(await visible(page.locator('.ref-goals')),true,'Goals preview must remain visible full-width on Mobile Home');
  assert.equal(await page.locator('#ref-streak-card .ref-streak-flame').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Mobile flame failed');
  assert.equal(await page.locator('.ref-missions .ref-missions-art').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Mobile rocket failed');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'Mobile horizontal overflow '+width+': '+overflow);
