@@ -526,3 +526,32 @@ Hierarchy:
 
 ### Gate برای تبدیل TESTED/VERIFIED به ✅
 فقط پس از PASS شدن GitHub Actions روی End HEAD، ذخیرهٔ screenshot واقعی همهٔ ۷ viewport، گزارش Tasks geometry، بررسی 404/overflow/page errors، و بازبینی بصری artifact همان End HEAD.
+
+
+---
+
+## الحاقیه ۳۰ سپتامبر ۲۰۲۶ — Home P0 Bugfix + Visual Fidelity
+
+وضعیت این بخش بر مبنای رفتار واقعی ownerهای Home/Tasks و Browser Acceptance همان End HEAD ثبت می‌شود.
+
+| Bug / Milestone | REQUESTED | ROOT CAUSE | CODED | AUTOMATED TESTED | BROWSER VERIFIED |
+| --- | --- | --- | --- | --- | --- |
+| `HOME-HABIT-CHECK-FILL` | ✅ | Home به `icon-task-complete-astra-v2.webp` اشاره می‌کرد و چند owner اندازه/crop تیک را کنترل می‌کردند؛ نتیجه شبیه جوانه/نیم‌دایره بود. | ✅ استفاده از `icon-tasks-check-alpha.webp` + circle/fill contract | ⏳ | ⏳ |
+| `TASK-MOBILE-CHECK-CIRCLE` | ✅ | چند قانون قدیمی 24/27px و flex/grid بدون aspect/flex-basis قطعی روی canonical checkbox رقابت داشتند. | ✅ aspect-ratio 1/1 + ابعاد برابر + flex ثابت در final owner | ⏳ | ⏳ |
+| `HABIT-ROW-ICON-CLEANUP` | ✅ | `habitArt(h)` برای هر ردیف Habit icon معنایی جدا تزریق می‌کرد. | ✅ semantic row artwork از renderer حذف شد؛ فقط header artwork باقی است. | ⏳ | ⏳ |
+| `WELLNESS-SPORTS-BANNER` | ✅ | Wellness فقط banner متنی تولید می‌کرد و binary واقعی `banner-running-moonlit-mountains.webp` به DOM وصل نبود. | ✅ image واقعی داخل همان Wellness card، زیر چهار stat | ⏳ | ⏳ |
+| `HOME-LAYOUT-SHIFT-ON-TOGGLE` | ✅ | Task/Habit click علاوه بر canonical mutation، `schedule() -> render() -> homeStructure()` کامل را اجرا می‌کرد؛ cardها re-append و heading artwork دوباره نوشته/decoded می‌شد. | ✅ local mutation hint + targeted Task/Habit renderer؛ Ranking/Friends/Theme/Wellness برای checkbox ساده rebuild نمی‌شوند. | ⏳ | ⏳ |
+| `LEGACY-ICON-DUPLICATION` | ✅ | base card heading، reference heading replacement و pseudo icon ownerها هم‌زمان فعال بودند؛ heading نیز در full render دوباره `innerHTML` می‌شد. | ✅ idempotent `data-ref-heading-owner` + حذف pseudo heading owner در final CSS | ⏳ | ⏳ |
+| `VIEW-ALL-ASSET-SIZING` | ✅ | uploaded binary خودش pill/text کامل دارد و transparent canvas بزرگ آن داخل outer pill بزرگ نمایش داده می‌شد. | ✅ outer decoration حذف و canvas در button واقعی به visual bounds crop/fit شده است. | ⏳ | ⏳ |
+| `MOBILE-CARD-CLIPPING` | ✅ | fixed card heights + row wrapping + `overflow:hidden` و breakpoint قدیمی 320 باعث نیمه‌نمایش ردیف‌ها و composition متفاوت می‌شد. | ✅ دو ستون پایدار Tasks/Habits، compact fixed rows، Wellness full-width، Missions/Ranking pair، Friends full-width و Goals full-width. | ⏳ | ⏳ |
+| `LIGHT-MODE-CONTRAST` | ✅ | generic Light surface rules روی Hero/Quote/Streak بدون artwork-specific contrast اعمال می‌شدند. | ✅ Hero/Quote/Streak artwork surfaces contrast-specific override دارند؛ Dark artwork حفظ می‌شود. | ⏳ | ⏳ |
+
+### Regression contracts این Pass
+- Mobile Goals دیگر مخفی نیست؛ در Mobile `grid-column:1/-1` دارد و internal scroll قبلی حفظ می‌شود.
+- Bottom Nav center-Home و ترتیب فاصله‌ای Friends/Ranking → Tasks/Library → Language/Exercise/Freedom تغییر نمی‌کند.
+- Dark ON از Moon روشن و Light از Moon کم‌نور استفاده می‌کند؛ Bell/Moon box ظاهری ندارند.
+- Task/Habit canonical persistence، recurrence، XP و cross-feature sync دست‌نخورده می‌مانند.
+- `Friends Activity` همچنان CTA سادهٔ Reference دارد و View All artwork به آن تزریق نمی‌شود.
+
+### Browser gate
+برای تبدیل دو ستون آخر جدول به ✅ باید End HEAD در 320/375/390/430 و 1440/1648/1920 پاس شود؛ circle geometry، checked fill، banner، no-semantic-icon، Ranking/Friends delta ≤ 2px، single heading owner، View All geometry، no overflow/404/pageerror و سه toggle متوالی بدون flicker ثبت شوند.
