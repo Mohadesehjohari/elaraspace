@@ -4,8 +4,9 @@ const $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],fa=n=>Numbe
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const empty=(text,art='friends-group-icon.webp')=>`<div class="social-empty"><img src="assets/ui/${art}" alt=""><p>${text}</p></div>`;
 const imageButton=(file,label,attrs)=>`<button type="button" class="social-art-button" aria-label="${label}" ${attrs}><img src="assets/ui/${file}" alt=""></button>`;
-function portrait(p){const model=window.ElaraProfileSystem?.viewModel?.(p,{self:p.uid===window.ElaraSocial?.me?.uid});return model?.avatarSrc?`<img class="social-portrait" src="${esc(model.avatarSrc)}" alt="">`:`<span class="social-portrait initials">${esc((p.name||p.username||'؟').slice(0,1))}</span>`}
-const person=p=>`<button type="button" class="social-person" data-open-profile="${esc(p.uid)}">${portrait(p)}<span><strong>${esc(p.name||p.username||'کاربر')}</strong><small>${p.username?'@'+esc(p.username):''}</small></span></button>`;
+function profileModel(p){return window.ElaraProfileSystem?.viewModel?.(p,{self:p.uid===window.ElaraSocial?.me?.uid})||null}
+function portrait(p,model=profileModel(p)){return model?.avatarSrc?`<img class="social-portrait" src="${esc(model.avatarSrc)}" alt="">`:`<span class="social-portrait initials">${esc((p.name||p.username||'؟').slice(0,1))}</span>`}
+const person=p=>{const model=profileModel(p),shape=model?.shape||'circle',font=model?.nameFontCss||'inherit';return `<button type="button" class="social-person" data-profile-shape="${esc(shape)}" style="--elara-name-font:${esc(font)}" data-open-profile="${esc(p.uid)}">${portrait(p,model)}<span><strong>${esc(p.name||p.username||'کاربر')}</strong><small>${p.username?'@'+esc(p.username):''}</small></span></button>`};
 const section=(title,body,cls='')=>`<section class="elara-card social-section ${cls}"><header><h2>${title}</h2></header>${body}</section>`;
 const tabs=[['ranking','رنکینگ','ranking-tab-active.webp'],['friends','دوستان','friends-tab.webp'],['community','جامعه','community-tab.webp'],['clubs','کلاب‌ها','clubs-tab.webp']];
 let selections={social:'ranking',ranking:'ranking'};
