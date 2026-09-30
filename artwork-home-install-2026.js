@@ -15,6 +15,6 @@ function ranking(){const host=document.getElementById('elara-home-ranks');if(!ho
 
 function decorate(){keepDecoded('flame','#ref-streak-card .ref-streak-flame');keepDecoded('rocket','#panel-home .ref-missions-art');headingArtwork();ranking()}
 let queued=false;function schedule(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;decorate()})}
-function init(){decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:social-updated','elara:account-ready','elara:profile-saved'])window.addEventListener(name,schedule);const home=document.getElementById('panel-home');if(home){const observer=new MutationObserver(()=>schedule());observer.observe(home,{childList:true,subtree:true})}}
+function init(){decorate();for(const name of ['elara:open','elara:hydrate','elara:social-updated','elara:account-ready','elara:profile-saved'])window.addEventListener(name,schedule);const home=document.getElementById('panel-home');if(home){const observer=new MutationObserver(()=>schedule());observer.observe(home,{childList:true,subtree:true})}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
