@@ -314,3 +314,29 @@ body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17
  #panel-tasks .astra-repeat-meta,#panel-tasks .astra-schedule-meta{max-width:150px!important;height:20px!important;min-height:20px!important;font-size:.58rem!important;padding:2px 6px!important}
  #panel-tasks .astra-repeat-meta>b{width:13px!important;height:13px!important;min-width:13px!important;font-size:7px!important}
 }
+
+
+/* Final fixed-card scroll contract: list growth stays inside the body on every viewport. */
+#panel-home.ref-home .ref-tasks,
+#panel-home.ref-home .ref-habits,
+#panel-home.ref-home .ref-missions,
+#panel-home.ref-home .ref-goals,
+#panel-home.ref-home .ref-ranks,
+#panel-home.ref-home .ref-activity{
+ display:flex!important;flex-direction:column!important;overflow:hidden!important
+}
+#panel-home.ref-home .ref-tasks>header,
+#panel-home.ref-home .ref-habits>header,
+#panel-home.ref-home .ref-missions>header,
+#panel-home.ref-home .ref-goals>header,
+#panel-home.ref-home .ref-ranks>header,
+#panel-home.ref-home .ref-activity>header{flex:0 0 auto!important}
+#panel-home.ref-home #elara-home-tasks,
+#panel-home.ref-home #elara-home-habits,
+#panel-home.ref-home #elara-home-missions,
+#panel-home.ref-home .ref-goals-scroll,
+#panel-home.ref-home #elara-home-ranks,
+#panel-home.ref-home #elara-home-activity{
+ flex:1 1 0!important;height:0!important;min-height:0!important;max-height:none!important;
+ overflow-x:hidden!important;overflow-y:auto!important
+}
