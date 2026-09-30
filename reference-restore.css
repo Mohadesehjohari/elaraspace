@@ -340,3 +340,35 @@ body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17
  flex:1 1 0!important;height:0!important;min-height:0!important;max-height:none!important;
  overflow-x:hidden!important;overflow-y:auto!important
 }
+
+
+/* Final Tasks reference geometry + scroll-body ownership; measured from approved desktop/mobile rasters. */
+@media(min-width:701px){
+ #panel-tasks .astra-task-hero{
+  box-sizing:border-box!important;width:100%!important;height:clamp(202px,22.3vh,218px)!important;
+  min-height:clamp(202px,22.3vh,218px)!important;max-height:clamp(202px,22.3vh,218px)!important;
+  padding:26px 32px!important
+ }
+ #panel-tasks #task-list>.astra-task-row,
+ #panel-tasks #task-list>.item{
+  box-sizing:border-box!important;height:clamp(70px,7.65vh,76px)!important;
+  min-height:clamp(70px,7.65vh,76px)!important;max-height:clamp(70px,7.65vh,76px)!important;
+  padding:8px 14px!important
+ }
+ #panel-tasks #task-list .check-button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;max-width:42px!important;max-height:42px!important}
+}
+@media(max-width:700px){
+ #panel-tasks .astra-task-hero{
+  box-sizing:border-box!important;width:100%!important;height:clamp(116px,36.4vw,156px)!important;
+  min-height:clamp(116px,36.4vw,156px)!important;max-height:clamp(116px,36.4vw,156px)!important;
+  padding:14px 16px!important
+ }
+ #panel-tasks #task-list>.astra-task-row,
+ #panel-tasks #task-list>.item{
+  box-sizing:border-box!important;height:clamp(88px,23.8vw,104px)!important;
+  min-height:clamp(88px,23.8vw,104px)!important;max-height:clamp(88px,23.8vw,104px)!important;
+  padding:11px 12px!important
+ }
+ #panel-tasks #task-list .check-button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;max-width:34px!important;max-height:34px!important}
+}
+#panel-home.ref-home #elara-home-ranks{display:block!important}
