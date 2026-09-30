@@ -147,14 +147,22 @@ function render(){
  window.dispatchEvent(new Event('elara:social-updated'));
 }
 
+function activityVisibility(owner=uid){
+ if(!owner)return 'private';
+ const explicit=localStorage.getItem('elara_activity_visibility_'+owner);
+ if(['private','friends','public'].includes(explicit))return explicit;
+ return localStorage.getItem('elara_share_activity_'+owner)==='yes'?'friends':'private';
+}
 async function publish(type,detail={}){
- if(!uid||localStorage.getItem('elara_share_activity_'+uid)!=='yes'||!auth.currentUser?.emailVerified)return false;
- const id=uid+'_'+crypto.randomUUID(),visibility=detail.visibility==='public'?'public':'friends';
+ if(!uid||!auth.currentUser?.emailVerified)return false;
+ const configured=activityVisibility(uid),visibility=['private','friends','public'].includes(detail.visibility)?detail.visibility:configured;
+ if(visibility==='private')return false;
+ const id=uid+'_'+crypto.randomUUID();
  const safe={uid,type:String(type||'activity').slice(0,32),eventKey:id,visibility,createdAt:serverTimestamp()};
  if(type==='reading'){safe.pagesRead=Math.max(0,Math.min(10000,Number(detail.pagesRead)||0));safe.percentAfter=Math.max(0,Math.min(100,Number(detail.percentAfter)||0));safe.bookTitle=String(detail.bookTitle||'').slice(0,140)}
  try{await setDoc(doc(db,'activities',id),safe);return true}catch(error){console.warn('Activity sharing failed:',error);inform('ثبت فعالیت برای دوستان ناموفق بود: '+(error.code||error.message));return false}
 }
-window.ElaraSocial.publishActivity=publish;
+window.ElaraSocial.publishActivity=publish;window.ElaraSocial.activityVisibility=activityVisibility;
 function changed(){if(!uid||!state.me)return;let now;try{now=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return}if(!baseline){baseline=now;return}const day=new Date(),date=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`,beforeTasks=new Map((baseline.tasks||[]).map(x=>[x.id,x]));for(const task of now.tasks||[]){const before=beforeTasks.get(task.id);const completedNow=task.recurrenceRule?(task.occurrenceDone||[]).includes(date):task.completed;const completedBefore=task.recurrenceRule?(before?.occurrenceDone||[]).includes(date):before?.completed;if(completedNow&&!completedBefore)void publish('task')}const beforeHabits=new Map((baseline.habits||[]).map(x=>[x.id,x]));for(const habit of now.habits||[])if((habit.days||[]).includes(date)&&!(beforeHabits.get(habit.id)?.days||[]).includes(date))void publish('habit');baseline=now}
 window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};setTimeout(refresh,500)});window.addEventListener('elara:data-changed',changed);
 document.addEventListener('click',async e=>{
