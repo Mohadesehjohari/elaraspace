@@ -41,8 +41,7 @@ function renderHome(){
  const panel=$('panel-home'),grid=panel?.querySelector('.elara-dashboard-grid');if(!panel||!grid)return;
  panel.classList.add('pass3-home');
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('pass3-home-hero');const kicker=hero.querySelector('.elara-kicker');if(kicker)kicker.textContent='ELARA · YOUR PERSONAL COSMOS';const copy=hero.querySelector('.hero-copy>p:not(.elara-kicker)');if(copy)copy.textContent='امروز فقط یک قدم روشن بردار؛ بقیهٔ مسیر خودش شکل می‌گیرد.'}
- ensureFocusInsideTasks();
- for(const id of HOME_ORDER){const card=$(id)?.closest('.elara-card');if(card)grid.append(card)}
+ if(!window.ElaraReferenceHome){ensureFocusInsideTasks();for(const id of HOME_ORDER){const card=$(id)?.closest('.elara-card');if(card)grid.append(card)}}
  const model=homeModel(),tasksHost=$('elara-home-tasks'),stats=$('elara-stats');if(stats?.firstElementChild?.querySelector('strong'))stats.firstElementChild.querySelector('strong').textContent=fmt(streakCount());
  if(tasksHost&&!window.ElaraReferenceHome){tasksHost.innerHTML=model.tasks.length?model.tasks.map(taskRow).join(''):'<div class="pass3-empty-state">برای امروز کاری ثبت نشده؛ از صفحهٔ تسک‌ها یک قدم کوچک اضافه کن.</div>';tasksHost.closest('.elara-card')?.classList.add('pass3-primary-card','pass3-tasks-card')}
  const habits=$('elara-home-habits');
