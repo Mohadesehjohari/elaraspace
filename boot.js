@@ -38,8 +38,13 @@
       /* Dynamic scripts fetch in parallel but execute in insertion order (async=false). */
       await Promise.all([loadScriptsInOrder(scripts),Promise.all(styleReady)]);
       window.ElaraNavigation?.render?.();window.ElaraReferenceHome?.render?.();
+      /* Decode the actual rendered first-frame controls, not only preload clones. This prevents
+         the shell from revealing while visible nav/Moon/Bell <img> nodes are still blank. */
+      const renderedArtworkReady=Promise.all([...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art,#theme-toggle .ref-theme-art,#ref-header-notifications .ref-notification-art')]
+        .filter(img=>img.getClientRects().length>0)
+        .map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():typeof img.decode==='function'?img.decode().catch(()=>{}):new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true})})));
       /* Only first-viewport artwork blocks reveal; secondary icons load normally after release. */
-      await Promise.race([essentialArtworkReady,new Promise(resolve=>setTimeout(resolve,3500))]);
+      await Promise.race([Promise.all([essentialArtworkReady,renderedArtworkReady]),new Promise(resolve=>setTimeout(resolve,3500))]);
       ready=true;release();
     }catch(error){console.error('Elara final shell could not start:',error);const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بارگذاری پوستهٔ الارا کامل نشد. اتصال را بررسی کن و دوباره تلاش کن.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow)}
