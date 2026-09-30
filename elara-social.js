@@ -45,6 +45,13 @@ async function addFriend(value){
    await refresh();
    const relation=state.requests.find(r=>r.other===to&&r.status!=='declined');
    if(relation)throw Error(relation.status==='accepted'?'قبلاً دوست شده‌اید.':relation.to===uid?'درخواست ورودی از این کاربر وجود دارد.':'درخواست قبلی هنوز در انتظار است.');
+   const stale=state.requests.find(r=>r.id===request.id&&r.from===uid&&r.status==='declined');
+   if(stale){
+     try{
+       await updateDoc(doc(db,'friendRequests',request.id),{status:'pending'});
+       await refresh();return to;
+     }catch(retryError){socialError('retry-declined-friend-request',retryError);throw retryError}
+   }
    throw error;
  }
 }
@@ -156,8 +163,8 @@ window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};setTimeout(ref
 document.addEventListener('click',async e=>{
  const open=e.target.closest('[data-open-profile]');if(open?.dataset.openProfile){try{await openProfile(open.dataset.openProfile)}catch(error){inform(error.message||String(error))}return}
  if(e.target.closest('[data-profile-lookup]')){try{await openProfileByUsername($('elara-add-friend-name')?.value)}catch(error){inform(error.message||String(error))}return}
- const add=e.target.closest('[data-profile-add-friend]');if(add){add.disabled=true;try{const target=await addFriend(add.dataset.profileAddFriend);await openProfile(target)}catch(error){inform(error.message||String(error))}finally{add.disabled=false}return}
- const action=e.target.closest('[data-profile-friend-action]');if(action){const req=state.requests.find(r=>r.id===action.dataset.request);if(!req)return;action.disabled=true;try{if(action.dataset.profileFriendAction==='remove')await removeFriend(req);else if(action.dataset.profileFriendAction==='cancel')await cancelRequest(req);else await decide(req,action.dataset.profileFriendAction==='accept'?'accepted':'declined');if(state.profileView?.uid&&state.profileView.uid!==uid){try{await openProfile(state.profileView.uid)}catch{window.ElaraOpen?.('social')}}}catch(error){inform(error.message||String(error))}finally{action.disabled=false}return}
+ const add=e.target.closest('[data-profile-add-friend]');if(add){add.disabled=true;try{const target=await addFriend(add.dataset.profileAddFriend);await openProfile(target)}catch(error){inform(socialError('profile-add-friend',error))}finally{add.disabled=false}return}
+ const action=e.target.closest('[data-profile-friend-action]');if(action){const req=state.requests.find(r=>r.id===action.dataset.request);if(!req)return;action.disabled=true;try{if(action.dataset.profileFriendAction==='remove')await removeFriend(req);else if(action.dataset.profileFriendAction==='cancel')await cancelRequest(req);else await decide(req,action.dataset.profileFriendAction==='accept'?'accepted':'declined');if(state.profileView?.uid&&state.profileView.uid!==uid){try{await openProfile(state.profileView.uid)}catch{window.ElaraOpen?.('social')}}}catch(error){inform(socialError('profile-friend-action',error))}finally{action.disabled=false}return}
  if(e.target.id==='elara-delete-activity'){const b=e.target;b.disabled=true;try{if(!uid)throw Error('وارد حساب نشده‌ای.');const docs=await getDocs(query(collection(db,'activities'),where('uid','==',uid)));for(const a of docs.docs)await deleteDoc(a.ref);$('elara-delete-activity-status').textContent='فعالیت‌های قبلی پاک شدند.';await refresh()}catch(error){$('elara-delete-activity-status').textContent=error.message||String(error)}finally{b.disabled=false}}
 });
 document.addEventListener('submit',async e=>{
