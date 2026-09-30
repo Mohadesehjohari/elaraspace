@@ -34,7 +34,7 @@ function renderLanguage(){
 function refreshHome(){
  const stats=$('elara-stats');if(stats){const values=['flame','tasks','book3d','goals','spark'];[...stats.children].forEach((card,i)=>{const first=card.firstElementChild;if(first){first.className='elara-visual-icon';first.innerHTML=icon(values[i])}})}
  const headers=[['elara-home-tasks','tasks'],['elara-home-focus','focus'],['elara-home-habits','habits'],['elara-home-goals','goals'],['elara-home-missions','missions'],['elara-home-activity','activity'],['elara-home-social','friends'],['elara-home-ranks','ranking']];
- for(const [id,name] of headers){const h=$(id)?.closest('.elara-card')?.querySelector('header h2');if(h&&!h.querySelector('.elara-icon'))h.insertAdjacentHTML('afterbegin',icon(name)+' ')}
+ for(const [id,name] of headers){const h=$(id)?.closest('.elara-card')?.querySelector('header h2');if(h&&!h.dataset.refHeadingOwner&&!h.querySelector('.elara-card-art')&&!h.querySelector('.elara-icon'))h.insertAdjacentHTML('afterbegin',icon(name)+' ')}
  const ranks=$('elara-home-ranks');if(ranks&&!ranks.children.length){ranks.innerHTML='<p class="muted">رنکینگ واقعی خودت و دوستانت در بخش رنکینگ دیده می‌شود.</p><button type="button" class="quiet-button" data-elara-tab="ranking">دیدن رنکینگ</button>'}
  const social=$('elara-home-social');if(social&&!social.children.length){social.innerHTML='<p class="muted">با دوستانت مسیر را جذاب‌تر کن.</p><button type="button" class="quiet-button" data-elara-tab="social">دیدن دوستان</button>'}
 }
