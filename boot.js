@@ -11,7 +11,7 @@
   const essentialImages=(!location.hash||location.hash==='#home')?[
     'assets/ui/hero-landscape.webp',
     'assets/ui/nav-home-active.webp','assets/ui/nav-tasks-default.webp','assets/ui/nav-language-default.webp','assets/ui/nav-library-default.webp','assets/ui/nav-ranking-default.webp','assets/ui/nav-exercise-default.webp',
-    'assets/ui/friends-group-icon.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/streak-flame.webp','assets/ui/missions-rocket.webp',
+    'assets/ui/friends-group-icon.webp','assets/ui/icon-freedom-lotus.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/streak-flame.webp','assets/ui/missions-rocket.webp',
     'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-notifications-unread.webp','assets/ui/button-view-all.webp'
   ]:[];
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=assetUrl(src);if(typeof img.decode==='function')img.decode().then(done,done)});
