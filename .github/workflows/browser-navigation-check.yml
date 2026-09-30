@@ -17,6 +17,7 @@ on:
       - 'approved-visual.js'
       - 'drawer.js'
       - 'boot.js'
+      - 'index.html'
       - 'elara-design.js'
       - 'reference-home-shell-2026.*'
       - 'reference-exact-pass-2026.css'
