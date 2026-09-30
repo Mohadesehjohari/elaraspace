@@ -411,3 +411,44 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
 #panel-home.ref-home .ref-habit-mark[aria-pressed="true"]{
  border:0!important;border-width:0!important
 }
+
+
+/* P0 internal Home card scroll: headers remain fixed and growing bodies scroll in-place. */
+#panel-home.ref-home .ref-tasks,
+#panel-home.ref-home .ref-habits,
+#panel-home.ref-home .ref-missions,
+#panel-home.ref-home .ref-goals,
+#panel-home.ref-home .ref-ranks,
+#panel-home.ref-home .ref-activity{
+ display:flex!important;flex-direction:column!important;overflow:hidden!important
+}
+#panel-home.ref-home .ref-tasks>header,
+#panel-home.ref-home .ref-habits>header,
+#panel-home.ref-home .ref-missions>header,
+#panel-home.ref-home .ref-goals>header,
+#panel-home.ref-home .ref-ranks>header,
+#panel-home.ref-home .ref-activity>header{
+ flex:0 0 auto!important;position:relative!important;z-index:2!important
+}
+#panel-home.ref-home #elara-home-tasks,
+#panel-home.ref-home #elara-home-habits,
+#panel-home.ref-home #elara-home-missions,
+#panel-home.ref-home .ref-goals-scroll,
+#panel-home.ref-home #elara-home-ranks,
+#panel-home.ref-home #elara-home-activity{
+ flex:1 1 auto!important;min-height:0!important;max-height:none!important;
+ overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+ touch-action:pan-y!important;scrollbar-gutter:stable!important
+}
+#panel-home.ref-home #elara-home-ranks,
+#panel-home.ref-home #elara-home-activity{overflow-y:auto!important}
+@media(max-width:700px){
+ #panel-home.ref-home #elara-home-tasks,
+ #panel-home.ref-home #elara-home-habits,
+ #panel-home.ref-home #elara-home-missions,
+ #panel-home.ref-home #elara-home-ranks,
+ #panel-home.ref-home #elara-home-activity,
+ #panel-home.ref-home .ref-goals-scroll{
+  max-height:none!important;overflow-y:auto!important
+ }
+}
