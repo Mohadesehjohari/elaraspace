@@ -384,3 +384,23 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #panel-home.ref-home .ref-right-stack>.ref-ranks{grid-column:2!important;grid-row:auto!important}
  #panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1/-1!important;grid-row:auto!important}
 }
+
+
+/* P0 checked artwork owns the whole control box; beats legacy fixed-pixel image rules. */
+#panel-home.ref-home .ref-task-check>.ref-task-check-art,
+#panel-home.ref-home .ref-habit-mark>.ref-task-check-art,
+#panel-home.ref-home .ref-goal-step>.ref-goal-check-art{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+ object-fit:contain!important;object-position:center!important;transform:none!important;border-radius:50%!important
+}
+#panel-home.ref-home .ref-task-check,
+#panel-home.ref-home .ref-habit-mark,
+#panel-home.ref-home .ref-goal-step{position:relative!important}
+#panel-tasks #task-list .check-button>.elara-check-art{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+ object-fit:contain!important;object-position:center!important;transform:none!important;border-radius:50%!important
+}
