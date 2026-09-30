@@ -76,3 +76,141 @@ body.light #panel-home .ref-card>div[id^="elara-home-"]{scrollbar-color:rgba(235
 body.light #panel-home .ref-card>div[id^="elara-home-"]::-webkit-scrollbar-thumb{background:rgba(235,225,255,.96);border-color:rgba(115,85,180,.18)}
 #panel-home #elara-home-activity{height:82px!important;max-height:82px!important}
 @media(max-width:700px){#panel-home.ref-home .ref-card>header .ref-view-all-button{width:61px!important;min-width:45px!important;height:26px!important}#panel-home.ref-home .ref-home-grid>.ref-wellness-card{min-height:215px!important}}
+
+
+/* 2026-10-01 product pass: final Home grid/nav/scroll ownership. */
+#panel-home.ref-home .ref-home-grid>.ref-card,
+#panel-home.ref-home .ref-home-grid>.ref-theme-strip{
+ position:relative!important;inset:auto!important;transform:none!important;float:none!important;
+ margin:0!important;align-self:stretch!important;justify-self:stretch!important;min-width:0!important
+}
+#panel-home.ref-home .ref-home-grid>.ref-ranks{grid-column:auto!important;grid-row:auto!important}
+#panel-home.ref-home .ref-home-grid>.ref-activity{grid-column:auto!important;grid-row:auto!important}
+#panel-home.ref-home .ref-card>header .elara-link.ref-view-all-button{
+ position:relative!important;width:58px!important;min-width:58px!important;max-width:58px!important;
+ height:27px!important;min-height:27px!important;padding:0!important;overflow:visible!important;
+ color:transparent!important;font-size:0!important;background:none!important;background-image:none!important;
+ border:0!important;box-shadow:none!important
+}
+#panel-home.ref-home .ref-card>header .elara-link.ref-view-all-button>img{
+ position:absolute!important;left:50%!important;top:50%!important;width:112px!important;height:auto!important;
+ max-width:none!important;transform:translate(-54%,-50%)!important;object-fit:contain!important;pointer-events:none!important
+}
+
+/* Card bodies own their scroll. LTR outer rail puts the native scrollbar on the right; content returns to RTL. */
+#panel-home.ref-home .ref-task-list,
+#panel-home.ref-home .ref-habit-list,
+#panel-home.ref-home #elara-home-missions,
+#panel-home.ref-home .ref-goals-scroll,
+#panel-home.ref-home #elara-home-ranks,
+#panel-home.ref-home #elara-home-activity{
+ direction:ltr!important;overflow-x:hidden!important;overflow-y:auto!important;min-height:0!important;
+ overscroll-behavior:contain!important;scrollbar-gutter:stable!important;scrollbar-width:thin!important;
+ scrollbar-color:rgba(95,60,175,.58) rgba(4,8,20,.15)!important
+}
+#panel-home.ref-home .ref-task-list>*,
+#panel-home.ref-home .ref-habit-list>*,
+#panel-home.ref-home #elara-home-missions>*,
+#panel-home.ref-home .ref-goals-scroll>*,
+#panel-home.ref-home #elara-home-ranks>*,
+#panel-home.ref-home #elara-home-activity>*{direction:rtl!important;text-align:right}
+#panel-home.ref-home .ref-task-list::-webkit-scrollbar,
+#panel-home.ref-home .ref-habit-list::-webkit-scrollbar,
+#panel-home.ref-home #elara-home-missions::-webkit-scrollbar,
+#panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar,
+#panel-home.ref-home #elara-home-ranks::-webkit-scrollbar,
+#panel-home.ref-home #elara-home-activity::-webkit-scrollbar{width:6px}
+#panel-home.ref-home .ref-task-list::-webkit-scrollbar-track,
+#panel-home.ref-home .ref-habit-list::-webkit-scrollbar-track,
+#panel-home.ref-home #elara-home-missions::-webkit-scrollbar-track,
+#panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-track,
+#panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-track,
+#panel-home.ref-home #elara-home-activity::-webkit-scrollbar-track{background:rgba(4,8,20,.15);border-radius:999px}
+#panel-home.ref-home .ref-task-list::-webkit-scrollbar-thumb,
+#panel-home.ref-home .ref-habit-list::-webkit-scrollbar-thumb,
+#panel-home.ref-home #elara-home-missions::-webkit-scrollbar-thumb,
+#panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-thumb,
+#panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-thumb,
+#panel-home.ref-home #elara-home-activity::-webkit-scrollbar-thumb{background:rgba(95,60,175,.58);border:1px solid rgba(190,160,255,.18);border-radius:999px}
+#panel-home.ref-home .ref-task-list::-webkit-scrollbar-thumb:hover,
+#panel-home.ref-home .ref-habit-list::-webkit-scrollbar-thumb:hover,
+#panel-home.ref-home #elara-home-missions::-webkit-scrollbar-thumb:hover,
+#panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-thumb:hover,
+#panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-thumb:hover,
+#panel-home.ref-home #elara-home-activity::-webkit-scrollbar-thumb:hover{background:rgba(145,90,245,.82)}
+body.light #panel-home.ref-home .ref-task-list,
+body.light #panel-home.ref-home .ref-habit-list,
+body.light #panel-home.ref-home #elara-home-missions,
+body.light #panel-home.ref-home .ref-goals-scroll,
+body.light #panel-home.ref-home #elara-home-ranks,
+body.light #panel-home.ref-home #elara-home-activity{scrollbar-color:rgba(235,225,255,.96) rgba(255,255,255,.14)!important}
+body.light #panel-home.ref-home .ref-task-list::-webkit-scrollbar-track,
+body.light #panel-home.ref-home .ref-habit-list::-webkit-scrollbar-track,
+body.light #panel-home.ref-home #elara-home-missions::-webkit-scrollbar-track,
+body.light #panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-track,
+body.light #panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-track,
+body.light #panel-home.ref-home #elara-home-activity::-webkit-scrollbar-track{background:rgba(255,255,255,.14)}
+body.light #panel-home.ref-home .ref-task-list::-webkit-scrollbar-thumb,
+body.light #panel-home.ref-home .ref-habit-list::-webkit-scrollbar-thumb,
+body.light #panel-home.ref-home #elara-home-missions::-webkit-scrollbar-thumb,
+body.light #panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-thumb,
+body.light #panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-thumb,
+body.light #panel-home.ref-home #elara-home-activity::-webkit-scrollbar-thumb{background:rgba(245,240,255,.88);border-color:rgba(115,85,180,.18)}
+body.light #panel-home.ref-home .ref-task-list::-webkit-scrollbar-thumb:hover,
+body.light #panel-home.ref-home .ref-habit-list::-webkit-scrollbar-thumb:hover,
+body.light #panel-home.ref-home #elara-home-missions::-webkit-scrollbar-thumb:hover,
+body.light #panel-home.ref-home .ref-goals-scroll::-webkit-scrollbar-thumb:hover,
+body.light #panel-home.ref-home #elara-home-ranks::-webkit-scrollbar-thumb:hover,
+body.light #panel-home.ref-home #elara-home-activity::-webkit-scrollbar-thumb:hover{background:rgba(235,225,255,.96)}
+
+/* The primary mobile navigation is one calm six-item row. Ranking/Friends remain available from their routes/menu. */
+@media(max-width:700px){
+ .bottom-nav{
+  direction:ltr!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  grid-template-rows:1fr!important;gap:0!important;height:78px!important;min-height:78px!important;
+  padding:7px max(6px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))!important;
+  overflow:hidden!important;align-items:stretch!important;border-radius:18px 18px 0 0!important
+ }
+ .bottom-nav>[data-elara-nav-kind]{
+  grid-row:1!important;grid-column:auto!important;position:relative!important;left:auto!important;right:auto!important;
+  top:auto!important;bottom:auto!important;transform:none!important;margin:0!important;width:100%!important;min-width:0!important;
+  max-width:none!important;height:100%!important;min-height:0!important;padding:3px 1px!important;border-radius:12px!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important
+ }
+ .bottom-nav>[data-elara-nav-kind] .elara-nav-art{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important}
+ .bottom-nav>[data-elara-nav-kind] small{font-size:clamp(.52rem,2.3vw,.68rem)!important;line-height:1.15!important;white-space:nowrap!important}
+ .bottom-nav>[data-elara-tab="home"]{z-index:1!important}
+ .bottom-nav>[data-elara-tab="home"] .elara-nav-art{width:32px!important;height:32px!important}
+ .bottom-nav>[data-elara-tab="home"].active{box-shadow:inset 0 0 18px rgba(115,67,255,.25),0 0 16px rgba(115,67,255,.18)!important}
+ .workspace main,#main{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+ #panel-home.ref-home .ref-home-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:'tasks habits' 'wellness wellness' 'missions ranks' 'activity activity' 'goals goals' 'themes themes'!important;
+  gap:9px!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-goals{display:block!important;grid-area:goals!important;grid-column:1/-1!important}
+ #panel-home.ref-home .ref-home-grid>.ref-theme-strip{grid-area:themes!important}
+ #panel-home.ref-home .ref-home-grid>.ref-tasks,
+ #panel-home.ref-home .ref-home-grid>.ref-habits{height:260px!important;min-height:260px!important;max-height:260px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card{height:250px!important;min-height:250px!important;max-height:250px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-missions,
+ #panel-home.ref-home .ref-home-grid>.ref-ranks{height:205px!important;min-height:205px!important;max-height:205px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-activity{height:102px!important;min-height:102px!important;max-height:102px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-goals{height:188px!important;min-height:188px!important;max-height:188px!important}
+}
+
+@media(min-width:701px){
+ #panel-home.ref-home .ref-home-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-areas:'tasks habits wellness' 'missions goals ranks' 'themes themes activity'!important;
+  grid-auto-flow:row!important;align-items:stretch!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-tasks,
+ #panel-home.ref-home .ref-home-grid>.ref-habits,
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card{height:245px!important;min-height:245px!important;max-height:245px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-missions,
+ #panel-home.ref-home .ref-home-grid>.ref-goals,
+ #panel-home.ref-home .ref-home-grid>.ref-ranks{height:205px!important;min-height:205px!important;max-height:205px!important}
+ #panel-home.ref-home .ref-home-grid>.ref-theme-strip,
+ #panel-home.ref-home .ref-home-grid>.ref-activity{height:108px!important;min-height:108px!important;max-height:108px!important}
+}
