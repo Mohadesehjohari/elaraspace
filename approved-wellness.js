@@ -4,10 +4,13 @@ const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const today=()=>iso(new Date()),uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const storageKey=()=>`elara_private_wellness_v1_${uid()}`;
-const defaults=()=>({weight:'',targetWeight:'',goal:2000,glass:250,water:{},sleep:[],workouts:[],gender:'unspecified',cycles:[]});
+const defaults=()=>({weight:'',targetWeight:'',goal:2000,glass:250,water:{},sleep:[],workouts:[],cycles:[]});
 function read(){if(!uid())return defaults();try{const value=JSON.parse(localStorage.getItem(storageKey())||'{}');return {...defaults(),...value,targetWeight:value.targetWeight??'',water:value.water&&typeof value.water==='object'?value.water:{},sleep:Array.isArray(value.sleep)?value.sleep:[],workouts:Array.isArray(value.workouts)?value.workouts:[],cycles:Array.isArray(value.cycles)?value.cycles:[]}}catch{return defaults()}}
 function write(patch){if(!uid()){message('برای ذخیرهٔ داده‌های خصوصی ابتدا وارد حساب شو.');return false}try{localStorage.setItem(storageKey(),JSON.stringify({...read(),...patch}));refresh();window.dispatchEvent(new CustomEvent('elara:wellness-saved',{detail:patch}));return true}catch{message('ذخیرهٔ اطلاعات روی این دستگاه انجام نشد.');return false}}
 function message(s){const el=$('wellness-status');if(el)el.textContent=s}
+function profileSex(){const p=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},privateProfile=window.ElaraProfileSystem?.readPrivate?.()||{},raw=String(p.sex||p.gender||privateProfile.sex||'').toLowerCase();if(['woman','female','f','زن'].includes(raw))return'female';if(['man','male','m','مرد'].includes(raw))return'male';if(raw)return'other';return''}
+function cycleApplicable(){return profileSex()==='female'&&(window.ElaraProfileSystem?.readPrivate?.().periodEnabled!==false)}
+function profileSettingsCopy(){const sex=profileSex();if(sex)return sex==='female'?'اطلاعات پروفایل برای امکانات اختیاری سلامت اعمال شده است.':'این پروفایل به ماژول چرخه نیاز ندارد.';return'اطلاعات لازم در پروفایل کامل نشده؛ از ویرایش پروفایل تکمیلش کن.'}
 const num=(v,min,max)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):min};
 const days=()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-6+i);return iso(d)});
 const fmt=n=>Number(n||0).toLocaleString('fa-IR');
@@ -41,7 +44,7 @@ function panel(){if($('panel-exercise'))return;const el=document.createElement('
 <button class="quiet-button wellness-compact-save" type="button" data-wellness-save-settings>ذخیرهٔ تنظیمات</button><h3>آب در هفت روز اخیر</h3><div id="wellness-water-chart"></div></section>
 <section class="elara-card wellness-sleep"><header><h2>${svgIcon('sleep')} خواب من</h2><button type="button" class="elara-link" data-wellness-add="sleep">+ ثبت خواب</button></header><div id="wellness-sleep-list"></div><h3>ساعت خواب در هفت روز اخیر</h3><div id="wellness-sleep-chart"></div></section>
 <section class="elara-card wellness-workouts"><header><h2>${svgIcon('workout')} ورزش امروز</h2><button type="button" class="elara-link" data-wellness-add="workout">+ ثبت ورزش</button></header><div id="wellness-workout-list"></div></section>
-<section class="elara-card wellness-gender wellness-personal-settings"><header><h2>${svgIcon('person')} تنظیمات شخصی اختیاری</h2></header><label>فعال‌سازی امکانات اختیاری<select id="wellness-gender"><option value="unspecified">بدون انتخاب</option><option value="woman">زن</option><option value="man">مرد</option><option value="other">ترجیح می‌دهم مشخص نکنم</option></select></label><p class="muted">این انتخاب فقط برای نمایش قابلیت‌های اختیاری همین صفحه استفاده می‌شود. مرکز حریم خصوصی از منوی حساب در دسترس است.</p><div id="wellness-cycle" hidden><header><h3>${svgIcon('cycle')} ثبت اختیاری چرخه</h3><button type="button" class="elara-link" data-wellness-add="cycle">+ ثبت تاریخ</button></header><p class="muted">این داده فقط برای ثبت شخصی و خصوصی است؛ پیش‌بینی یا توصیهٔ پزشکی ارائه نمی‌شود و عمومی نمی‌شود.</p><div id="wellness-cycle-list"></div></div></section>
+<section class="elara-card wellness-profile-context wellness-personal-settings"><header><h2>${svgIcon('person')} اطلاعات پروفایل</h2><button type="button" class="elara-link" data-wellness-profile>ویرایش پروفایل</button></header><p class="muted" id="wellness-profile-context"></p><div id="wellness-cycle" hidden><header><h3>${svgIcon('cycle')} ثبت اختیاری چرخه</h3><button type="button" class="elara-link" data-wellness-add="cycle">+ ثبت تاریخ</button></header><p class="muted">این داده خصوصی است و در رنکینگ یا فید دوستان منتشر نمی‌شود.</p><div id="wellness-cycle-list"></div></div></section>
 </div><p class="muted" id="wellness-status" role="status"></p>`;document.querySelector('#main')?.prepend(el)}
 function refresh(){
  const host=$('panel-exercise');if(!host)return;const s=read(),date=today(),amount=Number(s.water[date]||0),glass=num(s.glass,50,1000),goal=num(s.goal,250,10000),count=Math.round(amount/glass),pct=Math.min(100,goal?amount/goal*100:0);
@@ -49,9 +52,9 @@ function refresh(){
  $('wellness-water-amount').textContent=`${fmt(amount)} / ${fmt(goal)} ml`;
  $('wellness-water-percent').textContent=`${fmt(Math.round(pct))}٪`;
  $('wellness-water-glass-fill').style.height=`${pct}%`;
- $('wellness-weight').value=s.weight;$('wellness-target-weight').value=s.targetWeight;$('wellness-goal').value=s.goal;$('wellness-glass').value=s.glass;$('wellness-gender').value=s.gender;
+ $('wellness-weight').value=s.weight;$('wellness-target-weight').value=s.targetWeight;$('wellness-goal').value=s.goal;$('wellness-glass').value=s.glass;const pc=$('wellness-profile-context');if(pc)pc.textContent=profileSettingsCopy();
  const current=Number(s.weight),target=Number(s.targetWeight),diff=current>0&&target>0?Math.abs(current-target):null;$('wellness-weight-diff').textContent=diff==null?'—':`${diff.toLocaleString('fa-IR',{maximumFractionDigits:1})} کیلوگرم`;
- $('wellness-cycle').hidden=s.gender!=='woman';
+ $('wellness-cycle').hidden=!cycleApplicable();
  $('wellness-water-chart').innerHTML=barChart(days().map(d=>Math.round(Number(s.water[d]||0)/glass)),Math.ceil(goal/glass),'نمودار تعداد لیوان آب در هفت روز اخیر');
  $('wellness-sleep-chart').innerHTML=lineChart(days().map(d=>+(s.sleep.filter(x=>x.date===d).reduce((n,x)=>n+sleepMinutes(x),0)/60).toFixed(1)),'نمودار خطی ساعت خواب در هفت روز اخیر');
  $('wellness-sleep-list').innerHTML=s.sleep.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(x=>`<div class="wellness-entry"><span>${svgIcon('sleep')} ${esc(x.date)} · ${esc(x.bed)} تا ${esc(x.wake)} · ${fmt(Math.round(sleepMinutes(x)/60*10)/10)} ساعت</span><button type="button" data-wellness-edit="sleep" data-id="${esc(x.id)}">ویرایش</button><button type="button" data-wellness-delete="sleep" data-id="${esc(x.id)}">حذف</button></div>`).join('')||'<p class="muted">هنوز خوابت را ثبت نکردی.</p>';
@@ -73,7 +76,7 @@ async function editor(kind,id){
  if(kind==='sleep'&&(!inputs.date||!inputs.bed||!inputs.wake))return message('تاریخ و هر دو ساعت را وارد کن.');
  if(kind==='workout'&&(!inputs.date||!inputs.type||!Number(inputs.minutes)||inputs.type==='ورزش دیگر'&&!inputs.customType.trim()))return message('تاریخ، نوع ورزش، مدت و در صورت انتخاب «ورزش دیگر» نام ورزش را وارد کن.');
  if(kind==='cycle'&&(!inputs.start||inputs.end&&inputs.end<inputs.start))return message('تاریخ شروع و پایان را بررسی کن.');
- if(kind==='cycle'&&read().gender!=='woman')return;
+ if(kind==='cycle'&&!cycleApplicable())return;
  const key=kind==='sleep'?'sleep':kind==='workout'?'workouts':'cycles',current=read(),newId=id||crypto.randomUUID?.()||String(Date.now()),row=kind==='workout'?normalizeWorkout(inputs,old,newId):kind==='cycle'?normalizeCycle(inputs,old,newId):{...old,...inputs,id:newId};if(kind==='sleep'&&!sleepMinutes(row))return message('بازهٔ خواب باید بین یک دقیقه تا ۲۴ ساعت باشد.');
  if(write({[key]:id?current[key].map(x=>x.id===id?row:x):[...current[key],row]}))message('ثبت شد.')
 }
@@ -85,6 +88,7 @@ function wire(){
  window.addEventListener('elara:data-changed',home);
  document.addEventListener('click',e=>{
    const back=e.target.closest('[data-wellness-back]');if(back){window.ElaraOpen?.('home');return}
+   if(e.target.closest('[data-wellness-profile]')){window.ElaraProfileSystem?.openEditor?.();return}
    const add=e.target.closest('[data-wellness-add]');if(add){void editor(add.dataset.wellnessAdd);return}
    const edit=e.target.closest('[data-wellness-edit]');if(edit){void editor(edit.dataset.wellnessEdit,edit.dataset.id);return}
    const del=e.target.closest('[data-wellness-delete]');if(del){const key=del.dataset.wellnessDelete==='workout'?'workouts':del.dataset.wellnessDelete==='sleep'?'sleep':'cycles',s=read();write({[key]:s[key].filter(x=>x.id!==del.dataset.id)});return}
@@ -92,7 +96,7 @@ function wire(){
    if(e.target.closest('[data-wellness-save-settings]')){const w=$('wellness-weight').value,tw=$('wellness-target-weight').value,goal=num($('wellness-goal').value,250,10000),glass=num($('wellness-glass').value,50,1000);if(write({weight:w?num(w,1,400):'',targetWeight:tw?num(tw,1,400):'',goal,glass}))message('تنظیمات ذخیره شد.');return}
    const go=e.target.closest('[data-wellness-home]');if(go){window.ElaraOpen?.('exercise');return}
  });
- $('wellness-gender')?.addEventListener('change',e=>write({gender:e.target.value}));
+ window.addEventListener('elara:profile-private-changed',refresh);
 }
 window.ElaraWellnessTest={defaults,lineChart,sleepMinutes,normalizeWorkout,normalizeCycle};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
