@@ -200,3 +200,187 @@
  .bottom-nav button.elara-home-main{width:48px!important}
  #panel-tasks .astra-task-chips>button{font-size:.66rem!important}
 }
+
+
+/* 2026-09-30 P0 Home fidelity bugfix: checkbox contract, stable mobile cards, banner, single icon owner. */
+
+/* One and only one visible heading icon owner; legacy pseudo-icons are disabled at their source. */
+#panel-home.ref-home .ref-card>header h2::before,
+#panel-home.ref-home .ref-card>header h2::after,
+#panel-home.ref-home .ref-right-stack>.ref-card>header h2::before,
+#panel-home.ref-home .ref-right-stack>.ref-card>header h2::after{
+ content:none!important;display:none!important;background:none!important
+}
+#panel-home.ref-home .ref-card>header h2,
+#panel-home.ref-home .ref-right-stack>.ref-card>header h2{display:flex!important;align-items:center!important}
+#panel-home.ref-home .ref-card>header h2>.elara-card-art,
+#panel-home.ref-home .ref-card>header h2>.ref-art-icon{flex:0 0 auto!important}
+
+/* Completion controls: all boxes are true circles and the approved circular artwork owns checked state. */
+.ref-task-check,.ref-habit-mark,.ref-goal-step,.check-button{
+ box-sizing:border-box!important;aspect-ratio:1/1!important;border-radius:50%!important;
+ flex:0 0 auto!important;flex-shrink:0!important;padding:0!important;line-height:1!important;
+ display:grid!important;place-items:center!important;overflow:hidden!important
+}
+.ref-task-check::before,.ref-task-check::after,
+.ref-habit-mark::before,.ref-habit-mark::after,
+.ref-goal-step::before,.ref-goal-step::after,
+.check-button::before,.check-button::after{content:none!important;display:none!important}
+.ref-task-check[aria-pressed="false"],.ref-habit-mark:not(.done),.ref-goal-step[aria-pressed="false"],.check-button[aria-pressed="false"]{
+ background:transparent!important;background-image:none!important;border:2px solid #eef2ff!important
+}
+.ref-task-check[aria-pressed="true"],.ref-habit-mark.done,.ref-goal-step[aria-pressed="true"],.check-button[aria-pressed="true"]{
+ border:0!important;background:transparent!important
+}
+.ref-task-check-art,.ref-goal-check-art,.elara-check-art,
+.ref-habit-mark.done>.ref-task-check-art{
+ display:block!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important;
+ aspect-ratio:1/1!important;border-radius:50%!important;margin:0!important;padding:0!important;transform:none!important
+}
+#panel-home.ref-home .ref-task-check,#panel-home.ref-home .ref-habit-mark,#panel-home.ref-home .ref-goal-step{
+ width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;max-width:24px!important;max-height:24px!important
+}
+#panel-tasks #task-list .check-button{
+ aspect-ratio:1/1!important;border-radius:50%!important;flex:0 0 auto!important;flex-shrink:0!important;
+ overflow:hidden!important
+}
+#panel-tasks #task-list .check-button .elara-check-art{width:100%!important;height:100%!important;object-fit:contain!important}
+
+/* Uploaded View All art is itself the button artwork. Do not put it inside a giant inherited pill. */
+#panel-home.ref-home .ref-view-all-button{
+ position:relative!important;display:block!important;flex:0 0 auto!important;
+ width:78px!important;min-width:78px!important;max-width:78px!important;
+ height:31px!important;min-height:31px!important;max-height:31px!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:10px!important;
+ background:transparent!important;background-image:none!important;box-shadow:none!important;overflow:hidden!important
+}
+#panel-home.ref-home .ref-view-all-button .ref-view-all-art{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:150px!important;height:auto!important;max-width:none!important;max-height:none!important;
+ object-fit:contain!important;object-position:center!important;transform:translate(-54%,-50%)!important;
+ pointer-events:none!important
+}
+
+/* Real uploaded sports banner belongs inside Wellness, below the four stat cells. */
+#panel-home.ref-home .ref-wellness-banner{
+ position:relative!important;display:block!important;width:100%!important;height:64px!important;min-height:64px!important;
+ margin-top:8px!important;padding:0!important;overflow:hidden!important;border:1px solid color-mix(in srgb,var(--border) 75%,var(--elara-accent) 25%)!important;
+ border-radius:11px!important;background:#07162d!important;text-align:start!important
+}
+#panel-home.ref-home .ref-wellness-banner-art{
+ position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center!important;margin:0!important;padding:0!important
+}
+#panel-home.ref-home .ref-wellness-banner-copy{
+ position:absolute!important;inset:0!important;z-index:1!important;display:flex!important;flex-direction:column!important;
+ justify-content:center!important;align-items:flex-start!important;gap:2px!important;padding:8px 12px!important;
+ color:#fff!important;text-shadow:0 1px 7px #000!important;background:linear-gradient(90deg,#071326dd 0%,#07132662 58%,transparent 100%)!important
+}
+#panel-home.ref-home .ref-wellness-banner-copy strong{font-size:.78rem!important}
+#panel-home.ref-home .ref-wellness-banner-copy small{font-size:.55rem!important;color:#e4e8ff!important}
+
+/* Light mode keeps the dark artwork surfaces readable instead of washing text out. */
+body.light #panel-home.ref-home .ref-hero{color:#fff!important}
+body.light #panel-home.ref-home .ref-hero .hero-copy h1,
+body.light #panel-home.ref-home .ref-hero .hero-copy p{color:#fff!important;text-shadow:0 2px 10px #020917!important}
+body.light #panel-home.ref-home .ref-hero-quote{
+ background:#071a33e8!important;border-color:#667bc0!important;color:#fff!important;box-shadow:0 8px 24px #00112a55!important
+}
+body.light #panel-home.ref-home .ref-hero-quote span{color:#dbe5ff!important}
+body.light #panel-home.ref-home #ref-streak-card{
+ background:linear-gradient(145deg,#0b2344,#091831)!important;border-color:#435b91!important;color:#f8f8ff!important
+}
+body.light #panel-home.ref-home #ref-streak-card small,
+body.light #panel-home.ref-home #ref-streak-card b,
+body.light #panel-home.ref-home #ref-streak-card strong{color:#f0f3ff!important}
+body.light #panel-home.ref-home .elara-card-art,
+body.light #panel-home.ref-home .ref-art-icon,
+body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contrast(1.06)!important}
+
+/* Mobile composition follows the approved target rails and never clips the 5-row previews. */
+@media(max-width:700px){
+ #panel-home.ref-home .elara-dashboard-grid.ref-home-grid{
+  display:grid!important;direction:ltr!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:'tasks habits' 'wellness wellness' 'missions ranks' 'activity activity' 'goals goals'!important;
+  gap:8px!important;align-items:start!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-right-stack{display:contents!important}
+ #panel-home.ref-home .ref-home-grid>.ref-tasks{grid-area:tasks!important}
+ #panel-home.ref-home .ref-home-grid>.ref-habits{grid-area:habits!important}
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card{grid-area:wellness!important}
+ #panel-home.ref-home .ref-home-grid>.ref-missions{grid-area:missions!important}
+ #panel-home.ref-home .ref-right-stack>.ref-ranks{grid-area:ranks!important}
+ #panel-home.ref-home .ref-right-stack>.ref-activity{grid-area:activity!important}
+ #panel-home.ref-home .ref-home-grid>.ref-goals{
+  display:block!important;grid-area:goals!important;grid-column:1/-1!important;width:100%!important;
+  height:190px!important;min-height:190px!important;max-height:190px!important;overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-theme-strip{display:none!important}
+ #panel-home.ref-home .ref-home-grid>.ref-tasks,
+ #panel-home.ref-home .ref-home-grid>.ref-habits{
+  height:220px!important;min-height:220px!important;max-height:220px!important;overflow:hidden!important;align-self:stretch!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card{
+  height:242px!important;min-height:242px!important;max-height:242px!important;overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-missions,
+ #panel-home.ref-home .ref-right-stack>.ref-ranks{
+  height:188px!important;min-height:188px!important;max-height:188px!important;overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-right-stack>.ref-activity{
+  height:82px!important;min-height:82px!important;max-height:82px!important;overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-card,
+ #panel-home.ref-home .ref-right-stack>.ref-card{padding:8px!important}
+ #panel-home.ref-home .ref-card>header{min-height:31px!important;margin-bottom:4px!important;padding-bottom:4px!important;gap:4px!important}
+ #panel-home.ref-home .ref-card>header h2{font-size:clamp(.58rem,2.5vw,.72rem)!important;min-width:0!important;white-space:nowrap!important}
+ #panel-home.ref-home .ref-card>header h2>.elara-card-art,
+ #panel-home.ref-home .ref-card>header h2>.ref-art-icon{width:19px!important;height:19px!important;min-width:19px!important}
+ #panel-home.ref-home .ref-view-all-button{
+  width:58px!important;min-width:58px!important;max-width:58px!important;height:25px!important;min-height:25px!important;max-height:25px!important
+ }
+ #panel-home.ref-home .ref-view-all-button .ref-view-all-art{width:112px!important;transform:translate(-54%,-50%)!important}
+ #panel-home.ref-home .ref-quick-add-button{width:22px!important;height:22px!important;min-width:22px!important;max-width:22px!important;flex:0 0 22px!important}
+ #panel-home.ref-home .ref-card-count{font-size:.54rem!important;line-height:1.2!important;margin:1px 0 3px!important}
+ #panel-home.ref-home .ref-task-list,#panel-home.ref-home .ref-habit-list{display:grid!important;gap:0!important}
+ #panel-home.ref-home .ref-task-row,#panel-home.ref-home .ref-habit-row{
+  min-height:31px!important;height:31px!important;max-height:31px!important;padding:3px 1px!important;gap:4px!important;overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-task-row{grid-template-columns:24px minmax(0,1fr) 27px!important}
+ #panel-home.ref-home .ref-habit-row{grid-template-columns:24px minmax(0,1fr) 25px!important}
+ #panel-home.ref-home .ref-task-row>strong,
+ #panel-home.ref-home .ref-habit-copy>strong{
+  display:block!important;min-width:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  font-size:clamp(.56rem,2.35vw,.67rem)!important;line-height:1.25!important
+ }
+ #panel-home.ref-home .ref-habit-copy{min-width:0!important;gap:3px!important}
+ #panel-home.ref-home .ref-habit-copy .ref-habit-semantic-art{display:none!important}
+ #panel-home.ref-home .ref-habit-row .elara-track{height:6px!important}
+ #panel-home.ref-home .ref-task-check,#panel-home.ref-home .ref-habit-mark{width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;max-width:22px!important;max-height:22px!important}
+ #panel-home.ref-home .ref-wellness-summaries{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+ #panel-home.ref-home .ref-wellness-cell{height:92px!important;min-height:92px!important;max-height:92px!important;padding:5px 2px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:28px!important;height:28px!important}
+ #panel-home.ref-home .ref-wellness-banner{height:54px!important;min-height:54px!important;margin-top:6px!important}
+ #panel-home.ref-home .ref-mission-row{min-height:43px!important;height:43px!important;max-height:43px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-ranks #elara-home-ranks{max-height:116px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-activity #elara-home-activity{max-height:28px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-goals .ref-goals-scroll{max-height:136px!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important}
+ #panel-tasks #task-list .check-button{
+  width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;max-width:34px!important;max-height:34px!important;
+  aspect-ratio:1/1!important;flex:0 0 34px!important;border-radius:50%!important
+ }
+}
+@media(max-width:359px){
+ #panel-home.ref-home .elara-dashboard-grid.ref-home-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:'tasks habits' 'wellness wellness' 'missions ranks' 'activity activity' 'goals goals'!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-tasks{grid-column:1!important;grid-row:auto!important}
+ #panel-home.ref-home .ref-home-grid>.ref-habits{grid-column:2!important;grid-row:auto!important}
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
+ #panel-home.ref-home .ref-home-grid>.ref-goals{grid-column:1/-1!important;grid-row:auto!important}
+ #panel-home.ref-home .ref-home-grid>.ref-missions{grid-column:1!important;grid-row:auto!important}
+ #panel-home.ref-home .ref-right-stack>.ref-ranks{grid-column:2!important;grid-row:auto!important}
+ #panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1/-1!important;grid-row:auto!important}
+}
