@@ -71,6 +71,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const incoming=w.ElaraSocial.requests.find(x=>x.id==='A_B');
  assert.ok(incoming&&incoming.to==='B'&&incoming.status==='pending','receiver must see persisted incoming request');
  assert.equal(w.document.querySelectorAll('[data-friend-action="accept"][data-request="A_B"]').length>=1,true);
+ await assert.rejects(()=>w.__socialOps.addFriend('aren'),/درخواست ورودی|درخواست فرستاده/,'incoming request must replace Send Request, never create a crossed duplicate');
+ assert.equal(requests.has('B_A'),false,'incoming request guard must prevent reverse duplicate');
 
  // Accept creates friendship for both views.
  await w.__socialOps.decide(incoming,'accepted');
