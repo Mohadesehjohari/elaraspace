@@ -105,11 +105,12 @@ for(const width of all){
 
   await openRoute(page,'social');
   await check(`${width}: Ranking responsive reference structure`,async()=>{
-   assert.equal(await page.locator('#elara-social-page .social-hero').isVisible(),true);
+   assert.equal(await page.locator('#elara-social-page .social-page-head').isVisible(),true);
    assert.equal(await page.locator('#elara-social-page .social-tabs [data-social-view="ranking"]').isVisible(),true);
-   const grid=await rect(page,'#elara-social-page .social-reference-grid'),panel=await rect(page,'#elara-social-page');
+   const grid=await rect(page,'#elara-social-page .social-reference-grid'),panel=await rect(page,'#elara-social-page'),podium=await rect(page,'#elara-social-page .social-top-three'),mine=await rect(page,'#elara-social-page .social-my-rank-card');
    assert.ok(grid.width>=panel.width*.9);
-   const sections=await page.locator('#elara-social-page .social-section').count();assert.ok(sections>=6);
+   if(mobile){assert.ok(podium.width>=grid.width*.95);assert.ok(mine.width>=grid.width*.95)}else{assert.ok(podium.width>mine.width*1.45);assert.ok(Math.abs(podium.y-mine.y)<=4)}
+   const sections=await page.locator('#elara-social-page .social-section').count();assert.ok(sections>=7);
    await noOverflow(page);
   });
 
@@ -175,7 +176,7 @@ for(const width of all){
   if(width===390||width===1648){
    await openRoute(page,'home');await screenshot(page,`product-home-${width}`,false);
    await openRoute(page,'tasks');await screenshot(page,`product-tasks-${width}`,false);
-   await page.evaluate(()=>{ElaraSocial.me=null;ElaraSocial.friends=[];ElaraSocial.requests=[];ElaraSocial.activities=[];ElaraSocialView.render()});await openRoute(page,'social');await screenshot(page,`product-ranking-${width}`,false);
+   await page.evaluate(()=>{ElaraSocial.me={uid:'me',name:'آرن',username:'aren',xp:1420,avatarGroup:'female',avatarLevel:1,profileShape:'circle'};ElaraSocial.friends=[{uid:'kian',name:'کیان',username:'kian',xp:1280,avatarGroup:'male',avatarLevel:1,profileShape:'circle'},{uid:'mahsa',name:'مهسا',username:'mahsa',xp:946,avatarGroup:'female',avatarLevel:2,profileShape:'circle'},{uid:'sina',name:'سینا',username:'sina',xp:892,avatarGroup:'male',avatarLevel:2,profileShape:'circle'},{uid:'narges',name:'نرگس',username:'narges',xp:860,avatarGroup:'female',avatarLevel:3,profileShape:'circle'}];ElaraSocial.requests=[{id:'visual-r1',from:'mahsa',to:'me',status:'pending',person:{uid:'mahsa',name:'مهسا',username:'mahsa',xp:946,avatarGroup:'female',avatarLevel:2,profileShape:'circle'}}];ElaraSocial.activities=[];ElaraSocialView.render()});await openRoute(page,'social');await screenshot(page,`product-ranking-${width}`,false);
    await page.evaluate(()=>ElaraPrivateDrawer.open('account'));await page.waitForTimeout(80);await screenshot(page,`product-settings-${width}`,false);await page.evaluate(()=>ElaraPrivateDrawer.close());
   }
   await check(`${width}: no 404/page errors/fatal console`,async()=>{assert.deepEqual(net.missing,[]);assert.deepEqual(net.errors,[]);assert.deepEqual(net.badConsole,[])});
