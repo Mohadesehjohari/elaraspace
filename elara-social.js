@@ -31,6 +31,9 @@ async function addFriend(value){
  const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری انگلیسی معتبر وارد کن.');
  const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
  const to=claim.data().uid;if(!to)throw Error('شناسهٔ حساب مقصد معتبر نیست.');if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
+ // Refresh the two participant-scoped queries before the guard so stale cached social
+ // state cannot create a crossed request when an incoming request already exists.
+ await refresh();
  const active=state.requests.find(r=>r.other===to&&r.status!=='declined');if(active)throw Error(active.status==='accepted'?'قبلاً دوست شده‌اید.':active.to===uid?'این کاربر برایت درخواست فرستاده؛ همان درخواست را قبول یا رد کن.':'درخواست قبلی هنوز در انتظار است.');
  const request={id:uid+'_'+to,from:uid,to,status:'pending',other:to,person:{uid:to,username,name:username}};
  try{
@@ -57,7 +60,7 @@ async function addFriend(value){
 }
 async function cancelRequest(request){if(request.from!==uid||request.status!=='pending')throw Error('درخواست قابل لغو نیست.');await deleteDoc(doc(db,'friendRequests',request.id));await refresh()}
 async function removeFriend(request){if(request.status!=='accepted'||(request.from!==uid&&request.to!==uid))throw Error('دوستی معتبر نیست.');await deleteDoc(doc(db,'friendRequests',request.id));await refresh()}
-async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined')await deleteDoc(doc(db,'friendRequests',request.id));else if(status==='accepted')await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
+async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}}else if(status==='accepted')await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
 
 async function profileUidFromUsername(value){const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');return claim.data().uid}
 function profileSummary(person){
