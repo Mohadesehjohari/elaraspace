@@ -9,7 +9,7 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home',dialogSection=null;
+  let root,panel,current='home';
 
   function ensureData(d){for(const k of ['tasks','folders','tags','missionRewardClaims'])if(!Array.isArray(d[k]))d[k]=[];return d}
   function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
@@ -27,8 +27,11 @@
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
   function open(section='home'){if(!root)return;const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
-  const sectionTitles={account:'حساب کاربری',privacy:'حریم خصوصی و امنیت',folders:'پوشه‌ها و تگ‌ها',notifications:'اعلان‌ها و پیام‌ها',appearance:'ظاهر و تم‌ها',language:'زبان برنامه',help:'راهنما',calendar:'تقویم'};
-  function renderSection(section){
+  function show(section='home'){
+    current=section;
+    panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!==section));
+    panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
+    if(section==='home')renderHub();
     if(section==='account')renderAccount();
     if(section==='privacy')renderPrivacy();
     if(section==='folders')renderFolders();
@@ -37,26 +40,6 @@
     if(section==='language')renderLanguage();
     if(section==='help')renderHelp();
     if(section==='calendar')renderCalendar();
-  }
-  async function show(section='home'){
-    current=section;
-    panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
-    if(section==='home'){
-      if(dialogSection)window.ElaraDialog?.close?.();
-      panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!=='home'));
-      renderHub();return;
-    }
-    renderSection(section);
-    const node=panel?.querySelector('[data-drawer-section="'+CSS.escape(section)+'"]');
-    if(!node)return;
-    panel.querySelector('[data-drawer-section="home"]')?.classList.remove('hidden');
-    if(!window.ElaraDialog?.open){panel.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x!==node));return}
-    node.classList.remove('hidden');node.classList.add('drawer-section-dialog');dialogSection=node;
-    await window.ElaraDialog.open({title:sectionTitles[section]||'تنظیمات',content:node,wide:true,actions:[{label:'بستن',value:false}]});
-    if(!node.isConnected||!node.closest('.elara-private-drawer-panel'))panel.append(node);
-    node.classList.add('hidden');node.classList.remove('drawer-section-dialog');dialogSection=null;
-    if(current===section)current='home';
-    renderHub();
   }
 
   function medalsFor(level){
@@ -190,7 +173,7 @@
 
   document.addEventListener('click',async e=>{
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
-    const nav=e.target.closest('[data-drawer-nav]');if(nav){if(nav.dataset.drawerNav==='home'&&nav.closest('#elara-dialog-root')){window.ElaraDialog?.close?.();return}void show(nav.dataset.drawerNav);return}
+    const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
     const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
