@@ -45,8 +45,8 @@ async function bootTriptych(width,height){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<=700});
  await page.route('**/cloud.js',route=>route.abort());
  await page.route('**/assets/ui/*.webp',async route=>{await new Promise(r=>setTimeout(r,220));await route.continue()});
- await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:3000});
+ await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'commit',timeout:30000});
+ await page.waitForFunction(()=>document.documentElement?.hasAttribute('data-elara-booting'),null,{timeout:3000});
  await page.waitForTimeout(70);
  const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {shell:visible(document.querySelector('.shell')),bottom:visible(document.querySelector('.bottom-nav')),dock:visible(document.querySelector('.elara-desktop-dock'))}});
  assert.deepEqual(before,{shell:false,bottom:false,dock:false},'partial navigation leaked during boot');
