@@ -497,3 +497,32 @@ Hierarchy:
 - List جدید باید دادهٔ persistشوندهٔ Task باشد و با Folder/Tag قاطی نشود؛ Quick Add و فرم canonical همان state فعلی را مصرف می‌کنند.
 - Assetهای `icon-wellness-lotus.webp` و `button-view-all.webp` فقط در صورت وجود واقعی در `assets/ui/` قابل نصب هستند؛ نبودشان نباید با فایل جعلی یا alias نامرتبط پوشانده شود.
 - Artwork وزن دارای مقدار ثابت داخل تصویر نباید به‌عنوان وزن کاربر نمایش داده شود تا نسخهٔ clean دریافت شود.
+
+
+---
+
+## الحاقیه ۳۰ سپتامبر ۲۰۲۶ — Mobile Nav / Theme Controls / View All / Tasks Exact Geometry
+
+این جدول قرارداد رسمی Pass مرجع جدید است. وضعیت‌ها مستقل‌اند و «کدنویسی‌شده» به‌معنای «تست‌شده» یا «تأیید بصری» نیست.
+
+| Milestone | REQUESTED | CODED | TESTED | VERIFIED | معیار |
+| --- | --- | --- | --- | --- | --- |
+| `MOBILE-NAV-CENTER-HOME` | ✅ | ✅ | ⏳ | ⏳ | Home باید دقیقاً روی مرکز viewport باشد؛ Friends/Ranking نزدیک‌ترین، Tasks/Library لایهٔ بعد و Language/Exercise/Freedom بیرونی؛ 320/375/390/430 بدون overflow. |
+| `THEME-MOON-DUAL-STATE` | ✅ | ✅ | ⏳ | ⏳ | Dark/AMOLED = Moon روشن Active؛ Light = Moon کم‌نور Default؛ هر دو Binary واقعی بررسی شوند و تغییر Theme فقط state/src همان artwork را عوض کند. |
+| `TOPBAR-ICON-NO-BOX` | ✅ | ✅ | ⏳ | ⏳ | Moon و Bell بدون square background/border/box-shadow و با optical centering در Desktop/Mobile. |
+| `VIEW-ALL-UPLOADED-ASSET` | ✅ | ✅ | ⏳ | ⏳ | `assets/ui/button-view-all.webp` داخل button واقعی و accessible در Tasks/Habits/Wellness/Goals/Ranking/Missions/Theme Worlds؛ Friends Activity استثنا و CTA متنی Reference را نگه می‌دارد. |
+| `TASKS-REFERENCE-EXACT-GEOMETRY` | ✅ | ✅ | ⏳ | ⏳ | geometry از Reference جدید اندازه‌گیری و با گزارش عددی reference/result برای هفت viewport مقایسه شود. |
+| `TASKS-DESKTOP-SIZE-MATCH` | ✅ | ✅ | ⏳ | ⏳ | 1440/1648/1920: Sidebar/Topbar/Hero/Toolbar/Rows/Checkbox/CTA/Progress/XP/Bottom cards روی rail و نسبت مرجع. |
+| `TASKS-MOBILE-SIZE-MATCH` | ✅ | ✅ | ⏳ | ⏳ | 320/375/390/430: composition مستقل Mobile، Hero/filters/CTA/cards/nav با اندازهٔ مرجع و بدون scale-down سادهٔ Desktop. |
+
+### فایل‌ها و مالکیت این Pass
+- Final geometry owner: `reference-exact-pass-2026.css` که بعد از ownerهای قدیمی Load می‌شود.
+- Navigation data/order owner: `approved-navigation-extension.js`.
+- Tasks canonical data/actions: `phase2.js`; این Pass فقط composition و toolbar reference را روی همان state/actions نگه می‌دارد.
+- Header/Home artwork state owner: `reference-home-shell-2026.js`.
+- Binaryهای Moon: `assets/ui/icon-mode-night-active.webp` و `assets/ui/icon-mode-night-default.webp`.
+- View All binary: `assets/ui/button-view-all.webp`.
+- Browser acceptance: `tests/artwork-home-browser-acceptance.mjs` + `.github/workflows/browser-navigation-check.yml`.
+
+### Gate برای تبدیل TESTED/VERIFIED به ✅
+فقط پس از PASS شدن GitHub Actions روی End HEAD، ذخیرهٔ screenshot واقعی همهٔ ۷ viewport، گزارش Tasks geometry، بررسی 404/overflow/page errors، و بازبینی بصری artifact همان End HEAD.
