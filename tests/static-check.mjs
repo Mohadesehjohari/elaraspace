@@ -68,4 +68,8 @@ assert.ok(!pass2.includes('function pruneSidebar')&&!pass2.includes("remove=new 
 assert.ok(drawer.includes("if(section==='privacy')renderPrivacy()")&&drawer.includes('pass2-privacy-list'),'Drawer must render the complete Privacy Center directly');
 assert.ok(!pass2.includes('function upgradePrivacy')&&!pass2.includes('setTimeout(upgradePrivacy'),'Privacy must not depend on a delayed Pass 2 overwrite');
 assert.ok(css.includes('@media(max-width:700px)'),'Mobile layout is missing');
+const reading=readFileSync(new URL('reading.js',root),'utf8');
+assert.ok(social.includes('activityVisibility')&&social.includes("['private','friends','public']"),'Social activity visibility must support private/friends/public');
+assert.ok(drawer.includes('elara_activity_visibility_')&&drawer.includes('value="private"')&&drawer.includes('value="friends"')&&drawer.includes('value="public"'),'Privacy drawer must expose private/friends/public activity choices');
+assert.ok(!reading.includes("visibility:'friends'"),'Reading reports must not bypass configured activity privacy');
 console.log(`Static check passed: ${ids.size} HTML ids, base panels, canonical seven-route navigation, local assets, phase 2 recurrence/focus module and selector references.`);
