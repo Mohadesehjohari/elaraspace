@@ -31,3 +31,8 @@
   .workspace main, main { padding-bottom: calc(124px + env(safe-area-inset-bottom)) !important; }
   .section-heading { flex-wrap: wrap; }
 }
+
+
+/* Tasks hides its legacy section heading in the reference layout; keep Home return independently visible. */
+#panel-tasks{position:relative}
+#panel-tasks>.elara-home-return{position:absolute;inset-block-start:10px;inset-inline-start:10px;z-index:12;margin:0;min-height:34px;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:blur(8px)}
