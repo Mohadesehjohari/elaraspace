@@ -11,9 +11,9 @@ const FRAMES=Object.freeze([
  {id:'diamond',label:'الماس',required:10,path:'assets/frames_diamond.png'}
 ].map(Object.freeze));
 const BANNERS=Object.freeze([
- {id:'moon',label:'دریاچهٔ ماه',required:1,path:'assets/banner-moon.svg'},
- {id:'dream',label:'درخت رؤیا',required:4,path:'assets/banner-dream.svg'},
- {id:'castle',label:'قلعهٔ ستاره‌ها',required:8,path:'assets/banner-castle.svg'}
+ {id:'moon',label:'دریاچهٔ ماه',required:1,path:'assets/ui/background-moonlit-mountains.webp'},
+ {id:'dream',label:'رویای ستاره‌ای',required:4,path:'assets/ui/hero-landscape.webp'},
+ {id:'castle',label:'مسیر شب',required:8,path:'assets/ui/banner-running-moonlit-mountains.webp'}
 ].map(Object.freeze));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const currentUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
