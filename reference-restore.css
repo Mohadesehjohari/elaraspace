@@ -374,19 +374,6 @@ body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17
 #panel-home.ref-home #elara-home-ranks{display:block!important}
 
 
-/* Settings sub-sections are dialogs, never inline expansions beneath the Settings shell. */
-#elara-dialog-root{z-index:100500!important}
-#elara-dialog-root .drawer-section-dialog{display:block!important;direction:rtl!important;min-width:0!important;width:100%!important;max-height:min(68dvh,680px)!important;overflow:auto!important;padding:2px!important}
-#elara-dialog-root .drawer-section-dialog>.drawer-section-head{display:none!important}
-#elara-dialog-root .elara-dialog-panel.wide{width:min(920px,calc(100vw - 44px))!important;max-width:920px!important;max-height:min(88dvh,820px)!important}
-#elara-dialog-root .elara-dialog-panel.wide .elara-dialog-body{overflow:auto!important;min-height:0!important}
-@media(max-width:700px){
- #elara-dialog-root{padding:8px!important}
- #elara-dialog-root .elara-dialog-panel.wide{width:min(94vw,560px)!important;max-width:94vw!important;max-height:94dvh!important;border-radius:20px!important}
- #elara-dialog-root .drawer-section-dialog{max-height:74dvh!important}
-}
-
-
 /* Approved Ranking/Social composition: header + tabs + podium/my-rank + lists + side stack. */
 #elara-social-page.social-reference,#elara-ranking-page.social-reference{display:block!important;width:100%!important;max-width:none!important}
 .social-page-head{position:relative;display:flex!important;align-items:flex-end!important;justify-content:space-between!important;min-height:78px!important;margin:0 0 8px!important;padding:4px 12px!important;overflow:hidden!important}
