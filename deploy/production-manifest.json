@@ -43,7 +43,13 @@
     "assets/frames_gold.png",
     "assets/frames_diamond.png",
     "assets/ui/icon-task-complete-astra-v2.webp",
-    "assets/ui/hero-tasks-astra-v2.webp"
+    "assets/ui/hero-tasks-astra-v2.webp",
+    "reference-exact-pass-2026.css",
+    "assets/ui/button-view-all.webp",
+    "assets/ui/icon-mode-night-default.webp",
+    "assets/ui/icon-mode-night-active.webp",
+    "assets/ui/icon-notifications-read.webp",
+    "assets/ui/icon-notifications-unread.webp"
   ],
   "files": [
     ".htaccess",
@@ -96,6 +102,7 @@
     "visual-fidelity-pass3.js",
     "visual-fidelity-pass4.css",
     "visual-fidelity-pass5.css",
+    "reference-exact-pass-2026.css",
     "assets/banner-autumn.svg",
     "assets/banner-castle.svg",
     "assets/banner-dream.svg",
