@@ -53,13 +53,13 @@ function syncSourcesFromTasks(state){
    if(step&&!!step.done!==!!task.completed){step.done=!!task.completed;changed=true}
   }else if(task.sourceType==='book'){
    const book=state.books.find(b=>String(b?.id)===String(task.sourceId));
-   if(book){const next=task.completed?'finished':(book.shelf==='finished'?'reading':book.shelf);if(next!==book.shelf){book.shelf=next;changed=true}}
+   if(book){const next=task.completed?'finished':(book.shelf==='finished'?'reading':book.shelf);if(next!==book.shelf){book.shelf=next;book.finishedAt=task.completed?Date.now():null;if(task.completed&&book.totalPages)book.currentPage=book.totalPages;changed=true}}
   }
  }
  return changed;
 }
 function syncCoreState(input){
- const state=ensure(input),goalKeys=new Set(),bookKeys=new Set();let changed=false;
+ const state=ensure(input),originalCount=state.tasks.length,seen=new Set();state.tasks=state.tasks.filter(t=>{if(!t?.linkedTask)return true;const key=taskKey(t);if(seen.has(key))return false;seen.add(key);return true});const goalKeys=new Set(),bookKeys=new Set();let changed=originalCount!==state.tasks.length;
  for(const goal of state.goals){
   for(const step of Array.isArray(goal?.steps)?goal.steps:[]){
    if(!step?.id)continue;goalKeys.add(keyOf('goal-step',step.id,goal.id));
@@ -73,6 +73,7 @@ function syncCoreState(input){
  const before=state.tasks.length;
  state.tasks=state.tasks.filter(t=>!(t?.linkedTask&&t.sourceType==='goal-step'&&!goalKeys.has(taskKey(t)))&&!(t?.linkedTask&&t.sourceType==='book'&&!bookKeys.has(taskKey(t))));
  if(state.tasks.length!==before)changed=true;
+ if(!state.words.length){const n=state.tasks.length;state.tasks=state.tasks.filter(t=>!(t.linkedTask&&t.sourceType==='language-review'));changed=changed||n!==state.tasks.length}
  const day=today(),pending=state.words.filter(w=>validDate(w?.due)&&w.due<=day),lang=state.tasks.find(t=>t?.linkedTask&&t.sourceType==='language-review'&&t.sourceId===day);
  if(pending.length||lang){
   changed=upsert(state,{sourceType:'language-review',sourceId:day,title:'مرور واژه‌های زبان',shortDescription:pending.length?`${pending.length.toLocaleString('fa-IR')} واژه برای مرور`:'مرور امروز کامل شد',date:day,completed:pending.length===0,completedDate:pending.length===0?day:''}).changed||changed;
@@ -115,7 +116,7 @@ function syncAll({fromTasks=false}={}){
 }
 function stateCommitted(event){
  if(syncing)return;syncing=true;
- try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=syncSourcesFromTasks(state);changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
+ try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=false;changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
  finally{syncing=false}
 }
 window.ElaraLinkedTasks={META,today,upsert,syncCoreState,syncLanguageJournalState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};

@@ -7,12 +7,13 @@
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
   const parse = () => { try { const result = JSON.parse(localStorage.getItem(STORE) || '{}'); return result && typeof result === 'object' ? result : {}; } catch { return {}; } };
   const counts = data => {
-    const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    const linkedIds=new Set((data.tasks||[]).filter(t=>t.linkedTask).map(t=>t.id));
+    const tasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t=>!t.linkedTask);
     const habits = Array.isArray(data.habits) ? data.habits : [];
     const goals = Array.isArray(data.goals) ? data.goals : [];
     const books = Array.isArray(data.books) ? data.books : [];
     const day = today();
-    const history=Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[],historyToday=new Set(history.filter(x=>x?.date===day).map(x=>x.key||String(x.taskId||'')+':'+day));
+    const history=(Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[]).filter(x=>!linkedIds.has(x.taskId)),historyToday=new Set(history.filter(x=>x?.date===day).map(x=>x.key||String(x.taskId||'')+':'+day));
     const fallbackToday=tasks.filter(t => t?.recurrenceRule ? Array.isArray(t.occurrenceDone) && t.occurrenceDone.includes(day) : t?.completed && t.doneAt === day).length;
     return {
       tasks: historyToday.size||fallbackToday,
@@ -48,7 +49,7 @@
     if(!changed)return 0;
     data.missionRewardClaims=claims.slice(-5000);
     localStorage.setItem(STORE,JSON.stringify(data));
-    window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));
+    window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:data}));
     window.dispatchEvent(new Event('elara:data-changed'));
     return total;
   }
@@ -77,10 +78,6 @@
     $('rpg-level').textContent=`سطح ${fa(level)} از ۱۰`;
     $('rpg-xp').textContent=level===10?`${fa(xp)} XP · بالاترین سطح`:`${fa(xp-min)} از ${fa(max-min)} XP تا سطح بعدی`;
     $('rpg-level-bar').style.width=level===10?'100%':`${Math.max(0,Math.min(100, (xp-min)/(max-min)*100))}%`;
-    data.missionClaims=Array.isArray(data.missionClaims)?data.missionClaims:[];
-    let rewarded=false;
-    for(const m of missions){const amount=m.value(c),claim=today()+':'+m.key;if(amount>=m.target&&!data.missionClaims.includes(claim)){data.missionClaims.push(claim);data.xp=Math.max(0,Number(data.xp)||0)+m.rewardXp;rewarded=true}}
-    if(rewarded){localStorage.setItem(STORE,JSON.stringify(data));window.dispatchEvent(new Event('elara:data-changed'));setTimeout(()=>window.ElaraMissions?.render(),0);return}
     const list=$('rpg-quest-list'); list.replaceChildren();
     missions.forEach(m => {
       const amount=m.value(c), completed=amount>=m.target;

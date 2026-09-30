@@ -48,16 +48,16 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  // Existing presentation contracts.
  for(let count=0;count<=4;count++){
   const people=Array.from({length:count},(_,i)=>({uid:'fixture-'+i,name:i===1?'<b>Literal name</b>':'Fixture '+i,username:'fixture_'+i,xp:i*10}));
-  w.__socialTest(people[0]||null,people.slice(1));
-  assert.equal(w.document.querySelectorAll('.astra-podium-person').length,Math.min(count,3));
-  assert.equal(w.document.querySelectorAll('#elara-ranking-page .elara-rank-line').length,count);
-  if(count>1)assert.ok(w.document.querySelector('.astra-podium').textContent.includes('<b>Literal name</b>'));
-  w.document.querySelector('[data-community-tab="friends"]').click();
-  assert.equal(w.document.querySelector('[data-community-panel="friends"]').hidden,false);
+  w.document.querySelector('[data-social-route="ranking"][data-social-view="ranking"]').click();w.__socialTest(people[0]||null,people.slice(1));
+  assert.equal(w.document.querySelectorAll('#elara-ranking-page .social-podium-place').length,Math.min(count,3));
+  assert.equal(w.document.querySelectorAll('#elara-ranking-page .social-reference-grid>section:nth-child(4) .social-row').length,count);
+  if(count>1)assert.ok(w.document.querySelector('#elara-ranking-page .social-podium').textContent.includes('<b>Literal name</b>'));
+  w.document.querySelector('[data-social-route="ranking"][data-social-view="friends"]').click();
+  assert.equal(w.document.querySelector('[data-social-route="ranking"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  }
 
  // A sends first request to B. This is the regression: no getDoc() of the missing request path is allowed.
- w.__socialTest({uid:'A',...profiles.get('A')});
+ w.document.querySelector('[data-social-route="social"][data-social-view="friends"]').click();w.__socialTest({uid:'A',...profiles.get('A')});
  reads.friendRequests=0;
  await w.__socialOps.addFriend('@BEHNAM');
  assert.equal(reads.friendRequests,0,'first-time send must not pre-read a missing friendRequests document');
@@ -101,3 +101,4 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  console.log('PASS: Firestore-backed friend send/persist/receiver/accept/decline/no-duplicate/self-guard lifecycle (network mocked; multi-account Firebase browser not verified)');
  dom.window.close();
 })().catch(e=>{console.error(e);process.exit(1)});
+

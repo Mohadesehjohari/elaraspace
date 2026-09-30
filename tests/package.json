@@ -2,7 +2,7 @@
   "name": "elara-astra-local-tests",
   "private": true,
   "scripts": {
-    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs"
+    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs"
   },
   "devDependencies": {
     "jsdom": "30.1.1"

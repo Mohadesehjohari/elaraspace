@@ -139,3 +139,58 @@
 - Save Profile باید Name، Bio، Username و Privacy را جداگانه مدیریت کند تا Permission یک بخش کل فرم را fail نکند. تغییر Password باید re-authenticate واقعی Firebase داشته باشد.
 - Task Short/Long Description، Task Details editing، Theme-aware centered Dialogها، حفظ Task Draft هنگام افزودن Folder/Tag و ساخت Task داخل Folder از قبل کدنویسی شده‌اند و در این بسته با Static Regression Check محافظت می‌شوند؛ تا تست دستی کاربر «کامل» محسوب نمی‌شوند.
 - مرجع ظاهری تصاویر تأییدشدهٔ تاریک/کوهستانی با کارت‌های سرمه‌ای، Glow بنفش، Progress bar و چیدمان Box-based است؛ این مرحله polish روی معماری فعلی است و بازنویسی از صفر نیست.
+
+
+## Execution pass — 2026-09-30
+
+Started from `c2e347f1d2862687178adea4f538f394e426a318`; integrated concurrent main `aaf5d065f64bb044580676b3522494247477b7fe` without rollback.
+
+Reference attachments are TARGETS. Browser and visual checks must use the artifact named with the exact commit SHA. No visual PASS is implied by a code status.
+
+| ID | requested | root cause / design gap | coded | tested | verified | status |
+|---|---|---|---|---|---|---|
+| HOME-VISUAL-RESTORE | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| TASKS-VISUAL-RESTORE | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| SOCIAL-RANKING-REDESIGN | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| LIBRARY-PAGE-TRACKING | yes | Book normalization discarded page metadata | yes | unit PASS | pending End HEAD browser | REMAINING |
+| LIBRARY-READING-LOGS | yes | Approved reference / product request | yes | unit PASS | pending End HEAD browser | REMAINING |
+| REPORTS-READING | yes | Separate manual reports did not read book logs | yes | unit PASS | pending End HEAD browser | REMAINING |
+| CROSS-FEATURE-TASKS | yes | Source writes could be overwritten by old task completion | yes | unit PASS | pending End HEAD browser | REMAINING |
+| FLICKER-STABILITY | yes | Legacy reordering, repeated image replacement, mission hydrate | yes | unit PASS | pending End HEAD browser | REMAINING |
+| SEARCH-OVERLAY | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| BUTTON-ASSET-MAPPING | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| CHECKBOX-ICON-CONTRACT | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| TASKS-REFERENCE-PIXEL-FIDELITY | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| RANKING-REFERENCE-PIXEL-FIDELITY | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| SETTINGS-REFERENCE-PIXEL-FIDELITY | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| MOBILE-BOOT-BLOCKER | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| MOBILE-BOTTOM-NAV-RESTORE | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| RIGHT-SIDE-GLASS-SCROLLBAR | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| FRIENDS-INTERNAL-SCROLL | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| FRIEND-REQUEST-VISUAL-ACTIONS | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| FRIEND-SEARCH-RESPONSIVE | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| FRIEND-ACTIVITY-TONE | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| DESKTOP-REPEAT-COMPACT-CONTROL | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| EXERCISE-PROFILE-GENDER | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| NEW-LEVEL-AVATAR-SYSTEM | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| CIRCLE-SQUARE-ASSET-VARIANTS | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| DISPLAY-NAME-FONT | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| PROFILE-UPLOAD | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| NEW-BANNER-SYSTEM | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| NOTIFICATION-POPUP | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| SETTINGS-ALL-DIALOGS | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| LIBRARY-TOTAL-PAGES | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| LANGUAGE-BOOK-TOTAL-PAGES | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| READING-REPORT-FLOW | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| READING-NOTIFICATIONS | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| READING-FRIEND-ACTIVITY | yes | Approved reference / product request | pending | pending | pending End HEAD browser | REMAINING |
+| WELLNESS-SPORTS-BANNER | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+| SINGLE-ASSET-OWNER | yes | Approved reference / product request | yes | pending | pending End HEAD browser | REMAINING |
+
+### Asset binary audit
+
+Inspected actual decoded WebP pixels: `button-view-all.webp` is a purple Persian All pill; `accept-request-button.webp` is a blue-purple tick; `decline-request-button.webp` is a red X; `invite-friend-button.webp` is an Invite pill; `search-button.webp` is a square search icon. `icon-tasks-check-alpha.webp` is the uploaded circular tick. Friends Activity All remains text-only.
+
+### Browser evidence
+
+`tests/restore-browser.mjs` saves screenshot and JSON acceptance under `browser-artifacts/$GITHUB_SHA/`. Fixtures are isolated local test records; Firebase production is NOT TESTED. Local Chromium cannot launch in this environment (SIGTRAP); CI captures real browser output.

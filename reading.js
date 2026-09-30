@@ -1,0 +1,45 @@
+/* Canonical page tracking; progress never fabricates reading history. */
+(()=>{'use strict';
+const arr=v=>Array.isArray(v)?v:[],int=v=>Math.max(0,Math.min(1000000,Math.floor(Number(v)||0)));
+const today=()=>window.ElaraSchedule.today(),valid=d=>window.ElaraSchedule.validDate(d);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fa=v=>Number(v||0).toLocaleString('fa-IR');
+function normalize(raw){
+ const totalPages=int(raw.totalPages),currentPage=totalPages?Math.min(totalPages,int(raw.currentPage)):int(raw.currentPage);
+ const seen=new Set(),readingLogs=arr(raw.readingLogs).filter(r=>r&&valid(r.date)&&Number.isFinite(Number(r.timestamp))).map(r=>({date:r.date,pagesRead:int(r.pagesRead),fromPage:int(r.fromPage),toPage:int(r.toPage),timestamp:Number(r.timestamp)})).filter(r=>{const k=[r.timestamp,r.fromPage,r.toPage].join(':');if(seen.has(k)||r.toPage-r.fromPage!==r.pagesRead||!r.pagesRead)return false;seen.add(k);return true});
+ return {...raw,totalPages,currentPage,readingLogs,pagesReadToday:readingLogs.filter(r=>r.date===today()).reduce((n,r)=>n+r.pagesRead,0),startedAt:raw.startedAt||null,finishedAt:raw.finishedAt||null,lastReadAt:raw.lastReadAt||null,shelf:totalPages&&currentPage>=totalPages?'finished':raw.shelf||'want'};
+}
+function record(book,mode,value,timestamp=Date.now()){
+ const b=normalize(book),amount=Number(value);if(!Number.isInteger(amount)||amount<1)throw Error('تعداد صفحات باید عدد صحیح مثبت باشد.');
+ if(!b.totalPages)throw Error('ابتدا تعداد کل صفحات کتاب را تعیین کن.');
+ const toPage=Math.min(b.totalPages,mode==='page'?amount:b.currentPage+amount);
+ if(toPage<=b.currentPage)throw Error('صفحهٔ جدید باید بعد از صفحهٔ فعلی باشد.');
+ const date=window.ElaraSchedule.iso(new Date(timestamp)),log={date,pagesRead:toPage-b.currentPage,fromPage:b.currentPage,toPage,timestamp};
+ b.currentPage=toPage;b.readingLogs.push(log);b.startedAt=b.startedAt||timestamp;b.lastReadAt=timestamp;b.shelf=toPage>=b.totalPages?'finished':'reading';b.finishedAt=b.shelf==='finished'?timestamp:null;
+ return normalize(b);
+}
+function summary(books,day=today()){
+ const normalized=arr(books).map(normalize),start=new Date(day+'T12:00:00');start.setDate(start.getDate()-(start.getDay()+1)%7);const week=window.ElaraSchedule.iso(start),month=day.slice(0,7),daily={};let todayPages=0,weekPages=0,monthPages=0;
+ for(const b of normalized)for(const r of b.readingLogs){if(r.date>day)continue;daily[r.date]=(daily[r.date]||0)+r.pagesRead;if(r.date===day)todayPages+=r.pagesRead;if(r.date>=week)weekPages+=r.pagesRead;if(r.date.startsWith(month))monthPages+=r.pagesRead}
+ return {today:todayPages,week:weekPages,month:monthPages,daily,active:normalized.filter(b=>b.shelf==='reading').length,finished:normalized.filter(b=>b.shelf==='finished').length,books:normalized};
+}
+const progress=b=>b.totalPages?Math.min(100,Math.round(b.currentPage/b.totalPages*100)):0;
+function card(raw){const b=normalize(raw),pct=progress(b);return `<li class="library-book" data-key="${esc(b.id)}"><div class="library-cover" aria-hidden="true"><img src="assets/ui/icon-library-open-book.webp" alt=""><strong>${esc(b.title)}</strong></div><div class="library-book-copy"><h3>${esc(b.title)}</h3><span class="library-shelf">${b.shelf==='finished'?'خوانده‌شده':b.shelf==='reading'?'در حال مطالعه':'برای مطالعه'}</span><div class="library-page-count">صفحهٔ ${fa(b.currentPage)} از ${b.totalPages?fa(b.totalPages):'—'} <b>${fa(pct)}٪</b></div><div class="library-progress" role="progressbar" aria-label="پیشرفت ${esc(b.title)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div><small>${b.totalPages?fa(Math.max(0,b.totalPages-b.currentPage))+' صفحه باقی‌مانده':'تعداد صفحات را وارد کن'} · امروز ${fa(b.pagesReadToday)} صفحه</small><div class="library-book-actions"><button class="primary-button" type="button" data-reading-book="${esc(b.id)}">ثبت مطالعه</button><button class="quiet-button" type="button" data-edit-book="${esc(b.id)}">ویرایش</button><select data-action="book-shelf" data-id="${esc(b.id)}" aria-label="قفسه ${esc(b.title)}">${Object.entries({want:'برای مطالعه',reading:'در حال مطالعه',finished:'خوانده‌شده'}).map(([k,v])=>`<option value="${k}" ${b.shelf===k?'selected':''}>${v}</option>`).join('')}</select><button type="button" class="quiet-button" data-action="delete-book" data-id="${esc(b.id)}" aria-label="حذف ${esc(b.title)}">حذف</button></div><details><summary>تاریخچهٔ مطالعه (${fa(b.readingLogs.length)})</summary>${b.readingLogs.slice().reverse().map(r=>`<p>${esc(r.date)} · ${fa(r.pagesRead)} صفحه · ${fa(r.fromPage)} ← ${fa(r.toPage)}</p>`).join('')||'<p>هنوز مطالعه‌ای ثبت نشده است.</p>'}</details></div></li>`}
+function stats(books){const s=summary(books);return `<div class="library-stat-grid">${[[s.today,'صفحه امروز'],[s.week,'صفحه این هفته'],[s.month,'صفحه این ماه'],[s.active,'در حال مطالعه'],[s.finished,'تمام‌شده']].map(([n,label])=>`<div><strong>${fa(n)}</strong><small>${label}</small></div>`).join('')}</div>`}
+function chart(books){const s=summary(books),days=Array.from({length:7},(_,i)=>{const d=new Date(today()+'T12:00:00');d.setDate(d.getDate()-6+i);const date=window.ElaraSchedule.iso(d);return{date,value:s.daily[date]||0}}),max=Math.max(1,...days.map(d=>d.value));return `<div class="library-daily-chart" role="img" aria-label="صفحات مطالعه در هفت روز اخیر">${days.map(d=>`<div><b>${fa(d.value)}</b><i style="height:${d.value/max*90}px"></i><small>${new Date(d.date+'T12:00:00').toLocaleDateString('fa-IR',{weekday:'short'})}</small></div>`).join('')}</div>`}
+function render(books,filter='all'){
+ const panel=document.getElementById('panel-books');if(!panel)return;
+ panel.classList.add('reading-library');let hero=document.getElementById('library-hero');if(!hero){hero=document.createElement('section');hero.id='library-hero';hero.className='library-hero';hero.innerHTML='<div><small>ELARA · LIBRARY</small><h2>هر کتاب، یک ماجراجویی جدید است.</h2><p>صفحه به صفحه، دنیای خودت را بساز.</p></div><blockquote>کتاب‌ها جایی هستند<br>که رویاها تمام نمی‌شوند.</blockquote>';panel.prepend(hero)}
+ let report=document.getElementById('library-reading-summary');if(!report){report=document.createElement('section');report.id='library-reading-summary';report.className='elara-card';panel.append(report)}
+ window.ElaraDOM.patch(report,'<header><h2>گزارش مطالعه</h2><button type="button" class="elara-link" data-elara-tab="reports">همه ←</button></header>'+stats(books)+chart(books));
+ const visible=arr(books).filter(b=>filter==='all'||b.shelf===filter);window.ElaraDOM.patch(document.getElementById('book-list'),visible.map(card).join(''));document.getElementById('book-empty')?.classList.toggle('hidden',!!visible.length);
+}
+function commit(books){const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');state.books=books;window.ElaraLinkedTasks?.syncCoreState(state);localStorage.setItem('elara_space_v1',JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));render(books,document.getElementById('book-filter')?.value||'all')}
+function getBooks(){try{return arr(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').books)}catch{return[]}}
+function open(id,editing=false){const book=getBooks().find(b=>b.id===id);if(!book)return;const b=normalize(book),form=document.createElement('form');form.className='library-log-form';form.innerHTML=editing?`<label>نام کتاب<input name="title" required maxlength="180" value="${esc(b.title)}"></label><label>کل صفحات<input name="total" type="number" min="${Math.max(1,b.currentPage)}" max="1000000" required value="${b.totalPages||''}"></label>`:`<p>صفحهٔ فعلی: ${fa(b.currentPage)} / ${fa(b.totalPages)}</p><label>روش ثبت<select name="mode"><option value="count">امروز X صفحه خواندم</option><option value="page">رسیدم به صفحه Y</option></select></label><label>تعداد / شمارهٔ صفحه<input name="pages" type="number" min="1" max="1000000" required></label>`;
+ form.insertAdjacentHTML('beforeend','<p role="status" data-reading-error></p><button type="submit" class="primary-button">ذخیره</button>');form.onsubmit=e=>{e.preventDefault();try{const books=getBooks(),index=books.findIndex(x=>x.id===id);if(index<0)throw Error('کتاب دیگر وجود ندارد.');books[index]=editing?normalize({...books[index],title:form.elements.title.value.trim(),totalPages:form.elements.total.value}):record(books[index],form.elements.mode.value,form.elements.pages.value);commit(books);window.ElaraDialog.close()}catch(error){form.querySelector('[data-reading-error]').textContent=error.message}};
+ window.ElaraDialog.open({title:editing?'ویرایش کتاب':'ثبت مطالعه',content:form,actions:[{label:'انصراف',value:false}]});
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-reading-book],[data-edit-book]');if(b){e.preventDefault();open(b.dataset.readingBook||b.dataset.editBook,!!b.dataset.editBook)}});
+window.ElaraReading={normalize,record,summary,progress,render,stats,chart,commit};
+})();

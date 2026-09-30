@@ -50,7 +50,11 @@
     "assets/ui/icon-mode-night-active.webp",
     "assets/ui/icon-notifications-read.webp",
     "assets/ui/icon-notifications-unread.webp",
-    "assets/ui/banner-running-moonlit-mountains.webp"
+    "assets/ui/banner-running-moonlit-mountains.webp",
+    "stable-dom.js",
+    "reading.js",
+    "social-view.js",
+    "reference-restore.css"
   ],
   "files": [
     ".htaccess",
@@ -188,6 +192,10 @@
     "assets/ui/decline-request-button.webp",
     "assets/ui/invite-friend-button.webp",
     "assets/ui/search-button.webp",
-    "assets/ui/banner-running-moonlit-mountains.webp"
+    "assets/ui/banner-running-moonlit-mountains.webp",
+    "stable-dom.js",
+    "reading.js",
+    "social-view.js",
+    "reference-restore.css"
   ]
 }

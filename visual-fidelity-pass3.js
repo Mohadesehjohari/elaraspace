@@ -37,7 +37,7 @@ function taskRow(x){
  const p=priority(x.priority),done=taskDone(x),meta=metaTask(x);
  return `<button type="button" class="pass3-task-row ${done?'is-done':''}" data-elara-tab="tasks"><span class="pass3-task-check" aria-hidden="true">${done?icon('check'):'<i></i>'}</span><span class="pass3-task-copy"><strong>${esc(x.text||x.title||'بدون عنوان')}</strong>${meta?`<small>${esc(meta)}</small>`:''}</span><b class="pass3-priority ${p.cls}">${p.label}</b></button>`;
 }
-function renderHome(){
+function renderHome(){if(window.ElaraReferenceHome)return;
  const panel=$('panel-home'),grid=panel?.querySelector('.elara-dashboard-grid');if(!panel||!grid)return;
  panel.classList.add('pass3-home');
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('pass3-home-hero');const kicker=hero.querySelector('.elara-kicker');if(kicker)kicker.textContent='ELARA · YOUR PERSONAL COSMOS';const copy=hero.querySelector('.hero-copy>p:not(.elara-kicker)');if(copy)copy.textContent='امروز فقط یک قدم روشن بردار؛ بقیهٔ مسیر خودش شکل می‌گیرد.'}
