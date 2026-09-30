@@ -403,3 +403,9 @@ body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17
  .social-top-three .social-podium{min-height:225px!important;gap:8px!important}
 }
 @media(max-width:360px){.social-weekly,.social-friend-rank{grid-column:1/-1!important;min-height:auto!important}.social-side-stack{grid-template-columns:1fr!important}}
+
+
+/* Profile shape + display-name font propagate into Friends/Ranking surfaces. */
+.social-person strong{font-family:var(--elara-name-font,inherit)!important}
+.social-person[data-profile-shape="circle"] .social-portrait{border-radius:50%!important}
+.social-person[data-profile-shape="square"] .social-portrait{border-radius:22%!important}
