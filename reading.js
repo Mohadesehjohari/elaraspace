@@ -31,15 +31,33 @@ function render(books,filter='all'){
  const panel=document.getElementById('panel-books');if(!panel)return;
  panel.classList.add('reading-library');let hero=document.getElementById('library-hero');if(!hero){hero=document.createElement('section');hero.id='library-hero';hero.className='library-hero';hero.innerHTML='<div><small>ELARA · LIBRARY</small><h2>هر کتاب، یک ماجراجویی جدید است.</h2><p>صفحه به صفحه، دنیای خودت را بساز.</p></div><blockquote>کتاب‌ها جایی هستند<br>که رویاها تمام نمی‌شوند.</blockquote>';panel.prepend(hero)}
  let report=document.getElementById('library-reading-summary');if(!report){report=document.createElement('section');report.id='library-reading-summary';report.className='elara-card';panel.append(report)}
- window.ElaraDOM.patch(report,'<header><h2>گزارش مطالعه</h2><button type="button" class="elara-link" data-elara-tab="reports">همه ←</button></header>'+stats(books)+chart(books));
+ window.ElaraDOM.patch(report,'<header><h2>گزارش مطالعه</h2><div class="library-report-actions"><button type="button" class="primary-button" data-reading-report>گزارش مطالعه</button><button type="button" class="elara-link" data-elara-tab="reports">همه ←</button></div></header>'+stats(books)+chart(books));
  const visible=arr(books).filter(b=>filter==='all'||b.shelf===filter);window.ElaraDOM.patch(document.getElementById('book-list'),visible.map(card).join(''));document.getElementById('book-empty')?.classList.toggle('hidden',!!visible.length);
 }
 function commit(books){const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');state.books=books;window.ElaraLinkedTasks?.syncCoreState(state);localStorage.setItem('elara_space_v1',JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));render(books,document.getElementById('book-filter')?.value||'all')}
 function getBooks(){try{return arr(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').books)}catch{return[]}}
+function openReport(){
+ const books=getBooks().map(normalize).filter(b=>b.shelf==='reading'&&b.totalPages>0);
+ const host=document.createElement('div');host.className='reading-report-picker';
+ host.innerHTML=books.length?'<p class="muted">کتاب در حال مطالعه را انتخاب کن.</p><div class="reading-report-books">'+books.map(b=>{const pct=progress(b);return '<button type="button" data-reading-report-book="'+esc(b.id)+'"><span class="reading-report-cover"><img src="assets/ui/icon-library-open-book.webp" alt=""></span><span><strong>'+esc(b.title)+'</strong><small>صفحه '+fa(b.currentPage)+' از '+fa(b.totalPages)+' · '+fa(pct)+'٪</small><i class="library-progress"><i style="width:'+pct+'%"></i></i></span></button>'}).join('')+'</div>':'<p class="ref-empty">کتاب «در حال مطالعه» با تعداد صفحات مشخص نداری.</p>';
+ host.addEventListener('click',e=>{const b=e.target.closest('[data-reading-report-book]');if(!b)return;window.ElaraDialog.close();setTimeout(()=>open(b.dataset.readingReportBook,false),0)});
+ return window.ElaraDialog.open({title:'گزارش مطالعه',content:host,actions:[{label:'بستن',value:false}]});
+}
 function open(id,editing=false){const book=getBooks().find(b=>b.id===id);if(!book)return;const b=normalize(book),form=document.createElement('form');form.className='library-log-form';form.innerHTML=editing?`<label>نام کتاب<input name="title" required maxlength="180" value="${esc(b.title)}"></label><label>کل صفحات<input name="total" type="number" min="${Math.max(1,b.currentPage)}" max="1000000" required value="${b.totalPages||''}"></label>`:`<p>صفحهٔ فعلی: ${fa(b.currentPage)} / ${fa(b.totalPages)}</p><label>روش ثبت<select name="mode"><option value="count">امروز X صفحه خواندم</option><option value="page">رسیدم به صفحه Y</option></select></label><label>تعداد / شمارهٔ صفحه<input name="pages" type="number" min="1" max="1000000" required></label>`;
- form.insertAdjacentHTML('beforeend','<p role="status" data-reading-error></p><button type="submit" class="primary-button">ذخیره</button>');form.onsubmit=e=>{e.preventDefault();try{const books=getBooks(),index=books.findIndex(x=>x.id===id);if(index<0)throw Error('کتاب دیگر وجود ندارد.');books[index]=editing?normalize({...books[index],title:form.elements.title.value.trim(),totalPages:form.elements.total.value}):record(books[index],form.elements.mode.value,form.elements.pages.value);commit(books);window.ElaraDialog.close()}catch(error){form.querySelector('[data-reading-error]').textContent=error.message}};
+ form.insertAdjacentHTML('beforeend','<p role="status" data-reading-error></p><button type="submit" class="primary-button">ذخیره</button>');form.onsubmit=e=>{e.preventDefault();try{
+ const books=getBooks(),index=books.findIndex(x=>x.id===id);if(index<0)throw Error('کتاب دیگر وجود ندارد.');
+ const before=normalize(books[index]),next=editing?normalize({...books[index],title:form.elements.title.value.trim(),totalPages:form.elements.total.value}):record(books[index],form.elements.mode.value,form.elements.pages.value);
+ books[index]=next;commit(books);
+ if(!editing){
+   const last=next.readingLogs[next.readingLogs.length-1],pct=progress(next);
+   window.ElaraNotify?.push?.({type:'reading',title:'گزارش مطالعه ثبت شد',message:'امروز '+fa(last.pagesRead)+' صفحه از «'+next.title+'» خوندی 📚🔥',dedupeKey:'reading:'+next.id+':'+last.timestamp,meta:{bookId:next.id,pagesRead:last.pagesRead,percentAfter:pct}});
+   if(before.shelf!=='finished'&&next.shelf==='finished')window.ElaraNotify?.push?.({type:'book',title:'کتاب تموم شد',message:'«'+next.title+'» رو به پایان رسوندی 😎📖',dedupeKey:'book-finished:'+next.id});
+   window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title,visibility:'friends'});
+ }
+ window.ElaraDialog.close()
+}catch(error){form.querySelector('[data-reading-error]').textContent=error.message}};
  window.ElaraDialog.open({title:editing?'ویرایش کتاب':'ثبت مطالعه',content:form,actions:[{label:'انصراف',value:false}]});
 }
-document.addEventListener('click',e=>{const b=e.target.closest('[data-reading-book],[data-edit-book]');if(b){e.preventDefault();open(b.dataset.readingBook||b.dataset.editBook,!!b.dataset.editBook)}});
-window.ElaraReading={normalize,record,summary,progress,render,stats,chart,commit};
+document.addEventListener('click',e=>{const report=e.target.closest('[data-reading-report]');if(report){e.preventDefault();openReport();return}const b=e.target.closest('[data-reading-book],[data-edit-book]');if(b){e.preventDefault();open(b.dataset.readingBook||b.dataset.editBook,!!b.dataset.editBook)}});
+window.ElaraReading={normalize,record,summary,progress,render,stats,chart,commit,openReport};
 })();
