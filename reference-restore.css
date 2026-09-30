@@ -257,3 +257,42 @@ body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17
  .social-invite>.social-art-button.invite img{width:min(100%,220px)!important;height:60px!important}
  .social-invite>[data-profile-lookup]{grid-column:2!important;width:56px!important;height:52px!important}
 }
+
+
+/* 2026-10-01 Settings/Profile reference modal and profile appearance controls. */
+.elara-private-drawer{position:fixed!important;inset:0!important;z-index:99940!important;display:grid!important;place-items:center!important;padding:20px!important;pointer-events:none!important}
+.elara-private-drawer[hidden]{display:none!important}
+.elara-private-drawer-scrim{position:absolute!important;inset:0!important;pointer-events:auto!important;background:rgba(2,8,25,.62)!important;backdrop-filter:blur(8px)!important;border:0!important}
+.elara-private-drawer-panel{
+ position:relative!important;inset:auto!important;width:min(1060px,calc(100vw - 40px))!important;height:min(860px,calc(100dvh - 40px))!important;
+ max-height:calc(100dvh - 40px)!important;display:grid!important;grid-template-columns:220px minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;
+ gap:12px!important;padding:16px!important;overflow:hidden!important;pointer-events:auto!important;border:1px solid rgba(87,125,236,.62)!important;border-radius:20px!important;
+ background:linear-gradient(145deg,rgba(5,22,47,.985),rgba(2,13,31,.985))!important;box-shadow:0 32px 110px #000c,0 0 38px rgba(77,92,255,.15)!important;direction:ltr!important
+}
+.drawer-profile-head{grid-column:1/-1!important;grid-row:1!important;direction:rtl!important;min-height:190px!important;overflow:hidden!important;border-radius:16px!important}
+.drawer-menu{grid-column:1!important;grid-row:2!important;direction:rtl!important;display:flex!important;flex-direction:column!important;gap:5px!important;overflow-y:auto!important;min-height:0!important;padding:4px!important;border-inline-end:1px solid rgba(84,102,158,.32)!important}
+.drawer-menu>button{min-height:48px!important;justify-content:flex-start!important;padding:8px 12px!important}
+.elara-private-drawer-panel>[data-drawer-section]{grid-column:2!important;grid-row:2!important;direction:rtl!important;min-width:0!important;min-height:0!important;overflow:auto!important;padding:4px 10px 20px!important;overscroll-behavior:contain!important}
+.elara-private-drawer-panel>[data-drawer-section][hidden]{display:none!important}
+.profile-shape-switch,.profile-photo-mode,.profile-appearance-controls{display:flex!important;gap:8px!important;flex-wrap:wrap!important;align-items:center!important}
+.profile-shape-switch>button[aria-pressed="true"]{border-color:#8f67ff!important;background:#34227a!important;box-shadow:0 0 12px rgba(117,79,255,.35)!important}
+.elara-profile-composition.profile-shape-circle .elara-profile-avatar-shell,.elara-profile-composition.profile-shape-circle .elara-profile-avatar-img,.elara-profile-composition.profile-shape-circle .elara-profile-frame-img{border-radius:50%!important}
+.elara-profile-composition.profile-shape-square .elara-profile-avatar-shell,.elara-profile-composition.profile-shape-square .elara-profile-avatar-img,.elara-profile-composition.profile-shape-square .elara-profile-frame-img{border-radius:22%!important}
+.elara-profile-composition .elara-display-name,.social-person strong,.elara-profile-link strong{font-family:var(--elara-name-font,inherit)!important}
+.pass4-profile-edit-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;min-width:min(720px,80vw)!important}
+.pass4-profile-edit-form>.pass5-profile-edit-preview,.pass4-profile-edit-form>.profile-photo-controls,.pass4-profile-edit-form>.profile-appearance-controls,.pass4-profile-edit-form>.pass4-profile-public,.pass4-profile-edit-form>.pass4-profile-edit-actions,.pass4-profile-edit-form>[data-profile-edit-status]{grid-column:1/-1!important}
+.pass4-profile-edit-form label{display:grid!important;gap:6px!important}.pass4-profile-edit-form input,.pass4-profile-edit-form textarea,.pass4-profile-edit-form select{width:100%!important}
+.profile-photo-controls{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important}
+.profile-upload-label{display:grid!important;gap:6px!important}.profile-upload-label input[type=file]{padding:10px!important;border:1px dashed #6558a7!important;border-radius:12px!important;background:#071934!important}
+.profile-appearance-controls{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:700px){
+ .elara-private-drawer{padding:6px!important;place-items:center!important}
+ .elara-private-drawer-panel{width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;display:block!important;padding:10px!important;border-radius:20px!important;overflow:auto!important}
+ .drawer-profile-head{min-height:150px!important;margin-bottom:8px!important}
+ .drawer-menu{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;overflow-x:auto!important;overflow-y:hidden!important;border:0!important;padding:4px 0 8px!important}
+ .drawer-menu>button{min-width:82px!important;min-height:42px!important;justify-content:center!important;padding:5px!important;font-size:.67rem!important}
+ .elara-private-drawer-panel>[data-drawer-section]{display:block!important;overflow:visible!important;padding:8px 2px 90px!important}
+ .elara-private-drawer-panel>[data-drawer-section][hidden]{display:none!important}
+ .pass4-profile-edit-form{grid-template-columns:1fr!important;min-width:0!important;width:min(100%,520px)!important}
+ .pass4-profile-edit-form>*{grid-column:1!important}.profile-photo-controls,.profile-appearance-controls{grid-template-columns:1fr!important}
+}
