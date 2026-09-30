@@ -55,7 +55,7 @@ for(const width of all){
   await check(`${width}: shell/topbar/nav boot`,async()=>{
    assert.equal(await page.locator('.workspace').isVisible(),true);
    assert.equal(await page.locator('.topbar').isVisible(),true);
-   if(mobile){assert.equal(await page.locator('.bottom-nav').isVisible(),true);assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),6)}
+   if(mobile){assert.equal(await page.locator('.bottom-nav').isVisible(),true);assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),6);assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['home','tasks','language','books','exercise','freedom'])}
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
   });
