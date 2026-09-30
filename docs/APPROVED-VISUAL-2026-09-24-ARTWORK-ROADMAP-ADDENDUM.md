@@ -555,3 +555,28 @@ Hierarchy:
 
 ### Browser gate
 برای تبدیل دو ستون آخر جدول به ✅ باید End HEAD در 320/375/390/430 و 1440/1648/1920 پاس شود؛ circle geometry، checked fill، banner، no-semantic-icon، Ranking/Friends delta ≤ 2px، single heading owner، View All geometry، no overflow/404/pageerror و سه toggle متوالی بدون flicker ثبت شوند.
+
+
+---
+
+## الحاقیه ۳۰ سپتامبر ۲۰۲۶ — Immediate P0 Social/Home Closure
+
+| Milestone | REQUESTED | ROOT CAUSE | CODED | TESTED | VERIFIED |
+| --- | --- | --- | --- | --- | --- |
+| `FRIEND-REQUEST-SEND-REGRESSION` | ✅ | first-time send قبل از create، `getDoc(friendRequests/from_to)` روی سندِ هنوز موجودنشده اجرا می‌کرد؛ Rule خواندن participant به resource موجود وابسته است و missing doc با permission-denied متوقف می‌شد. علاوه بر آن decline رکورد stale نگه می‌داشت و account-ready retry صریح نبود. | ✅ direct create/update via `setDoc` بدون missing pre-read، sender pending UI، receiver delete-on-decline، crossed duplicate rule، account-ready refresh، console error logging | ⏳ | ⚠️ multi-account Firebase browser هنوز نیازمند دو حساب واقعی + Rules منتشرشده است |
+| `HOME-TOGGLE-LAYOUT-SHIFT` | ✅ | legacy Pass2/Pass3 reorder و artwork installer روی generic data event در کنار full Home scheduling، DOM غیرمرتبط را حرکت/بازسازی می‌کردند. | ✅ legacy reorder/decorative data listeners از Reference Home جدا؛ Task/Habit فقط خود card + Missions + Streak را update می‌کنند. | ⏳ | ⏳ |
+| `HOME-HABIT-CHECK-FILL` | ✅ | checked image و border/legacy pixel rules چند owner داشتند. | ✅ approved circular artwork + edge fill + zero residual checked border | ⏳ | ⏳ |
+| `TASK-MOBILE-CHECK-CIRCLE` | ✅ | fixed legacy width و flex/grid می‌توانستند width/height را از هم جدا کنند. | ✅ aspect 1/1 + equal fixed dimensions + flex-shrink 0 | ⏳ | ⏳ |
+| `HABIT-ROW-ICON-CLEANUP` | ✅ | renderer برای هر Habit semantic artwork تزریق می‌کرد. | ✅ row semantic icon حذف؛ فقط card header artwork باقی است. | ⏳ | ⏳ |
+| `WELLNESS-SPORTS-BANNER` | ✅ | uploaded sports binary در Wellness DOM استفاده نمی‌شد. | ✅ `banner-running-moonlit-mountains.webp` زیر چهار stat داخل Wellness | ⏳ | ⏳ |
+| `VIEW-ALL-NO-UNDERLAY` | ✅ | uploaded CTA روی inherited pill/background بزرگ سوار می‌شد. | ✅ wrapper شفاف بدون border/background/shadow؛ artwork visual bounds را تعیین می‌کند. | ⏳ | ⏳ |
+| `LEGACY-ICON-SINGLE-OWNER` | ✅ | base icon/pseudo + approved visual + reference heading replacement هم‌زمان owner بودند. | ✅ idempotent reference heading owner و legacy reorder/icon injection defer | ⏳ | ⏳ |
+| `MOBILE-NAV-CENTER-HOME` | ✅ | DOM order/equal sizing مرکز واقعی Home را تضمین نمی‌کرد. | ✅ fixed geometric center + distance hierarchy Friends/Ranking → Tasks/Library → outer destinations | ⏳ | ⏳ |
+| `THEME-MOON-DUAL-STATE` | ✅ | یک artwork/fallback می‌توانست هر دو state را نمایش دهد. | ✅ Dark/AMOLED bright و Light dim با src swap همان node | ⏳ | ⏳ |
+| `TOPBAR-ICON-NO-BOX` | ✅ | button chrome مربع پشت Moon/Bell دیده می‌شد. | ✅ visible background/border/shadow حذف و artwork optically centered | ⏳ | ⏳ |
+| `SEARCH-OVERLAY` | ✅ | stacking/overflow chain می‌توانست result panel را پشت Hero ببرد. | ✅ overlay owner و elementFromPoint topmost gate | ⏳ | ⏳ |
+| `HOME-INTERNAL-CARD-SCROLL` | ✅ | growing bodies با overflow hidden/auto-row می‌توانستند card/grid را هل دهند یا clip شوند. | ✅ fixed card/header + internal body scroll برای Tasks/Habits/Missions/Goals/Ranking/Friends | ⏳ | ⏳ |
+| `MOBILE-GOALS-VISIBLE` | ✅ | breakpoint قدیمی Goals را در Mobile hide می‌کرد. | ✅ visible full-width `grid-column:1/-1` + internal scroll retained | ⏳ | ⏳ |
+
+### Verification note
+- `firestore.rules` در این repository نسخه‌بندی می‌شود ولی GitHub Pages آن را روی Firebase publish نمی‌کند. بنابراین CI می‌تواند lifecycle/path/rule contract را تست کند، اما **multi-account Firebase browser VERIFIED فقط بعد از انتشار Rules و تست با دو UID واقعی مجاز است**.
