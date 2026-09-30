@@ -25,7 +25,7 @@ const results=[],failures=[],tasksGeometry=[];const clamp=(min,value,max)=>Math.
 }
 function fixture(){if(localStorage.getItem('elara-test-seeded'))return;const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:0,tasks:[{id:'qa-task',text:'QA task',date:today,priority:'2',completed:false,xpAwarded:false,createdAt:Date.now()}],goals:[{id:'qa-goal',title:'QA goal',horizon:'short',steps:[{id:'qa-step',text:'QA step',done:false}]},{id:'qa-goal-2',title:'QA goal 2',horizon:'short',steps:[]},{id:'qa-goal-3',title:'QA goal 3',horizon:'short',steps:[]},{id:'qa-goal-4',title:'QA goal 4',horizon:'short',steps:[]},{id:'qa-goal-5',title:'QA goal 5',horizon:'short',steps:[]},{id:'qa-goal-6',title:'QA goal 6',horizon:'short',steps:[]}],habits:[{id:'qa-habit',title:'مطالعه',days:[],rewardDays:[]}]}));localStorage.setItem('elara_visual_wardrobe_guest',JSON.stringify({frame:'bronze'}));localStorage.setItem('elara-test-seeded','1')}
 async function init(page,{seed=false}={}){
- await page.route('**/cloud.js',route=>route.abort());
+ await page.route('**/cloud.js*',route=>route.abort());
  await page.addInitScript(()=>{window.__elaraPaint=[];const start=performance.now();let frames=0;const sample=()=>{const shell=document.querySelector('.shell'),nav=document.querySelector('.bottom-nav [data-elara-tab="home"] .elara-nav-art, .sidebar [data-elara-tab="home"] .elara-nav-art'),booting=document.documentElement.hasAttribute('data-elara-booting');window.__elaraPaint.push({ms:Math.round(performance.now()-start),booting,shell:shell?getComputedStyle(shell).visibility:'not-mounted',navPresent:!!nav,navReady:!!(nav?.complete&&nav?.naturalWidth),navSrc:nav?.getAttribute('src')||null});if(++frames<300&&(booting||frames<26))requestAnimationFrame(sample)};addEventListener('DOMContentLoaded',()=>requestAnimationFrame(sample),{once:true})});
  if(seed)await page.addInitScript(fixture);
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'domcontentloaded',timeout:30000});
@@ -43,7 +43,7 @@ async function firstPaintReload(page,mode){if(mode==='hard'){const cdp=await pag
 
 async function bootTriptych(width,height){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<=700});
- await page.route('**/cloud.js',route=>route.abort());
+ await page.route('**/cloud.js*',route=>route.abort());
  await page.route('**/assets/ui/*.webp',async route=>{await new Promise(r=>setTimeout(r,220));await route.continue()});
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'commit',timeout:30000});
  await page.waitForFunction(()=>document.documentElement?.hasAttribute('data-elara-booting'),null,{timeout:3000});
