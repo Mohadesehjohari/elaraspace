@@ -162,7 +162,7 @@
  #panel-tasks .astra-task-more{position:absolute!important;inset-block-start:7px!important;inset-inline-end:6px!important}
  #panel-tasks .astra-task-more>summary{width:28px!important;height:30px!important;padding:0!important;font-size:23px!important}
  #panel-tasks .astra-task-insights{grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px!important}
- #panel-tasks .astra-task-progress,#panel-tasks .astra-task-streak{height:auto!important;min-height:150px!important;max-height:none!important;padding:12px!important}
+ #panel-tasks .astra-task-progress,#panel-tasks .astra-task-streak{height:auto!important;min-height:150px!important;max-height:190px!important;padding:12px!important;overflow:hidden!important}
 
  /* Exact-center mobile primary navigation. Home is geometrically centered independently of DOM count. */
  .bottom-nav{
