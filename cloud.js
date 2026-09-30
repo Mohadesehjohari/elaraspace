@@ -190,14 +190,14 @@ async function refreshFriends(){
     const el=document.createElement('div');el.className='item';el.textContent=`${i+1}. @${p.username} · ${Number(p.xp)||0} XP`;rank.append(el);
   }
 }
-async function decide(req,status){await updateDoc(doc(db,'friendRequests',req.id),{status});await refreshFriends();}
+async function decide(req,status){if(status==='declined')await deleteDoc(doc(db,'friendRequests',req.id));else await updateDoc(doc(db,'friendRequests',req.id),{status:'accepted'});await refreshFriends();}
 async function addFriend(username){
-  const v=safe(username).toLowerCase();if(!usernameValid(v))throw new Error('نام کاربری معتبر نیست.');
+  const v=safe(username).replace(/^@/,'').toLowerCase();if(!usernameValid(v))throw new Error('نام کاربری معتبر نیست.');
   const claim=await getDoc(doc(db,'usernames',v));if(!claim.exists())throw new Error('چنین نام کاربری‌ای پیدا نشد.');
   const to=claim.data().uid;if(to===user.uid)throw new Error('این نام کاربری خودته.');
-  const id=`${user.uid}_${to}`,ref=doc(db,'friendRequests',id),existing=await getDoc(ref);
-  if(existing.exists())throw new Error('برای این کاربر قبلاً درخواست فرستادی.');
-  await setDoc(ref,{from:user.uid,to,status:'pending'});await refreshFriends();
+  const id=`${user.uid}_${to}`,ref=doc(db,'friendRequests',id);
+  try{await setDoc(ref,{from:user.uid,to,status:'pending'});await refreshFriends()}
+  catch(error){console.error('Elara cloud friend request:',error);await refreshFriends().catch(()=>{});throw error}
 }
 function renderAccount(){
   let section=$('cloud-social');if(!section){
