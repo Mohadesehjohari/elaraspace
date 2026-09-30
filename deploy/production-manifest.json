@@ -245,6 +245,7 @@
     "assets/frames/gold-circle.png",
     "assets/frames/gold-square.png",
     "assets/frames/diamond-circle.png",
-    "assets/frames/diamond-square.png"
+    "assets/frames/diamond-square.png",
+    "i18n.js"
   ]
 }
