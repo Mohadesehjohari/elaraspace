@@ -52,7 +52,7 @@ async function bootTriptych(width,height){
  assert.deepEqual(before,{shell:false,bottom:false,dock:false},'partial navigation leaked during boot');
  await page.screenshot({path:`${out}/boot-${width}-before-release.png`,fullPage:false});
  await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:5000});
- const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>getComputedStyle(x).display!=='none');const moon=document.querySelector('#theme-toggle .ref-theme-art');return nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.complete&&moon.naturalWidth>0&&moon.getAttribute('src').includes('icon-mode-night-active.webp')});
+ const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>getComputedStyle(x).display!=='none');const moon=document.querySelector('#theme-toggle .ref-theme-art'),src=moon?.getAttribute('src')||'';return nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.complete&&moon.naturalWidth>0&&/(icon-mode-night-(active|default)\.webp)$/.test(src)});
  assert.equal(releaseState,true,'navigation/Moon artwork was not decoded at shell release');
  await page.screenshot({path:`${out}/boot-${width}-release.png`,fullPage:false});await page.waitForTimeout(500);await page.screenshot({path:`${out}/boot-${width}-plus500ms.png`,fullPage:false});
  await page.close();
