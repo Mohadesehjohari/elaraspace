@@ -110,8 +110,8 @@
     host.innerHTML=`${sectionHead('ظاهر و تم‌ها','Mode، Style و Accent را با پیش‌نمایش فوری انتخاب کن.')}<section class="pass4-appearance-group"><header><strong>Mode</strong><small>روشنایی و پس‌زمینه</small></header><div class="pass4-theme-grid">${modeTile('dark','Dark','moon','تاریک استاندارد')}${modeTile('light','Light','sun','روشن و خوانا')}${modeTile('system','System','settings','هماهنگ با دستگاه')}${modeTile('amoled','AMOLED','moon','مشکی خالص')}</div></section><section class="pass4-appearance-group"><header><strong>Style</strong><small>فرم کارت‌ها و بافت رابط</small></header><div class="pass4-theme-grid">${styleTile('default','Elara Neon','فضایی، نئونی و سینمایی')}${styleTile('minimal','Minimal','ساده و سبک')}${styleTile('rugged','Rugged','زاویه‌دار و پرقدرت')}${styleTile('anime','Anime','گرد و درخشان')}</div></section><section class="pass4-appearance-group"><header><strong>Accent</strong><small>رنگ تأکیدی رابط</small></header><div class="pass4-accent-grid">${colors.map(([key,label])=>`<button type="button" data-drawer-color="${key}" class="pass4-accent-tile ${p.color===key?'active':''}" aria-pressed="${p.color===key}"><span class="pass4-accent-dot accent-${key}"></span><b>${label}</b></button>`).join('')}</div></section>`;
   }
   function renderLanguage(){
-    const host=$('drawer-language-area');if(!host)return;const p=pref(),language=p.language||'fa';
-    host.innerHTML=`${sectionHead('زبان برنامه','زبان رابط را بدون خروج از منو تغییر بده.')}<div class="drawer-language-options"><button type="button" data-drawer-language="fa" class="${language==='fa'?'active':''}"><b>FA</b> فارسی</button><button type="button" data-drawer-language="en" class="${language==='en'?'active':''}"><b>EN</b> English</button><button type="button" data-drawer-language="tr" class="${language==='tr'?'active':''}"><b>TR</b> Türkçe</button></div><p class="muted">تغییر زبان روی منو و بخش‌های جدید اعمال می‌شود؛ ترجمهٔ کامل متن‌های قدیمی هنوز در رودمپ است.</p>`;
+    const host=$('drawer-language-area');if(!host)return;const p=pref(),language=(p.language==='en'?'en':'fa');
+    host.innerHTML=`${sectionHead('زبان برنامه','زبان رابط را بدون خروج از منو تغییر بده.')}<div class="drawer-language-options"><button type="button" data-drawer-language="fa" class="${language==='fa'?'active':''}"><b>FA</b> فارسی</button><button type="button" data-drawer-language="en" class="${language==='en'?'active':''}"><b>EN</b> English</button></div><p class="muted">فارسی و English برای همهٔ صفحه‌ها، پنجره‌ها و متن‌های پویا اعمال می‌شوند.</p>`;
   }
   function renderHelp(){
     const host=$('drawer-help-area');if(!host)return;
@@ -167,6 +167,7 @@
     window.addEventListener('popstate',()=>{if(root&&!root.classList.contains('hidden')&&!history.state?.elaraDrawer)closeInternal()});
     removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
+    const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
     renderProfile();renderHub();updateCalendarLabels();
   }
 
@@ -174,7 +175,7 @@
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
     const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
-    const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage;savePref({language:lang});window.ElaraSetLanguage?.(lang);renderLanguage();return}
+    const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
     const toggle=e.target.closest('[data-folder-toggle]');if(toggle){toggle.closest('.drawer-folder-card')?.classList.toggle('collapsed');return}
     const task=e.target.closest('[data-open-task]');if(task){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.('tasks');setTimeout(()=>document.querySelector(`[data-phase2-action="view-task"][data-id="${CSS.escape(task.dataset.openTask)}"]`)?.click(),100);return}
