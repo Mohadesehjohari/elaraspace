@@ -18,9 +18,10 @@
 #panel-home .ref-habit-row:nth-child(4n+3) .elara-track>i,#panel-home .ref-goal-row:nth-child(4n+3) .elara-track>i{background:linear-gradient(90deg,#f762a6,#ff9dca)!important}
 #panel-home .ref-habit-row:nth-child(4n+4) .elara-track>i,#panel-home .ref-goal-row:nth-child(4n+4) .elara-track>i{background:linear-gradient(90deg,#e5a835,#ffd76d)!important}
 /* Home ranking is still rendered from the actual authorized social renderer. */
-#panel-home #elara-home-ranks{display:flex!important;align-items:start;justify-content:space-around;direction:ltr;gap:5px;max-height:none!important;min-width:0;overflow:hidden!important}
+#panel-home #elara-home-ranks{display:flex!important;flex-wrap:wrap!important;align-content:flex-start!important;align-items:start;justify-content:space-around;direction:ltr;gap:5px;max-height:none!important;min-width:0;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;touch-action:pan-y}
 #panel-home #elara-home-ranks>.elara-rank-line{display:flex!important;flex-direction:column;align-items:center;justify-content:start;flex:0 1 32%;width:32%;min-width:0;gap:2px;padding:2px 1px!important;margin:0!important;background:transparent!important;border:0!important;text-align:center}
-#panel-home #elara-home-ranks>.elara-rank-line[hidden],#panel-home #elara-home-ranks>.elara-rank-line:nth-child(n+4){display:none!important}
+#panel-home #elara-home-ranks>.elara-rank-line[hidden]{display:none!important}
+#panel-home #elara-home-ranks>.elara-rank-line:not(.is-top-1):not(.is-top-2):not(.is-top-3){order:4}
 #panel-home #elara-home-ranks>.elara-rank-line.is-top-1{order:2}#panel-home #elara-home-ranks>.elara-rank-line.is-top-2{order:1}#panel-home #elara-home-ranks>.elara-rank-line.is-top-3{order:3}
 #panel-home #elara-home-ranks .elara-social-avatar{position:relative;display:grid;place-items:center;flex:none;width:44px;height:44px;min-width:44px;min-height:44px;margin:0!important;border-radius:50%!important;overflow:hidden;border:1px solid color-mix(in srgb,var(--elara-accent) 58%,var(--border));box-shadow:0 0 7px var(--elara-art-glow-soft);font-size:.8rem}
 #panel-home #elara-home-ranks .is-top-1 .elara-social-avatar{border:2px solid #ffdd7c;box-shadow:0 0 9px #ffc86b55}
