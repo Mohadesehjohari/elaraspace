@@ -84,8 +84,8 @@ body.light #panel-home .ref-card>div[id^="elara-home-"]::-webkit-scrollbar-thumb
  position:relative!important;inset:auto!important;transform:none!important;float:none!important;
  margin:0!important;align-self:stretch!important;justify-self:stretch!important;min-width:0!important
 }
-#panel-home.ref-home .ref-home-grid>.ref-ranks{grid-column:auto!important;grid-row:auto!important}
-#panel-home.ref-home .ref-home-grid>.ref-activity{grid-column:auto!important;grid-row:auto!important}
+#panel-home.ref-home .ref-home-grid>.ref-ranks{grid-area:ranks!important}
+#panel-home.ref-home .ref-home-grid>.ref-activity{grid-area:activity!important}
 #panel-home.ref-home .ref-card>header .elara-link.ref-view-all-button{
  position:relative!important;width:58px!important;min-width:58px!important;max-width:58px!important;
  height:27px!important;min-height:27px!important;padding:0!important;overflow:visible!important;
