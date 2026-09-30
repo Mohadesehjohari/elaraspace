@@ -18,13 +18,20 @@ function syncThemeArtwork(theme=$('theme-toggle')){
  theme.dataset.elaraThemeArtwork=active?'active':'default';
 }
 function installViewAllArtwork(){
- const roots=document.querySelectorAll('#panel-home .ref-tasks,#panel-home .ref-habits,#panel-home .ref-wellness-card,#panel-home .ref-goals,#panel-home .ref-ranks,#panel-home .ref-missions,#panel-home .ref-theme-strip');
- for(const root of roots)for(const button of root.querySelectorAll('button')){
-  if(button.closest('.ref-activity'))continue;
-  const label=(button.getAttribute('aria-label')||button.textContent||'').trim();
-  if(!button.classList.contains('ref-view-all-button')&&!/(همه|مشاهده)/.test(label)&&!button.matches('[data-drawer-appearance]'))continue;
-  if(!button.getAttribute('aria-label'))button.setAttribute('aria-label',label||'مشاهده همه');
-  button.classList.add('ref-view-all-button');button.dataset.viewAllArtwork='uploaded';
+ const specs=[
+  ['.ref-tasks','tasks','مشاهده همهٔ تسک‌ها'],
+  ['.ref-habits','habits','مشاهده همهٔ عادت‌ها'],
+  ['.ref-wellness-card','exercise','مشاهده همهٔ سلامت و ورزش'],
+  ['.ref-goals','goals','مشاهده همهٔ هدف‌ها'],
+  ['.ref-ranks','ranking','مشاهده همهٔ رنکینگ'],
+  ['.ref-missions','missions','مشاهده همهٔ مأموریت‌ها'],
+  ['.ref-theme-strip','appearance','مشاهده همهٔ تم‌ها']
+ ];
+ for(const [selector,route,label] of specs){
+  const root=document.querySelector('#panel-home '+selector);if(!root)continue;const header=root.querySelector(':scope > header');if(!header)continue;
+  let button=[...header.querySelectorAll('button')].find(b=>b.classList.contains('ref-view-all-button')||b.matches('[data-drawer-appearance]')||/(همه|مشاهده)/.test((b.getAttribute('aria-label')||b.textContent||'').trim()));
+  if(!button){button=document.createElement('button');button.type='button';header.append(button);if(route==='appearance')button.dataset.drawerAppearance='1';else button.dataset.elaraTab=route}
+  button.setAttribute('aria-label',button.getAttribute('aria-label')||label);button.classList.add('ref-view-all-button');button.dataset.viewAllArtwork='uploaded';
   if(!button.querySelector('.ref-view-all-art'))button.innerHTML=art(UI_ASSETS.viewAll,'ref-view-all-art','');
  }
 }
