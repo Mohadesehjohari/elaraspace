@@ -214,3 +214,26 @@ body.light #panel-home.ref-home #elara-home-activity::-webkit-scrollbar-thumb:ho
  #panel-home.ref-home .ref-home-grid>.ref-theme-strip,
  #panel-home.ref-home .ref-home-grid>.ref-activity{height:108px!important;min-height:108px!important;max-height:108px!important}
 }
+
+
+/* Notification Bell owns an independent popup, not Settings. */
+body.elara-notifications-open{overflow:hidden!important}
+.elara-notification-popover{position:fixed;inset:0;z-index:99980;display:grid;place-items:start end;padding:78px 20px 20px;pointer-events:none}
+.elara-notification-popover.hidden{display:none!important}
+.elara-notification-scrim{position:absolute;inset:0;border:0;background:rgba(1,6,19,.48);backdrop-filter:blur(4px);pointer-events:auto}
+.elara-notification-window{position:relative;z-index:2;width:min(430px,calc(100vw - 24px));max-height:min(650px,calc(100dvh - 96px));display:flex;flex-direction:column;overflow:hidden;pointer-events:auto;border:1px solid rgba(118,94,220,.72);border-radius:20px;background:linear-gradient(145deg,rgba(6,23,48,.98),rgba(3,13,32,.98));box-shadow:0 24px 80px #000b,0 0 30px rgba(107,71,255,.2);direction:rtl}
+.elara-notification-window>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid rgba(110,104,180,.28)}
+.elara-notification-window>header h2{margin:0;font-size:1.05rem}.elara-notification-window>header small{font-size:.58rem;color:#a88cff}
+.elara-notification-window>header button{width:36px;height:36px;border:1px solid #3a4b76;border-radius:11px;background:#0a1a38;color:#fff;font-size:1.35rem}
+.elara-notification-actions{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid rgba(110,104,180,.2)}
+.elara-notification-actions button{min-height:34px;padding:6px 10px;border:1px solid #3b4775;border-radius:10px;background:#0a1b3a;color:#cfc8f9;font:inherit;font-size:.7rem}
+.elara-notification-list{direction:ltr;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(95,60,175,.58) rgba(4,8,20,.15)}
+.elara-notification-list>*{direction:rtl}
+.elara-notification-list::-webkit-scrollbar{width:6px}.elara-notification-list::-webkit-scrollbar-track{background:rgba(4,8,20,.15)}.elara-notification-list::-webkit-scrollbar-thumb{background:rgba(95,60,175,.58);border-radius:999px}
+.elara-notification-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(105,116,166,.18)}
+.elara-notification-row.is-unread{background:linear-gradient(90deg,rgba(113,67,255,.11),transparent)}.elara-notification-glyph{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#172354;font-size:1rem}
+.elara-notification-row strong{display:block;font-size:.78rem}.elara-notification-row p{margin:3px 0;font-size:.72rem;line-height:1.7;color:#d7d9ee}.elara-notification-row small{font-size:.58rem;color:#91a0c6}
+.elara-notification-row>button{min-height:34px;padding:5px 9px;border:1px solid #6d51e8;border-radius:9px;background:#34227a;color:white;font:inherit;font-size:.65rem}
+.elara-notification-empty{padding:30px 16px;text-align:center;color:#99a8c8}
+body.light .elara-notification-window{background:rgba(250,251,255,.98);color:#17233d;border-color:#c4b8f0}body.light .elara-notification-row p{color:#3e4d68}body.light .elara-notification-window>header button,body.light .elara-notification-actions button{background:#f4f2ff;color:#302e55}
+@media(max-width:700px){.elara-notification-popover{place-items:end center;padding:10px 8px calc(88px + env(safe-area-inset-bottom))}.elara-notification-window{width:min(100%,520px);max-height:70dvh;border-radius:22px}.elara-notification-row{grid-template-columns:32px minmax(0,1fr) auto;padding:11px}}
