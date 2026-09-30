@@ -363,8 +363,8 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #panel-home.ref-home .ref-wellness-cell .elara-wellness-art{width:28px!important;height:28px!important}
  #panel-home.ref-home .ref-wellness-banner{height:54px!important;min-height:54px!important;margin-top:6px!important}
  #panel-home.ref-home .ref-mission-row{min-height:43px!important;height:43px!important;max-height:43px!important;overflow:hidden!important}
- #panel-home.ref-home .ref-ranks #elara-home-ranks{max-height:116px!important;overflow:hidden!important}
- #panel-home.ref-home .ref-activity #elara-home-activity{max-height:28px!important;overflow:hidden!important}
+ #panel-home.ref-home .ref-ranks #elara-home-ranks{max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important}
+ #panel-home.ref-home .ref-activity #elara-home-activity{max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important}
  #panel-home.ref-home .ref-goals .ref-goals-scroll{max-height:136px!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important}
  #panel-tasks #task-list .check-button{
   width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;max-width:34px!important;max-height:34px!important;
@@ -451,4 +451,26 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #panel-home.ref-home .ref-goals-scroll{
   max-height:none!important;overflow-y:auto!important
  }
+}
+
+
+/* Final P0 ownership: scrollable social bodies and artwork-only View All CTA. */
+#panel-home.ref-home .ref-ranks>#elara-home-ranks,
+#panel-home.ref-home .ref-activity>#elara-home-activity{
+ min-height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain!important;touch-action:pan-y!important;scrollbar-gutter:stable!important
+}
+#panel-home.ref-home .ref-card>header>.ref-view-all-button,
+#panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button,
+#panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button{
+ background:none!important;background-color:rgba(0,0,0,0)!important;background-image:none!important;
+ border:0!important;border-color:transparent!important;box-shadow:none!important;filter:none!important;
+}
+#panel-home.ref-home .ref-card>header>.ref-view-all-button::before,
+#panel-home.ref-home .ref-card>header>.ref-view-all-button::after,
+#panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button::before,
+#panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button::after,
+#panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button::before,
+#panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button::after{
+ content:none!important;display:none!important;background:none!important;border:0!important;box-shadow:none!important
 }
