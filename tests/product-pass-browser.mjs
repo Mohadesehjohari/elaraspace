@@ -152,9 +152,8 @@ for(const width of all){
    await page.evaluate(()=>ElaraWardrobeUI.close());await page.waitForTimeout(30);
    for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
     await page.evaluate(section=>ElaraPrivateDrawer.open(section),section);await page.waitForTimeout(45);
-    assert.equal(await page.locator('#elara-dialog-root:not(.hidden) .drawer-section-dialog[data-drawer-section="'+section+'"]').count(),1,section+' must open in Elara Dialog');
-    assert.equal(await page.locator('.elara-private-drawer-panel>.drawer-section-dialog:not(.hidden)').count(),0,section+' leaked inline into Settings shell');
-    await page.evaluate(()=>ElaraDialog.close());await page.waitForTimeout(25);
+    assert.equal(await page.locator('.elara-private-drawer:not(.hidden) .elara-private-drawer-panel>[data-drawer-section="'+section+'"]:not(.hidden)').count(),1,section+' must open inside the Settings modal');
+    assert.equal(await page.locator('#main [data-drawer-section="'+section+'"]').count(),0,section+' leaked inline under the page');
    }
    assert.equal(await page.locator('#main .drawer-account-area').count(),0,'Settings section leaked inline into page');
    await page.keyboard.press('Escape').catch(()=>{});
