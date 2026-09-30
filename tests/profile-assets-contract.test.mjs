@@ -1,29 +1,25 @@
 import assert from 'node:assert/strict';
-import {existsSync,readFileSync} from 'node:fs';
+import {existsSync,readFileSync,statSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const profile=read('approved-profile-system.js');
+const visual=read('approved-visual.js');
 const manifest=JSON.parse(read('deploy/production-manifest.json'));
-
-const avatarVariants=[];
-for(let level=1;level<=10;level++)for(const gender of ['m','f'])for(const shape of ['circle','square'])
-  avatarVariants.push(`assets/avatars/level-${String(level).padStart(2,'0')}-${gender}-${shape}.png`);
-const frameVariants=[];
-for(const tier of ['bronze','silver','gold','diamond'])for(const shape of ['circle','square'])
-  frameVariants.push(`assets/frames/${tier}-${shape}.png`);
-const assets=[...avatarVariants,...frameVariants];
-
+const variants=[];
+for(let n=1;n<=10;n++)for(const g of ['m','f'])for(const shape of ['circle','square'])variants.push(`assets/avatars/level-${String(n).padStart(2,'0')}-${g}-${shape}.png`);
+for(const tier of ['bronze','silver','gold','diamond'])for(const shape of ['circle','square'])variants.push(`assets/frames/${tier}-${shape}.png`);
+for(const asset of variants){
+ assert.equal(existsSync(new URL('../'+asset,import.meta.url)),true,`missing shape variant: ${asset}`);
+ assert.ok(statSync(new URL('../'+asset,import.meta.url)).size>1000,`empty/tiny shape variant: ${asset}`);
+ assert.ok(manifest.files.includes(asset),`production manifest missing variant: ${asset}`);
+ assert.ok(manifest.required.includes(asset),`production required list missing variant: ${asset}`);
+}
+assert.match(profile,/shape,nameFont,photoMode/);
+assert.match(profile,/photoVariants/);
+assert.match(profile,/frameVariantPath/);
 assert.match(profile,/assets\/avatars\/level-/);
 assert.match(profile,/assets\/frames\//);
-assert.match(profile,/photoVariants/);
-assert.match(profile,/profile-shape-/);
-for(const asset of assets){
-  assert.equal(existsSync(new URL('../'+asset,import.meta.url)),true,`missing profile shape asset: ${asset}`);
-  assert.ok(manifest.files.includes(asset),`production manifest missing profile asset: ${asset}`);
-}
-for(const old of [
-  ...Array.from({length:10},(_,i)=>`assets/avatars-male-level${i+1}.png`),
-  ...Array.from({length:10},(_,i)=>`assets/avatars_female_level${i+1}.png`)
-]){
-  assert.ok(!profile.includes(old),`retired avatar path is still a runtime owner: ${old}`);
-}
-console.log('PASS: 40 circle/square avatar variants + 8 frame variants exist, are deployable, and legacy level paths are retired from runtime ownership.');
+assert.ok(profile.includes("SHAPES=Object.freeze(['circle','square'])"));
+assert.ok(visual.includes('data-wardrobe-shape="circle"')&&visual.includes('data-wardrobe-shape="square"'),'Wardrobe must expose explicit Circle/Square filtering');
+assert.ok(visual.includes("system.avatarPath(group,n,p.shape||'circle')"),'Avatar picker must load active shape variant');
+assert.ok(visual.includes("system.frameVariantPath(f.id,p.shape||'circle')"),'Frame picker must load active shape variant');
+console.log('PASS: 40 avatar + 8 frame shape paths, production manifest, picker filtering and upload/font/shape contracts.');
