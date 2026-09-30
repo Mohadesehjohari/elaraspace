@@ -9,7 +9,8 @@ for(const route of ['exercise','language','tasks','home','ranking','books','free
 assert.ok(navigation.includes('window.ElaraNavigation={routes:MAIN')&&navigation.includes('renderMainNav')&&navigation.includes('ensureDock'),'Mobile and desktop navigation must share the canonical renderer');
 assert.ok(wellness.includes('elara_private_wellness_v1_')&&wellness.includes('uid()'),'Wellness must be account scoped');
 for(const id of ['wellness-water-total','wellness-sleep-list','wellness-workout-list','wellness-cycle','wellness-water-chart','wellness-sleep-chart'])assert.ok(wellness.includes(`id="${id}"`),`${id} missing`);
-assert.ok(wellness.includes("s.gender!=='woman'")&&wellness.includes("kind==='cycle'&&read().gender!=='woman'"),'Cycle must be gated by voluntary choice');
+assert.ok(wellness.includes('function profileSex()')&&wellness.includes('function cycleApplicable()')&&wellness.includes("kind==='cycle'&&!cycleApplicable()"),'Cycle must reuse the stored private profile contract');
+assert.ok(!wellness.includes('id="wellness-gender"'),'Exercise must not ask gender again');
 assert.ok(wellness.includes('window.ElaraDialog.open'),'Entries must use the existing themed modal');
 assert.ok(wellness.includes('data-wellness-home')&&wellness.includes('relocateFocus'),'Home must expose water/sleep and inline focus');
 assert.ok(style.includes('.elara-desktop-dock')&&style.includes('.bottom-nav'),'Desktop and mobile navigation styles required');
