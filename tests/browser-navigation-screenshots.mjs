@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const mobileRoutes=['exercise','language','tasks','social','home','ranking','books','freedom'];
+const mobileRoutes=['home','tasks','language','books','exercise','freedom'];
 const desktopRoutes=['home','tasks','language','books','exercise','ranking','freedom'];
 const measurements=[];
 async function ready(page,{seed=false}={}){
