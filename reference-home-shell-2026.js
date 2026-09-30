@@ -80,7 +80,14 @@ function homeStructure(){
  // Reassert the exact named-area DOM contract on every reference render. Old visual passes may
  // mutate the tree after first boot; the reference owner must repair that without rebuilding cards.
  const namedAreas=[[tasks,'tasks'],[habits,'habits'],[wellness,'wellness'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity'],[theme,'themes']];
- for(const [c,area] of namedAreas)if(c){if(c.parentElement!==grid)grid.append(c);c.style.setProperty('grid-area',area,'important');c.style.setProperty('position','relative','important');c.style.setProperty('inset','auto','important');c.style.setProperty('transform','none','important');}
+ const desktop=matchMedia('(min-width:701px)').matches,desktopSlots=new Map([[tasks,['1','1']],[habits,['2','1']],[wellness,['3','1']],[missions,['1','2']],[goals,['2','2']],[ranks,['3','2']],[theme,['1 / span 2','3']],[activity,['3','3']]]);
+ for(const [c,area] of namedAreas)if(c){
+   if(c.parentElement!==grid)grid.append(c);
+   c.style.setProperty('grid-area',area,'important');c.style.setProperty('position','relative','important');c.style.setProperty('inset','auto','important');c.style.setProperty('transform','none','important');
+   const slot=desktopSlots.get(c);if(desktop&&slot){c.style.setProperty('grid-column',slot[0],'important');c.style.setProperty('grid-row',slot[1],'important')}else{c.style.removeProperty('grid-column');c.style.removeProperty('grid-row')}
+ }
+ if(desktop){grid.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');grid.style.setProperty('grid-template-areas',"'tasks habits wellness' 'missions goals ranks' 'themes themes activity'",'important')}
+ else{grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')}
  const extra=card('elara-home-books');if(extra){extra.hidden=true;grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
  ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
@@ -155,7 +162,7 @@ function actions(e){
  const friends=e.target.closest('[data-ref-friends-open]');if(friends){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('social');return}
  const focus=e.target.closest('[data-elara-tab="focus"]');if(focus){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('books');setTimeout(()=>document.querySelector('#ref-library-focus')?.scrollIntoView({block:'start'}),70)}
 }
-function init(){render();document.addEventListener('click',actions,true);for(const name of ['elara:data-changed','elara:linked-state','elara:wellness-saved','elara:privacy-local-changed'])window.addEventListener(name,scheduleDynamic);for(const name of ['elara:open','elara:hydrate','elara:account-ready','elara:wardrobe-changed','elara:profile-saved','elara:notifications-changed'])window.addEventListener(name,schedule);window.addEventListener('elara:theme-changed',()=>syncThemeArtwork());window.addEventListener('storage',scheduleDynamic);window.addEventListener('hashchange',()=>{if(location.hash==='#focus')window.ElaraOpen?.('books');schedule()});setTimeout(render,220)}
+function init(){render();document.addEventListener('click',actions,true);for(const name of ['elara:data-changed','elara:linked-state','elara:wellness-saved','elara:privacy-local-changed'])window.addEventListener(name,scheduleDynamic);for(const name of ['elara:open','elara:hydrate','elara:account-ready','elara:wardrobe-changed','elara:profile-saved','elara:notifications-changed'])window.addEventListener(name,schedule);window.addEventListener('elara:theme-changed',()=>syncThemeArtwork());window.addEventListener('storage',scheduleDynamic);window.addEventListener('resize',schedule,{passive:true});window.addEventListener('hashchange',()=>{if(location.hash==='#focus')window.ElaraOpen?.('books');schedule()});setTimeout(render,220)}
 window.ElaraReferenceHome={render,homeStructure,libraryFocus,localSearch};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
