@@ -8,6 +8,9 @@ on:
       - 'app.js'
       - 'phase2.js'
       - 'cloud.js'
+      - 'elara-social.js'
+      - 'firestore.rules'
+      - 'tests/social-test.cjs'
       - 'visual-fidelity-pass2.css'
       - 'visual-fidelity-pass2.js'
       - 'visual-fidelity-pass3.js'
@@ -42,6 +45,7 @@ jobs:
           node --check elara-design.js
           node --check app.js
           node --check phase2.js
+          node --input-type=module --check < elara-social.js
           node --check visual-fidelity-pass3.js
           node --check reference-home-shell-2026.js
           node --check home-functional-pass-2026.js
