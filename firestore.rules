@@ -144,7 +144,8 @@ service cloud.firestore {
         && request.resource.data.to != request.auth.uid
         && requestId == request.resource.data.from + '_' + request.resource.data.to
         && request.resource.data.status == 'pending'
-        && exists(p(request.resource.data.to));
+        && exists(p(request.resource.data.to))
+        && !exists(requestPath(request.resource.data.to, request.resource.data.from));
       allow update: if signed() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && (
           (
@@ -159,7 +160,8 @@ service cloud.firestore {
           )
         );
       allow delete: if signed() && (
-        (resource.data.from == request.auth.uid && resource.data.status == 'pending') ||
+        ((resource.data.from == request.auth.uid || resource.data.to == request.auth.uid) &&
+          resource.data.status == 'pending') ||
         ((resource.data.from == request.auth.uid || resource.data.to == request.auth.uid) &&
           resource.data.status in ['accepted','declined'])
       );
