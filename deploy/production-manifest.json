@@ -196,6 +196,7 @@
     "stable-dom.js",
     "reading.js",
     "social-view.js",
-    "reference-restore.css"
+    "reference-restore.css",
+    "notifications.js"
   ]
 }
