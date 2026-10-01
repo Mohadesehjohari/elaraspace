@@ -211,3 +211,22 @@
 - **اصلاح کدنویسی‌شده:** اسکریپت‌های پوسته با `async=false` به‌صورت موازی fetch و به‌ترتیب اجرا می‌شوند؛ فقط Artworkهای ضروری viewport اول پیش از Reveal decode می‌شوند؛ timeout کندی دیگر UI حساب را با خطای کاذب جایگزین نمی‌کند و صرفاً warning کنسول می‌دهد.
 - **معیار پذیرش:** در بارگذاری عادی و شبکهٔ کند، بدون خطای واقعی 404/JS/CSS نباید پیام فوق ظاهر شود؛ Shell باید بدون نمایش Legacy Artwork آزاد شود؛ Firebase timeout و خطای واقعی پوسته باید پیام مستقل خودشان را حفظ کنند.
 - **وضعیت:** coded؛ Automated/Browser verification روی End HEAD این Pass لازم است.
+
+---
+
+## الحاقیهٔ محصول ۱ اکتبر ۲۰۲۶ — Social / Privacy / Organization / Interaction
+
+درخواست‌های جدید کاربر برای مرحله‌های بعدی Tasks / Ranking / Friends / Home / Books / Notifications / Privacy / i18n / Organization در سند canonical زیر ثبت شده‌اند:
+
+[`ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md`](ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md)
+
+مهم‌ترین overrideهای جدید:
+- Friends Activity ارتفاع ثابت + scroll داخلی، tone دوستانه، Like/Comment و Privacy-aware.
+- visibility عمومی `private/friends/public` برای Activityهای قابل اشتراک، با default عمومی محصول = `friends`؛ Cycle/Period استثنای حساس و private-by-default است.
+- Ranking و Friends نباید UI یکسان داشته باشند؛ Friends صفحهٔ تخصصی تعامل اجتماعی است.
+- Task/Habit/Goal باید Multi-select، Edit/Delete canonical و Drag/Reorder داشته باشند.
+- List/Folder صفحهٔ مستقل و Taskهای سازمان‌یافته داشته باشند.
+- Books در Library/Language Cover Upload و Metadata Search مجاز + Reading logs داشته باشند.
+- English تمام UI را ترجمه می‌کند ولی دادهٔ واردشدهٔ کاربر ترجمه نمی‌شود.
+
+این ثبت به معنی آغاز/پایان اجرا یا تأیید Browser/Firebase نیست.
