@@ -10,6 +10,9 @@ on:
       - 'admin/ai.php'
       - 'ai.php'
       - 'linked-tasks.js'
+      - 'library-enhancements.js'
+      - 'reading.js'
+      - 'app.js'
       - 'freedom-page.js'
       - 'freedom-page.css'
       - 'freedom-enhancements.js'
@@ -64,6 +67,9 @@ jobs:
           node --check drawer.js
           node --check dialog.js
           node --check phase2.js
+          node --check library-enhancements.js
+          node --check reading.js
+          node --check app.js
           node --check approved-profile-system.js
           node --check approved-wellness.js
           node --check reference-home-shell-2026.js
