@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#09090b">
   <meta name="description" content="Elara Space: tasks, habits, goals and focus in one personal workspace.">
   <title>Elara Space · فضای شخصی من</title>
-  <style>html[data-elara-booting] body{background:#0d1b32}html[data-elara-booting] .shell,html[data-elara-booting] .bottom-nav,html[data-elara-booting] .elara-desktop-dock,html[data-elara-booting] .elara-private-drawer{visibility:hidden!important;opacity:0!important;pointer-events:none!important}</style>
+  <style>html[data-elara-booting] body{background:#0d1b32}html[data-elara-booting] .shell,html[data-elara-booting] .elara-desktop-dock,html[data-elara-booting] .elara-private-drawer{visibility:hidden!important;opacity:0!important;pointer-events:none!important}@media(max-width:700px){html[data-elara-booting] .bottom-nav{visibility:visible!important;opacity:1!important;pointer-events:auto!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;position:fixed!important;inset:auto 0 0 0!important;height:84px!important;z-index:9000!important;background:#07162b!important}.bottom-nav>a[data-elara-nav-kind]{display:grid!important;grid-template-rows:36px 16px!important;place-items:center!important;align-content:center!important;text-decoration:none!important;color:#c8d2ef!important;min-width:0!important;overflow:hidden!important}.bottom-nav>a[data-elara-nav-kind] img{width:29px!important;height:29px!important;object-fit:contain!important}.bottom-nav>a[data-elara-nav-kind] small{font-size:9px!important;white-space:nowrap!important}}</style>
   <link rel="stylesheet" href="styles.css?v=20261001-p0-language-v13">
   <script defer src="dialog.js?v=20261001-p0-language-v13"></script>
   <script defer src="schedule.js?v=20261001-p0-language-v13"></script>
@@ -62,7 +62,16 @@
       </main>
     </div>
   </div>
-  <nav class="bottom-nav" aria-label="ناوبری اصلی" data-elara-main-nav></nav>
+  <nav class="bottom-nav" aria-label="ناوبری اصلی" data-elara-main-nav data-elara-nav-owner="fallback">
+    <a class="elara-extension-nav elara-canonical-main" href="#exercise" data-elara-tab="exercise" data-elara-nav-kind="main" aria-label="ورزش"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-exercise-default.webp" alt="" aria-hidden="true" width="40" height="40"><small>ورزش</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#language" data-elara-tab="language" data-elara-nav-kind="main" aria-label="زبان"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-language-default.webp" alt="" aria-hidden="true" width="40" height="40"><small>زبان</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#tasks" data-elara-tab="tasks" data-elara-nav-kind="main" aria-label="تسک‌ها"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-tasks-default.webp" alt="" aria-hidden="true" width="40" height="40"><small>تسک‌ها</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#social" data-elara-tab="social" data-elara-nav-kind="main" aria-label="دوستان"><img class="elara-art-img elara-nav-art" src="assets/ui/friends-group-icon.webp" alt="" aria-hidden="true" width="40" height="40"><small>دوستان</small></a>
+    <a class="elara-extension-nav elara-canonical-main elara-home-main active" href="#home" data-elara-tab="home" data-elara-nav-kind="main" aria-label="خانه" aria-current="page"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-home-active.webp" alt="" aria-hidden="true" width="40" height="40"><small>خانه</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#ranking" data-elara-tab="ranking" data-elara-nav-kind="main" aria-label="رنکینگ"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-ranking-default.webp" alt="" aria-hidden="true" width="40" height="40"><small>رنکینگ</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#books" data-elara-tab="books" data-elara-nav-kind="main" aria-label="کتابخانه"><img class="elara-art-img elara-nav-art" src="assets/ui/nav-library-default.webp" alt="" aria-hidden="true" width="40" height="40"><small>کتابخانه</small></a>
+    <a class="elara-extension-nav elara-canonical-main" href="#freedom" data-elara-tab="freedom" data-elara-nav-kind="main" aria-label="آزادی"><img class="elara-art-img elara-nav-art" src="assets/ui/icon-freedom-lotus.webp" alt="" aria-hidden="true" width="40" height="40"><small>آزادی</small></a>
+  </nav>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 </body>
 </html>
