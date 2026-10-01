@@ -90,6 +90,7 @@ await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
+const leitnerAll=page.locator('#panel-language [data-lang-leitner]');assert.equal((await leitnerAll.innerText()).trim().startsWith('همه'),true,'Language Leitner header CTA must be همه');await leitnerAll.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner همه must open the full Leitner page');await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 
 stage('language:start');
@@ -174,6 +175,7 @@ stage('wardrobe:pass');stage('profile:start');
 await page.locator('.drawer-menu [data-drawer-nav="account"]').click();await page.waitForTimeout(50);await page.locator('[data-drawer-section="account"] [data-profile-edit]').click();await page.waitForTimeout(80);
 await withinViewport(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');await topmost(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');
 assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'Profile Save is not immediately visible');
+const photoOverlay=page.locator('#elara-central-profile-form .elara-profile-avatar-shell .profile-upload-overlay');assert.equal(await photoOverlay.isVisible(),true,'Profile change-photo control must sit on the profile image');assert.equal((await photoOverlay.innerText()).trim(),'تغییر عکس','Profile image control label mismatch');
 await page.screenshot({path:`${out}/profile-editor-390.png`,fullPage:false});
 z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),dialog:Number(getComputedStyle(document.querySelector('#elara-dialog-root')).zIndex)}));assert.ok(z.dialog>z.drawer,'Profile dialog below Settings '+JSON.stringify(z));
 

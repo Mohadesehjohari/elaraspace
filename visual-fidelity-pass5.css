@@ -747,3 +747,48 @@ body.dark.amoled .pass3-ranking-card,body.dark.amoled .pass3-social-page .elara-
 #panel-tasks .check-button{position:relative!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important;box-sizing:border-box!important;border-radius:50%!important;overflow:hidden!important;line-height:0!important}
 #panel-tasks .check-button[aria-pressed="true"]{border:0!important;background:transparent!important}
 #panel-tasks .check-button .elara-check-art{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important}
+
+/* Reference pass: Language + profile photo control, 2026-10-01. */
+.pass3-language{width:100%!important;max-width:none!important}
+.pass3-language .pass3-language-hero{min-height:250px!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(260px,340px)!important;align-items:center!important;padding:30px 34px!important;background:linear-gradient(90deg,#041126e8 0%,#05142ca8 40%,#05142c28 65%,#06152dcc 100%),url('assets/ui/language_banner.webp') center/cover no-repeat!important}
+.pass3-language .language-hero-copy{max-width:560px!important;align-self:center}
+.pass3-language .pass3-language-hero blockquote{display:grid!important;gap:8px;justify-self:end;align-self:end;width:min(100%,330px);margin:0;padding:18px 20px;border:1px solid #4c5c8c;border-radius:15px;background:#061833d9;color:#edf3ff;font-size:1rem;line-height:1.9;backdrop-filter:blur(8px)}
+.pass3-language .pass3-language-hero blockquote small{font-size:.72rem;color:#aebde1}
+.pass3-language .pass3-language-grid{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:14px!important}
+.pass3-language [data-language-block="leitner"],.pass3-language [data-language-block="report"]{grid-column:span 5!important}
+.pass3-language [data-language-block="books"],.pass3-language [data-language-block="courses"]{grid-column:span 7!important}
+.pass3-language .pass3-language-block{border-radius:17px!important;padding:16px!important;min-height:220px!important;background:linear-gradient(145deg,#071d3a,#06162e)!important;border:1px solid #324b78!important}
+.pass3-language .pass3-language-block>header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-bottom:10px!important}
+.pass3-language .pass3-language-block>header>div{display:grid;gap:2px}
+.pass3-language .pass3-language-block>header>div>span{font-size:.68rem}
+.pass3-language .language-card-all{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 13px;border:1px solid #534d91;border-radius:999px;background:#132148;color:#c7b6ff;font:800 .74rem/1.2 inherit;cursor:pointer}
+.pass3-language .language-card-all:hover,.pass3-language .language-card-all:focus-visible{border-color:#9368ff;box-shadow:0 0 16px #714cff66;outline:none}
+.pass3-language .language-leitner-stats{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.pass3-language .language-leitner-stats>div{min-height:104px!important;border-radius:12px!important}
+.pass3-language .pass3-language-stat-art{width:43px!important;height:43px!important}
+.pass3-language .pass3-leitner-source-cta{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-height:48px!important;background:linear-gradient(90deg,#4830f2,#8d38ff)!important;border-color:#a072ff!important}
+.pass3-language .pass3-leitner-source-cta img{width:26px;height:26px;object-fit:contain}
+.pass3-language .pass3-language-books{min-height:280px!important}
+.pass3-language .pass3-language-book-list{max-height:184px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-inline-end:3px}
+.pass3-language #language-book-form{margin:7px 0 9px!important;background:#06152d!important}
+.pass3-language .pass3-language-report #language-reports{min-height:150px}
+.pass3-language .pass3-language-courses .pass3-coming-soon{min-height:150px;background:linear-gradient(135deg,#081a39,#101747)}
+.pass5-profile-edit-preview{position:relative}
+.pass5-profile-edit-preview .elara-profile-avatar-shell{position:relative;overflow:visible!important}
+.profile-upload-overlay{position:absolute!important;z-index:12;inset-inline:50% auto!important;left:50%!important;right:auto!important;bottom:-9px!important;transform:translateX(-50%);display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap;min-width:92px;min-height:34px;padding:6px 12px!important;border:1px solid #9b76ff!important;border-radius:12px!important;background:linear-gradient(135deg,#5a2bd5,#8a55ff)!important;color:white!important;font-weight:900!important;font-size:.72rem!important;box-shadow:0 0 18px #8155ff99!important;cursor:pointer}
+.profile-upload-overlay input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.profile-photo-controls{margin-top:6px}
+@media(max-width:700px){
+ .pass3-language .pass3-language-hero{grid-template-columns:1fr!important;min-height:205px!important;padding:18px!important;background-position:center!important}
+ .pass3-language .pass3-language-hero blockquote{display:none!important}
+ .pass3-language .pass3-language-grid{grid-template-columns:1fr!important;gap:12px!important}
+ .pass3-language [data-language-block="leitner"],.pass3-language [data-language-block="books"],.pass3-language [data-language-block="report"],.pass3-language [data-language-block="courses"]{grid-column:1!important}
+ .pass3-language .pass3-language-block{min-height:0!important;padding:13px!important}
+ .pass3-language .language-leitner-stats{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+ .pass3-language .language-leitner-stats>div{min-height:86px!important;padding:6px 3px!important}
+ .pass3-language .pass3-language-stat-art{width:34px!important;height:34px!important}
+ .pass3-language .lang-stat-row strong{font-size:1.05rem!important}
+ .pass3-language .lang-stat-row small{font-size:.55rem!important}
+ .pass3-language .pass3-language-book-list{max-height:none}
+}
+@media(max-width:360px){.pass3-language .language-leitner-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
