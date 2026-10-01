@@ -50,6 +50,7 @@ assert.ok(!design.includes("drawer.id='elara-more-drawer'"),'Legacy product More
 const drawerMenu=drawer.match(/<nav class="drawer-menu">([\s\S]*?)<\/nav>/)?.[1]||'';
 for(const route of ['home','tasks','habits','goals','focus','books','words','missions','social','ranking']) assert.ok(!drawerMenu.includes(`data-drawer-nav="${route}"`),`Product route ${route} must stay out of account drawer`);
 for(const token of ['taskCompletionHistory','recordTaskCompletion','removeTaskCompletion']) assert.ok(js.includes(token),`Base task history missing ${token}`);
+assert.ok(js.includes('manualOrder:Number.isFinite')&&phase2.includes('manualOrder')),'Task manual order must survive normalize and participate in render sorting');
 for(const token of ['ensureCompletionHistory','recordCompletion','removeCompletion','completedTodayCount']) assert.ok(phase2.includes(token),`Phase 2 task history missing ${token}`);
 for(const token of ['lockViewport','unlockViewport',"position:'fixed'","root.hidden=true"]) assert.ok(dialog.includes(token),`Dialog viewport guard missing ${token}`);
 for (const token of ['captureTaskDraft','restoreTaskDraft','task-short-description','task-description','openTaskDetails']) assert.ok(phase2.includes(token),`Task description/draft flow missing ${token}`);
