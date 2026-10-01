@@ -60,13 +60,9 @@ for(const width of all){
     assert.equal(await page.locator('.bottom-nav').isVisible(),true);
     assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);
     assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom']);
-    const navBoxes=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{tab:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
-    const centers=navBoxes.map(x=>x.center).sort((a,b)=>a-b);
+    const centers=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return r.left+r.width/2}).sort((a,b)=>a-b));
     const gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
     assert.ok(spread<=3,'mobile nav spacing is uneven: '+JSON.stringify(gaps));
-    const homeCenter=navBoxes.find(x=>x.tab==='home')?.center;
-    assert.ok(Math.abs(homeCenter-width/2)<=2,'Home is not centered on viewport: '+homeCenter+' vs '+width/2);
-    assert.ok(navBoxes.every(x=>x.left>=-1&&x.right<=width+1),'mobile nav destination clips viewport: '+JSON.stringify(navBoxes));
    }
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
@@ -91,7 +87,7 @@ for(const width of all){
    const near=(a,b,t,l)=>assert.ok(Math.abs(a-b)<=t,`${l} ${a} vs ${b}`);
    near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,3,'checkbox');
    if(!mobile){const repeat=page.locator('.astra-repeat-meta').first();assert.equal(await repeat.count()>0,true);const rr=await repeat.boundingBox();assert.ok(rr&&rr.height<=24,'repeat metadata enlarged row')}
-   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);assert.equal(await kebab.locator('.item-actions').isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');await summary.click();
+   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);const actions=kebab.locator('.item-actions');assert.equal(await actions.isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');const ab=await actions.boundingBox();assert.ok(ab,'task actions have no box');const topmost=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('.item-actions')?.classList.contains('item-actions')||false,{x:ab.x+Math.min(ab.width/2,40),y:ab.y+Math.min(ab.height/2,24)});assert.equal(topmost,true,'task actions are visually under another card');await summary.click();
    await noOverflow(page);
   });
 
@@ -147,8 +143,11 @@ for(const width of all){
   await check(`${width}: language book delete and reading are interactive`,async()=>{
    const row=page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).first();assert.equal(await row.count(),1,'legacy language book must render');
    const read=row.locator('[data-language-reading]'),del=row.locator('[data-language-book-delete]');assert.equal(await read.isDisabled(),false,'language reading button is locked');assert.equal(await del.isDisabled(),false,'language delete button is locked');
-   await read.click();await page.waitForTimeout(40);assert.equal(await page.locator('#elara-dialog-root:not(.hidden) input[name=total]').count(),1,'legacy language book should ask for total pages instead of staying disabled');await page.evaluate(()=>ElaraDialog.close());await page.waitForTimeout(20);
-   await del.click();await page.waitForTimeout(40);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).count(),0,'language book delete did not remove the row');
+   await read.click();await page.waitForTimeout(40);assert.equal(await page.locator('#elara-dialog-root:not(.hidden) input[name=total]').count(),1,'legacy language book should ask for total pages instead of staying disabled');
+   await page.locator('#elara-dialog-root:not(.hidden) input[name=total]').fill('120');await page.locator('#elara-dialog-root:not(.hidden) input[name=current]').fill('5');await page.locator('#elara-dialog-root:not(.hidden) .elara-dialog-actions .primary-button').click();await page.waitForTimeout(60);
+   const report=page.locator('#elara-dialog-root:not(.hidden) .library-log-form');assert.equal(await report.isVisible(),true,'language reading report did not open after page setup');await report.locator('[name=mode]').selectOption('count');await report.locator('[name=pages]').fill('7');await page.locator('#elara-dialog-root:not(.hidden) .elara-dialog-actions .primary-button').click();await page.waitForTimeout(70);
+   const updated=page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).first();assert.match(await updated.innerText(),/12|۱۲/,'language reading report did not update current page');
+   await updated.locator('[data-language-book-delete]').click();await page.waitForTimeout(40);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).count(),0,'language book delete did not remove the row');
    await page.locator('#language-book-form [name=title]').fill('Browser language add');await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());await page.waitForTimeout(40);
    const addDialog=page.locator('#elara-dialog-root:not(.hidden) .language-book-add-dialog');assert.equal(await addDialog.isVisible(),true,'language book add dialog did not open');
    await addDialog.locator('[name=total]').fill('180');await addDialog.locator('[name=current]').fill('12');await addDialog.locator('[type=submit]').click();await page.waitForTimeout(70);

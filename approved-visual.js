@@ -97,7 +97,9 @@ function wire(){
    if(!books[index].totalPages){const setup=document.createElement('div');setup.className='library-add-book-dialog';setup.innerHTML='<p><strong>'+esc(books[index].title||'کتاب')+'</strong></p><p class="muted">برای ثبت مطالعه، یک‌بار تعداد کل صفحات را مشخص کن.</p><label>کل صفحات<input name="total" type="number" min="1" max="1000000" required></label><label>صفحه فعلی<input name="current" type="number" min="0" max="1000000" value="'+Number(books[index].currentPage||0)+'"></label>';window.ElaraDialog.open({title:'تعداد صفحات کتاب',content:setup,actions:[{label:'انصراف',value:false},{label:'ذخیره و ادامه',value:true,kind:'primary'}]}).then(ok=>{if(ok!==true)return;const total=Math.floor(Number(setup.querySelector('[name=total]').value)||0),current=Math.floor(Number(setup.querySelector('[name=current]').value)||0);if(total<1||current<0||current>total)return;books[index]=window.ElaraReading?.normalize?window.ElaraReading.normalize({...books[index],totalPages:total,currentPage:current,shelf:current>=total?'finished':'reading'}):{...books[index],totalPages:total,currentPage:current};if(!writeBooks(books))return;renderLanguage();openReading()});return}
    openReading();return
   }
- },false);
+ /* Language book actions are handled during capture so nested cards/legacy owners
+    cannot swallow Delete or Reading Report clicks before Elara sees them. */
+ },true);
  document.addEventListener('submit',e=>{
   if(e.target.id!=='language-book-form')return;
   e.preventDefault();
