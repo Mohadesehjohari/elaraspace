@@ -29,53 +29,28 @@ function ensureLanguageBookId(book,index=0){
  if(!next.id)next.id=globalThis.crypto?.randomUUID?.()||('lang-'+Date.now().toString(36)+'-'+index);
  return next
 }
-function migrateLegacyLanguageOwner(owner,claimUid=null){
+function migrateLegacyLanguageOwner(owner){
  const legacyOwner=String(owner||'guest'),marker=LANGUAGE_BOOKS_MIGRATION+legacyOwner;
  if(localStorage.getItem(marker)==='1')return false;
  let legacy=[];try{legacy=safeList(JSON.parse(localStorage.getItem('elara_language_books_v1_'+legacyOwner)||'[]'))}catch{}
  if(!legacy.length){localStorage.setItem(marker,'1');return false}
- const rows=canonicalLanguageRows(),seen=new Set(rows.map(x=>String(x.id||'')));
- let changed=false;
- legacy.forEach((raw,index)=>{
-  const next=ensureLanguageBookId(raw,index),id=String(next.id);
-  if(seen.has(id))return;
-  seen.add(id);rows.push({...next,ownerUid:claimUid?String(claimUid):null});changed=true
- });
+ const rows=canonicalLanguageRows(),seen=new Set(rows.map(x=>String(x.id||'')));let changed=false;
+ legacy.forEach((raw,index)=>{const next=ensureLanguageBookId(raw,index),id=String(next.id);if(seen.has(id))return;seen.add(id);const {ownerUid,...clean}=next;rows.push(clean);changed=true});
  if(changed&&!storeCanonicalLanguageRows(rows))return false;
- localStorage.setItem(marker,'1');
- try{localStorage.removeItem('elara_language_books_v1_'+legacyOwner)}catch{}
- return changed
+ localStorage.setItem(marker,'1');try{localStorage.removeItem('elara_language_books_v1_'+legacyOwner)}catch{};return changed
 }
 function prepareLanguageBooks(){
- const uid=currentLanguageUid();
- migrateLegacyLanguageOwner('guest',uid||null);
- if(uid)migrateLegacyLanguageOwner(uid,uid);
- let rows=canonicalLanguageRows(),dirty=false;
- rows=rows.map((raw,index)=>{
-  const next=ensureLanguageBookId(raw,index);
-  const ownerUid=next.ownerUid==null?null:String(next.ownerUid);
-  if(next.id!==raw.id||ownerUid!==raw.ownerUid)dirty=true;
-  return {...next,ownerUid}
- });
- if(uid){
-  rows=rows.map(row=>{if(row.ownerUid!==null)return row;dirty=true;return {...row,ownerUid:uid}});
- }
- if(dirty)storeCanonicalLanguageRows(rows);
- return rows
+ migrateLegacyLanguageOwner('guest');
+ const account=currentLanguageUid();if(account)migrateLegacyLanguageOwner(account);
+ const rows=canonicalLanguageRows();let dirty=false;
+ const clean=rows.map((raw,index)=>{const withId=ensureLanguageBookId(raw,index),{ownerUid,...next}=withId;if(ownerUid!==undefined||next.id!==raw.id)dirty=true;return next});
+ if(dirty)storeCanonicalLanguageRows(clean);
+ return clean
 }
-function readBooks(ownerOverride){
- const current=currentLanguageUid(),owner=arguments.length?(ownerOverride?String(ownerOverride):null):(current||null),rows=prepareLanguageBooks();
- return rows.filter(row=>(row.ownerUid==null?null:String(row.ownerUid))===owner).map(normalizeLanguageBook)
-}
-function writeBooks(books,ownerOverride){
- const current=currentLanguageUid(),owner=arguments.length>1?(ownerOverride?String(ownerOverride):null):(current||null);
- const rows=prepareLanguageBooks(),keep=rows.filter(row=>(row.ownerUid==null?null:String(row.ownerUid))!==owner);
- const owned=safeList(books).map((book,index)=>({...ensureLanguageBookId(book,index),ownerUid:owner}));
- return storeCanonicalLanguageRows([...keep,...owned])
-}
-function languageBookOwner(id){
- const wanted=String(id||''),row=prepareLanguageBooks().find(book=>String(book.id)===wanted);
- return row?(row.ownerUid==null?null:String(row.ownerUid)):(currentLanguageUid()||null)
+function readBooks(){return prepareLanguageBooks().map(normalizeLanguageBook)}
+function writeBooks(books){
+ const clean=safeList(books).map((raw,index)=>{const withId=ensureLanguageBookId(raw,index),{ownerUid,...next}=withId;return next});
+ return storeCanonicalLanguageRows(clean)
 }
 function language(){
  if($('panel-language'))return;
@@ -91,17 +66,17 @@ function normalizeLanguageBook(raw){
 }
 function deleteLanguageBook(id){
  const wanted=String(id||'');if(!wanted)return false;
- const owner=languageBookOwner(wanted),books=readBooks(owner),next=books.filter(b=>String(b.id)!==wanted);
+ const books=readBooks(),next=books.filter(b=>String(b.id)!==wanted);
  if(next.length===books.length)return false;
  
- if(!writeBooks(next,owner))return false;
+ if(!writeBooks(next))return false;
  renderLanguage();return true
 }
 function openLanguageReading(id){
  const wanted=String(id||'');if(!wanted)return;
- const owner=languageBookOwner(wanted),books=readBooks(owner),index=books.findIndex(b=>String(b.id)===wanted);if(index<0)return;
+ const books=readBooks(),index=books.findIndex(b=>String(b.id)===wanted);if(index<0)return;
  const openReading=()=>{
-  const activeOwner=languageBookOwner(wanted),fresh=readBooks(activeOwner),idx=fresh.findIndex(b=>String(b.id)===wanted);if(idx<0)return;
+  const fresh=readBooks(),idx=fresh.findIndex(b=>String(b.id)===wanted);if(idx<0)return;
   const b=fresh[idx];if(!b.totalPages)return;
   const form=document.createElement('div');form.className='library-log-form';
   form.innerHTML='<p>صفحهٔ فعلی: '+Number(b.currentPage||0).toLocaleString('fa-IR')+' / '+Number(b.totalPages||0).toLocaleString('fa-IR')+'</p><label>روش ثبت<select name="mode"><option value="count">امروز X صفحه خواندم</option><option value="page">رسیدم به صفحه Y</option></select></label><label>تعداد / شماره صفحه<input name="pages" type="number" min="1" max="'+b.totalPages+'" required></label>';
@@ -109,7 +84,7 @@ function openLanguageReading(id){
    if(ok!==true)return;
    try{
     const next=window.ElaraReading.record(b,form.querySelector('[name=mode]').value,form.querySelector('[name=pages]').value),last=next.readingLogs[next.readingLogs.length-1],pct=window.ElaraReading.progress(next);
-    fresh[idx]=next;if(!writeBooks(fresh,activeOwner))return;
+    fresh[idx]=next;if(!writeBooks(fresh))return;
     window.ElaraNotify?.push?.({type:'reading',title:'مطالعه زبان ثبت شد',message:'امروز '+last.pagesRead.toLocaleString('fa-IR')+' صفحه از «'+next.title+'» خوندی 📚🔥',dedupeKey:'language-reading:'+next.id+':'+last.timestamp});
     window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title,visibility:'friends'});renderLanguage()
    }catch(error){console.error('Language reading report:',error)}
@@ -122,7 +97,7 @@ function openLanguageReading(id){
    if(ok!==true)return;
    const total=Math.floor(Number(setup.querySelector('[name=total]').value)||0),current=Math.floor(Number(setup.querySelector('[name=current]').value)||0);if(total<1||current<0||current>total)return;
    books[index]=window.ElaraReading?.normalize?window.ElaraReading.normalize({...books[index],totalPages:total,currentPage:current,shelf:current>=total?'finished':'reading'}):{...books[index],totalPages:total,currentPage:current};
-   if(!writeBooks(books,owner))return;renderLanguage();openReading()
+   if(!writeBooks(books))return;renderLanguage();openReading()
   });return
  }
  openReading()
@@ -188,10 +163,6 @@ function wire(){
   const group=event.target.closest('[data-wardrobe-group]');if(group){storeWardrobe({avatarGroup:group.dataset.wardrobeGroup});selectedPreview=null;drawWardrobe();return}
   const more=event.target.closest('[data-wardrobe-more]');if(more){showAll[more.dataset.wardrobeMore]=true;drawWardrobe();return}
   const itemButton=event.target.closest('[data-wardrobe-item]');if(itemButton){const system=profileSystem(),kind=itemButton.dataset.wardrobeItem,id=itemButton.dataset.wardrobeId,required=Number(itemButton.dataset.required||0),locked=level()<required;let preview={kind,id,label:itemButton.querySelector('small')?.textContent||id,locked};if(kind==='avatar'){const parts=id.split(':');preview={...preview,group:parts[0],level:Number(parts[1])};if(!locked&&system.canEquipAvatar(parts[0],Number(parts[1]),level()))storeWardrobe({avatarGroup:parts[0],avatarLevel:Number(parts[1])})}else if(kind==='frame'){if(!locked&&system.canEquipFrame(id,level()))storeWardrobe({frame:id})}else if(kind==='banner'){if(!locked&&system.canEquipBanner(id,level()))storeWardrobe({banner:id})}selectedPreview=preview;drawWardrobe();return}
-  const del=event.target.closest('[data-language-book-delete]');if(del){event.preventDefault();event.stopPropagation();deleteLanguageBook(del.dataset.languageBookDelete);return}
-  const readButton=event.target.closest('[data-language-reading]');if(readButton){event.preventDefault();event.stopPropagation();openLanguageReading(readButton.dataset.languageReading);return}
- /* Language book actions are handled during capture so nested cards/legacy owners
-    cannot swallow Delete or Reading Report clicks before Elara sees them. */
  },true);
  document.addEventListener('submit',e=>{
   if(e.target.id!=='language-book-form')return;
@@ -206,10 +177,10 @@ function wire(){
    const error=details.querySelector('[data-language-book-error]'),total=Math.floor(Number(details.elements.total.value)||0),current=Math.floor(Number(details.elements.current.value)||0);
    if(total<1){error.textContent='تعداد کل صفحات را وارد کن 📚';details.elements.total.focus();return}
    if(current<0||current>total){error.textContent='صفحهٔ فعلی باید بین صفر و تعداد کل صفحات باشد.';details.elements.current.focus();return}
-   const started=details.elements.started.value||null,owner=currentLanguageUid()||null,books=readBooks(owner),id=globalThis.crypto?.randomUUID?.()||('lang-'+Date.now().toString(36));
+   const started=details.elements.started.value||null,books=readBooks(),id=globalThis.crypto?.randomUUID?.()||('lang-'+Date.now().toString(36));
    const next=normalizeLanguageBook({id,title:title.slice(0,180),shelf:current>=total?'finished':shelf,totalPages:total,currentPage:current,startedAt:started?Date.parse(started+'T12:00:00'):null,finishedAt:current>=total?Date.now():null,lastReadAt:null,readingLogs:[]});
    books.push(next);
-   if(!writeBooks(books,owner)){error.textContent='ذخیره انجام نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کن.';return}
+   if(!writeBooks(books)){error.textContent='ذخیره انجام نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کن.';return}
    form.reset();renderLanguage();window.ElaraNotify?.push?.({type:'book',title:'کتاب زبان اضافه شد',message:'«'+next.title+'» رفت توی قفسه‌ت 📚✨',dedupeKey:'language-book-added:'+next.id});window.ElaraDialog.close();
   });
   window.ElaraDialog.open({title:'افزودن کتاب زبان',content:details,actions:[{label:'انصراف',value:false}]});
