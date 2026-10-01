@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-p0-runtime-v21';
+  const BUILD='20261001-p0-runtime-v22';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -21,16 +21,15 @@
   const scripts=['approved-icon-system.js','approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','social-view.js','reports.js'];
   const optionalFailures=[];
   const loadScriptsInOrder=async names=>{
-    for(const name of names){
-      await new Promise(resolve=>{
-        const script=document.createElement('script');
-        script.async=false;
-        script.src=assetUrl(name);
-        script.onload=()=>resolve();
-        script.onerror=()=>{optionalFailures.push(name);console.error('Elara module unavailable:',name);resolve()};
-        document.head.append(script);
-      });
-    }
+    const pending=names.map(name=>new Promise(resolve=>{
+      const script=document.createElement('script');
+      script.async=false;
+      script.src=assetUrl(name);
+      script.onload=()=>resolve();
+      script.onerror=()=>{optionalFailures.push(name);console.error('Elara module unavailable:',name);resolve()};
+      document.head.append(script);
+    }));
+    await Promise.all(pending);
     window.__elaraOptionalFailures=optionalFailures.slice();
   };
   let ready=false;

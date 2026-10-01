@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261001-p0-runtime-v21 -->
+<!-- deploy-refresh: 20261001-p0-runtime-v22 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -8,46 +8,50 @@
   <meta name="description" content="Elara Space: tasks, habits, goals and focus in one personal workspace.">
   <title>Elara Space · فضای شخصی من</title>
   <style>
-html[data-elara-booting] body{background:#0d1b32}
-html[data-elara-booting] .shell,html[data-elara-booting] .elara-desktop-dock,html[data-elara-booting] .elara-private-drawer{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-@media(max-width:700px){
- html[data-elara-booting] .bottom-nav{
-  --elara-safe-inline:max(4px,env(safe-area-inset-left),env(safe-area-inset-right));
-  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
-  display:grid!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;grid-auto-flow:column!important;
-  position:fixed!important;inset:auto 0 0!important;width:100%!important;
-  height:calc(82px + env(safe-area-inset-bottom))!important;
-  padding:5px var(--elara-safe-inline) max(8px,env(safe-area-inset-bottom))!important;
-  gap:0!important;overflow:hidden!important;direction:ltr!important;background:#07162b!important;box-sizing:border-box!important
- }
- html[data-elara-booting] .bottom-nav>a[data-elara-nav-kind]{
-  position:relative!important;inset:auto!important;transform:none!important;width:100%!important;min-width:0!important;height:68px!important;
-  display:grid!important;grid-template-rows:36px 16px!important;place-items:center!important;align-content:center!important;
-  gap:2px!important;padding:3px 0 2px!important;text-decoration:none!important;color:#c8d2ef!important;overflow:visible!important
- }
- html[data-elara-booting] .bottom-nav>a[data-elara-nav-kind] img{width:30px!important;height:30px!important;object-fit:contain!important}
- html[data-elara-booting] .bottom-nav>a[data-elara-nav-kind] small{display:block!important;width:100%!important;font-size:clamp(7.5px,2.25vw,9.5px)!important;line-height:1.05!important;white-space:nowrap!important;text-align:center!important}
- html[data-elara-booting] .bottom-nav>a[data-elara-tab="home"]{background:radial-gradient(ellipse at 50% 48%,#754bff66,transparent 72%)!important}
- html[data-elara-booting] .bottom-nav>a[data-elara-tab="home"] img{width:36px!important;height:36px!important}
+html[data-elara-booting] body{background:#07152b}
+html[data-elara-booting] .shell,
+html[data-elara-booting] .elara-desktop-dock,
+html[data-elara-booting] .elara-private-drawer,
+html[data-elara-booting] .bottom-nav{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#elara-boot-screen{display:none}
+html[data-elara-booting] #elara-boot-screen{
+ position:fixed;inset:0;z-index:2147480000;display:grid;place-items:center;overflow:hidden;
+ background:radial-gradient(circle at 50% 40%,#754bff2e,transparent 34%),linear-gradient(180deg,#07152b 0%,#061127 100%)
 }
+html[data-elara-booting] #elara-boot-screen .elara-boot-card{
+ display:grid;place-items:center;gap:14px;width:min(78vw,280px);padding:24px 20px;border:1px solid #4b659477;border-radius:24px;
+ background:#0b1d38d9;box-shadow:0 24px 70px #0009,0 0 42px #744bff21
+}
+html[data-elara-booting] #elara-boot-screen img{width:76px;height:76px;object-fit:contain}
+html[data-elara-booting] #elara-boot-screen strong{font:800 18px/1.2 Arial,Tahoma,sans-serif;letter-spacing:.08em;color:#eef3ff}
+html[data-elara-booting] #elara-boot-screen span{
+ width:118px;height:4px;border-radius:999px;background:linear-gradient(90deg,#754bff,#50c8ff,#754bff);background-size:200% 100%;
+ animation:elaraBootPulse 1.1s linear infinite
+}
+@keyframes elaraBootPulse{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){html[data-elara-booting] #elara-boot-screen span{animation:none}}
 </style>
-  <link rel="stylesheet" href="styles.css?v=20261001-p0-runtime-v21">
-  <script defer src="dialog.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="schedule.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="calendar.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="stable-dom.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="i18n.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="reading.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="notifications.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="app.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="linked-tasks.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="phase2.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="rpg.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="approved-profile-system.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="boot.js?v=20261001-p0-runtime-v21"></script>
-  <script defer src="drawer.js?v=20261001-p0-runtime-v21"></script>
+  <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261001-p0-runtime-v22">
+  <link rel="preload" as="image" href="assets/ui/hero-landscape.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/ui/brand-elara-app-mark.webp" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css?v=20261001-p0-runtime-v22">
+  <script defer src="dialog.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="schedule.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="calendar.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="stable-dom.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="i18n.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="reading.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="notifications.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="app.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="linked-tasks.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="phase2.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="rpg.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="approved-profile-system.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="boot.js?v=20261001-p0-runtime-v22"></script>
+  <script defer src="drawer.js?v=20261001-p0-runtime-v22"></script>
 </head>
 <body class="dark">
+  <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>
   <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری"><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
   <div class="shell">
     <aside class="sidebar" aria-label="منوی اصلی">
@@ -69,7 +73,7 @@ html[data-elara-booting] .shell,html[data-elara-booting] .elara-desktop-dock,htm
         <div class="topbar-actions"><span class="xp-pill"><span data-elara-icon="spark"></span><span id="xp-count">۰</span> XP</span><button id="theme-toggle" class="icon-button" type="button" title="تغییر حالت روشن یا تاریک" aria-label="تغییر حالت روشن یا تاریک"><span data-elara-icon="moon"></span></button></div>
       </header>
       <main id="main">
-        <section id="panel-tasks" class="panel" aria-labelledby="tasks-heading">
+        <section id="panel-tasks" class="panel hidden" aria-labelledby="tasks-heading">
           <div class="section-heading"><div><p class="eyebrow">TASK MANAGER / تسک منیجر</p><h1 id="tasks-heading">امروز از همین‌جا شروع کن <span class="accent" data-elara-icon="spark"></span></h1><p class="muted">کارهای مهمت رو ثبت کن و قدم‌به‌قدم پیش برو.</p></div><span class="date-chip" id="task-date-chip"></span></div>
           <div class="stats"><article class="stat-card"><span>کل تسک‌ها</span><strong id="stat-total">۰</strong><small>ثبت شده</small></article><article class="stat-card"><span>انجام‌شده</span><strong id="stat-done">۰</strong><small>قدم‌های رو به جلو</small></article><article class="stat-card"><span>باقی‌مانده</span><strong id="stat-pending">۰</strong><small>فرصت پیشرفت</small></article><article class="stat-card"><span>درصد پیشرفت</span><strong id="stat-progress">۰٪</strong><div class="progress-track"><div id="progress-bar"></div></div></article></div>
           <form id="task-form" class="surface form-card"><div class="form-title"><span class="accent" data-elara-icon="spark"></span><strong id="task-form-heading">تسک جدید</strong></div><label for="task-title">عنوان تسک</label><div class="form-row"><input id="task-title" name="title" maxlength="180" required placeholder="مثلاً: مطالعه ۲۰ صفحه کتاب" autocomplete="off"><button id="task-submit" class="primary-button" type="submit">+ افزودن</button><button id="task-cancel" class="quiet-button hidden" type="button">لغو ویرایش</button></div><div class="form-grid"><div><label for="task-due">تاریخ انجام</label><input id="task-due" type="date"></div><div><label for="task-time">ساعت</label><input id="task-time" type="time"></div><div><label for="task-priority">اولویت</label><select id="task-priority"><option value="4">عادی · P4</option><option value="3">متوسط · P3</option><option value="2">بالا · P2</option><option value="1">فوری · P1</option></select></div><div><label for="task-folder">پوشه</label><select id="task-folder"></select></div><div><label for="task-tag">برچسب</label><select id="task-tag"></select></div></div></form>

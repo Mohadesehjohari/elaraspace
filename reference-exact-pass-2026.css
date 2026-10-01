@@ -979,11 +979,11 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
  }
  .elara-private-drawer>.elara-private-drawer-panel{
   position:relative!important;inset:auto!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
-  transform:none!important;align-self:center!important;justify-self:center!important;display:block!important;direction:rtl!important;
+  transform:none!important;align-self:center!important;justify-self:center!important;display:grid!important;grid-template-rows:auto minmax(0,1fr)!important;direction:rtl!important;
   width:min(94vw,480px)!important;height:min(90dvh,780px)!important;max-height:90dvh!important;
   margin:0!important;padding:10px!important;overflow:hidden!important;border-radius:20px!important
  }
- .elara-private-drawer[data-mobile-section="home"]>.elara-private-drawer-panel{overflow-y:auto!important;overflow-x:hidden!important}
+ .elara-private-drawer[data-mobile-section="home"]>.elara-private-drawer-panel{overflow:hidden!important}
  .elara-private-drawer[data-mobile-section="home"] .drawer-profile-head{
   position:relative!important;display:block!important;min-height:104px!important;height:auto!important;margin:0 0 10px!important;overflow:hidden!important
  }
@@ -993,7 +993,8 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
  .elara-private-drawer[data-mobile-section="home"]>.elara-private-drawer-panel>[data-drawer-section="home"]{display:none!important}
  .elara-private-drawer[data-mobile-section="home"] .drawer-menu{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-flow:row!important;
-  gap:7px!important;width:100%!important;margin:0!important;padding:0 0 8px!important;overflow:visible!important
+  gap:7px!important;width:100%!important;min-height:0!important;margin:0!important;padding:0 4px 8px 0!important;
+  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-gutter:stable
  }
  .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button{
   position:relative!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) 18px!important;grid-template-rows:auto auto!important;

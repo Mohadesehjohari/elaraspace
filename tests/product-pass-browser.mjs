@@ -57,6 +57,7 @@ for(const width of all){
    await check('390: no-hash defaults to Home and deep links survive',async()=>{
     await page.goto(base+'/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(160);
     assert.equal(await page.evaluate(()=>location.hash),'#home');assert.equal(await page.locator('#panel-home:not(.hidden)').count(),1,'no-hash did not render Home');
+    assert.equal(await page.locator('#panel-tasks:not(.hidden)').count(),0,'legacy Tasks panel leaked on default Home');
     await page.goto(base+'/#tasks',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(160);
     assert.equal(await page.locator('#panel-tasks:not(.hidden)').count(),1,'deep-link #tasks was overridden');
     await boot(page,'home');
@@ -92,6 +93,7 @@ for(const width of all){
 
   if(width===390||width===1440)await check(`${width}: uploaded Language/Library/Ranking banners render`,async()=>{
    await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/);
+   const languageArt=await page.locator('.pass3-language-stat-art').evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(languageArt.length,3);assert.equal(languageArt.every(x=>x.ok),true,'uploaded Language artwork failed to decode: '+JSON.stringify(languageArt));
    await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/librairy_banner\.webp/);
    await openRoute(page,'ranking');assert.match(await page.locator('#panel-ranking>h1').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/);
    await openRoute(page,'home');
