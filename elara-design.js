@@ -62,7 +62,7 @@ function setup(){
   $('elara-share-activity').onchange=e=>{const id=window.ElaraSocial?.me?.uid;if(!id){e.target.checked=false;return}localStorage.setItem('elara_share_activity_'+id,e.target.checked?'yes':'no')};
   new MutationObserver(()=>{if(current==='home')$('elara-mirror-timer').textContent=$('timer-display')?.textContent||'25:00'}).observe($('timer-display'),{childList:true,subtree:true,characterData:true});
   for(const id of ['theme-toggle','settings-theme-toggle'])$(id)?.addEventListener('click',e=>{e.stopImmediatePropagation();pref.mode=pref.mode==='dark'?'light':'dark';savePref()},true);
-  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;open($('panel-'+requested)?requested:'home',{history:'replace'})
+  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;if(!$('panel-'+requested)&&requested==='language'){window.__elaraPendingRoute=requested;open('home',{history:'none'})}else open($('panel-'+requested)?requested:'home',{history:'replace'})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
