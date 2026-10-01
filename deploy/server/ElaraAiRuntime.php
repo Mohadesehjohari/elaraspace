@@ -192,7 +192,7 @@ final class ElaraAiRuntime
         $display = $this->cleanText($body['display_name'] ?? '', 100);if ($display==='') throw new ElaraAiException('نام نمایشی مدل لازم است.',422);
         $id = $this->cleanId($body['id'] ?? '');if($id==='')$id='model_'.bin2hex(random_bytes(5));
         $cfg=$this->readAiConfig();$row=['id'=>$id,'display_name'=>$display,'technical_model_id'=>$technical,'enabled'=>($body['enabled']??true)!==false,'updated_at'=>gmdate('c')];$found=false;
-        foreach($cfg['models'] as $i=>$m)if(($m['id']??'')===$id){$cfg['models'][$i]=array_merge($m,$row);$found=true;break}
+        foreach($cfg['models'] as $i=>$m)if(($m['id']??'')===$id){$cfg['models'][$i]=array_merge($m,$row);$found=true;break;}
         if(!$found)$cfg['models'][]=$row;
         if(empty($cfg['settings']['default_model']))$cfg['settings']['default_model']=$id;
         $this->writeAiConfig($cfg);$this->audit($admin,'ai_model_save',['modelId'=>$id,'technicalModelId'=>$technical]);return $this->adminStatus();
@@ -222,7 +222,7 @@ final class ElaraAiRuntime
     private function testConnection(array $body): array
     {
         $cfg=$this->readAiConfig();$modelId=$this->cleanId($body['model_id']??($cfg['settings']['default_model']??''));$model=null;
-        foreach($cfg['models'] as $m)if(($m['id']??'')===$modelId){$model=$m;break}
+        foreach($cfg['models'] as $m)if(($m['id']??'')===$modelId){$model=$m;break;}
         if(!$model)throw new ElaraAiException('مدل برای تست پیدا نشد.',404);
         $keys=$this->eligibleKeys($cfg);if(!$keys)throw new ElaraAiException('کلید فعالی برای تست وجود ندارد.',409);
         $secret=$this->decryptSecret((string)$keys[0]['secret']);
@@ -274,7 +274,7 @@ final class ElaraAiRuntime
     private function markKeyResult(string $id,bool $ok,int $status): void
     {
         $cfg=$this->readAiConfig();$today=gmdate('Y-m-d');
-        foreach($cfg['keys'] as &$key)if(($key['id']??'')===$id){if(($key['usage_day']??'')!==$today){$key['usage_day']=$today;$key['usage_count']=0}$key['last_used_at']=gmdate('c');if($ok){$key['usage_count']=(int)($key['usage_count']??0)+1;$key['error_count']=0;$key['cooldown_until']=null}else{$key['error_count']=(int)($key['error_count']??0)+1;if(in_array($status,[429,500,502,503,504],true))$key['cooldown_until']=gmdate('c',time()+min(300,15*$key['error_count']));}break}
+        foreach($cfg['keys'] as &$key)if(($key['id']??'')===$id){if(($key['usage_day']??'')!==$today){$key['usage_day']=$today;$key['usage_count']=0}$key['last_used_at']=gmdate('c');if($ok){$key['usage_count']=(int)($key['usage_count']??0)+1;$key['error_count']=0;$key['cooldown_until']=null}else{$key['error_count']=(int)($key['error_count']??0)+1;if(in_array($status,[429,500,502,503,504],true))$key['cooldown_until']=gmdate('c',time()+min(300,15*$key['error_count']));}break;}
         unset($key);$this->writeAiConfig($cfg);
     }
 
