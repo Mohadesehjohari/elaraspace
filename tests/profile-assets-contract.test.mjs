@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {existsSync,statSync} from 'node:fs';
+import {existsSync,readFileSync,statSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const profile=read('approved-profile-system.js');
 const visual=read('approved-visual.js');
