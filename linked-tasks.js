@@ -14,7 +14,7 @@ const META={
  'exercise':{group:'exercise',label:'ورزش',priority:'3',locked:true}
 };
 let syncing=false;
-function ensure(s){if(!s||typeof s!=='object'||Array.isArray(s))s={};for(const k of ['tasks','goals','books','words','taskCompletionHistory'])if(!Array.isArray(s[k]))s[k]=[];return s}
+function ensure(s){if(!s||typeof s!=='object'||Array.isArray(s))s={};for(const k of ['tasks','goals','books','words','taskCompletionHistory','linkedTaskDismissals'])if(!Array.isArray(s[k]))s[k]=[];return s}
 function readCore(){try{return ensure(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return ensure({})}}
 function keyOf(type,id,parent=''){return `${type}:${parent||''}:${id||''}`}
 function taskKey(t){return keyOf(t?.sourceType,t?.sourceId,t?.sourceParentId)}
@@ -32,18 +32,22 @@ function setCompleted(state,task,value,date=''){
 function upsert(state,spec){
  ensure(state);const meta=META[spec.sourceType];if(!meta||!spec.sourceId)return {task:null,changed:false};
  const sourceId=safe(spec.sourceId,128),sourceParentId=safe(spec.sourceParentId,128),wanted=keyOf(spec.sourceType,sourceId,sourceParentId);
+ if(state.linkedTaskDismissals.includes(wanted))return {task:null,changed:false,dismissed:true};
  let task=state.tasks.find(t=>t?.linkedTask&&taskKey(t)===wanted),changed=false;
  if(!task){task={id:makeId(),text:safe(spec.title)||meta.label,shortDescription:'',description:'',date:'',time:'',priority:meta.priority,list:'',folder:'',tag:'',completed:false,doneAt:null,xpAwarded:true,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},linkedTask:true,sourceType:spec.sourceType,sourceId,sourceParentId,sourceGroup:meta.group,sourceLabel:meta.label,sourceManaged:true,sourceCompletionLocked:!!meta.locked,sourceOwner:safe(spec.sourceOwner,128)};state.tasks.unshift(task);changed=true}
  const set=(k,v)=>{if(v!==undefined&&task[k]!==v){task[k]=v;changed=true}};
  set('linkedTask',true);set('sourceType',spec.sourceType);set('sourceId',sourceId);set('sourceParentId',sourceParentId);set('sourceGroup',meta.group);set('sourceLabel',meta.label);set('sourceManaged',true);set('sourceCompletionLocked',!!meta.locked);set('xpAwarded',true);
  if(spec.sourceOwner!==undefined)set('sourceOwner',safe(spec.sourceOwner,128));
- if(spec.title!==undefined)set('text',safe(spec.title)||meta.label);
- if(spec.shortDescription!==undefined)set('shortDescription',safe(spec.shortDescription,280));
- if(spec.date!==undefined)set('date',validDate(spec.date)?spec.date:'');
- if(spec.priority!==undefined)set('priority',String(spec.priority));
+ if(!task.sourceUserEdited){
+  if(spec.title!==undefined)set('text',safe(spec.title)||meta.label);
+  if(spec.shortDescription!==undefined)set('shortDescription',safe(spec.shortDescription,280));
+  if(spec.date!==undefined)set('date',validDate(spec.date)?spec.date:'');
+  if(spec.priority!==undefined)set('priority',String(spec.priority));
+ }
  if(spec.completed!==undefined)changed=setCompleted(state,task,!!spec.completed,spec.completedDate||spec.date||'')||changed;
  return {task,changed};
 }
+function dismissTask(state,task){ensure(state);if(!task?.linkedTask)return false;const key=taskKey(task);if(!key)return false;if(!state.linkedTaskDismissals.includes(key))state.linkedTaskDismissals.push(key);return true}
 function syncSourcesFromTasks(state){
  ensure(state);let changed=false;
  for(const task of state.tasks){
@@ -119,7 +123,7 @@ function stateCommitted(event){
  try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=false;changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
  finally{syncing=false}
 }
-window.ElaraLinkedTasks={META,today,upsert,syncCoreState,syncLanguageJournalState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};
+window.ElaraLinkedTasks={META,today,upsert,dismissTask,syncCoreState,syncLanguageJournalState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};
 window.addEventListener('elara:state-committed',stateCommitted);
 window.addEventListener('elara:data-changed',()=>syncAll());
 window.addEventListener('elara:wellness-saved',()=>syncAll());

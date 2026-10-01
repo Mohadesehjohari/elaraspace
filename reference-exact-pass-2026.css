@@ -1042,3 +1042,53 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
  visibility:hidden!important;
  pointer-events:none!important;
 }
+
+/* 2026-10-01 Roadmap Stage 3 — user override: social/mobile/light/tasks. */
+#panel-tasks[data-strike-completed="true"] .astra-task-row.done .item-title{text-decoration:line-through!important;text-decoration-thickness:1.5px!important;opacity:.68!important}
+#panel-tasks #task-list>.item:has(.astra-task-more[open]){position:relative!important;z-index:2140!important;overflow:visible!important;isolation:isolate!important}
+#panel-tasks .astra-task-more[open]{z-index:2144!important}
+#panel-tasks .astra-task-more[open] .item-actions{z-index:2145!important;min-width:166px!important;box-shadow:0 18px 48px #000a,0 0 0 1px #8d61ff55!important}
+#panel-tasks .astra-task-more .item-actions .danger{color:#fff!important;background:linear-gradient(135deg,#8e1738,#56091f)!important;border-color:#df416b!important}
+#elara-social-page .social-friend-activity .social-scroll,#elara-social-page .social-friends-list .social-scroll,.ref-activity #elara-home-activity{overscroll-behavior:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;scrollbar-gutter:stable}
+#elara-social-page .social-friend-activity .social-scroll{max-height:310px!important;overflow-y:auto!important}
+#elara-social-page [data-friend-action="decline"],#elara-social-page .social-art-button.decline{background:linear-gradient(135deg,#9b173d,#5d0b26)!important;background-color:#7b1534!important;border:1px solid #ef5279!important}
+#elara-social-page .social-invite{grid-template-columns:minmax(0,1fr) 170px 66px!important;gap:12px!important}
+#elara-social-page .social-invite input{height:56px!important;min-height:56px!important}
+#elara-social-page .social-art-button.invite{width:170px!important;min-width:170px!important;height:56px!important}
+#elara-social-page [data-profile-lookup]{width:66px!important;height:56px!important}
+#elara-ranking-page .social-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(126px,1fr))!important;gap:12px!important;width:min(860px,100%)!important;margin:0 auto 18px!important;padding:0!important;background:none!important;border:0!important}
+#elara-ranking-page .social-tabs [role="tab"]{min-height:58px!important;padding:12px 20px!important;font-size:1rem!important}
+#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:184px!important;height:190px!important}
+#elara-ranking-page .social-podium-place:not(.place-1) .social-podium-avatar{width:150px!important;height:156px!important}
+#panel-home.ref-home .ref-habit-row{display:grid!important;grid-template-columns:34px minmax(0,1fr) 42px!important;align-items:center!important;column-gap:9px!important}
+#panel-home.ref-home .ref-habit-mark{grid-column:1!important;margin:0!important}
+#panel-home.ref-home .ref-habit-copy{grid-column:2!important;min-width:0!important;text-align:start!important}
+#panel-home.ref-home .ref-habit-row>b{grid-column:3!important}
+html[dir="ltr"] #panel-home.ref-home .ref-habit-row,html[dir="ltr"] #panel-home.ref-home .ref-task-row{direction:ltr!important}
+[data-elara-ugc]{unicode-bidi:plaintext}
+#ref-header-edit{display:grid!important;place-items:center!important;width:46px!important;height:46px!important;padding:0!important;border:1px solid #3a5e91!important;border-radius:50%!important;background:linear-gradient(145deg,#0b2a50,#071a35)!important;color:#dfe8ff!important}
+.elara-notification-popover:not(.hidden){display:grid!important;place-items:center!important}.elara-notification-window{max-height:min(82dvh,720px)!important;overscroll-behavior:contain!important}
+body.light #panel-home.ref-home #ref-streak-card,body.light #panel-home.ref-home .ref-tasks,body.light #panel-home.ref-home .ref-habits,body.light #panel-home.ref-home .ref-wellness-card,body.light #panel-home.ref-home .ref-missions,body.light #panel-home.ref-home .ref-goals,body.light #panel-home.ref-home .ref-ranks,body.light #panel-home.ref-home .ref-activity,body.light #panel-tasks #task-list>.item,body.light #panel-tasks .astra-task-toolbar,body.light #panel-tasks .astra-task-progress,body.light #panel-tasks .astra-task-streak{background:#fff!important;background-image:none!important;border-color:#ccd7ec!important;color:#17233c!important}
+body.light #panel-home.ref-home #ref-streak-card :is(strong,small,span),body.light #panel-home.ref-home :is(.ref-task-row,.ref-habit-row,.ref-wellness-cell,.ref-mission-row,.ref-goal-row) :is(strong,small,span),body.light #panel-tasks #task-list>.item :is(.item-title,.astra-task-completion-label,.astra-task-completion>b){color:#17233c!important}
+body.light #panel-home.ref-home .ref-wellness-cell{background:#f7f9ff!important;border-color:#d3def1!important}
+body.light #panel-home.ref-home :is(img,.elara-art-img){opacity:1!important;filter:none!important}
+body.light #panel-home.ref-home .ref-hero :is(h1,p,strong,span),body.light #panel-home.ref-home .ref-wellness-banner :is(strong,span){color:#fff!important}
+@media(max-width:700px){
+ #elara-account-menu-trigger{display:none!important}
+ .workspace .topbar{display:grid!important;grid-template-columns:minmax(116px,1fr) auto auto!important;align-items:center!important;gap:8px!important;direction:ltr!important;padding-inline:10px!important}
+ .workspace .topbar #ref-header-account{grid-column:1!important;grid-row:1!important;justify-self:start!important;display:grid!important;grid-template-columns:50px minmax(62px,1fr)!important;align-items:center!important;gap:7px!important;width:min(148px,42vw)!important;min-width:116px!important;direction:rtl!important}
+ #ref-header-account .ref-account-avatar{width:48px!important;height:48px!important;min-width:48px!important}
+ #ref-header-account .ref-account-copy{display:grid!important;min-width:0!important}
+ #ref-header-account .ref-account-copy strong{display:block!important;font-size:.82rem!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ .workspace .topbar .topbar-actions{grid-column:2!important;grid-row:1!important;display:flex!important;gap:5px!important;direction:ltr!important}
+ .workspace .topbar .topbar-leading{grid-column:3!important;grid-row:1!important;justify-self:end!important}
+ .workspace .topbar #ref-header-search,.workspace .topbar #ref-header-edit,.workspace .topbar .xp-pill{display:none!important}
+ .elara-notification-popover:not(.hidden){display:grid!important;place-items:center!important;padding:12px!important}
+ .elara-notification-window{position:relative!important;inset:auto!important;transform:none!important;width:min(94vw,480px)!important;max-height:82dvh!important;margin:0!important}
+ #elara-social-page .social-invite{grid-template-columns:1fr 1fr!important}
+ #elara-social-page .social-invite input{grid-column:1/-1!important;width:100%!important}
+ #elara-social-page .social-art-button.invite,#elara-social-page [data-profile-lookup]{width:100%!important;min-width:0!important;height:54px!important}
+ #elara-ranking-page .social-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:148px!important;height:154px!important}
+ #elara-ranking-page .social-podium-place:not(.place-1) .social-podium-avatar{width:122px!important;height:128px!important}
+}

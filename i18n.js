@@ -27,7 +27,7 @@ const exact=new Map(Object.entries({
 'نام عادت جدید…':'New habit…','نام هدف جدید…':'New goal…','کوتاه‌مدت':'Short term','میان‌مدت':'Medium term','بلندمدت':'Long term',
 'تمرکز':'Focus','شروع':'Start','مکث':'Pause','ادامه':'Resume','شروع دوباره':'Reset','آمادهٔ تمرکز':'Ready to focus','فضای تمرکز':'Focus Space',
 'گزارش‌ها':'Reports','بخش‌های دیگر':'More sections','بکاپ':'Backup','دریافت بکاپ':'Download backup','بازیابی بکاپ':'Restore backup','ظاهر برنامه':'App appearance',
-'فعالیت امروز':'Today Activity','هدف مطالعه':'Reading Goal','پیشنهاد امروز':'Today Suggestion','دسته‌ها و علایق':'Categories & Interests'
+'فعالیت امروز':'Today Activity','هدف مطالعه':'Reading Goal','پیشنهاد امروز':'Today Suggestion','دسته‌ها و علایق':'Categories & Interests','مرکز حریم خصوصی و امنیت':'Privacy & Security Center','پیش‌فرض فعالیت دوستان':'Default activity visibility','خصوصی':'Private','فقط دوستان':'Friends only','عمومی':'Public','ماموریت‌ها':'Missions','کتابخانه و مطالعه':'Library & Reading','زبان / گزارش یادگیری':'Language / Learning report','استریک':'Streak','چرخه / پریود':'Cycle / Period','مدیریت تسک‌ها':'Task management','ساخت لیست':'Create list','ساخت پوشه':'Create folder','ساخت تگ':'Create tag','خط‌زدن تسک کامل‌شده':'Strike completed tasks','بدون خط روی تسک کامل‌شده':'No strike on completed tasks','حذف تسک':'Delete task','ذخیره تغییرات':'Save changes'
 }));
 const phrases=[
 [/در حال اتصال امن…/g,'Connecting securely…'],[/در حال بارگذاری/g,'Loading'],[/در انتظار/g,'Pending'],[/کتاب/g,'book'],[/صفحه/g,'page'],[/مطالعه/g,'reading'],[/امروز/g,'today'],[/دوست/g,'friend'],[/درخواست/g,'request'],[/پروفایل/g,'profile'],[/تنظیمات/g,'settings'],[/اعلان/g,'notification'],[/عادت/g,'habit'],[/هدف/g,'goal'],[/تسک/g,'task'],[/مرحله|سطح/g,'level'],[/روز/g,'day'],[/دقیقه/g,'minutes'],[/ساعت/g,'hours']
@@ -50,6 +50,7 @@ function translate(value,node){
  return raw.replace(trim,out)
 }
 function rememberAttr(el,name){let map=attrOrigin.get(el);if(!map){map={};attrOrigin.set(el,map)}if(!(name in map))map[name]=el.getAttribute(name)||'';return map[name]}
+function userContent(el){return !!el?.closest?.('[data-elara-ugc],[data-elara-i18n="off"]')}
 let applying=false;
 function apply(root=document){
  if(applying)return;
@@ -59,9 +60,9 @@ function apply(root=document){
  applying=true;try{
   const lang=locale(),walker=document.createTreeWalker(walkRoot,NodeFilter.SHOW_TEXT);
   const nodes=[];let n;while((n=walker.nextNode()))nodes.push(n);
-  for(const node of nodes){const parent=node.parentElement;if(!parent||['SCRIPT','STYLE','NOSCRIPT'].includes(parent.tagName))continue;if(!textOrigin.has(node)&&fa.test(node.nodeValue||''))textOrigin.set(node,node.nodeValue);const origin=textOrigin.get(node);if(origin!=null)node.nodeValue=lang==='en'?translate(origin,node):origin}
+  for(const node of nodes){const parent=node.parentElement;if(!parent||['SCRIPT','STYLE','NOSCRIPT'].includes(parent.tagName)||userContent(parent))continue;if(!textOrigin.has(node)&&fa.test(node.nodeValue||''))textOrigin.set(node,node.nodeValue);const origin=textOrigin.get(node);if(origin!=null)node.nodeValue=lang==='en'?translate(origin,node):origin}
   const scope=target.nodeType===9?target:(walkRoot.closest?.('html')||walkRoot);
-  scope.querySelectorAll?.('[placeholder],[title],[aria-label]').forEach(el=>{for(const name of ['placeholder','title','aria-label'])if(el.hasAttribute(name)){const origin=rememberAttr(el,name);el.setAttribute(name,lang==='en'?translate(origin,{parentElement:el}):origin)}});
+  scope.querySelectorAll?.('[placeholder],[title],[aria-label]').forEach(el=>{if(userContent(el))return;for(const name of ['placeholder','title','aria-label'])if(el.hasAttribute(name)){const origin=rememberAttr(el,name);el.setAttribute(name,lang==='en'?translate(origin,{parentElement:el}):origin)}});
   document.documentElement.lang=lang;document.documentElement.dir=lang==='en'?'ltr':'rtl';document.body?.classList.toggle('lang-en',lang==='en');document.body?.classList.toggle('lang-fa',lang!=='en');
  }finally{applying=false}
 }
