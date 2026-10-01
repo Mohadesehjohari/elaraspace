@@ -154,7 +154,7 @@ for(const width of all){
 
   await check(`${width}: profile upload/shape/font and Settings modal`,async()=>{
    await page.evaluate(()=>{window.ElaraAccount={user:{uid:'profile-qa',photoURL:''},profile:{uid:'profile-qa',name:'Aren',username:'aren',xp:820}};ElaraSocial.me={uid:'profile-qa',name:'Aren',username:'aren',xp:820,profilePublic:true};ElaraSocial.saveProfileValues=async values=>({profile:values,warnings:[]});ElaraPrivateDrawer.open('account')});await page.waitForTimeout(80);
-   const panel=await rect(page,'.elara-private-drawer-panel');if(mobile)assert.ok(panel.width>=width*.75&&panel.width<=width*.9);else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
+   const panel=await rect(page,'.elara-private-drawer-panel');if(mobile)assert.ok(panel.width>=width*.9&&panel.width<=width*.98);else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
    await page.evaluate(()=>ElaraProfileSystem.openEditor());await page.waitForTimeout(40);
    assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'profile Save must be visible immediately');
    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/D/PwMDAwMDEwMDAwAANQUD/TehZAAAAABJRU5ErkJggg==','base64');
