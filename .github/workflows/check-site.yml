@@ -34,6 +34,7 @@ jobs:
           node tests/deployment-contract.test.mjs
           php tests/deployment-runtime.test.php
           node tests/ai-gateway-contract.test.mjs
+          node tests/levels-registry.test.mjs
       - name: Run recurrence, completion idempotency and Home integration tests
         run: |
           npm install --prefix tests --no-package-lock
