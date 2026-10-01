@@ -88,3 +88,27 @@
  .freedom-entry-editor .wide,.freedom-dream-intro,.freedom-dialog-preview,.freedom-quote-form label:first-child,.freedom-dream-grid{grid-column:1!important}
 }
 @media(max-width:380px){#panel-freedom .freedom-sub-grid{grid-template-columns:1fr}}
+
+/* Final Freedom visual ownership: keep every feature visible and surface AI on mobile. */
+#panel-freedom .freedom-main{align-items:start!important}
+#panel-freedom .freedom-quote{align-self:start!important}
+#panel-freedom .freedom-reflection{display:block!important}
+#panel-freedom .freedom-ai-card{display:block!important}
+#panel-freedom .freedom-ai-card>header{margin-bottom:8px}
+#panel-freedom .freedom-ai-thread{display:grid;gap:8px;max-height:250px;overflow:auto;padding:3px 1px 8px;scrollbar-width:thin}
+#panel-freedom .freedom-ai-message{max-width:88%;padding:9px 11px;border-radius:13px;background:#0a2140;border:1px solid #284b7a}
+#panel-freedom .freedom-ai-message.user{justify-self:start;background:#26185c;border-color:#6847c8}
+#panel-freedom .freedom-ai-message.model{justify-self:end}
+#panel-freedom .freedom-ai-message small{display:block;color:#a9b8d0;font-size:.72rem;margin-bottom:3px}
+#panel-freedom .freedom-ai-message p{margin:0!important;color:#eef3ff!important;white-space:pre-wrap;line-height:1.8}
+#panel-freedom .freedom-ai-empty{display:grid;gap:4px;text-align:center;padding:14px;color:#9fb0c8}
+#panel-freedom .freedom-ai-empty strong{color:#e6e0ff}
+#panel-freedom .freedom-ai-form{display:grid;gap:7px}
+#panel-freedom .freedom-ai-form textarea{width:100%;min-height:62px;max-height:150px;resize:vertical;border:1px solid #3f5f92;border-radius:11px;background:#07172c;color:#eef3ff;padding:10px 11px;font:inherit}
+#panel-freedom .freedom-ai-form>div{display:flex;justify-content:flex-end;gap:8px}
+#panel-freedom .freedom-ai-status{min-height:1.4em;margin:5px 0 0!important;color:#aebbd2!important;font-size:.82rem}
+@media(max-width:700px){
+ #panel-freedom .freedom-features{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #panel-freedom .freedom-reflection{grid-column:1/-1!important}
+ #panel-freedom .freedom-ai-card{display:block!important}
+}
