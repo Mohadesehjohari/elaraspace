@@ -41,7 +41,12 @@
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus({preventScroll:true})}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus({preventScroll:true})}
   }
-  function closeInternal(){root?.classList.add('hidden');document.body.classList.remove('elara-private-drawer-open')}
+  function closeInternal(){
+    if(!root)return;
+    root.classList.add('hidden');root.hidden=true;root.setAttribute('inert','');
+    root.style.setProperty('display','none','important');root.style.setProperty('pointer-events','none','important');
+    document.body.classList.remove('elara-private-drawer-open')
+  }
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){
     if(!root||root.classList.contains('hidden'))return;
@@ -51,7 +56,14 @@
     clearDrawerHistoryMarker();
     closeInternal();
   }
-  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section);setTimeout(focusDrawer,0)}
+  function open(section='home'){
+    if(!root)return;
+    root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);
+    const wasClosed=root.classList.contains('hidden')||root.hidden;
+    if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);
+    root.hidden=false;root.removeAttribute('inert');root.style.removeProperty('display');root.style.removeProperty('pointer-events');root.classList.remove('hidden');
+    document.body.classList.add('elara-private-drawer-open');renderProfile();show(section);setTimeout(focusDrawer,0)
+  }
   function placeMobileSection(section){
     if(!panel)return;
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;

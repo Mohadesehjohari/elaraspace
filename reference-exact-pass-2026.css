@@ -965,3 +965,12 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
   overflow:visible!important;text-align:center!important
  }
 }
+
+
+/* 2026-10-01 P0 v19 — a closed Settings drawer must never remain in pointer hit-testing. */
+.elara-private-drawer.hidden,
+.elara-private-drawer[hidden]{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
