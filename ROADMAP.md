@@ -204,3 +204,9 @@ Inspected actual decoded WebP pixels: `button-view-all.webp` is a purple Persian
 [ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md](docs/ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md)
 
 این سند جدیدتر در تعارض‌های مربوط به همین قابلیت‌ها مقدم است. ثبت آن به معنی اجرا یا PASS نیست؛ هر آیتم باید `REQUESTED → CODED → TESTED → VERIFIED` را جدا طی کند. برای Social/Privacy بدون تست واقعی دو UID و Rules منتشرشده، PASS ممنوع است.
+
+
+## اولویت جاری — Freedom Reference Stage [۱ اکتبر ۲۰۲۶]
+
+- اجرای فعلی: **FREEDOM-REFERENCE-01**؛ فقط محتوای صفحهٔ آزادی با تصاویر مرجع Desktop/Mobile و Assetهای جدید مخزن. Shared bars/navigation خارج از Scope این Pass هستند.
+- جزئیات و معیارها در الحاقیهٔ ۱ اکتبر ثبت شده‌اند. کدنویسی به‌تنهایی Visual PASS نیست و End-HEAD browser/Pages جدا گزارش می‌شود.

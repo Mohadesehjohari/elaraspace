@@ -87,7 +87,19 @@
     "i18n.js",
     "assets/ui/language_banner.webp",
     "assets/ui/librairy_banner.webp",
-    "assets/ui/ranking_banner.webp"
+    "assets/ui/ranking_banner.webp",
+    "freedom-page.js",
+    "freedom-page.css",
+    "assets/ui/freedom_banner.webp",
+    "assets/ui/free_notes.webp",
+    "assets/ui/Ideas.webp",
+    "assets/ui/Inspirations.webp",
+    "assets/ui/Vision_Board.webp",
+    "assets/ui/my_reflection.webp",
+    "assets/ui/banner_dream_tree.webp",
+    "assets/ui/banner_moon_lake.webp",
+    "assets/ui/banner_city_of_stars.webp",
+    "assets/ui/banner_new_dawn.webp"
   ],
   "files": [
     ".htaccess",
@@ -270,6 +282,18 @@
     "assets/ui/read botten.webp",
     "assets/ui/ready_to_review.webp",
     "assets/ui/review_again.webp",
-    "assets/ui/todays cart.webp"
+    "assets/ui/todays cart.webp",
+    "freedom-page.js",
+    "freedom-page.css",
+    "assets/ui/freedom_banner.webp",
+    "assets/ui/free_notes.webp",
+    "assets/ui/Ideas.webp",
+    "assets/ui/Inspirations.webp",
+    "assets/ui/Vision_Board.webp",
+    "assets/ui/my_reflection.webp",
+    "assets/ui/banner_dream_tree.webp",
+    "assets/ui/banner_moon_lake.webp",
+    "assets/ui/banner_city_of_stars.webp",
+    "assets/ui/banner_new_dawn.webp"
   ]
 }

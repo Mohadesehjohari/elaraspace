@@ -585,3 +585,27 @@ Desktop:
 - برای قابلیت اجتماعی/Privacy، بدون تست Firebase دو UID، `PASS` ندهد.
 - برای Visual، تصاویر مرجع باید در همان گفت‌وگو در دسترس باشند؛ در غیر این صورت Visual PASS ندهد.
 - از این سند و Roadmapهای بالادستی برای ساخت Prompt مرحلهٔ بعدی استفاده کند.
+
+
+# O — Banner Copy / Mobile Reveal
+
+## MOBILE-BANNER-COPY-01 — متن بنر در موبایل تصویر را نپوشاند
+
+**وضعیت: REQUESTED**
+
+- متن Hero/Banner در Mobile کوچک‌تر و در ناحیهٔ امن قرار گیرد و Artwork را نپوشاند.
+- می‌تواند چند ثانیهٔ اول دیده شود و بعد جمع/کم‌رنگ شود؛ tap/long-press/focus راه قابل‌دسترسی برای دیدن دوبارهٔ متن بدهد و scroll طبیعی را خراب نکند.
+- Desktop می‌تواند Copy کامل و دائمی داشته باشد؛ متن HTML زنده و ترجمه‌پذیر بماند.
+
+# P — Freedom Reference Stage / اولویت اجرای فعلی
+
+## FREEDOM-REFERENCE-01 — بازسازی خود صفحهٔ آزادی با مرجع Desktop/Mobile
+
+**وضعیت: CODED / AWAITING END-HEAD BROWSER VERIFICATION**
+
+- مرجع این Stage دو تصویر «آزادی پیسی(7)» و «آزادی موبایل(7)» است.
+- Scope فقط محتوای خود Freedom است؛ Sidebar/Topbar/Bottom Navigation در این Pass بازطراحی نمی‌شوند.
+- از Assetهای واقعی مخزن استفاده شود: `freedom_banner.webp`، `free_notes.webp`، `Ideas.webp`، `Inspirations.webp`، `Vision_Board.webp`، `my_reflection.webp` و Dream banners.
+- Hero، feature cards، Quick Note، Inspiration، Latest Notes و Dream/Vision پیاده‌سازی شوند؛ Mobile summary و Today Tasks از دادهٔ واقعی همان حساب بیاید.
+- Note/Dream account-scoped ذخیره شود؛ fake content برای پرکردن UI ممنوع. قابلیت AI تا backend واقعی قفل/«در راه» بماند.
+- پذیرش: Chromium در 390 و 1648، decode همه Artworkها، no horizontal overflow، ذخیره و render یادداشت و screenshot؛ سپس regression عرض‌های 320/375/430.
