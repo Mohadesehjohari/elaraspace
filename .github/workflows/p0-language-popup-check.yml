@@ -38,7 +38,9 @@ on:
       - 'social-engagement.js'
       - 'social-messaging-ui.js'
       - 'tests/friends-groups-ui-browser.mjs'
+      - 'tests/clubs-stage11-browser.mjs'
       - 'social-groups-ui.js'
+      - 'social-clubs-ui.js'
       - 'elara-design.js'
       - 'firestore.rules'
       - 'page-view.js'
@@ -88,6 +90,7 @@ jobs:
           node --check library-enhancements.js
           node --check social-messaging-ui.js
           node --check social-groups-ui.js
+          node --check social-clubs-ui.js
           node --check social-engagement.js
           node --check social-engagement-view.js
           node --check page-view.js
@@ -101,6 +104,7 @@ jobs:
           node --check tests/library-stage4-browser.mjs
           node --check tests/friends-dm-ui-browser.mjs
           node --check tests/friends-groups-ui-browser.mjs
+          node --check tests/clubs-stage11-browser.mjs
           node --check tests/page-stage6-browser.mjs
           node --check tests/social-engagement-browser.mjs
           node --check tests/task-bulk-reorder-browser.mjs
@@ -120,6 +124,8 @@ jobs:
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
       - name: Verify Friends group chat interactions
         run: timeout 90s node tests/friends-groups-ui-browser.mjs
+      - name: Verify Clubs Stage 11 interactions
+        run: timeout 90s node tests/clubs-stage11-browser.mjs
       - name: Verify Page Stage 6 interactions
         run: timeout 90s node tests/page-stage6-browser.mjs
       - name: Verify Social engagement Stage 7 interactions
@@ -182,6 +188,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/friends-groups-ui-browser.mjs
+      - name: Verify deployed Clubs Stage 11 interactions
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/clubs-stage11-browser.mjs
       - name: Verify deployed Page Stage 6 interactions
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
