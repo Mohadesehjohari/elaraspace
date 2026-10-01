@@ -943,8 +943,8 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
   padding:0!important;overflow:hidden!important;direction:ltr!important
  }
  .bottom-nav>[data-elara-nav-kind]{
-  position:absolute!important;top:4px!important;left:calc(50% + var(--nav-offset,0px))!important;
-  right:auto!important;bottom:auto!important;inset-block:auto!important;inset-inline:auto!important;
+  position:absolute!important;inset:auto!important;
+  top:4px!important;left:calc(50% + var(--nav-offset,0px))!important;right:auto!important;bottom:auto!important;
   transform:translateX(-50%)!important;
   width:36px!important;min-width:36px!important;max-width:36px!important;height:68px!important;min-height:68px!important;
   display:grid!important;grid-template-rows:32px auto!important;grid-row:auto!important;grid-column:auto!important;
