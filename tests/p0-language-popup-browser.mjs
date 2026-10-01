@@ -1,6 +1,9 @@
 // END-HEAD CI anchor: this P0 suite is required to run with validate/reference on the same commit.
 import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
 import {chromium} from 'playwright';
+
+const sha=process.env.GITHUB_SHA||'local',out=`browser-artifacts/${sha}/p0`;mkdirSync(out,{recursive:true});
 
 const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const browser=await chromium.launch({headless:true});
@@ -36,7 +39,7 @@ async function topmost(page,selector,label){
 }
 
 // P0-3: mobile nav must exist before late JS hydration and must hydrate the same nodes.
-for(const width of [320,375,390,430]){
+for(const width of [320,360,375,390,412,430]){
  const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true});
  const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(12000);await page.addInitScript(seed);await stub(page);
  stage(`nav-${width}:start`);
@@ -66,7 +69,7 @@ for(const width of [320,375,390,430]){
  assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': delayed direct Language route was lost');
  await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(180);
  assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': direct reload #language failed');
- stage(`nav-${width}:pass`);await context.close();
+ await page.screenshot({path:`${out}/nav-${width}.png`,fullPage:false});stage(`nav-${width}:pass`);await context.close();
 }
 
 // P0-1, P0-2, P0-4, P0-5 on a real 390 mobile user path.
@@ -76,6 +79,8 @@ stage('mobile390:start');
 page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(m.text())});
 await page.goto(base+'/#language',{waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language direct load failed');
+assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
+await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 
 stage('language:start');
 // Language: add -> render -> refresh -> report -> refresh -> delete -> refresh.
@@ -100,6 +105,9 @@ stage('language:pass');stage('settings:start');
 // Settings main list via real hamburger -> Privacy.
 await page.locator('#elara-account-menu-trigger').click();await page.waitForTimeout(60);
 assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main list missing');
+const settingsBox=await withinViewport(page,'.elara-private-drawer-panel','Settings home'),settingsVp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));
+assert.ok(Math.abs(settingsBox.x+settingsBox.width/2-settingsVp.w/2)<=3&&Math.abs(settingsBox.y+settingsBox.height/2-settingsVp.h/2)<=Math.max(10,settingsVp.h*.03),'Settings home is not centered '+JSON.stringify({settingsBox,settingsVp}));
+await page.screenshot({path:`${out}/settings-home-390.png`,fullPage:false});
 const menuButtons=page.locator('.drawer-menu>button');assert.ok(await menuButtons.count()>=8,'Settings list is incomplete');
 const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Settings mobile menu is not one column: '+menuLayout.columns);
@@ -119,6 +127,7 @@ stage('wardrobe:pass');stage('profile:start');
 await page.locator('.drawer-menu [data-drawer-nav="account"]').click();await page.waitForTimeout(50);await page.locator('[data-drawer-section="account"] [data-profile-edit]').click();await page.waitForTimeout(80);
 await withinViewport(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');await topmost(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');
 assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'Profile Save is not immediately visible');
+await page.screenshot({path:`${out}/profile-editor-390.png`,fullPage:false});
 z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),dialog:Number(getComputedStyle(document.querySelector('#elara-dialog-root')).zIndex)}));assert.ok(z.dialog>z.drawer,'Profile dialog below Settings '+JSON.stringify(z));
 
 stage('profile:pass');stage('nested-dialog:start');

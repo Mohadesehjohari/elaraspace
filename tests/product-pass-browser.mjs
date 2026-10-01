@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 const sha=process.env.GITHUB_SHA||'local',base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173',out=`browser-artifacts/${sha}`;
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),results=[],failures=[];
-const mobileWidths=[320,375,390,430],desktopWidths=[1440,1648,1920],all=[...mobileWidths,...desktopWidths];
+const mobileWidths=[320,360,375,390,412,430],desktopWidths=[1440,1648,1920],all=[...mobileWidths,...desktopWidths];
 const routes=['home','tasks','language','books','social','exercise','freedom','settings'];
 const fa=/[\u0600-\u06ff]/;
 const clamp=(min,n,max)=>Math.max(min,Math.min(max,n));
@@ -53,6 +53,15 @@ for(const width of all){
  const page=await context.newPage(),net=await wire(page);
  try{
   await boot(page,'home');
+  if(width===390){
+   await check('390: no-hash defaults to Home and deep links survive',async()=>{
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(160);
+    assert.equal(await page.evaluate(()=>location.hash),'#home');assert.equal(await page.locator('#panel-home:not(.hidden)').count(),1,'no-hash did not render Home');
+    await page.goto(base+'/#tasks',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(160);
+    assert.equal(await page.locator('#panel-tasks:not(.hidden)').count(),1,'deep-link #tasks was overridden');
+    await boot(page,'home');
+   });
+  }
   await check(`${width}: shell/topbar/nav boot`,async()=>{
    assert.equal(await page.locator('.workspace').isVisible(),true);
    assert.equal(await page.locator('.topbar').isVisible(),true);
@@ -60,9 +69,11 @@ for(const width of all){
     assert.equal(await page.locator('.bottom-nav').isVisible(),true);
     assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);
     assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom']);
-    const centers=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return r.left+r.width/2}).sort((a,b)=>a-b));
-    const gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
+    const navBoxes=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
+    const centers=navBoxes.map(x=>x.center).sort((a,b)=>a-b),gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
     assert.ok(spread<=3,'mobile nav spacing is uneven: '+JSON.stringify(gaps));
+    const home=navBoxes.find(x=>x.route==='home');assert.ok(home&&Math.abs(home.center-width/2)<=2,'Home is not on the geometric viewport center: '+JSON.stringify(home));
+    assert.equal(navBoxes.every(x=>x.left>=-1&&x.right<=width+1),true,'mobile nav clips a destination: '+JSON.stringify(navBoxes));
    }
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
@@ -77,6 +88,13 @@ for(const width of all){
     assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0,route+' permanent cloud layer');
     await noOverflow(page);
    }
+  });
+
+  if(width===390||width===1440)await check(`${width}: uploaded Language/Library/Ranking banners render`,async()=>{
+   await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/);
+   await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/librairy_banner\.webp/);
+   await openRoute(page,'ranking');assert.match(await page.locator('#panel-ranking>h1').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/);
+   await openRoute(page,'home');
   });
 
   await openRoute(page,'tasks');
@@ -189,7 +207,7 @@ for(const width of all){
 
   await check(`${width}: profile upload/shape/font and Settings modal`,async()=>{
    await page.evaluate(()=>{window.ElaraAccount={user:{uid:'profile-qa',photoURL:''},profile:{uid:'profile-qa',name:'Aren',username:'aren',xp:820}};ElaraSocial.me={uid:'profile-qa',name:'Aren',username:'aren',xp:820,profilePublic:true};ElaraSocial.saveProfileValues=async values=>({profile:values,warnings:[]});ElaraPrivateDrawer.open('account')});await page.waitForTimeout(80);
-   const panel=await rect(page,'.elara-private-drawer-panel');if(mobile)assert.ok(panel.width>=width*.9&&panel.width<=width*.98);else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
+   const panel=await rect(page,'.elara-private-drawer-panel');if(mobile){assert.ok(panel.width>=width*.9&&panel.width<=width*.98);const vp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));assert.ok(Math.abs(panel.x+panel.width/2-vp.w/2)<=3&&Math.abs(panel.y+panel.height/2-vp.h/2)<=Math.max(10,vp.h*.03),'Settings panel is not centered: '+JSON.stringify({panel,vp}))}else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
    await page.evaluate(()=>ElaraProfileSystem.openEditor());await page.waitForTimeout(40);
    assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'profile Save must be visible immediately');
    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/D/PwMDAwMDEwMDAwAANQUD/TehZAAAAABJRU5ErkJggg==','base64');
