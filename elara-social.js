@@ -1,7 +1,7 @@
 /* Firestore-backed profiles, friendships and opt-in activity summaries. No synthetic social data. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,updateProfile} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,collection,getDocs,query,where,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,collection,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 const state={me:null,friends:[],requests:[],activities:[],error:'',profileView:null};window.ElaraSocial=state;
@@ -25,6 +25,45 @@ async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;
  if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';if(gen===generation)render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}finally{busy=false;if(rerun){rerun=false;void refresh()}}}
 window.ElaraSocial.refresh=refresh;
+
+const dmId=other=>[String(uid||''),String(other||'')].sort().join('__');
+function acceptedFriend(other){return !!uid&&state.friends.some(p=>p.uid===other)}
+async function ensureDm(other){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
+ if(!acceptedFriend(other))throw Error('گفتگوی خصوصی فقط بین دوستان تأییدشده فعال است.');
+ const id=dmId(other),ref=doc(db,'conversations',id),snap=await getDoc(ref);
+ if(!snap.exists()){
+  const members=[uid,other].sort();
+  await setDoc(ref,{kind:'dm',members,createdBy:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''});
+ }
+ return id;
+}
+async function listDms(){
+ if(!uid)return[];
+ const snaps=await getDocs(query(collection(db,'conversations'),where('members','array-contains',uid)));
+ const rows=[];for(const item of snaps.docs){const data=item.data();if(data.kind!=='dm'||!Array.isArray(data.members))continue;const other=data.members.find(x=>x!==uid);if(!other)continue;let person=state.friends.find(p=>p.uid===other);if(!person){try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}catch{}}
+  rows.push({id:item.id,other,person:person||{uid:other,name:'دوست'},lastText:String(data.lastText||''),lastSender:String(data.lastSender||''),updatedAt:data.updatedAt?.toMillis?.()||0})
+ }
+ return rows.sort((a,b)=>b.updatedAt-a.updatedAt);
+}
+async function getDmMessages(other){
+ const cid=await ensureDm(other),snaps=await getDocs(query(collection(db,'conversations',cid,'messages'),orderBy('createdAt','desc'),limit(100)));
+ return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse();
+}
+function listenDm(other,callback,errorCallback){
+ if(!acceptedFriend(other))throw Error('گفتگو فقط برای دوستان تأییدشده است.');
+ const cid=dmId(other),q=query(collection(db,'conversations',cid,'messages'),orderBy('createdAt','desc'),limit(100));
+ return onSnapshot(q,snap=>callback(snap.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()),error=>{console.error('Elara DM listener:',error);errorCallback?.(error)});
+}
+async function sendDm(other,value){
+ const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
+ const cid=await ensureDm(other),messages=collection(db,'conversations',cid,'messages');
+ await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
+ await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+Date.now()});
+ return cid;
+}
+window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm};
 
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}
