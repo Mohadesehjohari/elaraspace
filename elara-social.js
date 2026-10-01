@@ -119,7 +119,7 @@ const CLUB_KINDS=new Set(['reading','fitness','focus','general']);
 const clubMemberships=async()=>{
  if(!uid)return[];
  const snaps=await getDocs(query(collectionGroup(db,'clubMembers'),where('uid','==',uid))),rows=[];
- for(const membership of snaps.docs){const ref=membership.ref.parent.parent;if(!ref)continue;try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,...d,role:membership.data()?.role||'member',updatedAt:d.updatedAt?.toMillis?.()||0})}catch(error){console.warn('Elara club unavailable:',ref.id,error)}
+ for(const membership of snaps.docs){const ref=membership.ref.parent.parent;if(!ref)continue;try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,...d,role:membership.data()?.role||'member',updatedAt:d.updatedAt?.toMillis?.()||0})}catch(error){console.warn('Elara club unavailable:',ref.id,error)}}
  return rows.sort((a,b)=>b.updatedAt-a.updatedAt)
 };
 async function createClub(spec={}){
