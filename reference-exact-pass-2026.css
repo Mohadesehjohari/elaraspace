@@ -874,3 +874,16 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
   height:100%!important;max-height:100%!important;overflow:auto!important;overscroll-behavior:contain!important
  }
 }
+
+
+/* 2026-10-01 P0 v11 — canonical language store + hard-centered mobile Settings internals. */
+@media(max-width:700px){
+ .elara-private-drawer[data-mobile-section]:not([data-mobile-section="home"])>.elara-private-drawer-panel>[data-drawer-section]:not(.hidden){
+  display:block!important;width:100%!important;height:100%!important;max-height:100%!important;
+  min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+  padding:12px 12px calc(20px + env(safe-area-inset-bottom))!important
+ }
+ .elara-private-drawer[data-mobile-section]:not([data-mobile-section="home"]) .drawer-section-head{
+  position:sticky!important;top:-12px!important;z-index:50!important
+ }
+}

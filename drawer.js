@@ -27,10 +27,30 @@
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
   function open(section='home'){if(!root)return;root.dataset.mobileSection=section;root.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100180);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
+  function placeMobileSection(section){
+    if(!panel)return;
+    const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
+    const props=['position','inset','top','right','bottom','left','transform','width','height','max-height','margin','overflow','border-radius'];
+    if(!mobile||section==='home'){for(const name of props)panel.style.removeProperty(name);return}
+    panel.style.setProperty('position','fixed','important');
+    panel.style.setProperty('inset','auto','important');
+    panel.style.setProperty('top','50%','important');
+    panel.style.setProperty('left','50%','important');
+    panel.style.setProperty('right','auto','important');
+    panel.style.setProperty('bottom','auto','important');
+    panel.style.setProperty('transform','translate(-50%,-50%)','important');
+    panel.style.setProperty('width','min(94vw,520px)','important');
+    panel.style.setProperty('height','min(90dvh,900px)','important');
+    panel.style.setProperty('max-height','90dvh','important');
+    panel.style.setProperty('margin','0','important');
+    panel.style.setProperty('overflow','hidden','important');
+    panel.style.setProperty('border-radius','20px','important');
+  }
   function show(section='home'){
     current=section;
     if(root)root.dataset.mobileSection=section;
     if(panel)panel.dataset.mobileSection=section;
+    placeMobileSection(section);
     panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!==section));
     panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
     if(section==='home')renderHub();
@@ -171,6 +191,8 @@
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
     const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
     renderProfile();renderHub();updateCalendarLabels();
+    window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
+    window.visualViewport?.addEventListener?.('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
   }
 
   document.addEventListener('click',async e=>{
