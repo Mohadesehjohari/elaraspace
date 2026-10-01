@@ -191,7 +191,7 @@ function wire(){
  window.addEventListener('elara:social-updated',()=>{prepareLanguageBooks();renderLanguage();refreshHome()});
  window.addEventListener('elara:account-ready',()=>{prepareLanguageBooks();renderLanguage();refreshHome()});
  language();refreshHome();
- if(location.hash==='#language')window.ElaraOpen?.('language',{history:'replace'});
+ if(window.__elaraPendingRoute==='language'||location.hash==='#language'){window.__elaraPendingRoute=null;window.ElaraOpen?.('language',{history:'replace'})}
  if(location.hash==='#words')window.ElaraOpen?.('words',{history:'replace'})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
