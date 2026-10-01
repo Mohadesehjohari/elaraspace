@@ -82,6 +82,11 @@ stage('mobile390:start');
 page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(m.text())});
 await page.goto(base+'/#language',{waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language direct load failed');
+await page.locator('.bottom-nav [data-elara-tab="exercise"]').click();await page.waitForTimeout(90);
+assert.equal(await page.locator('#panel-exercise .wellness-heading img[src*="green_heart.webp"]').count(),1,'Exercise heading must use green_heart.webp');
+await page.locator('.bottom-nav [data-elara-tab="home"]').click();await page.waitForTimeout(60);
+assert.equal(await page.locator('#panel-home .ref-wellness-cell').nth(3).locator('img[src*="apple.webp"]').count(),1,'Home weight cell must use apple.webp');
+
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 
