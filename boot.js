@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-freedom-v26';
+  const BUILD='20261001-assets-v27';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -11,7 +11,7 @@
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
   const essentialImages=location.hash==='#home'?[
     'assets/ui/hero-landscape.webp','assets/ui/nav-home-active.webp','assets/ui/brand-elara-app-mark.webp',
-    'assets/ui/icon-tasks-check-alpha.webp','assets/ui/streak-flame.webp',
+    'assets/ui/Glowing Neon Checkmark Orb.webp','assets/ui/streak-flame.webp',
     'assets/ui/icon-mode-night-active.webp','assets/ui/icon-notifications-read.webp'
   ]:[];
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=src;if(typeof img.decode==='function')img.decode().then(done,done)});
