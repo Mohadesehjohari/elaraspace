@@ -17,7 +17,7 @@ assert.match(profile,/shape,nameFont,photoMode/);
 assert.match(profile,/photoVariants/);
 assert.match(profile,/frameVariantPath/);
 assert.match(profile,/assets\/avatars\/level-/);
-assert.match(profile,/assets\/frames\/);
+assert.match(profile,/assets\/frames\//);
 for(let n=1;n<=10;n++)for(const g of ['m','f']){const p=String(n).padStart(2,'0'),a=readFileSync(new URL(`../assets/avatars/level-${p}-${g}-circle.png`,import.meta.url)),b=readFileSync(new URL(`../assets/avatars/level-${p}-${g}-square.png`,import.meta.url));assert.notDeepEqual(a,b,`circle/square avatar bytes are identical for level ${p} ${g}`)}
 for(const tier of ['bronze','silver','gold','diamond']){const a=readFileSync(new URL(`../assets/frames/${tier}-circle.png`,import.meta.url)),b=readFileSync(new URL(`../assets/frames/${tier}-square.png`,import.meta.url));assert.notDeepEqual(a,b,`circle/square frame bytes are identical for ${tier}`)}
 assert.ok(profile.includes("SHAPES=Object.freeze(['circle','square'])"));
