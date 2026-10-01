@@ -1,7 +1,7 @@
 /* Elara themed dialog system: centered, stackable, accessible and theme-token aware. */
 (() => {
   'use strict';
-  const overlay=window.ElaraOverlayStack||(window.ElaraOverlayStack=(()=>{let z=100000;return{next(){z+=20;return z},peek(){return z}}})());
+  const overlay=window.ElaraOverlayStack||(window.ElaraOverlayStack=(()=>{let z=100000;return{next(root){z+=20;if(root?.style)root.style.setProperty('--elara-overlay-z',String(z));return z},peek(){return z}}})());
   let root=null,scrollLock=null,serial=0;
   const stack=[];
 
@@ -82,7 +82,7 @@
     layer.querySelector('.elara-dialog-back').addEventListener('click',()=>finish(null));
     layer.querySelector('.elara-dialog-close').addEventListener('click',()=>finish(null));
     const entry={layer,panel,lastFocus:document.activeElement,resolve:null};stack.push(entry);root.append(layer);
-    root.style.zIndex=String(overlay.next());root.hidden=false;root.classList.remove('hidden');document.body.classList.add('elara-dialog-open');revealTop();
+    overlay.next(root);root.hidden=false;root.classList.remove('hidden');document.body.classList.add('elara-dialog-open');revealTop();
     setTimeout(()=>panel.focus({preventScroll:true}),0);
     return new Promise(resolve=>{entry.resolve=resolve});
   }
