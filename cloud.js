@@ -70,7 +70,7 @@ function form(mode='login'){
   const switcher=document.createElement('button');switcher.type='button';switcher.className='quiet-button';switcher.textContent=mode==='register'?'حساب دارم · ورود':'حساب ندارم · ثبت‌نام';switcher.addEventListener('click',()=>form(mode==='register'?'login':'register'));
   const forgot=document.createElement('button');forgot.type='button';forgot.className='mini-button';forgot.textContent='فراموشی رمز';forgot.addEventListener('click',async()=>{try{if(!email.value)throw new Error('اول ایمیلت را وارد کن.');await sendPasswordResetEmail(auth,email.value.trim());message('اگر این ایمیل ثبت شده باشد، لینک بازیابی ارسال می‌شود.');}catch(e){message(actionError(e));}});
   wrap.append(title,sub,f,switcher);if(mode==='login')wrap.append(forgot);
-  wrap.append(status,retry);layer.append(wrap); const msg=document.createElement('p');msg.id='cloud-form-message';msg.className='muted';wrap.append(msg);
+  wrap.append(status,retry);wrap.dataset.elaraAccountGateReady=mode;layer.append(wrap);window.dispatchEvent(new Event('elara:account-gate-ready')); const msg=document.createElement('p');msg.id='cloud-form-message';msg.className='muted';wrap.append(msg);
   f.addEventListener('submit',async e=>{
     e.preventDefault();send.disabled=true;msg.textContent='در حال بررسی…';
     try{
@@ -94,7 +94,7 @@ function verify(){
   const p=document.createElement('p');p.className='muted';p.textContent='لینک تأیید رو در ایمیلت باز کن؛ بعد روی «بررسی دوباره» بزن.';
   const check=btn('ایمیلم رو تأیید کردم',async()=>{try{await user.reload();if(user.emailVerified)await readyUser(user);else message('ایمیل هنوز تأیید نشده است.');}catch(e){message(actionError(e));}});
   const resend=btn('ارسال دوبارهٔ لینک',async()=>{try{await sendEmailVerification(user);message('لینک جدید فرستاده شد.');}catch(e){message(actionError(e));}},'quiet-button');
-  const out=btn('خروج',()=>signOut(auth),'quiet-button');wrap.append(h,p,check,resend,out,status,retry);layer.append(wrap);message('');
+  const out=btn('خروج',()=>signOut(auth),'quiet-button');wrap.append(h,p,check,resend,out,status,retry);wrap.dataset.elaraAccountGateReady='verify';layer.append(wrap);message('');window.dispatchEvent(new Event('elara:account-gate-ready'));
 }
 function btn(label,fn,klass='primary-button'){const b=document.createElement('button');b.type='button';b.className=klass;b.textContent=label;b.addEventListener('click',async()=>{b.disabled=true;try{await fn();}catch(e){notify(actionError(e));}finally{b.disabled=false;}});return b;}
 async function reserveUsername(username,name){
@@ -117,7 +117,7 @@ function chooseUsername(){
   const uname=document.createElement('input');uname.placeholder='username';uname.value=pending.username||'';uname.required=true;uname.maxLength=20;uname.pattern='[a-z][a-z0-9_]{2,19}';
   const ok=document.createElement('button');ok.className='primary-button';ok.textContent='ثبت نام کاربری';f.append(name,uname,ok);
   f.addEventListener('submit',async e=>{e.preventDefault();ok.disabled=true;try{const v=safe(uname.value).toLowerCase();if(!usernameValid(v))throw new Error('نام کاربری باید ۳ تا ۲۰ نویسه انگلیسی باشد و با حرف شروع شود.');await reserveUsername(v,safe(name.value));await readyUser(user);}catch(err){message(actionError(err));}finally{ok.disabled=false;}});
-  wrap.append(h,p,f,btn('خروج',()=>signOut(auth),'quiet-button'),status,retry);layer.append(wrap);message('');
+  wrap.append(h,p,f,btn('خروج',()=>signOut(auth),'quiet-button'),status,retry);wrap.dataset.elaraAccountGateReady='profile';layer.append(wrap);message('');window.dispatchEvent(new Event('elara:account-gate-ready'));
 }
 async function readyUser(current){
   locked();user=current;

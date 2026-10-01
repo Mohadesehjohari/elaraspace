@@ -34,6 +34,8 @@ on:
       - 'visual-fidelity-pass5.css'
       - 'approved-visual.css'
       - 'boot.js'
+      - 'cloud.js'
+      - 'tests/production-boot-browser.mjs'
       - 'index.html'
       - 'tests/p0-language-popup-browser.mjs'
       - 'tests/profile-assets-contract.test.mjs'
@@ -117,6 +119,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 180s node tests/p0-language-popup-browser.mjs
+      - name: Verify real Firebase/account boot without stubs
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 60s node tests/production-boot-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

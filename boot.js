@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-language-rank-v35';
+  const BUILD='20261001-boot-recovery-v36';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -53,13 +53,18 @@
   })();
   const launch=async()=>{
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
-    let accountSettled=false;
-    const accountWatchdog=setTimeout(()=>{
-      if(accountSettled||document.body.classList.contains('cloud-ready'))return;
+    let accountSettled=false,accountWatchdog=null;
+    const settleAccount=()=>{if(accountSettled)return;accountSettled=true;if(accountWatchdog)clearTimeout(accountWatchdog)};
+    window.addEventListener('elara:account-ready',settleAccount,{once:true});
+    window.addEventListener('elara:account-gate-ready',settleAccount,{once:true});
+    window.addEventListener('elara:cloud-unavailable',settleAccount,{once:true});
+    accountWatchdog=setTimeout(()=>{
+      if(document.body.classList.contains('cloud-ready')||document.querySelector('[data-elara-account-gate-ready]')){settleAccount();return}
       console.error('Elara account watchdog: Firebase/account startup exceeded 8 seconds; falling back to device-local mode.');
       document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready','cloud-offline');
       const layer=document.getElementById('cloud-layer');if(layer)layer.hidden=true;
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:'account-startup-timeout'}}));
+      settleAccount();
     },8000);
     try{
       if(status)status.textContent='در حال اتصال امن به Firebase…';if(retry)retry.hidden=true;
@@ -71,10 +76,10 @@
           if(retry)retry.hidden=false;
         }
       },15000);
-      await import(assetUrl('./cloud.js'));accountSettled=true;clearTimeout(accountWatchdog);
+      await import(assetUrl('./cloud.js'));
       try{await import(assetUrl('./elara-social.js'))}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
     }catch(error){
-      accountSettled=true;clearTimeout(accountWatchdog);
+      settleAccount();
       console.error('Elara cloud startup:',error);
       // Cloud/account startup must never make the local application unusable.
       // Keep existing device-local state available and surface the cloud outage non-blockingly.
@@ -83,7 +88,7 @@
       const layer=document.getElementById('cloud-layer');if(layer)layer.hidden=true;
       const toast=document.getElementById('toast');if(toast){toast.textContent='اتصال حساب ابری برقرار نشد؛ الارا فعلاً با داده‌های همین دستگاه در دسترس است.';toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),6500)}
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:String(error?.message||error)}}));
-    }finally{accountSettled=true;clearTimeout(accountWatchdog)}
+    }
   };
   document.addEventListener('DOMContentLoaded',()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());void launch()},{once:true});
 })();
