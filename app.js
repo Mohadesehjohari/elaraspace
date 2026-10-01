@@ -10,7 +10,7 @@
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
-  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], words:[], taskLists:[], folders:[], tags:[], focusSessions:[], activeFocus:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
+  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
   const uniqueNames = values => Array.isArray(values) ? [...new Set(values.map(v => asText(v,60)).filter(Boolean))].slice(0,250) : [];
   const normalize = raw => {
@@ -21,7 +21,9 @@
     data.taskLists = uniqueNames(raw.taskLists);
     data.folders = uniqueNames(raw.folders);
     data.tags = uniqueNames(raw.tags);
-    for (const key of ['tasks','habits','goals','books','words']) {
+    data.bookShelves = uniqueNames(raw.bookShelves);
+    data.linkedTaskDismissals = [...new Set((Array.isArray(raw.linkedTaskDismissals)?raw.linkedTaskDismissals:[]).map(v=>asText(v,360)).filter(Boolean))].slice(-10000);
+    for (const key of ['tasks','habits','goals','books','bookClips','words']) {
       if (raw[key] != null && !Array.isArray(raw[key])) throw new Error(`فهرست ${key} معتبر نیست.`);
     }
     const ids = new Set();
@@ -45,7 +47,7 @@
       }
       return out;
     };
-    data.tasks = (raw.tasks || []).slice(0,10000).filter(t => t && typeof t === 'object').map(t => ({id:safeId(t.id),text:asText(t.text ?? t.title),shortDescription:asText(t.shortDescription,280),description:asText(t.description,4000),date:validDate(t.date) ? t.date : '',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(t.time ?? '') ? t.time : '',priority:['1','2','3','4'].includes(String(t.priority)) ? String(t.priority) : '4',list:asText(t.list,60),folder:asText(t.folder,60),tag:asText(t.tag,60),completed:!!t.completed,doneAt:validDate(t.doneAt) ? t.doneAt : null,xpAwarded:!!(t.xpAwarded || t.completed),createdAt:Number(t.createdAt) || Date.now(),recurrenceRule:safeRule(t.recurrenceRule,t.date),occurrenceDone:safeDates(t.occurrenceDone),occurrenceRewardDays:safeDates(t.occurrenceRewardDays),skippedDates:safeDates(t.skippedDates),occurrenceOverrides:safeOverrides(t.occurrenceOverrides),linkedTask:!!t.linkedTask,sourceType:asText(t.sourceType,60),sourceId:asText(t.sourceId,128),sourceParentId:asText(t.sourceParentId,128),sourceGroup:asText(t.sourceGroup,60),sourceLabel:asText(t.sourceLabel,60),sourceManaged:!!t.sourceManaged,sourceCompletionLocked:!!t.sourceCompletionLocked,sourceOwner:asText(t.sourceOwner,128)})).filter(t => t.text);
+    data.tasks = (raw.tasks || []).slice(0,10000).filter(t => t && typeof t === 'object').map(t => ({id:safeId(t.id),text:asText(t.text ?? t.title),shortDescription:asText(t.shortDescription,280),description:asText(t.description,4000),date:validDate(t.date) ? t.date : '',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(t.time ?? '') ? t.time : '',priority:['1','2','3','4'].includes(String(t.priority)) ? String(t.priority) : '4',list:asText(t.list,60),folder:asText(t.folder,60),tag:asText(t.tag,60),completed:!!t.completed,doneAt:validDate(t.doneAt) ? t.doneAt : null,xpAwarded:!!(t.xpAwarded || t.completed),createdAt:Number(t.createdAt) || Date.now(),recurrenceRule:safeRule(t.recurrenceRule,t.date),occurrenceDone:safeDates(t.occurrenceDone),occurrenceRewardDays:safeDates(t.occurrenceRewardDays),skippedDates:safeDates(t.skippedDates),occurrenceOverrides:safeOverrides(t.occurrenceOverrides),linkedTask:!!t.linkedTask,sourceType:asText(t.sourceType,60),sourceId:asText(t.sourceId,128),sourceParentId:asText(t.sourceParentId,128),sourceGroup:asText(t.sourceGroup,60),sourceLabel:asText(t.sourceLabel,60),sourceManaged:!!t.sourceManaged,sourceCompletionLocked:!!t.sourceCompletionLocked,sourceOwner:asText(t.sourceOwner,128),sourceUserEdited:!!t.sourceUserEdited})).filter(t => t.text);
     const completionMap=new Map();
     for(const h of (Array.isArray(raw.taskCompletionHistory)?raw.taskCompletionHistory:[]).slice(-20000)){
       if(!h||typeof h!=='object'||!validDate(h.date))continue;
@@ -64,6 +66,8 @@
     data.habits = (raw.habits || []).slice(0,2000).filter(Boolean).map(h => ({id:safeId(h.id),title:asText(h.title ?? h.name,120),days:[...new Set((Array.isArray(h.days) ? h.days : (Array.isArray(h.history) ? h.history : [])).filter(validDate))].slice(-3650),rewardDays:[...new Set((Array.isArray(h.rewardDays) ? h.rewardDays : (Array.isArray(h.days) ? h.days : [])).filter(validDate))].slice(-3650),recurrenceRule:safeRule(h.recurrenceRule,h.recurrenceRule?.startDate),skippedDates:safeDates(h.skippedDates),occurrenceOverrides:safeOverrides(h.occurrenceOverrides)})).filter(h => h.title);
     data.goals = (raw.goals || []).slice(0,2000).filter(Boolean).map(g => ({id:safeId(g.id),title:asText(g.title,180),horizon:['short','medium','long'].includes(g.horizon) ? g.horizon : 'short',steps:(Array.isArray(g.steps) ? g.steps : []).slice(0,1000).filter(Boolean).map(step => ({id:safeId(step.id),text:asText(step.text ?? step.title,180),done:!!(step.done || step.completed)})).filter(step => step.text)})).filter(g => g.title);
     data.books = (raw.books || []).slice(0,3000).filter(Boolean).map(b => window.ElaraReading.normalize({...b,id:safeId(b.id),title:asText(b.title,180),shelf:['want','reading','finished'].includes(b.shelf) ? b.shelf : 'want'})).filter(b => b.title);
+    const safeClipImage=value=>{const v=String(value||'');return /^data:image\/(?:webp|png|jpeg);base64,/i.test(v)&&v.length<=360000?v:''};
+    data.bookClips = (raw.bookClips || []).slice(0,1000).filter(c=>c&&typeof c==='object').map(c=>({id:safeId(c.id),bookId:asText(c.bookId,100),text:asText(c.text,2000),page:Math.max(0,Math.min(1000000,Math.floor(Number(c.page)||0))),visibility:['private','friends','public'].includes(c.visibility)?c.visibility:'private',imageData:safeClipImage(c.imageData),createdAt:Number(c.createdAt)||Date.now()})).filter(c=>c.text||c.imageData);
     data.words = (raw.words || []).slice(0,10000).filter(Boolean).map(w => ({id:safeId(w.id),front:asText(w.front ?? w.word,120),back:asText(w.back ?? w.meaning,240),box:Math.max(1,Math.min(5,Number(w.box) || 1)),due:validDate(w.due) ? w.due : today()})).filter(w => w.front && w.back);
     data.missionClaims = [...new Set((Array.isArray(raw.missionClaims)?raw.missionClaims:[]).map(x=>asText(x,120)).filter(Boolean))].slice(-5000);
     data.focusSessions = (Array.isArray(raw.focusSessions)?raw.focusSessions:[]).slice(-2000).filter(s=>s&&typeof s==='object').map(s=>({id:asText(s.id,100)||makeId(),startedAt:Number(s.startedAt)||Date.now(),endedAt:Number(s.endedAt)||0,durationMin:Math.max(1,Math.min(180,Math.round(Number(s.durationMin)||25))),tag:asText(s.tag,60),completed:s.completed!==false}));
