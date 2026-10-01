@@ -37,6 +37,14 @@ api.syncWorkoutRowsInState(state,[{id:'x1',type:'دویدن',minutes:30,date:day
 const xt=state.tasks.find(t=>t.sourceType==='exercise');
 assert.equal(xt.completed,true);
 assert.equal(xt.sourceGroup,'exercise');
+const reviewTask=state.tasks.find(t=>t.sourceType==='language-review'&&t.sourceId===day);
+assert.equal(reviewTask.sourceCompletionLocked,false);
+reviewTask.completed=true;reviewTask.doneAt=day;
+api.syncCoreState(state);
+assert.equal(reviewTask.completed,true,'manual Language review completion must survive sync while words remain due');
+reviewTask.completed=false;reviewTask.doneAt=null;
+api.syncCoreState(state);
+assert.equal(reviewTask.completed,false,'manual Language review reopen must remain possible while words remain due');
 state.words[0].due='2999-01-01';
 api.syncCoreState(state);
 const lt=state.tasks.find(t=>t.sourceType==='language-review'&&t.sourceId===day);

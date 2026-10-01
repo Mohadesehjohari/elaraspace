@@ -9,7 +9,7 @@ const safe=(v,n=180)=>String(v??'').trim().slice(0,n);
 const META={
  'goal-step':{group:'goal',label:'هدف',priority:'3',locked:false},
  'book':{group:'book',label:'کتابخانه',priority:'3',locked:false},
- 'language-review':{group:'language',label:'زبان',priority:'3',locked:true},
+ 'language-review':{group:'language',label:'زبان',priority:'3',locked:false},
  'language-log':{group:'language',label:'زبان',priority:'3',locked:true},
  'exercise':{group:'exercise',label:'ورزش',priority:'3',locked:true}
 };
@@ -76,7 +76,7 @@ function syncCoreState(input){
  if(!state.words.length){const n=state.tasks.length;state.tasks=state.tasks.filter(t=>!(t.linkedTask&&t.sourceType==='language-review'));changed=changed||n!==state.tasks.length}
  const day=today(),pending=state.words.filter(w=>validDate(w?.due)&&w.due<=day),lang=state.tasks.find(t=>t?.linkedTask&&t.sourceType==='language-review'&&t.sourceId===day);
  if(pending.length||lang){
-  changed=upsert(state,{sourceType:'language-review',sourceId:day,title:'مرور واژه‌های زبان',shortDescription:pending.length?`${pending.length.toLocaleString('fa-IR')} واژه برای مرور`:'مرور امروز کامل شد',date:day,completed:pending.length===0,completedDate:pending.length===0?day:''}).changed||changed;
+  changed=upsert(state,{sourceType:'language-review',sourceId:day,title:'مرور واژه‌های زبان',shortDescription:pending.length?`${pending.length.toLocaleString('fa-IR')} واژه برای مرور`:'مرور امروز کامل شد',date:day,completed:pending.length===0?true:undefined,completedDate:pending.length===0?day:''}).changed||changed;
  }
  return changed;
 }

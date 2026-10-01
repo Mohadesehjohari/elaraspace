@@ -11,10 +11,10 @@ const FRAMES=Object.freeze([
  {id:'diamond',label:'الماس',required:10,path:'assets/frames_diamond.png'}
 ].map(Object.freeze));
 const BANNERS=Object.freeze([
- {id:'moon',label:'بنر ۱',required:1,path:'assets/ui/banner1.webp'},
- {id:'dream',label:'بنر ۲',required:4,path:'assets/ui/banner2.webp'},
- {id:'castle',label:'بنر ۳',required:8,path:'assets/ui/banner3.webp'},
- {id:'dawn',label:'بنر ۴',required:10,path:'assets/ui/banner4.webp'}
+ {id:'moon',label:'دریاچهٔ مهتاب',required:1,path:'assets/ui/banner1.webp'},
+ {id:'dream',label:'درختِ رؤیا',required:4,path:'assets/ui/banner2.webp'},
+ {id:'castle',label:'شهرِ ستاره‌ها',required:8,path:'assets/ui/banner3.webp'},
+ {id:'dawn',label:'سپیدهٔ نو',required:10,path:'assets/ui/banner4.webp'}
 ].map(Object.freeze));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const currentUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
@@ -30,7 +30,7 @@ function key(uid=currentUid()||'guest'){return PREFIX+String(uid||'guest')}
 function normalizeGroup(value){return value==='male'||value==='female'?value:null}
 function normalizeLevel(value){const n=Number(value);return Number.isInteger(n)&&n>=1&&n<=10?n:null}
 function frameBy(value){if(!value)return null;const raw=String(value),aliases={'برنزی':'bronze','نقره‌ای':'silver','طلایی':'gold','الماس':'diamond','frames_bronze.png':'bronze','frames_silver.png':'silver','frames_gold.png':'gold','frames_diamond.png':'diamond'};const id=aliases[raw]||raw.replace(/^assets\/frames_|^frames_/,'').replace(/\.png$/,'');return FRAMES.find(x=>x.id===id)||null}
-function bannerBy(value){if(!value)return null;const raw=String(value),aliases={'دریاچهٔ ماه':'moon','درخت رؤیا':'dream','قلعهٔ ستاره‌ها':'castle','بنر ۱':'moon','بنر ۲':'dream','بنر ۳':'castle','بنر ۴':'dawn','assets/banner-moon.svg':'moon','assets/banner-dream.svg':'dream','assets/banner-castle.svg':'castle','assets/ui/background-moonlit-mountains.webp':'moon','assets/ui/hero-landscape.webp':'dream','assets/ui/banner-running-moonlit-mountains.webp':'castle','assets/ui/banner1.webp':'moon','assets/ui/banner2.webp':'dream','assets/ui/banner3.webp':'castle','assets/ui/banner4.webp':'dawn'};const id=aliases[raw]||raw;return BANNERS.find(x=>x.id===id)||null}
+function bannerBy(value){if(!value)return null;const raw=String(value),aliases={'دریاچهٔ ماه':'moon','دریاچهٔ مهتاب':'moon','درخت رؤیا':'dream','درختِ رؤیا':'dream','قلعهٔ ستاره‌ها':'castle','شهرِ ستاره‌ها':'castle','سپیدهٔ نو':'dawn','بنر ۱':'moon','بنر ۲':'dream','بنر ۳':'castle','بنر ۴':'dawn','assets/banner-moon.svg':'moon','assets/banner-dream.svg':'dream','assets/banner-castle.svg':'castle','assets/ui/background-moonlit-mountains.webp':'moon','assets/ui/hero-landscape.webp':'dream','assets/ui/banner-running-moonlit-mountains.webp':'castle','assets/ui/banner1.webp':'moon','assets/ui/banner2.webp':'dream','assets/ui/banner3.webp':'castle','assets/ui/banner4.webp':'dawn'};const id=aliases[raw]||raw;return BANNERS.find(x=>x.id===id)||null}
 function cleanPhoto(value){const s=String(value||'');return /^data:image\/(?:webp|png|jpeg);base64,/i.test(s)&&s.length<1500000?s:''}
 function normalizeWardrobe(value={}){const raw=value&&typeof value==='object'?value:{},shape=SHAPES.includes(raw.shape)?raw.shape:'circle',nameFont=Object.hasOwn(NAME_FONTS,raw.nameFont)?raw.nameFont:'default';return {avatarGroup:normalizeGroup(raw.avatarGroup),avatarLevel:normalizeLevel(raw.avatarLevel),frame:frameBy(raw.frame)?.id||null,banner:bannerBy(raw.banner)?.id||null,shape,nameFont,photoMode:raw.photoMode==='upload'?'upload':'elara',photoCircle:cleanPhoto(raw.photoCircle),photoSquare:cleanPhoto(raw.photoSquare)}}
 function readWardrobe(uid=currentUid()||'guest'){try{return normalizeWardrobe(JSON.parse(localStorage.getItem(key(uid))||'{}'))}catch{return normalizeWardrobe()}}

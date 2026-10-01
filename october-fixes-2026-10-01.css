@@ -1,0 +1,72 @@
+/* 2026-10-01 user-requested Ranking / Tasks / Home Habits / Freedom refinement. */
+#panel-ranking>h1{display:none!important}
+#elara-ranking-page .social-page-head{min-height:176px!important;margin:0 0 14px!important;padding:26px 32px!important;border:1px solid #40598d!important;border-radius:18px!important;background:linear-gradient(90deg,#061327f2 0%,#071a35bd 42%,#10144c6f 72%,#071427df 100%),url('assets/ui/ranking_banner.webp') center 48%/cover no-repeat!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;overflow:hidden!important}
+#elara-ranking-page .social-page-head>div:first-child{position:relative;z-index:2;max-width:470px;text-align:right!important}
+#elara-ranking-page .social-page-head h1{font-size:2.35rem!important;margin:.18em 0!important}
+#elara-ranking-page .social-head-art{display:none!important}
+#elara-ranking-page .social-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(150px,1fr))!important;gap:12px!important;max-width:850px!important;margin:0 auto 18px!important}
+#elara-ranking-page .social-tabs button{min-height:58px!important;padding:9px 18px!important;border-radius:14px!important;font-size:1rem!important;font-weight:800!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important}
+#elara-ranking-page .social-tabs button img{width:34px!important;height:34px!important;object-fit:contain!important}
+#elara-ranking-page .social-top-three{background:linear-gradient(180deg,#07162b42,#07162be6),url('assets/ui/banner_moon_lake.webp') center/cover no-repeat!important;min-height:300px!important}
+#elara-ranking-page .social-podium{display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:32px!important;min-height:235px!important;padding:22px 8px 8px!important}
+#elara-ranking-page .social-podium-place{display:grid!important;justify-items:center!important;gap:9px!important;min-width:150px!important}
+#elara-ranking-page .social-podium-avatar{position:relative!important;display:grid!important;justify-items:center!important;width:130px!important;min-height:150px!important;padding-top:14px!important}
+#elara-ranking-page .social-podium-avatar .social-person{display:grid!important;justify-items:center!important;gap:7px!important;padding:0!important;border:0!important;background:transparent!important;color:var(--text)!important}
+#elara-ranking-page .social-podium-avatar .social-portrait{width:88px!important;height:88px!important;border-radius:50%!important;object-fit:cover!important}
+#elara-ranking-page .social-rank-frame{position:absolute!important;top:0!important;left:50%!important;transform:translateX(-50%)!important;width:122px!important;height:122px!important;object-fit:contain!important;pointer-events:none!important;z-index:3!important}
+#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:158px!important;min-height:176px!important}
+#elara-ranking-page .social-podium-place.place-1 .social-portrait{width:108px!important;height:108px!important}
+#elara-ranking-page .social-podium-place.place-1 .social-rank-frame{width:150px!important;height:150px!important}
+#elara-ranking-page .social-podium-place.place-1{transform:translateY(-12px)!important}
+#panel-tasks #task-list>.astra-task-row{display:grid!important;direction:rtl!important;grid-template-columns:44px 46px minmax(260px,1.35fr) auto minmax(185px,.75fr) auto!important;align-items:center!important;column-gap:10px!important;row-gap:6px!important}
+#panel-tasks .astra-task-row>.astra-task-more{grid-column:1!important;grid-row:1!important}
+#panel-tasks .astra-task-row>.check-button{grid-column:2!important;grid-row:1!important}
+#panel-tasks .astra-task-row>.item-content{grid-column:3!important;grid-row:1!important;text-align:right!important}
+#panel-tasks .astra-task-row>.astra-task-category{grid-column:4!important;grid-row:1!important}
+#panel-tasks .astra-task-row>.astra-task-completion{grid-column:5!important;grid-row:1!important}
+#panel-tasks .astra-task-row>.astra-task-xp{grid-column:6!important;grid-row:1!important}
+#panel-tasks .astra-task-row>.astra-task-xp.is-source{display:none!important}
+#panel-tasks .astra-task-row .item-meta{display:flex!important;justify-content:flex-start!important;gap:7px!important;flex-wrap:wrap!important}
+#panel-tasks .astra-folder-chip,#panel-tasks .astra-list-chip{border-radius:999px!important;padding:3px 9px!important;font-weight:800!important}
+#panel-tasks .astra-folder-chip{color:#72e5ff!important;border:1px solid #2b8fb2!important;background:#0d456155!important}
+#panel-tasks .astra-list-chip{color:#ffd777!important;border:1px solid #98722c!important;background:#5f431955!important}
+#panel-home.ref-home .ref-habit-row{display:grid!important;direction:rtl!important;grid-template-columns:24px minmax(0,1fr) 32px!important;align-items:center!important;column-gap:6px!important;text-align:right!important}
+#panel-home.ref-home .ref-habit-row>.ref-habit-mark{grid-column:1!important;margin:0!important}
+#panel-home.ref-home .ref-habit-row>.ref-habit-copy{grid-column:2!important;text-align:right!important;margin:0!important;padding:0!important}
+#panel-home.ref-home .ref-habit-row>.ref-habit-copy strong{display:block!important;text-align:right!important;margin:0!important}
+#panel-home.ref-home .ref-habit-row>b{grid-column:3!important}
+#panel-freedom .freedom-compose-tools{display:flex;align-items:center;gap:10px;margin-top:9px;clear:both}
+#panel-freedom .freedom-upload-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 14px;border:1px solid #6554b8;border-radius:11px;background:#18285c;color:#eee5ff;cursor:pointer;font-weight:800}
+#panel-freedom .freedom-upload-button input,.freedom-dialog-upload input{position:absolute;inline-size:1px;block-size:1px;opacity:0;pointer-events:none}
+#panel-freedom .freedom-compose-preview img{width:82px;height:58px;object-fit:cover;border-radius:9px}
+#panel-freedom .freedom-note[data-f-note-open]{cursor:pointer}
+#panel-freedom.freedom-subpage-open>.freedom-root{display:none!important}
+#panel-freedom .freedom-subpage-shell{display:grid;gap:14px;min-height:calc(100dvh - 150px);padding-bottom:28px}
+#panel-freedom .freedom-subpage-head{position:relative;min-height:210px;border:1px solid #405d91;border-radius:18px;overflow:hidden;display:grid;grid-template-columns:auto 1fr minmax(260px,42%);align-items:center;background:#071831}
+#panel-freedom .freedom-subpage-head>img{width:100%;height:210px;object-fit:cover;grid-column:3;grid-row:1}
+#panel-freedom .freedom-subpage-head>div{padding:24px;grid-column:2;grid-row:1;z-index:2}
+#panel-freedom .freedom-subpage-head>button{grid-column:1;grid-row:1;margin-inline-start:18px;width:46px;height:46px;border-radius:13px;border:1px solid #5c68a1;background:#132a55;color:white;font-size:24px;z-index:3}
+#panel-freedom .freedom-subpage-actions{display:flex;justify-content:flex-start}
+#panel-freedom .freedom-sub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#panel-freedom .freedom-sub-card{min-height:230px;padding:0;border:1px solid #38598a;border-radius:16px;overflow:hidden;background:#081a35;color:white;text-align:right}
+#panel-freedom .freedom-sub-card>img{width:100%;height:165px;object-fit:cover}
+#panel-freedom .freedom-sub-card>span{display:grid;gap:5px;padding:12px}
+#panel-freedom .freedom-sub-empty{min-height:300px;display:grid;place-items:center;text-align:center;padding:28px;border:1px dashed #52689d;border-radius:18px;background:#081a35}
+#panel-freedom .freedom-sub-empty img{width:min(420px,80%);max-height:190px;object-fit:cover;border-radius:14px}
+.freedom-purple-dialog{background:radial-gradient(circle at 80% 0,#823eff35,transparent 42%),linear-gradient(145deg,#101c45,#07142e)!important;border-color:#7c63ff!important;box-shadow:0 24px 80px #000b,0 0 40px #7148ff44!important}
+.freedom-entry-form,.freedom-dream-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:right}
+.freedom-entry-form label,.freedom-dream-form label{display:grid;gap:6px;color:#e7eaff;font-weight:700}
+.freedom-entry-form .wide,.freedom-dream-form .wide,.freedom-dream-intro,.freedom-dialog-preview{grid-column:1/-1}
+.freedom-entry-form input,.freedom-entry-form textarea,.freedom-dream-form input,.freedom-dream-form textarea,.freedom-dream-form select{width:100%;border:1px solid #49669a;border-radius:11px;background:#061831;color:#f4f6ff;padding:11px;font:inherit}
+.freedom-dialog-upload span{display:grid;place-items:center;min-height:46px;border:1px dashed #8a6eff;border-radius:11px;background:#281a645c;color:#d9cfff}
+.freedom-dialog-preview img{width:100%;max-height:240px;object-fit:contain;border-radius:12px}
+.freedom-dream-intro{position:relative;min-height:150px;border-radius:14px;overflow:hidden}
+.freedom-dream-intro img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.freedom-dream-intro:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#07142eea,#07142e44)}
+.freedom-dream-intro p{position:relative;z-index:2;margin:0;padding:46px 22px;font-size:1.15rem;font-weight:900;color:white}
+.freedom-dream-grid{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.freedom-entry-detail{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:18px;align-items:start;text-align:right}
+.freedom-entry-detail>img{width:100%;max-height:420px;object-fit:contain;border-radius:14px}
+.freedom-entry-detail p{white-space:pre-wrap;line-height:2}
+@media(max-width:700px){#elara-ranking-page .social-page-head{min-height:156px!important;padding:18px!important}#elara-ranking-page .social-page-head h1{font-size:1.8rem!important}#elara-ranking-page .social-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}#elara-ranking-page .social-tabs button{min-width:0!important;min-height:52px!important;padding:7px 4px!important;font-size:.76rem!important;gap:4px!important}#elara-ranking-page .social-tabs button img{width:25px!important;height:25px!important}#elara-ranking-page .social-podium{gap:3px!important;min-height:195px!important}#elara-ranking-page .social-podium-place{min-width:0!important;flex:1}#elara-ranking-page .social-podium-avatar{width:92px!important;min-height:120px!important}#elara-ranking-page .social-podium-avatar .social-portrait{width:62px!important;height:62px!important}#elara-ranking-page .social-rank-frame{width:88px!important;height:88px!important}#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:112px!important;min-height:140px!important}#elara-ranking-page .social-podium-place.place-1 .social-portrait{width:78px!important;height:78px!important}#elara-ranking-page .social-podium-place.place-1 .social-rank-frame{width:108px!important;height:108px!important}#panel-tasks #task-list>.astra-task-row{grid-template-columns:42px 42px minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}#panel-tasks .astra-task-row>.astra-task-more{grid-column:1!important;grid-row:1!important}#panel-tasks .astra-task-row>.check-button{grid-column:2!important;grid-row:1!important}#panel-tasks .astra-task-row>.item-content{grid-column:3!important;grid-row:1!important}#panel-tasks .astra-task-row>.astra-task-category{grid-column:3!important;grid-row:2!important;justify-self:start!important}#panel-tasks .astra-task-row>.astra-task-completion{grid-column:1/-1!important;grid-row:3!important;width:100%!important}#panel-tasks .astra-task-row>.astra-task-xp:not(.is-source){grid-column:1/3!important;grid-row:2!important}#panel-freedom .freedom-subpage-head{grid-template-columns:auto 1fr!important;min-height:190px!important}#panel-freedom .freedom-subpage-head>img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:.42!important}#panel-freedom .freedom-subpage-head>div,#panel-freedom .freedom-subpage-head>button{position:relative;z-index:2}#panel-freedom .freedom-sub-grid{grid-template-columns:1fr 1fr!important}.freedom-entry-form,.freedom-dream-form,.freedom-dream-grid,.freedom-entry-detail{grid-template-columns:1fr!important}.freedom-entry-form .wide,.freedom-dream-form .wide,.freedom-dream-intro,.freedom-dialog-preview,.freedom-dream-grid{grid-column:1!important}}
+@media(max-width:380px){#panel-freedom .freedom-sub-grid{grid-template-columns:1fr!important}}
