@@ -238,7 +238,7 @@
       return (!search||hay.some(x=>x.includes(search)))&&(!listName||v.list===listName)&&(!folder||v.folder===folder)&&(!tag||v.tag===tag)&&(!priority||String(v.priority)===priority)&&(
         filter==='all'||filter==='active'&&!done&&!expired||filter==='completed'&&done||filter==='today'&&todayDue||filter==='overdue'&&!t.recurrenceRule&&!t.completed&&t.date&&t.date<now
       );
-    }).sort((a,b)=>Number(taskDone(a,now))-Number(taskDone(b,now))||((Number.isFinite(Number(a.manualOrder))||Number.isFinite(Number(b.manualOrder)))?((Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):Number.MAX_SAFE_INTEGER)-(Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):Number.MAX_SAFE_INTEGER)):Number(taskView(a,now).priority)-Number(taskView(b,now).priority)||(a.date||'9999').localeCompare(b.date||'9999'));
+    }).sort((a,b)=>Number(taskDone(a,now))-Number(taskDone(b,now))||((a.manualOrder!=null&&Number.isFinite(Number(a.manualOrder))||b.manualOrder!=null&&Number.isFinite(Number(b.manualOrder)))?((a.manualOrder!=null&&Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):Number.MAX_SAFE_INTEGER)-(b.manualOrder!=null&&Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):Number.MAX_SAFE_INTEGER)):Number(taskView(a,now).priority)-Number(taskView(b,now).priority)||(a.date||'9999').localeCompare(b.date||'9999'));
     window.ElaraDOM.patch(list,visible.map(t=>{
       const v=taskView(t,now),done=taskDone(t,now),scheduled=window.ElaraSchedule.taskDue(t,now),p=priorityMeta[String(v.priority)]||priorityMeta['4'];
       const source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||v.list||v.folder||v.tag||'شخصی',percent=done?100:0,locked=!!t.sourceCompletionLocked;

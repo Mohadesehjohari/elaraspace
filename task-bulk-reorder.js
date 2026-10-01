@@ -37,7 +37,7 @@ function baseSorted(state){
  const api=window.ElaraTasks,now=new Date().toISOString().slice(0,10);
  return [...state.tasks].sort((a,b)=>{
   const da=api?.taskDone?.(a,now)?1:0,db=api?.taskDone?.(b,now)?1:0;if(da!==db)return da-db;
-  const oa=Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):null,ob=Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):null;
+  const oa=a.manualOrder!=null&&Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):null,ob=b.manualOrder!=null&&Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):null;
   if(oa!=null||ob!=null){const d=(oa??Number.MAX_SAFE_INTEGER)-(ob??Number.MAX_SAFE_INTEGER);if(d)return d}
   const va=api?.taskView?.(a,now)||a,vb=api?.taskView?.(b,now)||b,pd=Number(va.priority||4)-Number(vb.priority||4);if(pd)return pd;
   return String(a.date||'9999').localeCompare(String(b.date||'9999'))
