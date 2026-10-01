@@ -29,7 +29,7 @@ async function withinViewport(page,selector,label){
 }
 async function topmost(page,selector,label){
  const loc=page.locator(selector).last(),box=await loc.boundingBox();assert.ok(box,label+' missing');
- const hit=await page.evaluate(({x,y,selector})=>!!document.elementFromPoint(x,y)?.closest(selector),{x:box.x+Math.min(box.width/2,80),y:Math.max(1,Math.min(innerHeight-1,box.y+Math.min(box.height/2,70))),selector});
+ const vh=await page.evaluate(()=>innerHeight),hit=await page.evaluate(({x,y,selector})=>!!document.elementFromPoint(x,y)?.closest(selector),{x:box.x+Math.min(box.width/2,80),y:Math.max(1,Math.min(vh-1,box.y+Math.min(box.height/2,70))),selector});
  assert.equal(hit,true,label+' is not topmost');
 }
 
