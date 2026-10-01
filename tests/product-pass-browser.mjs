@@ -56,7 +56,14 @@ for(const width of all){
   await check(`${width}: shell/topbar/nav boot`,async()=>{
    assert.equal(await page.locator('.workspace').isVisible(),true);
    assert.equal(await page.locator('.topbar').isVisible(),true);
-   if(mobile){assert.equal(await page.locator('.bottom-nav').isVisible(),true);assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom'])}
+   if(mobile){
+    assert.equal(await page.locator('.bottom-nav').isVisible(),true);
+    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);
+    assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom']);
+    const centers=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return r.left+r.width/2}).sort((a,b)=>a-b));
+    const gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
+    assert.ok(spread<=3,'mobile nav spacing is uneven: '+JSON.stringify(gaps));
+   }
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
   });
@@ -80,7 +87,7 @@ for(const width of all){
    const near=(a,b,t,l)=>assert.ok(Math.abs(a-b)<=t,`${l} ${a} vs ${b}`);
    near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,3,'checkbox');
    if(!mobile){const repeat=page.locator('.astra-repeat-meta').first();assert.equal(await repeat.count()>0,true);const rr=await repeat.boundingBox();assert.ok(rr&&rr.height<=24,'repeat metadata enlarged row')}
-   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');await summary.click();await page.waitForTimeout(30);assert.equal(await kebab.locator('.item-actions').isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');await summary.click();
+   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);assert.equal(await kebab.locator('.item-actions').isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');await summary.click();
    await noOverflow(page);
   });
 
@@ -138,6 +145,11 @@ for(const width of all){
    const read=row.locator('[data-language-reading]'),del=row.locator('[data-language-book-delete]');assert.equal(await read.isDisabled(),false,'language reading button is locked');assert.equal(await del.isDisabled(),false,'language delete button is locked');
    await read.click();await page.waitForTimeout(40);assert.equal(await page.locator('#elara-dialog-root:not(.hidden) input[name=total]').count(),1,'legacy language book should ask for total pages instead of staying disabled');await page.evaluate(()=>ElaraDialog.close());await page.waitForTimeout(20);
    await del.click();await page.waitForTimeout(40);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).count(),0,'language book delete did not remove the row');
+   await page.locator('#language-book-form [name=title]').fill('Browser language add');await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());await page.waitForTimeout(40);
+   const addDialog=page.locator('#elara-dialog-root:not(.hidden) .language-book-add-dialog');assert.equal(await addDialog.isVisible(),true,'language book add dialog did not open');
+   await addDialog.locator('[name=total]').fill('180');await addDialog.locator('[name=current]').fill('12');await addDialog.locator('[type=submit]').click();await page.waitForTimeout(70);
+   const added=page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).first();assert.equal(await added.isVisible(),true,'new language book did not enter the books section');assert.match(await added.innerText(),/12|۱۲/,'new language book current page was not persisted');
+   await added.locator('[data-language-book-delete]').click();await page.waitForTimeout(35);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).count(),0,'newly added language book could not be deleted');
   });
 
   await openRoute(page,'books');
@@ -150,6 +162,15 @@ for(const width of all){
 
   await check(`${width}: Bell opens notifications not Settings`,async()=>{
    await openRoute(page,'home');const bell=page.locator('#ref-header-notifications').first();await bell.click();assert.equal(await page.locator('#elara-notification-popover').isVisible(),true);assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0);await page.keyboard.press('Escape');
+  });
+
+  await check(`${width}: popup stays centered and closeable`,async()=>{
+   await page.evaluate(()=>{const content=document.createElement('div');content.innerHTML='<label>QA<input name="qa-popup-input"></label>';ElaraDialog.open({title:'QA popup stability',content,actions:[{label:'بستن',value:false}]})});await page.waitForTimeout(35);
+   const panel=page.locator('#elara-dialog-root:not(.hidden) .elara-dialog-panel'),close=panel.locator('.elara-dialog-close');assert.equal(await close.isVisible(),true,'popup close button missing');
+   const first=await panel.boundingBox(),focus=await panel.evaluate(el=>document.activeElement===el);assert.equal(focus,true,'popup content stole initial focus');
+   await page.waitForTimeout(180);const second=await panel.boundingBox();assert.ok(first&&second&&Math.abs(first.y-second.y)<=2,'popup jumped vertically after open: '+JSON.stringify({first,second}));
+   const vh=await page.evaluate(()=>innerHeight),center=second.y+second.height/2;assert.ok(Math.abs(center-vh/2)<=Math.max(12,vh*.05),'popup is not centered in viewport');
+   await close.click();await page.waitForTimeout(20);assert.equal(await page.locator('#elara-dialog-root:not(.hidden)').count(),0,'popup close button did not close');
   });
 
   await check(`${width}: profile upload/shape/font and Settings modal`,async()=>{
