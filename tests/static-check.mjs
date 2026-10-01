@@ -26,7 +26,10 @@ const mainSource=navigation.match(/const MAIN=Object\.freeze\(\[([\s\S]*?)\]\);/
 const mainRoutes=[...mainSource.matchAll(/route:'([^']+)',label:'([^']+)'/g)].map(m=>[m[1],m[2]]);
 assert.deepEqual(mainRoutes,[['exercise','ورزش'],['language','زبان'],['tasks','تسک‌ها'],['home','خانه'],['ranking','رنکینگ'],['books','کتابخانه'],['freedom','آزادی']],'Canonical main navigation must stay at seven routes');
 assert.equal(mainRoutes[3][0],'home','Home must remain the visual center route');
-assert.match(html,/<nav class="bottom-nav"[^>]*data-elara-main-nav[^>]*><\/nav>/,'Initial Bottom Nav must be an empty canonical mount');
+const initialBottom=html.match(/<nav class="bottom-nav"[^>]*data-elara-main-nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
+const initialRoutes=[...initialBottom.matchAll(/data-elara-tab="([^"]+)"/g)].map(m=>m[1]);
+assert.deepEqual(initialRoutes,['exercise','language','tasks','social','home','ranking','books','freedom'],'Initial Bottom Nav must contain the eight real fallback destinations');
+for(const route of initialRoutes)assert.match(initialBottom,new RegExp('href="#'+route+'"'),'Fallback Bottom Nav route '+route+' must work before JS hydration');
 assert.match(html,/<a class="identity" href="#home"/,'Initial identity must point to Home');
 for (const asset of ['styles.css','dialog.js','drawer.js','app.js','phase2.js']) assert.match(html,new RegExp(`(?:href|src)=["']${asset.replace('.', '\\.')}(?:\\?[^"']*)?["']`),`Missing asset: ${asset}`);
 for (const token of ['recurrenceRule','occurrenceDone','focusSessions','data-focus-preset','task-priority-filter']) assert.ok(phase2.includes(token),`Phase 2 missing ${token}`);
