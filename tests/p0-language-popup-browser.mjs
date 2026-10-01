@@ -1,3 +1,4 @@
+// END-HEAD CI anchor: this P0 suite is required to run with validate/reference on the same commit.
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 
