@@ -4,6 +4,10 @@ on:
     branches: [main]
     paths:
       - 'approved-visual.js'
+      - 'approved-navigation-extension.js'
+      - 'approved-navigation-extension.css'
+      - 'notifications.js'
+      - 'phase2.js'
       - 'drawer.js'
       - 'dialog.js'
       - 'reference-exact-pass-2026.css'
@@ -26,8 +30,11 @@ jobs:
       - name: Check changed JavaScript and regression syntax
         run: |
           node --check approved-visual.js
+          node --check approved-navigation-extension.js
+          node --check notifications.js
           node --check drawer.js
           node --check dialog.js
+          node --check phase2.js
           node --check tests/p0-language-popup-browser.mjs
       - name: Install Chromium
         run: |
