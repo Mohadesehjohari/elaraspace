@@ -118,7 +118,7 @@ z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelecto
 
 stage('profile:pass');stage('nested-dialog:start');
 // A second ElaraDialog must stack above the profile editor, then Back returns to parent.
-await page.evaluate(()=>ElaraDialog.open({title:'Nested P0',message:'Nested'}));await page.waitForTimeout(50);
+await page.evaluate(()=>{void ElaraDialog.open({title:'Nested P0',message:'Nested'})});await page.waitForTimeout(50);
 assert.equal(await page.locator('#elara-dialog-root .elara-dialog-layer').count(),2,'nested dialog replaced parent');
 const layers=page.locator('#elara-dialog-root .elara-dialog-layer'),z0=Number(await layers.nth(0).evaluate(el=>getComputedStyle(el).zIndex)),z1=Number(await layers.nth(1).evaluate(el=>getComputedStyle(el).zIndex));assert.ok(z1>z0,'nested dialog is not above parent');await topmost(page,'#elara-dialog-root .elara-dialog-layer:last-child .elara-dialog-panel','nested dialog');
 await page.locator('#elara-dialog-root .elara-dialog-layer').last().locator('.elara-dialog-back').click();await page.waitForTimeout(30);assert.equal(await page.locator('#elara-dialog-root .elara-dialog-layer').count(),1,'Back did not return to profile editor');await page.locator('#elara-dialog-root .elara-dialog-back').click();await page.waitForTimeout(30);
