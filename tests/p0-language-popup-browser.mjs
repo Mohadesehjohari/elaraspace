@@ -111,7 +111,9 @@ assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main 
 const settingsBox=await withinViewport(page,'.elara-private-drawer-panel','Settings home'),settingsVp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));
 assert.ok(Math.abs(settingsBox.x+settingsBox.width/2-settingsVp.w/2)<=3&&Math.abs(settingsBox.y+settingsBox.height/2-settingsVp.h/2)<=Math.max(10,settingsVp.h*.03),'Settings home is not centered '+JSON.stringify({settingsBox,settingsVp}));
 await page.screenshot({path:`${out}/settings-home-390.png`,fullPage:false});
-const menuButtons=page.locator('.drawer-menu>button');assert.ok(await menuButtons.count()>=8,'Settings list is incomplete');
+const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),11,'Settings list must expose exactly the P0 destinations');
+const settingsOrder=await menuButtons.evaluateAll(xs=>xs.map(x=>x.dataset.drawerNav||(x.hasAttribute('data-approved-wardrobe')?'wardrobe':x.dataset.drawerAction||'')));
+assert.deepEqual(settingsOrder,['account','appearance','privacy','wardrobe','security','notifications','folders','language','calendar','help','logout'],'Settings list order drifted');
 const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Settings mobile menu is not one column: '+menuLayout.columns);
 assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y)),true,'Settings rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
@@ -119,9 +121,15 @@ const settingsScroll=await page.locator('.drawer-menu').evaluate(el=>({overflow:
 await page.locator('.drawer-menu [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
-stage('settings-privacy:pass');stage('wardrobe:start');
-// Privacy -> Back -> Wardrobe. Wardrobe must be above Settings.
-await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(70);
+stage('settings-privacy:pass');stage('settings-account:start');
+await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
+await page.locator('.drawer-menu [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
+assert.equal(await page.locator('[data-drawer-section="security"] #drawer-password-form').isVisible(),true,'Account security page missing password form');
+assert.equal(await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').isVisible(),true,'Account Back missing');
+await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').click();await page.waitForTimeout(35);
+stage('settings-account:pass');stage('wardrobe:start');
+// Settings -> Wardrobe. Wardrobe must be above Settings.
+await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(70);
 await withinViewport(page,'.approved-wardrobe-window','Wardrobe');await topmost(page,'.approved-wardrobe-window','Wardrobe');
 let z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),wardrobe:Number(getComputedStyle(document.querySelector('.approved-wardrobe')).zIndex)}));assert.ok(z.wardrobe>z.drawer,'Wardrobe below Settings '+JSON.stringify(z));
 await page.locator('.approved-wardrobe [data-back-wardrobe]').click();await page.waitForTimeout(30);

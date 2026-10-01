@@ -987,6 +987,7 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
  .elara-private-drawer[data-mobile-section="home"] .drawer-profile-head{
   position:relative!important;display:block!important;min-height:104px!important;height:auto!important;margin:0 0 10px!important;overflow:hidden!important
  }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-theme-toggle{display:none!important}
  .elara-private-drawer[data-mobile-section="home"] .drawer-profile-summary .elara-profile-composition{
   min-height:100px!important;padding-block-start:34px!important
  }
@@ -1002,7 +1003,10 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
   margin:0!important;padding:9px 10px!important;text-align:start!important;border-radius:13px!important
  }
  .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>.elara-icon{
-  grid-column:1!important;grid-row:1/3!important;width:30px!important;height:30px!important
+  grid-column:1!important;grid-row:1/3!important;width:30px!important;height:30px!important;color:color-mix(in srgb,var(--text) 78%,var(--elara-accent) 22%)!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>.elara-icon>svg{
+  display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
  }
  .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>b{grid-column:2!important;grid-row:1!important;display:block!important}
  .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>small{
