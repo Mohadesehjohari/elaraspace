@@ -29,7 +29,7 @@ assert.match(css,/\.bottom-nav\{display:none!important/);
 assert.match(css,/@media\(max-width:700px\)/);
 assert.match(css,/grid-template-areas:'tasks habits' 'wellness wellness' 'missions ranks' 'activity activity'/);
 assert.match(css,/assets\/ui\/hero-landscape\.webp/);
-assert.match(exact,/#panel-home\.ref-home \.ref-home-grid>\.ref-goals\{[\s\S]*display:block!important;[\s\S]*grid-column:1\/-1!important/,'Final owner must restore Goals to full-width Mobile Home');
+assert.match(exact,/grid-template-areas:'tasks habits' 'wellness wellness' 'missions goals' 'ranks ranks' 'activity activity'/,'Final owner must keep Mobile Home in desktop content order');
 assert.match(exact,/banner-running-moonlit-mountains\.webp|ref-wellness-banner-art/);
 assert.doesNotMatch(home,/ref-habit-semantic-art/,'Habit rows must not inject semantic icons');
 assert.match(home,/data\.refHeadingOwner|dataset\.refHeadingOwner/,'Reference card headings need one idempotent owner');
