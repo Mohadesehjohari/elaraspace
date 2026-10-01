@@ -39,7 +39,7 @@ async function openChat(other){
 }
 document.addEventListener('click',e=>{const btn=e.target.closest('[data-social-open-dm]');if(btn){e.preventDefault();void openChat(btn.dataset.socialOpenDm)}});
 window.addEventListener('elara:social-updated',()=>setTimeout(mount,0));window.addEventListener('elara:locale-changed',()=>setTimeout(mount,0));window.addEventListener('hashchange',()=>setTimeout(mount,120));
-new MutationObserver(()=>{if(location.hash==='#social'||document.getElementById('elara-social-page')?.offsetParent)setTimeout(mount,20)}).observe(document.documentElement,{subtree:true,childList:true});
+const socialObserver=new MutationObserver(()=>{if(document.getElementById('elara-social-page')){socialObserver.disconnect();setTimeout(mount,20)}});if(!document.getElementById('elara-social-page'))socialObserver.observe(document.documentElement,{subtree:true,childList:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,200),{once:true});else setTimeout(mount,200);
 window.ElaraSocialMessagingUI={mount,openChat};
 })();
