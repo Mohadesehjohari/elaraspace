@@ -46,7 +46,7 @@ for(const width of [320,375,390,430]){
  assert.equal(await page.locator('.bottom-nav').isVisible(),true,width+': fallback nav hidden');
  await items.evaluateAll(xs=>xs.forEach((x,i)=>x.dataset.qaFallback=String(i)));
  const before=await items.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(before.every(r=>r.left>=-1&&r.right<=innerWidth+1),true,width+': fallback nav overflow');
+ assert.equal(before.every(r=>r.left>=-1&&r.right<=width+1),true,width+': fallback nav overflow');
  await page.locator('.bottom-nav [data-elara-tab="language"]').click();
  assert.equal(await page.evaluate(()=>location.hash),'#language',width+': fallback route href failed');
  await waitBoot(page);await page.waitForTimeout(150);
@@ -54,7 +54,7 @@ for(const width of [320,375,390,430]){
  assert.equal(await afterItems.count(),8,width+': hydrated nav lost routes');
  assert.equal(await afterItems.evaluateAll(xs=>xs.every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': nav replaced fallback nodes instead of hydrating');
  const after=await afterItems.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(after.every(r=>r.left>=-1&&r.right<=innerWidth+1),true,width+': hydrated nav overflow');
+ assert.equal(after.every(r=>r.left>=-1&&r.right<=width+1),true,width+': hydrated nav overflow');
  assert.ok(Math.max(...after.map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav hydration caused geometry jump');
  assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': delayed direct Language route was lost');
  await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(180);
