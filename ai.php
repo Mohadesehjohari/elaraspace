@@ -1,0 +1,9 @@
+<?php
+declare(strict_types=1);
+header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store, max-age=0');header('X-Content-Type-Options: nosniff');header('Referrer-Policy: no-referrer');
+function ai_user_error(string $message,int $status): never{http_response_code($status);echo json_encode(['ok'=>false,'error'=>$message],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
+$auth=trim((string)($_SERVER['HTTP_AUTHORIZATION']??$_SERVER['REDIRECT_HTTP_AUTHORIZATION']??''));if(!preg_match('/^Bearer\\s+([^\\s]+)$/i',$auth,$m))ai_user_error('برای استفاده از Elara AI وارد حساب شو.',401);$idToken=trim($m[1]);
+$home='';foreach([getenv('HOME')?:null,$_SERVER['HOME']??null] as $candidate)if(is_string($candidate)&&$candidate!==''&&str_starts_with($candidate,'/')){$home=rtrim($candidate,'/');break;}if($home==='')ai_user_error('AI server آماده نیست.',503);
+$configPath=$home.'/elara-deploy/config.php';$runtimePath=$home.'/elara-deploy/runtime/ElaraAiRuntime.php';if(!is_file($configPath)||!is_file($runtimePath))ai_user_error('Elara AI هنوز روی این سرور فعال نشده است.',503);$config=require$configPath;if(!is_array($config))ai_user_error('AI server config معتبر نیست.',503);require_once$runtimePath;
+$method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'POST'));$raw=(string)file_get_contents('php://input');$body=$raw!==''?json_decode($raw,true):[];if(!is_array($body))ai_user_error('JSON معتبر نیست.',400);
+try{$runtime=new ElaraAiRuntime($config,$home);$data=$runtime->handleUser($method,$idToken,$body);echo json_encode(['ok'=>true,'data'=>$data],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);}catch(ElaraAiException $e){ai_user_error($e->getMessage(),$e->httpStatus);}catch(Throwable $e){error_log('Elara AI user: '.$e->getMessage());ai_user_error('پاسخ AI در دسترس نیست.',500);}

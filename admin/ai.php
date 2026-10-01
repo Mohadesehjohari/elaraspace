@@ -1,0 +1,9 @@
+<?php
+declare(strict_types=1);
+header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store, max-age=0');header('X-Content-Type-Options: nosniff');header('Referrer-Policy: no-referrer');
+function ai_error(string $message,int $status): never{http_response_code($status);echo json_encode(['ok'=>false,'error'=>$message],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit;}
+$auth=trim((string)($_SERVER['HTTP_AUTHORIZATION']??$_SERVER['REDIRECT_HTTP_AUTHORIZATION']??''));if(!preg_match('/^Bearer\\s+([^\\s]+)$/i',$auth,$m))ai_error('احراز هویت لازم است.',401);$idToken=trim($m[1]);
+$home='';foreach([getenv('HOME')?:null,$_SERVER['HOME']??null] as $candidate)if(is_string($candidate)&&$candidate!==''&&str_starts_with($candidate,'/')){$home=rtrim($candidate,'/');break;}if($home==='')ai_error('HOME سرور قابل تشخیص نیست.',503);
+$configPath=$home.'/elara-deploy/config.php';$runtimePath=$home.'/elara-deploy/runtime/ElaraAiRuntime.php';if(!is_file($configPath)||!is_file($runtimePath))ai_error('AI runtime هنوز روی cPanel نصب نشده است.',503);$config=require$configPath;if(!is_array($config))ai_error('Server config معتبر نیست.',503);require_once$runtimePath;
+$action=trim((string)($_GET['action']??'status'));$method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));$body=[];if($method==='POST'){$raw=(string)file_get_contents('php://input');if($raw!==''){$body=json_decode($raw,true);if(!is_array($body))ai_error('JSON معتبر نیست.',400);}}
+try{$runtime=new ElaraAiRuntime($config,$home);$data=$runtime->handleAdmin($action,$method,$idToken,$body);echo json_encode(['ok'=>true,'data'=>$data],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);}catch(ElaraAiException $e){ai_error($e->getMessage(),$e->httpStatus);}catch(Throwable $e){error_log('Elara AI admin: '.$e->getMessage());ai_error('خطای داخلی AI رخ داد.',500);}
