@@ -182,7 +182,10 @@ function wire(){
    const next=normalizeLanguageBook({id,title:title.slice(0,180),shelf:current>=total?'finished':shelf,totalPages:total,currentPage:current,startedAt:started?Date.parse(started+'T12:00:00'):null,finishedAt:current>=total?Date.now():null,lastReadAt:null,readingLogs:[]});
    books.push(next);
    if(!writeBooks(books)){error.textContent='ذخیره انجام نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کن.';return}
-   form.reset();renderLanguage();window.ElaraNotify?.push?.({type:'book',title:'کتاب زبان اضافه شد',message:'«'+next.title+'» رفت توی قفسه‌ت 📚✨',dedupeKey:'language-book-added:'+next.id});window.ElaraDialog.close();
+   const addTrace=window.__elaraLanguageAddTrace||(window.__elaraLanguageAddTrace=[]);addTrace.push({stage:'stored',at:Date.now(),rows:canonicalLanguageRows().map(x=>x.title)});
+   renderLanguage();addTrace.push({stage:'rendered',at:Date.now(),html:$('language-book-list')?.innerHTML||''});
+   form.reset();addTrace.push({stage:'reset',at:Date.now()});
+   window.ElaraNotify?.push?.({type:'book',title:'کتاب زبان اضافه شد',message:'«'+next.title+'» رفت توی قفسه‌ت 📚✨',dedupeKey:'language-book-added:'+next.id});window.ElaraDialog.close();
   });
   window.ElaraDialog.open({title:'افزودن کتاب زبان',content:details,actions:[{label:'انصراف',value:false}]});
  });
