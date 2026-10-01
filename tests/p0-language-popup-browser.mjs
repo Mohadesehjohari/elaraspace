@@ -125,7 +125,7 @@ await page.locator('#elara-dialog-root .elara-dialog-layer').last().locator('.el
 
 stage('nested-dialog:pass');stage('notifications:start');
 // Close Settings; Bell -> Notifications must be topmost and inside viewport.
-await page.locator('[data-drawer-section="account"] [data-drawer-nav="home"]').click();await page.waitForTimeout(30);await page.locator('.elara-private-drawer [data-drawer-close]').click();await page.waitForTimeout(50);await page.locator('.bottom-nav [data-elara-tab="home"]').click();await page.waitForTimeout(180);
+await page.locator('[data-drawer-section="account"] [data-drawer-nav="home"]').click();await page.waitForTimeout(30);await page.locator('.elara-private-drawer [data-drawer-close]').click();await page.waitForTimeout(50);assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0,'Settings drawer remained open after explicit Close');assert.equal(await page.evaluate(()=>document.body.classList.contains('elara-private-drawer-open')),false,'Settings body scroll lock remained after Close');await page.locator('.bottom-nav [data-elara-tab="home"]').click();await page.waitForTimeout(180);
 const bell=page.locator('#ref-header-notifications,[data-notification-bell]').first();assert.equal(await bell.isVisible(),true,'Bell missing');await bell.click();await page.waitForTimeout(60);await withinViewport(page,'.elara-notification-window','Notifications');await topmost(page,'.elara-notification-window','Notifications');await page.locator('.elara-notification-window [data-notification-back]').click();await page.waitForTimeout(30);
 
 stage('notifications:pass');stage('task-mobile:start');
