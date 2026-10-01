@@ -84,7 +84,10 @@
     "assets/frames/diamond-circle.png",
     "assets/frames/diamond-square.png",
     "notifications.js",
-    "i18n.js"
+    "i18n.js",
+    "assets/ui/language_banner.webp",
+    "assets/ui/librairy_banner.webp",
+    "assets/ui/ranking_banner.webp"
   ],
   "files": [
     ".htaccess",
@@ -256,6 +259,17 @@
     "assets/frames/gold-square.png",
     "assets/frames/diamond-circle.png",
     "assets/frames/diamond-square.png",
-    "i18n.js"
+    "i18n.js",
+    "assets/ui/book.webp",
+    "assets/ui/botten_riview.webp",
+    "assets/ui/icon_brain.webp",
+    "assets/ui/language_banner.webp",
+    "assets/ui/librairy_banner.webp",
+    "assets/ui/new_words.webp",
+    "assets/ui/ranking_banner.webp",
+    "assets/ui/read botten.webp",
+    "assets/ui/ready_to_review.webp",
+    "assets/ui/review_again.webp",
+    "assets/ui/todays cart.webp"
   ]
 }
