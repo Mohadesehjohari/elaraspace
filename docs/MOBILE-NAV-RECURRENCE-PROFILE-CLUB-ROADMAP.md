@@ -126,3 +126,18 @@
 - Home، Tasks، Habits، Goals، Focus، Missions، Friends و Ranking در Bottom Navigation اصلی باقی می‌مانند. Library، Leitner و Language از Drawer Shortcut هم در دسترس‌اند تا نوار پایین بیش‌ازحد شلوغ نشود.
 - Public Profile سایر کاربران Modal مرکزی است؛ Private Profile خود کاربر داخل Drawer است.
 - معیار پذیرش: عرض‌های ۳۲۰/۳۶۰/۳۹۰ بدون اسکرول افقی، Drawer کناری قابل‌بستن با Scrim/Escape، Hamburger یکتا، و دسترسی مستقیم به مأموریت‌ها از Home.
+
+---
+
+## همگام‌سازی ۱ اکتبر ۲۰۲۶ — Social / Privacy / Lists / Reorder
+
+نیازمندی‌های جدیدتر Mobile/Social/Privacy/Organization در سند زیر ثبت شده‌اند و در تعارض‌های مربوط به همان قابلیت‌ها بر بندهای قدیمی این فایل مقدم‌اند:
+
+[`ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md`](ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md)
+
+از جمله:
+- Friends صفحهٔ تخصصی، Ranking جدا، Activity scroll/Like/Comment.
+- Privacy واقعی `private/friends/public` و Cycle private-by-default با اشتراک اختیاری فقط به Companion منتخب.
+- List/Folder با صفحهٔ Task مستقل، Bulk actions و Reorder.
+- Mobile long-press برای selection/reorder و Desktop pointer/drag.
+- Popup/Notification centered و stack-safe.
