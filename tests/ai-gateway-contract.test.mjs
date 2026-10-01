@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const runtime=readFileSync('deploy/server/ElaraAiRuntime.php','utf8');
+const admin=readFileSync('admin/index.html','utf8');
+const client=readFileSync('freedom-ai.js','utf8');
+const manifest=JSON.parse(readFileSync('deploy/production-manifest.json','utf8'));
+for(const token of ['aes-256-gcm','ai-master.key','x-goog-api-key','priority + least-used + retryable failover','systemPrompt'])assert.ok(runtime.toLowerCase().includes(token.toLowerCase()),'AI runtime contract missing '+token);
+assert.ok(runtime.includes('do not falsely claim that Elara trained or owns the base model'),'AI provenance policy must avoid false first-party model claims');
+const stripped=runtime.replace(/FIREBASE_WEB_API_KEY\s*=\s*'[^']+';/g,'');
+assert.equal(/AIza[0-9A-Za-z_-]{20,}/.test(stripped),false,'No Gemini secret may be committed in runtime');
+assert.ok(admin.includes('ai-key-token')&&admin.includes('ai-model-technical')&&admin.includes('ai-default-model'),'Admin AI key/model controls missing');
+assert.ok(client.includes("fetch('ai.php'")&&!/gemini|google/i.test(client),'User Freedom AI client must not expose provider/model internals');
+for(const path of ['ai.php','admin/ai.php','freedom-ai.js','freedom-refinement-v2.css'])assert.ok(manifest.required.includes(path)&&manifest.files.includes(path),'Production manifest missing '+path);
+console.log('PASS: secure AI gateway/admin contract, server-only secrets, display/technical model separation and provenance policy');

@@ -4,6 +4,11 @@ on:
     branches: [main]
     paths:
       - 'approved-visual.js'
+      - 'deploy/server/ElaraAiRuntime.php'
+      - 'freedom-refinement-v2.css'
+      - 'freedom-ai.js'
+      - 'admin/ai.php'
+      - 'ai.php'
       - 'linked-tasks.js'
       - 'freedom-page.js'
       - 'freedom-page.css'
