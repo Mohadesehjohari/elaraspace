@@ -210,3 +210,13 @@ Inspected actual decoded WebP pixels: `button-view-all.webp` is a purple Persian
 
 - اجرای فعلی: **FREEDOM-REFERENCE-01**؛ فقط محتوای صفحهٔ آزادی با تصاویر مرجع Desktop/Mobile و Assetهای جدید مخزن. Shared bars/navigation خارج از Scope این Pass هستند.
 - جزئیات و معیارها در الحاقیهٔ ۱ اکتبر ثبت شده‌اند. کدنویسی به‌تنهایی Visual PASS نیست و End-HEAD browser/Pages جدا گزارش می‌شود.
+
+
+## Refinement pass — ۱ اکتبر ۲۰۲۶: Freedom / Ranking / Tasks / Themes
+
+- **FREEDOM-SUBPAGES-02 — CODED / نیازمند Browser verification:** تابلوی رویاها، یادداشت‌های آزاد، الهام‌ها، ایده‌ها و بازتاب‌های من هرکدام صفحهٔ داخلی مستقل داشته باشند؛ Note composer آپلود تصویر داشته باشد؛ کلیک روی آخرین یادداشت، متن و تصویر را در Elara Dialog نشان دهد؛ ساخت رویای جدید فقط با Dialog بنفش Elara انجام شود و browser-native prompt ممنوع بماند.
+- **THEME-NAMES-02 — CODED / نیازمند Browser verification:** همهٔ Accent/Styleهای موجود در Settings نمایش داده شوند و نام‌های جادویی/روایی داشته باشند؛ بنرهای Wardrobe نیز نام مستقل و قابل‌فهم داشته باشند.
+- **RANKING-REFERENCE-03 — CODED / نیازمند Browser verification:** Hero تکراری حذف و یک Banner مرجع، تب‌های بزرگ‌تر و قاب/آواتارهای هم‌مرکز برای Top 3 اعمال شود.
+- **TASK-ROW-ORDER-02 — CODED / نیازمند Browser verification:** ترتیب ردیف Tasks در RTL به شکل سه‌نقطه → تیک → متن → metadata/source/status تنظیم شود؛ pill تکراری منبع برای Linked Task حذف شود و Folder/List chip رنگی باقی بماند.
+- **HOME-HABIT-ALIGN-02 — CODED / نیازمند Browser verification:** نام Habit در Home مثل Task بلافاصله کنار تیک سمت راست قرار گیرد.
+- **LANGUAGE-REVIEW-TASK-CHECK-01 — CODED / unit regression added:** Linked Task روزانهٔ «مرور واژه‌های زبان» باید مستقیماً از Tasks قابل تیک و بازکردن باشد. تیک دستی، واژه‌های due را Reviewed فرض نمی‌کند و آن‌ها در Leitner باقی می‌مانند؛ اگر همهٔ مرورهای due واقعاً تمام شوند، Task خودکار Complete می‌شود. این Linked Task برای toggle دستی XP مستقل دوباره نمی‌دهد.
