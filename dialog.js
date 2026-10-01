@@ -20,11 +20,13 @@
     html.style.overflow='hidden';
     html.style.overscrollBehavior='none';
     bodyEl.style.overflow='hidden';
-    bodyEl.style.position='fixed';
-    bodyEl.style.top=`-${scrollY}px`;
-    bodyEl.style.left='0';
-    bodyEl.style.right='0';
-    bodyEl.style.width='100%';
+    /* Keep the page in its real viewport coordinate system. A fixed <body> made
+       nested dialogs jump vertically on mobile when the visual viewport changed. */
+    bodyEl.style.position='';
+    bodyEl.style.top='';
+    bodyEl.style.left='';
+    bodyEl.style.right='';
+    bodyEl.style.width='';
   }
 
   function unlockViewport(){
@@ -48,7 +50,7 @@
     root.id='elara-dialog-root';
     root.className='elara-dialog-root hidden';
     root.hidden=true;
-    root.innerHTML='<button class="elara-dialog-scrim" type="button" aria-label="بستن پنجره"></button><section class="elara-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="elara-dialog-title"><header class="elara-dialog-head"><div><span class="elara-dialog-kicker">ELARA</span><h2 id="elara-dialog-title"></h2></div><button type="button" class="elara-dialog-close" aria-label="بستن">×</button></header><div class="elara-dialog-body"></div><footer class="elara-dialog-actions"></footer></section>';
+    root.innerHTML='<button class="elara-dialog-scrim" type="button" aria-label="بستن پنجره"></button><section class="elara-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="elara-dialog-title" tabindex="-1"><header class="elara-dialog-head"><div><span class="elara-dialog-kicker">ELARA</span><h2 id="elara-dialog-title"></h2></div><button type="button" class="elara-dialog-close" aria-label="بستن">×</button></header><div class="elara-dialog-body"></div><footer class="elara-dialog-actions"></footer></section>';
     document.body.append(root);
     Object.assign(root.style,{position:'fixed',inset:'0',zIndex:'12000',display:'grid',placeItems:'center',width:'100vw',height:'100dvh',padding:'18px',overflow:'hidden'});
     body=root.querySelector('.elara-dialog-body');
@@ -109,8 +111,9 @@
     root.hidden=false;
     root.classList.remove('hidden');
     document.body.classList.add('elara-dialog-open');
-    const preferred=footer.querySelector('.primary-button')||body.querySelector('input,textarea,select,button')||footer.querySelector('button');
-    setTimeout(()=>preferred?.focus({preventScroll:true}),0);
+    /* Focus the dialog shell, not a footer action or text field. On phones,
+       auto-focusing a field/footer can scroll the overlay down or summon the keyboard. */
+    setTimeout(()=>panel.focus({preventScroll:true}),0);
     return new Promise(resolve=>{resolveActive=resolve});
   }
 
