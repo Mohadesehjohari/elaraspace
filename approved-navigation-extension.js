@@ -10,7 +10,7 @@ const MAIN=Object.freeze([
  {route:'freedom',label:'آزادی',icon:'freedom'}
 ]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
-const MOBILE=Object.freeze([MAIN[3],MAIN[2],MAIN[1],MAIN[5],MAIN[0],MAIN[6]]);
+const MOBILE=Object.freeze([MAIN[0],MAIN[1],MAIN[2],FRIEND,MAIN[3],MAIN[4],MAIN[5],MAIN[6]]);
 const SIDEBAR=Object.freeze([...MAIN,FRIEND]);
 const DESKTOP_ORDER=Object.freeze(['home','tasks','language','books','exercise','ranking','social','freedom']);
 const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'chart'}]);
