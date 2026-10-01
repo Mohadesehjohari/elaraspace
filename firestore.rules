@@ -259,6 +259,52 @@ service cloud.firestore {
       allow delete: if signed() && resource.data.uid == request.auth.uid;
     }
 
+    match /socialPosts/{postId} {
+      allow get, list: if signed() && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.visibility == 'public' ||
+        (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+      );
+      allow create: if signed() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+      allow update: if signed() && resource.data.uid == request.auth.uid &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.updatedAt == request.time;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+    }
+
+    match /socialStories/{storyId} {
+      allow get, list: if signed() && (
+        resource.data.uid == request.auth.uid ||
+        (
+          resource.data.expiresAt > request.time &&
+          (resource.data.visibility == 'public' || (resource.data.visibility == 'friends' && friendOf(resource.data.uid)))
+        )
+      );
+      allow create: if signed() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','expiresAt']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.expiresAt > request.time &&
+        request.resource.data.expiresAt <= request.time + duration.value(24, 'h');
+      allow update: if false;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+    }
+
     match /{document=**} { allow read, write: if false; }
   }
 }
