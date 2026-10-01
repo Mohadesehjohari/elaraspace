@@ -274,7 +274,7 @@ final class ElaraAiRuntime
     private function markKeyResult(string $id,bool $ok,int $status): void
     {
         $cfg=$this->readAiConfig();$today=gmdate('Y-m-d');
-        foreach($cfg['keys'] as &$key)if(($key['id']??'')===$id){if(($key['usage_day']??'')!==$today){$key['usage_day']=$today;$key['usage_count']=0}$key['last_used_at']=gmdate('c');if($ok){$key['usage_count']=(int)($key['usage_count']??0)+1;$key['error_count']=0;$key['cooldown_until']=null}else{$key['error_count']=(int)($key['error_count']??0)+1;if(in_array($status,[429,500,502,503,504],true))$key['cooldown_until']=gmdate('c',time()+min(300,15*$key['error_count']));}break;}
+        foreach($cfg['keys'] as &$key)if(($key['id']??'')===$id){if(($key['usage_day']??'')!==$today){$key['usage_day']=$today;$key['usage_count']=0;}$key['last_used_at']=gmdate('c');if($ok){$key['usage_count']=(int)($key['usage_count']??0)+1;$key['error_count']=0;$key['cooldown_until']=null}else{$key['error_count']=(int)($key['error_count']??0)+1;if(in_array($status,[429,500,502,503,504],true))$key['cooldown_until']=gmdate('c',time()+min(300,15*$key['error_count']));}break;}
         unset($key);$this->writeAiConfig($cfg);
     }
 
