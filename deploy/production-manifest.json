@@ -134,7 +134,8 @@
     "admin/ai.php",
     "freedom-refinement-v2.css",
     "freedom-ai.js",
-    "task-bulk-reorder.js"
+    "task-bulk-reorder.js",
+    "elara-levels.js"
   ],
   "files": [
     ".htaccess",
@@ -144,6 +145,7 @@
     "app.js",
     "dialog.js",
     "phase2.js",
+    "elara-levels.js",
     "rpg.js",
     "approved-profile-system.js",
     "boot.js",

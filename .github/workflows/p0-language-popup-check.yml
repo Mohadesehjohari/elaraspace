@@ -29,6 +29,7 @@ on:
       - 'approved-navigation-extension.css'
       - 'notifications.js'
       - 'phase2.js'
+      - 'elara-levels.js'
       - 'tests/task-bulk-reorder-browser.mjs'
       - 'task-bulk-reorder.js'
       - 'social-view.js'
@@ -82,6 +83,7 @@ jobs:
           node --check drawer.js
           node --check dialog.js
           node --check phase2.js
+          node --check elara-levels.js
           node --check task-bulk-reorder.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js

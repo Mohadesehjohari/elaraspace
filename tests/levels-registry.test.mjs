@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('../elara-levels.js',import.meta.url),'utf8');
+const ctx={window:{dispatchEvent(){}},document:{documentElement:{lang:'fa'}},Event:class{constructor(type){this.type=type}}};vm.createContext(ctx);vm.runInContext(source,ctx);
+const L=ctx.window.ElaraLevels;assert.ok(L);
+assert.equal(L.level(0),1);assert.equal(L.level(820),12,'820 XP should land near the user reference level 12');
+assert.ok(L.threshold(31)-L.threshold(30)>L.threshold(30)-L.threshold(29),'curve must get harder after level 30');
+assert.ok(L.threshold(80)>L.threshold(30));assert.ok(L.threshold(100)>L.threshold(80));assert.ok(L.level(L.threshold(125)),125,'levels must continue beyond 100');
+assert.equal(L.rankForLevel(80).id,'elite');assert.equal(L.rankForLevel(100).id,'legendary');
+assert.match(L.titleForLevel(120),/لجند/);
+const earned=L.medals({totalDone:100,words:10,books:5},L.threshold(100)).filter(x=>x.earned).map(x=>x.id);for(const id of ['first-step','task-100','word-10','book-5','level-100'])assert.ok(earned.includes(id),id);
+console.log('LEVEL_REGISTRY_PASS infinite curve 820=>12 ranks titles medals');

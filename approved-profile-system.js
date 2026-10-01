@@ -20,7 +20,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const currentUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 function currentXp(){try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return Number(window.ElaraSocial?.me?.xp??s?.xp??0)||0}catch{return Number(window.ElaraSocial?.me?.xp||0)||0}}
 const levelFromXp=xp=>window.ElaraLevels?.level?.(Number(xp)||0)||Math.min(10,1+Math.floor(Math.sqrt(Math.max(0,Number(xp)||0)/100)));
-const titleForLevel=level=>TITLES[Math.min(10,Math.max(1,Number(level)||1))-1];
+const titleForLevel=level=>window.ElaraLevels?.titleForLevel?.(level)||TITLES[Math.min(10,Math.max(1,Number(level)||1))-1];
 function avatarPath(group,level,shape='circle'){
  const g=normalizeGroup(group),n=normalizeLevel(level),mode=SHAPES.includes(shape)?shape:'circle';if(!g||!n)return '';
  const modern='assets/avatars/level-'+String(n).padStart(2,'0')+'-'+(g==='female'?'f':'m')+'-'+mode+'.png';

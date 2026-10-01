@@ -44,7 +44,7 @@
     let changed=false,total=0;
     for(const m of missions){
       const done=m.value(c)>=m.target,key=claimKey(m,day);
-      if(done&&!claims.includes(key)){claims.push(key);data.xp=Math.max(0,Number(data.xp)||0)+m.rewardXp;changed=true;total+=m.rewardXp}
+      if(done&&!claims.includes(key)){claims.push(key);data.xp=Math.max(0,Number(data.xp)||0)+m.rewardXp;changed=true;total+=m.rewardXp;window.ElaraNotify?.push?.({type:'mission',title:window.ElaraI18n?.t?.('ماموریت کامل شد 🔥','Mission complete 🔥')||'ماموریت کامل شد 🔥',message:(window.ElaraI18n?.locale?.()==='en'?'Nice! ':'دمت گرم! ')+m.name+' · +'+m.rewardXp+' XP',dedupeKey:'mission:'+key})}
     }
     if(!changed)return 0;
     data.missionRewardClaims=claims.slice(-5000);
@@ -53,8 +53,8 @@
     window.dispatchEvent(new Event('elara:data-changed'));
     return total;
   }
-  const levelFromXp = xp => Math.min(10, 1 + Math.floor(Math.sqrt(Math.max(0,xp)/100)));
-  const threshold = level => (level-1)*(level-1)*100;
+  const levelFromXp = xp => window.ElaraLevels?.level?.(xp)||Math.max(1,1+Math.floor(Math.max(0,xp)/70));
+  const threshold = level => window.ElaraLevels?.threshold?.(level)||Math.max(0,(level-1)*70);
   function setup(){
     if ($('panel-missions')) return;
     const section = document.createElement('section');
@@ -74,10 +74,10 @@
     awardCompletedMissions();
     const data=parse(), c=counts(data);
     const xp = Number.isFinite(+data.xp) ? Math.max(0,+data.xp) : 0;
-    const level=levelFromXp(xp), min=threshold(level), max=threshold(level+1);
-    $('rpg-level').textContent=`سطح ${fa(level)} از ۱۰`;
-    $('rpg-xp').textContent=level===10?`${fa(xp)} XP · بالاترین سطح`:`${fa(xp-min)} از ${fa(max-min)} XP تا سطح بعدی`;
-    $('rpg-level-bar').style.width=level===10?'100%':`${Math.max(0,Math.min(100, (xp-min)/(max-min)*100))}%`;
+    const level=levelFromXp(xp), min=threshold(level), max=threshold(level+1),rank=window.ElaraLevels?.rankForLevel?.(level),title=window.ElaraLevels?.titleForLevel?.(level);
+    $('rpg-level').textContent=`سطح ${fa(level)} · ${title||'مسیر کیهانی'}`;
+    $('rpg-xp').textContent=`${fa(xp-min)} از ${fa(max-min)} XP تا سطح بعدی${rank?.label?' · رنک '+rank.label:''}`;
+    $('rpg-level-bar').style.width=`${Math.max(0,Math.min(100, (xp-min)/(max-min)*100))}%`;
     const list=$('rpg-quest-list'); list.replaceChildren();
     missions.forEach(m => {
       const amount=m.value(c), completed=amount>=m.target;
@@ -89,9 +89,10 @@
       el.append(heading,detail,reward,count,bar);list.append(el);
     });
     const badges=$('rpg-badges'); badges.replaceChildren();
-    [[c.totalDone>=1,'اولین تسک'],[c.totalDone>=10,'ده تسک'],[c.words>=10,'ده لغت'],[level>=5,'سطح پنجم'],[level>=10,'سطح دهم']].forEach(([earned,title])=>{
-      const badge=document.createElement('span');badge.className='chip'+(earned?' rpg-earned':'');badge.textContent=(earned?'✓ ':'○ ')+title;badges.append(badge);
-    });
+    const medals=window.ElaraLevels?.medals?.(c,xp)||[];medals.forEach(m=>{const badge=document.createElement('span');badge.className='chip'+(m.earned?' rpg-earned':'');badge.textContent=(m.earned?'✓ ':'○ ')+m.label;badges.append(badge)});
+    let registry=document.getElementById('rpg-progression-registry');if(!registry){registry=document.createElement('details');registry.id='rpg-progression-registry';registry.className='rpg-registry';registry.innerHTML='<summary>فهرست رنک‌ها و لقب‌های مسیر</summary><div data-rpg-registry-body></div>';badges.parentElement?.append(registry)}
+    const body=registry.querySelector('[data-rpg-registry-body]'),levels=window.ElaraLevels;if(body&&levels){body.innerHTML='<h4>رنک‌های پیشرفت</h4><div class="rpg-registry-chips">'+levels.RANKS.map(x=>'<span class="chip '+(level>=x.min?'rpg-earned':'')+'">'+x.fa+' · '+(x.max===Infinity?x.min+'+':x.min+'–'+x.max)+'</span>').join('')+'</div><h4>لقب‌ها</h4><div class="rpg-registry-chips">'+levels.TITLES.map(x=>'<span class="chip '+(level>=x.min?'rpg-earned':'')+'">'+x.fa+' · '+(x.max===Infinity?x.min+'+':x.min===x.max?x.min:x.min+'–'+x.max)+'</span>').join('')+'</div>'}
+
   }
   window.ElaraMissions={render,snapshot};
   const css = document.createElement('style');
@@ -102,7 +103,7 @@
   @media(min-width:701px) and (max-width:920px){.shell{grid-template-columns:170px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:22px}.topbar{padding-inline:18px}}
   @media(max-width:700px){.rpg-grid{grid-template-columns:1fr}.rpg-level{padding:16px}.rpg-quest{padding:15px}}
   @media(min-width:701px){.rpg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  .rpg-grid{display:grid;gap:12px;margin:14px 0 24px}.rpg-level,.rpg-info{padding:22px;margin-bottom:20px}.rpg-level h2{font-size:1.7rem;color:var(--accent);margin:4px 0}.rpg-quest{padding:18px}.rpg-quest strong{display:block;margin-bottom:5px}.rpg-quest p{margin:0 0 9px}.rpg-quest>span{display:block;font-size:.75rem;color:var(--muted);margin-bottom:9px}.rpg-complete{border-color:color-mix(in srgb,#42b993 60%,var(--border))}.rpg-track{height:6px;background:var(--surface2);overflow:hidden;border-radius:12px}.rpg-track>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:inherit}.rpg-badges{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.rpg-earned{color:var(--accent);border:1px solid var(--accent)}
+  .rpg-grid{display:grid;gap:12px;margin:14px 0 24px}.rpg-level,.rpg-info{padding:22px;margin-bottom:20px}.rpg-level h2{font-size:1.7rem;color:var(--accent);margin:4px 0}.rpg-quest{padding:18px}.rpg-quest strong{display:block;margin-bottom:5px}.rpg-quest p{margin:0 0 9px}.rpg-quest>span{display:block;font-size:.75rem;color:var(--muted);margin-bottom:9px}.rpg-complete{border-color:color-mix(in srgb,#42b993 60%,var(--border))}.rpg-track{height:6px;background:var(--surface2);overflow:hidden;border-radius:12px}.rpg-track>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:inherit}.rpg-badges{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.rpg-earned{color:var(--accent);border:1px solid var(--accent)}.rpg-registry{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}.rpg-registry summary{cursor:pointer;font-weight:800}.rpg-registry h4{margin:14px 0 8px}.rpg-registry-chips{display:flex;gap:7px;flex-wrap:wrap}.rpg-registry-chips .chip{font-size:.72rem}
   `;
   document.head.append(css);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
