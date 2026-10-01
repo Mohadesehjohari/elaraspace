@@ -1,6 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-p0-runtime-v19';
+  const BUILD='20261001-p0-runtime-v20';
+  if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css'];
@@ -8,11 +9,10 @@
   for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);styleReady.push(new Promise(resolve=>{css.onload=()=>resolve({name,ok:true});css.onerror=()=>{console.error('Elara stylesheet unavailable:',name);resolve({name,ok:false})}}));document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
-  const essentialImages=(!location.hash||location.hash==='#home')?[
-    'assets/ui/icon-tasks-check-alpha.webp','assets/ui/hero-landscape.webp',
-    'assets/ui/nav-home-active.webp','assets/ui/nav-tasks-default.webp','assets/ui/nav-language-default.webp','assets/ui/nav-library-default.webp','assets/ui/nav-ranking-default.webp','assets/ui/nav-exercise-default.webp',
-    'assets/ui/friends-group-icon.webp','assets/ui/icon-freedom-lotus.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/streak-flame.webp','assets/ui/missions-rocket.webp',
-    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-mode-night-default.webp','assets/ui/icon-notifications-read.webp','assets/ui/icon-notifications-unread.webp','assets/ui/button-view-all.webp'
+  const essentialImages=location.hash==='#home'?[
+    'assets/ui/hero-landscape.webp','assets/ui/nav-home-active.webp','assets/ui/brand-elara-app-mark.webp',
+    'assets/ui/icon-tasks-check-alpha.webp','assets/ui/streak-flame.webp',
+    'assets/ui/icon-mode-night-active.webp','assets/ui/icon-notifications-read.webp'
   ]:[];
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=src;if(typeof img.decode==='function')img.decode().then(done,done)});
   for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
@@ -43,11 +43,11 @@
       window.ElaraNavigation?.render?.();window.ElaraReferenceHome?.render?.();
       /* Decode the actual rendered first-frame controls, not only preload clones. This prevents
          the shell from revealing while visible nav/Moon/Bell <img> nodes are still blank. */
-      const renderedArtworkReady=Promise.all([...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art,#theme-toggle .ref-theme-art,#ref-header-notifications .ref-notification-art')]
+      const renderedArtworkReady=Promise.all([...document.querySelectorAll('.bottom-nav [aria-current="page"] .elara-nav-art,.sidebar [aria-current="page"] .elara-nav-art,#theme-toggle .ref-theme-art,#ref-header-notifications .ref-notification-art')]
         .filter(img=>img.getClientRects().length>0)
         .map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():typeof img.decode==='function'?img.decode().catch(()=>{}):new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true})})));
       /* Only first-viewport artwork blocks reveal; secondary icons load normally after release. */
-      await Promise.race([Promise.all([essentialArtworkReady,renderedArtworkReady]),new Promise(resolve=>setTimeout(resolve,3500))]);
+      await Promise.race([Promise.all([essentialArtworkReady,renderedArtworkReady]),new Promise(resolve=>setTimeout(resolve,1800))]);
       ready=true;release();
     }catch(error){console.error('Elara final shell could not start:',error);ready=true;release();const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بخشی از رابط بارگذاری نشد؛ هستهٔ برنامه در حالت ایمن در دسترس است.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow);clearTimeout(hardWatchdog)}

@@ -67,20 +67,22 @@
   function placeMobileSection(section){
     if(!panel)return;
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
-    const props=['position','inset','top','right','bottom','left','transform','width','height','max-height','margin','overflow','border-radius'];
-    if(!mobile||section==='home'){for(const name of props)panel.style.removeProperty(name);return}
-    panel.style.setProperty('position','fixed','important');
+    const props=['position','inset','top','right','bottom','left','transform','width','height','max-height','margin','overflow','border-radius','align-self','justify-self'];
+    if(!mobile){for(const name of props)panel.style.removeProperty(name);return}
+    panel.style.setProperty('position','relative','important');
     panel.style.setProperty('inset','auto','important');
-    panel.style.setProperty('top','50%','important');
-    panel.style.setProperty('left','50%','important');
+    panel.style.setProperty('top','auto','important');
+    panel.style.setProperty('left','auto','important');
     panel.style.setProperty('right','auto','important');
     panel.style.setProperty('bottom','auto','important');
-    panel.style.setProperty('transform','translate(-50%,-50%)','important');
-    panel.style.setProperty('width','min(94vw,520px)','important');
-    panel.style.setProperty('height','min(90dvh,900px)','important');
+    panel.style.setProperty('transform','none','important');
+    panel.style.setProperty('align-self','center','important');
+    panel.style.setProperty('justify-self','center','important');
+    panel.style.setProperty('width','min(94vw,480px)','important');
+    panel.style.setProperty('height','min(90dvh,780px)','important');
     panel.style.setProperty('max-height','90dvh','important');
     panel.style.setProperty('margin','0','important');
-    panel.style.setProperty('overflow','hidden','important');
+    panel.style.setProperty('overflow',section==='home'?'auto':'hidden','important');
     panel.style.setProperty('border-radius','20px','important');
   }
   function show(section='home'){
