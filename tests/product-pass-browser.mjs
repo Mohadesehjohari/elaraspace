@@ -60,9 +60,13 @@ for(const width of all){
     assert.equal(await page.locator('.bottom-nav').isVisible(),true);
     assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);
     assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom']);
-    const centers=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return r.left+r.width/2}).sort((a,b)=>a-b));
+    const navBoxes=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{tab:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
+    const centers=navBoxes.map(x=>x.center).sort((a,b)=>a-b);
     const gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
     assert.ok(spread<=3,'mobile nav spacing is uneven: '+JSON.stringify(gaps));
+    const homeCenter=navBoxes.find(x=>x.tab==='home')?.center;
+    assert.ok(Math.abs(homeCenter-width/2)<=2,'Home is not centered on viewport: '+homeCenter+' vs '+width/2);
+    assert.ok(navBoxes.every(x=>x.left>=-1&&x.right<=width+1),'mobile nav destination clips viewport: '+JSON.stringify(navBoxes));
    }
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
