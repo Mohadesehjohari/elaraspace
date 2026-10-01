@@ -90,7 +90,7 @@
     if(root)root.dataset.mobileSection=section;
     if(panel)panel.dataset.mobileSection=section;
     placeMobileSection(section);
-    panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!==section));
+    panel?.querySelectorAll('[data-drawer-section]').forEach(x=>{const active=x.dataset.drawerSection===section;x.classList.toggle('hidden',!active);x.toggleAttribute('hidden',!active);x.setAttribute('aria-hidden',active?'false':'true');if(active)x.removeAttribute('inert');else x.setAttribute('inert','')});
     panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
     if(section==='home')renderHub();
     if(section==='account')renderAccount();
