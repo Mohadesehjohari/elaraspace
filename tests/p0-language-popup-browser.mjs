@@ -19,8 +19,10 @@ const cloudStub=`window.ElaraAccount={user:null,profile:{name:'QA',username:'qa_
 const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:[],saveProfileValues:async values=>({profile:values,warnings:[]}),publishActivity:async()=>true,refresh:async()=>{}};window.dispatchEvent(new Event('elara:social-updated'));`;
 await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
 await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
-await page.goto(base+'/#language',{waitUntil:'domcontentloaded'});
-await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&document.querySelector('#language-book-form'),null,{timeout:10000});
+await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
+await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&window.ElaraOpen,null,{timeout:12000});
+await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));
+await page.waitForFunction(()=>document.querySelector('#language-book-form')&&getComputedStyle(document.querySelector('#panel-language')).display!=='none',null,{timeout:5000});
 await page.waitForTimeout(250);
 
 // Add while unauthenticated.
