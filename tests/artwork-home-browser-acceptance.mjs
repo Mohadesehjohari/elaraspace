@@ -94,8 +94,10 @@ async function bootTriptych(width,height){
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'commit',timeout:30000});
  await page.waitForFunction(()=>document.documentElement?.hasAttribute('data-elara-booting'),null,{timeout:3000});
  await page.waitForTimeout(70);
- const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {shell:visible(document.querySelector('.shell')),bottom:visible(document.querySelector('.bottom-nav')),dock:visible(document.querySelector('.elara-desktop-dock'))}});
- assert.deepEqual(before,{shell:false,bottom:false,dock:false},'partial navigation leaked during boot');
+ const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {shell:visible(document.querySelector('.shell')),bottom:visible(document.querySelector('.bottom-nav')),dock:visible(document.querySelector('.elara-desktop-dock')),routes:[...document.querySelectorAll('.bottom-nav [data-elara-tab]')].map(x=>x.dataset.elaraTab)}});
+ assert.equal(before.shell,false,'app shell leaked during boot');
+ assert.equal(before.dock,false,'desktop dock leaked during boot');
+ if(width<=700){assert.equal(before.bottom,true,'mobile fallback navigation must be visible during boot');assert.deepEqual(before.routes,mobile,'mobile fallback routes incomplete during boot')}else assert.equal(before.bottom,false,'desktop bottom navigation must stay hidden during boot');
  await page.screenshot({path:`${out}/boot-${width}-before-release.png`,fullPage:false});
  await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:5000});
  const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0);const moon=document.querySelector('#theme-toggle .ref-theme-art'),src=moon?.getAttribute('src')||'';return nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.getClientRects().length>0&&moon.complete&&moon.naturalWidth>0&&/(icon-mode-night-(active|default)\.webp)$/.test(src)});
