@@ -1,0 +1,41 @@
+name: P0 language and mobile popup regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'approved-visual.js'
+      - 'drawer.js'
+      - 'dialog.js'
+      - 'reference-exact-pass-2026.css'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/p0-language-popup-browser.mjs'
+      - '.github/workflows/p0-language-popup-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p0-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check changed JavaScript and regression syntax
+        run: |
+          node --check approved-visual.js
+          node --check drawer.js
+          node --check dialog.js
+          node --check tests/p0-language-popup-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-p0-http.log 2>&1 &
+          sleep 2
+      - name: Verify language shelf, reading/delete and centered mobile profile
+        run: node tests/p0-language-popup-browser.mjs
