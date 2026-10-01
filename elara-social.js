@@ -1,7 +1,7 @@
 /* Firestore-backed profiles, friendships and opt-in activity summaries. No synthetic social data. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,updateProfile} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,collection,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,collection,collectionGroup,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 const state={me:null,friends:[],requests:[],activities:[],error:'',profileView:null};window.ElaraSocial=state;
@@ -64,6 +64,57 @@ async function sendDm(other,value){
  return cid;
 }
 window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm};
+
+const groupFriendIds=()=>new Set(state.friends.map(p=>p.uid));
+async function createGroup(title,members=[]){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
+ const clean=String(title||'').trim().slice(0,80);if(clean.length<2)throw Error('اسم گروه حداقل ۲ نویسه باشد.');
+ const accepted=groupFriendIds(),chosen=[...new Set((Array.isArray(members)?members:[]).map(String).filter(x=>x&&accepted.has(x)&&x!==uid))].slice(0,24);
+ if(!chosen.length)throw Error('برای ساخت گروه حداقل یک دوست انتخاب کن.');
+ const ref=doc(collection(db,'groups')),batch=writeBatch(db),stamp=serverTimestamp();
+ batch.set(ref,{owner:uid,title:clean,createdAt:stamp,updatedAt:stamp,lastText:'',lastSender:''});
+ batch.set(doc(ref,'groupMembers',uid),{uid,role:'owner',joinedAt:stamp});
+ for(const member of chosen)batch.set(doc(ref,'groupMembers',member),{uid:member,role:'member',joinedAt:stamp});
+ await batch.commit();return ref.id;
+}
+async function listGroups(){
+ if(!uid)return[];
+ const memberships=await getDocs(query(collectionGroup(db,'groupMembers'),where('uid','==',uid))),rows=[];
+ for(const membership of memberships.docs){
+  const ref=membership.ref.parent.parent;if(!ref)continue;
+  try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,title:String(d.title||'گروه'),owner:String(d.owner||''),lastText:String(d.lastText||''),lastSender:String(d.lastSender||''),updatedAt:d.updatedAt?.toMillis?.()||0,role:membership.data()?.role||'member'})}catch(error){console.warn('Elara group unavailable:',ref.id,error)}
+ }
+ return rows.sort((a,b)=>b.updatedAt-a.updatedAt);
+}
+async function getGroupMembers(groupId){
+ const snaps=await getDocs(collection(db,'groups',String(groupId),'groupMembers')),rows=[];
+ for(const row of snaps.docs){const d=row.data()||{},memberUid=String(d.uid||row.id);let p=memberUid===uid?state.me:state.friends.find(x=>x.uid===memberUid);if(!p){try{const ps=await getDoc(doc(db,'profiles',memberUid));if(ps.exists())p={uid:memberUid,...ps.data()}}catch{}}
+  rows.push({uid:memberUid,role:d.role||'member',person:p||{uid:memberUid,name:'عضو گروه'}})
+ }
+ return rows;
+}
+async function getGroupMessages(groupId){
+ const snaps=await getDocs(query(collection(db,'groups',String(groupId),'messages'),orderBy('createdAt','desc'),limit(100)));
+ return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse();
+}
+function listenGroup(groupId,callback,errorCallback){
+ const q=query(collection(db,'groups',String(groupId),'messages'),orderBy('createdAt','desc'),limit(100));
+ return onSnapshot(q,snap=>callback(snap.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()),error=>{console.error('Elara group listener:',error);errorCallback?.(error)});
+}
+async function sendGroup(groupId,value){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('حساب تأییدشده لازم است.');
+ const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
+ const gid=String(groupId),messages=collection(db,'groups',gid,'messages');await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
+ await updateDoc(doc(db,'groups',gid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ window.ElaraNotify?.push?.({type:'social',title:'پیام گروه ارسال شد',message:'رفت تو گروه 🚀',dedupeKey:'group-sent:'+gid+':'+Date.now()});return gid;
+}
+async function leaveGroup(groupId){
+ if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(groupId),group=await getDoc(doc(db,'groups',gid));if(!group.exists())throw Error('گروه پیدا نشد.');
+ if(group.data()?.owner===uid)throw Error('سازندهٔ گروه فعلاً باید مالکیت را نگه دارد.');
+ await deleteDoc(doc(db,'groups',gid,'groupMembers',uid));return true;
+}
+window.ElaraSocial.groups={create:createGroup,list:listGroups,members:getGroupMembers,messages:getGroupMessages,listen:listenGroup,send:sendGroup,leave:leaveGroup};
+
 
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}

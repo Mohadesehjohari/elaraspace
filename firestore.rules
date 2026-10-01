@@ -38,6 +38,10 @@ service cloud.firestore {
     function profilePublic(data) {
       return !data.keys().hasAny(['profilePublic']) || data.profilePublic == true;
     }
+    function groupPath(id) { return /databases/$(database)/documents/groups/$(id); }
+    function groupMemberPath(id, memberId) { return /databases/$(database)/documents/groups/$(id)/groupMembers/$(memberId); }
+    function isGroupMember(id) { return signed() && exists(groupMemberPath(id, request.auth.uid)); }
+    function isGroupOwner(id) { return signed() && exists(groupPath(id)) && get(groupPath(id)).data.owner == request.auth.uid; }
     function activityPath(id) { return /databases/$(database)/documents/activities/$(id); }
     function postPath(id) { return /databases/$(database)/documents/socialPosts/$(id); }
     function canReadActivity(id) {
@@ -226,6 +230,74 @@ service cloud.firestore {
         allow delete: if signed()
           && resource.data.sender == request.auth.uid;
       }
+    }
+
+    match /groups/{groupId} {
+      allow get: if isGroupMember(groupId);
+      allow list: if false;
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['owner','title','createdAt','updatedAt','lastText','lastSender'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastText == ''
+        && request.resource.data.lastSender == '';
+      allow update: if isGroupMember(groupId)
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastText','lastSender','updatedAt'])
+        && request.resource.data.lastSender == request.auth.uid
+        && request.resource.data.lastText is string
+        && request.resource.data.lastText.size() <= 280
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+
+      match /groupMembers/{memberId} {
+        allow get, list: if isGroupMember(groupId);
+        allow create: if signed()
+          && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
+          && request.resource.data.uid == memberId
+          && request.resource.data.joinedAt == request.time
+          && (
+            (
+              memberId == request.auth.uid
+              && request.resource.data.role == 'owner'
+              && getAfter(groupPath(groupId)).data.owner == request.auth.uid
+            ) ||
+            (
+              getAfter(groupPath(groupId)).data.owner == request.auth.uid
+              && request.resource.data.role == 'member'
+              && friendOf(memberId)
+            )
+          );
+        allow update: if false;
+        allow delete: if signed() && (
+          (memberId == request.auth.uid && resource.data.role == 'member') ||
+          (isGroupOwner(groupId) && memberId != request.auth.uid)
+        );
+      }
+
+      match /messages/{messageId} {
+        allow get, list: if isGroupMember(groupId);
+        allow create: if isGroupMember(groupId)
+          && request.resource.data.keys().hasOnly(['sender','text','createdAt'])
+          && request.resource.data.sender == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && (
+          resource.data.sender == request.auth.uid || isGroupOwner(groupId)
+        );
+      }
+    }
+
+    match /{path=**}/groupMembers/{memberId} {
+      allow get, list: if signed() && resource.data.uid == request.auth.uid;
     }
 
     match /activities/{activityId} {
