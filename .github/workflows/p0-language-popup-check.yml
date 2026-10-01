@@ -30,6 +30,7 @@ on:
       - 'notifications.js'
       - 'phase2.js'
       - 'social-view.js'
+      - 'social-messaging-ui.js'
       - 'elara-social.js'
       - 'i18n.js'
       - 'drawer.js'
@@ -69,6 +70,7 @@ jobs:
           node --check dialog.js
           node --check phase2.js
           node --check library-enhancements.js
+          node --check social-messaging-ui.js
           node --check reading.js
           node --check app.js
           node --check approved-profile-system.js
