@@ -168,16 +168,48 @@ service cloud.firestore {
     }
 
     match /activities/{activityId} {
-      allow get, list: if signed() &&
-        (resource.data.uid == request.auth.uid || friendOf(resource.data.uid));
+      allow get, list: if signed() && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.visibility == 'public' ||
+        (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+      );
       allow create: if signed() &&
-        request.resource.data.keys().hasOnly(['uid','type','eventKey','createdAt']) &&
         request.resource.data.uid == request.auth.uid &&
         activityId.matches('^[a-zA-Z0-9_-]{10,120}$') &&
-        request.resource.data.type in ['task','habit'] &&
+        request.resource.data.keys().hasOnly([
+          'uid','type','eventKey','visibility','category','createdAt',
+          'pagesRead','percentAfter','bookTitle','excerpt'
+        ]) &&
+        request.resource.data.type in ['task','habit','goal','mission','reading','book','book_clip','exercise','streak','ranking'] &&
+        request.resource.data.visibility in ['friends','public'] &&
+        request.resource.data.category in ['task','habit','goal','mission','reading','language','exercise','streak','ranking'] &&
         request.resource.data.eventKey is string &&
         request.resource.data.eventKey.size() <= 120 &&
-        request.resource.data.createdAt == request.time;
+        request.resource.data.createdAt == request.time &&
+        (
+          (
+            request.resource.data.type in ['task','habit','goal','mission','book','exercise','streak','ranking'] &&
+            request.resource.data.keys().hasOnly(['uid','type','eventKey','visibility','category','createdAt'])
+          ) ||
+          (
+            request.resource.data.type == 'reading' &&
+            request.resource.data.keys().hasOnly(['uid','type','eventKey','visibility','category','createdAt','pagesRead','percentAfter','bookTitle']) &&
+            request.resource.data.pagesRead is int &&
+            request.resource.data.pagesRead >= 0 && request.resource.data.pagesRead <= 10000 &&
+            request.resource.data.percentAfter is int &&
+            request.resource.data.percentAfter >= 0 && request.resource.data.percentAfter <= 100 &&
+            request.resource.data.bookTitle is string &&
+            request.resource.data.bookTitle.size() <= 140
+          ) ||
+          (
+            request.resource.data.type == 'book_clip' &&
+            request.resource.data.keys().hasOnly(['uid','type','eventKey','visibility','category','createdAt','bookTitle','excerpt']) &&
+            request.resource.data.bookTitle is string &&
+            request.resource.data.bookTitle.size() <= 140 &&
+            request.resource.data.excerpt is string &&
+            request.resource.data.excerpt.size() <= 280
+          )
+        );
       allow update: if false;
       allow delete: if signed() && resource.data.uid == request.auth.uid;
     }

@@ -75,4 +75,6 @@ const reading=readFileSync(new URL('reading.js',root),'utf8');
 assert.ok(social.includes('activityVisibility')&&social.includes("['private','friends','public']"),'Social activity visibility must support private/friends/public');
 assert.ok(drawer.includes('elara_activity_visibility_')&&drawer.includes('SHARE_KEYS')&&drawer.includes('value="private"')&&drawer.includes('value="friends"')&&drawer.includes('value="public"'),'Privacy drawer must expose granular private/friends/public activity choices');
 assert.ok(!reading.includes("visibility:'friends'"),'Reading reports must not bypass configured activity privacy');
+for(const token of ["resource.data.visibility == 'public'","request.resource.data.type == 'reading'","request.resource.data.type == 'book_clip'","'visibility','category'"])assert.ok(rules.includes(token),'Firestore activity privacy contract missing '+token);
+assert.ok(social.includes("book_clip:'reading'")&&social.includes("if(type==='book_clip')"),'Social service must publish safe book clips through reading privacy');
 console.log(`Static check passed: ${ids.size} HTML ids, base panels, canonical seven-route navigation, local assets, phase 2 recurrence/focus module and selector references.`);

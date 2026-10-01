@@ -22,6 +22,7 @@ function render(){
  const activityCopy=a=>{
    const name=esc(a.person?.name||a.person?.username||'دوستت');
    if(a.type==='reading'){const pages=Math.max(0,Number(a.pagesRead)||0);return pages?name+' امروز '+fa(pages)+' صفحه جلو رفت 📚🔥':name+' امروز مطالعه‌شو جلو برد 😎📚'}
+   if(a.type==='book_clip')return name+' یه بریده از «'+esc(a.bookTitle||'کتابش')+'» گذاشت 👀📖 '+esc(a.excerpt||'');
    if(a.type==='task')return name+' یه قدم دیگه به هدفش نزدیک شد ⚡🫡';
    if(a.type==='habit')return name+' عادت امروز رو کامل کرد 🤝🔥';
    if(a.type==='book')return name+' یه کتاب رو به پایان رسوند 😎📖';
