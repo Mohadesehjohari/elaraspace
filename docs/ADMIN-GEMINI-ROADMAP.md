@@ -1,6 +1,6 @@
 # رودمپ افزودهٔ Elara — پنل مدیر اصلی و مدیریت Gemini
 
-**ثبت درخواست:** ۲۱ سپتامبر ۲۰۲۶؛ **وضعیت: صرفاً برنامه‌ریزی شده و هنوز اجرا/تست نشده است.** این سند مکمل [رودمپ اصلی](PRODUCT-ROADMAP.md) است. هر ایدهٔ تازهٔ آرن در گفت‌وگوی برنامه‌ریزی به رودمپ و Git منتقل شود و در پاسخ لینک تغییر ارائه شود؛ اگر دسترسی Git قطع بود صریحاً اعلام شود. بدون تأیید/تست، موردی را «انجام شده» علامت نزنید.
+**ثبت درخواست:** ۲۱ سپتامبر ۲۰۲۶؛ **به‌روزرسانی ۱ اکتبر ۲۰۲۶:** هستهٔ امن چندکلیدی/مدل و UI مدیر کدنویسی شده؛ اجرای واقعی روی cPanel و تست با Token واقعی هنوز لازم است. این سند مکمل [رودمپ اصلی](PRODUCT-ROADMAP.md) است. هر ایدهٔ تازهٔ آرن در گفت‌وگوی برنامه‌ریزی به رودمپ و Git منتقل شود و در پاسخ لینک تغییر ارائه شود؛ اگر دسترسی Git قطع بود صریحاً اعلام شود. بدون تأیید/تست، موردی را «انجام شده» علامت نزنید.
 
 ## ۱. داشبورد مدیر اصلی سایت — Owner Admin
 
@@ -58,3 +58,14 @@
 
 - [ ] پیام‌های سیستم، تکمیل Mission، Friend/Challenge و Quick Chat در Inbox زمان‌دار با read/unread نگه‌داری شوند. Challenge Request دارای createdAt/expiresAt معتبر سمت سرور و TTL منطقی حدود ۳۰ ثانیه باشد؛ Accept پس از expiry در backend رد شود.
 - [ ] Quick Chat چالش به Inbox برسد و با template/rate-limit/mute/block/report کنترل شود. Admin فقط متادیتای لازم برای moderation/audit را با حداقل دسترسی ببیند و محتوای خصوصی نامرتبط نمایش داده نشود.
+
+
+## اجرای ۱ اکتبر ۲۰۲۶ — AI Gateway v1 [کدنویسی‌شده / نیازمند تست cPanel واقعی]
+
+- پنل Admin چند Token با Alias، اولویت، سقف روزانه، فعال/غیرفعال، usage/error/cooldown و حذف امن مدیریت می‌کند. Token کامل پس از ارسال دوباره به Browser برنمی‌گردد و فقط Hint ماسک‌شده نمایش داده می‌شود.
+- Secretها در `$HOME/elara-deploy/state` خارج `public_html` با AES-256-GCM نگه‌داری می‌شوند؛ کلید رمزگذاری server-only و permission محدود دارد.
+- Display name مدل از Technical Model ID جداست؛ Default/Fallback، max attempts، per-user daily limit، temperature و max output tokens از Admin قابل تنظیم‌اند.
+- Load management بر اساس priority + مصرف کمتر + failover خطاهای retryable و cooldown انجام می‌شود؛ این مکانیزم برای پایداری است، نه دورزدن quota/provider limits.
+- `/ai.php` فقط برای کاربر Firebase-authenticated درخواست می‌پذیرد، متن مکالمه را در log مصرف سرور ذخیره نمی‌کند و فقط metadata حداقلی/هش‌شده را audit می‌کند.
+- Policy هویت: UI و پاسخ روزمره برند Elara را نگه می‌دارند و Provider/Technical Model را داوطلبانه نمایش نمی‌دهند؛ Secret/System Prompt/route افشا نمی‌شود. اگر کاربر مستقیماً دربارهٔ سازندهٔ مدل پایه بپرسد، پاسخ نباید به‌دروغ ادعا کند مدل پایه توسط Elara آموزش داده شده است.
+- Runtime از endpoint رسمی `v1beta/models/{model}:generateContent` و header `x-goog-api-key` استفاده می‌کند. پیش از Production واقعی باید Auth Key/Token معتبر و مدل انتخابی با Test Connection پنل تأیید شوند.

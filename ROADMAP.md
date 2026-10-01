@@ -220,3 +220,12 @@ Inspected actual decoded WebP pixels: `button-view-all.webp` is a purple Persian
 - **TASK-ROW-ORDER-02 — CODED / نیازمند Browser verification:** ترتیب ردیف Tasks در RTL به شکل سه‌نقطه → تیک → متن → metadata/source/status تنظیم شود؛ pill تکراری منبع برای Linked Task حذف شود و Folder/List chip رنگی باقی بماند.
 - **HOME-HABIT-ALIGN-02 — CODED / نیازمند Browser verification:** نام Habit در Home مثل Task بلافاصله کنار تیک سمت راست قرار گیرد.
 - **LANGUAGE-REVIEW-TASK-CHECK-01 — CODED / unit regression added:** Linked Task روزانهٔ «مرور واژه‌های زبان» باید مستقیماً از Tasks قابل تیک و بازکردن باشد. تیک دستی، واژه‌های due را Reviewed فرض نمی‌کند و آن‌ها در Leitner باقی می‌مانند؛ اگر همهٔ مرورهای due واقعاً تمام شوند، Task خودکار Complete می‌شود. این Linked Task برای toggle دستی XP مستقل دوباره نمی‌دهد.
+
+
+## Freedom UX + AI Gateway — ۱ اکتبر ۲۰۲۶
+
+- **FREEDOM-NOTES-EDIT-03 — CODED / Browser verification running:** یادداشت از «آخرین یادداشت‌ها» در Dialog قابل ویرایش است؛ موضوع جدا دارد و در کارت آخرین یادداشت فقط موضوع یا در نبود موضوع اولین خط نشان داده می‌شود. تصویر آپلودی قبل/بعد از ذخیره با دکمهٔ قرمز hover/touch قابل حذف است.
+- **FREEDOM-DREAMS-03 — CODED / Browser verification running:** رویا کاملاً جدا از Notes می‌ماند؛ کارت رویا اگر تصویر دارد همان را نشان می‌دهد و در نبود تصویر موضوع را. کلیک روی رویا جزئیات/ویرایش/حذف را باز می‌کند.
+- **FREEDOM-QUOTE-02 — CODED / Browser verification running:** کارت Quote جمع‌وجورتر و متن/امضای آن قابل ویرایش است.
+- **FREEDOM-VISUAL-04 — CODED / Browser verification running:** Feature artworkها بدون قاب کارت سنگین و با فاصلهٔ بیشتر از Hero نمایش داده می‌شوند؛ همهٔ پنج Feature روی Mobile هم باقی می‌مانند و subpage/Add CTAها جمع‌وجورتر و image-led هستند.
+- **ELARA-AI-GATEWAY-01 — CODED / cPanel real-token test pending:** Backend امن چند Token/چند Model، رمزگذاری server-only، Default/Fallback، priority/cooldown/failover، per-user quota و Admin controls اضافه شده است. GitHub Pages PHP اجرا نمی‌کند؛ AI واقعی فقط پس از Deploy cPanel و افزودن Token معتبر قابل تست است.
