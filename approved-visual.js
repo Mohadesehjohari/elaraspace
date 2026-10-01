@@ -77,6 +77,14 @@ function languageBookOwner(id){
  const wanted=String(id||''),row=prepareLanguageBooks().find(book=>String(book.id)===wanted);
  return row?(row.ownerUid==null?null:String(row.ownerUid)):(currentLanguageUid()||null)
 }
+function language(){
+ if($('panel-language'))return;
+ const main=$('main'),panel=document.createElement('section');panel.id='panel-language';panel.className='panel hidden';
+ panel.innerHTML=`<div class="elara-language-hero"><div><p>Elara · LANGUAGE JOURNEY</p><h1>هر واژه، یک قدم به دنیای بزرگ‌تر توست.</h1><p>مرور کن، کتاب بخوان و پیشرفت واقعی خودت را دنبال کن.</p></div></div><div class="approved-language-grid pass3-language-grid"><section class="elara-card pass3-language-block pass3-language-leitner"><header><h2>${icon('brain')} جعبهٔ لایتنر</h2><span class="muted">مرور هوشمند</span></header><div id="language-stat-row" class="lang-stat-row"></div><button class="primary-button pass3-leitner-source-cta" type="button" data-lang-leitner>شروع مرور</button></section><section class="elara-card pass3-language-block pass3-language-books"><header><h2>${icon('book')} کتاب‌های زبان</h2><div class="pass3-book-tabs" aria-label="وضعیت کتاب‌ها"><span>در حال مطالعه</span><span>خوانده‌شده</span></div></header><p class="muted">کتاب‌های این بخش مستقل از کتابخانهٔ عمومی هستند.</p><form id="language-book-form" class="inline-form"><input name="title" maxlength="180" required placeholder="نام کتاب زبان…" aria-label="نام کتاب زبان"><select name="shelf" aria-label="وضعیت کتاب"><option value="reading">در حال مطالعه</option><option value="finished">خوانده‌شده</option></select><button class="primary-button" type="submit">افزودن</button></form><div id="language-book-list" class="pass3-language-book-list"></div></section><section class="elara-card pass3-language-block pass3-language-report"><header><h2>${icon('chart')} گزارش یادگیری</h2></header><div id="language-reports"></div><p class="muted">گزارش از داده‌های واقعی همین حساب در این مرورگر تهیه می‌شود.</p></section><section class="elara-card pass3-language-block pass3-language-courses"><header><h2>${icon('course')} کلاس‌های آنلاین / کورس‌ها</h2></header><div class="pass3-coming-soon"><span>${icon('course')}</span><div><strong>کلاس‌ها در راه‌اند</strong><p class="muted">اتصال دوره‌ها و کلاس‌های واقعی هنوز Backend ندارد؛ رکورد ساختگی نمایش داده نمی‌شود.</p></div></div></section></div>`;
+ main.prepend(panel);
+ const words=$('panel-words');if(words)words.classList.add('approved-leitner-full-page');
+ renderLanguage();
+}
 function normalizeLanguageBook(raw){
  const base={...raw,readingLogs:safeList(raw?.readingLogs),currentPage:Number(raw?.currentPage||0),totalPages:Number(raw?.totalPages||0)};
  return window.ElaraReading?.normalize?window.ElaraReading.normalize(base):base
