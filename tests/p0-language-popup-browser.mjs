@@ -87,6 +87,9 @@ await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await pag
 await page.locator('#elara-account-menu-trigger').click();await page.waitForTimeout(60);
 assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main list missing');
 const menuButtons=page.locator('.drawer-menu>button');assert.ok(await menuButtons.count()>=8,'Settings list is incomplete');
+const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
+assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Settings mobile menu is not one column: '+menuLayout.columns);
+assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=350&&(!i||r.y>a[i-1].y)),true,'Settings rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
 await page.locator('.drawer-menu [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
