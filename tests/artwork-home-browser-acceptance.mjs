@@ -44,13 +44,14 @@ const rect=(page,sel)=>page.locator(sel).first().evaluate(el=>{const r=el.getBou
 const delta=(a,b)=>({top:Math.abs(a.y-b.y),width:Math.abs(a.w-b.w),height:Math.abs(a.h-b.h)});
 async function stabilityProbe(page,selector,label,width){
  const roots={ranking:'.ref-ranks',friends:'.ref-activity'},before={};
- for(const [name,sel] of Object.entries(roots)){const el=page.locator('#panel-home '+sel);await el.evaluate((node,id)=>node.dataset.stabilityProbe=id,name+'-'+width);before[name]=await rect(page,'#panel-home '+sel)}
+ const docRect=async sel=>page.locator(sel).first().evaluate(el=>{const r=el.getBoundingClientRect();return{x:Math.round(r.x+scrollX),y:Math.round(r.y+scrollY),w:Math.round(r.width),h:Math.round(r.height)}});
+ for(const [name,sel] of Object.entries(roots)){const el=page.locator('#panel-home '+sel);await el.evaluate((node,id)=>node.dataset.stabilityProbe=id,name+'-'+width);before[name]=await docRect('#panel-home '+sel)}
  const control=page.locator(selector).first(),initial=await control.getAttribute('aria-pressed'),samples=[];
  for(let i=0;i<3;i++){
   await control.click();await page.waitForTimeout(110);
   const sample={};
   for(const [name,sel] of Object.entries(roots)){
-   const el=page.locator('#panel-home '+sel),box=await rect(page,'#panel-home '+sel),d=delta(before[name],box);
+   const el=page.locator('#panel-home '+sel),box=await docRect('#panel-home '+sel),d=delta(before[name],box);
    assert.equal(await el.getAttribute('data-stability-probe'),name+'-'+width,label+' destroyed/recreated '+name+' DOM at '+width);
    assert.ok(d.top<=2&&d.width<=2&&d.height<=2,label+' shifted '+name+' geometry at '+width+': '+JSON.stringify(d));
    assert.equal(await el.isVisible(),true,label+' caused visible '+name+' flicker at '+width);sample[name]={box,d};
