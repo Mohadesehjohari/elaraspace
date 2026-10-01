@@ -122,7 +122,11 @@
     "assets/ui/theme_white.webp",
     "assets/ui/city_theme.webp",
     "freedom-enhancements.js",
-    "october-fixes-2026-10-01.css"
+    "october-fixes-2026-10-01.css",
+    "ai.php",
+    "admin/ai.php",
+    "freedom-refinement-v2.css",
+    "freedom-ai.js"
   ],
   "files": [
     ".htaccess",
@@ -344,6 +348,10 @@
     "assets/ui/theme_spring.webp",
     "assets/ui/theme_white.webp",
     "freedom-enhancements.js",
-    "october-fixes-2026-10-01.css"
+    "october-fixes-2026-10-01.css",
+    "ai.php",
+    "admin/ai.php",
+    "freedom-refinement-v2.css",
+    "freedom-ai.js"
   ]
 }
