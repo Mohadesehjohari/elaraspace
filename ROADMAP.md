@@ -194,3 +194,13 @@ Inspected actual decoded WebP pixels: `button-view-all.webp` is a purple Persian
 ### Browser evidence
 
 `tests/restore-browser.mjs` saves screenshot and JSON acceptance under `browser-artifacts/$GITHUB_SHA/`. Fixtures are isolated local test records; Firebase production is NOT TESTED. Local Chromium cannot launch in this environment (SIGTRAP); CI captures real browser output.
+
+---
+
+## الحاقیهٔ ۱ اکتبر ۲۰۲۶ — Social / Privacy / Organization / Interaction
+
+نیازمندی‌های تازهٔ کاربر دربارهٔ **Friends Activity، حریم خصوصی granular، Like/Comment، Friends تخصصی، Mission/Notification، اسکرول داخلی، Ranking visual، i18n کامل UI با حفظ زبان دادهٔ کاربر، Multi-select، Edit/Delete از همهٔ Surfaceها، Drag/Reorder، List/Folder مستقل، Cover Upload و Metadata Search کتاب، Reading، Popup/Notification و Assetهای جدید** در سند زیر به‌صورت canonical ثبت شده‌اند:
+
+[ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md](docs/ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md)
+
+این سند جدیدتر در تعارض‌های مربوط به همین قابلیت‌ها مقدم است. ثبت آن به معنی اجرا یا PASS نیست؛ هر آیتم باید `REQUESTED → CODED → TESTED → VERIFIED` را جدا طی کند. برای Social/Privacy بدون تست واقعی دو UID و Rules منتشرشده، PASS ممنوع است.
