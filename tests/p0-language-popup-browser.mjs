@@ -114,6 +114,8 @@ await page.screenshot({path:`${out}/settings-home-390.png`,fullPage:false});
 const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),11,'Settings list must expose exactly the P0 destinations');
 const settingsOrder=await menuButtons.evaluateAll(xs=>xs.map(x=>x.dataset.drawerNav||(x.hasAttribute('data-approved-wardrobe')?'wardrobe':x.dataset.drawerAction||'')));
 assert.deepEqual(settingsOrder,['account','appearance','privacy','wardrobe','security','notifications','folders','language','calendar','help','logout'],'Settings list order drifted');
+const settingsIcons=await menuButtons.evaluateAll(xs=>xs.map(x=>{const host=x.querySelector(':scope > .elara-icon');const svg=host?.querySelector('svg'),mark=svg?.querySelector('path,rect,circle,line,polyline,polygon,ellipse');const r=host?.getBoundingClientRect();return{hasHost:!!host,hasSvg:!!svg,hasMark:!!mark,w:r?.width||0,h:r?.height||0,color:host?getComputedStyle(host).color:''}}));
+assert.equal(settingsIcons.every(x=>x.hasHost&&x.hasSvg&&x.hasMark&&x.w>=24&&x.h>=24),true,'Settings menu contains blank icon placeholders: '+JSON.stringify(settingsIcons));
 const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Settings mobile menu is not one column: '+menuLayout.columns);
 assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y)),true,'Settings rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
