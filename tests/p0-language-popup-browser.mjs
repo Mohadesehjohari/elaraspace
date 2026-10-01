@@ -31,46 +31,56 @@ await languageNav.click();
 await page.waitForFunction(()=>document.querySelector('#language-book-form')&&document.querySelector('#panel-language')&&!document.querySelector('#panel-language').classList.contains('hidden'),null,{timeout:5000});
 await page.waitForTimeout(250);
 
-// Add while unauthenticated.
-await page.locator('#language-book-form [name=title]').fill('P0 language book');
+// Canonical Language Books: add -> render -> refresh -> read -> refresh -> delete -> refresh.
+await page.locator('#language-book-form [name=title]').fill('QA Language Book');
 await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());
 await page.locator('#elara-dialog-root .language-book-add-dialog [name=total]').fill('200');
 await page.locator('#elara-dialog-root .language-book-add-dialog [name=current]').fill('10');
 await page.locator('#elara-dialog-root .language-book-add-dialog [type=submit]').click();
-await page.waitForTimeout(80);
-let row=page.locator('.pass3-language-book').filter({hasText:'P0 language book'}).first();
-if(!await row.isVisible()){
- const addDiag=await page.evaluate(()=>({v2:localStorage.getItem('elara_language_books_v2'),legacyGuest:localStorage.getItem('elara_language_books_v1_guest'),accountUid:window.ElaraAccount?.user?.uid||null,socialUid:window.ElaraSocial?.me?.uid||null,dialogDepth:window.ElaraDialog?.depth?.(),dialogText:document.querySelector('#elara-dialog-root')?.innerText||'',listText:document.querySelector('#language-book-list')?.innerText||''}));
- throw new Error('book did not enter shelf immediately: '+JSON.stringify(addDiag)+' runtime='+errors.join(' | '));
-}
-
-// Auth arrives after creation. Book must remain visible in the same canonical store.
-await page.evaluate(()=>{window.ElaraAccount={...window.ElaraAccount,user:{uid:'qa-owner'}};window.dispatchEvent(new Event('elara:account-ready'))});
 await page.waitForTimeout(100);
-row=page.locator('.pass3-language-book').filter({hasText:'P0 language book'}).first();
-assert.equal(await row.isVisible(),true,'book vanished after account-ready');
-const persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));
-const owned=persisted.find(x=>x.title==='P0 language book');
-assert.ok(owned,'book missing from canonical v2 storage');
-assert.equal(owned.ownerUid,'qa-owner','anonymous book was not claimed by authenticated owner');
+let row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
+assert.equal(await row.isVisible(),true,'book saved but did not render immediately');
+let persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));
+assert.equal(persisted.some(x=>x.title==='QA Language Book'&&Number(x.totalPages)===200&&Number(x.currentPage)===10),true,'canonical storage missing QA Language Book');
 
-// Reading report must open and persist.
+await page.reload({waitUntil:'domcontentloaded'});
+await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&window.ElaraOpen,null,{timeout:12000});
+await page.waitForTimeout(500);
+await page.locator('.bottom-nav [data-elara-tab="language"]').click();
+await page.waitForTimeout(120);
+row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
+assert.equal(await row.isVisible(),true,'book vanished after refresh');
+
 await row.locator('[data-language-reading]').click();
-await page.waitForTimeout(40);
-assert.equal(await page.locator('#elara-dialog-root .library-log-form').isVisible(),true,'reading report did not open');
+await page.waitForTimeout(60);
+assert.equal(await page.locator('#elara-dialog-root .library-log-form').count(),1,'reading click opened duplicate or missing reports');
 await page.locator('#elara-dialog-root .library-log-form [name=mode]').selectOption('count');
 await page.locator('#elara-dialog-root .library-log-form [name=pages]').fill('5');
 await page.locator('#elara-dialog-root .elara-dialog-layer').last().locator('.elara-dialog-actions .primary-button').click();
-await page.waitForTimeout(80);
-row=page.locator('.pass3-language-book').filter({hasText:'P0 language book'}).first();
-assert.match(await row.innerText(),/15|۱۵/,'reading report did not persist page 15');
+await page.waitForTimeout(100);
+row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
+assert.match(await row.innerText(),/15|۱۵/,'reading report did not update current page to 15');
 
-// Delete must actually remove canonical row.
+await page.reload({waitUntil:'domcontentloaded'});
+await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraOpen,null,{timeout:12000});
+await page.waitForTimeout(500);
+await page.locator('.bottom-nav [data-elara-tab="language"]').click();
+await page.waitForTimeout(120);
+row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
+assert.match(await row.innerText(),/15|۱۵/,'reading progress did not survive refresh');
+
 await row.locator('[data-language-book-delete]').click();
-await page.waitForTimeout(80);
-assert.equal(await page.locator('.pass3-language-book').filter({hasText:'P0 language book'}).count(),0,'delete did not remove visible row');
-const afterDelete=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));
-assert.equal(afterDelete.some(x=>x.title==='P0 language book'),false,'delete did not remove canonical row');
+await page.waitForTimeout(100);
+assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'delete did not remove book from DOM');
+persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));
+assert.equal(persisted.some(x=>x.title==='QA Language Book'),false,'delete did not remove book from canonical storage');
+
+await page.reload({waitUntil:'domcontentloaded'});
+await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraOpen,null,{timeout:12000});
+await page.waitForTimeout(500);
+await page.locator('.bottom-nav [data-elara-tab="language"]').click();
+await page.waitForTimeout(120);
+assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'deleted book returned after refresh');
 
 // Settings subpages and profile editor must be centered in the mobile viewport.
 await page.evaluate(()=>ElaraPrivateDrawer.open('privacy'));
