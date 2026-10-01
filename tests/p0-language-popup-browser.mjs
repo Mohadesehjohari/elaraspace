@@ -135,8 +135,12 @@ assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0,
 assert.equal(await page.locator('#elara-notification-popover:not(.hidden)').count(),0,'Notifications remained open after Back');
 
 stage('notifications:pass');stage('task-mobile:start');
+// A closed full-screen drawer must not remain in the pointer hit-test path.
+const taskNav=page.locator('.bottom-nav [data-elara-tab="tasks"]'),taskNavBox=await taskNav.boundingBox();assert.ok(taskNavBox,'Tasks nav has no box');
+const blocker=await page.evaluate(({x,y})=>{const el=document.elementFromPoint(x,y);return {tag:el?.tagName||'',classes:String(el?.className||''),drawer:!!el?.closest?.('.elara-private-drawer')}},{x:taskNavBox.x+taskNavBox.width/2,y:taskNavBox.y+taskNavBox.height/2});
+assert.equal(blocker.drawer,false,'closed Settings drawer still intercepts mobile nav: '+JSON.stringify(blocker));
 // Task kebab mobile: topmost and real delete fixture.
-await page.locator('.bottom-nav [data-elara-tab="tasks"]').click();await page.waitForTimeout(160);
+await taskNav.click();await page.waitForTimeout(160);
 let kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'390 task kebab hidden');await summary.click();await page.waitForTimeout(40);
 let menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'390 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'390 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'390 Delete missing');await topmost(page,'.astra-task-more[open] .item-actions','390 task menu');
 await menu.locator('[data-phase2-action="delete-task"]').click();await page.waitForTimeout(40);const danger=page.locator('#elara-dialog-root .elara-dialog-danger').last();if(await danger.count()){await danger.click();await page.waitForTimeout(80)}
