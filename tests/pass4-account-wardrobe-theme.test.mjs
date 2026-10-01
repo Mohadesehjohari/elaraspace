@@ -98,7 +98,10 @@ const view=ps.viewModel({uid:'A',name:'Aren',username:'aren',xp:0},{self:true});
 const composition=ps.composition(view);
 assert.match(composition,/elara-profile-avatar-img/);
 assert.match(composition,/elara-profile-frame-img/);
-assert.match(composition,/banner-moon\.svg/);
+assert.match(composition,/assets\/ui\/banner1\.webp/);
+assert.deepEqual(JSON.parse(JSON.stringify(ps.BANNERS.map(x=>[x.id,x.required,x.path]))),[
+  ['moon',1,'assets/ui/banner1.webp'],['dream',4,'assets/ui/banner2.webp'],['castle',8,'assets/ui/banner3.webp'],['dawn',10,'assets/ui/banner4.webp']
+]);
 assert.match(composition,/Level 1/);
 
 const wardrobeClickBlock=visualSource.slice(visualSource.indexOf("const itemButton=event.target.closest('[data-wardrobe-item]')"),visualSource.indexOf("const del=event.target.closest('[data-language-book-delete]')"));
@@ -149,7 +152,7 @@ dt.setMode('amoled');
 pref=JSON.parse(drawerMemory.get('elara_preferences_v2'));
 assert.equal(pref.mode,'dark','AMOLED must reuse existing dark preference schema');
 assert.equal(drawerMemory.get('elara_amoled'),'yes');
-for(const token of ["'dark','Dark'","'light','Light'","'system','System'","'amoled','AMOLED'","'default','Elara Neon'","'minimal','Minimal'","'rugged','Rugged'","'anime','Anime'","['violet','یاسی']","['black','مشکی']"])assert.ok(drawerSource.includes(token),'Theme selector missing '+token);
+for(const token of ["dark:'assets/ui/theme_dark.webp'","light:'assets/ui/theme_white.webp'","system:'assets/ui/theme.webp'","minimal:'assets/ui/theme_minimal.webp'","rugged:'assets/ui/city_theme.webp'","anime:'assets/ui/theme_spring.webp'","violet:'assets/ui/theme_galaxy_purple.webp'","blue:'assets/ui/theme_blue.webp'","green:'assets/ui/theme_forest_green.webp'","orange:'assets/ui/theme_orange.webp'"])assert.ok(drawerSource.includes(token),'Theme artwork mapping missing '+token);
 
 const forbidden=/[\u{1F300}-\u{1FAFF}☑⚙⌂♛♧◐☀☾◉◎▤◈◷◇✦✧▥▣◫⌕★]/u;
 for(const [name,source] of [['elara-design.css',designCss],['approved-visual.css',visualCss],['visual-fidelity-pass4.css',pass4Css]])assert.ok(!forbidden.test(source),name+' contains forbidden pictographic glyph');

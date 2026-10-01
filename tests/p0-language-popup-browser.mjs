@@ -120,6 +120,12 @@ const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getCo
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Settings mobile menu is not one column: '+menuLayout.columns);
 assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y)),true,'Settings rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
 const settingsScroll=await page.locator('.drawer-menu').evaluate(el=>({overflow:getComputedStyle(el).overflowY,scroll:el.scrollHeight,client:el.clientHeight}));assert.ok(settingsScroll.overflow==='auto'||settingsScroll.overflow==='scroll','Settings list itself must own mobile scrolling');
+await page.locator('.drawer-menu [data-drawer-nav="appearance"]').click();await page.waitForTimeout(100);
+const themeImgs=page.locator('[data-drawer-section="appearance"] img.pass4-theme-art,[data-drawer-section="appearance"] img.pass4-accent-art');
+assert.equal(await themeImgs.count(),15,'Appearance must render 8 mode/style + 7 accent uploaded previews');
+assert.equal(await themeImgs.evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),true,'One or more uploaded theme previews failed to decode');
+await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
+await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
 await page.locator('.drawer-menu [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
@@ -134,6 +140,12 @@ stage('settings-account:pass');stage('wardrobe:start');
 await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(70);
 await withinViewport(page,'.approved-wardrobe-window','Wardrobe');await topmost(page,'.approved-wardrobe-window','Wardrobe');
 let z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),wardrobe:Number(getComputedStyle(document.querySelector('.approved-wardrobe')).zIndex)}));assert.ok(z.wardrobe>z.drawer,'Wardrobe below Settings '+JSON.stringify(z));
+assert.equal(await page.locator('.approved-wardrobe .wardrobe-title-art').evaluate(x=>x.complete&&x.naturalWidth>0),true,'Wardrobe hanger artwork failed to load');
+const moreBanners=page.locator('.approved-wardrobe [data-wardrobe-more="banner"]');if(await moreBanners.count())await moreBanners.click();await page.waitForTimeout(60);
+const wardrobeBanners=page.locator('.approved-wardrobe [data-wardrobe-item="banner"]');assert.equal(await wardrobeBanners.count(),4,'Wardrobe must expose four uploaded banners');
+const bannerBackgrounds=await wardrobeBanners.evaluateAll(xs=>xs.map(x=>getComputedStyle(x.querySelector('.wardrobe-banner')).backgroundImage));
+for(const name of ['banner1.webp','banner2.webp','banner3.webp','banner4.webp'])assert.ok(bannerBackgrounds.some(x=>x.includes(name)),'Wardrobe missing '+name);
+await page.screenshot({path:`${out}/wardrobe-banners-390.png`,fullPage:false});
 await page.locator('.approved-wardrobe [data-back-wardrobe]').click();await page.waitForTimeout(30);
 
 stage('wardrobe:pass');stage('profile:start');

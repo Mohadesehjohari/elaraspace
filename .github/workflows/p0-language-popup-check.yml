@@ -4,6 +4,14 @@ on:
     branches: [main]
     paths:
       - 'approved-visual.js'
+      - 'tests/artwork-home-browser-acceptance.mjs'
+      - 'tests/astra-reference-v2.test.cjs'
+      - 'tests/pass4-account-wardrobe-theme.test.mjs'
+      - 'approved-wellness.js'
+      - 'reference-home-shell-2026.css'
+      - 'reference-home-shell-2026.js'
+      - 'visual-fidelity-pass4.css'
+      - 'approved-profile-system.js'
       - 'approved-navigation-extension.js'
       - 'approved-navigation-extension.css'
       - 'notifications.js'
@@ -41,6 +49,9 @@ jobs:
           node --check drawer.js
           node --check dialog.js
           node --check phase2.js
+          node --check approved-profile-system.js
+          node --check approved-wellness.js
+          node --check reference-home-shell-2026.js
           node --check tests/p0-language-popup-browser.mjs
       - name: Install Chromium
         run: |
@@ -76,7 +87,7 @@ jobs:
       - name: Wait for END build on GitHub Pages
         env:
           ELARA_PUBLIC_URL: https://mohadesehjohari.github.io/elaraspace/
-          ELARA_BUILD_MARKER: 20261001-freedom-v26
+          ELARA_BUILD_MARKER: 20261001-assets-v27
         run: |
           for attempt in $(seq 1 48); do
             if curl --fail --silent --show-error --location --max-time 15 "${ELARA_PUBLIC_URL}?sha=${GITHUB_SHA}-${attempt}" -o /tmp/elara-pages-index.html; then
