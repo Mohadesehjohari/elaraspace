@@ -563,3 +563,87 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #panel-home.ref-home .ref-right-stack>.ref-ranks,
  #panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1!important;width:100%!important}
 }
+
+
+/* 2026-10-01 interaction recovery v5 — user-reported mobile/runtime regressions. */
+/* Task kebab is never removed. Its actions float over following cards. */
+#panel-tasks .astra-task-more{
+ display:block!important;position:relative!important;overflow:visible!important;visibility:visible!important;opacity:1!important
+}
+#panel-tasks .astra-task-more>summary{
+ display:grid!important;place-items:center!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+ width:34px!important;min-width:34px!important;height:42px!important;min-height:42px!important;cursor:pointer!important
+}
+#panel-tasks .astra-task-more[open]{z-index:500!important}
+#panel-tasks .astra-task-more[open] .item-actions{
+ display:grid!important;position:absolute!important;z-index:520!important;
+ inset-block-start:calc(100% + 6px)!important;inset-inline-end:0!important;inset-inline-start:auto!important;
+ min-width:168px!important;padding:10px!important;border-radius:12px!important;
+ background:var(--surface)!important;border:1px solid var(--border)!important;
+ box-shadow:0 18px 42px #000d!important
+}
+#panel-tasks #task-list>.item:has(.astra-task-more[open]){z-index:510!important}
+
+/* Wardrobe and profile/editor dialogs opened from Settings must sit above the Settings drawer. */
+.approved-wardrobe{z-index:100200!important}
+#elara-dialog-root{z-index:100240!important}
+
+/* Keep the real eight mobile destinations visible. Home stays in the geometric center. */
+@media(max-width:700px){
+ .bottom-nav{
+  --elara-nav-step:clamp(31px,9.2vw,40px)!important;
+  display:block!important;position:fixed!important;inset:auto 0 0!important;
+  width:100%!important;height:78px!important;overflow:hidden!important;padding:0!important;direction:ltr!important
+ }
+ .bottom-nav>[data-elara-nav-kind]{
+  position:absolute!important;top:4px!important;left:calc(50% + var(--nav-offset,0px))!important;
+  right:auto!important;bottom:auto!important;transform:translateX(-50%)!important;
+  width:36px!important;min-width:36px!important;max-width:36px!important;height:68px!important;
+  display:grid!important;grid-template-rows:32px auto!important;justify-items:center!important;align-content:center!important;
+  gap:2px!important;padding:2px 0!important;margin:0!important;overflow:visible!important
+ }
+ .bottom-nav [data-elara-tab="exercise"]{--nav-offset:calc(var(--elara-nav-step) * -4)}
+ .bottom-nav [data-elara-tab="language"]{--nav-offset:calc(var(--elara-nav-step) * -3)}
+ .bottom-nav [data-elara-tab="tasks"]{--nav-offset:calc(var(--elara-nav-step) * -2)}
+ .bottom-nav [data-elara-tab="social"]{--nav-offset:calc(var(--elara-nav-step) * -1)}
+ .bottom-nav [data-elara-tab="home"]{--nav-offset:0px;z-index:3!important;width:46px!important;min-width:46px!important;max-width:46px!important}
+ .bottom-nav [data-elara-tab="ranking"]{--nav-offset:var(--elara-nav-step)}
+ .bottom-nav [data-elara-tab="books"]{--nav-offset:calc(var(--elara-nav-step) * 2)}
+ .bottom-nav [data-elara-tab="freedom"]{--nav-offset:calc(var(--elara-nav-step) * 4)}
+ .bottom-nav>[data-elara-nav-kind] .elara-nav-art{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important}
+ .bottom-nav>[data-elara-tab="home"] .elara-nav-art{width:34px!important;height:34px!important}
+ .bottom-nav>[data-elara-nav-kind] small{
+  display:block!important;max-width:42px!important;font-size:clamp(7px,2vw,8.5px)!important;line-height:1.05!important;
+  white-space:nowrap!important;overflow:visible!important;text-align:center!important
+ }
+
+ /* Settings home is a list. Any destination opens as its own modal-like page with a back control. */
+ .elara-private-drawer-panel[data-mobile-section]:not([data-mobile-section="home"]){
+  width:min(96vw,520px)!important;height:min(94dvh,900px)!important;max-height:94dvh!important;
+  padding:8px!important;overflow:hidden!important
+ }
+ .elara-private-drawer-panel[data-mobile-section]:not([data-mobile-section="home"])>.drawer-profile-head,
+ .elara-private-drawer-panel[data-mobile-section]:not([data-mobile-section="home"])>.drawer-menu{
+  display:none!important
+ }
+ .elara-private-drawer-panel[data-mobile-section]:not([data-mobile-section="home"])>[data-drawer-section]:not(.hidden){
+  display:block!important;position:relative!important;width:100%!important;height:100%!important;min-height:0!important;
+  overflow:auto!important;padding:12px 12px calc(20px + env(safe-area-inset-bottom))!important;
+  border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%)!important;border-radius:18px!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 96%,#081b38 4%),var(--surface))!important;
+  box-shadow:0 18px 55px #0008!important
+ }
+ .elara-private-drawer-panel[data-mobile-section]:not([data-mobile-section="home"]) .drawer-section-head{
+  position:sticky!important;top:-12px!important;z-index:8!important;margin:-12px -12px 12px!important;padding:12px!important;
+  background:color-mix(in srgb,var(--surface) 94%,transparent)!important;backdrop-filter:blur(12px)!important
+ }
+
+ /* The profile editor exposes Save immediately and keeps it available while the form scrolls. */
+ #elara-central-profile-form>.pass4-profile-edit-actions-top{
+  position:sticky!important;top:0!important;z-index:12!important;display:flex!important;justify-content:stretch!important;
+  margin:0 0 10px!important;padding:8px!important;border-radius:12px!important;
+  background:color-mix(in srgb,var(--surface) 94%,transparent)!important;backdrop-filter:blur(12px)!important
+ }
+ #elara-central-profile-form>.pass4-profile-edit-actions-top>.primary-button{width:100%!important;min-height:44px!important}
+ .approved-wardrobe-window{width:min(96vw,520px)!important;max-height:94dvh!important;padding:12px!important}
+}
