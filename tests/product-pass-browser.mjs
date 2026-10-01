@@ -156,6 +156,7 @@ for(const width of all){
    added=page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).first();assert.equal(await added.isVisible(),true,'language book vanished when account became ready');
    const migrated=await page.evaluate(()=>({guest:JSON.parse(localStorage.getItem('elara_language_books_v1_guest')||'[]'),owned:JSON.parse(localStorage.getItem('elara_language_books_v1_language-owner-qa')||'[]')}));
    assert.ok(migrated.owned.some(x=>x.title==='Browser language add'),'language book was not migrated to authenticated owner');assert.equal(migrated.guest.some(x=>x.title==='Browser language add'),false,'migrated language book remained stranded in guest storage');
+   for(const sel of ['[data-language-reading]','[data-language-book-delete]']){const b=added.locator(sel),box=await b.boundingBox();assert.ok(box,sel+' missing box');const hit=await page.evaluate(({x,y,sel})=>document.elementFromPoint(x,y)?.closest(sel)?.matches(sel)||false,{x:box.x+box.width/2,y:box.y+box.height/2,sel});assert.equal(hit,true,sel+' is covered by another layer')}
    await added.locator('[data-language-book-delete]').click();await page.waitForTimeout(35);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).count(),0,'newly added language book could not be deleted after account migration');
    await page.evaluate(()=>{window.ElaraAccount={user:null,profile:null}});
   });
@@ -200,7 +201,7 @@ for(const width of all){
    for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
     await page.evaluate(section=>ElaraPrivateDrawer.open(section),section);await page.waitForTimeout(45);
     assert.equal(await page.locator('.elara-private-drawer:not(.hidden) .elara-private-drawer-panel>[data-drawer-section="'+section+'"]:not(.hidden)').count(),1,section+' must open inside the Settings modal');
-    if(mobile){assert.equal(await page.locator('.elara-private-drawer-panel').getAttribute('data-mobile-section'),section);assert.equal(await page.locator('.drawer-menu').isVisible(),false,section+' should open as its own mobile subpage')}
+    if(mobile){assert.equal(await page.locator('.elara-private-drawer-panel').getAttribute('data-mobile-section'),section);assert.equal(await page.locator('.drawer-menu').isVisible(),false,section+' should open as its own mobile subpage');const box=await page.locator('.elara-private-drawer-panel').boundingBox(),vh=await page.evaluate(()=>innerHeight);assert.ok(box&&Math.abs((box.y+box.height/2)-vh/2)<=Math.max(12,vh*.05),section+' settings panel is not vertically centered')}
     assert.equal(await page.locator('#main [data-drawer-section="'+section+'"]').count(),0,section+' leaked inline under the page');
    }
    assert.equal(await page.locator('#main .drawer-account-area').count(),0,'Settings section leaked inline into page');

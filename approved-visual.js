@@ -57,12 +57,60 @@ function normalizeLanguageBook(raw){
  const base={...raw,readingLogs:safeList(raw?.readingLogs),currentPage:Number(raw?.currentPage||0),totalPages:Number(raw?.totalPages||0)};
  return window.ElaraReading?.normalize?window.ElaraReading.normalize(base):base
 }
+function deleteLanguageBook(id){
+ const wanted=String(id||'');if(!wanted)return false;
+ const owner=languageBookOwner(wanted),books=readBooks(owner),next=books.filter(b=>String(b.id)!==wanted);
+ if(next.length===books.length)return false;
+ pendingGuestLanguageIds.delete(wanted);
+ if(!writeBooks(next,owner))return false;
+ renderLanguage();return true
+}
+function openLanguageReading(id){
+ const wanted=String(id||'');if(!wanted)return;
+ const owner=languageBookOwner(wanted),books=readBooks(owner),index=books.findIndex(b=>String(b.id)===wanted);if(index<0)return;
+ const openReading=()=>{
+  const activeOwner=languageBookOwner(wanted),fresh=readBooks(activeOwner),idx=fresh.findIndex(b=>String(b.id)===wanted);if(idx<0)return;
+  const b=fresh[idx];if(!b.totalPages)return;
+  const form=document.createElement('div');form.className='library-log-form';
+  form.innerHTML='<p>صفحهٔ فعلی: '+Number(b.currentPage||0).toLocaleString('fa-IR')+' / '+Number(b.totalPages||0).toLocaleString('fa-IR')+'</p><label>روش ثبت<select name="mode"><option value="count">امروز X صفحه خواندم</option><option value="page">رسیدم به صفحه Y</option></select></label><label>تعداد / شماره صفحه<input name="pages" type="number" min="1" max="'+b.totalPages+'" required></label>';
+  window.ElaraDialog.open({title:'گزارش مطالعه کتاب زبان',content:form,actions:[{label:'انصراف',value:false},{label:'ثبت',value:true,kind:'primary'}]}).then(ok=>{
+   if(ok!==true)return;
+   try{
+    const next=window.ElaraReading.record(b,form.querySelector('[name=mode]').value,form.querySelector('[name=pages]').value),last=next.readingLogs[next.readingLogs.length-1],pct=window.ElaraReading.progress(next);
+    fresh[idx]=next;if(!writeBooks(fresh,activeOwner))return;
+    window.ElaraNotify?.push?.({type:'reading',title:'مطالعه زبان ثبت شد',message:'امروز '+last.pagesRead.toLocaleString('fa-IR')+' صفحه از «'+next.title+'» خوندی 📚🔥',dedupeKey:'language-reading:'+next.id+':'+last.timestamp});
+    window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title,visibility:'friends'});renderLanguage()
+   }catch(error){console.error('Language reading report:',error)}
+  })
+ };
+ if(!books[index].totalPages){
+  const setup=document.createElement('div');setup.className='library-add-book-dialog';
+  setup.innerHTML='<p><strong>'+esc(books[index].title||'کتاب')+'</strong></p><p class="muted">برای ثبت مطالعه، یک‌بار تعداد کل صفحات را مشخص کن.</p><label>کل صفحات<input name="total" type="number" min="1" max="1000000" required></label><label>صفحه فعلی<input name="current" type="number" min="0" max="1000000" value="'+Number(books[index].currentPage||0)+'"></label>';
+  window.ElaraDialog.open({title:'تعداد صفحات کتاب',content:setup,actions:[{label:'انصراف',value:false},{label:'ذخیره و ادامه',value:true,kind:'primary'}]}).then(ok=>{
+   if(ok!==true)return;
+   const total=Math.floor(Number(setup.querySelector('[name=total]').value)||0),current=Math.floor(Number(setup.querySelector('[name=current]').value)||0);if(total<1||current<0||current>total)return;
+   books[index]=window.ElaraReading?.normalize?window.ElaraReading.normalize({...books[index],totalPages:total,currentPage:current,shelf:current>=total?'finished':'reading'}):{...books[index],totalPages:total,currentPage:current};
+   if(!writeBooks(books,owner))return;renderLanguage();openReading()
+  });return
+ }
+ openReading()
+}
+function bindLanguageBookActions(){
+ const list=$('language-book-list');if(!list)return;
+ list.querySelectorAll('[data-language-book-delete]').forEach(button=>{
+  button.onclick=event=>{event.preventDefault();event.stopPropagation();deleteLanguageBook(button.dataset.languageBookDelete)}
+ });
+ list.querySelectorAll('[data-language-reading]').forEach(button=>{
+  button.onclick=event=>{event.preventDefault();event.stopPropagation();openLanguageReading(button.dataset.languageReading)}
+ });
+}
 function renderLanguage(){
  if(!$('language-stat-row'))return;
  const state=data(),words=safeList(state.words),books=readBooks(),reading=books.filter(x=>x.shelf==='reading'),finished=books.filter(x=>x.shelf==='finished');
  $('language-stat-row').innerHTML=`<div>${icon('brain')}<strong>${words.length.toLocaleString('fa-IR')}</strong><small>واژه‌ها</small></div><div>${icon('book')}<strong>${reading.length.toLocaleString('fa-IR')}</strong><small>در حال مطالعه</small></div><div>${icon('check')}<strong>${finished.length.toLocaleString('fa-IR')}</strong><small>خوانده‌شده</small></div>`;
  $('language-book-list').innerHTML=books.length?books.map(b=>{const pct=b.totalPages?Math.min(100,Math.round((b.currentPage||0)/b.totalPages*100)):0;return `<article class="pass3-language-book ${b.shelf==='finished'?'is-finished':'is-reading'}"><span class="pass3-book-cover">${icon('book')}</span><div class="pass3-book-copy"><strong>${esc(b.title)}</strong><small>${b.shelf==='finished'?'خوانده‌شده':'در حال مطالعه'}</small><span class="pass3-book-status">صفحه ${Number(b.currentPage||0).toLocaleString('fa-IR')} از ${b.totalPages?Number(b.totalPages).toLocaleString('fa-IR'):'—'} · ${pct.toLocaleString('fa-IR')}٪</span><span class="elara-track"><i style="width:${pct}%"></i></span></div><div class="pass3-book-actions"><button class="primary-button" type="button" data-language-reading="${esc(b.id)}">ثبت مطالعه</button><button class="quiet-button" type="button" data-language-book-delete="${esc(b.id)}" aria-label="حذف کتاب ${esc(b.title)}">×</button></div></article>`}).join(''):'<p class="empty-note">قفسه‌ت هنوز منتظر اولین ماجراجوییه 📚✨ یه کتاب اضافه کن و از همون چند صفحهٔ اول شروع کنیم.</p>';
  $('language-reports').innerHTML=`<div class="lang-stat-row"><div><strong>${words.length.toLocaleString('fa-IR')}</strong><small>واژهٔ ثبت‌شده</small></div><div><strong>${books.length.toLocaleString('fa-IR')}</strong><small>کل کتاب‌ها</small></div><div><strong>${finished.length.toLocaleString('fa-IR')}</strong><small>کتاب تمام‌شده</small></div></div><div id="pass3-language-chart" class="pass3-language-chart" aria-label="نمودار گزارش یادگیری"></div>`;
+ bindLanguageBookActions();
  window.dispatchEvent(new Event('elara:language-rendered'));
 }
 function refreshHome(){if(window.ElaraReferenceHome)return;
@@ -108,14 +156,8 @@ function wire(){
   const group=event.target.closest('[data-wardrobe-group]');if(group){storeWardrobe({avatarGroup:group.dataset.wardrobeGroup});selectedPreview=null;drawWardrobe();return}
   const more=event.target.closest('[data-wardrobe-more]');if(more){showAll[more.dataset.wardrobeMore]=true;drawWardrobe();return}
   const itemButton=event.target.closest('[data-wardrobe-item]');if(itemButton){const system=profileSystem(),kind=itemButton.dataset.wardrobeItem,id=itemButton.dataset.wardrobeId,required=Number(itemButton.dataset.required||0),locked=level()<required;let preview={kind,id,label:itemButton.querySelector('small')?.textContent||id,locked};if(kind==='avatar'){const parts=id.split(':');preview={...preview,group:parts[0],level:Number(parts[1])};if(!locked&&system.canEquipAvatar(parts[0],Number(parts[1]),level()))storeWardrobe({avatarGroup:parts[0],avatarLevel:Number(parts[1])})}else if(kind==='frame'){if(!locked&&system.canEquipFrame(id,level()))storeWardrobe({frame:id})}else if(kind==='banner'){if(!locked&&system.canEquipBanner(id,level()))storeWardrobe({banner:id})}selectedPreview=preview;drawWardrobe();return}
-  const del=event.target.closest('[data-language-book-delete]');if(del){event.preventDefault();event.stopPropagation();const id=String(del.dataset.languageBookDelete||''),owner=languageBookOwner(id),books=readBooks(owner).filter(b=>String(b.id)!==id);pendingGuestLanguageIds.delete(id);if(writeBooks(books,owner))renderLanguage();return}
-  const readButton=event.target.closest('[data-language-reading]');if(readButton){
-   event.preventDefault();event.stopPropagation();
-   const id=String(readButton.dataset.languageReading||''),owner=languageBookOwner(id),books=readBooks(owner),index=books.findIndex(b=>String(b.id)===id);if(index<0)return;
-   const openReading=()=>{const activeOwner=languageBookOwner(id),fresh=readBooks(activeOwner),idx=fresh.findIndex(b=>String(b.id)===id);if(idx<0)return;const b=fresh[idx];if(!b.totalPages)return;const form=document.createElement('div');form.className='library-log-form';form.innerHTML='<p>صفحهٔ فعلی: '+Number(b.currentPage||0).toLocaleString('fa-IR')+' / '+Number(b.totalPages||0).toLocaleString('fa-IR')+'</p><label>روش ثبت<select name="mode"><option value="count">امروز X صفحه خواندم</option><option value="page">رسیدم به صفحه Y</option></select></label><label>تعداد / شماره صفحه<input name="pages" type="number" min="1" max="'+b.totalPages+'" required></label>';window.ElaraDialog.open({title:'گزارش مطالعه کتاب زبان',content:form,actions:[{label:'انصراف',value:false},{label:'ثبت',value:true,kind:'primary'}]}).then(ok=>{if(ok!==true)return;try{const next=window.ElaraReading.record(b,form.querySelector('[name=mode]').value,form.querySelector('[name=pages]').value),last=next.readingLogs[next.readingLogs.length-1],pct=window.ElaraReading.progress(next);fresh[idx]=next;if(!writeBooks(fresh,activeOwner))return;window.ElaraNotify?.push?.({type:'reading',title:'مطالعه زبان ثبت شد',message:'امروز '+last.pagesRead.toLocaleString('fa-IR')+' صفحه از «'+next.title+'» خوندی 📚🔥',dedupeKey:'language-reading:'+next.id+':'+last.timestamp});window.ElaraSocial?.publishActivity?.('reading',{pagesRead:last.pagesRead,percentAfter:pct,bookTitle:next.title,visibility:'friends'});renderLanguage()}catch(error){console.error('Language reading report:',error)}})};
-   if(!books[index].totalPages){const setup=document.createElement('div');setup.className='library-add-book-dialog';setup.innerHTML='<p><strong>'+esc(books[index].title||'کتاب')+'</strong></p><p class="muted">برای ثبت مطالعه، یک‌بار تعداد کل صفحات را مشخص کن.</p><label>کل صفحات<input name="total" type="number" min="1" max="1000000" required></label><label>صفحه فعلی<input name="current" type="number" min="0" max="1000000" value="'+Number(books[index].currentPage||0)+'"></label>';window.ElaraDialog.open({title:'تعداد صفحات کتاب',content:setup,actions:[{label:'انصراف',value:false},{label:'ذخیره و ادامه',value:true,kind:'primary'}]}).then(ok=>{if(ok!==true)return;const total=Math.floor(Number(setup.querySelector('[name=total]').value)||0),current=Math.floor(Number(setup.querySelector('[name=current]').value)||0);if(total<1||current<0||current>total)return;books[index]=window.ElaraReading?.normalize?window.ElaraReading.normalize({...books[index],totalPages:total,currentPage:current,shelf:current>=total?'finished':'reading'}):{...books[index],totalPages:total,currentPage:current};if(!writeBooks(books,owner))return;renderLanguage();openReading()});return}
-   openReading();return
-  }
+  const del=event.target.closest('[data-language-book-delete]');if(del){event.preventDefault();event.stopPropagation();deleteLanguageBook(del.dataset.languageBookDelete);return}
+  const readButton=event.target.closest('[data-language-reading]');if(readButton){event.preventDefault();event.stopPropagation();openLanguageReading(readButton.dataset.languageReading);return}
  /* Language book actions are handled during capture so nested cards/legacy owners
     cannot swallow Delete or Reading Report clicks before Elara sees them. */
  },true);

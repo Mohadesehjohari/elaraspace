@@ -26,9 +26,10 @@
   function closeInternal(){root?.classList.add('hidden');document.body.classList.remove('elara-private-drawer-open')}
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
-  function open(section='home'){if(!root)return;root.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100180);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
+  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;root.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100180);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
   function show(section='home'){
     current=section;
+    if(root)root.dataset.mobileSection=section;
     if(panel)panel.dataset.mobileSection=section;
     panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!==section));
     panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
