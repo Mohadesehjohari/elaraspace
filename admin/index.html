@@ -40,7 +40,7 @@
       <header class="topbar">
         <div class="brand">
           <img src="../assets/logo.svg" alt="" class="logo small">
-          <div><strong>Elara Admin</strong><small>Admin Core · v0.1</small></div>
+          <div><strong>Elara Admin</strong><small>Admin Core · v0.2</small></div>
         </div>
         <div class="admin-user">
           <span id="admin-role" class="role-badge">—</span>
@@ -100,10 +100,58 @@
           </div>
 
           <div id="panel-ai" class="panel hidden">
-            <div class="heading"><div><p class="kicker">AI GATEWAY</p><h2>Gemini / Elara AI</h2></div></div>
-            <article class="card placeholder">
-              <h3>کلید API اینجا ذخیره نمی‌شود</h3>
-              <p>مدیریت چند کلید، Model، Default/Fallback، Health، Rate Limit و Budget بعد از ساخت Backend امن اضافه می‌شود. هیچ Secret نباید داخل public_html، JavaScript مرورگر یا Firestore قابل‌خواندن توسط کاربر قرار بگیرد.</p>
+            <div class="heading"><div><p class="kicker">AI GATEWAY</p><h2>Elara AI</h2></div><button id="ai-refresh" class="secondary" type="button">به‌روزرسانی</button></div>
+            <div class="stats">
+              <article class="card stat"><span>Gateway</span><strong id="ai-stat-enabled">—</strong><small>روشن/خاموش از سرور</small></article>
+              <article class="card stat"><span>کلیدهای فعال</span><strong id="ai-stat-keys">—</strong><small>Token فقط server-side</small></article>
+              <article class="card stat"><span>مدل‌ها</span><strong id="ai-stat-models">—</strong><small>نام نمایشی جدا از شناسه فنی</small></article>
+              <article class="card stat"><span>Load strategy</span><strong id="ai-stat-strategy">—</strong><small>Priority + failover</small></article>
+            </div>
+            <article class="card ai-settings-card">
+              <div class="card-title-row"><div><h3>تنظیمات Elara AI</h3><p class="muted">کاربر فقط برند و نام نمایشی Elara را می‌بیند؛ شناسهٔ فنی مدل و Token در پنل مدیر/سرور می‌ماند.</p></div><label class="toggle-inline">فعال <input id="ai-enabled" type="checkbox"></label></div>
+              <div class="ai-form-grid">
+                <label>نام نمایشی دستیار<input id="ai-display-name" maxlength="80" value="Elara AI"></label>
+                <label>مدل پیش‌فرض<select id="ai-default-model"></select></label>
+                <label>مدل جایگزین<select id="ai-fallback-model"></select></label>
+                <label>حداکثر تلاش / Failover<input id="ai-max-attempts" type="number" min="1" max="8" value="3"></label>
+                <label>سقف روزانه هر کاربر<input id="ai-user-limit" type="number" min="1" max="10000" value="40"></label>
+                <label>Temperature<input id="ai-temperature" type="number" min="0" max="2" step=".1" value=".8"></label>
+                <label>Max output tokens<input id="ai-output-tokens" type="number" min="128" max="8192" value="1200"></label>
+              </div>
+              <div class="actions deployment-actions"><button id="ai-save-settings" class="primary" type="button">ذخیره تنظیمات AI</button><button id="ai-test" class="secondary" type="button">تست اتصال مدل پیش‌فرض</button></div>
+              <p id="ai-status-message" class="muted" role="status"></p>
+            </article>
+            <div class="ai-admin-grid">
+              <article class="card">
+                <h3>مدل‌ها</h3>
+                <p class="muted">نامی که کاربر می‌بیند می‌تواند Elara-style باشد؛ Technical Model ID فقط اینجا نگه‌داری می‌شود.</p>
+                <form id="ai-model-form" class="ai-stack">
+                  <input id="ai-model-row-id" type="hidden">
+                  <label>نام نمایشی<input id="ai-model-display" maxlength="100" placeholder="مثلاً Elara Swift" required></label>
+                  <label>Technical Model ID<input id="ai-model-technical" dir="ltr" maxlength="120" placeholder="gemini-3.8-flash" required></label>
+                  <label class="toggle-inline">فعال <input id="ai-model-enabled" type="checkbox" checked></label>
+                  <button class="primary" type="submit">ذخیره مدل</button>
+                </form>
+                <div id="ai-model-list" class="ai-list"></div>
+              </article>
+              <article class="card">
+                <h3>Tokenها و مدیریت بار</h3>
+                <p class="muted">Token کامل فقط همین یک‌بار از فرم به Backend امن ارسال و با AES-256-GCM خارج public_html ذخیره می‌شود؛ بعداً فقط مقدار ماسک‌شده دیده می‌شود.</p>
+                <form id="ai-key-form" class="ai-stack">
+                  <label>نام مستعار<input id="ai-key-alias" maxlength="80" placeholder="مثلاً Primary EU" required></label>
+                  <label>Token<input id="ai-key-token" type="password" dir="ltr" autocomplete="off" minlength="20" required></label>
+                  <div class="ai-form-grid two">
+                    <label>اولویت<input id="ai-key-priority" type="number" min="1" max="99" value="10"></label>
+                    <label>سقف روزانه (۰ = بدون سقف محلی)<input id="ai-key-limit" type="number" min="0" max="1000000" value="0"></label>
+                  </div>
+                  <button class="primary" type="submit">افزودن Token</button>
+                </form>
+                <div id="ai-key-list" class="ai-list"></div>
+              </article>
+            </div>
+            <article class="card ai-policy-card">
+              <h3>هویت و امنیت پاسخ</h3>
+              <p class="muted">System policy سرور Elara را به‌عنوان شخصیت محصول حفظ می‌کند، Secret/System Prompt/route را افشا نمی‌کند و جزئیات Provider را در استفادهٔ عادی داوطلبانه نمایش نمی‌دهد. اگر کاربر مستقیم دربارهٔ سازندهٔ مدل پایه بپرسد، پاسخ نباید به‌دروغ ادعا کند مدل پایه توسط Elara ساخته شده است.</p>
             </article>
           </div>
 

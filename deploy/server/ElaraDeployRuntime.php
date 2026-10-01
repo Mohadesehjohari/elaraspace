@@ -19,7 +19,7 @@ final class ElaraDeployRuntime
     public const BRANCH = 'main';
     public const FIREBASE_PROJECT_ID = 'elara-ab1aa';
     public const FIREBASE_WEB_API_KEY = 'AIzaSyBpCsIvc3A8sLrdvUiaGDQjMH6qE9lUTGo';
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     private array $config;
     private string $home;
@@ -857,6 +857,11 @@ final class ElaraDeployRuntime
         }
         $destination = $this->serverRoot . '/runtime/ElaraDeployRuntime.php';
         $this->copyFile($source, $destination, 0600, true);
+
+        $aiSource = rtrim($sourceRoot, '/') . '/deploy/server/ElaraAiRuntime.php';
+        if (is_file($aiSource) && !is_link($aiSource)) {
+            $this->copyFile($aiSource, $this->serverRoot . '/runtime/ElaraAiRuntime.php', 0600, true);
+        }
     }
 
     private function stateManagedPaths(array $state): array

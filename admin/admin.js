@@ -12,7 +12,8 @@ const firebaseConfig={
 };
 const app=initializeApp(firebaseConfig,'elara-admin');
 const auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
-let currentUser=null,currentAdmin=null,deploymentBusy=false,deploymentPoll=null;
+let currentUser=null,currentAdmin=null,deploymentBusy=false,deploymentPoll=null,aiState=null;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function authErrorMessage(error){
   console.error('Elara admin auth:',error);
@@ -154,6 +155,34 @@ async function runDeploymentAction(action){
   }
 }
 
+
+async function aiRequest(action,{method='GET',body=null}={}){
+  if(!currentUser)throw new Error('حساب Admin وارد نشده است.');
+  const token=await currentUser.getIdToken(),headers={Accept:'application/json',Authorization:'Bearer '+token},init={method,headers,cache:'no-store',credentials:'same-origin'};
+  if(body!==null){headers['Content-Type']='application/json';init.body=JSON.stringify(body)}
+  const response=await fetch('ai.php?action='+encodeURIComponent(action),init),raw=await response.text();let payload=null;
+  try{payload=JSON.parse(raw)}catch{throw new Error('AI endpoint روی این هاست فعال نیست یا پاسخ JSON نداد.')}
+  if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));
+  return payload.data||{};
+}
+function renderAi(data){
+  if(!data||typeof data!=='object')return;aiState=data;const settings=data.settings||{},models=Array.isArray(data.models)?data.models:[],keys=Array.isArray(data.keys)?data.keys:[];
+  $('ai-stat-enabled').textContent=settings.enabled?'فعال':'خاموش';$('ai-stat-keys').textContent=keys.filter(x=>x.enabled).length.toLocaleString('fa-IR');$('ai-stat-models').textContent=models.length.toLocaleString('fa-IR');$('ai-stat-strategy').textContent=data.strategy||'—';
+  $('ai-enabled').checked=settings.enabled===true;$('ai-display-name').value=settings.display_name||'Elara AI';$('ai-max-attempts').value=settings.max_attempts||3;$('ai-user-limit').value=settings.per_user_daily_limit||40;$('ai-temperature').value=settings.temperature??.8;$('ai-output-tokens').value=settings.max_output_tokens||1200;
+  const options='<option value="">—</option>'+models.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.display_name)+' · '+esc(m.technical_model_id)+'</option>').join('');
+  $('ai-default-model').innerHTML=options;$('ai-fallback-model').innerHTML=options;$('ai-default-model').value=settings.default_model||'';$('ai-fallback-model').value=settings.fallback_model||'';
+  $('ai-model-list').innerHTML=models.length?models.map(m=>'<div class="ai-row"><div><strong>'+esc(m.display_name)+'</strong><code>'+esc(m.technical_model_id)+'</code><small>'+(m.enabled?'فعال':'غیرفعال')+'</small></div><div class="ai-row-actions"><button type="button" class="secondary" data-ai-model-edit="'+esc(m.id)+'">ویرایش</button><button type="button" class="secondary danger" data-ai-model-delete="'+esc(m.id)+'">حذف</button></div></div>').join(''):'<p class="muted">مدلی ثبت نشده است.</p>';
+  $('ai-key-list').innerHTML=keys.length?keys.map(k=>'<div class="ai-row"><div><strong>'+esc(k.alias)+'</strong><code>'+esc(k.hint)+'</code><small>اولویت '+Number(k.priority||10).toLocaleString('fa-IR')+' · امروز '+Number(k.usage_count||0).toLocaleString('fa-IR')+(k.cooldown_until?' · cooldown':'')+'</small></div><div class="ai-row-actions"><button type="button" class="secondary" data-ai-key-toggle="'+esc(k.id)+'" data-enabled="'+String(!k.enabled)+'">'+(k.enabled?'خاموش':'روشن')+'</button><button type="button" class="secondary danger" data-ai-key-delete="'+esc(k.id)+'">حذف</button></div></div>').join(''):'<p class="muted">هنوز Token امنی اضافه نشده است.</p>';
+}
+async function loadAiStatus(){try{renderAi(await aiRequest('status'));$('ai-status-message').textContent=''}catch(error){console.error(error);$('ai-status-message').textContent=error.message||'خواندن تنظیمات AI ناموفق بود.'}}
+async function saveAiSettings(){
+ const body={enabled:$('ai-enabled').checked,display_name:$('ai-display-name').value.trim(),default_model:$('ai-default-model').value,fallback_model:$('ai-fallback-model').value,max_attempts:Number($('ai-max-attempts').value||3),per_user_daily_limit:Number($('ai-user-limit').value||40),temperature:Number($('ai-temperature').value||.8),max_output_tokens:Number($('ai-output-tokens').value||1200)};
+ $('ai-save-settings').disabled=true;try{renderAi(await aiRequest('settings-save',{method:'POST',body}));$('ai-status-message').textContent='✓ تنظیمات AI روی سرور ذخیره شد.'}catch(error){$('ai-status-message').textContent=error.message||'ذخیره AI ناموفق بود.'}finally{$('ai-save-settings').disabled=false}
+}
+async function addAiKey(event){event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;try{renderAi(await aiRequest('key-add',{method:'POST',body:{alias:$('ai-key-alias').value.trim(),token:$('ai-key-token').value,priority:Number($('ai-key-priority').value||10),daily_limit:Number($('ai-key-limit').value||0)}}));event.target.reset();$('ai-key-priority').value='10';$('ai-key-limit').value='0';toast('Token امن اضافه شد.')}catch(error){toast(error.message||'افزودن Token ناموفق بود.')}finally{button.disabled=false}}
+async function saveAiModel(event){event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;try{renderAi(await aiRequest('model-save',{method:'POST',body:{id:$('ai-model-row-id').value,display_name:$('ai-model-display').value.trim(),technical_model_id:$('ai-model-technical').value.trim(),enabled:$('ai-model-enabled').checked}}));event.target.reset();$('ai-model-row-id').value='';$('ai-model-enabled').checked=true;toast('مدل ذخیره شد.')}catch(error){toast(error.message||'ذخیره مدل ناموفق بود.')}finally{button.disabled=false}}
+async function testAi(){try{const data=await aiRequest('test',{method:'POST',body:{model_id:$('ai-default-model').value}});$('ai-status-message').textContent='✓ اتصال '+(data.model_display_name||'مدل')+' تأیید شد.'}catch(error){$('ai-status-message').textContent=error.message||'تست اتصال ناموفق بود.'}}
+
 $('admin-password-toggle').addEventListener('click',()=>{
   const input=$('admin-password'),button=$('admin-password-toggle'),show=input.type==='password';
   input.type=show?'text':'password';button.textContent=show?'🙈':'👁';
@@ -178,11 +207,19 @@ $('deploy-refresh-status').addEventListener('click',()=>loadDeploymentStatus());
 $('deploy-check').addEventListener('click',()=>{checkDeployment().catch(error=>{console.error(error);$('deployment-status-message').textContent=error.message||'Check Update ناموفق بود.'})});
 $('deploy-apply').addEventListener('click',()=>{runDeploymentAction('deploy').catch(error=>{console.error(error);$('deployment-status-message').textContent=error.message||'Deploy ناموفق بود.'})});
 $('deploy-rollback').addEventListener('click',()=>{runDeploymentAction('rollback').catch(error=>{console.error(error);$('deployment-status-message').textContent=error.message||'Rollback ناموفق بود.'})});
+$('ai-refresh').addEventListener('click',()=>loadAiStatus());
+$('ai-save-settings').addEventListener('click',()=>saveAiSettings());
+$('ai-test').addEventListener('click',()=>testAi());
+$('ai-key-form').addEventListener('submit',addAiKey);
+$('ai-model-form').addEventListener('submit',saveAiModel);
+$('ai-key-list').addEventListener('click',async e=>{const toggle=e.target.closest('[data-ai-key-toggle]'),del=e.target.closest('[data-ai-key-delete]');try{if(toggle)renderAi(await aiRequest('key-update',{method:'POST',body:{id:toggle.dataset.aiKeyToggle,enabled:toggle.dataset.enabled==='true'}}));if(del&&confirm('این Token حذف شود؟'))renderAi(await aiRequest('key-delete',{method:'POST',body:{id:del.dataset.aiKeyDelete}}))}catch(error){toast(error.message||'عملیات Token ناموفق بود.')}});
+$('ai-model-list').addEventListener('click',async e=>{const edit=e.target.closest('[data-ai-model-edit]'),del=e.target.closest('[data-ai-model-delete]');if(edit){const m=(aiState?.models||[]).find(x=>x.id===edit.dataset.aiModelEdit);if(m){$('ai-model-row-id').value=m.id;$('ai-model-display').value=m.display_name||'';$('ai-model-technical').value=m.technical_model_id||'';$('ai-model-enabled').checked=m.enabled!==false;$('ai-model-display').focus()}}if(del&&confirm('این مدل حذف شود؟')){try{renderAi(await aiRequest('model-delete',{method:'POST',body:{id:del.dataset.aiModelDelete}}))}catch(error){toast(error.message||'حذف مدل ناموفق بود.')}}});
 document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListener('click',()=>{
   document.querySelectorAll('[data-panel]').forEach(x=>x.classList.toggle('active',x===button));
   document.querySelectorAll('.panel').forEach(x=>x.classList.add('hidden'));
   $('panel-'+button.dataset.panel).classList.remove('hidden');
   if(button.dataset.panel==='deployment')void loadDeploymentStatus();
+  if(button.dataset.panel==='ai')void loadAiStatus();
 }));
 
 onAuthStateChanged(auth,async user=>{
