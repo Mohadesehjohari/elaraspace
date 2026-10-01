@@ -31,6 +31,10 @@ on:
       - 'phase2.js'
       - 'social-view.js'
       - 'social-messaging-ui.js'
+      - 'elara-design.js'
+      - 'firestore.rules'
+      - 'page-view.js'
+      - 'elara-page.js'
       - 'elara-social.js'
       - 'i18n.js'
       - 'drawer.js'
@@ -72,6 +76,8 @@ jobs:
           node --check phase2.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
+          node --check page-view.js
+          node --check elara-page.js
           node --check reading.js
           node --check app.js
           node --check approved-profile-system.js
