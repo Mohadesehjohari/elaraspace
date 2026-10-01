@@ -26,7 +26,7 @@
   function closeInternal(){root?.classList.add('hidden');document.body.classList.remove('elara-private-drawer-open')}
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
-  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;root.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100180);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
+  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
   function placeMobileSection(section){
     if(!panel)return;
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
