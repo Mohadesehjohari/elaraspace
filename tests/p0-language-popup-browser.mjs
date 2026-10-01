@@ -111,7 +111,21 @@ await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await pag
 await row.locator('[data-language-book-delete]').click();await page.waitForTimeout(100);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'delete did not remove DOM row');stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'),false,'delete did not remove canonical row');
 await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'deleted book returned after refresh');
 
-stage('language:pass');stage('settings:start');
+stage('language:pass');
+stage('language-task:start');
+const reviewFixture=await page.evaluate(()=>{
+ const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),d=new Date(),day=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ s.words=[{id:'p0-review-word',front:'hello',back:'سلام',due:day,box:1}];localStorage.setItem('elara_space_v1',JSON.stringify(s));window.ElaraLinkedTasks.syncAll();
+ const next=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),task=next.tasks.find(t=>t.sourceType==='language-review'&&t.sourceId===day);
+ return {id:task?.id||'',locked:task?.sourceCompletionLocked,completed:task?.completed,due:next.words[0]?.due};
+});
+assert.ok(reviewFixture.id,'Language review linked Task was not created');assert.equal(reviewFixture.locked,false,'Language review Task must be directly checkable in Tasks');assert.equal(reviewFixture.completed,false,'Language review Task should start pending while a word is due');
+await page.evaluate(()=>window.ElaraOpen('tasks',{history:'replace'}));await page.waitForTimeout(120);
+const reviewCheck=page.locator(`#task-list .check-button[data-id="${reviewFixture.id}"]`);assert.equal(await reviewCheck.isVisible(),true,'Language review Task checkbox is not visible');await reviewCheck.click();await page.waitForTimeout(100);assert.equal(await reviewCheck.getAttribute('aria-pressed'),'true','Language review Task did not toggle complete');
+const reviewAfter=await page.evaluate(id=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return{task:s.tasks.find(t=>t.id===id),word:s.words.find(w=>w.id==='p0-review-word'),xp:s.xp}},reviewFixture.id);
+assert.equal(reviewAfter.task?.completed,true,'Language review completion did not persist');assert.equal(reviewAfter.word?.due,reviewFixture.due,'Checking the Task must not silently review/change the Leitner word');assert.equal(reviewAfter.xp,20,'Checking a source-linked Language task must not grant duplicate XP');
+await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');s.words=[];localStorage.setItem('elara_space_v1',JSON.stringify(s));window.ElaraLinkedTasks.syncAll()});await page.waitForTimeout(60);
+stage('language-task:pass');stage('settings:start');
 // Settings main list via real hamburger -> Privacy.
 await page.locator('#elara-account-menu-trigger').click();await page.waitForTimeout(60);
 assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main list missing');
@@ -129,7 +143,7 @@ assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y))
 const settingsScroll=await page.locator('.drawer-menu').evaluate(el=>({overflow:getComputedStyle(el).overflowY,scroll:el.scrollHeight,client:el.clientHeight}));assert.ok(settingsScroll.overflow==='auto'||settingsScroll.overflow==='scroll','Settings list itself must own mobile scrolling');
 await page.locator('.drawer-menu [data-drawer-nav="appearance"]').click();await page.waitForTimeout(100);
 const themeImgs=page.locator('[data-drawer-section="appearance"] img.pass4-theme-art,[data-drawer-section="appearance"] img.pass4-accent-art');
-assert.equal(await themeImgs.count(),15,'Appearance must render 8 mode/style + 7 accent uploaded previews');
+assert.equal(await themeImgs.count(),16,'Appearance must render 8 mode/style + 8 accent uploaded previews');
 assert.equal(await themeImgs.evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),true,'One or more uploaded theme previews failed to decode');
 await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
 await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
