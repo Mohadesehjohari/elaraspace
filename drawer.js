@@ -15,10 +15,14 @@
   function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
   const privacyUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
   const privacyKey=()=>`elara_privacy_local_v1_${privacyUid()||'guest'}`;
-  function readPrivacy(){try{return {showWellnessHome:true,...JSON.parse(localStorage.getItem(privacyKey())||'{}')}}catch{return{showWellnessHome:true}}}
-  function writePrivacy(patch){try{localStorage.setItem(privacyKey(),JSON.stringify({...readPrivacy(),...patch}));return true}catch{return false}}
-  function wellnessHomeVisible(){return readPrivacy().showWellnessHome!==false}
-  window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible};
+  const SHARE_KEYS=['task','habit','goal','mission','reading','language','exercise','streak','ranking'];
+  const validVisibility=value=>['private','friends','public'].includes(value)?value:null;
+  function legacyActivityVisibility(){const id=privacyUid();if(!id)return'private';const explicit=validVisibility(localStorage.getItem('elara_activity_visibility_'+id));if(explicit)return explicit;return localStorage.getItem('elara_share_activity_'+id)==='no'?'private':'friends'}
+  function readPrivacy(){let stored={};try{stored=JSON.parse(localStorage.getItem(privacyKey())||'{}')||{}}catch{}const fallback=legacyActivityVisibility(),base={showWellnessHome:true,cycle:'private'};for(const key of SHARE_KEYS)base[key]=fallback;return {...base,...stored,cycle:'private'}}
+  function writePrivacy(patch){try{localStorage.setItem(privacyKey(),JSON.stringify({...readPrivacy(),...patch,cycle:'private'}));return true}catch{return false}}
+  function privacyVisibility(kind){const value=validVisibility(readPrivacy()[kind]);return value||legacyActivityVisibility()}
+  function wellnessHomeVisible(){return true}
+  window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible,visibility:privacyVisibility,categories:SHARE_KEYS.slice()};
   function topOverlayOpen(){
     const dialog=document.getElementById('elara-dialog-root'),wardrobe=document.querySelector('.approved-wardrobe'),notifications=document.getElementById('elara-notification-popover');
     return !!(dialog&&!dialog.hidden&&!dialog.classList.contains('hidden')||wardrobe&&!wardrobe.hidden||notifications&&!notifications.classList.contains('hidden'));
@@ -133,11 +137,24 @@
   }
   function renderPrivacy(){
     const host=$('drawer-privacy-area');if(!host)return;
-    const p=profile(),id=privacyUid(),legacy=!!id&&localStorage.getItem('elara_share_activity_'+id)==='yes',activityVisibility=id?(localStorage.getItem('elara_activity_visibility_'+id)||(legacy?'friends':'private')):'private',local=readPrivacy();
-    const locked=(title,sub)=>privacyRow(title,sub,'<span class="pass2-private-lock">خصوصی</span>','اشتراک‌گذاری عمومی برای این بخش فعال نیست');
-    host.innerHTML=`${sectionHead('حریم خصوصی','نمایش پروفایل، اشتراک فعالیت و داده‌های خصوصی را کنترل کن.')}<div class="pass2-privacy-list">${privacyRow('پروفایل عمومی','نمایش پروفایل برای کاربران واردشده',`<label class="pass2-switch"><input type="checkbox" data-drawer-privacy="profile" ${p.profilePublic!==false?'checked':''}><span></span></label>`)}${privacyRow('فعالیت دوستان','انتخاب کن خلاصهٔ فعالیت خصوصی، فقط دوستان یا عمومی باشد',`<select data-drawer-privacy="activity" aria-label="حریم خصوصی فعالیت"><option value="private" ${activityVisibility==='private'?'selected':''}>خصوصی</option><option value="friends" ${activityVisibility==='friends'?'selected':''}>فقط دوستان</option><option value="public" ${activityVisibility==='public'?'selected':''}>عمومی</option></select>`)}${locked('تسک‌ها','عنوان و جزئیات تسک‌ها')}${locked('عادت‌ها','داده‌های عادت و تداوم')}${locked('اهداف','هدف‌ها و مراحل')}${locked('مأموریت‌ها','پیشرفت مأموریت‌ها')}${locked('کتابخانه','کتاب‌ها و قفسه‌های شخصی')}${locked('زبان / گزارش یادگیری','واژه‌ها و دفتر گزارش زبان')}${locked('Ranking / Social','فقط داده‌های اجتماعی‌ای که سرویس واقعی پشتیبانی کند نمایش داده می‌شوند')}${privacyRow('ورزش و سلامت','وزن، آب، خواب، چرخه و تمرین هرگز عمومی نمی‌شوند',`<label class="pass2-switch"><input type="checkbox" data-drawer-privacy="wellness-home" ${local.showWellnessHome!==false?'checked':''}><span></span></label>`,'این سوییچ فقط خلاصه آب/خواب در Home را کنترل می‌کند؛ داده‌ها همیشه خصوصی‌اند')}</div><p class="muted wide" data-privacy-status></p>`;
+    const p=profile(),fallback=legacyActivityVisibility(),local=readPrivacy();
+    const select=(key,value)=>`<select data-drawer-privacy="${key}" aria-label="سطح نمایش ${key}"><option value="private" ${value==='private'?'selected':''}>خصوصی</option><option value="friends" ${value==='friends'?'selected':''}>فقط دوستان</option><option value="public" ${value==='public'?'selected':''}>عمومی</option></select>`;
+    host.innerHTML=`${sectionHead('مرکز حریم خصوصی و امنیت','برای هر نوع فعالیت جداگانه انتخاب کن چه کسی آن را ببیند.')}<div class="pass2-privacy-list">
+      ${privacyRow('پروفایل عمومی','نمایش پروفایل برای کاربران واردشده',`<label class="pass2-switch"><input type="checkbox" data-drawer-privacy="profile" ${p.profilePublic!==false?'checked':''}><span></span></label>`)}
+      ${privacyRow('پیش‌فرض فعالیت دوستان','برای دسته‌هایی که تنظیم جدا ندارند',select('activity',fallback),'پیش‌فرض محصول: فقط دوستان')}
+      ${privacyRow('تسک‌ها','خلاصهٔ تکمیل تسک',select('task',local.task))}
+      ${privacyRow('عادت‌ها','تداوم و تکمیل عادت',select('habit',local.habit))}
+      ${privacyRow('اهداف','پیشرفت هدف‌ها و مراحل',select('goal',local.goal))}
+      ${privacyRow('مأموریت‌ها','تکمیل مأموریت و جایزه',select('mission',local.mission))}
+      ${privacyRow('کتابخانه و مطالعه','گزارش مطالعه و تمام‌کردن کتاب',select('reading',local.reading))}
+      ${privacyRow('زبان / گزارش یادگیری','فعالیت‌های بخش زبان',select('language',local.language))}
+      ${privacyRow('ورزش و سلامت','فعالیت ورزشی قابل انتشار؛ کارت سلامت روی Home خودت همیشه دیده می‌شود',select('exercise',local.exercise),'وزن، آب، خواب و داده‌های سلامت خام منتشر نمی‌شوند')}
+      ${privacyRow('استریک','تداوم و استریک قابل اشتراک',select('streak',local.streak))}
+      ${privacyRow('Ranking / Social','خلاصهٔ رقابت و دستاورد اجتماعی',select('ranking',local.ranking))}
+      ${privacyRow('چرخه / پریود','این داده به‌صورت پیش‌فرض و اجباری خصوصی است','<span class="pass2-private-lock">خصوصی</span>','اشتراک با یک «همراه» فقط بعد از قرارداد Backend و رضایت صریح فعال می‌شود')}
+    </div><p class="muted wide" data-privacy-status></p>`;
   }
-  function renderSecurity(){
+function renderSecurity(){
     const host=$('drawer-security-area');if(!host)return;const p=profile(),email=window.ElaraAccount?.user?.email||p.email||'',username=p.username||window.ElaraSocial?.me?.username||'';
     host.innerHTML=`${sectionHead('حساب کاربری','ایمیل، رمز عبور و امنیت حساب را جدا از حریم خصوصی مدیریت کن.')}<section class="pass2-security"><div class="pass4-profile-facts">${email?`<span>ایمیل: ${esc(email)}</span>`:''}${username?`<span>@${esc(username)}</span>`:''}</div><form id="drawer-password-form" class="drawer-form"><label>رمز فعلی<input name="currentPassword" type="password" autocomplete="current-password" required></label><label>رمز جدید<input name="newPassword" type="password" autocomplete="new-password" minlength="6" required></label><label>تکرار رمز جدید<input name="confirmPassword" type="password" autocomplete="new-password" minlength="6" required></label><button class="primary-button" type="submit">تغییر رمز عبور</button><button class="quiet-button" type="button" data-drawer-reset-password>ارسال لینک بازیابی به ایمیل</button><p class="muted wide" data-privacy-status></p></form></section>`;
   }
@@ -274,10 +291,11 @@
       const mirror=$('elara-share-activity');if(mirror)mirror.checked=value!=='private';
       if(status)status.textContent=value==='private'?'فعالیت‌ها خصوصی ماندند.':value==='friends'?'خلاصهٔ فعالیت فقط برای دوستان قابل انتشار است.':'خلاصهٔ فعالیت می‌تواند عمومی منتشر شود.';return;
     }
-    if(kind==='wellness-home'){
-      if(!writePrivacy({showWellnessHome:control.checked})){control.checked=!control.checked;if(status)status.textContent='ذخیرهٔ تنظیم محلی انجام نشد.';return}
-      window.dispatchEvent(new Event('elara:privacy-local-changed'));
-      if(status)status.textContent='نمایش خلاصه سلامت در خانه به‌روزرسانی شد.';return;
+    if(SHARE_KEYS.includes(kind)){
+      const value=validVisibility(control.value)||'friends';
+      if(!writePrivacy({[kind]:value})){if(status)status.textContent='ذخیرهٔ تنظیم حریم خصوصی انجام نشد.';return}
+      window.dispatchEvent(new CustomEvent('elara:privacy-local-changed',{detail:{category:kind,visibility:value}}));
+      if(status)status.textContent=value==='private'?'این دسته خصوصی است.':value==='friends'?'این دسته فقط برای دوستان قابل انتشار است.':'این دسته می‌تواند عمومی منتشر شود.';return;
     }
     if(kind==='profile'){
       const p=profile();if(typeof window.ElaraSocial?.saveProfileValues!=='function'){control.checked=!control.checked;if(status)status.textContent='سرویس پروفایل هنوز آماده نیست.';return}

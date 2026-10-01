@@ -609,3 +609,37 @@ Desktop:
 - Hero، feature cards، Quick Note، Inspiration، Latest Notes و Dream/Vision پیاده‌سازی شوند؛ Mobile summary و Today Tasks از دادهٔ واقعی همان حساب بیاید.
 - Note/Dream account-scoped ذخیره شود؛ fake content برای پرکردن UI ممنوع. قابلیت AI تا backend واقعی قفل/«در راه» بماند.
 - پذیرش: Chromium در 390 و 1648، decode همه Artworkها، no horizontal overflow، ذخیره و render یادداشت و screenshot؛ سپس regression عرض‌های 320/375/430.
+
+---
+# الحاقیهٔ تصمیم‌های جدید کاربر — 2026-10-01 / Stage 3+
+> این بخش جدیدتر از بندهای قبلی است و در تعارض مستقیم override محسوب می‌شود. وضعیت پیش‌فرض هر مورد تا زمان شواهد **REQUESTED** است.
+
+## Q — Override فوری
+- **MOBILE-HEADER-03:** Mobile Account trigger حذف؛ Profile همان Settings را باز کند؛ Profile سمت چپ و بزرگ‌تر، Moon/Bell نزدیک آن/Logo. Desktop edit icon polish/remove.
+- **PRIVACY-GRANULAR-03:** Task/Habit/Goal/Mission/Reading/Language/Exercise/Streak/Ranking با private/friends/public؛ default محصول friends. Wellness روی Home صاحب حساب همیشه visible و privacy فقط برای انتشار.
+- **CYCLE-COMPANION-02 — BACKEND GATED:** Period همیشه private؛ بعداً فقط یک accepted Companion با opt-in صریح.
+- **TASK-COMPLETED-03:** completed پایین، strike اختیاری، Edit/Delete بدون dead-end.
+- **I18N-UGC-03:** System UI انگلیسی/LTR؛ UGC زبان اصلی + dir=auto.
+
+## R — Library / Page / Social
+- **LIBRARY-CLIPS-01:** Book Clip متن/تصویر با visibility و اتصال اختیاری به کتاب/صفحه.
+- **PAGE-01 — BACKEND GATED:** Page برای Post/Story/Status/media/privacy/edit/delete/report/block/retention.
+- **FRIENDS-MESSAGING-01 — BACKEND GATED:** DM/Group/Search/Friend Request/inbox/unread/block/report/rate-limit/retention/two-UID tests.
+- **SOCIAL-REACTIONS-02 — BACKEND GATED:** Like/Comment واقعی با Security Rules.
+- **STATUS-STORY-01 — BACKEND GATED:** Status/Story با expiration و viewer/privacy contract.
+- **BOOK-METADATA-02:** cover upload + Google Books/Open Library؛ Goodreads scraping ممنوع.
+- **CUSTOM-SHELVES-02:** قفسهٔ دلخواه.
+
+## S — Clubs / Challenges / Progression / late ideas
+- **CLUBS-02 — BACKEND GATED:** ساخت از Level 6؛ Owner + دو Assistant؛ Book/Exercise/...، missions/polls/challenges/rest-day/reports/ranking/rewards.
+- **DIRECT-CHALLENGE-01:** challenge دوست، race-to-target، win count و canned friendly messages.
+- **LEVELS-INFINITE-01:** 1–30 آسان‌تر، بعد سخت‌تر، 80+ elite، 100+ legendary، curve عددی قابل تست.
+- **COLLECTION-LEVEL-01:** Collection Level جدا با anti-pay-to-win.
+- **BADGES-TITLES-RANKS-02:** registry واقعی Medal/Rank/Title با unlock rule.
+- **3D-AVATAR-01 — LATE:** دو body preset، 360° rotate، hair motion، wardrobe.
+- **POMODORO-AMBIENCE-01:** music/ambient + garden/tree/flowers با mute/reduced-motion.
+- **CALM-MINI-GAMES-01 — IDEA/LATE:** calm interaction/farm/voice chat؛ voice نیازمند moderation/consent/realtime infra.
+- **THEMES-FINAL-PASS-01:** polish نهایی Themeها آخر roadmap.
+
+## T — Gate
+Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/block + two-UID test نباید DONE اعلام شوند.
