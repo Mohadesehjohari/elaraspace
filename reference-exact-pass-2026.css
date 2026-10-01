@@ -749,3 +749,37 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #elara-dialog-root .elara-dialog-body{max-height:calc(92dvh - 142px)!important;overscroll-behavior:contain!important}
  .approved-wardrobe-window,.elara-notification-window{max-height:92dvh!important}
 }
+
+
+/* 2026-10-01 polish v7 — explicit mobile route slots and direct Home social-card ownership. */
+@media(max-width:700px){
+ /* Explicit columns beat every legacy RTL/flex/absolute owner. Equal columns, no Freedom gap. */
+ .bottom-nav [data-elara-tab="exercise"]{grid-column:1!important;order:0!important}
+ .bottom-nav [data-elara-tab="language"]{grid-column:2!important;order:0!important}
+ .bottom-nav [data-elara-tab="tasks"]{grid-column:3!important;order:0!important}
+ .bottom-nav [data-elara-tab="social"]{grid-column:4!important;order:0!important}
+ .bottom-nav [data-elara-tab="home"]{grid-column:5!important;order:0!important}
+ .bottom-nav [data-elara-tab="ranking"]{grid-column:6!important;order:0!important}
+ .bottom-nav [data-elara-tab="books"]{grid-column:7!important;order:0!important}
+ .bottom-nav [data-elara-tab="freedom"]{grid-column:8!important;order:0!important}
+ .bottom-nav>[data-elara-nav-kind]{grid-row:1!important}
+ .bottom-nav [data-elara-tab="exercise"] small,
+ .bottom-nav [data-elara-tab="language"] small,
+ .bottom-nav [data-elara-tab="freedom"] small{display:block!important}
+
+ /* ReferenceHome now owns Ranking/Friends directly; old .ref-right-stack selectors must not collapse them. */
+ #panel-home.ref-home .ref-home-grid>.ref-ranks{
+  display:flex!important;grid-area:ranks!important;grid-column:1/-1!important;
+  width:100%!important;height:188px!important;min-height:188px!important;max-height:188px!important;
+  overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-activity{
+  display:flex!important;grid-area:activity!important;grid-column:1/-1!important;
+  width:100%!important;height:82px!important;min-height:82px!important;max-height:82px!important;
+  overflow:hidden!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-ranks>#elara-home-ranks,
+ #panel-home.ref-home .ref-home-grid>.ref-activity>#elara-home-activity{
+  flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important
+ }
+}
