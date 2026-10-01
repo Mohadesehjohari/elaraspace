@@ -90,6 +90,10 @@ await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
+assert.equal(await page.locator('#panel-language [data-language-block]').count(),4,'Language must expose the four reference blocks');
+assert.equal(await page.locator('#panel-language [data-language-block="leitner"] .language-leitner-stats>div').count(),4,'Leitner must keep four live stat tiles');
+const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
+
 const leitnerAll=page.locator('#panel-language [data-lang-leitner]');assert.equal((await leitnerAll.innerText()).trim().startsWith('همه'),true,'Language Leitner header CTA must be همه');await leitnerAll.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner همه must open the full Leitner page');await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 

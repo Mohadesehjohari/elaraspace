@@ -867,3 +867,241 @@ body.dark.amoled .pass3-ranking-card,body.dark.amoled .pass3-social-page .elara-
  #elara-social-page .social-search-field{grid-column:1/-1!important}
  #elara-social-page .social-art-button.invite,#elara-social-page [data-profile-lookup]{width:100%!important;min-width:0!important}
 }
+
+/* 2026-10-01 reference pass v35 — Language + Ranking/Friends + Profile edit photo. */
+#panel-language.pass3-language{
+  width:100%!important;max-width:none!important;margin:0!important;
+}
+#panel-language.pass3-language .pass3-language-hero{
+  min-height:214px!important;border-radius:20px!important;margin-bottom:14px!important;
+  background:
+    linear-gradient(90deg,#031127e8 0%,#071a37b8 36%,#07152d3f 62%,#031126d8 100%),
+    url('assets/ui/language_banner.webp') center 54%/cover no-repeat!important;
+}
+#panel-language.pass3-language .language-hero-copy{max-width:560px!important}
+#panel-language.pass3-language .language-hero-copy>p:first-child{letter-spacing:.11em;color:#b8a9ff!important;font-size:.72rem}
+#panel-language.pass3-language .language-hero-copy h1{font-size:clamp(1.45rem,2.3vw,2.25rem)!important;line-height:1.55!important}
+#panel-language.pass3-language .pass3-language-grid{
+  grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:14px!important
+}
+#panel-language.pass3-language [data-language-block="leitner"]{grid-column:span 5!important}
+#panel-language.pass3-language [data-language-block="books"]{grid-column:span 7!important}
+#panel-language.pass3-language [data-language-block="report"]{grid-column:span 5!important}
+#panel-language.pass3-language [data-language-block="courses"]{grid-column:span 7!important}
+#panel-language.pass3-language .pass3-language-block{
+  min-height:250px!important;padding:16px!important;border:1px solid #2e4a78!important;
+  border-radius:17px!important;background:linear-gradient(145deg,#071d3b,#06162f)!important;
+}
+#panel-language.pass3-language .pass3-language-block>header{margin-bottom:10px!important}
+#panel-language.pass3-language .pass3-language-block>header h2{font-size:1.08rem!important}
+#panel-language.pass3-language .language-card-all{
+  min-width:92px!important;min-height:38px!important;border:1px solid #534793!important;
+  border-radius:999px!important;background:#101c43!important;color:#cdbdff!important
+}
+#panel-language.pass3-language .language-leitner-stats{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important
+}
+#panel-language.pass3-language .language-leitner-stats>div{
+  min-height:92px!important;border:1px solid #29446f!important;border-radius:12px!important;
+  background:linear-gradient(150deg,#0a2245,#081a35)!important
+}
+#panel-language.pass3-language .pass3-leitner-source-cta{
+  margin-top:12px!important;min-height:44px!important;border-radius:11px!important;
+  background:linear-gradient(90deg,#7e33ff,#4926e9)!important;
+  box-shadow:0 0 20px #703eff66!important
+}
+#panel-language.pass3-language .pass3-language-book-list{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important
+}
+#panel-language.pass3-language .pass3-language-book{
+  display:grid!important;grid-template-columns:62px minmax(0,1fr)!important;grid-template-rows:auto auto!important;
+  gap:8px!important;min-height:128px!important;padding:10px!important;border-radius:13px!important;
+  background:linear-gradient(145deg,#082142,#07172f)!important
+}
+#panel-language.pass3-language .pass3-book-cover{
+  grid-row:1/3!important;width:62px!important;height:92px!important;border-radius:9px!important;
+  display:grid!important;place-items:center!important
+}
+#panel-language.pass3-language .pass3-book-copy{min-width:0!important}
+#panel-language.pass3-language .pass3-book-copy strong{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-language.pass3-language .pass3-book-actions{
+  grid-column:2!important;display:flex!important;gap:5px!important;align-items:center!important
+}
+#panel-language.pass3-language .pass3-book-actions .primary-button{
+  min-height:30px!important;padding:5px 9px!important;font-size:.7rem!important;border-radius:8px!important
+}
+#panel-language.pass3-language .pass3-book-actions .quiet-button{width:30px!important;height:30px!important;padding:0!important}
+#panel-language.pass3-language #language-book-form{
+  margin-top:10px!important;padding:8px!important;grid-template-columns:minmax(0,1fr) 132px auto!important;
+  border-color:#263b61!important;background:#06152be6!important
+}
+#panel-language.pass3-language .pass3-language-report #language-reports{min-height:150px}
+#panel-language.pass3-language .pass3-language-report .lang-stat-row{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important
+}
+#panel-language.pass3-language .pass3-language-courses .pass3-coming-soon{
+  min-height:155px!important;border-radius:13px!important;background:
+    radial-gradient(circle at 18% 20%,#7c4cff2b,transparent 42%),
+    linear-gradient(145deg,#0a1e42,#0c173d)!important
+}
+
+/* Ranking reference: same real social data, reference composition. */
+#elara-ranking-page.social-reference{
+  width:100%!important;max-width:none!important;margin:0!important
+}
+#elara-ranking-page .social-page-head{
+  min-height:148px!important;position:relative!important;overflow:hidden!important;
+  display:flex!important;align-items:center!important;justify-content:flex-end!important;
+  padding:24px 30px!important;margin-bottom:12px!important;border:1px solid #4b4d80!important;border-radius:19px!important;
+  background:
+    linear-gradient(90deg,#071127e8 0%,#07152fa8 38%,#17124e60 70%,#061028e8 100%),
+    url('assets/ui/ranking_banner.webp') center/cover no-repeat!important;
+  box-shadow:0 18px 44px #0005!important
+}
+#elara-ranking-page .social-page-head>div:first-child{position:relative;z-index:2;text-align:right;max-width:520px}
+#elara-ranking-page .social-page-head small{color:#b9a5ff!important;letter-spacing:.12em}
+#elara-ranking-page .social-page-head h1{font-size:2rem!important;margin:.15em 0!important}
+#elara-ranking-page .social-page-head p{margin:0!important;color:#e3e7f7!important}
+#elara-ranking-page .social-head-art{display:none!important}
+#elara-ranking-page .social-tabs{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;
+  width:min(760px,100%)!important;margin:0 auto 14px!important
+}
+#elara-ranking-page .social-tabs button{
+  min-height:48px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+  border:1px solid #374a76!important;border-radius:11px!important;background:#071a35!important;color:#d9e0f5!important;
+  font-weight:800!important
+}
+#elara-ranking-page .social-tabs button img{width:26px!important;height:26px!important;object-fit:contain!important}
+#elara-ranking-page .social-tabs button[aria-selected="true"]{
+  border-color:#875eff!important;background:linear-gradient(120deg,#7d28f1,#4724de)!important;
+  box-shadow:0 0 18px #7d4cff77!important;color:white!important
+}
+#elara-ranking-page .social-reference-grid{
+  display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:12px!important;align-items:start!important
+}
+#elara-ranking-page .social-reference-grid>.social-top-three{
+  grid-column:1/9!important;min-height:320px!important;
+  background:
+    linear-gradient(180deg,#0613293f,#07152dbd),
+    url('assets/ui/ranking_banner.webp') center 55%/cover no-repeat!important
+}
+#elara-ranking-page .social-reference-grid>.social-my-rank-card{grid-column:9/13!important;min-height:320px!important}
+#elara-ranking-page .social-reference-grid>.social-weekly{grid-column:1/5!important}
+#elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:5/9!important}
+#elara-ranking-page .social-reference-grid>.social-side-stack{grid-column:9/13!important;display:grid!important;gap:12px!important}
+#elara-ranking-page .social-reference-grid>.social-clubs{grid-column:1/9!important}
+#elara-ranking-page .social-section{
+  border:1px solid #30496f!important;border-radius:15px!important;padding:14px!important;
+  background:linear-gradient(145deg,#081e3d,#06162f)!important;box-shadow:0 10px 28px #0003!important
+}
+#elara-ranking-page .social-section>header{padding-bottom:10px!important;border-bottom:1px solid #263b5e!important}
+#elara-ranking-page .social-section h2{font-size:1rem!important;margin:0!important}
+#elara-ranking-page .social-podium{
+  min-height:245px!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:22px!important
+}
+#elara-ranking-page .social-podium-place{
+  width:29%!important;display:grid!important;justify-items:center!important;gap:7px!important;text-align:center!important
+}
+#elara-ranking-page .social-podium-place.place-1{order:2!important;transform:translateY(-17px)!important}
+#elara-ranking-page .social-podium-place.place-2{order:1!important}
+#elara-ranking-page .social-podium-place.place-3{order:3!important}
+#elara-ranking-page .social-podium-avatar{position:relative!important;display:grid!important;place-items:center!important;min-height:116px!important}
+#elara-ranking-page .social-rank-frame{position:absolute!important;width:124px!important;height:124px!important;object-fit:contain!important;pointer-events:none!important}
+#elara-ranking-page .place-1 .social-rank-frame{width:152px!important;height:152px!important}
+#elara-ranking-page .social-podium-place .social-person{display:grid!important;justify-items:center!important;gap:5px!important;background:transparent!important}
+#elara-ranking-page .social-podium-place .social-portrait{width:72px!important;height:72px!important;border-radius:50%!important;object-fit:cover!important}
+#elara-ranking-page .place-1 .social-portrait{width:90px!important;height:90px!important}
+#elara-ranking-page .social-podium-place .social-person>span{display:grid!important}
+#elara-ranking-page .social-podium-place .social-person small{font-size:.68rem!important}
+#elara-ranking-page .social-my-rank-card .social-person{margin:14px 0!important}
+#elara-ranking-page .social-my-rank-line{display:flex!important;align-items:end!important;justify-content:space-between!important;gap:12px!important}
+#elara-ranking-page .social-my-rank{font-size:2.6rem!important;color:#b18cff!important}
+#elara-ranking-page .social-row{
+  min-height:50px!important;display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;gap:8px!important;padding:7px 4px!important;border-bottom:1px solid #243857!important
+}
+
+/* Friends stays a distinct product destination, not a Ranking clone. */
+#elara-social-page.social-friends-page{
+  width:100%!important;max-width:none!important;margin:0!important
+}
+#elara-social-page.social-friends-page .social-page-head{
+  min-height:126px!important;border-radius:18px!important;padding:22px 26px!important;
+  background:linear-gradient(90deg,#07142fe8,#0b1e3caf),url('assets/ui/background-moonlit-mountains.webp') center/cover no-repeat!important;
+  border:1px solid #354d78!important
+}
+#elara-social-page.social-friends-page .social-tabs{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;margin:0 0 12px!important
+}
+#elara-social-page.social-friends-page .social-reference-grid{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important
+}
+#elara-social-page.social-friends-page .social-friend-invite,
+#elara-social-page.social-friends-page .social-friend-activity{grid-column:1/-1!important}
+#elara-social-page.social-friends-page .social-friend-activity .social-row{min-height:56px!important}
+
+/* Profile edit: the only photo CTA is over the avatar itself. */
+#elara-central-profile-form .profile-photo-controls{display:none!important}
+#elara-central-profile-form .pass5-profile-edit-preview{display:grid!important;place-items:center!important;margin:2px 0 16px!important}
+#elara-central-profile-form .pass5-profile-edit-preview .elara-profile-composition{
+  width:100%!important
+}
+#elara-central-profile-form .pass5-profile-edit-preview .elara-profile-avatar-shell{position:relative!important;overflow:visible!important}
+#elara-central-profile-form .profile-upload-overlay{
+  position:absolute!important;left:50%!important;right:auto!important;bottom:3px!important;transform:translate(-50%,50%)!important;
+  min-width:108px!important;min-height:36px!important;border-radius:12px!important;z-index:20!important;
+  box-shadow:0 0 22px #7a4cffaa!important
+}
+
+@media(max-width:900px){
+ #elara-ranking-page .social-reference-grid>.social-top-three{grid-column:1/-1!important}
+ #elara-ranking-page .social-reference-grid>.social-my-rank-card{grid-column:1/-1!important;min-height:0!important}
+ #elara-ranking-page .social-reference-grid>.social-weekly{grid-column:1/7!important}
+ #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:7/13!important}
+ #elara-ranking-page .social-reference-grid>.social-side-stack{grid-column:1/-1!important}
+ #elara-ranking-page .social-reference-grid>.social-clubs{grid-column:1/-1!important}
+}
+@media(max-width:700px){
+ #panel-language.pass3-language .pass3-language-hero{
+   min-height:188px!important;padding:16px!important;background-position:center!important
+ }
+ #panel-language.pass3-language .pass3-language-hero blockquote{display:none!important}
+ #panel-language.pass3-language .pass3-language-grid{grid-template-columns:1fr!important;gap:10px!important}
+ #panel-language.pass3-language [data-language-block]{grid-column:1!important}
+ #panel-language.pass3-language .pass3-language-block{min-height:0!important;padding:12px!important}
+ #panel-language.pass3-language .language-leitner-stats{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+ #panel-language.pass3-language .language-leitner-stats>div{min-height:82px!important;padding:6px!important}
+ #panel-language.pass3-language .pass3-language-stat-art{width:34px!important;height:34px!important}
+ #panel-language.pass3-language .pass3-language-book-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ #panel-language.pass3-language .pass3-language-book{
+   grid-template-columns:50px minmax(0,1fr)!important;min-height:116px!important;padding:8px!important
+ }
+ #panel-language.pass3-language .pass3-book-cover{width:50px!important;height:78px!important}
+ #panel-language.pass3-language .pass3-book-status{font-size:.64rem!important}
+ #panel-language.pass3-language #language-book-form{grid-template-columns:1fr!important}
+ #elara-ranking-page .social-page-head{min-height:124px!important;padding:18px!important}
+ #elara-ranking-page .social-page-head h1{font-size:1.65rem!important}
+ #elara-ranking-page .social-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+ #elara-ranking-page .social-tabs button{min-height:44px!important;padding:6px 3px!important;font-size:.76rem!important}
+ #elara-ranking-page .social-tabs button img{width:22px!important;height:22px!important}
+ #elara-ranking-page .social-reference-grid{grid-template-columns:1fr!important}
+ #elara-ranking-page .social-reference-grid>*{grid-column:1!important}
+ #elara-ranking-page .social-top-three{min-height:285px!important;padding-inline:9px!important}
+ #elara-ranking-page .social-podium{gap:4px!important;min-height:220px!important}
+ #elara-ranking-page .social-podium-place{width:32%!important}
+ #elara-ranking-page .social-rank-frame{width:100px!important;height:100px!important}
+ #elara-ranking-page .place-1 .social-rank-frame{width:126px!important;height:126px!important}
+ #elara-ranking-page .social-podium-place .social-portrait{width:58px!important;height:58px!important}
+ #elara-ranking-page .place-1 .social-portrait{width:74px!important;height:74px!important}
+ #elara-social-page.social-friends-page .social-reference-grid{grid-template-columns:1fr!important}
+ #elara-social-page.social-friends-page .social-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:390px){
+ #panel-language.pass3-language .language-leitner-stats>div small{font-size:.58rem!important}
+ #panel-language.pass3-language .language-leitner-stats>div strong{font-size:1.05rem!important}
+ #panel-language.pass3-language .pass3-language-book-list{grid-template-columns:1fr 1fr!important}
+ #panel-language.pass3-language .pass3-book-actions{grid-column:1/-1!important}
+ #elara-ranking-page .social-podium-place .social-person strong{font-size:.76rem!important}
+ #elara-ranking-page .social-podium-place b{font-size:.72rem!important}
+}
