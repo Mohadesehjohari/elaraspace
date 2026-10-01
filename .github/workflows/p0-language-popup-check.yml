@@ -51,6 +51,7 @@ on:
       - 'tests/p0-language-popup-browser.mjs'
       - 'tests/library-stage4-browser.mjs'
       - 'tests/friends-dm-ui-browser.mjs'
+      - 'tests/page-stage6-browser.mjs'
       - 'tests/profile-assets-contract.test.mjs'
       - 'tests/restore-browser.mjs'
       - '.github/workflows/p0-language-popup-check.yml'
@@ -86,6 +87,7 @@ jobs:
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/library-stage4-browser.mjs
           node --check tests/friends-dm-ui-browser.mjs
+          node --check tests/page-stage6-browser.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -100,6 +102,8 @@ jobs:
         run: timeout 120s node tests/library-stage4-browser.mjs
       - name: Verify Friends DM UI interactions
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
+      - name: Verify Page Stage 6 interactions
+        run: timeout 90s node tests/page-stage6-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -152,6 +156,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
+      - name: Verify deployed Page Stage 6 interactions
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/page-stage6-browser.mjs
       - name: Verify real Firebase/account boot without stubs
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
