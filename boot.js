@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-page-stage6-v40';
+  const BUILD='20261001-engagement-stage7-v41';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -18,7 +18,7 @@
   for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
   const essentialArtworkReady=Promise.all(essentialImages.map(decodeImage));
   const release=()=>document.documentElement.removeAttribute('data-elara-booting');
-  const scripts=['approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','social-view.js','social-messaging-ui.js','page-view.js','reports.js','freedom-page.js','freedom-enhancements.js','freedom-ai.js'];
+  const scripts=['approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','social-view.js','social-messaging-ui.js','page-view.js','social-engagement-view.js','reports.js','freedom-page.js','freedom-enhancements.js','freedom-ai.js'];
   const optionalFailures=[];
   const loadScriptsInOrder=async names=>{
     const pending=names.map(name=>new Promise(resolve=>{
@@ -78,6 +78,7 @@
       },15000);
       await import(assetUrl('./cloud.js'));
       try{await import(assetUrl('./elara-social.js'))}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
+      try{await import(assetUrl('./social-engagement.js'))}catch(error){console.error('Elara engagement startup:',error)}
       try{await import(assetUrl('./elara-page.js'))}catch(error){console.error('Elara page startup:',error)}
     }catch(error){
       settleAccount();
