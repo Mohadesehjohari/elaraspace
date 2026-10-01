@@ -27,19 +27,28 @@ function artworkState(button){
  /* Route state is synchronous; boot preloads both states so the bitmap swap does not lag aria-current. */
  img.dataset.file=filename;img.src=root+filename;img.hidden=false;button.classList.add('elara-nav-has-art');
 }
-function button(def,kind='main'){
- const b=document.createElement('button');b.type='button';const side=kind==='sidebar'||kind==='secondary';
+function button(def,kind='main',existing=null){
+ const side=kind==='sidebar'||kind==='secondary',b=existing||document.createElement(side?'button':'a');
+ if(side){b.type='button';b.removeAttribute('href')}else b.href='#'+def.route;
  b.className=side?'nav-item elara-nav elara-canonical-sidebar':'elara-extension-nav elara-canonical-main';
  if(kind==='secondary')b.classList.add('elara-sidebar-secondary-item');
  b.dataset.elaraTab=def.route;b.dataset.elaraNavKind=kind;b.setAttribute('aria-label',def.label);
  const pair=ASSETS[def.route],isSelected=def.route===current;
  const image=pair?`<img class="elara-art-img elara-nav-art" src="${root+pair[isSelected?1:0]}" data-file="${pair[isSelected?1:0]}" alt="" aria-hidden="true" width="40" height="40" decoding="async" loading="eager">`:'';
  b.innerHTML=`${image}${fallback(def.icon)}<small>${def.label}</small>`;
- if(pair){b.classList.add('elara-nav-has-art');const img=b.querySelector('.elara-nav-art');img.addEventListener('load',()=>{img.hidden=false;b.classList.add('elara-nav-has-art')});img.addEventListener('error',()=>{img.hidden=true;b.classList.remove('elara-nav-has-art')});for(const name of ['pointerenter','pointerleave','focusin','focusout'])b.addEventListener(name,()=>artworkState(b));}
- if(isSelected){b.classList.add('active');b.setAttribute('aria-current','page')};if(def.route==='home')b.classList.add('elara-home-main');return b;
+ if(pair){b.classList.add('elara-nav-has-art');const img=b.querySelector('.elara-nav-art');img.onload=()=>{img.hidden=false;b.classList.add('elara-nav-has-art')};img.onerror=()=>{img.hidden=true;b.classList.remove('elara-nav-has-art')};for(const name of ['pointerenter','pointerleave','focusin','focusout'])b['on'+name]=()=>artworkState(b)}
+ if(isSelected){b.classList.add('active');b.setAttribute('aria-current','page')}else{b.classList.remove('active');b.removeAttribute('aria-current')}
+ b.classList.toggle('elara-home-main',def.route==='home');return b
 }
 const same=(host,definitions)=>host?.dataset.elaraNavOwner==='canonical'&&host.querySelectorAll('[data-elara-nav-kind]').length===definitions.length&&[...host.querySelectorAll('[data-elara-nav-kind]')].every((el,i)=>el.dataset.elaraTab===definitions[i].route);
-function renderMainNav(host){if(!host)return;const defs=host.classList.contains('bottom-nav')?MOBILE:MAIN;if(same(host,defs))return;host.dataset.elaraNavOwner='canonical';host.replaceChildren(...defs.map(def=>button(def,'main')))}
+function renderMainNav(host){
+ if(!host)return;const defs=host.classList.contains('bottom-nav')?MOBILE:MAIN;if(same(host,defs))return;
+ const existing=new Map([...host.querySelectorAll('[data-elara-tab]')].map(el=>[el.dataset.elaraTab,el]));
+ const keep=new Set(),nodes=defs.map(def=>{const node=button(def,'main',existing.get(def.route)||null);keep.add(node);return node});
+ nodes.forEach(node=>host.append(node));
+ [...host.children].forEach(node=>{if(node.matches?.('[data-elara-nav-kind]')&&!keep.has(node))node.remove()});
+ host.dataset.elaraNavOwner='canonical'
+}
 function renderSidebar(host){if(!host)return;const defs=[...DESKTOP_ORDER.map(route=>SIDEBAR.find(def=>def.route===route)).filter(Boolean),...SECONDARY];if(same(host,defs))return;host.dataset.elaraNavOwner='canonical';const primary=document.createElement('div');primary.className='elara-sidebar-primary';primary.setAttribute('role','group');primary.setAttribute('aria-label','مقصدهای اصلی');primary.append(...DESKTOP_ORDER.map(route=>SIDEBAR.find(def=>def.route===route)).filter(Boolean).map(def=>button(def,'sidebar')));const secondary=document.createElement('div');secondary.className='elara-sidebar-secondary';secondary.setAttribute('role','group');secondary.setAttribute('aria-label','دسترسی‌های تکمیلی');secondary.append(...SECONDARY.map(def=>button(def,'secondary')));host.replaceChildren(primary,secondary)}
 function ensureDock(){let dock=document.querySelector('.elara-desktop-dock');if(!dock){dock=document.createElement('nav');dock.className='elara-desktop-dock';dock.setAttribute('aria-label','ناوبری اصلی الارا');(document.querySelector('.shell')||document.body).append(dock)}return dock}
 function active(event){current=event?.detail?.tab||location.hash.replace(/^#/,'')||'home';document.querySelectorAll('[data-elara-nav-kind]').forEach(el=>{const selected=el.dataset.elaraTab===current;el.classList.toggle('active',selected);if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');artworkState(el)})}
