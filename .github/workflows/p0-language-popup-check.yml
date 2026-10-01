@@ -29,6 +29,8 @@ on:
       - 'approved-navigation-extension.css'
       - 'notifications.js'
       - 'phase2.js'
+      - 'tests/task-bulk-reorder-browser.mjs'
+      - 'task-bulk-reorder.js'
       - 'social-view.js'
       - 'tests/social-engagement-browser.mjs'
       - 'social-engagement-view.js'
@@ -80,6 +82,7 @@ jobs:
           node --check drawer.js
           node --check dialog.js
           node --check phase2.js
+          node --check task-bulk-reorder.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
           node --check social-groups-ui.js
@@ -98,6 +101,7 @@ jobs:
           node --check tests/friends-groups-ui-browser.mjs
           node --check tests/page-stage6-browser.mjs
           node --check tests/social-engagement-browser.mjs
+          node --check tests/task-bulk-reorder-browser.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -118,6 +122,8 @@ jobs:
         run: timeout 90s node tests/page-stage6-browser.mjs
       - name: Verify Social engagement Stage 7 interactions
         run: timeout 90s node tests/social-engagement-browser.mjs
+      - name: Verify Task bulk selection and reorder Stage 9
+        run: timeout 90s node tests/task-bulk-reorder-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -182,6 +188,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/social-engagement-browser.mjs
+      - name: Verify deployed Task bulk selection and reorder Stage 9
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/task-bulk-reorder-browser.mjs
       - name: Verify real Firebase/account boot without stubs
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace

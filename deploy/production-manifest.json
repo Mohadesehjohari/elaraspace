@@ -133,7 +133,8 @@
     "ai.php",
     "admin/ai.php",
     "freedom-refinement-v2.css",
-    "freedom-ai.js"
+    "freedom-ai.js",
+    "task-bulk-reorder.js"
   ],
   "files": [
     ".htaccess",
@@ -246,6 +247,7 @@
     "assets/ui/icon-wellness-weight-scale.webp",
     "assets/ui/icon-reward-star.webp",
     "linked-tasks.js",
+    "task-bulk-reorder.js",
     "assets/ui/button-view-all.webp",
     "assets/ui/accept-request-button.webp",
     "assets/ui/decline-request-button.webp",
