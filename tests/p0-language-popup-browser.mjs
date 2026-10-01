@@ -21,8 +21,10 @@ await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'applicatio
 await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
 await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
 await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&window.ElaraOpen,null,{timeout:12000});
-await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));
-await page.waitForFunction(()=>document.querySelector('#language-book-form')&&getComputedStyle(document.querySelector('#panel-language')).display!=='none',null,{timeout:5000});
+const languageNav=page.locator('.bottom-nav [data-elara-tab="language"]').first();
+assert.equal(await languageNav.isVisible(),true,'language nav is not visible on mobile');
+await languageNav.click();
+await page.waitForFunction(()=>document.querySelector('#language-book-form')&&document.querySelector('#panel-language')&&!document.querySelector('#panel-language').classList.contains('hidden'),null,{timeout:5000});
 await page.waitForTimeout(250);
 
 // Add while unauthenticated.
