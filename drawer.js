@@ -20,13 +20,31 @@
   function wellnessHomeVisible(){return readPrivacy().showWellnessHome!==false}
   window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible};
   function topOverlayOpen(){
-    const dialog=document.getElementById('elara-dialog-root'),wardrobe=document.querySelector('.approved-wardrobe');
-    return !!(dialog&&!dialog.hidden&&!dialog.classList.contains('hidden')||wardrobe&&!wardrobe.hidden);
+    const dialog=document.getElementById('elara-dialog-root'),wardrobe=document.querySelector('.approved-wardrobe'),notifications=document.getElementById('elara-notification-popover');
+    return !!(dialog&&!dialog.hidden&&!dialog.classList.contains('hidden')||wardrobe&&!wardrobe.hidden||notifications&&!notifications.classList.contains('hidden'));
+  }
+  function drawerFocusables(){
+    if(!panel)return[];
+    return [...panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null);
+  }
+  function focusDrawer(){
+    if(!panel||root?.classList.contains('hidden'))return;
+    const active=panel.querySelector('[data-drawer-section]:not(.hidden)'),target=active?.querySelector('[data-drawer-nav="home"],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')||panel.querySelector('[data-drawer-close]');
+    target?.focus?.({preventScroll:true});
+  }
+  function trapDrawerKey(event){
+    if(!root||root.classList.contains('hidden')||topOverlayOpen())return;
+    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
+    if(event.key!=='Tab')return;
+    const items=drawerFocusables();if(!items.length){event.preventDefault();panel?.focus?.({preventScroll:true});return}
+    const first=items[0],last=items[items.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus({preventScroll:true})}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus({preventScroll:true})}
   }
   function closeInternal(){root?.classList.add('hidden');document.body.classList.remove('elara-private-drawer-open')}
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
   function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
-  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
+  function open(section='home'){if(!root)return;root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section);setTimeout(focusDrawer,0)}
   function placeMobileSection(section){
     if(!panel)return;
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
@@ -185,7 +203,7 @@
     root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div id="drawer-profile-summary" class="drawer-profile-summary"></div><button type="button" class="drawer-theme-toggle" data-drawer-theme title="دارک / روشن">${icon('moon')}</button><button type="button" class="drawer-close" data-drawer-close>×</button></header><nav class="drawer-menu"><button data-drawer-nav="account">${icon('user')}<b>حساب کاربری</b><small>پروفایل و اطلاعات</small></button><button data-drawer-nav="privacy">${icon('shield')}<b>حریم خصوصی</b><small>امنیت و رمز عبور</small></button><button data-drawer-nav="folders">${icon('folder')}<b>پوشه‌ها و تگ‌ها</b><small>مدیریت و تسک داخل پوشه</small></button><button data-drawer-nav="notifications">${icon('notification')}<b>نوتیف و پیام‌ها</b><small>اعلان‌ها و تاریخچه</small></button><button data-drawer-nav="appearance">${icon('spark')}<b>ظاهر و تم‌ها</b><small>Mode، Style و رنگ‌ها</small></button><button data-drawer-nav="help">${icon('help')}<b>راهنما</b><small>راهنمای استفاده</small></button><button data-drawer-nav="calendar">${icon('calendar')}<b>تقویم</b><small id="drawer-calendar-label">${calendarLabel()}</small></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<b>کمد</b><small>آواتار، فریم و بنر</small></button><button data-drawer-nav="language">${icon('course')}<b>زبان برنامه</b><small>فارسی / English / Türkçe</small></button><button class="danger" data-drawer-action="logout">${icon('logout')}<b>خروج از حساب</b><small>خروج امن از Elara</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="notifications" class="hidden"><div id="drawer-notification-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="language" class="hidden"><div id="drawer-language-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
     document.body.append(root);panel=root.querySelector('.elara-private-drawer-panel');
     root.querySelector('.elara-private-drawer-scrim').addEventListener('click',close);root.querySelector('[data-drawer-close]').addEventListener('click',close);
-    document.addEventListener('keydown',event=>{if(event.key!=='Escape'||!root||root.classList.contains('hidden')||topOverlayOpen())return;event.preventDefault();event.stopPropagation();close()},true);
+    panel.tabIndex=-1;document.addEventListener('keydown',trapDrawerKey,true);
     window.addEventListener('popstate',()=>{if(root&&!root.classList.contains('hidden')&&!history.state?.elaraDrawer)closeInternal()});
     removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
