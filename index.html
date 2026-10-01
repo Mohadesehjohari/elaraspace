@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261001-p0-runtime-v14 -->
+<!-- deploy-refresh: 20261001-p0-runtime-v15 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -7,22 +7,31 @@
   <meta name="theme-color" content="#09090b">
   <meta name="description" content="Elara Space: tasks, habits, goals and focus in one personal workspace.">
   <title>Elara Space · فضای شخصی من</title>
-  <style>html[data-elara-booting] body{background:#0d1b32}html[data-elara-booting] .shell,html[data-elara-booting] .elara-desktop-dock,html[data-elara-booting] .elara-private-drawer{visibility:hidden!important;opacity:0!important;pointer-events:none!important}@media(max-width:700px){html[data-elara-booting] .bottom-nav{visibility:visible!important;opacity:1!important;pointer-events:auto!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;position:fixed!important;inset:auto 0 0 0!important;height:84px!important;z-index:9000!important;background:#07162b!important}.bottom-nav>a[data-elara-nav-kind]{display:grid!important;grid-template-rows:36px 16px!important;place-items:center!important;align-content:center!important;text-decoration:none!important;color:#c8d2ef!important;min-width:0!important;overflow:hidden!important}.bottom-nav>a[data-elara-nav-kind] img{width:29px!important;height:29px!important;object-fit:contain!important}.bottom-nav>a[data-elara-nav-kind] small{font-size:9px!important;white-space:nowrap!important}}</style>
-  <link rel="stylesheet" href="styles.css?v=20261001-p0-runtime-v14">
-  <script defer src="dialog.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="schedule.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="calendar.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="stable-dom.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="i18n.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="reading.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="notifications.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="app.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="linked-tasks.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="phase2.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="rpg.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="approved-profile-system.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="boot.js?v=20261001-p0-runtime-v14"></script>
-  <script defer src="drawer.js?v=20261001-p0-runtime-v14"></script>
+  <style>html[data-elara-booting] body{background:#0d1b32}html[data-elara-booting] .shell,html[data-elara-booting] .elara-desktop-dock,html[data-elara-booting] .elara-private-drawer{visibility:hidden!important;opacity:0!important;pointer-events:none!important}@media(max-width:700px){html[data-elara-booting] .bottom-nav{visibility:visible!important;opacity:1!important;pointer-events:auto!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;position:fixed!important;inset:auto 0 0 0!important;height:84px!important;z-index:9000!important;background:#07162b!important}.bottom-nav>a[data-elara-nav-kind]{display:grid!important;grid-template-rows:36px 16px!important;place-items:center!important;align-content:center!important;text-decoration:none!important;color:#c8d2ef!important;min-width:0!important;overflow:hidden!important}.bottom-nav>a[data-elara-nav-kind] img{width:29px!important;height:29px!important;object-fit:contain!important}.bottom-nav>a[data-elara-nav-kind] small{font-size:9px!important;white-space:nowrap!important}}html[data-elara-booting] .bottom-nav{--elara-nav-step:clamp(31px,9.2vw,40px)!important;display:block!important;height:78px!important;padding:0!important;direction:ltr!important}
+html[data-elara-booting] .bottom-nav>a[data-elara-nav-kind]{position:absolute!important;top:4px!important;left:calc(50% + var(--nav-offset,0px))!important;right:auto!important;transform:translateX(-50%)!important;width:36px!important;min-width:36px!important;max-width:36px!important;height:68px!important;display:grid!important;grid-template-rows:32px auto!important;place-items:center!important;align-content:center!important;overflow:visible!important}
+html[data-elara-booting] .bottom-nav [data-elara-tab="exercise"]{--nav-offset:calc(var(--elara-nav-step) * -4)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="language"]{--nav-offset:calc(var(--elara-nav-step) * -3)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="tasks"]{--nav-offset:calc(var(--elara-nav-step) * -2)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="social"]{--nav-offset:calc(var(--elara-nav-step) * -1)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="home"]{--nav-offset:0px;width:46px!important;min-width:46px!important;max-width:46px!important}
+html[data-elara-booting] .bottom-nav [data-elara-tab="ranking"]{--nav-offset:var(--elara-nav-step)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="books"]{--nav-offset:calc(var(--elara-nav-step) * 2)}
+html[data-elara-booting] .bottom-nav [data-elara-tab="freedom"]{--nav-offset:calc(var(--elara-nav-step) * 3)}</style>
+  <link rel="stylesheet" href="styles.css?v=20261001-p0-runtime-v15">
+  <script defer src="dialog.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="schedule.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="calendar.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="stable-dom.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="i18n.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="reading.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="notifications.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="app.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="linked-tasks.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="phase2.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="rpg.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="approved-profile-system.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="boot.js?v=20261001-p0-runtime-v15"></script>
+  <script defer src="drawer.js?v=20261001-p0-runtime-v15"></script>
 </head>
 <body class="dark">
   <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری"><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
