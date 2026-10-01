@@ -894,3 +894,34 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
 .approved-wardrobe{z-index:var(--elara-overlay-z,100200)!important}
 #elara-dialog-root{z-index:var(--elara-overlay-z,100240)!important}
 .elara-notification-popover{z-index:var(--elara-overlay-z,100160)!important}
+
+
+/* 2026-10-01 P0 v14 — Settings mobile is a readable one-column list. */
+@media(max-width:700px){
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px!important;
+  width:100%!important;margin:10px 0 0!important;padding:0 2px 18px!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button{
+  position:relative!important;display:grid!important;
+  grid-template-columns:38px minmax(0,1fr) 18px!important;grid-template-rows:auto auto!important;
+  column-gap:9px!important;row-gap:2px!important;align-items:center!important;
+  width:100%!important;min-height:62px!important;margin:0!important;padding:9px 10px!important;
+  text-align:start!important;border-radius:13px!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>.elara-icon{
+  grid-column:1!important;grid-row:1/3!important;width:32px!important;height:32px!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>b{
+  grid-column:2!important;grid-row:1!important;display:block!important;min-width:0!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button>small{
+  grid-column:2!important;grid-row:2!important;display:block!important;min-width:0!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .drawer-menu>button::after{
+  content:'‹';grid-column:3!important;grid-row:1/3!important;align-self:center!important;
+  font-size:20px!important;color:var(--muted)!important
+ }
+ .elara-private-drawer[data-mobile-section="home"] .pass5-drawer-hub-grid{display:none!important}
+}
