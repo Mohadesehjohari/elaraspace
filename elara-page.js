@@ -17,7 +17,7 @@ async function collectFor(name,{story=false}={}){
  const own=await getDocs(query(ref,where('uid','==',current.uid)));own.forEach(x=>map.set(x.id,row(x)));
  for(const f of friends().slice(0,24)){
   for(const vis of ['friends','public']){
-   try{const snap=await getDocs(query(ref,where('uid','==',f.uid),where('visibility','==',vis)));snap.forEach(x=>map.set(x.id,row(x)))}catch(error){console.warn('Elara page friend query:',name,f.uid,vis,error)}
+   try{const clauses=[where('uid','==',f.uid),where('visibility','==',vis)];if(story)clauses.push(where('expiresAt','>',Timestamp.now()));const snap=await getDocs(query(ref,...clauses));snap.forEach(x=>map.set(x.id,row(x)))}catch(error){console.warn('Elara page friend query:',name,f.uid,vis,error)}
   }
  }
  const now=Date.now();return [...map.values()].filter(x=>!story||x.uid===current.uid||x.expiresMs>now).sort((a,b)=>(b.createdMs||0)-(a.createdMs||0))
