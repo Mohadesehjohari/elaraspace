@@ -77,6 +77,7 @@ assert.ok(drawer.includes('elara_activity_visibility_')&&drawer.includes('SHARE_
 assert.ok(!reading.includes("visibility:'friends'"),'Reading reports must not bypass configured activity privacy');
 for(const token of ["resource.data.visibility == 'public'","request.resource.data.type == 'reading'","request.resource.data.type == 'book_clip'","'visibility','category'"])assert.ok(rules.includes(token),'Firestore activity privacy contract missing '+token);
 assert.ok(social.includes("book_clip:'reading'")&&social.includes("if(type==='book_clip')"),'Social service must publish safe book clips through reading privacy');
+for(const token of ['canReadActivity','canReadPost','match /likes/{likeId}','match /comments/{commentId}','request.resource.data.text.size() <= 1000'])assert.ok(rules.includes(token),'Social engagement rules missing '+token);
 for(const token of ["match /conversations/{conversationId}","match /messages/{messageId}","friendOf(request.resource.data.members[0]","request.resource.data.text.size() <= 2000"])assert.ok(rules.includes(token),'Firestore DM contract missing '+token);
 for(const token of ["match /socialPosts/{postId}","match /socialStories/{storyId}","duration.value(24, 'h')","text.size() <= 4000","text.size() <= 1000"])assert.ok(rules.includes(token),'Page/Story Firestore contract missing '+token);
 for(const token of ["window.ElaraSocial.dm=","async function sendDm","function listenDm","where('members','array-contains',uid)"])assert.ok(social.includes(token),'Social DM service missing '+token);

@@ -38,6 +38,22 @@ service cloud.firestore {
     function profilePublic(data) {
       return !data.keys().hasAny(['profilePublic']) || data.profilePublic == true;
     }
+    function activityPath(id) { return /databases/$(database)/documents/activities/$(id); }
+    function postPath(id) { return /databases/$(database)/documents/socialPosts/$(id); }
+    function canReadActivity(id) {
+      return signed() && exists(activityPath(id)) && (
+        get(activityPath(id)).data.uid == request.auth.uid ||
+        get(activityPath(id)).data.visibility == 'public' ||
+        (get(activityPath(id)).data.visibility == 'friends' && friendOf(get(activityPath(id)).data.uid))
+      );
+    }
+    function canReadPost(id) {
+      return signed() && exists(postPath(id)) && (
+        get(postPath(id)).data.uid == request.auth.uid ||
+        get(postPath(id)).data.visibility == 'public' ||
+        (get(postPath(id)).data.visibility == 'friends' && friendOf(get(postPath(id)).data.uid))
+      );
+    }
     function validProfile(data) {
       return data.keys().hasOnly(['username','name','bio','xp','profilePublic'])
         && data.keys().hasAll(['username','name','bio','xp'])
@@ -257,6 +273,31 @@ service cloud.firestore {
         );
       allow update: if false;
       allow delete: if signed() && resource.data.uid == request.auth.uid;
+
+      match /likes/{likeId} {
+        allow get, list: if canReadActivity(activityId);
+        allow create: if canReadActivity(activityId)
+          && likeId == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && resource.data.uid == request.auth.uid;
+      }
+      match /comments/{commentId} {
+        allow get, list: if canReadActivity(activityId);
+        allow create: if canReadActivity(activityId)
+          && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && (
+          resource.data.uid == request.auth.uid ||
+          get(activityPath(activityId)).data.uid == request.auth.uid
+        );
+      }
     }
 
     match /socialPosts/{postId} {
@@ -282,6 +323,31 @@ service cloud.firestore {
         request.resource.data.createdAt == resource.data.createdAt &&
         request.resource.data.updatedAt == request.time;
       allow delete: if signed() && resource.data.uid == request.auth.uid;
+
+      match /likes/{likeId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && likeId == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && resource.data.uid == request.auth.uid;
+      }
+      match /comments/{commentId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && (
+          resource.data.uid == request.auth.uid ||
+          get(postPath(postId)).data.uid == request.auth.uid
+        );
+      }
     }
 
     match /socialStories/{storyId} {

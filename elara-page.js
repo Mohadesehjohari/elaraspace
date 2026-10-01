@@ -43,6 +43,7 @@ async function createStory(text,vis='friends'){
 async function remove(kind,id){
  const current=auth?.currentUser;if(!current?.emailVerified||!db)throw Error('حساب در دسترس نیست.');
  const collectionName=kind==='story'?'socialStories':'socialPosts',rows=kind==='story'?state.stories:state.posts,row=rows.find(x=>x.id===id);if(!row||row.uid!==current.uid)throw Error('فقط محتوای خودت را می‌توانی حذف کنی.');
+ if(kind==='post')try{await window.ElaraEngagement?.purge?.('post',id)}catch(error){console.warn('Elara post engagement cleanup:',error)}
  await deleteDoc(doc(db,collectionName,id));await refresh();return true
 }
 window.ElaraPage={state,refresh,createPost,createStory,deletePost:id=>remove('post',id),deleteStory:id=>remove('story',id),person};
