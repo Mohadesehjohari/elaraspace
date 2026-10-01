@@ -29,6 +29,7 @@
   function open(section='home'){if(!root)return;const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section)}
   function show(section='home'){
     current=section;
+    if(panel)panel.dataset.mobileSection=section;
     panel?.querySelectorAll('[data-drawer-section]').forEach(x=>x.classList.toggle('hidden',x.dataset.drawerSection!==section));
     panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
     if(section==='home')renderHub();
@@ -173,6 +174,8 @@
 
   document.addEventListener('click',async e=>{
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
+    const wardrobeButton=e.target.closest('[data-approved-wardrobe]');
+    if(wardrobeButton){e.preventDefault();window.ElaraWardrobeUI?.open?.();return}
     const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
     const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
