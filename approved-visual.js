@@ -190,6 +190,7 @@ function wire(){
  for(const name of ['elara:data-changed','elara:hydrate','elara:wardrobe-changed'])window.addEventListener(name,()=>{renderLanguage();refreshHome()});
  window.addEventListener('elara:social-updated',()=>{prepareLanguageBooks();renderLanguage();refreshHome()});
  window.addEventListener('elara:account-ready',()=>{prepareLanguageBooks();renderLanguage();refreshHome()});
+ window.ElaraLanguageBooks={read:()=>readBooks(),write:books=>writeBooks(books),prepare:()=>prepareLanguageBooks(),render:()=>renderLanguage()};
  language();refreshHome();
  if(window.__elaraPendingRoute==='language'||location.hash==='#language'){window.__elaraPendingRoute=null;window.ElaraOpen?.('language',{history:'replace'})}
  if(location.hash==='#words')window.ElaraOpen?.('words',{history:'replace'})
