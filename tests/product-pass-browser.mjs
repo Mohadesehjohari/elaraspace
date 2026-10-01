@@ -135,6 +135,7 @@ for(const width of all){
   await openRoute(page,'social');
   await check(`${width}: Ranking responsive reference structure`,async()=>{
    assert.equal(await page.locator('#elara-social-page .social-page-head').isVisible(),true);
+   await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForTimeout(60);assert.match(await page.locator('#elara-ranking-page .social-page-head').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/,'Ranking reference banner is not active');
    assert.equal(await page.locator('#elara-social-page .social-tabs [data-social-view="ranking"]').isVisible(),true);
    const grid=await rect(page,'#elara-social-page .social-reference-grid'),panel=await rect(page,'#elara-social-page'),podium=await rect(page,'#elara-social-page .social-top-three'),mine=await rect(page,'#elara-social-page .social-my-rank-card');
    assert.ok(grid.width>=panel.width*.9);
@@ -145,6 +146,7 @@ for(const width of all){
 
   await check(`${width}: friend search/invite/decline actions`,async()=>{
    await page.evaluate(()=>{ElaraSocial.me={uid:'me',name:'Aren',username:'aren',xp:820};ElaraSocial.requests=[{id:'r1',from:'f1',to:'me',status:'pending',person:{uid:'f1',name:'Nika',username:'nika',xp:100}}];ElaraSocial.friends=[];ElaraSocialView.render()});
+   assert.equal(await page.locator('#elara-social-page [data-social-view="ranking"]').count(),0,'Dedicated Friends page must not duplicate the Ranking tab');assert.match(await page.locator('#elara-social-page .social-page-head h1').innerText(),/دوستان/,'Dedicated Friends page heading mismatch');
    await page.locator('#elara-social-page [data-social-view="friends"]').click();await page.waitForTimeout(60);
    const input=await rect(page,'#elara-social-page #elara-add-friend-name'),invite=await rect(page,'#elara-social-page .social-invite>.invite'),lookup=await rect(page,'#elara-social-page [data-profile-lookup]');
    assert.ok(input.height>=44&&invite.height>=48&&lookup.height>=48);

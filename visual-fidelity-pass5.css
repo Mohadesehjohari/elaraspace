@@ -792,3 +792,78 @@ body.dark.amoled .pass3-ranking-card,body.dark.amoled .pass3-social-page .elara-
  .pass3-language .pass3-language-book-list{max-height:none}
 }
 @media(max-width:360px){.pass3-language .language-leitner-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* Ranking reference + dedicated Friends surface. */
+#elara-ranking-page.social-ranking-page,#elara-social-page.social-friends-page{width:100%!important;max-width:none!important}
+#elara-ranking-page .social-page-head,#elara-social-page .social-page-head{position:relative;overflow:hidden;border:1px solid #40527d;border-radius:18px;margin-bottom:12px;color:#fff}
+#elara-ranking-page .social-page-head{min-height:158px;padding:28px 34px;display:flex;align-items:center;background:linear-gradient(90deg,#06132fe0 0%,#06152db0 38%,#07152d30 69%,#06142dda 100%),url('assets/ui/ranking_banner.webp') center/cover no-repeat!important}
+#elara-social-page .social-page-head{min-height:132px;padding:24px 30px;display:flex;align-items:center;background:radial-gradient(circle at 22% 28%,#764cff33,transparent 30%),linear-gradient(125deg,#071a37,#08142d)!important}
+#elara-ranking-page .social-page-head h1,#elara-social-page .social-page-head h1{margin:.16em 0;font-size:clamp(1.6rem,2.5vw,2.45rem)}
+#elara-ranking-page .social-page-head small,#elara-social-page .social-page-head small{color:#b9a9ff;letter-spacing:.12em}
+#elara-ranking-page .social-page-head p,#elara-social-page .social-page-head p{margin:0;color:#d8e2f8}
+#elara-ranking-page .social-tabs,#elara-social-page .social-tabs{display:grid!important;gap:9px!important;margin:0 0 13px!important}
+#elara-ranking-page .social-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:720px;margin-inline:auto!important}
+#elara-social-page .social-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:620px;margin-inline:auto!important}
+#elara-ranking-page .social-tabs button,#elara-social-page .social-tabs button{min-height:54px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:1px solid #334c78!important;border-radius:12px!important;background:#081a35!important;color:#e6edff!important;font-weight:850!important}
+#elara-ranking-page .social-tabs button[aria-selected=true],#elara-social-page .social-tabs button[aria-selected=true]{background:linear-gradient(120deg,#6d2df4,#3428dd)!important;border-color:#8c67ff!important;box-shadow:0 0 20px #754cff66!important}
+#elara-ranking-page .social-tabs img,#elara-social-page .social-tabs img{width:28px!important;height:28px!important;object-fit:contain}
+#elara-ranking-page .social-reference-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:12px!important;align-items:start}
+#elara-ranking-page .social-section{border:1px solid #30466f!important;border-radius:16px!important;background:linear-gradient(145deg,#071b37,#06152c)!important;min-width:0}
+#elara-ranking-page .social-top-three{grid-column:span 8!important;min-height:290px!important;background:linear-gradient(180deg,#06152d45,#06152ddb),url('assets/ui/background-moonlit-mountains.webp') center/cover no-repeat!important}
+#elara-ranking-page .social-my-rank-card{grid-column:span 4!important;min-height:290px!important}
+#elara-ranking-page .social-weekly{grid-column:span 4!important}
+#elara-ranking-page .social-friend-rank{grid-column:span 5!important}
+#elara-ranking-page .social-side-stack{grid-column:span 3!important;display:grid!important;gap:12px!important}
+#elara-ranking-page .social-clubs{grid-column:1/-1!important;min-height:120px!important;background:linear-gradient(90deg,#06152ee5,#07162d88),url('assets/ui/background-moonlit-mountains.webp') center/cover no-repeat!important}
+#elara-ranking-page .social-podium{min-height:220px;display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:22px!important;padding-top:18px}
+#elara-ranking-page .social-podium-place{width:29%;display:grid!important;justify-items:center!important;gap:8px!important;text-align:center!important}
+#elara-ranking-page .social-podium-place.place-1{order:2;transform:translateY(-22px)}
+#elara-ranking-page .social-podium-place.place-2{order:1}
+#elara-ranking-page .social-podium-place.place-3{order:3}
+#elara-ranking-page .social-podium-avatar{position:relative!important;width:132px!important;height:138px!important;display:grid!important;place-items:center!important}
+#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:156px!important;height:164px!important}
+#elara-ranking-page .social-podium-avatar .social-person{position:relative;z-index:1;display:grid!important;justify-items:center!important;background:transparent!important;border:0!important;padding:0!important}
+#elara-ranking-page .social-podium-avatar .social-person>span{margin-top:82px!important}
+#elara-ranking-page .social-podium-place.place-1 .social-person>span{margin-top:100px!important}
+#elara-ranking-page .social-podium-avatar .social-portrait{position:absolute!important;top:20px!important;width:76px!important;height:76px!important;border-radius:50%!important;object-fit:cover!important}
+#elara-ranking-page .social-podium-place.place-1 .social-portrait{top:18px!important;width:96px!important;height:96px!important}
+#elara-ranking-page .social-rank-frame{position:absolute!important;z-index:2;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;pointer-events:none!important}
+#elara-ranking-page .social-row.is-me{border-color:#7c55ff!important;background:linear-gradient(120deg,#1c2350,#10183a)!important;box-shadow:0 0 18px #734dff44!important}
+#elara-social-page.social-friends-page .social-reference-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#elara-social-page .social-friend-invite,#elara-social-page .social-friend-activity{grid-column:1/-1!important}
+#elara-social-page .social-invite{display:grid!important;grid-template-columns:minmax(0,1fr) 136px 56px!important;gap:10px!important;align-items:center!important}
+#elara-social-page .social-invite input{min-height:52px!important}
+#elara-social-page .social-art-button.invite{width:136px!important;min-width:136px!important;height:52px!important}
+#elara-social-page .social-art-button.invite img{width:146px!important;height:56px!important;max-width:none!important}
+#elara-social-page [data-profile-lookup]{width:56px!important;height:52px!important}
+#elara-social-page .social-friend-activity .social-row{min-height:68px}
+@media(max-width:700px){
+ #elara-ranking-page .social-page-head{min-height:170px!important;padding:20px!important;background-position:center!important}
+ #elara-social-page .social-page-head{min-height:122px!important;padding:18px!important}
+ #elara-ranking-page .social-tabs,#elara-social-page .social-tabs{gap:6px!important}
+ #elara-ranking-page .social-tabs button,#elara-social-page .social-tabs button{min-height:48px!important;padding:6px!important;font-size:.76rem!important}
+ #elara-ranking-page .social-tabs img,#elara-social-page .social-tabs img{width:24px!important;height:24px!important}
+ #elara-ranking-page .social-reference-grid,#elara-social-page.social-friends-page .social-reference-grid{grid-template-columns:1fr!important}
+ #elara-ranking-page .social-top-three,#elara-ranking-page .social-my-rank-card,#elara-ranking-page .social-weekly,#elara-ranking-page .social-friend-rank,#elara-ranking-page .social-side-stack,#elara-ranking-page .social-clubs,#elara-social-page .social-friend-invite,#elara-social-page .social-friend-activity{grid-column:1!important}
+ #elara-ranking-page .social-top-three{min-height:270px!important}
+ #elara-ranking-page .social-my-rank-card{min-height:0!important}
+ #elara-ranking-page .social-podium{gap:3px!important;min-height:200px!important}
+ #elara-ranking-page .social-podium-avatar{width:94px!important;height:108px!important}
+ #elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:116px!important;height:132px!important}
+ #elara-ranking-page .social-podium-avatar .social-portrait{top:19px!important;width:57px!important;height:57px!important}
+ #elara-ranking-page .social-podium-place.place-1 .social-portrait{top:18px!important;width:72px!important;height:72px!important}
+ #elara-ranking-page .social-podium-avatar .social-person>span{margin-top:67px!important;font-size:.72rem!important}
+ #elara-ranking-page .social-podium-place.place-1 .social-person>span{margin-top:82px!important}
+ #elara-social-page .social-invite{grid-template-columns:minmax(0,1fr) 110px 52px!important}
+ #elara-social-page .social-art-button.invite{width:110px!important;min-width:110px!important}
+ #elara-social-page .social-art-button.invite img{width:120px!important}
+}
+@media(max-width:390px){
+ #elara-ranking-page .social-page-head h1{font-size:1.55rem!important}
+ #elara-ranking-page .social-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #elara-ranking-page .social-tabs button{font-size:.68rem!important;gap:4px!important}
+ #elara-ranking-page .social-tabs img{width:21px!important;height:21px!important}
+ #elara-social-page .social-invite{grid-template-columns:1fr 1fr!important}
+ #elara-social-page .social-search-field{grid-column:1/-1!important}
+ #elara-social-page .social-art-button.invite,#elara-social-page [data-profile-lookup]{width:100%!important;min-width:0!important}
+}
