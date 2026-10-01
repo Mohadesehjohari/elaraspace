@@ -21,6 +21,7 @@ function seed(){
  }));
  localStorage.setItem('elara_preferences_v2',JSON.stringify({mode:'dark',color:'violet',style:'default',language:'fa'}));
  localStorage.setItem('elara_locale_v1','fa');
+ localStorage.setItem('elara_language_books_v1_guest',JSON.stringify([{title:'Legacy language book',shelf:'reading',currentPage:0}]));
 }
 const cloudStub=`window.ElaraAccount={user:null,profile:null};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));`;
 const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:[],error:'',refresh:async()=>{},saveProfileValues:async values=>({profile:values,warnings:[]}),activityVisibility(){const u=this.me?.uid;if(!u)return 'private';return localStorage.getItem('elara_activity_visibility_'+u)||(localStorage.getItem('elara_share_activity_'+u)==='yes'?'friends':'private')},publishActivity:async function(type,detail){const visibility=this.activityVisibility();if(visibility==='private')return false;(window.__published||(window.__published=[])).push({type,detail:{...detail,visibility}});return true},openSelfProfile(){},openProfile(){}};window.dispatchEvent(new Event('elara:social-updated'));`;
@@ -55,7 +56,7 @@ for(const width of all){
   await check(`${width}: shell/topbar/nav boot`,async()=>{
    assert.equal(await page.locator('.workspace').isVisible(),true);
    assert.equal(await page.locator('.topbar').isVisible(),true);
-   if(mobile){assert.equal(await page.locator('.bottom-nav').isVisible(),true);assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),6);assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['home','tasks','language','books','exercise','freedom'])}
+   if(mobile){assert.equal(await page.locator('.bottom-nav').isVisible(),true);assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom'])}
    assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0);
    await noOverflow(page);
   });
@@ -65,7 +66,7 @@ for(const width of all){
     await page.goto(base+'/#'+route,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(180);
     assert.equal(await page.locator('.topbar').isVisible(),true,route+' topbar');
     assert.equal(await page.locator('.bottom-nav').isVisible(),true,route+' bottom nav');
-    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),6,route+' nav count');
+    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8,route+' nav count');
     assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0,route+' permanent cloud layer');
     await noOverflow(page);
    }
@@ -79,14 +80,15 @@ for(const width of all){
    const near=(a,b,t,l)=>assert.ok(Math.abs(a-b)<=t,`${l} ${a} vs ${b}`);
    near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,3,'checkbox');
    if(!mobile){const repeat=page.locator('.astra-repeat-meta').first();assert.equal(await repeat.count()>0,true);const rr=await repeat.boundingBox();assert.ok(rr&&rr.height<=24,'repeat metadata enlarged row')}
+   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');await summary.click();await page.waitForTimeout(30);assert.equal(await kebab.locator('.item-actions').isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');await summary.click();
    await noOverflow(page);
   });
 
   await openRoute(page,'home');
   await check(`${width}: Home reference grid/internal scroll/wellness`,async()=>{
-   const t=await rect(page,'.ref-tasks'),h=await rect(page,'.ref-habits'),w=await rect(page,'.ref-wellness-card'),m=await rect(page,'.ref-missions'),r=await rect(page,'.ref-ranks'),a=await rect(page,'.ref-activity');
+   const t=await rect(page,'.ref-tasks'),h=await rect(page,'.ref-habits'),w=await rect(page,'.ref-wellness-card'),m=await rect(page,'.ref-missions'),g=await rect(page,'.ref-goals'),r=await rect(page,'.ref-ranks'),a=await rect(page,'.ref-activity');
    assert.ok(Math.abs(t.y-h.y)<=2);
-   if(mobile){assert.ok(w.width>t.width*1.7);assert.ok(Math.abs(m.y-r.y)<=2);assert.ok(a.width>w.width*.9)}
+   if(mobile){assert.ok(w.width>t.width*1.7);assert.ok(Math.abs(m.y-g.y)<=2);assert.ok(r.y>m.y);assert.ok(a.width>w.width*.9)}
    else{assert.ok(Math.abs(t.y-w.y)<=2);assert.ok(Math.abs(m.y-r.y)<=2)}
    assert.equal(await page.locator('.ref-habit-semantic-art').count(),0);
    assert.equal(await page.locator('.ref-wellness-card .ref-wellness-banner').isVisible(),true);
@@ -130,6 +132,14 @@ for(const width of all){
    await page.evaluate(()=>ElaraProfileSystem.writePrivate({sex:'male'}));await page.waitForTimeout(50);assert.equal(await page.locator('#wellness-cycle').isVisible(),false);
   });
 
+  await openRoute(page,'language');
+  await check(`${width}: language book delete and reading are interactive`,async()=>{
+   const row=page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).first();assert.equal(await row.count(),1,'legacy language book must render');
+   const read=row.locator('[data-language-reading]'),del=row.locator('[data-language-book-delete]');assert.equal(await read.isDisabled(),false,'language reading button is locked');assert.equal(await del.isDisabled(),false,'language delete button is locked');
+   await read.click();await page.waitForTimeout(40);assert.equal(await page.locator('#elara-dialog-root:not(.hidden) input[name=total]').count(),1,'legacy language book should ask for total pages instead of staying disabled');await page.evaluate(()=>ElaraDialog.close());await page.waitForTimeout(20);
+   await del.click();await page.waitForTimeout(40);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).count(),0,'language book delete did not remove the row');
+  });
+
   await openRoute(page,'books');
   await check(`${width}: reading report notification/privacy`,async()=>{
    await page.evaluate(()=>{ElaraSocial.me={uid:'reader-qa',name:'Reader',username:'reader',xp:10};localStorage.setItem('elara_activity_visibility_reader-qa','friends')});
@@ -146,15 +156,17 @@ for(const width of all){
    await page.evaluate(()=>{window.ElaraAccount={user:{uid:'profile-qa',photoURL:''},profile:{uid:'profile-qa',name:'Aren',username:'aren',xp:820}};ElaraSocial.me={uid:'profile-qa',name:'Aren',username:'aren',xp:820,profilePublic:true};ElaraSocial.saveProfileValues=async values=>({profile:values,warnings:[]});ElaraPrivateDrawer.open('account')});await page.waitForTimeout(80);
    const panel=await rect(page,'.elara-private-drawer-panel');if(mobile)assert.ok(panel.width>=width*.75&&panel.width<=width*.9);else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
    await page.evaluate(()=>ElaraProfileSystem.openEditor());await page.waitForTimeout(40);
+   assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'profile Save must be visible immediately');
    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/D/PwMDAwMDEwMDAwAANQUD/TehZAAAAABJRU5ErkJggg==','base64');
    await page.locator('#elara-central-profile-form input[type=file]').setInputFiles({name:'profile.png',mimeType:'image/png',buffer:png});await page.waitForTimeout(100);
    await page.locator('#elara-central-profile-form [name=shape]').selectOption('square');await page.locator('#elara-central-profile-form [name=nameFont]').selectOption('classic');await page.locator('#elara-central-profile-form [name=sex]').selectOption('male');await page.locator('#elara-central-profile-form [type=submit]').click();await page.waitForTimeout(100);
    const stored=await page.evaluate(()=>({w:ElaraProfileSystem.readWardrobe(),p:ElaraProfileSystem.readPrivate(),circle:ElaraProfileSystem.avatarPath('female',1,'circle'),square:ElaraProfileSystem.avatarPath('female',1,'square'),frameCircle:ElaraProfileSystem.frameVariantPath('bronze','circle'),frameSquare:ElaraProfileSystem.frameVariantPath('bronze','square')}));assert.equal(stored.w.shape,'square');assert.equal(stored.w.nameFont,'classic');assert.equal(stored.w.photoMode,'upload');assert.match(stored.w.photoSquare,/^data:image\/webp/);assert.equal(stored.p.sex,'male');assert.match(stored.circle,/\.png$/);assert.match(stored.square,/\.png$/);assert.notEqual(stored.circle,stored.square);assert.notEqual(stored.frameCircle,stored.frameSquare);
-   await page.evaluate(()=>ElaraWardrobeUI.open());await page.waitForTimeout(50);assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
+   await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(30);await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(50);assert.equal(await page.locator('.approved-wardrobe').isVisible(),true,'wardrobe button must open a popup above Settings');assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
    await page.evaluate(()=>ElaraWardrobeUI.close());await page.waitForTimeout(30);
    for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
     await page.evaluate(section=>ElaraPrivateDrawer.open(section),section);await page.waitForTimeout(45);
     assert.equal(await page.locator('.elara-private-drawer:not(.hidden) .elara-private-drawer-panel>[data-drawer-section="'+section+'"]:not(.hidden)').count(),1,section+' must open inside the Settings modal');
+    if(mobile){assert.equal(await page.locator('.elara-private-drawer-panel').getAttribute('data-mobile-section'),section);assert.equal(await page.locator('.drawer-menu').isVisible(),false,section+' should open as its own mobile subpage')}
     assert.equal(await page.locator('#main [data-drawer-section="'+section+'"]').count(),0,section+' leaked inline under the page');
    }
    assert.equal(await page.locator('#main .drawer-account-area').count(),0,'Settings section leaked inline into page');
