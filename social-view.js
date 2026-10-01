@@ -28,7 +28,8 @@ function render(){
    if(a.type==='book')return name+' یه کتاب رو به پایان رسوند 😎📖';
    return name+' امروز یه قدم جلو رفت 👊🔥';
  };
- const activities=sharedActivities.map(a=>`<div class="social-row">${person(a.person||{})}<span>${activityCopy(a)}${a.ms?'<small>'+new Date(a.ms).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small>':''}</span></div>`).join('')||empty('فعلاً اینجا آرومه 👀 وقتی دوستات چیزی رو با اجازه به اشتراک بذارن، خبرهای باحال‌شون همین‌جا میاد 🔥');
+ const engage=a=>a.id?`<div class="social-engagement-bar" data-engagement-kind="activity" data-engagement-id="${esc(a.id)}"><button type="button" data-engagement-like aria-pressed="false"><span data-engagement-heart>♡</span><span data-engagement-like-count>0</span></button><button type="button" data-engagement-comment>💬 <span data-engagement-comment-count>0</span></button></div>`:'';
+ const activities=sharedActivities.map(a=>`<div class="social-row social-activity-row">${person(a.person||{})}<div class="social-activity-copy"><span>${activityCopy(a)}${a.ms?'<small>'+new Date(a.ms).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small>':''}</span>${engage(a)}</div></div>`).join('')||empty('فعلاً اینجا آرومه 👀 وقتی دوستات چیزی رو با اجازه به اشتراک بذارن، خبرهای باحال‌شون همین‌جا میاد 🔥');
  for(const route of ['social','ranking']){
   const root=$('elara-'+route+'-page');if(!root)continue;root.classList.add('social-reference');root.classList.toggle('social-friends-page',route==='social');root.classList.toggle('social-ranking-page',route==='ranking');
   const tabs=route==='social'?socialTabs:rankingTabs,allowed=tabs.map(x=>x[0]);if(!allowed.includes(selections[route]))selections[route]=allowed[0];
@@ -51,7 +52,7 @@ function render(){
   if(tab==='clubs')body=section('کلاب‌ها و کافهٔ الارا',empty('فعلاً کلابی برای ورود نیست 🌝 به محض آماده‌شدن، همین‌جا پیداش می‌کنی.','clubs-tab.webp'),'social-clubs');
   const heading=route==='ranking'?{k:'ELARA · TOGETHER',title:'رنکینگ و اجتماع',sub:'در کنار هم، قله‌ها نزدیک‌ترند.'}:{k:'ELARA · FRIENDS',title:'دوستان',sub:'آدم‌های مسیرت، گفتگوها و فعالیت‌هایی که با هم به اشتراک می‌گذارید.'};window.ElaraDOM.patch(root,`<header class="social-page-head"><div><small>${heading.k}</small><h1>${heading.title}</h1><p>${heading.sub}</p></div><div class="social-head-art" aria-hidden="true"></div></header><div class="social-tabs" role="tablist" aria-label="${heading.title}">${tabs.map(([key,label,art])=>`<button type="button" role="tab" aria-selected="${tab===key}" data-social-view="${key}" data-social-route="${route}"><img src="assets/ui/${art}" alt="">${label}</button>`).join('')}</div><div class="social-reference-grid" role="tabpanel">${body}</div>`);
  }
- window.ElaraDOM.patch($('elara-home-activity'),arr(s.activities).length?activities: '<p class="ref-empty">اینجا فعلاً ساکته 👀 وقتی دوستات فعالیتی رو باهات share کنن، خبرها همین‌جا میاد 🔥</p>');
+ window.ElaraDOM.patch($('elara-home-activity'),arr(s.activities).length?activities: '<p class="ref-empty">اینجا فعلاً ساکته 👀 وقتی دوستات فعالیتی رو باهات share کنن، خبرها همین‌جا میاد 🔥</p>');setTimeout(()=>window.ElaraEngagementView?.scan?.(),0);
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-social-view]');if(b){selections[b.dataset.socialRoute]=b.dataset.socialView;render()}if(e.target.closest('[data-social-manage]')){selections.social='friends';window.ElaraOpen('social');render()}});

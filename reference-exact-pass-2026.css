@@ -1154,3 +1154,21 @@ body.light .page-hero{background:linear-gradient(115deg,#eef3ff,#f7f4ff)!importa
 
 /* Stage 6 page CTA pointer safety: decorative Social artwork must never intercept controls. */
 .social-head-art[aria-hidden="true"],.social-head-art{pointer-events:none!important}
+
+/* Stage 7 shared social engagement — Friends Activity + Page posts. */
+.social-activity-row{align-items:flex-start!important}.social-activity-copy{min-width:0;display:grid;gap:7px;flex:1}.social-activity-copy>span{display:grid;gap:2px;min-width:0}.social-activity-copy>span small{color:#8299bc;font-size:.68rem}
+.social-engagement-bar{display:flex;align-items:center;gap:8px;min-height:32px;margin-top:4px}
+.social-engagement-bar>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:56px;min-height:32px;padding:5px 10px;border:1px solid #314f79;border-radius:999px;background:#071c37;color:#b8c8e4;font:700 .75rem/1 inherit;cursor:pointer;transition:border-color .15s ease,background .15s ease,color .15s ease,transform .15s ease}
+.social-engagement-bar>button:hover,.social-engagement-bar>button:focus-visible{border-color:#7959db;background:#171d49;color:#fff}.social-engagement-bar>button:active{transform:scale(.97)}
+.social-engagement-bar>button.is-liked{border-color:#ef4f92;background:#8e1e5633;color:#ff78b1}.social-engagement-bar>button.is-liked [data-engagement-heart]{color:#ff4f9a;text-shadow:0 0 12px #ff3f91aa}
+.social-engagement-bar.is-loading{opacity:.6;pointer-events:none}.page-engagement{padding-top:9px;border-top:1px solid #ffffff12;margin-top:11px}
+.engagement-dialog{display:grid;grid-template-rows:minmax(120px,1fr) auto auto;gap:12px;min-height:min(58vh,560px);max-height:72vh}
+.engagement-comments{display:grid;align-content:start;gap:9px;overflow:auto;overscroll-behavior:contain;padding-inline:2px}
+.engagement-comment{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:9px;align-items:start;padding:10px;border:1px solid #294b75;border-radius:14px;background:#081d38}
+.engagement-comment-avatar{width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#27205b;color:#fff;font-weight:900}.engagement-comment-avatar img{width:100%;height:100%;object-fit:cover}
+.engagement-comment>div{min-width:0}.engagement-comment header{display:flex;gap:8px;align-items:center;justify-content:space-between}.engagement-comment header strong{font-size:.82rem}.engagement-comment time{color:#7890b2;font-size:.64rem}
+.engagement-comment p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#d7e1f1;font-size:.82rem;line-height:1.75}.engagement-comment>[data-engagement-delete-comment]{width:28px;height:28px;border-radius:9px;border:1px solid #b43b5b;background:#60172d;color:#fff}
+.engagement-comment-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}.engagement-comment-form textarea{min-height:58px;max-height:140px;resize:vertical;border:1px solid #31547d;border-radius:13px;background:#071b34;color:#eef3ff;padding:10px}.engagement-comment-form button{min-width:88px}.engagement-status{min-height:1.2em;margin:0;color:#97abc8;font-size:.72rem}
+body.light .social-engagement-bar>button{background:#f6f8ff;color:#35435d;border-color:#c9d5e8}body.light .social-engagement-bar>button.is-liked{background:#ffe9f3;color:#a51f5a;border-color:#e996bb}
+body.light .engagement-comment{background:#f8faff;border-color:#d5dfef}body.light .engagement-comment p{color:#23314a}body.light .engagement-comment-form textarea{background:#fff;color:#17243d;border-color:#cad7ea}
+@media(max-width:620px){.social-engagement-bar{gap:6px}.social-engagement-bar>button{min-width:52px;min-height:34px;padding:5px 9px}.engagement-dialog{min-height:62vh}.engagement-comment-form{grid-template-columns:1fr}.engagement-comment-form button{width:100%}}
