@@ -26,7 +26,7 @@ function render(){
  const p=$('#panel-freedom');if(!p?.classList.contains('freedom-reference-page'))return;const s=space(),d=read(),me=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},xp=Number(s.xp||me.xp||0),lv=window.ElaraLevels?.level?.(xp)||1;
  p.querySelector('[data-f-name]').textContent=me.name||'Elara';p.querySelector('[data-f-level]').textContent='سطح '+fa(lv);p.querySelector('[data-f-xp]').textContent=fa(xp)+' XP';p.querySelector('[data-f-xpbar]').style.width=Math.min(100,(xp%1000)/10)+'%';p.querySelector('[data-f-streak]').textContent=fa(streak(s));
  const tasks=(s.tasks||[]).filter(t=>!t.completed).slice(0,4);p.querySelector('[data-f-tasks]').innerHTML=tasks.length?tasks.map(t=>'<button type="button" class="freedom-task" data-elara-tab="tasks"><i></i><span dir="auto">'+E(t.text||t.title||'تسک')+'</span></button>').join(''):'<p class="freedom-empty">امروز تسکی اینجا نداری ✨</p>';
- const host=p.querySelector('[data-f-notes]'),all=host.dataset.all==='1',notes=(d.notes||[]).slice().sort((a,b)=>(b.updatedAt||b.at||0)-(a.updatedAt||a.at||0)).slice(0,all?30:3);
+ const host=p.querySelector('[data-f-notes]'),notes=(d.notes||[]).slice().sort((a,b)=>(b.updatedAt||b.at||0)-(a.updatedAt||a.at||0)).slice(0,3);
  host.innerHTML=notes.length?notes.map(n=>'<article class="freedom-note" data-f-note-open="'+E(n.id)+'" tabindex="0">'+(n.image?'<img src="'+E(n.image)+'" alt="">':img(art.notes))+'<div><b dir="auto">'+E(topic(n))+'</b><small>'+new Date(n.updatedAt||n.at||Date.now()).toLocaleDateString('fa-IR')+'</small></div><button type="button" data-f-del="'+E(n.id)+'" aria-label="حذف یادداشت">×</button></article>').join(''):'<p class="freedom-empty">هنوز چیزی ننوشتی؛ اولین فکر رو ثبت کن ✨</p>';
  const dreams=(d.dreams||[]).slice().sort((a,b)=>(b.updatedAt||b.at||0)-(a.updatedAt||a.at||0)).slice(0,4),dh=p.querySelector('[data-f-dreams]');
  dh.innerHTML=dreams.length?dreams.map(x=>'<button type="button" class="freedom-dream-tile '+(x.image?'has-image':'topic-only')+'" data-f-dream-open="'+E(x.id)+'">'+(x.image?'<img src="'+E(x.image)+'" alt="">':'')+'<span dir="auto">'+E(topic(x,'رویای من'))+'</span></button>').join(''):'<button type="button" class="freedom-dream-empty" data-f-dream>'+img(art.dream)+'<span>+ رویای جدید</span></button>';
@@ -37,7 +37,7 @@ function bind(){const p=$('#panel-freedom');
  p.addEventListener('submit',e=>{if(!e.target.matches('[data-f-form]'))return;if(window.ElaraFreedomEnhancements)return;e.preventDefault();const text=e.target.elements.text?.value.trim()||'',title=e.target.elements.title?.value.trim()||'';if(!text&&!title)return;const d=read();d.notes.unshift({id:(crypto.randomUUID?.()||Date.now().toString(36)),title,text,at:Date.now()});save(d);e.target.reset();render()});
  p.addEventListener('click',e=>{
   const del=e.target.closest('[data-f-del]');if(del){e.preventDefault();e.stopPropagation();const d=read();d.notes=d.notes.filter(n=>n.id!==del.dataset.fDel);save(d);render();return}
-  if(e.target.closest('[data-f-more]')){const h=p.querySelector('[data-f-notes]');h.dataset.all=h.dataset.all==='1'?'0':'1';render();return}
+  if(e.target.closest('[data-f-more]')){e.preventDefault();window.ElaraFreedomEnhancements?.allNotes?.();return}
   if(e.target.closest('[data-f-dream]')){window.ElaraFreedomEnhancements?.dream?.();return}
   if(e.target.closest('[data-f-quote-edit]')){window.ElaraFreedomEnhancements?.quote?.();return}
   const dream=e.target.closest('[data-f-dream-open]');if(dream){window.ElaraFreedomEnhancements?.dreamDetail?.(dream.dataset.fDreamOpen);return}

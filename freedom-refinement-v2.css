@@ -112,3 +112,94 @@
  #panel-freedom .freedom-reflection{grid-column:1/-1!important}
  #panel-freedom .freedom-ai-card{display:block!important}
 }
+
+/* Freedom visual pass v3 — full artwork, vivid section banners and stacked all-notes popup. */
+#panel-freedom .freedom-features{gap:16px!important;margin-top:26px!important}
+#panel-freedom .freedom-feature{
+ height:196px!important;min-height:196px!important;border:0!important;background:transparent!important;
+ box-shadow:none!important;overflow:visible!important;padding:0!important
+}
+#panel-freedom .freedom-feature>img{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;border-radius:0!important;box-shadow:none!important;
+ filter:saturate(1.08) brightness(1.06);transform-origin:center
+}
+#panel-freedom .freedom-feature:after{
+ inset:auto 0 0!important;height:58px!important;border-radius:0!important;
+ background:linear-gradient(0deg,#06162be8 0%,#06162b8f 48%,transparent 100%)!important;
+ pointer-events:none
+}
+#panel-freedom .freedom-feature>span{inset:auto 10px 7px!important}
+#panel-freedom .freedom-feature>i{top:8px!important;left:8px!important}
+#panel-freedom .freedom-subpage-shell{gap:22px!important}
+#panel-freedom .freedom-subpage-head{
+ min-height:320px!important;height:320px!important;display:block!important;position:relative!important;
+ overflow:hidden!important;border:0!important;border-radius:22px!important;background:#06142d!important;
+ box-shadow:0 20px 54px #0008,0 0 0 1px #6349a94f inset!important
+}
+#panel-freedom .freedom-subpage-head>img{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center!important;opacity:1!important;
+ filter:saturate(1.22) contrast(1.08) brightness(1.1)!important;transform:scale(1.01)
+}
+#panel-freedom .freedom-subpage-head:after{display:none!important}
+#panel-freedom .freedom-subpage-shade{
+ position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(90deg,#06142d12 0%,#06142d2d 34%,#06142d78 68%,#06142dcc 100%)
+}
+#panel-freedom .freedom-subpage-head>div{
+ position:absolute!important;z-index:2!important;right:78px!important;top:50%!important;transform:translateY(-50%)!important;
+ width:min(520px,48%)!important;padding:0!important;text-shadow:0 3px 18px #020817
+}
+#panel-freedom .freedom-subpage-head>div h1{font-size:2.35rem!important;margin:.2em 0!important}
+#panel-freedom .freedom-subpage-head>div p{font-size:1rem!important;color:#f0f3ff!important}
+#panel-freedom .freedom-subpage-head>button[data-f-sub-back]{
+ position:absolute!important;z-index:4!important;right:18px!important;top:18px!important;margin:0!important;
+ width:46px!important;height:46px!important;display:grid!important;place-items:center!important
+}
+#panel-freedom .freedom-subpage-add{
+ position:absolute!important;z-index:5!important;right:20px!important;left:auto!important;bottom:18px!important;
+ width:60px!important;height:60px!important;min-width:60px!important;min-height:60px!important;padding:0!important;
+ display:grid!important;place-items:center!important;border-radius:50%!important;
+ font:900 34px/1 Arial,sans-serif!important
+}
+#panel-freedom .freedom-subpage-add span{transform:translateY(-1px)}
+#panel-freedom .freedom-sub-empty{
+ min-height:340px!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:16px 8px 26px!important
+}
+#panel-freedom .freedom-sub-empty img{
+ width:min(620px,92%)!important;height:250px!important;max-height:none!important;object-fit:contain!important;
+ border-radius:0!important;box-shadow:none!important;filter:saturate(1.14) brightness(1.06)
+}
+#panel-freedom .freedom-sub-empty h3{margin:4px 0 0!important}
+.freedom-all-notes-popup{min-width:0}
+.freedom-all-notes-list{display:grid;gap:8px;max-height:min(62dvh,560px);overflow:auto;padding:2px 4px 4px;scrollbar-width:thin}
+.freedom-all-note-row{
+ width:100%;display:grid;grid-template-columns:50px minmax(0,1fr) 24px;align-items:center;gap:11px;
+ min-height:64px;padding:7px 10px;border:1px solid #314b76;border-radius:13px;background:linear-gradient(135deg,#0a1c38,#0c1930);
+ color:#eef4ff;text-align:right;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease
+}
+.freedom-all-note-row:hover,.freedom-all-note-row:focus-visible{transform:translateY(-1px);border-color:#8565ef;background:linear-gradient(135deg,#10254a,#151c43)}
+.freedom-all-note-row>img,.freedom-all-note-mark{width:50px;height:50px;border-radius:10px;object-fit:cover;background:#111e42}
+.freedom-all-note-mark{display:grid;place-items:center;color:#ba9dff;font-size:20px}
+.freedom-all-note-copy{display:grid;gap:3px;min-width:0}
+.freedom-all-note-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.freedom-all-note-copy small{color:#8fa5c8}
+.freedom-all-note-row>i{font-style:normal;color:#a98cff;font-size:24px}
+.freedom-all-notes-empty{display:grid;gap:7px;place-items:center;min-height:170px;color:#9fb0cd;text-align:center}
+.freedom-all-notes-empty strong{color:#eef4ff}
+#elara-dialog-root .freedom-all-notes-popup~*{}
+@media(max-width:700px){
+ #panel-freedom .freedom-features{gap:12px!important}
+ #panel-freedom .freedom-feature{height:168px!important;min-height:168px!important}
+ #panel-freedom .freedom-subpage-head{height:270px!important;min-height:270px!important;border-radius:18px!important}
+ #panel-freedom .freedom-subpage-head>div{right:70px!important;left:18px!important;width:auto!important}
+ #panel-freedom .freedom-subpage-head>div h1{font-size:1.8rem!important}
+ #panel-freedom .freedom-subpage-shade{background:linear-gradient(90deg,#06142d20,#06142d50 45%,#06142dd8 100%)}
+ #panel-freedom .freedom-subpage-add{right:14px!important;bottom:14px!important;width:58px!important;height:58px!important}
+ #panel-freedom .freedom-sub-empty{min-height:280px!important}
+ #panel-freedom .freedom-sub-empty img{height:205px!important}
+ .freedom-all-notes-list{max-height:66dvh}
+ .freedom-all-note-row{grid-template-columns:44px minmax(0,1fr) 20px;min-height:58px;padding:6px 8px}
+ .freedom-all-note-row>img,.freedom-all-note-mark{width:44px;height:44px}
+}
