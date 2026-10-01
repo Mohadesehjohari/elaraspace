@@ -34,6 +34,8 @@ on:
       - 'social-engagement-view.js'
       - 'social-engagement.js'
       - 'social-messaging-ui.js'
+      - 'tests/friends-groups-ui-browser.mjs'
+      - 'social-groups-ui.js'
       - 'elara-design.js'
       - 'firestore.rules'
       - 'page-view.js'
@@ -80,6 +82,7 @@ jobs:
           node --check phase2.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
+          node --check social-groups-ui.js
           node --check social-engagement.js
           node --check social-engagement-view.js
           node --check page-view.js
@@ -92,6 +95,7 @@ jobs:
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/library-stage4-browser.mjs
           node --check tests/friends-dm-ui-browser.mjs
+          node --check tests/friends-groups-ui-browser.mjs
           node --check tests/page-stage6-browser.mjs
           node --check tests/social-engagement-browser.mjs
       - name: Install Chromium
@@ -108,6 +112,8 @@ jobs:
         run: timeout 120s node tests/library-stage4-browser.mjs
       - name: Verify Friends DM UI interactions
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
+      - name: Verify Friends group chat interactions
+        run: timeout 90s node tests/friends-groups-ui-browser.mjs
       - name: Verify Page Stage 6 interactions
         run: timeout 90s node tests/page-stage6-browser.mjs
       - name: Verify Social engagement Stage 7 interactions
@@ -164,6 +170,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
+      - name: Verify deployed Friends group chat interactions
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/friends-groups-ui-browser.mjs
       - name: Verify deployed Page Stage 6 interactions
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
