@@ -23,7 +23,7 @@ function combined(){
 function root(){
  let host=document.getElementById('elara-notification-popover');if(host)return host;
  host=document.createElement('div');host.id='elara-notification-popover';host.className='elara-notification-popover hidden';
- host.innerHTML='<button class="elara-notification-scrim" type="button" data-notification-close aria-label="بستن اعلان‌ها"></button><section class="elara-notification-window" role="dialog" aria-modal="true" aria-label="اعلان‌ها"><header><button type="button" data-notification-back aria-label="بازگشت">←</button><div><small>ELARA</small><h2>اعلان‌ها</h2></div><button type="button" data-notification-close aria-label="بستن">×</button></header><div class="elara-notification-actions"><button type="button" data-notification-mark-all>خواندن همه</button><button type="button" data-notification-clear-read>پاک‌کردن خوانده‌شده‌ها</button></div><div class="elara-notification-list"></div></section>';
+ host.innerHTML='<button class="elara-notification-scrim" type="button" data-notification-close aria-label="بستن اعلان‌ها"></button><section class="elara-notification-window" role="dialog" aria-modal="true" aria-label="اعلان‌ها" tabindex="-1"><header><button type="button" data-notification-back aria-label="بازگشت">←</button><div><small>ELARA</small><h2>اعلان‌ها</h2></div><button type="button" data-notification-close aria-label="بستن">×</button></header><div class="elara-notification-actions"><button type="button" data-notification-mark-all>خواندن همه</button><button type="button" data-notification-clear-read>پاک‌کردن خوانده‌شده‌ها</button></div><div class="elara-notification-list"></div></section>';
  document.body.append(host);return host
 }
 function render(){
@@ -35,6 +35,20 @@ let launcher=null;
 function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();window.ElaraOverlayStack?.next?.(host);host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
 function close(){const host=document.getElementById('elara-notification-popover');if(!host)return;host.classList.add('hidden');document.body.classList.remove('elara-notifications-open');launcher?.focus?.({preventScroll:true});launcher=null}
 function syncBadge(){const n=unreadCount();document.querySelectorAll('#ref-header-notifications,[data-notification-bell]').forEach(b=>{b.dataset.unreadCount=String(n);b.setAttribute('aria-label',n?`اعلان‌ها، ${n} خوانده‌نشده`:'اعلان‌ها')})}
+function notificationFocusables(){
+ const host=document.getElementById('elara-notification-popover');if(!host||host.classList.contains('hidden'))return[];
+ return [...host.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null)
+}
+function trapNotificationKey(e){
+ const host=document.getElementById('elara-notification-popover');if(!host||host.classList.contains('hidden'))return;
+ const dialog=document.getElementById('elara-dialog-root');if(dialog&&!dialog.hidden&&!dialog.classList.contains('hidden'))return;
+ if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();return}
+ if(e.key!=='Tab')return;
+ const items=notificationFocusables(),panel=host.querySelector('.elara-notification-window');if(!items.length){e.preventDefault();panel?.focus?.({preventScroll:true});return}
+ const first=items[0],last=items[items.length-1];
+ if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus({preventScroll:true})}
+ else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus({preventScroll:true})}
+}
 document.addEventListener('click',e=>{
  const bell=e.target.closest('#ref-header-notifications,[data-notification-bell]');if(bell){e.preventDefault();e.stopPropagation();open(bell);return}
  if(e.target.closest('[data-notification-close],[data-notification-back]')){close();return}
@@ -44,7 +58,7 @@ document.addEventListener('click',e=>{
  if(row&&e.target.closest('[data-notification-read]')){mark(row.dataset.notificationId);render();return}
  if(row?.dataset.notificationRequest&&e.target.closest('[data-notification-open-friends]')){close();window.ElaraOpen?.('social');setTimeout(()=>document.querySelector('[data-social-view="friends"][data-social-route="social"]')?.click(),80)}
 });
-document.addEventListener('keydown',e=>{const host=document.getElementById('elara-notification-popover');if(e.key==='Escape'&&host&&!host.classList.contains('hidden')){e.preventDefault();close()}},true);
+document.addEventListener('keydown',trapNotificationKey,true);
 for(const evt of ['elara:social-updated','elara:account-ready','elara:logout','elara:notifications-changed'])window.addEventListener(evt,syncBadge);
 window.ElaraNotify={read,push,mark,markAll,clearRead,unreadCount,open,close,render,syncBadge};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncBadge,{once:true});else syncBadge();
