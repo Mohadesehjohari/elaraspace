@@ -819,3 +819,24 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  }
  #elara-dialog-root .elara-dialog-body{max-height:calc(88dvh - 142px)!important;overflow:auto!important;overscroll-behavior:contain!important}
 }
+
+
+/* 2026-10-01 P0 overlay stack: every popup has Back and newer popups sit above their opener. */
+#elara-dialog-root .elara-dialog-layer{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important;width:100%!important;height:100%!important;overflow:hidden!important}
+#elara-dialog-root .elara-dialog-head{display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;align-items:center!important;gap:8px!important}
+#elara-dialog-root .elara-dialog-back,
+#elara-dialog-root .elara-dialog-close,
+.approved-wardrobe-window [data-back-wardrobe],
+.approved-wardrobe-window [data-close-wardrobe],
+.elara-notification-window [data-notification-back],
+.elara-notification-window [data-notification-close],
+.drawer-section-head>[data-drawer-nav="home"]{
+ display:grid!important;place-items:center!important;min-width:40px!important;width:40px!important;height:40px!important;
+ border-radius:12px!important;position:relative!important;z-index:30!important
+}
+.approved-wardrobe-window>header,.elara-notification-window>header{display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;align-items:center!important;gap:8px!important}
+.approved-wardrobe-window>header>div,.elara-notification-window>header>div{min-width:0!important}
+@media(max-width:700px){
+ #elara-dialog-root .elara-dialog-layer{padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important}
+ #elara-dialog-root .elara-dialog-panel{align-self:center!important;justify-self:center!important;margin:0!important;max-height:88dvh!important}
+}

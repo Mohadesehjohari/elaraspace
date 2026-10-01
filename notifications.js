@@ -23,7 +23,7 @@ function combined(){
 function root(){
  let host=document.getElementById('elara-notification-popover');if(host)return host;
  host=document.createElement('div');host.id='elara-notification-popover';host.className='elara-notification-popover hidden';
- host.innerHTML='<button class="elara-notification-scrim" type="button" data-notification-close aria-label="بستن اعلان‌ها"></button><section class="elara-notification-window" role="dialog" aria-modal="true" aria-label="اعلان‌ها"><header><div><small>ELARA</small><h2>اعلان‌ها</h2></div><button type="button" data-notification-close aria-label="بستن">×</button></header><div class="elara-notification-actions"><button type="button" data-notification-mark-all>خواندن همه</button><button type="button" data-notification-clear-read>پاک‌کردن خوانده‌شده‌ها</button></div><div class="elara-notification-list"></div></section>';
+ host.innerHTML='<button class="elara-notification-scrim" type="button" data-notification-close aria-label="بستن اعلان‌ها"></button><section class="elara-notification-window" role="dialog" aria-modal="true" aria-label="اعلان‌ها"><header><button type="button" data-notification-back aria-label="بازگشت">←</button><div><small>ELARA</small><h2>اعلان‌ها</h2></div><button type="button" data-notification-close aria-label="بستن">×</button></header><div class="elara-notification-actions"><button type="button" data-notification-mark-all>خواندن همه</button><button type="button" data-notification-clear-read>پاک‌کردن خوانده‌شده‌ها</button></div><div class="elara-notification-list"></div></section>';
  document.body.append(host);return host
 }
 function render(){
@@ -32,12 +32,12 @@ function render(){
  syncBadge()
 }
 let launcher=null;
-function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
+function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();host.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100220);host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
 function close(){const host=document.getElementById('elara-notification-popover');if(!host)return;host.classList.add('hidden');document.body.classList.remove('elara-notifications-open');launcher?.focus?.({preventScroll:true});launcher=null}
 function syncBadge(){const n=unreadCount();document.querySelectorAll('#ref-header-notifications,[data-notification-bell]').forEach(b=>{b.dataset.unreadCount=String(n);b.setAttribute('aria-label',n?`اعلان‌ها، ${n} خوانده‌نشده`:'اعلان‌ها')})}
 document.addEventListener('click',e=>{
  const bell=e.target.closest('#ref-header-notifications,[data-notification-bell]');if(bell){e.preventDefault();e.stopPropagation();open(bell);return}
- if(e.target.closest('[data-notification-close]')){close();return}
+ if(e.target.closest('[data-notification-close],[data-notification-back]')){close();return}
  if(e.target.closest('[data-notification-mark-all]')){markAll();render();return}
  if(e.target.closest('[data-notification-clear-read]')){clearRead();render();return}
  const row=e.target.closest('[data-notification-id]');

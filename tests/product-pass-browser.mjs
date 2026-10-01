@@ -151,8 +151,13 @@ for(const width of all){
    await page.locator('#language-book-form [name=title]').fill('Browser language add');await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());await page.waitForTimeout(40);
    const addDialog=page.locator('#elara-dialog-root:not(.hidden) .language-book-add-dialog');assert.equal(await addDialog.isVisible(),true,'language book add dialog did not open');
    await addDialog.locator('[name=total]').fill('180');await addDialog.locator('[name=current]').fill('12');await addDialog.locator('[type=submit]').click();await page.waitForTimeout(70);
-   const added=page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).first();assert.equal(await added.isVisible(),true,'new language book did not enter the books section');assert.match(await added.innerText(),/12|۱۲/,'new language book current page was not persisted');
-   await added.locator('[data-language-book-delete]').click();await page.waitForTimeout(35);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).count(),0,'newly added language book could not be deleted');
+   let added=page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).first();assert.equal(await added.isVisible(),true,'new language book did not enter the books section');assert.match(await added.innerText(),/12|۱۲/,'new language book current page was not persisted');
+   await page.evaluate(()=>{window.ElaraAccount={user:{uid:'language-owner-qa'},profile:null};window.dispatchEvent(new Event('elara:account-ready'))});await page.waitForTimeout(80);
+   added=page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).first();assert.equal(await added.isVisible(),true,'language book vanished when account became ready');
+   const migrated=await page.evaluate(()=>({guest:JSON.parse(localStorage.getItem('elara_language_books_v1_guest')||'[]'),owned:JSON.parse(localStorage.getItem('elara_language_books_v1_language-owner-qa')||'[]')}));
+   assert.ok(migrated.owned.some(x=>x.title==='Browser language add'),'language book was not migrated to authenticated owner');assert.equal(migrated.guest.some(x=>x.title==='Browser language add'),false,'migrated language book remained stranded in guest storage');
+   await added.locator('[data-language-book-delete]').click();await page.waitForTimeout(35);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'Browser language add'}).count(),0,'newly added language book could not be deleted after account migration');
+   await page.evaluate(()=>{window.ElaraAccount={user:null,profile:null}});
   });
 
   await openRoute(page,'books');
@@ -169,11 +174,16 @@ for(const width of all){
 
   await check(`${width}: popup stays centered and closeable`,async()=>{
    await page.evaluate(()=>{const content=document.createElement('div');content.innerHTML='<label>QA<input name="qa-popup-input"></label>';ElaraDialog.open({title:'QA popup stability',content,actions:[{label:'بستن',value:false}]})});await page.waitForTimeout(35);
-   const panel=page.locator('#elara-dialog-root:not(.hidden) .elara-dialog-panel'),close=panel.locator('.elara-dialog-close');assert.equal(await close.isVisible(),true,'popup close button missing');
+   let panel=page.locator('#elara-dialog-root:not(.hidden) .elara-dialog-panel').last(),close=panel.locator('.elara-dialog-close'),back=panel.locator('.elara-dialog-back');assert.equal(await close.isVisible(),true,'popup close button missing');assert.equal(await back.isVisible(),true,'popup back button missing');
    const first=await panel.boundingBox(),focus=await panel.evaluate(el=>document.activeElement===el);assert.equal(focus,true,'popup content stole initial focus');
    await page.waitForTimeout(180);const second=await panel.boundingBox();assert.ok(first&&second&&Math.abs(first.y-second.y)<=2,'popup jumped vertically after open: '+JSON.stringify({first,second}));
    const vh=await page.evaluate(()=>innerHeight),center=second.y+second.height/2;assert.ok(Math.abs(center-vh/2)<=Math.max(12,vh*.05),'popup is not centered in viewport');
-   await close.click();await page.waitForTimeout(20);assert.equal(await page.locator('#elara-dialog-root:not(.hidden)').count(),0,'popup close button did not close');
+   await page.evaluate(()=>ElaraDialog.open({title:'Nested QA popup',message:'child'}));await page.waitForTimeout(30);
+   assert.equal(await page.locator('#elara-dialog-root .elara-dialog-layer').count(),2,'nested popup replaced its parent instead of stacking');
+   const layers=page.locator('#elara-dialog-root .elara-dialog-layer'),parentZ=Number(await layers.nth(0).evaluate(el=>getComputedStyle(el).zIndex)),childZ=Number(await layers.nth(1).evaluate(el=>getComputedStyle(el).zIndex));assert.ok(childZ>parentZ,'nested popup is not above parent');
+   panel=page.locator('#elara-dialog-root .elara-dialog-panel').last();assert.equal(await panel.locator('.elara-dialog-back').isVisible(),true,'nested popup back button missing');await panel.locator('.elara-dialog-back').click();await page.waitForTimeout(20);
+   assert.equal(await page.locator('#elara-dialog-root .elara-dialog-layer').count(),1,'Back did not return to parent popup');assert.equal(await page.locator('#elara-dialog-root .elara-dialog-panel').first().isVisible(),true,'parent popup did not remain visible');
+   await page.locator('#elara-dialog-root .elara-dialog-panel').first().locator('.elara-dialog-close').click();await page.waitForTimeout(20);assert.equal(await page.locator('#elara-dialog-root:not(.hidden)').count(),0,'popup close button did not close');
   });
 
   await check(`${width}: profile upload/shape/font and Settings modal`,async()=>{
