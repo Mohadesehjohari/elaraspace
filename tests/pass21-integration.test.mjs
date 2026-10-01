@@ -34,10 +34,10 @@ const showBlock=drawer.match(/function show\(section='home'\)\{([\s\S]*?)\n  \}/
 const privacyBlock=drawer.match(/function renderPrivacy\(\)\{([\s\S]*?)\n  \}\n  function renderFolders/)?.[1]||'';
 assert.match(openBlock,/show\(section\)/,'Programmatic drawer open must route through show(section)');
 assert.match(showBlock,/if\(section==='privacy'\)renderPrivacy\(\)/,'show(privacy) must synchronously render the privacy center');
-for(const token of ['مرکز حریم خصوصی و امنیت','پروفایل عمومی','فعالیت دوستان','تسک‌ها','عادت‌ها','اهداف','مأموریت‌ها','کتابخانه','زبان / گزارش یادگیری','Ranking / Social','ورزش و سلامت','drawer-password-form','data-drawer-privacy="wellness-home"']){
+for(const token of ['مرکز حریم خصوصی و امنیت','پروفایل عمومی','فعالیت دوستان','تسک‌ها','عادت‌ها','اهداف','مأموریت‌ها','کتابخانه','زبان / گزارش یادگیری','Ranking / Social','ورزش و سلامت','drawer-password-form','data-drawer-privacy="task"','data-drawer-privacy="exercise"']){
   assert.ok(privacyBlock.includes(token),`Direct privacy renderer missing ${token}`);
 }
-assert.ok(drawer.includes('window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible}'),'Drawer must own the local privacy API');
+assert.ok(drawer.includes('window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible,visibility:privacyVisibility,categories:SHARE_KEYS.slice()}'),'Drawer must own the local privacy API');
 assert.ok(!pass2.includes('function upgradePrivacy'),'Pass 2 must not overwrite Privacy Center after opening');
 assert.ok(!pass2.includes('setTimeout(upgradePrivacy'),'Delayed privacy patch must not exist');
 assert.ok(!pass2.includes('data-pass2-privacy'),'Legacy Pass 2 privacy controls must not exist');

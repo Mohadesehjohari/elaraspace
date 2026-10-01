@@ -233,7 +233,7 @@ for(const width of all){
 
   await check(`${width}: English presentation no mixed system labels`,async()=>{
    await page.evaluate(()=>ElaraI18n.set('en'));await page.waitForTimeout(80);
-   const selectors=['button:not([data-open-profile])','label','h1','h2','h3','summary','option','[role="tab"]','input[placeholder]'];
+   const selectors=['button:not([data-open-profile]):not([data-elara-ugc])','label:not([data-elara-ugc])','h1:not([data-elara-ugc])','h2:not([data-elara-ugc])','h3:not([data-elara-ugc])','summary','option','[role="tab"]','input[placeholder]:not([data-elara-ugc])'];
    for(const route of routes){await openRoute(page,route);await page.waitForTimeout(45);const bad=await page.evaluate((selectors)=>{const rx=/[\u0600-\u06ff]/;return [...document.querySelectorAll(selectors.join(','))].filter(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return r.width&&r.height&&cs.display!=='none'&&cs.visibility!=='hidden'}).map(el=>(el.getAttribute('placeholder')||el.textContent||'').trim()).filter(t=>rx.test(t)).slice(0,8)},selectors);assert.deepEqual(bad,[],route+' has Persian system controls: '+bad.join(' | '))}
    await page.evaluate(()=>ElaraPrivateDrawer.open('language'));await page.waitForTimeout(50);const settingsText=await page.locator('.drawer-menu').innerText();assert.equal(fa.test(settingsText),false,'settings menu still Persian');
    await page.evaluate(()=>ElaraI18n.set('fa'));
