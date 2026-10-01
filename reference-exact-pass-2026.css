@@ -925,3 +925,9 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  }
  .elara-private-drawer[data-mobile-section="home"] .pass5-drawer-hub-grid{display:none!important}
 }
+
+
+/* P0 overlay scroll containment. */
+body.elara-private-drawer-open,
+body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none!important}
+.elara-notification-window{max-height:min(92dvh,760px)!important;overflow:auto!important;overscroll-behavior:contain!important}
