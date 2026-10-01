@@ -115,6 +115,71 @@ async function leaveGroup(groupId){
 }
 window.ElaraSocial.groups={create:createGroup,list:listGroups,members:getGroupMembers,messages:getGroupMessages,listen:listenGroup,send:sendGroup,leave:leaveGroup};
 
+const CLUB_KINDS=new Set(['reading','fitness','focus','general']);
+const clubMemberships=async()=>{
+ if(!uid)return[];
+ const snaps=await getDocs(query(collectionGroup(db,'clubMembers'),where('uid','==',uid))),rows=[];
+ for(const membership of snaps.docs){const ref=membership.ref.parent.parent;if(!ref)continue;try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,...d,role:membership.data()?.role||'member',updatedAt:d.updatedAt?.toMillis?.()||0})}catch(error){console.warn('Elara club unavailable:',ref.id,error)}
+ return rows.sort((a,b)=>b.updatedAt-a.updatedAt)
+};
+async function createClub(spec={}){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
+ const userLevel=window.ElaraLevels?.level?.(Number(state.me?.xp)||0)||1;if(userLevel<6)throw Error('ساخت باشگاه از Level 6 فعال می‌شود.');
+ const title=String(spec.title||'').trim().slice(0,80),kind=CLUB_KINDS.has(spec.kind)?spec.kind:'general',visibility=spec.visibility==='public'?'public':'private',restDay=Math.max(0,Math.min(6,Math.floor(Number(spec.restDay)||0)));
+ if(title.length<2)throw Error('اسم باشگاه حداقل ۲ نویسه باشد.');
+ const ref=doc(collection(db,'clubs')),batch=writeBatch(db),stamp=serverTimestamp();
+ batch.set(ref,{owner:uid,title,kind,visibility,assistant1:'',assistant2:'',restDay,createdAt:stamp,updatedAt:stamp});
+ batch.set(doc(ref,'clubMembers',uid),{uid,role:'owner',joinedAt:stamp});
+ await batch.commit();return ref.id
+}
+async function clubMembers(clubId){
+ const snaps=await getDocs(collection(db,'clubs',String(clubId),'clubMembers')),rows=[];
+ for(const row of snaps.docs){const d=row.data()||{},memberUid=String(d.uid||row.id);let person=memberUid===uid?state.me:state.friends.find(x=>x.uid===memberUid);if(!person){try{const ps=await getDoc(doc(db,'profiles',memberUid));if(ps.exists())person={uid:memberUid,...ps.data()}}catch{}}
+  rows.push({uid:memberUid,role:d.role||'member',joinedAt:d.joinedAt?.toMillis?.()||0,person:person||{uid:memberUid,name:'عضو باشگاه'}})
+ }
+ return rows
+}
+async function inviteClub(clubId,other){
+ if(!uid)throw Error('حساب در دسترس نیست.');const to=String(other||'');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت باشگاه فقط برای دوست تأییدشده است.');
+ const ref=doc(db,'clubs',String(clubId),'clubInvites',to),existing=await getDoc(ref);if(existing.exists())throw Error('برای این دوست قبلاً دعوت ثبت شده است.');
+ await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp()});return to
+}
+async function listClubInvites(){
+ if(!uid)return[];const snaps=await getDocs(query(collectionGroup(db,'clubInvites'),where('to','==',uid))),rows=[];
+ for(const row of snaps.docs){const d=row.data()||{};if(d.status!=='pending')continue;const clubRef=row.ref.parent.parent;if(!clubRef)continue;try{const club=await getDoc(clubRef);if(club.exists())rows.push({id:row.id,clubId:clubRef.id,...d,club:{id:clubRef.id,...club.data()}})}catch{}}
+ return rows
+}
+async function decideClubInvite(invite,status){
+ if(!uid||invite?.to!==uid||!['accepted','declined'].includes(status))throw Error('دعوت باشگاه معتبر نیست.');
+ const inviteRef=doc(db,'clubs',String(invite.clubId),'clubInvites',uid);
+ if(status==='declined'){await updateDoc(inviteRef,{status});return true}
+ const batch=writeBatch(db),stamp=serverTimestamp();batch.update(inviteRef,{status:'accepted'});batch.set(doc(db,'clubs',String(invite.clubId),'clubMembers',uid),{uid,role:'member',joinedAt:stamp});await batch.commit();return true
+}
+async function setClubAssistant(clubId,memberUid,enabled=true){
+ const gid=String(clubId),target=String(memberUid),clubRef=doc(db,'clubs',gid),snap=await getDoc(clubRef);if(!snap.exists())throw Error('باشگاه پیدا نشد.');const data=snap.data()||{};if(data.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند دستیار تعیین کند.');if(target===uid)throw Error('صاحب باشگاه از قبل مدیر است.');
+ const memberRef=doc(db,'clubs',gid,'clubMembers',target),member=await getDoc(memberRef);if(!member.exists())throw Error('این کاربر عضو باشگاه نیست.');
+ let a1=String(data.assistant1||''),a2=String(data.assistant2||'');
+ if(enabled){if(a1===target||a2===target)return true;if(!a1)a1=target;else if(!a2)a2=target;else throw Error('حداکثر دو دستیار مجاز است.')}
+ else{if(a1===target)a1='';if(a2===target)a2=''}
+ const batch=writeBatch(db),stamp=serverTimestamp();batch.update(clubRef,{assistant1:a1,assistant2:a2,updatedAt:stamp});batch.update(memberRef,{role:enabled?'assistant':'member'});await batch.commit();return true
+}
+async function createClubPost(clubId,spec={}){
+ const kind=spec.kind==='poll'?'poll':'mission',title=String(spec.title||'').trim().slice(0,120),body=String(spec.body||'').trim().slice(0,1200),cadence=['none','daily','weekly','monthly'].includes(spec.cadence)?spec.cadence:'none',options=kind==='poll'?[...new Set((Array.isArray(spec.options)?spec.options:[]).map(x=>String(x||'').trim().slice(0,100)).filter(Boolean))].slice(0,6):[];
+ if(title.length<2)throw Error('عنوان حداقل ۲ نویسه باشد.');if(kind==='poll'&&options.length<2)throw Error('نظرسنجی حداقل دو گزینه لازم دارد.');
+ const gid=String(clubId),club=await getDoc(doc(db,'clubs',gid));if(!club.exists())throw Error('باشگاه پیدا نشد.');const domain=String(club.data()?.kind||'general');
+ const ref=await addDoc(collection(db,'clubs',gid,'clubPosts'),{uid,kind,domain,title,body,cadence,options,createdAt:serverTimestamp()});return ref.id
+}
+async function listClubPosts(clubId){
+ const snaps=await getDocs(query(collection(db,'clubs',String(clubId),'clubPosts'),orderBy('createdAt','desc'),limit(60)));
+ return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0}))
+}
+async function voteClubPoll(clubId,postId,option){
+ const gid=String(clubId),pid=String(postId),voteRef=doc(db,'clubs',gid,'clubPosts',pid,'votes',uid),snap=await getDoc(voteRef);
+ if(snap.exists())await updateDoc(voteRef,{option:String(option||'')});else await setDoc(voteRef,{uid,option:String(option||''),createdAt:serverTimestamp()});return true
+}
+window.ElaraSocial.clubs={kinds:[...CLUB_KINDS],create:createClub,list:clubMemberships,members:clubMembers,invite:inviteClub,invites:listClubInvites,decideInvite:decideClubInvite,setAssistant:setClubAssistant,createPost:createClubPost,posts:listClubPosts,vote:voteClubPoll};
+
+
 
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}
