@@ -39,7 +39,10 @@ await page.locator('#elara-dialog-root .language-book-add-dialog [name=current]'
 await page.locator('#elara-dialog-root .language-book-add-dialog [type=submit]').click();
 await page.waitForTimeout(80);
 let row=page.locator('.pass3-language-book').filter({hasText:'P0 language book'}).first();
-assert.equal(await row.isVisible(),true,'book did not enter shelf immediately');
+if(!await row.isVisible()){
+ const addDiag=await page.evaluate(()=>({v2:localStorage.getItem('elara_language_books_v2'),legacyGuest:localStorage.getItem('elara_language_books_v1_guest'),accountUid:window.ElaraAccount?.user?.uid||null,socialUid:window.ElaraSocial?.me?.uid||null,dialogDepth:window.ElaraDialog?.depth?.(),dialogText:document.querySelector('#elara-dialog-root')?.innerText||'',listText:document.querySelector('#language-book-list')?.innerText||''}));
+ throw new Error('book did not enter shelf immediately: '+JSON.stringify(addDiag)+' runtime='+errors.join(' | '));
+}
 
 // Auth arrives after creation. Book must remain visible in the same canonical store.
 await page.evaluate(()=>{window.ElaraAccount={...window.ElaraAccount,user:{uid:'qa-owner'}};window.dispatchEvent(new Event('elara:account-ready'))});
