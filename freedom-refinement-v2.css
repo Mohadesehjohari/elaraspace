@@ -1,0 +1,90 @@
+/* Freedom UX refinement v2 — borderless feature artwork, editable media and compact controls. */
+#panel-freedom .freedom-features{margin-top:18px!important;padding:0 4px}
+#panel-freedom .freedom-feature{height:168px!important;border:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;transform:translateZ(0)}
+#panel-freedom .freedom-feature>img{border-radius:16px;box-shadow:0 12px 30px #0007,0 0 24px #6847ff20;transition:transform .18s ease,filter .18s ease}
+#panel-freedom .freedom-feature:after{inset:0;border-radius:16px;background:linear-gradient(0deg,#06162be8 0 25%,transparent 70%)}
+#panel-freedom .freedom-feature:hover>img,#panel-freedom .freedom-feature:focus-visible>img{transform:translateY(-4px) scale(1.015);filter:saturate(1.08) brightness(1.04)}
+#panel-freedom .freedom-feature>span{inset:auto 12px 9px}
+#panel-freedom .freedom-feature>i{top:9px;left:9px;border:0;background:#091d3acc;box-shadow:0 0 16px #785cff55}
+#panel-freedom .freedom-compose form{display:grid;gap:9px}
+#panel-freedom .freedom-note-topic{width:100%;min-height:42px;border:1px solid #345784;border-radius:10px;background:#07172c;color:#edf4ff;padding:10px 12px;font:inherit;outline:none}
+#panel-freedom .freedom-note-topic:focus{border-color:#8a66ff;box-shadow:0 0 0 2px #734cff2d}
+#panel-freedom .freedom-compose-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px}
+#panel-freedom .freedom-upload-button,#panel-freedom .freedom-neon-button,.freedom-dialog-upload span,.freedom-subpage-add,#panel-freedom .freedom-compact-add{
+ border:1px solid #9a77ff!important;background:linear-gradient(135deg,#5629d8,#8d50ff)!important;color:#fff!important;
+ box-shadow:0 0 0 1px #bb9fff22 inset,0 0 18px #7e55ff66!important;border-radius:999px!important;font-weight:850!important;
+ min-height:40px;padding:8px 15px!important;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,filter .16s ease
+}
+#panel-freedom .freedom-upload-button:hover,#panel-freedom .freedom-neon-button:hover,.freedom-dialog-upload span:hover,.freedom-subpage-add:hover,#panel-freedom .freedom-compact-add:hover{transform:translateY(-1px);box-shadow:0 0 0 1px #d5c2ff45 inset,0 0 26px #8c5eff91!important;filter:brightness(1.08)}
+#panel-freedom .freedom-upload-button input,.freedom-dialog-upload input{position:absolute!important;inline-size:1px!important;block-size:1px!important;opacity:0!important;pointer-events:none!important}
+#panel-freedom .freedom-compose-preview,.freedom-dialog-preview{position:relative;max-width:280px}
+.freedom-image-shell{position:relative;display:inline-grid;max-width:100%}
+.freedom-image-shell>img{display:block;max-width:100%;max-height:260px;object-fit:contain;border-radius:14px;background:#06142d;box-shadow:0 10px 28px #0008}
+.freedom-image-remove{position:absolute;top:7px;right:7px;width:30px;height:30px;padding:0!important;border:1px solid #ff9cab!important;border-radius:50%!important;background:#a91d36e8!important;color:white!important;font:900 20px/1 Arial!important;display:grid!important;place-items:center!important;box-shadow:0 0 16px #ff315c66!important;opacity:.12;transform:scale(.9);transition:opacity .15s ease,transform .15s ease}
+.freedom-image-shell:hover .freedom-image-remove,.freedom-image-remove:focus-visible{opacity:1;transform:scale(1)}
+#panel-freedom .freedom-note{grid-template-columns:54px minmax(0,1fr) 30px;cursor:pointer}
+#panel-freedom .freedom-note>img{width:54px;height:48px;object-fit:cover}
+#panel-freedom .freedom-note p{display:none!important}
+#panel-freedom .freedom-note b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-freedom .freedom-dreams{grid-template-columns:1fr 1fr;gap:8px}
+#panel-freedom .freedom-dream-tile{position:relative;min-height:94px;border:0!important;border-radius:13px;overflow:hidden;background:linear-gradient(145deg,#1b1748,#0a1d39);color:white;padding:0;cursor:pointer;box-shadow:0 10px 24px #0005}
+#panel-freedom .freedom-dream-tile.has-image img{width:100%;height:110px;object-fit:cover}
+#panel-freedom .freedom-dream-tile span{display:block;padding:10px 11px;font-weight:850;text-align:right}
+#panel-freedom .freedom-dream-tile.has-image span{position:absolute;inset:auto 0 0;background:linear-gradient(0deg,#06152df3,transparent);padding-top:30px}
+#panel-freedom .freedom-dream-tile.topic-only{display:grid;place-items:center;min-height:110px;padding:15px;background:radial-gradient(circle at 70% 20%,#754dff52,transparent 42%),linear-gradient(145deg,#17153e,#081b35)}
+#panel-freedom .freedom-dream-tile.topic-only span{text-align:center;font-size:1rem}
+#panel-freedom .freedom-quote{min-height:106px!important;padding:12px!important}
+#panel-freedom .freedom-quote>img{inset:42px 0 0!important;height:calc(100% - 42px)!important;opacity:.58!important}
+#panel-freedom .freedom-quote:after{inset:42px 0 0!important}
+#panel-freedom .freedom-quote blockquote{margin:8px 4px 0!important;max-width:90%!important;font-size:.92rem!important;line-height:1.7!important}
+#panel-freedom .freedom-quote header button{padding:4px 10px!important;font-size:.78rem}
+#panel-freedom .freedom-road{min-height:120px}
+#panel-freedom .freedom-road p{margin:4px 0}
+#panel-freedom.freedom-subpage-open>.freedom-root{display:none!important}
+#panel-freedom .freedom-subpage-shell{display:grid;gap:18px;min-height:calc(100dvh - 150px);padding:4px 0 30px}
+#panel-freedom .freedom-subpage-head{position:relative;min-height:230px;border:0!important;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:auto 1fr minmax(300px,44%);align-items:center;background:#071831;box-shadow:0 18px 42px #0006}
+#panel-freedom .freedom-subpage-head>img{width:100%;height:230px;object-fit:cover;grid-column:3;grid-row:1}
+#panel-freedom .freedom-subpage-head:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#06152ef6 0 44%,#06152e75 68%,transparent)}
+#panel-freedom .freedom-subpage-head>div{padding:26px;grid-column:2;grid-row:1;z-index:2}
+#panel-freedom .freedom-subpage-head>div h1{font-size:2.15rem!important;margin:.15em 0}
+#panel-freedom .freedom-subpage-head>div small{color:#b6a1ff;letter-spacing:.12em}
+#panel-freedom .freedom-subpage-head>button[data-f-sub-back]{grid-column:1;grid-row:1;margin-inline-start:18px;width:42px;height:42px;border:0;border-radius:50%;background:#132a55cc;color:white;font-size:21px;z-index:3}
+#panel-freedom .freedom-subpage-add{position:absolute!important;z-index:4!important;left:18px!important;bottom:18px!important;min-height:36px!important;padding:6px 13px!important;font-size:.84rem!important}
+#panel-freedom .freedom-sub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#panel-freedom .freedom-sub-card{min-height:170px;padding:0;border:0!important;border-radius:0!important;overflow:visible;background:transparent!important;color:white;text-align:right;box-shadow:none!important;cursor:pointer}
+#panel-freedom .freedom-sub-card>img{width:100%;height:185px;object-fit:cover;border-radius:16px;box-shadow:0 12px 30px #0006}
+#panel-freedom .freedom-sub-card>span{display:grid;gap:4px;padding:9px 4px}
+#panel-freedom .freedom-sub-card b{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-freedom .freedom-sub-card small{color:#95a7c6}
+#panel-freedom .freedom-sub-card.topic-only{min-height:140px;border-radius:16px!important;background:radial-gradient(circle at 70% 20%,#754dff42,transparent 44%),linear-gradient(145deg,#17153e,#081b35)!important;padding:18px!important;display:grid;place-items:center}
+#panel-freedom .freedom-sub-card.topic-only>span{padding:0;text-align:center}
+#panel-freedom .freedom-sub-empty{min-height:260px;display:grid;place-items:center;text-align:center;padding:28px;border:0!important;border-radius:18px;background:linear-gradient(145deg,#0b1d39,#08152b)}
+#panel-freedom .freedom-sub-empty img{width:min(440px,86%);max-height:180px;object-fit:cover;border-radius:16px}
+.freedom-purple-dialog{background:radial-gradient(circle at 80% 0,#823eff35,transparent 42%),linear-gradient(145deg,#101c45,#07142e)!important;border-color:#7c63ff!important;box-shadow:0 24px 80px #000b,0 0 40px #7148ff44!important}
+.freedom-entry-editor,.freedom-quote-form{display:grid!important;grid-template-columns:1fr 1fr;gap:12px;text-align:right}
+.freedom-entry-editor label,.freedom-quote-form label{display:grid;gap:6px;color:#e7eaff;font-weight:750}
+.freedom-entry-editor .wide,.freedom-dream-intro,.freedom-dialog-preview,.freedom-quote-form label:first-child{grid-column:1/-1}
+.freedom-entry-editor input,.freedom-entry-editor textarea,.freedom-entry-editor select,.freedom-quote-form input,.freedom-quote-form textarea{width:100%;border:1px solid #49669a;border-radius:11px;background:#061831;color:#f4f6ff;padding:11px;font:inherit}
+.freedom-dialog-upload span{display:grid;place-items:center;min-height:42px}
+.freedom-dream-intro{position:relative;min-height:132px;border-radius:14px;overflow:hidden}
+.freedom-dream-intro img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.freedom-dream-intro:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#07142eea,#07142e44)}
+.freedom-dream-intro p{position:relative;z-index:2;margin:0;padding:40px 22px;font-size:1.05rem;font-weight:900;color:white}
+.freedom-dream-grid{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(hover:none){.freedom-image-remove{opacity:1!important;transform:scale(1)!important}}
+@media(max-width:700px){
+ #panel-freedom .freedom-features{margin-top:14px!important}
+ #panel-freedom .freedom-feature{height:145px!important}
+ #panel-freedom .freedom-compose-actions{justify-content:stretch}
+ #panel-freedom .freedom-upload-button,#panel-freedom .freedom-neon-button{flex:1}
+ #panel-freedom .freedom-subpage-head{grid-template-columns:auto 1fr!important;min-height:200px}
+ #panel-freedom .freedom-subpage-head>img{position:absolute;inset:0;width:100%;height:100%;opacity:.46}
+ #panel-freedom .freedom-subpage-head:after{background:linear-gradient(90deg,#06152ef6 0 48%,#06152e78)}
+ #panel-freedom .freedom-subpage-head>div,#panel-freedom .freedom-subpage-head>button{position:relative;z-index:2}
+ #panel-freedom .freedom-subpage-add{left:12px!important;bottom:12px!important}
+ #panel-freedom .freedom-sub-grid{grid-template-columns:1fr 1fr}
+ #panel-freedom .freedom-sub-card>img{height:132px}
+ .freedom-entry-editor,.freedom-quote-form,.freedom-dream-grid{grid-template-columns:1fr!important}
+ .freedom-entry-editor .wide,.freedom-dream-intro,.freedom-dialog-preview,.freedom-quote-form label:first-child,.freedom-dream-grid{grid-column:1!important}
+}
+@media(max-width:380px){#panel-freedom .freedom-sub-grid{grid-template-columns:1fr}}
