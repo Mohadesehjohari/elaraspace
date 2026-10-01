@@ -647,3 +647,105 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #elara-central-profile-form>.pass4-profile-edit-actions-top>.primary-button{width:100%!important;min-height:44px!important}
  .approved-wardrobe-window{width:min(96vw,520px)!important;max-height:94dvh!important;padding:12px!important}
 }
+
+
+/* 2026-10-01 polish v6 — equal mobile nav, stable overlays, visible task kebab. */
+/* The task options trigger is a real control on desktop and mobile, not a hidden/UA-only marker. */
+#panel-tasks #task-list>.item>.astra-task-more{
+ display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;
+ position:relative!important;grid-column:-1!important;justify-self:center!important;align-self:center!important;
+ width:38px!important;min-width:38px!important;z-index:40!important
+}
+#panel-tasks .astra-task-more>summary{
+ display:grid!important;place-items:center!important;box-sizing:border-box!important;
+ width:36px!important;min-width:36px!important;height:42px!important;min-height:42px!important;
+ margin:0!important;padding:0!important;border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%)!important;
+ border-radius:11px!important;background:color-mix(in srgb,var(--surface2) 86%,var(--elara-accent) 14%)!important;
+ color:var(--text)!important;cursor:pointer!important;list-style:none!important;font-size:0!important;
+ box-shadow:inset 0 1px #ffffff0b!important
+}
+#panel-tasks .astra-task-more>summary::-webkit-details-marker{display:none!important}
+#panel-tasks .astra-task-more>summary::marker{content:''!important}
+#panel-tasks .astra-task-more>summary>span{
+ display:block!important;color:#eee8ff!important;font:900 27px/1 Arial,sans-serif!important;
+ letter-spacing:1px!important;transform:translateY(-2px)!important
+}
+#panel-tasks .astra-task-more[open]{z-index:700!important}
+#panel-tasks #task-list>.item:has(>.astra-task-more[open]){z-index:690!important;overflow:visible!important}
+#panel-tasks .astra-task-more[open]>.item-actions{
+ display:grid!important;position:absolute!important;z-index:720!important;
+ inset-block-start:calc(100% + 7px)!important;inset-inline-end:0!important;inset-inline-start:auto!important;
+ min-width:172px!important;max-width:min(220px,72vw)!important;padding:9px!important;gap:7px!important;
+ border:1px solid color-mix(in srgb,var(--border) 68%,var(--elara-accent) 32%)!important;border-radius:13px!important;
+ background:color-mix(in srgb,var(--surface) 96%,#0a1730 4%)!important;
+ box-shadow:0 20px 50px #000d,0 0 0 1px #9d73ff16!important
+}
+
+/* Overlays stay centered when opened; header close/back controls stay reachable. */
+#elara-dialog-root{
+ box-sizing:border-box!important;align-items:center!important;justify-items:center!important;
+ padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important
+}
+#elara-dialog-root .elara-dialog-panel{
+ margin:0!important;inset:auto!important;transform:none!important;
+ max-height:calc(100dvh - max(20px,env(safe-area-inset-top) + env(safe-area-inset-bottom)))!important
+}
+#elara-dialog-root .elara-dialog-head{
+ position:sticky!important;top:0!important;z-index:20!important;
+ background:color-mix(in srgb,var(--surface) 95%,transparent)!important;backdrop-filter:blur(12px)!important
+}
+#elara-dialog-root .elara-dialog-close,
+.approved-wardrobe-window [data-close-wardrobe],
+.elara-notification-window [data-notification-close],
+.drawer-section-head>[data-drawer-nav="home"]{
+ display:grid!important;place-items:center!important;min-width:40px!important;width:40px!important;height:40px!important;
+ border-radius:12px!important
+}
+.approved-wardrobe{align-items:center!important;justify-items:center!important}
+.approved-wardrobe-window{margin:0!important;transform:none!important}
+.elara-notification-popover{align-items:center!important}
+.elara-notification-window{margin:0!important;transform:none!important}
+
+/* Eight real mobile destinations with equal slots. Home is emphasized, but no route gets an artificial gap. */
+@media(max-width:700px){
+ .bottom-nav{
+  display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-auto-flow:column!important;
+  align-items:stretch!important;justify-items:stretch!important;
+  width:100%!important;height:84px!important;min-height:84px!important;max-height:84px!important;
+  padding:5px max(3px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(3px,env(safe-area-inset-left))!important;
+  gap:0!important;overflow:hidden!important;direction:ltr!important
+ }
+ .bottom-nav>[data-elara-nav-kind]{
+  --nav-offset:0px!important;
+  position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:70px!important;min-height:70px!important;
+  display:grid!important;grid-template-rows:34px 16px!important;place-items:center!important;align-content:center!important;
+  gap:2px!important;margin:0!important;padding:4px 0 3px!important;border-radius:15px!important;
+  overflow:visible!important;touch-action:manipulation!important
+ }
+ .bottom-nav>[data-elara-nav-kind] .elara-nav-art{
+  width:29px!important;height:29px!important;min-width:29px!important;min-height:29px!important;max-width:29px!important;object-fit:contain!important
+ }
+ .bottom-nav>[data-elara-tab="home"]{
+  width:100%!important;min-width:0!important;max-width:none!important;z-index:3!important;
+  background:radial-gradient(ellipse at 50% 46%,color-mix(in srgb,var(--elara-accent) 45%,transparent),transparent 72%)!important
+ }
+ .bottom-nav>[data-elara-tab="home"] .elara-nav-art{
+  width:35px!important;height:35px!important;min-width:35px!important;min-height:35px!important;max-width:35px!important;
+  filter:brightness(1.08) drop-shadow(0 0 9px var(--elara-art-glow-strong))!important
+ }
+ .bottom-nav>[data-elara-nav-kind] small{
+  display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+  margin:0!important;padding:0!important;overflow:visible!important;text-overflow:clip!important;
+  white-space:nowrap!important;text-align:center!important;
+  font-size:clamp(7px,2.15vw,9px)!important;line-height:1.05!important;font-weight:700!important
+ }
+ .bottom-nav>[aria-current="page"] small{color:#fff!important;text-shadow:0 0 8px color-mix(in srgb,var(--elara-accent) 70%,transparent)!important}
+ .workspace main,#main{padding-bottom:calc(98px + env(safe-area-inset-bottom))!important}
+
+ #elara-dialog-root .elara-dialog-panel{
+  width:min(94vw,520px)!important;max-width:94vw!important;max-height:92dvh!important;border-radius:20px!important
+ }
+ #elara-dialog-root .elara-dialog-body{max-height:calc(92dvh - 142px)!important;overscroll-behavior:contain!important}
+ .approved-wardrobe-window,.elara-notification-window{max-height:92dvh!important}
+}
