@@ -49,6 +49,8 @@ for(const width of [320,375,390,430]){
  await items.evaluateAll(xs=>xs.forEach((x,i)=>x.dataset.qaFallback=String(i)));
  const before=await items.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
  assert.equal(before.every(r=>r.left>=-1&&r.right<=width+1),true,width+': fallback nav overflow');
+ const homeBefore=before.find(r=>r.route==='home');assert.ok(Math.abs(homeBefore.center-width/2)<=2,width+': fallback Home is not centered');
+ const sortedBefore=[...before].sort((a,b)=>a.center-b.center),gapsBefore=sortedBefore.slice(1).map((r,i)=>r.center-sortedBefore[i].center);assert.ok(Math.max(...gapsBefore)-Math.min(...gapsBefore)<=3,width+': fallback nav has an isolated destination '+JSON.stringify(gapsBefore));
  await page.locator('.bottom-nav [data-elara-tab="language"]').click();
  assert.equal(await page.evaluate(()=>location.hash),'#language',width+': fallback route href failed');
  await waitBoot(page);await page.waitForTimeout(150);
@@ -57,6 +59,8 @@ for(const width of [320,375,390,430]){
  assert.equal(await afterItems.evaluateAll(xs=>xs.every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': nav replaced fallback nodes instead of hydrating');
  const after=await afterItems.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
  assert.equal(after.every(r=>r.left>=-1&&r.right<=width+1),true,width+': hydrated nav overflow');
+ const homeAfter=after.find(r=>r.route==='home');assert.ok(Math.abs(homeAfter.center-width/2)<=2,width+': hydrated Home is not centered');
+ const sortedAfter=[...after].sort((a,b)=>a.center-b.center),gapsAfter=sortedAfter.slice(1).map((r,i)=>r.center-sortedAfter[i].center);assert.ok(Math.max(...gapsAfter)-Math.min(...gapsAfter)<=3,width+': hydrated nav has an isolated destination '+JSON.stringify(gapsAfter));
  assert.ok(Math.max(...after.map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav hydration caused geometry jump');
  assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': delayed direct Language route was lost');
  await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(180);
