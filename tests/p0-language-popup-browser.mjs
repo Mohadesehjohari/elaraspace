@@ -20,7 +20,11 @@ const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:
 await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
 await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
 await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
-await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&window.ElaraOpen&&document.querySelector('#panel-language')&&document.querySelector('#language-book-form'),null,{timeout:12000});
+await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraDialog&&window.ElaraOpen,null,{timeout:12000});
+await page.waitForTimeout(1200);
+const readyDiag=await page.evaluate(()=>({panelLanguage:!!document.querySelector('#panel-language'),languageForm:!!document.querySelector('#language-book-form'),optional:window.__elaraOptionalFailures||[],wardrobe:!!window.ElaraWardrobeUI,visualScripts:[...document.scripts].map(s=>s.src).filter(x=>x.includes('approved-visual'))}));
+assert.equal(readyDiag.panelLanguage,true,'Language panel was not created: '+JSON.stringify(readyDiag)+' errors='+errors.join(' | '));
+assert.equal(readyDiag.languageForm,true,'Language form was not created: '+JSON.stringify(readyDiag));
 const languageNav=page.locator('.bottom-nav [data-elara-tab="language"]').first();
 assert.equal(await languageNav.isVisible(),true,'language nav is not visible on mobile');
 await languageNav.click();
