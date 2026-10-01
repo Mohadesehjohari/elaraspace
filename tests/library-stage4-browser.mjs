@@ -26,6 +26,7 @@ await page.locator('.elara-dialog-field input').fill('شب‌های بارانی
 await page.getByRole('button',{name:'ساختن'}).click();
 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).bookShelves.includes('شب‌های بارانی'));
 assert.equal(await page.locator('[data-library-shelf-filter="شب‌های بارانی"]').count(),1,'custom shelf chip missing');
+await page.locator('[data-library-shelf-filter=""]').click();
 
 await page.locator('[data-library-manage-book="qa-book"]').click();
 await page.locator('.library-manage-book select[name="customShelf"]').selectOption('شب‌های بارانی');
