@@ -585,8 +585,8 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
 #panel-tasks #task-list>.item:has(.astra-task-more[open]){z-index:510!important}
 
 /* Wardrobe and profile/editor dialogs opened from Settings must sit above the Settings drawer. */
-.approved-wardrobe{z-index:100200!important}
-#elara-dialog-root{z-index:100240!important}
+.approved-wardrobe{z-index:var(--elara-overlay-z,100200)!important}
+#elara-dialog-root{z-index:var(--elara-overlay-z,100240)!important}
 
 /* Keep the real eight mobile destinations visible. Home stays in the geometric center. */
 @media(max-width:700px){
@@ -887,3 +887,10 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
   position:sticky!important;top:-12px!important;z-index:50!important
  }
 }
+
+
+/* 2026-10-01 P0 shared runtime overlay order. */
+.elara-private-drawer{z-index:var(--elara-overlay-z,100180)!important}
+.approved-wardrobe{z-index:var(--elara-overlay-z,100200)!important}
+#elara-dialog-root{z-index:var(--elara-overlay-z,100240)!important}
+.elara-notification-popover{z-index:var(--elara-overlay-z,100160)!important}
