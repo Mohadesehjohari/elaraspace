@@ -492,3 +492,74 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
   position:absolute!important;left:50%!important;top:50%!important;transform:translate(-54%,-50%)!important
  }
 }
+
+
+/* 2026-10-01 urgent UX corrections: task menu stacking, mobile settings list, desktop-order Home cards. */
+/* Keep each task row's three-dot actions above following rows and insight cards. */
+#panel-tasks,#panel-tasks #task-list{overflow:visible!important}
+#panel-tasks #task-list{position:relative!important;z-index:20!important}
+#panel-tasks #task-list>.item{position:relative!important;z-index:1!important;overflow:visible!important}
+#panel-tasks #task-list>.item:has(.astra-task-more[open]){z-index:220!important}
+#panel-tasks .astra-task-more[open]{position:relative!important;z-index:230!important}
+#panel-tasks .astra-task-more[open] .item-actions{
+ z-index:240!important;top:calc(100% + 6px)!important;inset-inline-end:0!important;inset-inline-start:auto!important;
+ min-width:156px!important;box-shadow:0 16px 36px #000b,0 0 0 1px color-mix(in srgb,var(--elara-accent) 28%,transparent)!important
+}
+#panel-tasks .astra-task-insights{position:relative!important;z-index:1!important}
+
+/* Latest owner: on phones follow desktop content order instead of pushing Goals to the very bottom. */
+@media(max-width:700px){
+ #panel-home.ref-home .elara-dashboard-grid.ref-home-grid{
+  grid-template-areas:'tasks habits' 'wellness wellness' 'missions goals' 'ranks ranks' 'activity activity'!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-goals{
+  grid-area:goals!important;grid-column:auto!important;width:100%!important;
+  height:188px!important;min-height:188px!important;max-height:188px!important
+ }
+ #panel-home.ref-home .ref-right-stack>.ref-ranks{
+  grid-area:ranks!important;grid-column:1/-1!important;width:100%!important
+ }
+ #panel-home.ref-home .ref-right-stack>.ref-activity{
+  grid-area:activity!important;grid-column:1/-1!important;width:100%!important
+ }
+
+ /* Mobile account/settings must be a readable vertical list, never a squeezed tile grid. */
+ .elara-private-drawer-panel{
+  overflow-x:hidden!important;overflow-y:auto!important;
+  width:min(94vw,430px)!important;padding:12px!important
+ }
+ .drawer-profile-head{margin-bottom:10px!important}
+ .drawer-menu{
+  display:grid!important;grid-template-columns:1fr!important;grid-auto-flow:row!important;
+  gap:7px!important;width:100%!important;margin:0!important;padding:0 0 14px!important;overflow:visible!important
+ }
+ .drawer-menu>button{
+  width:100%!important;min-width:0!important;min-height:58px!important;height:auto!important;
+  display:grid!important;grid-template-columns:42px minmax(0,1fr) 18px!important;grid-template-rows:auto auto!important;
+  align-items:center!important;column-gap:10px!important;row-gap:2px!important;
+  padding:9px 12px!important;border-radius:14px!important;text-align:start!important;
+  background:color-mix(in srgb,var(--surface2) 92%,var(--elara-accent) 8%)!important;
+  border:1px solid color-mix(in srgb,var(--border) 82%,var(--elara-accent) 18%)!important
+ }
+ .drawer-menu>button>.elara-visual-icon,.drawer-menu>button>.elara-icon,.drawer-menu>button>svg,.drawer-menu>button>img{
+  grid-column:1!important;grid-row:1/3!important;justify-self:center!important;width:28px!important;height:28px!important;max-width:28px!important
+ }
+ .drawer-menu>button>b{grid-column:2!important;grid-row:1!important;align-self:end!important;font-size:.9rem!important;line-height:1.25!important}
+ .drawer-menu>button>small{grid-column:2!important;grid-row:2!important;align-self:start!important;white-space:normal!important;font-size:.68rem!important;line-height:1.35!important;color:var(--muted)!important}
+ .drawer-menu>button::after{content:'‹';grid-column:3!important;grid-row:1/3!important;align-self:center!important;justify-self:center!important;color:var(--muted)!important;font-size:1.2rem!important}
+ .drawer-menu>button.danger{border-color:#b64b6270!important;background:#47162455!important}
+ .drawer-menu>button.danger::after{color:#ff8ca1!important}
+}
+@media(max-width:359px){
+ #panel-home.ref-home .elara-dashboard-grid.ref-home-grid{
+  grid-template-columns:1fr!important;
+  grid-template-areas:'tasks' 'habits' 'wellness' 'missions' 'goals' 'ranks' 'activity'!important
+ }
+ #panel-home.ref-home .ref-home-grid>.ref-tasks,
+ #panel-home.ref-home .ref-home-grid>.ref-habits,
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
+ #panel-home.ref-home .ref-home-grid>.ref-missions,
+ #panel-home.ref-home .ref-home-grid>.ref-goals,
+ #panel-home.ref-home .ref-right-stack>.ref-ranks,
+ #panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1!important;width:100%!important}
+}
