@@ -32,7 +32,7 @@ function render(){
  syncBadge()
 }
 let launcher=null;
-function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();host.style.zIndex=String(window.ElaraOverlayStack?.next?.()||100220);host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
+function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();window.ElaraOverlayStack?.next?.(host);host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
 function close(){const host=document.getElementById('elara-notification-popover');if(!host)return;host.classList.add('hidden');document.body.classList.remove('elara-notifications-open');launcher?.focus?.({preventScroll:true});launcher=null}
 function syncBadge(){const n=unreadCount();document.querySelectorAll('#ref-header-notifications,[data-notification-bell]').forEach(b=>{b.dataset.unreadCount=String(n);b.setAttribute('aria-label',n?`اعلان‌ها، ${n} خوانده‌نشده`:'اعلان‌ها')})}
 document.addEventListener('click',e=>{
