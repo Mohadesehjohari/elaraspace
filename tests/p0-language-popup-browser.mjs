@@ -72,7 +72,11 @@ assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Langu
 // Language: add -> render -> refresh -> report -> refresh -> delete -> refresh.
 await page.locator('#language-book-form [name=title]').fill('QA Language Book');await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());
 await page.locator('#elara-dialog-root .language-book-add-dialog [name=total]').fill('200');await page.locator('#elara-dialog-root .language-book-add-dialog [name=current]').fill('10');await page.locator('#elara-dialog-root .language-book-add-dialog [type=submit]').click();await page.waitForTimeout(100);
-let row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.equal(await row.isVisible(),true,'book saved but did not render');
+let row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
+if(!await row.isVisible()){
+ const diag=await page.evaluate(()=>({storage:JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'),read:window.ElaraLanguageBooks?.read?.()||null,listCount:document.querySelectorAll('#language-book-list').length,listHTML:document.querySelector('#language-book-list')?.innerHTML||'',listText:document.querySelector('#language-book-list')?.innerText||'',panelHidden:document.querySelector('#panel-language')?.classList.contains('hidden'),errors:window.__elaraOptionalFailures||[]}));
+ throw new Error('book saved but did not render: '+JSON.stringify(diag));
+}
 let stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'&&Number(x.totalPages)===200&&Number(x.currentPage)===10),true,'canonical storage missing added book');
 await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.equal(await row.isVisible(),true,'book vanished after refresh');
 await row.locator('[data-language-reading]').click();await page.waitForTimeout(60);
