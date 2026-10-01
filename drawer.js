@@ -43,7 +43,14 @@
   }
   function closeInternal(){root?.classList.add('hidden');document.body.classList.remove('elara-private-drawer-open')}
   function clearDrawerHistoryMarker(){if(history.state?.elaraDrawer)history.replaceState({...history.state,elaraDrawer:false},'',location.href)}
-  function close(){if(!root||root.classList.contains('hidden'))return;if(history.state?.elaraDrawer){history.back();return}closeInternal()}
+  function close(){
+    if(!root||root.classList.contains('hidden'))return;
+    /* Explicit UI close must be synchronous. Using history.back() here could land on
+       another drawer-marked entry after hash/navigation changes and leave the overlay
+       intercepting the mobile nav. Browser Back still closes via the popstate handler. */
+    clearDrawerHistoryMarker();
+    closeInternal();
+  }
   function open(section='home'){if(!root)return;root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);const wasClosed=root.classList.contains('hidden');if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);root.classList.remove('hidden');document.body.classList.add('elara-private-drawer-open');renderProfile();show(section);setTimeout(focusDrawer,0)}
   function placeMobileSection(section){
     if(!panel)return;
