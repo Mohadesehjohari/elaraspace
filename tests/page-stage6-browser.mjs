@@ -22,6 +22,8 @@ async function run(width,height){
  await page.route('**/elara-page.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:pageStub}));
  await page.goto(base+'/?page-stage6='+Date.now()+'#page',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraPageView&&document.querySelector('#panel-page:not(.hidden) [data-page-post-form]')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>window.ElaraPage?.state?.posts?.some(x=>x.id==='p1'),null,{timeout:20000});
+ await page.waitForFunction(()=>document.querySelectorAll('.page-post').length===1,null,{timeout:10000});
  assert.equal(await page.locator('.page-post').count(),1,width+': friend post missing');
  assert.equal(await page.locator('.page-story').count(),1,width+': friend status missing');
  const post=page.locator('[data-page-post-form]');await post.locator('textarea').fill('پست تست من 😎');await post.locator('select').selectOption('friends');await post.getByRole('button',{name:'انتشار پست'}).click();

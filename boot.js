@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261001-engagement-stage7-v41';
+  const BUILD='20261001-engagement-stage7-v42';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -78,8 +78,8 @@
       },15000);
       await import(assetUrl('./cloud.js'));
       try{await import(assetUrl('./elara-social.js'))}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
-      try{await import(assetUrl('./social-engagement.js'))}catch(error){console.error('Elara engagement startup:',error)}
       try{await import(assetUrl('./elara-page.js'))}catch(error){console.error('Elara page startup:',error)}
+      try{await import(assetUrl('./social-engagement.js'))}catch(error){console.error('Elara engagement startup:',error)}
     }catch(error){
       settleAccount();
       console.error('Elara cloud startup:',error);
