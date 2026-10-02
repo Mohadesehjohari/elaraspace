@@ -7,7 +7,6 @@ const js = readFileSync(new URL('app.js',root),'utf8');
 const css = readFileSync(new URL('styles.css',root),'utf8');
 const phase2 = readFileSync(new URL('phase2.js',root),'utf8');
 const social = readFileSync(new URL('elara-social.js',root),'utf8');
-const socialView = readFileSync(new URL('social-view.js',root),'utf8');
 const design = readFileSync(new URL('elara-design.js',root),'utf8');
 const rules = readFileSync(new URL('firestore.rules',root),'utf8');
 const drawer = readFileSync(new URL('drawer.js',root),'utf8');

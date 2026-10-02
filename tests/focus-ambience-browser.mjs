@@ -19,8 +19,9 @@ async function run(width,height){
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.addInitScript(seed);await page.addInitScript(audioStub);
- await page.goto(base+'/?focus-stage13='+Date.now()+'#focus',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraFocusAmbience&&document.querySelector('#focus-ambience')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.goto(base+'/?focus-stage13='+Date.now()+'#books',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraFocusAmbience&&document.querySelector('#panel-books #focus-ambience')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.locator('#focus-ambience').waitFor({state:'visible',timeout:10000});
  assert.equal(await page.locator('[data-ambience-mode]').count(),4,width+': ambience modes missing');
  await page.locator('[data-ambience-mode="forest"]').click();
  await page.locator('[data-ambience-volume]').fill('55');
