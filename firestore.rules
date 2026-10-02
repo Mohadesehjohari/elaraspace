@@ -463,6 +463,59 @@ service cloud.firestore {
       allow get, list: if signed() && resource.data.to == request.auth.uid;
     }
 
+
+    match /challenges/{challengeId} {
+      allow get, list: if signed() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid
+        && friendOf(request.resource.data.to)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.targetKind in ['task','habit','reading','exercise','focus','general']
+        && request.resource.data.targetText is string
+        && request.resource.data.targetText.size() >= 2 && request.resource.data.targetText.size() <= 120
+        && request.resource.data.targetValue is int
+        && request.resource.data.targetValue >= 1 && request.resource.data.targetValue <= 1000000
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.expiresAt > request.time + duration.value(25, 's')
+        && request.resource.data.expiresAt <= request.time + duration.value(35, 's');
+      allow update: if signed()
+        && resource.data.to == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.time < resource.data.expiresAt
+        && request.resource.data.from == resource.data.from
+        && request.resource.data.to == resource.data.to
+        && request.resource.data.targetKind == resource.data.targetKind
+        && request.resource.data.targetText == resource.data.targetText
+        && request.resource.data.targetValue == resource.data.targetValue
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.expiresAt == resource.data.expiresAt
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt','respondedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt'])
+        && request.resource.data.status in ['accepted','declined']
+        && request.resource.data.respondedAt == request.time;
+      allow delete: if signed()
+        && resource.data.from == request.auth.uid
+        && resource.data.status == 'pending';
+
+      match /quickMessages/{messageId} {
+        allow get, list: if signed()
+          && request.auth.uid in [get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,get(/databases/$(database)/documents/challenges/$(challengeId)).data.to]
+          && get(/databases/$(database)/documents/challenges/$(challengeId)).data.status == 'accepted';
+        allow create: if signed()
+          && request.auth.uid in [get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,get(/databases/$(database)/documents/challenges/$(challengeId)).data.to]
+          && get(/databases/$(database)/documents/challenges/$(challengeId)).data.status == 'accepted'
+          && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text in ['بزن بریم 🔥','حواسم بهت هست 👀','ریز می‌بینمت 😎','کم نیار 👊','تا آخرش هستم 🤝','امروز مال ماست ⚡']
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && resource.data.uid == request.auth.uid;
+      }
+    }
+
     match /activities/{activityId} {
       allow get, list: if signed() && (
         resource.data.uid == request.auth.uid ||

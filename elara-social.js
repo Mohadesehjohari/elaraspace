@@ -1,7 +1,7 @@
 /* Firestore-backed profiles, friendships and opt-in activity summaries. No synthetic social data. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,updateProfile} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,collection,collectionGroup,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,collection,collectionGroup,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction,writeBatch,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 const state={me:null,friends:[],requests:[],activities:[],error:'',profileView:null};window.ElaraSocial=state;
@@ -177,7 +177,51 @@ async function voteClubPoll(clubId,postId,option){
  const gid=String(clubId),pid=String(postId),voteRef=doc(db,'clubs',gid,'clubPosts',pid,'votes',uid),snap=await getDoc(voteRef);
  if(snap.exists())await updateDoc(voteRef,{option:String(option||'')});else await setDoc(voteRef,{uid,option:String(option||''),createdAt:serverTimestamp()});return true
 }
+
 window.ElaraSocial.clubs={kinds:[...CLUB_KINDS],create:createClub,list:clubMemberships,members:clubMembers,invite:inviteClub,invites:listClubInvites,decideInvite:decideClubInvite,setAssistant:setClubAssistant,createPost:createClubPost,posts:listClubPosts,vote:voteClubPoll};
+
+const CHALLENGE_KINDS=new Set(['task','habit','reading','exercise','focus','general']);
+const CHALLENGE_QUICK=Object.freeze(['بزن بریم 🔥','حواسم بهت هست 👀','ریز می‌بینمت 😎','کم نیار 👊','تا آخرش هستم 🤝','امروز مال ماست ⚡']);
+function challengePerson(other){return state.friends.find(p=>p.uid===other)||{uid:other,name:'دوست'}}
+async function createChallenge(other,spec={}){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
+ const to=String(other||'');if(!acceptedFriend(to))throw Error('چالش فقط بین دوستان تأییدشده فعال است.');
+ const targetKind=CHALLENGE_KINDS.has(spec.targetKind)?spec.targetKind:'general',targetText=String(spec.targetText||'').trim().slice(0,120),targetValue=Math.max(1,Math.min(1000000,Math.floor(Number(spec.targetValue)||1)));
+ if(targetText.length<2)throw Error('هدف چالش را واضح بنویس.');
+ const ref=await addDoc(collection(db,'challenges'),{from:uid,to,status:'pending',targetKind,targetText,targetValue,createdAt:serverTimestamp(),expiresAt:Timestamp.fromMillis(Date.now()+30000)});
+ return ref.id
+}
+async function listChallenges(){
+ if(!uid)return[];
+ const [incoming,outgoing]=await Promise.all([
+  getDocs(query(collection(db,'challenges'),where('to','==',uid))),
+  getDocs(query(collection(db,'challenges'),where('from','==',uid)))
+ ]);
+ const map=new Map([...incoming.docs,...outgoing.docs].map(x=>[x.id,{id:x.id,...x.data()}])),now=Date.now();
+ return [...map.values()].map(c=>{const other=c.from===uid?c.to:c.from;return {...c,other,person:challengePerson(other),expired:c.status==='pending'&&((c.expiresAt?.toMillis?.()||0)<=now),ms:c.createdAt?.toMillis?.()||0}}).sort((a,b)=>b.ms-a.ms)
+}
+async function respondChallenge(challenge,status){
+ if(!['accepted','declined'].includes(status))throw Error('پاسخ چالش معتبر نیست.');
+ if(!challenge||challenge.to!==uid||challenge.status!=='pending')throw Error('این درخواست قابل پاسخ نیست.');
+ const expires=challenge.expiresAt?.toMillis?.()||0;if(expires&&Date.now()>=expires)throw Error('زمان این درخواست چالش تمام شده.');
+ await updateDoc(doc(db,'challenges',String(challenge.id)),{status,respondedAt:serverTimestamp()});return true
+}
+async function cancelChallenge(challenge){
+ if(!challenge||challenge.from!==uid||challenge.status!=='pending')throw Error('این درخواست قابل لغو نیست.');
+ await deleteDoc(doc(db,'challenges',String(challenge.id)));return true
+}
+async function challengeQuick(challengeId,value){
+ const text=String(value||'').trim();if(!CHALLENGE_QUICK.includes(text))throw Error('فقط پیام‌های سریع آماده مجازند.');
+ const ref=doc(db,'challenges',String(challengeId)),snap=await getDoc(ref);if(!snap.exists())throw Error('چالش پیدا نشد.');
+ const data=snap.data()||{};if(data.status!=='accepted'||![data.from,data.to].includes(uid))throw Error('پیام سریع فقط در چالش پذیرفته‌شده فعال است.');
+ await addDoc(collection(ref,'quickMessages'),{uid,text,createdAt:serverTimestamp()});return true
+}
+async function listChallengeQuick(challengeId){
+ const snaps=await getDocs(query(collection(db,'challenges',String(challengeId),'quickMessages'),orderBy('createdAt','desc'),limit(40)));
+ return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()
+}
+window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],quick:[...CHALLENGE_QUICK],create:createChallenge,list:listChallenges,respond:respondChallenge,cancel:cancelChallenge,sendQuick:challengeQuick,quickMessages:listChallengeQuick};
+
 
 
 

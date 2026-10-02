@@ -89,6 +89,8 @@ const pageService=readFileSync(new URL('elara-page.js',root),'utf8'),pageView=re
 assert.ok(pageService.includes("where('expiresAt','>',Timestamp.now())"),'Story friend query must enforce expiry server-side');assert.ok(firestoreIndexes.indexes.some(x=>x.collectionGroup==='socialStories'&&x.fields.some(f=>f.fieldPath==='expiresAt')),'socialStories expiry composite index missing');
 
 for(const token of ['match /clubs/{clubId}','canCreateClub()','isClubManager(id)','clubInvites','clubPosts','request.resource.data.kind in [\'mission\',\'poll\']'])assert.ok(rules.includes(token),'Club security contract missing '+token);
+for(const token of ['match /challenges/{challengeId}',"duration.value(25, 's')",'quickMessages',"request.resource.data.status in ['accepted','declined']"])assert.ok(rules.includes(token),'Challenge security contract missing '+token);
+for(const token of ['ElaraSocial.challenges=','createChallenge','respondChallenge','challengeQuick','CHALLENGE_QUICK'])assert.ok(social.includes(token),'Challenge service contract missing '+token);
 for(const token of ['ElaraSocial.clubs=','createClub','setClubAssistant','createClubPost','voteClubPoll'])assert.ok(social.includes(token),'Club service contract missing '+token);
 console.log(`Static check passed: ${ids.size} HTML ids, base panels, canonical seven-route navigation, local assets, phase 2 recurrence/focus module and selector references.`);
 
