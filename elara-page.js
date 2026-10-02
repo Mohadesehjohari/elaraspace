@@ -1,6 +1,6 @@
 import {getApps} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,collection,query,where,getDocs,addDoc,setDoc,updateDoc,deleteDoc,doc,serverTimestamp,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,collection,query,where,getDocs,getDoc,addDoc,setDoc,updateDoc,deleteDoc,doc,serverTimestamp,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const app=getApps()[0]||null,auth=app?getAuth(app):null,db=app?getFirestore(app):null;
 const state={posts:[],stories:[],loading:false,error:''};
@@ -51,8 +51,9 @@ async function reportContent(kind,id,reason='other',detail=''){
  const current=auth?.currentUser;if(!current?.emailVerified||!db)throw Error('برای گزارش وارد حساب تأییدشده شو.');
  kind=kind==='story'?'story':'post';id=String(id||'');const rows=kind==='story'?state.stories:state.posts,row=rows.find(x=>x.id===id);
  if(!row)throw Error('این محتوا دیگر در دسترس نیست.');if(row.uid===current.uid)throw Error('محتوای خودت را نمی‌توانی گزارش کنی.');
- const reportId=current.uid+'__'+kind+'__'+id;
- await setDoc(doc(db,'contentReports',reportId),{reporter:current.uid,targetUid:String(row.uid),kind,targetId:id,reason:reportReason(reason),detail:safe(detail,500),createdAt:serverTimestamp()});
+ const reportId=current.uid+'__'+kind+'__'+id,reportRef=doc(db,'contentReports',reportId),existing=await getDoc(reportRef);
+ if(existing.exists())return 'existing';
+ await setDoc(reportRef,{reporter:current.uid,targetUid:String(row.uid),kind,targetId:id,reason:reportReason(reason),detail:safe(detail,500),createdAt:serverTimestamp()});
  return true
 }
 async function remove(kind,id){

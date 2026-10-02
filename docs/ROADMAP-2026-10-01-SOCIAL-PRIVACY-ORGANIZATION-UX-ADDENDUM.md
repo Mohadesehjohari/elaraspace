@@ -672,3 +672,18 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **STATUS-STORY media — STORAGE-GATED:** متن Status موجود است؛ تصویر/ویدئو باید بعد از Firebase Storage Rules، quota، moderation و retention واقعی اضافه شود.
 - **CYCLE-COMPANION-02 — BACKEND-GATED:** دادهٔ چرخه private می‌ماند؛ قبل از consent + one-companion contract هیچ اشتراک سلامت عمومی فعال نمی‌شود.
 - **3D-AVATAR-01 / CALM-MINI-GAMES-01 / voice chat / final theme pass — LATE ROADMAP:** هنوز شروع نشده و نباید Done تلقی شود.
+
+---
+## Implementation evidence snapshot — 2026-10-02
+این snapshot وضعیت واقعی کد/تست را نسبت به بندهای REQUESTED بالاتر ثبت می‌کند؛ بندهای قدیمی برای تاریخچه حذف نشده‌اند.
+
+- **PAGE-01 — IMPLEMENTED / BROWSER TESTED, MEDIA STORAGE PENDING:** Post، 24h Status، visibility، edit/delete پست، delete status، report، block، Like/Comment و Friends CTA دارای service/UI/Rules هستند. Media upload عمومی هنوز تا Storage Rules امن **PENDING** است.
+- **FRIENDS-MESSAGING-01 — IMPLEMENTED / BROWSER TESTED + RULES CONTRACT:** DM، Group، search/friend flow، block و chat UI موجود است. Emulator Rules مسیر friendship/DM/group را می‌سنجد.
+- **SOCIAL-REACTIONS-02 — IMPLEMENTED / BROWSER TESTED + RULES CONTRACT:** Like/Comment برای Activity و Page post.
+- **STATUS-STORY-01 — IMPLEMENTED / BROWSER TESTED, TEXT STATUS:** 24h expiry و visibility وجود دارد؛ media story هنوز **PENDING**.
+- **CLUBS-02 — PARTIAL IMPLEMENTED / BROWSER TESTED:** Level gate، Owner، حداکثر دو Assistant، invite، mission، poll/vote و rest-day contract وجود دارد؛ end-of-day scoring/reward automation و کامل‌شدن همهٔ انواع club هنوز **PENDING**.
+- **DIRECT-CHALLENGE-01 — PARTIAL IMPLEMENTED / BROWSER TESTED:** create/accept/decline/cancel/quick-chat/countdown وجود دارد؛ verified progress winner settlement و profile win stats هنوز **PENDING**.
+- **LIBRARY-CLIPS-01 / CUSTOM-SHELVES-02 / BOOK-METADATA-02 — IMPLEMENTED / BROWSER TESTED:** custom shelf، cover upload/remove، text/image clip و Open Library metadata import وجود دارد. انتشار social تصویر clip تا Storage امن **PENDING**.
+- **TASK-COMPLETED-03 / task reorder & bulk — IMPLEMENTED / BROWSER TESTED:** strike option، linked edit/delete، pointer/keyboard reorder، bulk move/duplicate و mobile long-press.
+- **POMODORO-AMBIENCE-01 — IMPLEMENTED / BROWSER TESTED:** ambience mode، persistence، play/stop، i18n و reduced-motion test.
+- **LEVELS-INFINITE-01 / COLLECTION-LEVEL-01 — IMPLEMENTED CONTRACT:** Level registry و Collection Level module در repo و tests وجود دارند؛ economy/reward balancing نهایی همچنان roadmap است.

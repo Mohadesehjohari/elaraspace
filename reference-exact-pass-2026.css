@@ -1310,3 +1310,19 @@ body.light .pass2-blocked-list{background:#f8faff!important;border-color:#d5def0
 .entity-selection-mode [data-entity-drag]{opacity:.45}
 body.light .entity-bulk-toolbar{background:#f8f9ff!important;color:#1d2940!important;border-color:#b7a9ec!important}.entity-selection-mode [data-entity-kind].is-selected{background:#f0ecff!important}
 @media(max-width:700px){.entity-bulk-toolbar{align-items:stretch;flex-direction:column}.entity-bulk-toolbar>div{display:grid;grid-template-columns:repeat(2,1fr)}.entity-bulk-toolbar button{width:100%}.entity-select-control{width:38px;height:38px}}
+
+/* 2026-10-02 Stage 13 Page moderation/edit. */
+.page-post-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.page-post-actions>button,.page-story-moderation>button{min-height:34px;padding:6px 10px;border:1px solid #35577f;border-radius:10px;background:#0a213f;color:#c9d6eb;font:750 .7rem/1 inherit;cursor:pointer}
+.page-post-actions>button:hover,.page-post-actions>button:focus-visible,.page-story-moderation>button:hover,.page-story-moderation>button:focus-visible{border-color:#8d6af0;color:#fff;background:#171f4a}
+.page-post-actions>.danger,.page-story-moderation>.danger{border-color:#d94769;background:#6d1730;color:#fff}
+.page-post-actions>.danger-outline,.page-story-moderation>.danger-outline{border-color:#c83f62;color:#ff92aa;background:#60142b22}
+.page-edit-form,.page-report-form{display:grid;gap:13px;min-width:min(620px,76vw)}
+.page-edit-form label,.page-report-form label{display:grid;gap:6px;color:#a9bbd7;font-size:.8rem}
+.page-edit-form textarea,.page-report-form textarea,.page-edit-form select,.page-report-form select{width:100%;border:1px solid #355983;border-radius:13px;background:#071d38;color:#eef4ff;padding:10px 11px;font:inherit}
+.page-edit-form textarea{min-height:150px;resize:vertical}.page-report-form textarea{min-height:95px;resize:vertical}
+.page-report-form .muted{margin:0;font-size:.72rem;line-height:1.7}
+.page-story-moderation{display:flex;gap:8px;justify-content:center;margin-top:8px}
+body.light .page-post-actions>button,body.light .page-story-moderation>button{background:#f4f7ff;color:#273650;border-color:#c8d5e8}
+body.light .page-edit-form textarea,body.light .page-report-form textarea,body.light .page-edit-form select,body.light .page-report-form select{background:#fff;color:#17243c;border-color:#c8d5e8}
+@media(max-width:700px){.page-post>header{grid-template-columns:42px minmax(0,1fr)!important}.page-post-actions{grid-column:1/-1;justify-content:flex-end}.page-post-actions>button{min-height:38px;padding-inline:12px}.page-edit-form,.page-report-form{min-width:0;width:min(84vw,520px)}}
