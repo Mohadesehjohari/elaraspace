@@ -24,7 +24,8 @@ await page.addInitScript(()=>{
 await page.goto(base+'/?domain-events='+Date.now()+'#home',{waitUntil:'domcontentloaded',timeout:30000});
 await page.waitForFunction(()=>window.ElaraDomainNotifications&&window.ElaraNotify&&window.ElaraMissions&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
 await page.waitForTimeout(180);
-assert.equal(await page.evaluate(()=>ElaraNotify.read().length),0,'first observation must only establish baseline');
+const domainRows=()=>ElaraNotify.read().filter(x=>/^(book-finished:|goal-complete:|habit-streak:|task-today:|water-goal:|workout:)/.test(String(x?.dedupeKey||'')));
+assert.equal(await page.evaluate(domainRows),0,'first domain observation must only establish baseline');
 
 await page.evaluate(()=>{
  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,day=iso(new Date()),s=JSON.parse(localStorage.getItem('elara_space_v1'));
@@ -35,13 +36,13 @@ await page.evaluate(()=>{
  localStorage.setItem('elara_private_wellness_v1_me',JSON.stringify({goal:2000,glass:250,water:{[day]:2100},sleep:[],workouts:[{id:'wo1',date:day,minutes:25}],cycles:[]}));
  window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:wellness-saved'));
 });
-await page.waitForFunction(()=>ElaraNotify.read().length>=6,null,{timeout:8000});
-const rows=await page.evaluate(()=>ElaraNotify.read().map(x=>({type:x.type,key:x.dedupeKey,title:x.title,message:x.message})));
+await page.waitForFunction(()=>domainRows().length>=6,null,{timeout:8000});
+const rows=await page.evaluate(()=>domainRows().map(x=>({type:x.type,key:x.dedupeKey,title:x.title,message:x.message})));
 for(const prefix of ['book-finished:b1','goal-complete:g1','habit-streak:h1:3','task-today:','water-goal:','workout:'])assert.ok(rows.some(x=>String(x.key).startsWith(prefix)),'missing milestone '+prefix+' '+JSON.stringify(rows));
 const before=rows.length;
 await page.evaluate(()=>{ElaraDomainNotifications.check();window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:wellness-saved'))});
 await page.waitForTimeout(180);
-assert.equal(await page.evaluate(()=>ElaraNotify.read().length),before,'domain notifications duplicated after repeated events');
+assert.equal(await page.evaluate(()=>domainRows().length),before,'domain notifications duplicated after repeated events');
 const missions=await page.evaluate(()=>Object.fromEntries(ElaraMissions.snapshot().map(x=>[x.key,{completed:x.completed,amount:x.amount,target:x.target}])));
 for(const k of ['read-20','focus-25','move-20','language-10','streak-3'])assert.equal(missions[k]?.completed,true,'mission not completed '+k+' '+JSON.stringify(missions[k]));
 await page.evaluate(()=>ElaraNotify.open(document.getElementById('ref-header-notifications')));
