@@ -140,7 +140,8 @@
     "focus-ambience.js",
     "elara-levels.js",
     "entity-reorder.js",
-    "task-collections.js"
+    "task-collections.js",
+    "collection-level.js"
   ],
   "files": [
     ".htaccess",
@@ -152,6 +153,7 @@
     "phase2.js",
     "elara-levels.js",
     "rpg.js",
+    "collection-level.js",
     "approved-profile-system.js",
     "boot.js",
     "drawer.js",

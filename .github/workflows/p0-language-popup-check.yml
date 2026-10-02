@@ -31,6 +31,7 @@ on:
       - 'notifications.js'
       - 'phase2.js'
       - 'elara-levels.js'
+      - 'collection-level.js'
       - 'tests/task-bulk-reorder-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
       - 'tests/task-collections-browser.mjs'
@@ -96,6 +97,7 @@ jobs:
           node --check entity-reorder.js
           node --check task-collections.js
           node --check elara-levels.js
+          node --check collection-level.js
           node --check task-bulk-reorder.js
           node --check focus-ambience.js
           node --check library-enhancements.js
