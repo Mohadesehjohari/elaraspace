@@ -25,7 +25,7 @@ await page.goto(base+'/?domain-events='+Date.now()+'#home',{waitUntil:'domconten
 await page.waitForFunction(()=>window.ElaraDomainNotifications&&window.ElaraNotify&&window.ElaraMissions&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
 await page.waitForTimeout(180);
 const domainRows=()=>ElaraNotify.read().filter(x=>/^(book-finished:|goal-complete:|habit-streak:|task-today:|water-goal:|workout:)/.test(String(x?.dedupeKey||'')));
-assert.equal(await page.evaluate(domainRows),0,'first domain observation must only establish baseline');
+assert.equal(await page.evaluate(()=>domainRows().length),0,'first domain observation must only establish baseline');
 
 await page.evaluate(()=>{
  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,day=iso(new Date()),s=JSON.parse(localStorage.getItem('elara_space_v1'));
