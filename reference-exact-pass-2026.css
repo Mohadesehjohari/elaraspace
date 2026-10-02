@@ -1354,3 +1354,13 @@ body.light .challenge-progress{background:#f3f7ff!important;border-color:#d1dced
     width:112px!important;height:118px!important;min-width:112px!important;min-height:118px!important;
   }
 }
+
+/* 2026-10-02 Page media Stage 17 — secure image post/status UX. */
+.page-media-picker{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin:8px 0!important}
+.page-media-button,.page-media-remove{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 14px;border-radius:12px;border:1px solid #7957dc;background:linear-gradient(135deg,#3e25a5,#7538e6);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 0 18px #7447ff38}
+.page-media-remove{border-color:#d84c6d;background:linear-gradient(135deg,#7b1735,#4e0d22)}
+.page-media-picker [data-page-media-preview]{display:block;min-width:0}.page-media-picker [data-page-media-preview] img{width:92px;height:74px;object-fit:cover;border-radius:12px;border:1px solid #6e58c4;box-shadow:0 8px 20px #0005}
+.page-media{margin:10px 0 7px;border-radius:16px;overflow:hidden;border:1px solid #2d527e;background:#06172e}.page-media img{display:block;width:100%;max-height:560px;object-fit:cover}
+.page-story-detail .page-story-media{max-width:min(640px,80vw);margin-inline:auto}.page-story-detail .page-story-media img{max-height:58vh;object-fit:contain}
+body.light .page-media{background:#f2f5fb;border-color:#cbd8ea}body.light .page-media-button{color:#fff}
+@media(max-width:700px){.page-media-button,.page-media-remove{min-height:44px;flex:1 1 132px}.page-media-picker [data-page-media-preview]{width:100%}.page-media-picker [data-page-media-preview] img{width:100%;height:auto;max-height:220px;object-fit:contain}.page-media img{max-height:420px}}
