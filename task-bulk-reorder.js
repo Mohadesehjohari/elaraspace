@@ -25,8 +25,10 @@ function decorate(){
  syncUi()
 }
 function ensureUi(){
- const panel=document.getElementById('panel-tasks'),toolbar=panel?.querySelector('.list-toolbar');if(!panel||!toolbar)return false;
- if(!document.getElementById('task-selection-toggle')){const b=document.createElement('button');b.id='task-selection-toggle';b.type='button';b.className='quiet-button task-selection-toggle';b.setAttribute('aria-pressed','false');b.textContent=t('انتخاب','Select');toolbar.append(b)}
+ const panel=document.getElementById('panel-tasks'),toolbar=panel?.querySelector('.list-toolbar'),actions=panel?.querySelector('.elara-task-page-actions');if(!panel||!toolbar)return false;
+ let toggle=document.getElementById('task-selection-toggle');
+ if(!toggle){toggle=document.createElement('button');toggle.id='task-selection-toggle';toggle.type='button';toggle.className='quiet-button task-selection-toggle';toggle.setAttribute('aria-pressed','false');toggle.textContent=t('انتخاب','Select')}
+ const visibleOwner=actions||toolbar;if(toggle.parentElement!==visibleOwner)visibleOwner.append(toggle);
  if(!document.getElementById('task-bulk-toolbar')){const bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>';toolbar.insertAdjacentElement('afterend',bar)}
  decorate();return true
 }
