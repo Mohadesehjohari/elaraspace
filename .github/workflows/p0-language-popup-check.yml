@@ -33,6 +33,7 @@ on:
       - 'elara-levels.js'
       - 'collection-level.js'
       - 'tests/task-bulk-reorder-browser.mjs'
+      - 'tests/focus-ambience-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
       - 'tests/task-collections-browser.mjs'
       - 'task-bulk-reorder.js'
@@ -117,6 +118,7 @@ jobs:
           node tests/wellness-analysis.test.cjs
           node --check reference-home-shell-2026.js
           node --check tests/p0-language-popup-browser.mjs
+          node --check tests/focus-ambience-browser.mjs
           node --check tests/entity-reorder-browser.mjs
           node --check tests/task-collections-browser.mjs
           node --check tests/library-stage4-browser.mjs
@@ -153,6 +155,8 @@ jobs:
         run: timeout 90s node tests/social-engagement-browser.mjs
       - name: Verify Task bulk selection and reorder Stage 9
         run: timeout 90s node tests/task-bulk-reorder-browser.mjs
+      - name: Verify Pomodoro ambience Stage 13
+        run: timeout 90s node tests/focus-ambience-browser.mjs
       - name: Verify Habit and Goal reorder Stage 13
         run: timeout 90s node tests/entity-reorder-browser.mjs
       - name: Verify independent Task collection pages Stage 14
@@ -233,6 +237,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/task-bulk-reorder-browser.mjs
+      - name: Verify deployed Pomodoro ambience Stage 13
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/focus-ambience-browser.mjs
       - name: Verify real Firebase/account boot without stubs
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
