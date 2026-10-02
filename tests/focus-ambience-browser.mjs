@@ -32,7 +32,7 @@ async function run(width,height){
  assert.equal(await page.locator('[data-ambience-play]').getAttribute('aria-pressed'),'true');
  await page.locator('[data-ambience-play]').click();
  await page.waitForFunction(()=>document.getElementById('focus-ambience')?.dataset.playing==='false');
- const motion=await page.locator('.focus-garden .flower').evaluate(el=>getComputedStyle(el).animationName);assert.equal(motion,'none',width+': reduced motion did not disable garden animation');
+ const motion=await page.locator('.focus-garden .flower').first().evaluate(el=>getComputedStyle(el).animationName);assert.equal(motion,'none',width+': reduced motion did not disable garden animation');
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(100);
  assert.match(await page.locator('#focus-ambience').innerText(),/Pomodoro ambience/i,width+': focus ambience did not localize');
  const m=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(m.sw<=m.w+1,width+': focus ambience horizontal overflow '+JSON.stringify(m));
