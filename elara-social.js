@@ -277,7 +277,7 @@ function renderProfile(person=state.profileView){
  }
  if(!publicAllowed){root.innerHTML='<section class="elara-card pass4-public-profile-card">'+summary+'<p class="muted">این کاربر نمایش عمومی پروفایلش را محدود کرده است.</p></section>';return}
  let actions='';
- if(isFriend)actions='<button type="button" class="quiet-button danger-outline" data-profile-friend-action="remove" data-request="'+esc(relation.id)+'">حذف از دوستان</button><button type="button" class="primary-button" disabled title="Challenge در گام بعد با Rule سروری فعال می‌شود">دعوت به چالش · به‌زودی</button>';
+ if(isFriend)actions='<button type="button" class="quiet-button danger-outline" data-profile-friend-action="remove" data-request="'+esc(relation.id)+'">حذف از دوستان</button><button type="button" class="primary-button" data-profile-challenge="'+esc(person.uid)+'">دعوت به چالش ⚡</button>';
  else if(relation?.status==='pending'&&relation.from===uid)actions='<button type="button" class="quiet-button" data-profile-friend-action="cancel" data-request="'+esc(relation.id)+'">لغو درخواست دوستی</button>';
  else if(relation?.status==='pending'&&relation.to===uid)actions='<button type="button" class="primary-button" data-profile-friend-action="accept" data-request="'+esc(relation.id)+'">قبول درخواست</button><button type="button" class="quiet-button" data-profile-friend-action="decline" data-request="'+esc(relation.id)+'">رد</button>';
  else actions='<button type="button" class="primary-button" data-profile-add-friend="'+esc(person.username||'')+'">ارسال درخواست دوستی</button>';

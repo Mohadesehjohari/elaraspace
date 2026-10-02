@@ -41,6 +41,7 @@ on:
       - 'tests/clubs-stage11-browser.mjs'
       - 'social-groups-ui.js'
       - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
       - 'elara-design.js'
       - 'firestore.rules'
       - 'page-view.js'
@@ -91,6 +92,7 @@ jobs:
           node --check social-messaging-ui.js
           node --check social-groups-ui.js
           node --check social-clubs-ui.js
+          node --check social-challenges-ui.js
           node --check social-engagement.js
           node --check social-engagement-view.js
           node --check page-view.js
