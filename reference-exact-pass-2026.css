@@ -1301,3 +1301,12 @@ body.light .pass2-blocked-list{background:#f8faff!important;border-color:#d5def0
 .social-streak{display:inline-flex;align-items:center;gap:3px;color:#ffb34e;font-size:.7rem;font-weight:800;white-space:nowrap;text-shadow:0 0 12px #ff8a3355}
 .social-podium-place .social-person-stats{justify-items:center;margin-top:5px}.social-podium-place .social-streak{font-size:.74rem}
 @media(max-width:700px){.social-person-stats{min-width:58px}.social-person-stats>b{font-size:.7rem}.social-streak{font-size:.66rem}}
+
+/* 2026-10-02 Habit/Goal bulk selection. */
+.entity-bulk-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;padding:10px 12px;border:1px solid #694fe0;border-radius:14px;background:linear-gradient(135deg,#101e43,#1c1951);box-shadow:0 0 24px #713eff22}
+.entity-bulk-toolbar[hidden]{display:none!important}.entity-bulk-toolbar>div{display:flex;gap:7px;flex-wrap:wrap}.entity-bulk-toolbar button{min-height:38px;padding:7px 12px;border:1px solid #425b89;border-radius:10px;background:#0c2343;color:#eef3ff}.entity-bulk-toolbar button.danger{background:#68152d;border-color:#d74c6d}
+.entity-select-control{flex:0 0 auto;width:36px;height:36px;place-items:center;border-radius:11px;border:1px solid #765aff;background:#172855;color:#fff;font-weight:900;box-shadow:0 0 14px #754cff44}
+[data-entity-kind].is-selected{outline:2px solid #8a61ff!important;outline-offset:-2px;background-image:linear-gradient(135deg,#7e4cff18,#397cff0d)!important}
+.entity-selection-mode [data-entity-drag]{opacity:.45}
+body.light .entity-bulk-toolbar{background:#f8f9ff!important;color:#1d2940!important;border-color:#b7a9ec!important}.entity-selection-mode [data-entity-kind].is-selected{background:#f0ecff!important}
+@media(max-width:700px){.entity-bulk-toolbar{align-items:stretch;flex-direction:column}.entity-bulk-toolbar>div{display:grid;grid-template-columns:repeat(2,1fr)}.entity-bulk-toolbar button{width:100%}.entity-select-control{width:38px;height:38px}}
