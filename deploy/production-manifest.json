@@ -137,6 +137,7 @@
     "freedom-refinement-v2.css",
     "freedom-ai.js",
     "task-bulk-reorder.js",
+    "focus-ambience.js",
     "elara-levels.js"
   ],
   "files": [
@@ -252,6 +253,7 @@
     "assets/ui/icon-reward-star.webp",
     "linked-tasks.js",
     "task-bulk-reorder.js",
+    "focus-ambience.js",
     "assets/ui/button-view-all.webp",
     "assets/ui/accept-request-button.webp",
     "assets/ui/decline-request-button.webp",

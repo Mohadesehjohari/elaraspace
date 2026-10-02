@@ -32,6 +32,7 @@ on:
       - 'elara-levels.js'
       - 'tests/task-bulk-reorder-browser.mjs'
       - 'task-bulk-reorder.js'
+      - 'focus-ambience.js'
       - 'social-view.js'
       - 'tests/social-engagement-browser.mjs'
       - 'social-engagement-view.js'
@@ -89,6 +90,7 @@ jobs:
           node --check phase2.js
           node --check elara-levels.js
           node --check task-bulk-reorder.js
+          node --check focus-ambience.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
           node --check social-groups-ui.js
