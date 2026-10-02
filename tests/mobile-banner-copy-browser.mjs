@@ -22,7 +22,8 @@ async function open(width,height){
  assert.equal(await hero.evaluate(el=>getComputedStyle(el).touchAction),'pan-y','banner must preserve vertical touch scrolling');
  const collapsed=await page.evaluate(()=>ElaraMobileBannerCopy.collapseAll());assert.ok(collapsed>=1,'collapseAll did not collapse mobile banners');
  assert.equal(await hero.getAttribute('data-mobile-copy-state'),'collapsed');
- const opacity=Number(await page.locator('#panel-home .ref-hero .hero-copy').evaluate(el=>getComputedStyle(el).opacity));assert.ok(opacity<.1,'collapsed copy still covers artwork');
+ await page.waitForTimeout(360);
+ const opacity=Number(await page.locator('#panel-home .ref-hero .hero-copy').evaluate(el=>getComputedStyle(el).opacity));assert.ok(opacity<.1,'collapsed copy still covers artwork after transition');
  const notCancelled=await hero.evaluate(el=>el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:7,pointerType:'touch',clientX:100,clientY:100})));assert.equal(notCancelled,true,'long-press handler must not cancel native pointer scrolling');
  await page.waitForTimeout(720);assert.equal(await hero.getAttribute('data-mobile-copy-state'),'visible','long press did not reveal banner copy');
  await hero.evaluate(el=>el.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:7,pointerType:'touch',clientX:100,clientY:100})));
