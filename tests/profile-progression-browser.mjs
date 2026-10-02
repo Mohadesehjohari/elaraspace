@@ -11,8 +11,12 @@ await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'app
 await page.addInitScript(({xp})=>localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp,theme:'dark',tasks:[{id:'t1',text:'x',completed:true}],taskCompletionHistory:Array.from({length:100},(_,i)=>({taskId:'t'+i,date:'2026-10-01'})),words:Array.from({length:10},(_,i)=>({id:'w'+i})),books:[{id:'b1',title:'Book',shelf:'finished'}],habits:[],goals:[],folders:[],tags:[],taskLists:[],focusSessions:[],missionRewardClaims:[]})),{xp});
 await page.goto(base+'/?profile-progression='+Date.now()+'#home',{waitUntil:'domcontentloaded',timeout:30000});
 await page.waitForFunction(()=>window.ElaraProfileSystem&&window.ElaraLevels&&window.ElaraCollection&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
-const fa=await page.evaluate(()=>{const v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true});return{level:v.level,rank:v.rankLabel,collection:v.collectionLevel,medals:v.medals.map(x=>x.id),html:ElaraProfileSystem.composition(v)}});
-assert.equal(fa.level,80,'Profile must not cap infinite level at 10');
+const fa=await page.evaluate(()=>{const v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true});return{sourceXp:ElaraSocial?.me?.xp,viewXp:v.xp,registryLevel:ElaraLevels?.level?.(68030),helperLevel:ElaraProfileSystem.levelFromXp?.(68030),level:v.level,rank:v.rankLabel,collection:v.collectionLevel,medals:v.medals.map(x=>x.id),html:ElaraProfileSystem.composition(v)}});
+console.log('PROFILE_PROGRESSION_DIAG '+JSON.stringify(fa));
+assert.equal(fa.registryLevel,80,'Central level registry returned an unexpected level: '+JSON.stringify(fa));
+assert.equal(fa.helperLevel,80,'Profile level helper diverged from the central registry: '+JSON.stringify(fa));
+assert.equal(fa.viewXp,68030,'Profile view model received the wrong XP: '+JSON.stringify(fa));
+assert.equal(fa.level,80,'Profile must not cap infinite level at 10: '+JSON.stringify(fa));
 assert.match(fa.rank,/الیت/,'Level 80 rank missing');
 assert.ok(fa.collection>0,'Collection Level missing');
 assert.ok(fa.medals.includes('level-80'),'Level 80 medal missing');
