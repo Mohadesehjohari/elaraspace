@@ -687,3 +687,5 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **TASK-COMPLETED-03 / task reorder & bulk — IMPLEMENTED / BROWSER TESTED:** strike option، linked edit/delete، pointer/keyboard reorder، bulk move/duplicate و mobile long-press.
 - **POMODORO-AMBIENCE-01 — IMPLEMENTED / BROWSER TESTED:** ambience mode، persistence، play/stop، i18n و reduced-motion test.
 - **LEVELS-INFINITE-01 / COLLECTION-LEVEL-01 — IMPLEMENTED CONTRACT:** Level registry و Collection Level module در repo و tests وجود دارند؛ economy/reward balancing نهایی همچنان roadmap است.
+
+- **PROFILE-PROGRESSION-01 — IMPLEMENTED / TESTING:** Profile composition از curve مرکزی `ElaraLevels` استفاده می‌کند، سقف نمایشی Level 10 حذف شده و Rank + Collection Level + Medalهای earned برای صاحب حساب نمایش داده می‌شوند. Public profile فقط دادهٔ progression عمومی موجود را نشان می‌دهد و Medal خصوصی حدس زده نمی‌شود.

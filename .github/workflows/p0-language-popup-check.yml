@@ -36,6 +36,7 @@ on:
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/domain-events-browser.mjs'
       - 'tests/mobile-banner-copy-browser.mjs'
+      - 'tests/profile-progression-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
       - 'tests/entity-bulk-browser.mjs'
       - 'tests/task-collections-browser.mjs'
@@ -132,6 +133,7 @@ jobs:
           node --check tests/focus-ambience-browser.mjs
           node --check tests/domain-events-browser.mjs
           node --check tests/mobile-banner-copy-browser.mjs
+          node --check tests/profile-progression-browser.mjs
           node --check tests/entity-reorder-browser.mjs
           node --check tests/entity-bulk-browser.mjs
           node --check tests/task-collections-browser.mjs
@@ -181,6 +183,8 @@ jobs:
         run: timeout 90s node tests/domain-events-browser.mjs
       - name: Verify Mobile banner copy reveal
         run: timeout 90s node tests/mobile-banner-copy-browser.mjs
+      - name: Verify infinite profile progression
+        run: timeout 90s node tests/profile-progression-browser.mjs
       - name: Verify Habit and Goal reorder Stage 13
         run: timeout 90s node tests/entity-reorder-browser.mjs
       - name: Verify Habit and Goal bulk selection
