@@ -30,6 +30,7 @@ try{
   await setDoc(ref(admin,'socialPosts/alice_private_post'),{uid:'alice',text:'private',visibility:'private',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
   await setDoc(ref(admin,'socialPosts/alice_friends_post'),{uid:'alice',text:'friends',visibility:'friends',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
   await setDoc(ref(admin,'socialPosts/alice_public_post'),{uid:'alice',text:'public',visibility:'public',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
+  await setDoc(ref(admin,'socialStories/alice_friends_story'),{uid:'alice',text:'story',visibility:'friends',createdAt:Timestamp.now(),expiresAt:nowPlus(3600000)});
  });
 
  // Profile privacy: owner/friend/public paths are readable, unrelated private profile is not.
@@ -106,6 +107,16 @@ try{
  await assertSucceeds(setDoc(ref(bob,'activities/alice_friends_001/comments/bob_comment'),{uid:'bob',text:'دمت گرم 🔥',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'activities/alice_friends_001/comments/eve_comment'),{uid:'eve',text:'outsider',createdAt:serverTimestamp()}));
 
+ // Content reports are private, deduplicated by reporter+target, and only allowed for readable content owned by somebody else.
+ const reportPath='contentReports/bob__post__alice_friends_post';
+ await assertSucceeds(setDoc(ref(bob,reportPath),{reporter:'bob',targetUid:'alice',kind:'post',targetId:'alice_friends_post',reason:'spam',detail:'qa',createdAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,reportPath)));
+ await assertFails(getDoc(ref(alice,reportPath)));
+ await assertFails(setDoc(ref(eve,'contentReports/eve__post__alice_friends_post'),{reporter:'eve',targetUid:'alice',kind:'post',targetId:'alice_friends_post',reason:'spam',detail:'no access',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,'contentReports/alice__post__alice_public_post'),{reporter:'alice',targetUid:'alice',kind:'post',targetId:'alice_public_post',reason:'other',detail:'self',createdAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(bob,'contentReports/bob__story__alice_friends_story'),{reporter:'bob',targetUid:'alice',kind:'story',targetId:'alice_friends_story',reason:'privacy',detail:'story qa',createdAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(bob,reportPath),{reason:'other'}));
+
  // Block is private to the blocker and overrides public/friends social reads and new DM writes.
  await assertSucceeds(setDoc(ref(alice,'blocks/alice__bob'),{owner:'alice',target:'bob',targetName:'Bob',targetUsername:'bob',createdAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(alice,'blocks/alice__bob')));
@@ -121,7 +132,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club challenge page engagement block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club challenge page engagement reports block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }

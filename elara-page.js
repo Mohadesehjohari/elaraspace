@@ -1,6 +1,6 @@
 import {getApps} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,collection,query,where,getDocs,addDoc,deleteDoc,doc,serverTimestamp,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,collection,query,where,getDocs,addDoc,setDoc,updateDoc,deleteDoc,doc,serverTimestamp,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const app=getApps()[0]||null,auth=app?getAuth(app):null,db=app?getFirestore(app):null;
 const state={posts:[],stories:[],loading:false,error:''};
@@ -40,12 +40,27 @@ async function createStory(text,vis='friends'){
  const clean=safe(text,1000);if(!clean)throw Error('متن استاتوس خالی است.');
  await addDoc(collection(db,'socialStories'),{uid:current.uid,text:clean,visibility:visibility(vis),createdAt:serverTimestamp(),expiresAt:Timestamp.fromMillis(Date.now()+24*60*60*1000)});await refresh();return true
 }
+async function editPost(id,text,vis='friends'){
+ const current=auth?.currentUser;if(!current?.emailVerified||!db)throw Error('حساب در دسترس نیست.');
+ const row=state.posts.find(x=>x.id===id);if(!row||row.uid!==current.uid)throw Error('فقط پست خودت را می‌توانی ویرایش کنی.');
+ const clean=safe(text,4000);if(!clean)throw Error('متن پست خالی است.');
+ await updateDoc(doc(db,'socialPosts',id),{text:clean,visibility:visibility(vis),updatedAt:serverTimestamp()});await refresh();return true
+}
+const reportReason=v=>['spam','harassment','hate','sexual','violence','privacy','other'].includes(v)?v:'other';
+async function reportContent(kind,id,reason='other',detail=''){
+ const current=auth?.currentUser;if(!current?.emailVerified||!db)throw Error('برای گزارش وارد حساب تأییدشده شو.');
+ kind=kind==='story'?'story':'post';id=String(id||'');const rows=kind==='story'?state.stories:state.posts,row=rows.find(x=>x.id===id);
+ if(!row)throw Error('این محتوا دیگر در دسترس نیست.');if(row.uid===current.uid)throw Error('محتوای خودت را نمی‌توانی گزارش کنی.');
+ const reportId=current.uid+'__'+kind+'__'+id;
+ await setDoc(doc(db,'contentReports',reportId),{reporter:current.uid,targetUid:String(row.uid),kind,targetId:id,reason:reportReason(reason),detail:safe(detail,500),createdAt:serverTimestamp()});
+ return true
+}
 async function remove(kind,id){
  const current=auth?.currentUser;if(!current?.emailVerified||!db)throw Error('حساب در دسترس نیست.');
  const collectionName=kind==='story'?'socialStories':'socialPosts',rows=kind==='story'?state.stories:state.posts,row=rows.find(x=>x.id===id);if(!row||row.uid!==current.uid)throw Error('فقط محتوای خودت را می‌توانی حذف کنی.');
  if(kind==='post')try{await window.ElaraEngagement?.purge?.('post',id)}catch(error){console.warn('Elara post engagement cleanup:',error)}
  await deleteDoc(doc(db,collectionName,id));await refresh();return true
 }
-window.ElaraPage={state,refresh,createPost,createStory,deletePost:id=>remove('post',id),deleteStory:id=>remove('story',id),person};
+window.ElaraPage={state,refresh,createPost,createStory,editPost,reportContent,deletePost:id=>remove('post',id),deleteStory:id=>remove('story',id),person};
 for(const event of ['elara:account-ready','elara:social-updated'])window.addEventListener(event,()=>{if(auth?.currentUser?.emailVerified)void refresh();else emit()});
 if(auth?.currentUser?.emailVerified)void refresh();else emit();
