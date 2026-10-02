@@ -102,6 +102,12 @@ try{
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_friends_post')));
  await assertFails(getDoc(ref(eve,'socialPosts/alice_friends_post')));
  await assertSucceeds(getDoc(ref(eve,'socialPosts/alice_public_post')));
+ // Page media metadata is tied to the authenticated owner, document id and kind.
+ await assertSucceeds(setDoc(ref(alice,'socialPosts/alice_media_post'),{uid:'alice',text:'',visibility:'friends',mediaPath:'pageMedia/alice/post/alice_media_post/abcdefgh.webp',mediaType:'image/webp',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,'socialPosts/alice_spoof_media'),{uid:'alice',text:'',visibility:'friends',mediaPath:'pageMedia/bob/post/alice_spoof_media/abcdefgh.webp',mediaType:'image/webp',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,'socialPosts/alice_bad_media_kind'),{uid:'alice',text:'',visibility:'friends',mediaPath:'pageMedia/alice/story/alice_bad_media_kind/abcdefgh.webp',mediaType:'image/webp',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,'socialStories/alice_media_story'),{uid:'alice',text:'',visibility:'friends',mediaPath:'pageMedia/alice/story/alice_media_story/abcdefgh.png',mediaType:'image/png',createdAt:serverTimestamp(),expiresAt:nowPlus(3600000)}));
+ await assertFails(setDoc(ref(alice,'socialStories/alice_media_spoof'),{uid:'alice',text:'',visibility:'friends',mediaPath:'pageMedia/alice/post/alice_media_spoof/abcdefgh.png',mediaType:'image/png',createdAt:serverTimestamp(),expiresAt:nowPlus(3600000)}));
  await assertSucceeds(setDoc(ref(bob,'socialPosts/alice_friends_post/likes/bob'),{uid:'bob',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'socialPosts/alice_friends_post/likes/eve'),{uid:'eve',createdAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(bob,'activities/alice_friends_001/comments/bob_comment'),{uid:'bob',text:'دمت گرم 🔥',createdAt:serverTimestamp()}));

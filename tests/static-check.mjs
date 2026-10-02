@@ -106,3 +106,5 @@ assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visible
 assert.ok(socialView.includes('social-streak')&&socialView.includes('Number.isInteger(Number(p.streak))'),'Friends/Ranking must render only real streak values');
 
 const storageRules=readFileSync(new URL('storage.rules',root),'utf8');for(const token of ["match /pageMedia/{uid}/{kind}/{contentId}/{fileName}","image/(jpeg|png|webp)","kind in ['post','story']",'canReadStory','canReadPost'])assert.ok(storageRules.includes(token),'Storage media rules must include '+token);
+
+for(const token of ["'mediaPath','mediaType'","/post/' + postId","/story/' + storyId","mediaType in ['image/jpeg','image/png','image/webp']"])assert.ok(rules.includes(token),'Page media Firestore metadata contract missing '+token);

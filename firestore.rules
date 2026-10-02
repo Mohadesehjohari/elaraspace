@@ -716,18 +716,179 @@ service cloud.firestore {
       );
       allow create: if signed() &&
         request.resource.data.uid == request.auth.uid &&
-        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt']) &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt','mediaPath','mediaType']) &&
         request.resource.data.text is string &&
-        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000 &&
+        request.resource.data.text.size() <= 4000 &&
         request.resource.data.visibility in ['private','friends','public'] &&
+        (
+          (
+            !request.resource.data.keys().hasAny(['mediaPath','mediaType']) &&
+            request.resource.data.text.size() > 0
+          ) ||
+          (
+            request.resource.data.keys().hasAll(['mediaPath','mediaType']) &&
+            request.resource.data.mediaType in ['image/jpeg','image/png','image/webp'] &&
+            request.resource.data.mediaPath is string &&
+            request.resource.data.mediaPath.matches('^pageMedia/' + request.auth.uid + '/post/' + postId + '/[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+
+      match /likes/{likeId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && likeId == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && resource.data.uid == request.auth.uid;
+      }
+      match /comments/{commentId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && (
+          resource.data.uid == request.auth.uid ||
+          get(postPath(postId)).data.uid == request.auth.uid
+        );
+      }
+    }
+
+    match /socialStories/{storyId} {
+      allow get, list: if signed() && (
+        resource.data.uid == request.auth.uid ||
+        (
+          !blockedBetween(request.auth.uid, resource.data.uid) &&
+          resource.data.expiresAt > request.time &&
+          (resource.data.visibility == 'public' || (resource.data.visibility == 'friends' && friendOf(resource.data.uid)))
+        )
+      );
+      allow create: if signed() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','expiresAt','mediaPath','mediaType']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() <= 1000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        (
+          (
+            !request.resource.data.keys().hasAny(['mediaPath','mediaType']) &&
+            request.resource.data.text.size() > 0
+          ) ||
+          (
+            request.resource.data.keys().hasAll(['mediaPath','mediaType']) &&
+            request.resource.data.mediaType in ['image/jpeg','image/png','image/webp'] &&
+            request.resource.data.mediaPath is string &&
+            request.resource.data.mediaPath.matches('^pageMedia/' + request.auth.uid + '/story/' + storyId + '/[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)
+      allow update: if false;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+})
+          )
+        ) &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time;
       allow update: if signed() && resource.data.uid == request.auth.uid &&
         request.resource.data.uid == resource.data.uid &&
-        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt']) &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt','mediaPath','mediaType']) &&
         request.resource.data.text is string &&
-        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000 &&
+        request.resource.data.text.size() <= 4000 &&
         request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.mediaPath == resource.data.mediaPath &&
+        request.resource.data.mediaType == resource.data.mediaType &&
+        (
+          request.resource.data.text.size() > 0 ||
+          request.resource.data.keys().hasAll(['mediaPath','mediaType'])
+        ) &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.updatedAt == request.time;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+
+      match /likes/{likeId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && likeId == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && resource.data.uid == request.auth.uid;
+      }
+      match /comments/{commentId} {
+        allow get, list: if canReadPost(postId);
+        allow create: if canReadPost(postId)
+          && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if signed() && (
+          resource.data.uid == request.auth.uid ||
+          get(postPath(postId)).data.uid == request.auth.uid
+        );
+      }
+    }
+
+    match /socialStories/{storyId} {
+      allow get, list: if signed() && (
+        resource.data.uid == request.auth.uid ||
+        (
+          !blockedBetween(request.auth.uid, resource.data.uid) &&
+          resource.data.expiresAt > request.time &&
+          (resource.data.visibility == 'public' || (resource.data.visibility == 'friends' && friendOf(resource.data.uid)))
+        )
+      );
+      allow create: if signed() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','expiresAt']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.expiresAt > request.time &&
+        request.resource.data.expiresAt <= request.time + duration.value(24, 'h');
+      allow update: if false;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+})
+          )
+        ) &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.expiresAt > request.time &&
+        request.resource.data.expiresAt <= request.time + duration.value(24, 'h');
+      allow update: if false;
+      allow delete: if signed() && resource.data.uid == request.auth.uid;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+})
+          )
+        ) &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+      allow update: if signed() && resource.data.uid == request.auth.uid &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.keys().hasOnly(['uid','text','visibility','createdAt','updatedAt','mediaPath','mediaType']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() <= 4000 &&
+        request.resource.data.visibility in ['private','friends','public'] &&
+        request.resource.data.mediaPath == resource.data.mediaPath &&
+        request.resource.data.mediaType == resource.data.mediaType &&
+        (
+          request.resource.data.text.size() > 0 ||
+          request.resource.data.keys().hasAll(['mediaPath','mediaType'])
+        ) &&
         request.resource.data.createdAt == resource.data.createdAt &&
         request.resource.data.updatedAt == request.time;
       allow delete: if signed() && resource.data.uid == request.auth.uid;
