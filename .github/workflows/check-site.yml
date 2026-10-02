@@ -39,6 +39,12 @@ jobs:
         run: |
           npm install --prefix tests --no-package-lock
           npm test --prefix tests
+      - name: Set up Java 21 for Firebase Emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Firestore Security Rules multi-UID emulator
         run: |
+          java -version
           npx --yes firebase-tools@latest emulators:exec --only firestore --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
