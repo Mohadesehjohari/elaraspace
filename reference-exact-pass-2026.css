@@ -1294,3 +1294,10 @@ body.light #panel-focus .focus-ambience{background:#fff;border-color:#cbd8eb;col
 .pass2-blocked-row>button{min-height:38px;white-space:nowrap}
 body.light .pass2-blocked-list{background:#f8faff!important;border-color:#d5def0!important}
 @media(max-width:520px){.pass2-blocked-row{align-items:stretch;flex-direction:column}.pass2-blocked-row>button{width:100%}}
+
+/* 2026-10-02 Social streak privacy stats. */
+.social-person-stats{display:grid;gap:2px;justify-items:end;align-content:center;min-width:72px;line-height:1.05}
+.social-person-stats>b{font-size:.78rem;white-space:nowrap}
+.social-streak{display:inline-flex;align-items:center;gap:3px;color:#ffb34e;font-size:.7rem;font-weight:800;white-space:nowrap;text-shadow:0 0 12px #ff8a3355}
+.social-podium-place .social-person-stats{justify-items:center;margin-top:5px}.social-podium-place .social-streak{font-size:.74rem}
+@media(max-width:700px){.social-person-stats{min-width:58px}.social-person-stats>b{font-size:.7rem}.social-streak{font-size:.66rem}}

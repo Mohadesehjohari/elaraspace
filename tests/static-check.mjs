@@ -7,6 +7,7 @@ const js = readFileSync(new URL('app.js',root),'utf8');
 const css = readFileSync(new URL('styles.css',root),'utf8');
 const phase2 = readFileSync(new URL('phase2.js',root),'utf8');
 const social = readFileSync(new URL('elara-social.js',root),'utf8');
+const socialView = readFileSync(new URL('social-view.js',root),'utf8');
 const design = readFileSync(new URL('elara-design.js',root),'utf8');
 const rules = readFileSync(new URL('firestore.rules',root),'utf8');
 const drawer = readFileSync(new URL('drawer.js',root),'utf8');
@@ -98,3 +99,7 @@ for(const token of ['ElaraSocial.clubs=','createClub','setClubAssistant','create
 console.log(`Static check passed: ${ids.size} HTML ids, base panels, canonical seven-route navigation, local assets, phase 2 recurrence/focus module and selector references.`);
 
 const taskBulkSource=readFileSync(new URL('task-bulk-reorder.js',root),'utf8');for(const token of ['data-task-bulk','data-task-drag','persistDomOrder','bulkDuplicate','bulkMove','pointerdown','ArrowUp'])assert.ok(taskBulkSource.includes(token),'Task bulk/reorder missing '+token);
+
+assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
+assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
+assert.ok(socialView.includes('social-streak')&&socialView.includes('Number.isInteger(Number(p.streak))'),'Friends/Ranking must render only real streak values');

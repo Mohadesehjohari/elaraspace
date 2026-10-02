@@ -6,14 +6,33 @@ const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElement
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 const state={me:null,friends:[],requests:[],activities:[],blocked:[],error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
-let uid=null,baseline=null,busy=false,rerun=false,generation=0;
+let uid=null,baseline=null,busy=false,rerun=false,generation=0,lastSocialStats='';
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 function avatar(name){return `<span class="elara-social-avatar" aria-hidden="true">${esc((name||'E').trim().slice(0,1).toUpperCase())}</span>`}
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
 function inform(value){state.error=value;window.dispatchEvent(new Event('elara:social-updated'))}
 function socialError(context,error){console.error('Elara social '+context+':',error);if(error?.code==='permission-denied')return 'اجازهٔ انجام این عملیات در Firestore داده نشد. Rules منتشرشده را بررسی کن.';return error?.message||String(error)||'خطای نامشخص اجتماعی'}
 function relationWith(other){return state.requests.find(r=>r.other===other&&r.status!=='declined')||null}
-async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;state.me={uid:user.uid,...result.data()};uid=user.uid;return true}
+function localStreak(){
+ let data={};try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{}
+ const dates=new Set(),iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ for(const row of Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[])if(row?.date)dates.add(row.date);
+ for(const habit of Array.isArray(data.habits)?data.habits:[])for(const day of Array.isArray(habit?.days)?habit.days:[])dates.add(day);
+ const d=new Date();d.setHours(12,0,0,0);if(!dates.has(iso(d)))d.setDate(d.getDate()-1);let n=0;
+ while(n<36500&&dates.has(iso(d))){n++;d.setDate(d.getDate()-1)}return n
+}
+async function syncSocialStats(){
+ if(!uid||!auth.currentUser?.emailVerified)return false;
+ const streak=localStreak(),visibility=activityVisibility(uid,'streak'),payloadKey=streak+'|'+visibility;
+ if(state.me)state.me.streak=streak;
+ if(payloadKey===lastSocialStats)return true;
+ try{await setDoc(doc(db,'socialStats',uid),{streak,visibility,updatedAt:serverTimestamp()});lastSocialStats=payloadKey;return true}
+ catch(error){console.warn('Social streak sync unavailable:',error.code||error.message);return false}
+}
+async function visibleSocialStats(other){
+ try{const snap=await getDoc(doc(db,'socialStats',String(other)));if(!snap.exists())return null;const d=snap.data()||{},n=Number(d.streak);return Number.isInteger(n)&&n>=0&&n<=36500?{streak:n,visibility:d.visibility||'private'}:null}catch(error){if(error?.code!=='permission-denied')console.warn('Social stats unavailable:',other,error.code||error.message);return null}
+}
+async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;busy=true;const mine=uid,gen=++generation;try{
  const [incoming,outgoing,blockedSnaps]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
@@ -26,6 +45,8 @@ async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;
  const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;if(blockedIds.has(other))continue;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
  if(auth.currentUser?.uid!==mine)return;
  state.requests=enriched;state.friends=enriched.filter(r=>r.status==='accepted').map(r=>r.person).filter((p,i,a)=>a.findIndex(v=>v.uid===p.uid)===i);
+ await syncSocialStats();
+ state.friends=await Promise.all(state.friends.map(async person=>{const stats=await visibleSocialStats(person.uid);return stats?{...person,...stats}:person}));
  const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
  if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';if(gen===generation)render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}finally{busy=false;if(rerun){rerun=false;void refresh()}}}
@@ -392,7 +413,9 @@ async function publish(type,detail={}){
 }
 window.ElaraSocial.publishActivity=publish;window.ElaraSocial.activityVisibility=activityVisibility;
 function changed(){if(!uid||!state.me)return;let now;try{now=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return}if(!baseline){baseline=now;return}const day=new Date(),date=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`,beforeTasks=new Map((baseline.tasks||[]).map(x=>[x.id,x]));for(const task of now.tasks||[]){const before=beforeTasks.get(task.id);const completedNow=task.recurrenceRule?(task.occurrenceDone||[]).includes(date):task.completed;const completedBefore=task.recurrenceRule?(before?.occurrenceDone||[]).includes(date):before?.completed;if(completedNow&&!completedBefore)void publish('task')}const beforeHabits=new Map((baseline.habits||[]).map(x=>[x.id,x]));for(const habit of now.habits||[])if((habit.days||[]).includes(date)&&!(beforeHabits.get(habit.id)?.days||[]).includes(date))void publish('habit');baseline=now}
-window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};setTimeout(refresh,500)});window.addEventListener('elara:data-changed',changed);
+window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};lastSocialStats='';setTimeout(refresh,500)});
+window.addEventListener('elara:data-changed',()=>{changed();void syncSocialStats().then(()=>window.ElaraSocialView?.render?.())});
+window.addEventListener('elara:privacy-local-changed',e=>{if(!e.detail?.category||e.detail.category==='streak'){lastSocialStats='';void syncSocialStats().then(()=>refresh())}});
 document.addEventListener('click',async e=>{
  const open=e.target.closest('[data-open-profile]');if(open?.dataset.openProfile){try{await openProfile(open.dataset.openProfile)}catch(error){inform(error.message||String(error))}return}
  if(e.target.closest('[data-profile-lookup]')){try{await openProfileByUsername($('elara-add-friend-name')?.value)}catch(error){inform(error.message||String(error))}return}

@@ -152,6 +152,25 @@ service cloud.firestore {
         && getAfter(p(request.auth.uid)).data.username != username;
     }
 
+    match /socialStats/{uid} {
+      allow get: if mine(uid) || isAdmin() || (
+        signed() && !blockedBetween(request.auth.uid, uid) && (
+          resource.data.visibility == 'public' ||
+          (resource.data.visibility == 'friends' && friendOf(uid))
+        )
+      );
+      allow list: if false;
+      allow create, update: if mine(uid)
+        && request.resource.data.keys().hasOnly(['streak','visibility','updatedAt'])
+        && request.resource.data.keys().hasAll(['streak','visibility','updatedAt'])
+        && request.resource.data.streak is int
+        && request.resource.data.streak >= 0
+        && request.resource.data.streak <= 36500
+        && request.resource.data.visibility in ['private','friends','public']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if mine(uid);
+    }
+
     match /profiles/{uid} {
       allow get: if mine(uid) || isAdmin() || (
         signed() && !blockedBetween(request.auth.uid, uid) && (

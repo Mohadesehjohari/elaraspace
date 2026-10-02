@@ -47,6 +47,18 @@ try{
  await assertFails(setDoc(ref(alice,'activities/alice_create_private_001'),{uid:'alice',type:'task',eventKey:'alice_create_private_001',visibility:'private',category:'task',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'activities/spoof_alice_001'),{uid:'alice',type:'task',eventKey:'spoof_alice_001',visibility:'public',category:'task',createdAt:serverTimestamp()}));
 
+ // Social streak stats are isolated from profiles and respect independent visibility.
+ await assertSucceeds(setDoc(ref(alice,'socialStats/alice'),{streak:12,visibility:'private',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,'socialStats/alice')));
+ await assertFails(getDoc(ref(bob,'socialStats/alice')));
+ await assertSucceeds(updateDoc(ref(alice,'socialStats/alice'),{visibility:'friends',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,'socialStats/alice')));
+ await assertFails(getDoc(ref(eve,'socialStats/alice')));
+ await assertSucceeds(updateDoc(ref(alice,'socialStats/alice'),{visibility:'public',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,'socialStats/alice')));
+ await assertFails(setDoc(ref(eve,'socialStats/alice'),{streak:999,visibility:'public',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,'socialStats/alice'),{streak:40000,updatedAt:serverTimestamp()}));
+
  // Friend request: sender can create pending, only recipient can accept.
  await assertSucceeds(setDoc(ref(eve,'friendRequests/eve_dave'),{from:'eve',to:'dave',status:'pending'}));
  await assertFails(updateDoc(ref(eve,'friendRequests/eve_dave'),{status:'accepted'}));
@@ -99,6 +111,7 @@ try{
  await assertSucceeds(getDoc(ref(alice,'blocks/alice__bob')));
  await assertFails(getDoc(ref(bob,'blocks/alice__bob')));
  await assertFails(getDoc(ref(bob,'profiles/alice')));
+ await assertFails(getDoc(ref(bob,'socialStats/alice')));
  await assertFails(getDoc(ref(bob,'activities/alice_public_001')));
  await assertFails(getDoc(ref(bob,'socialPosts/alice_public_post')));
  await assertFails(setDoc(ref(bob,convo+'/messages/blocked_message'),{sender:'bob',text:'blocked DM',createdAt:serverTimestamp()}));
@@ -108,7 +121,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile activity friend-request dm group club challenge page engagement block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club challenge page engagement block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }
