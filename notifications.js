@@ -34,7 +34,7 @@ function render(){
 let launcher=null;
 function open(button){launcher=button||document.getElementById('ref-header-notifications');const host=root();render();window.ElaraOverlayStack?.next?.(host);host.classList.remove('hidden');document.body.classList.add('elara-notifications-open');host.querySelector('.elara-notification-window [data-notification-close]')?.focus({preventScroll:true})}
 function close(){const host=document.getElementById('elara-notification-popover');if(!host)return;host.classList.add('hidden');document.body.classList.remove('elara-notifications-open');launcher?.focus?.({preventScroll:true});launcher=null}
-function syncBadge(){const n=unreadCount();document.querySelectorAll('#ref-header-notifications,[data-notification-bell]').forEach(b=>{b.dataset.unreadCount=String(n);b.setAttribute('aria-label',n?`اعلان‌ها، ${n} خوانده‌نشده`:'اعلان‌ها')})}
+function syncBadge(){const n=unreadCount();document.querySelectorAll('#ref-header-notifications,[data-notification-bell]').forEach(b=>{b.dataset.unreadCount=String(n);b.setAttribute('aria-label',n?`اعلان‌ها، ${n} خوانده‌نشده`:'اعلان‌ها');const img=b.querySelector('.ref-notification-art'),src=n>0?'assets/ui/icon-notifications-unread.webp':'assets/ui/icon-notifications-read.webp';if(img&&img.getAttribute('src')!==src)img.setAttribute('src',src)})}
 function notificationFocusables(){
  const host=document.getElementById('elara-notification-popover');if(!host||host.classList.contains('hidden'))return[];
  return [...host.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null)
