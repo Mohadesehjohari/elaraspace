@@ -36,6 +36,7 @@ on:
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/domain-events-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
+      - 'tests/entity-bulk-browser.mjs'
       - 'tests/task-collections-browser.mjs'
       - 'task-bulk-reorder.js'
       - 'entity-reorder.js'
@@ -127,6 +128,7 @@ jobs:
           node --check tests/focus-ambience-browser.mjs
           node --check tests/domain-events-browser.mjs
           node --check tests/entity-reorder-browser.mjs
+          node --check tests/entity-bulk-browser.mjs
           node --check tests/task-collections-browser.mjs
           node --check tests/library-stage4-browser.mjs
           node --check tests/friends-dm-ui-browser.mjs
@@ -171,6 +173,8 @@ jobs:
         run: timeout 90s node tests/domain-events-browser.mjs
       - name: Verify Habit and Goal reorder Stage 13
         run: timeout 90s node tests/entity-reorder-browser.mjs
+      - name: Verify Habit and Goal bulk selection
+        run: timeout 90s node tests/entity-bulk-browser.mjs
       - name: Verify independent Task collection pages Stage 14
         run: timeout 90s node tests/task-collections-browser.mjs
       - uses: actions/upload-artifact@v4

@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium} from 'playwright';
+const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';await mkdir('browser-artifacts',{recursive:true});const browser=await chromium.launch({headless:true});
+const cloudStub="window.ElaraAccount={user:null,profile:{name:'Bulk QA',username:'bulk_qa',xp:20,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
+const socialStub="window.ElaraSocial={me:null,friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true,groups:{list:async()=>[]},dm:{list:async()=>[]}};window.dispatchEvent(new Event('elara:social-updated'));";
+function seed(){const day=new Date().toISOString().slice(0,10);localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:20,theme:'dark',tasks:[],books:[],words:[],folders:[],tags:[],taskLists:[],taskCompletionHistory:[],missionRewardClaims:[],habits:[{id:'h1',title:'مطالعه فارسی',days:[day],rewardDays:[day]},{id:'h2',title:'آب خوردن',days:[],rewardDays:[]}],goals:[{id:'g1',title:'هدف فارسی',horizon:'short',steps:[{id:'s1',text:'قدم فارسی',done:true}]},{id:'g2',title:'هدف دوم',horizon:'medium',steps:[]}]}));localStorage.setItem('elara_locale_v1','fa')}
+async function open(width,height,touch=false){const ctx=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch});const page=await ctx.newPage();await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));await page.addInitScript(seed);await page.goto(base+'/?entity-bulk='+Date.now()+'#habits',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ElaraEntityBulk&&window.ElaraEntityReorder&&!document.documentElement.hasAttribute('data-elara-booting'));await page.evaluate(()=>window.ElaraOpen?.('habits'));await page.waitForSelector('#habit-list [data-entity-kind="habit"]');return{page,ctx}}
+{
+ const {page,ctx}=await open(1440,1000,false);const target=page.locator('[data-entity-kind="habit"][data-entity-id="h1"] .item-content'),box=await target.boundingBox();assert.ok(box);
+ await page.mouse.move(box.x+20,box.y+20);await page.mouse.down();await page.waitForTimeout(650);await page.mouse.up();
+ await page.waitForFunction(()=>document.getElementById('panel-habits')?.classList.contains('entity-selection-mode'));assert.equal(await page.locator('[data-entity-kind="habit"][data-entity-id="h1"]').getAttribute('aria-selected'),'true');
+ await page.locator('#entity-bulk-toolbar-habit [data-entity-bulk="all"]').click();assert.equal(await page.evaluate(()=>window.ElaraEntityBulk.selected.habit.size),2,'habit select all failed');
+ await page.locator('#entity-bulk-toolbar-habit [data-entity-bulk="duplicate"]').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).habits.length===4);
+ let s=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1'))),copy=s.habits.find(x=>x.title.includes('مطالعه فارسی')&&x.id!=='h1');assert.ok(copy,'habit copy missing');assert.deepEqual(copy.days,[]);assert.deepEqual(copy.rewardDays,[]);
+ await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(100);assert.match(await page.locator('[data-entity-kind="habit"][data-entity-id="h1"] .item-title').innerText(),/مطالعه فارسی/,'habit UGC translated unexpectedly');
+ await page.evaluate(()=>window.ElaraEntityBulk.enter('habit','h1'));assert.match(await page.locator('#entity-bulk-toolbar-habit').innerText(),/Select all|Duplicate|Delete/,'bulk toolbar did not localize');window;
+ await page.evaluate(()=>window.ElaraI18n.set('fa'));await page.evaluate(()=>window.ElaraOpen?.('goals'));await page.waitForSelector('#goal-list [data-entity-kind="goal"]');
+ await page.evaluate(()=>window.ElaraEntityBulk.enter('goal','g1'));await page.locator('#entity-bulk-toolbar-goal [data-entity-bulk="duplicate"]').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).goals.length===3);
+ s=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));const gcopy=s.goals.find(x=>x.title.includes('هدف فارسی')&&x.id!=='g1');assert.ok(gcopy);assert.equal(gcopy.steps[0].done,false,'goal copy must reset progress');
+ await page.evaluate(()=>window.ElaraEntityBulk.enter('goal'));await page.locator('#entity-bulk-toolbar-goal [data-entity-bulk="all"]').click();await page.locator('#entity-bulk-toolbar-goal [data-entity-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');await page.locator('.elara-dialog-actions .elara-dialog-danger').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).goals.length===0);
+ await page.screenshot({path:'browser-artifacts/entity-bulk-1440.png',fullPage:true});await ctx.close()
+}
+{
+ const {page,ctx}=await open(390,844,true);await page.evaluate(()=>window.ElaraOpen?.('goals'));await page.waitForSelector('[data-entity-kind="goal"][data-entity-id="g1"]');const target=page.locator('[data-entity-kind="goal"][data-entity-id="g1"] .item-content').first(),box=await target.boundingBox();assert.ok(box);
+ await target.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:71,isPrimary:true,clientX:box.x+20,clientY:box.y+20});await page.waitForTimeout(650);await target.dispatchEvent('pointerup',{pointerType:'touch',pointerId:71,isPrimary:true,clientX:box.x+20,clientY:box.y+20});
+ await page.waitForFunction(()=>document.getElementById('panel-goals')?.classList.contains('entity-selection-mode'));assert.equal(await page.locator('[data-entity-kind="goal"][data-entity-id="g1"]').getAttribute('aria-selected'),'true','mobile longpress goal selection failed');
+ await page.locator('#entity-bulk-toolbar-goal [data-entity-bulk="all"]').click();assert.equal(await page.evaluate(()=>window.ElaraEntityBulk.selected.goal.size),2);
+ await page.locator('#entity-bulk-toolbar-goal [data-entity-bulk="cancel"]').click();assert.equal(await page.locator('#entity-bulk-toolbar-goal').isHidden(),true);
+ const m=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(m.sw<=m.w+1,'entity bulk mobile overflow '+JSON.stringify(m));await page.screenshot({path:'browser-artifacts/entity-bulk-390.png',fullPage:true});await ctx.close()
+}
+await browser.close();console.log('ENTITY_BULK_PASS habit+goal longpress select-all duplicate-reset delete i18n 390/1440');
