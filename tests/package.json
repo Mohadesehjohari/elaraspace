@@ -2,9 +2,12 @@
   "name": "elara-astra-local-tests",
   "private": true,
   "scripts": {
-    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs"
+    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs",
+    "rules:test": "node firestore-rules-emulator.mjs"
   },
   "devDependencies": {
-    "jsdom": "30.1.1"
+    "jsdom": "30.1.1",
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.19.0"
   }
 }

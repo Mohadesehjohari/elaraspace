@@ -2,7 +2,7 @@ name: Validate Elara site
 on:
   push:
     branches: [main]
-    paths: ['*.html', '*.css', '*.js', '*.php', '.htaccess', '.cpanel.yml', 'assets/**', 'admin/**', 'deploy/**', 'tests/**']
+    paths: ['*.html', '*.css', '*.js', '*.php', '.htaccess', '.cpanel.yml', 'firestore.rules', 'firebase.json', 'assets/**', 'admin/**', 'deploy/**', 'tests/**']
 permissions:
   contents: read
 jobs:
@@ -39,3 +39,6 @@ jobs:
         run: |
           npm install --prefix tests --no-package-lock
           npm test --prefix tests
+      - name: Firestore Security Rules multi-UID emulator
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
