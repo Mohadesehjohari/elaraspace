@@ -1,61 +1,92 @@
 (()=>{'use strict';
-const KEY='elara_space_v1',PREF='elara_focus_ambience_v1',$=s=>document.querySelector(s);
+const KEY='elara_focus_ambience_v1';
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
-let ctx=null,nodes=[],pulseTimer=null,selected='spring',enabled=false;
-function readState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return{}}}
-function readPref(){try{return {mode:'spring',enabled:false,...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return{mode:'spring',enabled:false}}}
-function savePref(){localStorage.setItem(PREF,JSON.stringify({mode:selected,enabled}))}
-function stopAudio(){clearInterval(pulseTimer);pulseTimer=null;for(const n of nodes.splice(0)){try{n.stop?.()}catch{}try{n.disconnect?.()}catch{}}}
-function ensureCtx(){if(ctx)return ctx;const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ctx=new A();return ctx}
-function gain(value=.035){const c=ensureCtx(),g=c?.createGain();if(g)g.gain.value=value;return g}
-function startNoise(kind){
- const c=ensureCtx();if(!c)return;const seconds=2,buf=c.createBuffer(1,c.sampleRate*seconds,c.sampleRate),data=buf.getChannelData(0);
- for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(kind==='rain'?.55:.25);
- const src=c.createBufferSource();src.buffer=buf;src.loop=true;const filter=c.createBiquadFilter(),g=gain(kind==='rain'?.028:.022);
- filter.type=kind==='rain'?'highpass':'lowpass';filter.frequency.value=kind==='rain'?1600:520;src.connect(filter).connect(g).connect(c.destination);src.start();nodes.push(src,filter,g)
+let ctx=null,master=null,nodes=[],chirpTimer=null,playing=false;
+function read(){try{return{mode:'quiet',volume:28,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return{mode:'quiet',volume:28}}}
+function write(patch){const next={...read(),...patch};localStorage.setItem(KEY,JSON.stringify(next));return next}
+function stopAudio(){
+ clearInterval(chirpTimer);chirpTimer=null;
+ for(const n of nodes){try{n.stop?.()}catch{}try{n.disconnect?.()}catch{}}
+ nodes=[];try{master?.disconnect?.()}catch{}master=null;playing=false;syncState()
 }
-function chime(){
- const c=ensureCtx();if(!c||!enabled)return;const notes=[261.63,329.63,392,523.25],o=c.createOscillator(),g=c.createGain(),now=c.currentTime;
- o.type='sine';o.frequency.value=notes[Math.floor(Math.random()*notes.length)];g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.035,now+.05);g.gain.exponentialRampToValueAtTime(.0001,now+1.8);o.connect(g).connect(c.destination);o.start(now);o.stop(now+1.9);nodes.push(o,g);setTimeout(()=>{nodes=nodes.filter(x=>x!==o&&x!==g)},2100)
+function ensureContext(){
+ const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error(t('مرورگر این دستگاه صدای محیطی را پشتیبانی نمی‌کند.','This browser does not support ambient audio.'));
+ if(!ctx||ctx.state==='closed')ctx=new Audio();return ctx
+}
+function gainValue(){return Math.max(0,Math.min(1,Number(read().volume||0)/100))*0.16}
+function noiseBuffer(c,seconds=4){
+ const len=Math.max(1,Math.floor(c.sampleRate*seconds)),buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
+ let last=0;for(let i=0;i<len;i++){const white=Math.random()*2-1;last=(last+0.025*white)/1.025;d[i]=last*3.2}return buf
+}
+function addNoise(c,{low=6500,high=120,level=.8}={}){
+ const src=c.createBufferSource();src.buffer=noiseBuffer(c);src.loop=true;
+ const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=high;
+ const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=low;
+ const g=c.createGain();g.gain.value=level;src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(master);src.start();nodes.push(src,hp,lp,g)
+}
+function addTone(c,freq,level=.18,type='sine'){
+ const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.value=level;o.connect(g);g.connect(master);o.start();nodes.push(o,g)
+}
+function chirp(c){
+ if(!playing||read().mode!=='forest')return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type='sine';o.frequency.setValueAtTime(1100+Math.random()*500,now);o.frequency.exponentialRampToValueAtTime(1800+Math.random()*700,now+.14);g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(.06,now+.025);g.gain.exponentialRampToValueAtTime(.0001,now+.22);o.connect(g);g.connect(master);o.start(now);o.stop(now+.24)
 }
 async function startAudio(){
- const c=ensureCtx();if(!c)return false;await c.resume().catch(()=>{});stopAudio();
- if(selected==='spring'){chime();pulseTimer=setInterval(chime,3600)}
- else if(selected==='rain')startNoise('rain');
- else if(selected==='night'){startNoise('night');pulseTimer=setInterval(chime,6500)}
- return true
+ const cfg=read();if(cfg.mode==='quiet'){stopAudio();return}
+ const c=ensureContext();if(c.state==='suspended')await c.resume();stopAudio();master=c.createGain();master.gain.value=gainValue();master.connect(c.destination);
+ if(cfg.mode==='rain'){addNoise(c,{low:7200,high:500,level:.95});addNoise(c,{low:2600,high:80,level:.35})}
+ else if(cfg.mode==='forest'){addNoise(c,{low:1800,high:70,level:.28});chirp(c);chirpTimer=setInterval(()=>chirp(c),2800)}
+ else if(cfg.mode==='tone'){addTone(c,174.61,.18,'sine');addTone(c,261.63,.11,'sine');addTone(c,349.23,.06,'triangle')}
+ playing=true;syncState()
 }
-function activeRunning(){return readState().activeFocus?.status==='running'}
-async function syncAudio(fromGesture=false){
- if(!enabled||!activeRunning()){stopAudio();renderControls();return}
- if(ctx?.state==='running'){if(!nodes.length)await startAudio();renderControls();return}
- if(fromGesture){await startAudio();renderControls()}
+function syncVolume(){if(master)master.gain.value=gainValue()}
+function syncState(){
+ const root=document.getElementById('focus-ambience');if(!root)return;const cfg=read();
+ root.dataset.mode=cfg.mode;root.dataset.playing=String(playing);
+ root.querySelectorAll('[data-ambience-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ambienceMode===cfg.mode)));
+ const play=root.querySelector('[data-ambience-play]');if(play){play.setAttribute('aria-pressed',String(playing));play.textContent=playing?t('توقف صدا','Stop sound'):t('پخش صدا','Play sound')}
+ const vol=root.querySelector('[data-ambience-volume]');if(vol&&document.activeElement!==vol)vol.value=String(cfg.volume);
+ const label=root.querySelector('[data-ambience-now]');if(label){const names={quiet:t('ساکت','Quiet'),rain:t('باران','Rain'),forest:t('جنگل','Forest'),tone:t('Focus Tone','Focus Tone')};label.textContent=names[cfg.mode]||names.quiet}
 }
-function gardenStats(){const sessions=(readState().focusSessions||[]).filter(x=>x?.completed);return{count:sessions.length,minutes:sessions.reduce((n,x)=>n+Math.max(0,Number(x.durationMin)||0),0)}}
-function gardenMarkup(){
- const {count,minutes}=gardenStats(),stage=Math.min(5,Math.floor(count/3)),flowers=Math.min(14,count);
- return '<div class="focus-garden-scene" data-stage="'+stage+'" role="img" aria-label="'+t('باغ تمرکز؛ '+count+' جلسه کامل','Focus garden; '+count+' completed sessions')+'"><div class="focus-sky"><i></i><i></i><i></i></div><div class="focus-tree"><span class="trunk"></span><span class="crown c1"></span><span class="crown c2"></span><span class="crown c3"></span></div><div class="focus-ground">'+Array.from({length:flowers},(_,i)=>'<span class="focus-flower f'+(i%5)+'" style="--i:'+i+'"><b></b></span>').join('')+'</div><div class="focus-garden-meta"><strong>'+count.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+' '+t('جلسه','sessions')+'</strong><small>'+minutes.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+' '+t('دقیقه تمرکز','focus minutes')+'</small></div></div>'
+function markup(){
+ const cfg=read();
+ return `<section id="focus-ambience" class="focus-ambience surface" data-elara-i18n="off" data-mode="${cfg.mode}">
+  <div class="focus-garden" aria-hidden="true">
+   <span class="focus-sun"></span><span class="focus-cloud c1"></span><span class="focus-cloud c2"></span>
+   <span class="focus-tree"><i class="trunk"></i><i class="crown crown-a"></i><i class="crown crown-b"></i><i class="crown crown-c"></i></span>
+   <span class="focus-hill hill-a"></span><span class="focus-hill hill-b"></span>
+   <span class="flower f1">✿</span><span class="flower f2">✿</span><span class="flower f3">✿</span><span class="flower f4">✿</span><span class="flower f5">✿</span>
+   <span class="focus-butterfly">⌁</span>
+  </div>
+  <div class="focus-ambience-copy"><small>FOCUS AMBIENCE</small><h2>${t('فضای آرام پومودورو','Pomodoro ambience')}</h2><p>${t('برای تمرکز، یک صدای خیلی ملایم و منظرهٔ بهاری انتخاب کن.','Choose a gentle soundscape and a spring scene for focus.')}</p></div>
+  <div class="focus-ambience-modes" role="group" aria-label="${t('انتخاب صدای محیطی','Choose ambience')}">
+   <button type="button" data-ambience-mode="quiet">🤫 <span>${t('ساکت','Quiet')}</span></button>
+   <button type="button" data-ambience-mode="rain">🌧️ <span>${t('باران','Rain')}</span></button>
+   <button type="button" data-ambience-mode="forest">🌿 <span>${t('جنگل','Forest')}</span></button>
+   <button type="button" data-ambience-mode="tone">🎧 <span>Focus Tone</span></button>
+  </div>
+  <div class="focus-ambience-controls">
+   <button type="button" class="primary-button" data-ambience-play aria-pressed="false">${t('پخش صدا','Play sound')}</button>
+   <label>${t('صدا','Volume')} <input data-ambience-volume type="range" min="0" max="100" step="1" value="${cfg.volume}"></label>
+   <span>${t('اکنون:','Now:')} <strong data-ambience-now></strong></span>
+  </div>
+  <p class="focus-ambience-note">${t('صدا فقط بعد از لمس/کلیک شما فعال می‌شود و چیزی به سرور ارسال نمی‌شود.','Audio starts only after your click/tap and nothing is sent to a server.')}</p>
+ </section>`
 }
-function ensure(){
- const card=document.querySelector('#panel-focus .focus-card');if(!card)return false;
- let host=card.querySelector('.focus-ambience');if(!host){host=document.createElement('section');host.className='focus-ambience';host.dataset.elaraI18n='off';card.append(host)}
- return true
+function mount(){
+ const panel=document.getElementById('panel-focus'),card=panel?.querySelector('.focus-card');if(!panel||!card)return false;
+ let root=document.getElementById('focus-ambience');
+ if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;const history=panel.querySelector('.focus-history-card');history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}
+ syncState();return true
 }
-function renderControls(){
- if(!ensure())return;const host=document.querySelector('#panel-focus .focus-ambience'),running=activeRunning();
- host.innerHTML='<div class="focus-ambience-head"><div><small>ELARA · FOCUS GARDEN</small><strong>'+t('فضای آرام تمرکز','Focus ambience')+'</strong><span>'+t('هر جلسهٔ کامل باغت را کمی بزرگ‌تر می‌کند.','Every completed session grows your garden a little.')+'</span></div><button type="button" data-focus-sound-toggle aria-pressed="'+enabled+'" title="'+t('روشن/خاموش کردن صدا','Toggle ambience audio')+'">'+(enabled?'🔊':'🔇')+'</button></div><div class="focus-ambience-modes">'+[['spring','🌸',t('بهار آرام','Soft spring')],['rain','🌧️',t('باران','Rain')],['night','🌙',t('شب آرام','Night')]].map(([id,icon,label])=>'<button type="button" data-focus-ambience-mode="'+id+'" aria-pressed="'+(selected===id)+'"><span>'+icon+'</span><b>'+label+'</b></button>').join('')+'</div>'+gardenMarkup()+'<p class="focus-audio-note">'+(enabled?(running?t('صدا همراه جلسهٔ فعلی پخش می‌شود.','Audio follows the active focus session.'):t('صدا آماده است؛ با شروع Focus پخش می‌شود.','Audio is ready and will play when Focus starts.')):t('صدا خاموش است؛ باغ همچنان با Sessionهای واقعی رشد می‌کند.','Audio is off; the garden still grows from real sessions.'))+'</p>'
-}
-async function toggleSound(){
- enabled=!enabled;savePref();if(enabled){ensureCtx();await syncAudio(true)}else{stopAudio();renderControls()}
-}
-async function choose(mode){if(!['spring','rain','night'].includes(mode))return;selected=mode;savePref();if(enabled&&activeRunning())await startAudio();renderControls()}
-document.addEventListener('click',e=>{const toggle=e.target.closest('[data-focus-sound-toggle]');if(toggle){e.preventDefault();void toggleSound();return}const mode=e.target.closest('[data-focus-ambience-mode]');if(mode){e.preventDefault();void choose(mode.dataset.focusAmbienceMode)}});
-window.addEventListener('elara:data-changed',()=>{renderControls();void syncAudio(false)});
-window.addEventListener('elara:hydrate',()=>setTimeout(()=>{renderControls();void syncAudio(false)},60));
-window.addEventListener('elara:locale-changed',renderControls);
-window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus')setTimeout(renderControls,80)});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&ctx?.state==='running')ctx.suspend().catch(()=>{});else if(!document.hidden&&enabled&&activeRunning()&&ctx)ctx.resume().catch(()=>{})});
-const p=readPref();selected=['spring','rain','night'].includes(p.mode)?p.mode:'spring';enabled=!!p.enabled;
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(renderControls,160),{once:true});else setTimeout(renderControls,80);
-window.ElaraFocusAmbience={render:renderControls,toggle:toggleSound,choose,stats:gardenStats,get state(){return{selected,enabled,running:activeRunning()}}};
+document.addEventListener('click',e=>{
+ const mode=e.target.closest('[data-ambience-mode]');if(mode){const cfg=write({mode:mode.dataset.ambienceMode});if(playing){void startAudio()}else syncState();return}
+ const play=e.target.closest('[data-ambience-play]');if(play){if(playing)stopAudio();else void startAudio().catch(err=>{const note=document.querySelector('.focus-ambience-note');if(note)note.textContent=err.message});return}
+});
+document.addEventListener('input',e=>{if(!e.target.matches('[data-ambience-volume]'))return;write({volume:Number(e.target.value)});syncVolume();syncState()});
+window.addEventListener('elara:locale-changed',()=>{document.getElementById('focus-ambience')?.remove();setTimeout(mount,0)});
+window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus')setTimeout(mount,40)});
+window.addEventListener('hashchange',()=>{if(location.hash==='#focus')setTimeout(mount,40)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing&&ctx?.state==='running')void ctx.suspend();else if(!document.hidden&&playing&&ctx?.state==='suspended')void ctx.resume()});
+const start=()=>{if(!mount())setTimeout(start,100)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+window.ElaraFocusAmbience={read,start:startAudio,stop:stopAudio,mount,get playing(){return playing}};
 })();
