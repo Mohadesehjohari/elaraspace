@@ -10,7 +10,7 @@ const socialStub="window.ElaraSocial={me:null,friends:[],requests:[],activities:
 const pageStub="window.ElaraPage={state:{posts:[],stories:[],loading:false,error:''},refresh:async()=>window.ElaraPage.state};window.dispatchEvent(new Event('elara:page-updated'));";
 const engagementStub="window.ElaraEngagement={load:async()=>({likes:0,liked:false,comments:[],commentCount:0})};window.dispatchEvent(new Event('elara:engagement-ready'));";
 function seed(){
- const day=today();localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:20,theme:'dark',taskLists:['بعداً'],folders:['آرشیو'],tags:[],linkedTaskDismissals:[],taskCompletionHistory:[],habits:[],goals:[],words:[],books:[{id:'book-source',title:'کتاب منبع',shelf:'reading',totalPages:100,currentPage:10,readingLogs:[]}],tasks:[
+ const d=new Date(),day=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:20,theme:'dark',taskLists:['بعداً'],folders:['آرشیو'],tags:[],linkedTaskDismissals:[],taskCompletionHistory:[],habits:[],goals:[],words:[],books:[{id:'book-source',title:'کتاب منبع',shelf:'reading',totalPages:100,currentPage:10,readingLogs:[]}],tasks:[
   {id:'t1',text:'تسک یک',date:day,priority:'4',completed:false,createdAt:1},
   {id:'t2',text:'تسک دو',date:day,priority:'4',completed:false,createdAt:2},
   {id:'t3',text:'تسک سه',date:day,priority:'4',completed:false,createdAt:3},
