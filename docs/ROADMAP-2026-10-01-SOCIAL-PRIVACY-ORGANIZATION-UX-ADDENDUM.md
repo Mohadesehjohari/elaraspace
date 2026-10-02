@@ -643,3 +643,32 @@ Desktop:
 
 ## T — Gate
 Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/block + two-UID test نباید DONE اعلام شوند.
+
+---
+## U — Implementation ledger — 2026-10-02
+
+> وضعیت‌ها در این بخش بر اساس وجود کد و تست repo هستند. `REPO-VERIFIED` به معنی Publish شدن Firestore Rules یا Storage در پروژهٔ Firebase production نیست.
+
+- **PRIVACY-GRANULAR-03 — IMPLEMENTED / REPO-VERIFIED:** visibility جدا برای Task/Habit/Goal/Mission/Reading/Language/Exercise/Streak/Ranking؛ Home Wellness برای صاحب حساب حذف نمی‌شود.
+- **TASK-COMPLETED-03 — IMPLEMENTED / REPO-VERIFIED:** completed پایین لیست، strike اختیاری، edit/delete برای linked task بدون dead-end، bulk selection و reorder.
+- **I18N-UGC-03 — IMPLEMENTED / REPO-VERIFIED:** UGC با `data-elara-ugc` از ترجمهٔ UI جدا است.
+- **LIBRARY-CLIPS-01 — IMPLEMENTED LOCAL + TEXT SOCIAL / REPO-VERIFIED:** Book Clip متن/تصویر، حذف تصویر، جزئیات، custom shelf، cover upload/remove.
+- **BOOK-METADATA-02 — IMPLEMENTED / REPO-VERIFIED:** import از Open Library؛ scraping از Goodreads انجام نمی‌شود.
+- **CUSTOM-SHELVES-02 — IMPLEMENTED / REPO-VERIFIED.**
+- **PAGE-01 — IMPLEMENTED TEXT / REPO-VERIFIED:** Post + 24h Status + privacy + delete؛ رسانهٔ عمومی هنوز **STORAGE-GATED** است.
+- **FRIENDS-MESSAGING-01 — IMPLEMENTED / REPO-VERIFIED:** DM، Group chat، search/request flow؛ Rules multi-UID در Emulator تست می‌شوند.
+- **SOCIAL-REACTIONS-02 — IMPLEMENTED / REPO-VERIFIED:** Like/Comment برای Activity و Page.
+- **CLUBS-02 — IMPLEMENTED / REPO-VERIFIED:** Level gate، Owner/Assistant/Member، invite، mission، poll.
+- **DIRECT-CHALLENGE-01 — IMPLEMENTED BASE / REPO-VERIFIED:** create/accept/cancel/countdown/quick message؛ برد خودکار تا server-verifiable progress **BACKEND-GATED** است.
+- **LEVELS-INFINITE-01 — IMPLEMENTED / REPO-VERIFIED:** progression registry بدون سقف صلب.
+- **COLLECTION-LEVEL-01 — IMPLEMENTED / REPO-VERIFIED.**
+- **BADGES-TITLES-RANKS-02 — IMPLEMENTED REGISTRY / REPO-VERIFIED.**
+- **POMODORO-AMBIENCE-01 — IMPLEMENTED / ACTIVE FIX:** ambience + spring garden + reduced-motion؛ canonical owner اکنون Library است و acceptance روی همان route اجرا می‌شود.
+- **TASK-COLLECTION-PAGES — IMPLEMENTED / REPO-VERIFIED:** لیست/پوشه با صفحهٔ مستقل تسک‌ها.
+- **ENTITY-REORDER — IMPLEMENTED / REPO-VERIFIED:** Task/Habit/Goal reorder برای pointer/touch.
+- **DOMAIN-NOTIFICATIONS-01 — IMPLEMENTED / TESTING:** Book/Goal/Habit streak/Task/Water/Workout milestoneها با baseline و dedupe؛ مأموریت‌های Reading/Focus/Exercise/Language/Streak نیز اضافه شده‌اند.
+- **FRIEND-STREAK-01 — IMPLEMENTED / DEPLOY-GATED:** streak واقعی از state canonical محاسبه و در `socialStats/{uid}` با visibility مستقل sync می‌شود؛ Friends/Ranking فقط مقدار واقعی مجاز را نشان می‌دهند. نیازمند publish شدن Rules production برای نمایش بین حساب‌های واقعی.
+- **FIRESTORE-RULES-E2E — REPO-VERIFIED WHEN CI GREEN:** تست multi-UID برای Profile/Activity/DM/Group/Club/Challenge/Page/Engagement/Block و Social Stats.
+- **STATUS-STORY media — STORAGE-GATED:** متن Status موجود است؛ تصویر/ویدئو باید بعد از Firebase Storage Rules، quota، moderation و retention واقعی اضافه شود.
+- **CYCLE-COMPANION-02 — BACKEND-GATED:** دادهٔ چرخه private می‌ماند؛ قبل از consent + one-companion contract هیچ اشتراک سلامت عمومی فعال نمی‌شود.
+- **3D-AVATAR-01 / CALM-MINI-GAMES-01 / voice chat / final theme pass — LATE ROADMAP:** هنوز شروع نشده و نباید Done تلقی شود.
