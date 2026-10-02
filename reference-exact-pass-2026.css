@@ -1332,3 +1332,25 @@ body.light .page-edit-form textarea,body.light .page-report-form textarea,body.l
 .challenge-progress-track{height:8px;border-radius:999px;overflow:hidden;background:#142d50}.challenge-progress-track>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6342ff,#27d6c5);box-shadow:0 0 12px #5d67ff77}
 .challenge-progress>small{color:#7f94b3!important;font-size:.62rem;line-height:1.5}
 body.light .challenge-progress{background:#f3f7ff!important;border-color:#d1dced!important}.challenge-progress>div:first-child b{color:#22a391}body.light .challenge-progress-track{background:#dce6f4}
+
+/* 2026-10-02 Ranking podium final geometry v2 — keep first place visibly dominant. */
+#elara-ranking-page .social-top-three .social-podium-place.place-1 .social-podium-avatar{
+  width:184px!important;height:190px!important;min-width:184px!important;min-height:190px!important;
+}
+#elara-ranking-page .social-top-three .social-podium-place.place-2 .social-podium-avatar,
+#elara-ranking-page .social-top-three .social-podium-place.place-3 .social-podium-avatar{
+  width:150px!important;height:156px!important;min-width:150px!important;min-height:156px!important;
+}
+@media(max-width:700px){
+  #elara-ranking-page .social-top-three .social-podium{
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.15fr) minmax(0,.9fr)!important;
+    align-items:end!important;gap:4px!important;
+  }
+  #elara-ranking-page .social-top-three .social-podium-place.place-1 .social-podium-avatar{
+    width:138px!important;height:144px!important;min-width:138px!important;min-height:144px!important;
+  }
+  #elara-ranking-page .social-top-three .social-podium-place.place-2 .social-podium-avatar,
+  #elara-ranking-page .social-top-three .social-podium-place.place-3 .social-podium-avatar{
+    width:112px!important;height:118px!important;min-width:112px!important;min-height:118px!important;
+  }
+}
