@@ -1,0 +1,62 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signed() { return request.auth != null; }
+    function owner(uid) { return signed() && request.auth.uid == uid; }
+    function postDoc(id) { return /databases/(default)/documents/socialPosts/$(id); }
+    function storyDoc(id) { return /databases/(default)/documents/socialStories/$(id); }
+    function requestDoc(a,b) { return /databases/(default)/documents/friendRequests/$(a + '_' + b); }
+    function blockDoc(a,b) { return /databases/(default)/documents/blocks/$(a + '__' + b); }
+    function blocked(a,b) {
+      return firestore.exists(blockDoc(a,b)) || firestore.exists(blockDoc(b,a));
+    }
+    function friends(a,b) {
+      return !blocked(a,b) && (
+        (firestore.exists(requestDoc(a,b)) && firestore.get(requestDoc(a,b)).data.status == 'accepted') ||
+        (firestore.exists(requestDoc(b,a)) && firestore.get(requestDoc(b,a)).data.status == 'accepted')
+      );
+    }
+    function canReadPost(uid,id) {
+      return firestore.exists(postDoc(id)) &&
+        firestore.get(postDoc(id)).data.uid == uid &&
+        !blocked(request.auth.uid,uid) &&
+        (
+          firestore.get(postDoc(id)).data.visibility == 'public' ||
+          (firestore.get(postDoc(id)).data.visibility == 'friends' && friends(request.auth.uid,uid))
+        );
+    }
+    function canReadStory(uid,id) {
+      return firestore.exists(storyDoc(id)) &&
+        firestore.get(storyDoc(id)).data.uid == uid &&
+        firestore.get(storyDoc(id)).data.expiresAt > request.time &&
+        !blocked(request.auth.uid,uid) &&
+        (
+          firestore.get(storyDoc(id)).data.visibility == 'public' ||
+          (firestore.get(storyDoc(id)).data.visibility == 'friends' && friends(request.auth.uid,uid))
+        );
+    }
+    function validImage() {
+      return request.resource != null &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+
+    match /pageMedia/{uid}/{kind}/{contentId}/{fileName} {
+      allow read: if signed() && (
+        owner(uid) ||
+        (kind == 'post' && canReadPost(uid,contentId)) ||
+        (kind == 'story' && canReadStory(uid,contentId))
+      );
+      allow create, update: if owner(uid)
+        && kind in ['post','story']
+        && contentId.matches('^[A-Za-z0-9_-]{8,160}$')
+        && fileName.matches('^[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)$')
+        && validImage();
+      allow delete: if owner(uid);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

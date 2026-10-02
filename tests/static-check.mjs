@@ -104,3 +104,5 @@ const taskBulkSource=readFileSync(new URL('task-bulk-reorder.js',root),'utf8');f
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
 assert.ok(socialView.includes('social-streak')&&socialView.includes('Number.isInteger(Number(p.streak))'),'Friends/Ranking must render only real streak values');
+
+const storageRules=readFileSync(new URL('../storage.rules',root),'utf8');for(const token of ["match /pageMedia/{uid}/{kind}/{contentId}/{fileName}","image/(jpeg|png|webp)","kind in ['post','story']",'canReadStory','canReadPost'])assert.ok(storageRules.includes(token),'Storage media rules must include '+token);
