@@ -73,5 +73,5 @@ for(const event of ['elara:social-updated','elara:locale-changed','elara:levels-
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,120)});
 window.addEventListener('hashchange',()=>setTimeout(mount,140));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,260),{once:true});else setTimeout(mount,260);
-window.ElaraSocialClubsUI={mount,createClub,openClub};
+window.ElaraSocialClubsUI={mount,createClub,openClub,level,canCreateClub,xpValue};
 })();

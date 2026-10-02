@@ -35,7 +35,10 @@ async function wire(page){await page.route('**/cloud.js*',r=>r.fulfill({status:2
 async function open(width,height){const page=await browser.newPage({viewport:{width,height}});await wire(page);await page.goto(base+'/?clubs-stage11='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});await page.waitForFunction(()=>window.ElaraSocialClubsUI&&window.ElaraSocial?.clubs&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});const tab=page.locator('[data-social-route="social"][data-social-view="friends"]');if(await tab.count())await tab.click();await page.waitForSelector('.social-clubs-section');return page}
 
 const page=await open(390,844);
-assert.equal(await page.locator('[data-club-create]').isEnabled(),true,'Level 12 user should be able to create a club');
+const clubGate=await page.evaluate(()=>({socialXp:window.ElaraSocial?.me?.xp,accountXp:window.ElaraAccount?.profile?.xp,localXp:JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp,registry:!!window.ElaraLevels,registryLevel:window.ElaraLevels?.level?.(820),uiXp:window.ElaraSocialClubsUI?.xpValue?.(),uiLevel:window.ElaraSocialClubsUI?.level?.(),allowed:window.ElaraSocialClubsUI?.canCreateClub?.(),disabled:document.querySelector('[data-club-create]')?.disabled}));
+console.log('CLUB_GATE '+JSON.stringify(clubGate));
+assert.equal(clubGate.allowed,true,'Level 12 challenge gate diagnostics: '+JSON.stringify(clubGate));
+assert.equal(await page.locator('[data-club-create]').isEnabled(),true,'Level 12 user should be able to create a club: '+JSON.stringify(clubGate));
 assert.match(await page.locator('.social-clubs-section').innerText(),/کتاب‌بازهای شب/);
 assert.match(await page.locator('.social-club-invites').innerText(),/باشگاه تمرکز/);
 
