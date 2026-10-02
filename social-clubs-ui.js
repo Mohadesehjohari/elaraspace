@@ -4,11 +4,19 @@ const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang===
 const api=()=>window.ElaraSocial?.clubs,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
 const kindLabel=k=>({reading:t('کتاب‌خوانی','Reading'),fitness:t('ورزشی','Fitness'),focus:t('تمرکز','Focus'),general:t('عمومی','General')})[k]||t('عمومی','General');
 const roleLabel=r=>({owner:t('صاحب','Owner'),assistant:t('دستیار','Assistant'),member:t('عضو','Member')})[r]||t('عضو','Member');
-function level(){
+function xpValue(){
  const socialXp=Number(current()?.xp),accountXp=Number(window.ElaraAccount?.profile?.xp);
  let localXp=NaN;try{localXp=Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp)}catch{}
- const xp=[socialXp,accountXp,localXp].find(Number.isFinite)??0;
- return window.ElaraLevels?.level?.(xp)||1
+ return [socialXp,accountXp,localXp].find(Number.isFinite)??0
+}
+function level(){
+ const xp=xpValue(),registry=window.ElaraLevels;
+ if(registry?.level)return registry.level(xp);
+ return Math.max(1,Math.floor(xp/70)+1)
+}
+function canCreateClub(){
+ const threshold=window.ElaraLevels?.threshold?.(6)??350;
+ return xpValue()>=threshold
 }
 const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
 let token=0;
@@ -19,14 +27,14 @@ async function mount(){
  if(!isFriendsTab(root)){root.querySelector('.social-clubs-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-clubs-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-clubs-section';section.dataset.elaraI18n='off';const groups=root.querySelector('.social-groups-section');groups?groups.insertAdjacentElement('afterend',section):grid.append(section)}
- const mine=++token,userLevel=level();section.innerHTML='<header class="social-clubs-head"><div><small>ELARA · CLUBS</small><h2>'+t('باشگاه‌ها','Clubs')+'</h2><p>'+t('ماموریت، نظرسنجی و مسیر مشترک؛ جدا از چت گروهی.','Structured missions, polls and shared progress — separate from group chat.')+'</p></div><button type="button" class="primary-button" data-club-create '+(userLevel<6?'disabled':'')+'>'+t('ساخت باشگاه','Create club')+'</button></header>'+(userLevel<6?'<p class="social-club-lock">'+t('ساخت باشگاه از Level 6 باز می‌شود. الان Level ','Club creation unlocks at Level 6. You are Level ')+userLevel+'</p>':'')+'<div class="social-club-invites" data-club-invites></div><div class="social-clubs-grid" data-club-list><p class="muted">'+t('در حال بارگذاری…','Loading…')+'</p></div>';
+ const mine=++token,userLevel=level(),createAllowed=canCreateClub();section.innerHTML='<header class="social-clubs-head"><div><small>ELARA · CLUBS</small><h2>'+t('باشگاه‌ها','Clubs')+'</h2><p>'+t('ماموریت، نظرسنجی و مسیر مشترک؛ جدا از چت گروهی.','Structured missions, polls and shared progress — separate from group chat.')+'</p></div><button type="button" class="primary-button" data-club-create '+(!createAllowed?'disabled':'')+'>'+t('ساخت باشگاه','Create club')+'</button></header>'+(!createAllowed?'<p class="social-club-lock">'+t('ساخت باشگاه از Level 6 باز می‌شود. الان Level ','Club creation unlocks at Level 6. You are Level ')+userLevel+'</p>':'')+'<div class="social-club-invites" data-club-invites></div><div class="social-clubs-grid" data-club-list><p class="muted">'+t('در حال بارگذاری…','Loading…')+'</p></div>';
  let clubs=[],invites=[];try{[clubs,invites]=await Promise.all([service.list(),service.invites()])}catch(error){if(mine===token)section.querySelector('[data-club-list]').innerHTML='<p class="ref-empty">'+esc(error?.message||error)+'</p>';return}
  if(mine!==token||!section.isConnected)return;
  const inviteHost=section.querySelector('[data-club-invites]');inviteHost.innerHTML=invites.length?'<h3>'+t('دعوت‌های باشگاه','Club invites')+'</h3>'+invites.map(x=>'<article class="social-club-invite"><div><strong>'+esc(x.club?.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(x.club?.kind)+'</small></div><div><button type="button" class="primary-button" data-club-invite-action="accepted" data-club-id="'+esc(x.clubId)+'">'+t('قبول','Accept')+'</button><button type="button" class="quiet-button danger" data-club-invite-action="declined" data-club-id="'+esc(x.clubId)+'">'+t('رد','Decline')+'</button></div></article>').join(''):'';
  const list=section.querySelector('[data-club-list]');list.innerHTML=clubs.map(c=>'<button type="button" class="social-club-card" data-club-open="'+esc(c.id)+'"><span class="social-club-kind">'+({reading:'📚',fitness:'⚡',focus:'🎯',general:'🚀'}[c.kind]||'🚀')+'</span><span><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+roleLabel(c.role)+' · '+(c.visibility==='public'?t('عمومی','Public'):t('خصوصی','Private'))+'</small></span><b>›</b></button>').join('')||'<p class="ref-empty">'+t('هنوز عضو باشگاهی نیستی.','You are not in a club yet.')+'</p>'
 }
 async function createClub(){
- const service=api();if(!service)return;if(level()<6){toast(t('ساخت باشگاه از Level 6 باز می‌شود.','Club creation unlocks at Level 6.'));return}
+ const service=api();if(!service)return;if(!canCreateClub()){toast(t('ساخت باشگاه از Level 6 باز می‌شود.','Club creation unlocks at Level 6.'));return}
  const wrap=document.createElement('div');wrap.className='social-club-create';wrap.dataset.elaraI18n='off';wrap.innerHTML='<label>'+t('نام باشگاه','Club name')+'<input name="title" maxlength="80" required placeholder="'+t('مثلاً کتاب‌بازهای شب 🌚','e.g. Night Readers 🌚')+'"></label><label>'+t('نوع باشگاه','Club type')+'<select name="kind"><option value="reading">'+t('کتاب‌خوانی','Reading')+'</option><option value="fitness">'+t('ورزشی','Fitness')+'</option><option value="focus">'+t('تمرکز','Focus')+'</option><option value="general">'+t('عمومی','General')+'</option></select></label><label>'+t('نمایش','Visibility')+'<select name="visibility"><option value="private">'+t('خصوصی','Private')+'</option><option value="public">'+t('عمومی','Public')+'</option></select></label><label>'+t('روز استراحت هفتگی','Weekly rest day')+'<select name="restDay">'+[0,1,2,3,4,5,6].map((n,i)=>'<option value="'+n+'">'+[t('یکشنبه','Sunday'),t('دوشنبه','Monday'),t('سه‌شنبه','Tuesday'),t('چهارشنبه','Wednesday'),t('پنجشنبه','Thursday'),t('جمعه','Friday'),t('شنبه','Saturday')][i]+'</option>').join('')+'</select></label>';
  const ok=await window.ElaraDialog.open({title:t('ساخت باشگاه','Create club'),content:wrap,actions:[{label:t('انصراف','Cancel'),value:false},{label:t('ساختن','Create'),value:true,kind:'primary'}]});if(ok!==true)return;
  try{const id=await service.create({title:wrap.elements.title.value,kind:wrap.elements.kind.value,visibility:wrap.elements.visibility.value,restDay:Number(wrap.elements.restDay.value)});await mount();setTimeout(()=>openClub(id),50)}catch(error){await window.ElaraDialog.open({title:t('باشگاه ساخته نشد','Could not create club'),message:String(error?.message||error),actions:[{label:t('باشه','OK'),value:true,kind:'primary'}]})}
