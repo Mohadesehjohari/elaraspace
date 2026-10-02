@@ -6,6 +6,7 @@ const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
 const rules=await fs.readFile(new URL('../firestore.rules',import.meta.url),'utf8');
 const env=await initializeTestEnvironment({projectId,firestore:{host,port:Number(portRaw||8080),rules}});
+console.log('FIRESTORE_RULES_E2E_START '+host+':'+String(portRaw||8080)+' project='+projectId);
 const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test'}).firestore();
 const alice=db('alice'),bob=db('bob'),eve=db('eve'),dave=db('dave');
 const ref=(database,path)=>doc(database,path);
