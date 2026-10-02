@@ -137,7 +137,8 @@
   }
   function renderPrivacy(){
     const host=$('drawer-privacy-area');if(!host)return;
-    const p=profile(),fallback=legacyActivityVisibility(),local=readPrivacy();
+    const p=profile(),fallback=legacyActivityVisibility(),local=readPrivacy(),blocked=Array.isArray(window.ElaraSocial?.blocked)?window.ElaraSocial.blocked:[];
+    const blockedRows=blocked.map(row=>`<div class="pass2-blocked-row"><span><strong>${esc(row.targetName||row.targetUsername||'کاربر')}</strong><small>${row.targetUsername?'@'+esc(row.targetUsername):''}</small></span><button type="button" class="quiet-button" data-social-unblock="${esc(row.target)}">رفع مسدودیت</button></div>`).join('');
     const select=(key,value)=>`<select data-drawer-privacy="${key}" aria-label="سطح نمایش ${key}"><option value="private" ${value==='private'?'selected':''}>خصوصی</option><option value="friends" ${value==='friends'?'selected':''}>فقط دوستان</option><option value="public" ${value==='public'?'selected':''}>عمومی</option></select>`;
     host.innerHTML=`${sectionHead('مرکز حریم خصوصی و امنیت','برای هر نوع فعالیت جداگانه انتخاب کن چه کسی آن را ببیند.')}<div class="pass2-privacy-list">
       ${privacyRow('پروفایل عمومی','نمایش پروفایل برای کاربران واردشده',`<label class="pass2-switch"><input type="checkbox" data-drawer-privacy="profile" ${p.profilePublic!==false?'checked':''}><span></span></label>`)}
@@ -152,7 +153,7 @@
       ${privacyRow('استریک','تداوم و استریک قابل اشتراک',select('streak',local.streak))}
       ${privacyRow('Ranking / Social','خلاصهٔ رقابت و دستاورد اجتماعی',select('ranking',local.ranking))}
       ${privacyRow('چرخه / پریود','این داده به‌صورت پیش‌فرض و اجباری خصوصی است','<span class="pass2-private-lock">خصوصی</span>','اشتراک با یک «همراه» فقط بعد از قرارداد Backend و رضایت صریح فعال می‌شود')}
-    </div><p class="muted wide" data-privacy-status></p>`;
+    </div><section class="pass2-blocked-list"><header><strong>حساب‌های مسدودشده</strong><small>رفع مسدودیت دوستی را خودکار برنمی‌گرداند.</small></header><div>${blockedRows||'<p class="muted">فعلاً کسی مسدود نشده است.</p>'}</div></section><p class="muted wide" data-privacy-status></p>`;
   }
 function renderSecurity(){
     const host=$('drawer-security-area');if(!host)return;const p=profile(),email=window.ElaraAccount?.user?.email||p.email||'',username=p.username||window.ElaraSocial?.me?.username||'';
@@ -267,6 +268,7 @@ function renderSecurity(){
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
     const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
+    const unblock=e.target.closest('[data-social-unblock]');if(unblock){unblock.disabled=true;try{await window.ElaraSocial?.unblockUser?.(unblock.dataset.socialUnblock);renderPrivacy()}catch(err){const status=$('drawer-privacy-area')?.querySelector('[data-privacy-status]');if(status)status.textContent=err?.message||'رفع مسدودیت انجام نشد.'}finally{unblock.disabled=false}return}
     const collection=e.target.closest('[data-open-task-collection]');if(collection){clearDrawerHistoryMarker();closeInternal();window.ElaraTaskCollections?.open?.(collection.dataset.openTaskCollection,collection.dataset.collectionName);return}
     const toggle=e.target.closest('[data-folder-toggle]');if(toggle){toggle.closest('.drawer-folder-card')?.classList.toggle('collapsed');return}
     const task=e.target.closest('[data-open-task]');if(task){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.('tasks');setTimeout(()=>document.querySelector(`[data-phase2-action="view-task"][data-id="${CSS.escape(task.dataset.openTask)}"]`)?.click(),100);return}
@@ -319,7 +321,7 @@ function renderSecurity(){
     }
   });
 
-  window.addEventListener('elara:social-updated',()=>{renderProfile();if(current==='account')renderAccount()});
+  window.addEventListener('elara:social-updated',()=>{renderProfile();if(current==='account')renderAccount();if(current==='privacy')renderPrivacy()});
   window.addEventListener('elara:profile-saved',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount()});
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});

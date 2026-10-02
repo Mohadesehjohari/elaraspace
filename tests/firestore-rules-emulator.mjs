@@ -94,7 +94,21 @@ try{
  await assertSucceeds(setDoc(ref(bob,'activities/alice_friends_001/comments/bob_comment'),{uid:'bob',text:'دمت گرم 🔥',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'activities/alice_friends_001/comments/eve_comment'),{uid:'eve',text:'outsider',createdAt:serverTimestamp()}));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile activity friend-request dm group club challenge page engagement alice/bob/eve');
+ // Block is private to the blocker and overrides public/friends social reads and new DM writes.
+ await assertSucceeds(setDoc(ref(alice,'blocks/alice__bob'),{owner:'alice',target:'bob',targetName:'Bob',targetUsername:'bob',createdAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,'blocks/alice__bob')));
+ await assertFails(getDoc(ref(bob,'blocks/alice__bob')));
+ await assertFails(getDoc(ref(bob,'profiles/alice')));
+ await assertFails(getDoc(ref(bob,'activities/alice_public_001')));
+ await assertFails(getDoc(ref(bob,'socialPosts/alice_public_post')));
+ await assertFails(setDoc(ref(bob,convo+'/messages/blocked_message'),{sender:'bob',text:'blocked DM',createdAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(bob,convo),{lastText:'blocked',lastSender:'bob',updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,'blocks/alice__bob')));
+ await assertSucceeds(getDoc(ref(bob,'profiles/alice')));
+ await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
+ await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
+
+ console.log('FIRESTORE_RULES_E2E_PASS profile activity friend-request dm group club challenge page engagement block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }

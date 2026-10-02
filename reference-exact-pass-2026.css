@@ -1285,3 +1285,12 @@ body.light .task-collection-page{background:#edf2fa}.body.light .task-collection
 body.light #panel-focus .focus-ambience{background:#fff;border-color:#cbd8eb;color:#192741}.body.light .focus-ambience-copy p{color:#586b88}body.light .focus-ambience-modes button{background:#f6f8ff;color:#20304c;border-color:#ccd8ea}body.light .focus-ambience-modes button[aria-pressed="true"]{color:#fff;background:linear-gradient(145deg,#5c3bd1,#8155ef)}
 @media(max-width:760px){#panel-focus .focus-ambience{grid-template-columns:1fr;padding:12px}.focus-garden{min-height:156px}.focus-ambience-copy,.focus-ambience-modes,.focus-ambience-controls,.focus-ambience-note{grid-column:1}.focus-ambience-modes{grid-template-columns:repeat(4,minmax(0,1fr))}.focus-ambience-modes button{min-height:64px;padding:6px 3px}.focus-ambience-controls{align-items:stretch}.focus-ambience-controls .primary-button{flex:1 1 120px}.focus-ambience-controls label{flex:1 1 150px;justify-content:space-between}.focus-ambience-controls input[type=range]{width:min(46vw,180px)}}
 @media(prefers-reduced-motion:reduce){.focus-cloud,.focus-garden .flower,.focus-butterfly{animation:none!important}}
+
+/* 2026-10-02 Social Block Stage 13 */
+.pass2-blocked-list{margin-top:14px;padding:13px;border:1px solid color-mix(in srgb,var(--border) 88%,#8a54ff 12%);border-radius:16px;background:color-mix(in srgb,var(--surface2) 90%,#32165c 10%)}
+.pass2-blocked-list>header{display:grid;gap:3px;margin-bottom:10px}.pass2-blocked-list>header>strong{font-size:.9rem}.pass2-blocked-list>header>small{color:var(--muted);font-size:.7rem}
+.pass2-blocked-list>div{display:grid;gap:8px}.pass2-blocked-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:13px;background:var(--surface)}
+.pass2-blocked-row>span{display:grid;gap:2px;min-width:0}.pass2-blocked-row>span>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pass2-blocked-row>span>small{color:var(--muted);direction:ltr;text-align:start}
+.pass2-blocked-row>button{min-height:38px;white-space:nowrap}
+body.light .pass2-blocked-list{background:#f8faff!important;border-color:#d5def0!important}
+@media(max-width:520px){.pass2-blocked-row{align-items:stretch;flex-direction:column}.pass2-blocked-row>button{width:100%}}

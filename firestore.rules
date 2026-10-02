@@ -9,6 +9,15 @@ service cloud.firestore {
     function requestPath(from, to) {
       return /databases/$(database)/documents/friendRequests/$(from + '_' + to);
     }
+    function blockPath(owner, target) {
+      return /databases/$(database)/documents/blocks/$(owner + '__' + target);
+    }
+    function blockedBetween(a, b) {
+      return signed() && a != b && (
+        exists(blockPath(a, b)) ||
+        exists(blockPath(b, a))
+      );
+    }
     function isAdmin() {
       return signed()
         && exists(adminPath(request.auth.uid))
@@ -22,7 +31,7 @@ service cloud.firestore {
         && get(adminPath(request.auth.uid)).data.role == 'owner';
     }
     function friendOf(owner) {
-      return signed() && (
+      return signed() && !blockedBetween(request.auth.uid, owner) && (
         (exists(requestPath(request.auth.uid, owner)) &&
          get(requestPath(request.auth.uid, owner)).data.status == 'accepted') ||
         (exists(requestPath(owner, request.auth.uid)) &&
@@ -30,7 +39,7 @@ service cloud.firestore {
       );
     }
     function requestParticipant(owner) {
-      return signed() && (
+      return signed() && !blockedBetween(request.auth.uid, owner) && (
         exists(requestPath(request.auth.uid, owner)) ||
         exists(requestPath(owner, request.auth.uid))
       );
@@ -62,15 +71,25 @@ service cloud.firestore {
     function canReadActivity(id) {
       return signed() && exists(activityPath(id)) && (
         get(activityPath(id)).data.uid == request.auth.uid ||
-        get(activityPath(id)).data.visibility == 'public' ||
-        (get(activityPath(id)).data.visibility == 'friends' && friendOf(get(activityPath(id)).data.uid))
+        (
+          !blockedBetween(request.auth.uid, get(activityPath(id)).data.uid) &&
+          (
+            get(activityPath(id)).data.visibility == 'public' ||
+            (get(activityPath(id)).data.visibility == 'friends' && friendOf(get(activityPath(id)).data.uid))
+          )
+        )
       );
     }
     function canReadPost(id) {
       return signed() && exists(postPath(id)) && (
         get(postPath(id)).data.uid == request.auth.uid ||
-        get(postPath(id)).data.visibility == 'public' ||
-        (get(postPath(id)).data.visibility == 'friends' && friendOf(get(postPath(id)).data.uid))
+        (
+          !blockedBetween(request.auth.uid, get(postPath(id)).data.uid) &&
+          (
+            get(postPath(id)).data.visibility == 'public' ||
+            (get(postPath(id)).data.visibility == 'friends' && friendOf(get(postPath(id)).data.uid))
+          )
+        )
       );
     }
     function validProfile(data) {
@@ -135,7 +154,7 @@ service cloud.firestore {
 
     match /profiles/{uid} {
       allow get: if mine(uid) || isAdmin() || (
-        signed() && (
+        signed() && !blockedBetween(request.auth.uid, uid) && (
           profilePublic(resource.data) ||
           friendOf(uid) ||
           requestParticipant(uid)
@@ -169,6 +188,25 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /blocks/{blockId} {
+      allow get, list: if signed() && resource.data.owner == request.auth.uid;
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['owner','target','targetName','targetUsername','createdAt'])
+        && request.resource.data.keys().hasAll(['owner','target','createdAt'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.target is string
+        && request.resource.data.target != request.auth.uid
+        && blockId == request.auth.uid + '__' + request.resource.data.target
+        && request.resource.data.targetName is string
+        && request.resource.data.targetName.size() <= 60
+        && request.resource.data.targetUsername is string
+        && request.resource.data.targetUsername.size() <= 20
+        && exists(p(request.resource.data.target))
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if signed() && resource.data.owner == request.auth.uid;
+    }
+
     match /friendRequests/{requestId} {
       allow get, list: if signed()
         && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
@@ -180,8 +218,11 @@ service cloud.firestore {
         && requestId == request.resource.data.from + '_' + request.resource.data.to
         && request.resource.data.status == 'pending'
         && exists(p(request.resource.data.to))
+        && !blockedBetween(request.resource.data.from, request.resource.data.to)
         && !exists(requestPath(request.resource.data.to, request.resource.data.from));
-      allow update: if signed() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+      allow update: if signed()
+        && !blockedBetween(resource.data.from, resource.data.to)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && (
           (
             resource.data.to == request.auth.uid &&
@@ -219,6 +260,7 @@ service cloud.firestore {
         && friendOf(request.resource.data.members[0] == request.auth.uid ? request.resource.data.members[1] : request.resource.data.members[0]);
       allow update: if signed()
         && request.auth.uid in resource.data.members
+        && !blockedBetween(resource.data.members[0], resource.data.members[1])
         && request.resource.data.members == resource.data.members
         && request.resource.data.kind == resource.data.kind
         && request.resource.data.createdBy == resource.data.createdBy
@@ -235,6 +277,10 @@ service cloud.firestore {
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.members;
         allow create: if signed()
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.members
+          && !blockedBetween(
+            get(/databases/$(database)/documents/conversations/$(conversationId)).data.members[0],
+            get(/databases/$(database)/documents/conversations/$(conversationId)).data.members[1]
+          )
           && request.resource.data.keys().hasOnly(['sender','text','createdAt'])
           && request.resource.data.sender == request.auth.uid
           && request.resource.data.text is string
@@ -519,8 +565,13 @@ service cloud.firestore {
     match /activities/{activityId} {
       allow get, list: if signed() && (
         resource.data.uid == request.auth.uid ||
-        resource.data.visibility == 'public' ||
-        (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+        (
+          !blockedBetween(request.auth.uid, resource.data.uid) &&
+          (
+            resource.data.visibility == 'public' ||
+            (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+          )
+        )
       );
       allow create: if signed() &&
         request.resource.data.uid == request.auth.uid &&
@@ -591,8 +642,13 @@ service cloud.firestore {
     match /socialPosts/{postId} {
       allow get, list: if signed() && (
         resource.data.uid == request.auth.uid ||
-        resource.data.visibility == 'public' ||
-        (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+        (
+          !blockedBetween(request.auth.uid, resource.data.uid) &&
+          (
+            resource.data.visibility == 'public' ||
+            (resource.data.visibility == 'friends' && friendOf(resource.data.uid))
+          )
+        )
       );
       allow create: if signed() &&
         request.resource.data.uid == request.auth.uid &&
@@ -642,6 +698,7 @@ service cloud.firestore {
       allow get, list: if signed() && (
         resource.data.uid == request.auth.uid ||
         (
+          !blockedBetween(request.auth.uid, resource.data.uid) &&
           resource.data.expiresAt > request.time &&
           (resource.data.visibility == 'public' || (resource.data.visibility == 'friends' && friendOf(resource.data.uid)))
         )
