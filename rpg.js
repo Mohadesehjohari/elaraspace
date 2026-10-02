@@ -6,6 +6,15 @@
   const fa = value => Number(value).toLocaleString('fa-IR');
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
   const parse = () => { try { const result = JSON.parse(localStorage.getItem(STORE) || '{}'); return result && typeof result === 'object' ? result : {}; } catch { return {}; } };
+  const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
+  const streakCount=data=>{
+    const dates=new Set(),day=today();
+    for(const row of Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[])if(row?.date)dates.add(row.date);
+    for(const h of Array.isArray(data.habits)?data.habits:[])for(const d of Array.isArray(h?.days)?h.days:[])dates.add(d);
+    const cursor=new Date(day+'T12:00:00');if(!dates.has(day))cursor.setDate(cursor.getDate()-1);let n=0;
+    while(n<3650){const k=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;if(!dates.has(k))break;n++;cursor.setDate(cursor.getDate()-1)}
+    return n;
+  };
   const counts = data => {
     const linkedIds=new Set((data.tasks||[]).filter(t=>t.linkedTask).map(t=>t.id));
     const tasks = (Array.isArray(data.tasks) ? data.tasks : []).filter(t=>!t.linkedTask);
@@ -15,21 +24,30 @@
     const day = today();
     const history=(Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[]).filter(x=>!linkedIds.has(x.taskId)),historyToday=new Set(history.filter(x=>x?.date===day).map(x=>x.key||String(x.taskId||'')+':'+day));
     const fallbackToday=tasks.filter(t => t?.recurrenceRule ? Array.isArray(t.occurrenceDone) && t.occurrenceDone.includes(day) : t?.completed && t.doneAt === day).length;
+    const readingPages=books.reduce((n,b)=>n+(Array.isArray(b?.readingLogs)?b.readingLogs.filter(x=>x?.date===day).reduce((m,x)=>m+Math.max(0,Number(x.pagesRead)||0),0):0),0);
+    const focusMinutes=(Array.isArray(data.focusSessions)?data.focusSessions:[]).filter(x=>x?.completed!==false&&new Date(Number(x.endedAt||x.startedAt||0)).toISOString().slice(0,10)===day).reduce((n,x)=>n+Math.max(0,Number(x.durationMin)||0),0);
+    let workoutMinutes=0;const me=uid();if(me)try{const w=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+me)||'{}');workoutMinutes=(Array.isArray(w.workouts)?w.workouts:[]).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.minutes)||0),0)}catch{}
     return {
       tasks: historyToday.size||fallbackToday,
       habits: habits.filter(h => Array.isArray(h?.days) && h.days.includes(day)).length,
       steps: goals.reduce((n,g) => n + (Array.isArray(g?.steps) ? g.steps.filter(s => s?.done).length : 0), 0),
       books: books.filter(b => b?.shelf === 'finished').length,
+      readingPages,focusMinutes,workoutMinutes,streak:streakCount(data),
       totalDone: history.length||tasks.reduce((n,t) => n + (t?.recurrenceRule ? (Array.isArray(t.occurrenceDone)?t.occurrenceDone.length:0) : (t?.completed?1:0)), 0),
       words: Array.isArray(data.words) ? data.words.length : 0
     };
   };
   const missions = [
-    {key:'first-task', name:'اولین قدم امروز', detail:'امروز یک تسک انجام بده', value:c=>c.tasks, target:1, rewardXp:20, daily:true},
-    {key:'three-tasks', name:'سه قدم تا ستاره', detail:'امروز سه تسک انجام بده', value:c=>c.tasks, target:3, rewardXp:35, daily:true},
-    {key:'habit', name:'زنجیرهٔ عادت‌ها', detail:'امروز حداقل یک عادت رو انجام بده', value:c=>c.habits, target:1, rewardXp:25, daily:true},
-    {key:'steps', name:'مسیر هدف‌ها', detail:'یک قدم از هدف‌هات رو تکمیل کن', value:c=>c.steps, target:1, rewardXp:30, daily:false},
-    {key:'book', name:'یک جهان تازه', detail:'یک کتاب رو به قفسهٔ خوانده‌شده ببر', value:c=>c.books, target:1, rewardXp:40, daily:false}
+    {key:'first-task', name:'اولین قدم امروز ⚡', detail:'فقط یک تسک واقعی رو ببند؛ موتور روز روشن می‌شه.', value:c=>c.tasks, target:1, rewardXp:20, daily:true},
+    {key:'three-tasks', name:'سه ضربهٔ تمیز 👊', detail:'امروز سه تسک رو جمع کن.', value:c=>c.tasks, target:3, rewardXp:35, daily:true},
+    {key:'habit', name:'عادتت رو زنده نگه دار 🔥', detail:'حداقل یک عادت امروز رو تیک بزن.', value:c=>c.habits, target:1, rewardXp:25, daily:true},
+    {key:'read-20', name:'۲۰ صفحه، بی‌حواس‌پرتی 📚', detail:'امروز جمعاً ۲۰ صفحه مطالعه ثبت کن.', value:c=>c.readingPages, target:20, rewardXp:30, daily:true},
+    {key:'focus-25', name:'یک راند تمرکز 😎', detail:'حداقل ۲۵ دقیقه Focus کامل کن.', value:c=>c.focusMinutes, target:25, rewardXp:25, daily:true},
+    {key:'move-20', name:'بدن هم تیم توئه 💥', detail:'امروز ۲۰ دقیقه تمرین ثبت کن.', value:c=>c.workoutMinutes, target:20, rewardXp:25, daily:true},
+    {key:'language-10', name:'واژه‌هات دارن جمع می‌شن 🧠', detail:'۱۰ واژهٔ واقعی داخل جعبهٔ زبان داشته باش.', value:c=>c.words, target:10, rewardXp:25, daily:false},
+    {key:'streak-3', name:'سه روز روی موج 🔥', detail:'استریک واقعی‌ت رو به ۳ روز برسون.', value:c=>c.streak, target:3, rewardXp:35, daily:false},
+    {key:'steps', name:'هدف رو خرد کن 🤌', detail:'یک قدم واقعی از هدف‌هات رو کامل کن.', value:c=>c.steps, target:1, rewardXp:30, daily:false},
+    {key:'book', name:'یک جهان رو بستی 😍📖', detail:'یک کتاب رو واقعاً به قفسهٔ خوانده‌شده ببر.', value:c=>c.books, target:1, rewardXp:40, daily:false}
   ];
   const snapshot = () => {
     const data=parse(),c=counts(data),claims=Array.isArray(data.missionRewardClaims)?data.missionRewardClaims:[],day=today();
