@@ -1,0 +1,17 @@
+(()=>{'use strict';
+const KEY='elara_space_v1',cfg={habit:{list:'#habit-list',key:'habits'},goal:{list:'#goal-list',key:'goals'}};
+let drag=null,pressTimer=null,press=null,ignoreUntil=0;
+const rows=kind=>[...(document.querySelector(cfg[kind]?.list)?.querySelectorAll(':scope > [data-entity-kind="'+kind+'"]')||[])];
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function persist(kind){const c=cfg[kind],order=rows(kind).map(r=>r.dataset.entityId),s=read();if(!Array.isArray(s[c.key]))return;const pos=new Map(order.map((id,i)=>[id,i]));for(const item of s[c.key])if(pos.has(item.id))item.manualOrder=pos.get(item.id);localStorage.setItem(KEY,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'))}
+function move(kind,id,delta){const all=rows(kind),row=all.find(r=>r.dataset.entityId===id),i=all.indexOf(row),target=all[i+delta];if(!row||!target)return;delta<0?target.before(row):target.after(row);persist(kind);setTimeout(()=>document.querySelector('[data-entity-drag="'+kind+'"][data-entity-id="'+CSS.escape(id)+'"]')?.focus(),20)}
+function begin(handle,event){const kind=handle.dataset.entityDrag,id=handle.dataset.entityId,row=handle.closest('[data-entity-kind]');if(!cfg[kind]||!row)return;drag={kind,id,row,startY:event.clientY,lastY:event.clientY,moved:false,pointerId:event.pointerId};handle.setPointerCapture?.(event.pointerId);row.classList.add('is-entity-dragging')}
+function step(event){if(!drag)return;drag.lastY=event.clientY;if(Math.abs(event.clientY-drag.startY)>5)drag.moved=true;const all=rows(drag.kind).filter(r=>r!==drag.row),target=all.find(r=>{const b=r.getBoundingClientRect();return event.clientY>=b.top&&event.clientY<=b.bottom});if(!target)return;const b=target.getBoundingClientRect();event.clientY<b.top+b.height/2?target.before(drag.row):target.after(drag.row)}
+function end(){if(!drag)return;const d=drag;d.row.classList.remove('is-entity-dragging');drag=null;if(d.moved){persist(d.kind);ignoreUntil=Date.now()+250}}
+document.addEventListener('pointerdown',e=>{const h=e.target.closest('[data-entity-drag]');if(h){e.preventDefault();begin(h,e);return}if(e.pointerType==='touch'){const row=e.target.closest('[data-entity-kind]');if(row){press={kind:row.dataset.entityKind,id:row.dataset.entityId,x:e.clientX,y:e.clientY};clearTimeout(pressTimer);pressTimer=setTimeout(()=>{const handle=row.querySelector('[data-entity-drag]');if(handle)begin(handle,{clientY:press.y,pointerId:e.pointerId})},520)}}},{passive:false});
+document.addEventListener('pointermove',e=>{if(press&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(pressTimer);press=null}if(drag){e.preventDefault();step(e)}},{passive:false});
+document.addEventListener('pointerup',e=>{clearTimeout(pressTimer);press=null;if(drag)end()});document.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);press=null;if(drag)end()});
+document.addEventListener('keydown',e=>{const h=e.target.closest?.('[data-entity-drag]');if(!h||!e.altKey||!['ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();move(h.dataset.entityDrag,h.dataset.entityId,e.key==='ArrowUp'?-1:1)});
+document.addEventListener('click',e=>{if(Date.now()<ignoreUntil&&e.target.closest('[data-entity-kind]')){e.preventDefault();e.stopImmediatePropagation()}},true);
+window.ElaraEntityReorder={persist,move,rows};
+})();

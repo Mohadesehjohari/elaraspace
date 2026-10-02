@@ -1238,3 +1238,11 @@ body.light .social-challenge-card{background:#f8faff;color:#182640;border-color:
 body.light .focus-ambience{background:#fff!important;border-color:#cdd9eb!important;color:#17243d!important}.light .focus-ambience-head span,.light .focus-audio-note{color:#5a6e8d!important}.light .focus-ambience-modes button{background:#f5f8ff!important;border-color:#cad6ea!important;color:#20304b!important}.light .focus-ambience-modes button[aria-pressed="true"]{background:linear-gradient(135deg,#ebe5ff,#ded3ff)!important;border-color:#8f70db!important}
 @media(max-width:620px){.focus-ambience{padding:11px}.focus-ambience-head{align-items:flex-start}.focus-ambience-head span{font-size:.68rem}.focus-ambience-modes{grid-template-columns:1fr 1fr 1fr}.focus-ambience-modes button{padding:7px 5px;font-size:.7rem;flex-direction:column;gap:2px}.focus-garden-scene{height:160px}.focus-tree{bottom:20px}.focus-garden-meta{inset:8px 8px auto auto}}
 @media(prefers-reduced-motion:reduce){.focus-flower{animation:none!important}.focus-tree{transition:none!important}}
+
+/* Stage 13 Habit/Goal reorder. */
+#habit-list>[data-entity-kind="habit"],#goal-list>[data-entity-kind="goal"]{position:relative}
+.entity-drag-handle{width:34px;height:38px;min-width:34px;display:grid;place-items:center;align-self:center;border:1px solid #36567f;border-radius:10px;background:#071d38;color:#aebee0;cursor:grab;touch-action:none;user-select:none}
+.entity-drag-handle:active{cursor:grabbing}.entity-drag-handle span{letter-spacing:-2px}
+[data-entity-kind].is-entity-dragging{z-index:50;opacity:.92;border-color:#9d77ff!important;box-shadow:0 14px 34px #0008,0 0 0 2px #794aff44!important}
+body.light .entity-drag-handle{background:#f5f7ff;color:#384968;border-color:#c6d3e8}
+@media(max-width:700px){.entity-drag-handle{width:38px;height:42px;min-width:38px}}
