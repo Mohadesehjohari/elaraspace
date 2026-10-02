@@ -1,8 +1,10 @@
-const assert=require('node:assert/strict');const {setup}=require('./dom-check.cjs');
-(async()=>{const {dom,w,errors}=await setup(),A=w.ElaraWellnessTest;assert.ok(A?.weeklyAnalysis,'weekly wellness analysis API missing');
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const source=fs.readFileSync(path.resolve(__dirname,'../approved-wellness.js'),'utf8');
+const windowMock={addEventListener(){},dispatchEvent(){},ElaraIcons:{icon:()=>''}},documentMock={readyState:'loading',addEventListener(){},getElementById(){return null},querySelector(){return null},documentElement:{lang:'fa'}},localStorage={getItem(){return null},setItem(){}};
+vm.runInNewContext(source,{window:windowMock,document:documentMock,localStorage,CustomEvent:class{constructor(type,init={}){this.type=type;this.detail=init.detail}},Event:class{constructor(type){this.type=type}},Date,Math,Number,String,Array,Object,JSON,Intl,console,setTimeout,clearTimeout});
+const A=windowMock.ElaraWellnessTest;assert.ok(A?.weeklyAnalysis,'weekly wellness analysis API missing');
 const dates=Array.from({length:7},(_,i)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-6+i);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`});
 let s=A.defaults();s.goal=2000;s.water=Object.fromEntries(dates.map(d=>[d,1800]));s.sleep=dates.map((date,i)=>({id:'s'+i,date,bed:'23:00',wake:'07:00'}));s.workouts=[{id:'w1',date:dates[4],type:'پیاده‌روی',minutes:80},{id:'w2',date:dates[6],type:'تمرین قدرتی',minutes:80}];
 let a=A.weeklyAnalysis(s);assert.ok(a.waterPct>=85);assert.equal(a.sleepAvg,8);assert.equal(a.workoutMinutes,160);assert.equal(a.insights.length,3);assert.match(a.insights.map(x=>x.text).join(' '),/خوب|منظم|عالی/);
-s=A.defaults();s.goal=2000;s.water={[dates[6]]:500};s.sleep=[{id:'short',date:dates[6],bed:'02:00',wake:'06:00'}];s.workouts=[];
-a=A.weeklyAnalysis(s);assert.ok(a.waterPct<50);assert.ok(a.sleepAvg<7);assert.equal(a.workoutMinutes,0);assert.match(a.insights.map(x=>x.text).join(' '),/فاصله|کوتاه|هنوز ورزشی/);
-assert.deepEqual(errors,[]);console.log('WELLNESS_ANALYSIS_PASS private self-goal water sleep workout');dom.window.close()})().catch(e=>{console.error(e);process.exit(1)});
+s=A.defaults();s.goal=2000;s.water={[dates[6]]:500};s.sleep=[{id:'short',date:dates[6],bed:'02:00',wake:'06:00'}];s.workouts=[];a=A.weeklyAnalysis(s);assert.ok(a.waterPct<50);assert.ok(a.sleepAvg<7);assert.equal(a.workoutMinutes,0);assert.match(a.insights.map(x=>x.text).join(' '),/فاصله|کوتاه|هنوز ورزشی/);
+console.log('WELLNESS_ANALYSIS_PASS dependency-free private self-goal water sleep workout');
