@@ -24,8 +24,8 @@ await page.addInitScript(()=>{
 await page.goto(base+'/?domain-events='+Date.now()+'#home',{waitUntil:'domcontentloaded',timeout:30000});
 await page.waitForFunction(()=>window.ElaraDomainNotifications&&window.ElaraNotify&&window.ElaraMissions&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
 await page.waitForTimeout(180);
-const domainRows=()=>ElaraNotify.read().filter(x=>/^(book-finished:|goal-complete:|habit-streak:|task-today:|water-goal:|workout:)/.test(String(x?.dedupeKey||'')));
-assert.equal(await page.evaluate(()=>domainRows().length),0,'first domain observation must only establish baseline');
+await page.evaluate(()=>{window.__domainRows=()=>ElaraNotify.read().filter(x=>/^(book-finished:|goal-complete:|habit-streak:|task-today:|water-goal:|workout:)/.test(String(x?.dedupeKey||'')))});
+assert.equal(await page.evaluate(()=>window.__domainRows().length),0,'first domain observation must only establish baseline');
 
 await page.evaluate(()=>{
  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,day=iso(new Date()),s=JSON.parse(localStorage.getItem('elara_space_v1'));
@@ -36,16 +36,16 @@ await page.evaluate(()=>{
  localStorage.setItem('elara_private_wellness_v1_me',JSON.stringify({goal:2000,glass:250,water:{[day]:2100},sleep:[],workouts:[{id:'wo1',date:day,minutes:25}],cycles:[]}));
  window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:wellness-saved'));
 });
-await page.waitForFunction(()=>domainRows().length>=6,null,{timeout:8000});
-const rows=await page.evaluate(()=>domainRows().map(x=>({type:x.type,key:x.dedupeKey,title:x.title,message:x.message})));
+await page.waitForFunction(()=>window.__domainRows().length>=6,null,{timeout:8000});
+const rows=await page.evaluate(()=>window.__domainRows().map(x=>({type:x.type,key:x.dedupeKey,title:x.title,message:x.message})));
 for(const prefix of ['book-finished:b1','goal-complete:g1','habit-streak:h1:3','task-today:','water-goal:','workout:'])assert.ok(rows.some(x=>String(x.key).startsWith(prefix)),'missing milestone '+prefix+' '+JSON.stringify(rows));
 const before=rows.length;
 await page.evaluate(()=>{ElaraDomainNotifications.check();window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:wellness-saved'))});
 await page.waitForTimeout(180);
-assert.equal(await page.evaluate(()=>domainRows().length),before,'domain notifications duplicated after repeated events');
+assert.equal(await page.evaluate(()=>window.__domainRows().length),before,'domain notifications duplicated after repeated events');
 await page.evaluate(()=>{ElaraI18n.set('en');const s=JSON.parse(localStorage.getItem('elara_space_v1'));s.books.push({id:'b2',title:'کتاب دوم من',shelf:'finished',totalPages:120,currentPage:120,readingLogs:[]});localStorage.setItem('elara_space_v1',JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}))});
-await page.waitForFunction(()=>domainRows().some(x=>x.dedupeKey==='book-finished:b2'),null,{timeout:5000});
-const englishBook=await page.evaluate(()=>domainRows().find(x=>x.dedupeKey==='book-finished:b2'));
+await page.waitForFunction(()=>window.__domainRows().some(x=>x.dedupeKey==='book-finished:b2'),null,{timeout:5000});
+const englishBook=await page.evaluate(()=>window.__domainRows().find(x=>x.dedupeKey==='book-finished:b2'));
 assert.match(englishBook.title,/Book finished/,'English locale must generate English system notification copy');
 assert.match(englishBook.message,/کتاب دوم من/,'English notification must preserve Persian book-title UGC');
 assert.doesNotMatch(englishBook.title,/[؀-ۿ]/,'English notification title leaked Persian system UI');
