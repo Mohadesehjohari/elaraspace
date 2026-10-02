@@ -21,6 +21,7 @@ on:
       - 'tests/astra-reference-v2.test.cjs'
       - 'tests/pass4-account-wardrobe-theme.test.mjs'
       - 'approved-wellness.js'
+      - 'tests/wellness-analysis.test.cjs'
       - 'reference-home-shell-2026.css'
       - 'reference-home-shell-2026.js'
       - 'visual-fidelity-pass4.css'
@@ -110,6 +111,8 @@ jobs:
           node --check app.js
           node --check approved-profile-system.js
           node --check approved-wellness.js
+          node --check tests/wellness-analysis.test.cjs
+          node tests/wellness-analysis.test.cjs
           node --check reference-home-shell-2026.js
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/entity-reorder-browser.mjs
