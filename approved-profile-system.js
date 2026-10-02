@@ -19,7 +19,8 @@ const BANNERS=Object.freeze([
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const currentUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 function currentXp(){try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return Number(window.ElaraSocial?.me?.xp??s?.xp??0)||0}catch{return Number(window.ElaraSocial?.me?.xp||0)||0}}
-const levelFromXp=xp=>window.ElaraLevels?.level?.(Number(xp)||0)||Math.min(10,1+Math.floor(Math.sqrt(Math.max(0,Number(xp)||0)/100)));
+function fallbackLevelFromXp(xp){const value=Math.max(0,Number(xp)||0),threshold=l=>{const n=Math.max(1,Math.floor(Number(l)||1));if(n<=30)return(n-1)*70;const x=n-30;return 2030+70*x+25*x*x};let lo=1,hi=32;while(threshold(hi)<=value&&hi<100000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(threshold(mid)<=value)lo=mid;else hi=mid}return lo}
+const levelFromXp=xp=>{const registry=window.ElaraLevels?.level;if(typeof registry==='function'){const n=Number(registry(Number(xp)||0));if(Number.isFinite(n)&&n>=1)return Math.floor(n)}return fallbackLevelFromXp(xp)};
 const titleForLevel=level=>window.ElaraLevels?.titleForLevel?.(level)||TITLES[Math.min(10,Math.max(1,Number(level)||1))-1];
 function avatarPath(group,level,shape='circle'){
  const g=normalizeGroup(group),n=normalizeLevel(level),mode=SHAPES.includes(shape)?shape:'circle';if(!g||!n)return '';
