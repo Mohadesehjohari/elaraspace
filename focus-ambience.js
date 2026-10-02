@@ -83,10 +83,16 @@ document.addEventListener('click',e=>{
  const play=e.target.closest('[data-ambience-play]');if(play){if(playing)stopAudio();else void startAudio().catch(err=>{const note=document.querySelector('.focus-ambience-note');if(note)note.textContent=err.message});return}
 });
 document.addEventListener('input',e=>{if(!e.target.matches('[data-ambience-volume]'))return;write({volume:Number(e.target.value)});syncVolume();syncState()});
-window.addEventListener('elara:locale-changed',()=>{document.getElementById('focus-ambience')?.remove();setTimeout(mount,0)});
-window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus')setTimeout(mount,40)});
-window.addEventListener('hashchange',()=>{if(location.hash==='#focus')setTimeout(mount,40)});
+let mountTimer=0,observer=null;
+function ensureMounted(delay=0){clearTimeout(mountTimer);mountTimer=setTimeout(()=>{if(!document.getElementById('focus-ambience'))mount();},delay)}
+window.addEventListener('elara:locale-changed',()=>{document.getElementById('focus-ambience')?.remove();ensureMounted(0)});
+window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus')ensureMounted(40)});
+window.addEventListener('hashchange',()=>{if(location.hash==='#focus')ensureMounted(40)});
+window.addEventListener('elara:data-changed',()=>ensureMounted(25));
+window.addEventListener('elara:state-committed',()=>ensureMounted(25));
+window.addEventListener('elara:boot-watchdog',()=>ensureMounted(0));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing&&ctx?.state==='running')void ctx.suspend();else if(!document.hidden&&playing&&ctx?.state==='suspended')void ctx.resume()});
-const start=()=>{if(!mount())setTimeout(start,100)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const panel=document.getElementById('panel-focus');if(panel?.querySelector('.focus-card')&&!document.getElementById('focus-ambience'))ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
 window.ElaraFocusAmbience={read,start:startAudio,stop:stopAudio,mount,get playing(){return playing}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
