@@ -34,10 +34,28 @@ function lineChart(values,label){
  const circles=pts.map(p=>`<circle class="point" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4"><title>${esc(p.date)} · ${fmt(p.v)} ساعت</title></circle>`).join('');
  return `<div class="wellness-sleep-line" role="img" aria-label="${esc(label)}"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><line class="axis" x1="${left}" x2="${width-right}" y1="${height-bottom}" y2="${height-bottom}"/><polyline class="line" points="${poly}"/>${circles}${labels}</svg></div>`;
 }
+function weeklyAnalysis(s){
+ const week=days(),goal=Math.max(250,Number(s.goal)||2000),waterRows=week.map(date=>Number(s.water?.[date]||0)),waterRecorded=waterRows.filter(v=>v>0),waterPct=waterRecorded.length?Math.round(waterRecorded.reduce((n,v)=>n+Math.min(1.5,v/goal),0)/waterRecorded.length*100):null;
+ const sleepRows=week.map(date=>s.sleep.filter(x=>x.date===date).reduce((n,x)=>n+sleepMinutes(x),0)/60).filter(v=>v>0),sleepAvg=sleepRows.length?Math.round(sleepRows.reduce((a,b)=>a+b,0)/sleepRows.length*10)/10:null;
+ const workoutMinutes=s.workouts.filter(x=>week.includes(x.date)).reduce((n,x)=>n+(Number(x.minutes)||0),0);
+ const insights=[];
+ if(waterPct==null)insights.push({kind:'water',icon:'💧',title:'آب',text:'برای تحلیل آب، چند روز مصرفت را ثبت کن.'});
+ else if(waterPct>=85)insights.push({kind:'water',icon:'💧',title:'آب',text:'نسبت به هدف شخصی خودت، آب این هفته خوب پیش رفته ✨'});
+ else insights.push({kind:'water',icon:'💧',title:'آب',text:'میانگین آب ثبت‌شده هنوز از هدف شخصی‌ات فاصله دارد؛ چند لیوان را در طول روز پخش کن.'});
+ if(sleepAvg==null)insights.push({kind:'sleep',icon:'🌙',title:'خواب',text:'چند شب خواب ثبت کن تا الگو روشن‌تر شود.'});
+ else if(sleepAvg<7)insights.push({kind:'sleep',icon:'🌙',title:'خواب',text:'خواب ثبت‌شدهٔ این هفته کوتاه‌تر بوده؛ اگر می‌توانی برای استراحت زمان بیشتری کنار بگذار.'});
+ else if(sleepAvg<=9)insights.push({kind:'sleep',icon:'😴',title:'خواب',text:'میانگین خواب ثبت‌شده منظم‌تر به نظر می‌رسد؛ همین ریتم را حفظ کن ✨'});
+ else insights.push({kind:'sleep',icon:'🌙',title:'خواب',text:'میانگین خواب ثبت‌شده طولانی است؛ ثبات ساعت خواب و بیداری را مرور کن.'});
+ if(workoutMinutes>=150)insights.push({kind:'workout',icon:'🔥',title:'حرکت',text:'این هفته زمان خوبی برای حرکت ثبت کردی؛ عالی ادامه بده 💪'});
+ else if(workoutMinutes>0)insights.push({kind:'workout',icon:'⚡',title:'حرکت',text:'حرکت شروع شده؛ چند جلسهٔ کوتاه دیگر می‌تواند تداومت را قوی‌تر کند.'});
+ else insights.push({kind:'workout',icon:'👟',title:'حرکت',text:'هنوز ورزشی برای این هفته ثبت نشده؛ حتی یک حرکت کوتاه هم شروع حساب می‌شود.'});
+ return {waterPct,sleepAvg,workoutMinutes,insights}
+}
 function normalizeWorkout(inputs,old={},id=''){const type=String(inputs?.type||''),customType=type==='ورزش دیگر'?String(inputs?.customType||'').trim().slice(0,80):'';return {...old,...inputs,id:id||old.id||'',type,customType,minutes:num(inputs?.minutes,1,1440)}}
 function normalizeCycle(inputs,old={},id=''){return {...old,...inputs,id:id||old.id||'',note:String(inputs?.note||'').trim().slice(0,240)}}
 function sleepMinutes(row){const a=Date.parse(`${row.date}T${row.bed}:00`),b=Date.parse(`${row.date}T${row.wake}:00`);if(!Number.isFinite(a)||!Number.isFinite(b))return 0;const minutes=Math.round((b<=a?b+86400000:b)-a)/60000;return minutes>0&&minutes<=1440?minutes:0}
 function panel(){if($('panel-exercise'))return;const el=document.createElement('section');el.id='panel-exercise';el.className='panel hidden wellness-panel';el.innerHTML=`<header class="wellness-heading"><button type="button" class="quiet-button" data-wellness-back>→ بازگشت</button><div><h1>ورزش و حالِ خوب <img src="assets/ui/green_heart.webp" alt="" width="36" height="36"></h1><p class="muted">آب، خواب و فعالیت روزانه را در فضای خصوصی خودت ثبت کن.</p></div></header><div class="wellness-banner"><strong>هر قدم کوچک، راه تازه‌ای می‌سازد</strong><span>فضایی برای ثبت شخصی؛ بدون مقایسه با دیگران.</span></div><div class="wellness-layout">
+<section class="elara-card wellness-analysis"><header><h2>✨ تحلیل این هفته</h2><span>فقط بر پایهٔ ثبت‌های خودت</span></header><div id="wellness-analysis"></div><small class="wellness-analysis-note">این جمع‌بندی تشخیص یا توصیهٔ پزشکی نیست؛ فقط الگوهای ثبت‌شده و هدف‌های شخصی خودت را خلاصه می‌کند.</small></section>
 <section class="elara-card wellness-water"><header><h2><span class="pass2-icon pass2-icon-image" aria-hidden="true"><img src="assets/ui/icon-wellness-water.webp" alt=""></span> آب امروز</h2><span id="wellness-water-total"></span></header>
 <div class="wellness-water-visual"><div class="wellness-glass" aria-hidden="true"><div id="wellness-water-glass-fill" class="wellness-glass-fill"></div></div><div class="wellness-water-summary"><strong id="wellness-water-amount">۰ / ۰ ml</strong><b id="wellness-water-percent">۰٪</b><small>مصرف ثبت‌شده نسبت به هدف شخصی امروز</small><div class="wellness-water-controls"><button class="quiet-button" type="button" data-wellness-water="remove" aria-label="کم کردن یک لیوان">−</button><span>یک لیوان</span><button class="primary-button" type="button" data-wellness-water="add" aria-label="افزودن یک لیوان">+</button></div></div></div>
 <div class="wellness-water-settings"><label>وزن فعلی اختیاری (کیلوگرم)<input id="wellness-weight" type="number" inputmode="decimal" min="1" max="400" step="0.1"></label><label>وزن هدف اختیاری (کیلوگرم)<input id="wellness-target-weight" type="number" inputmode="decimal" min="1" max="400" step="0.1"></label><label>هدف آب (میلی‌لیتر)<input id="wellness-goal" type="number" inputmode="numeric" min="250" max="10000" step="50"></label><label>حجم یک لیوان (میلی‌لیتر)<input id="wellness-glass" type="number" inputmode="numeric" min="50" max="1000" step="25"></label><div class="wellness-weight-status"><span>اختلاف ثبت‌شده تا هدف: <b id="wellness-weight-diff">—</b></span><span>این بخش فقط ثبت شخصی است و قضاوت یا توصیهٔ پزشکی ارائه نمی‌کند.</span></div></div>
@@ -54,6 +72,7 @@ function refresh(){
  $('wellness-water-glass-fill').style.height=`${pct}%`;
  $('wellness-weight').value=s.weight;$('wellness-target-weight').value=s.targetWeight;$('wellness-goal').value=s.goal;$('wellness-glass').value=s.glass;const pc=$('wellness-profile-context');if(pc)pc.textContent=profileSettingsCopy();
  const current=Number(s.weight),target=Number(s.targetWeight),diff=current>0&&target>0?Math.abs(current-target):null;$('wellness-weight-diff').textContent=diff==null?'—':`${diff.toLocaleString('fa-IR',{maximumFractionDigits:1})} کیلوگرم`;
+ const analysis=weeklyAnalysis(s),analysisHost=$('wellness-analysis');if(analysisHost)analysisHost.innerHTML=analysis.insights.map(x=>`<article class="wellness-insight wellness-insight-${x.kind}"><span aria-hidden="true">${x.icon}</span><div><strong>${esc(x.title)}</strong><p>${esc(x.text)}</p></div></article>`).join('');
  $('wellness-cycle').hidden=!cycleApplicable();
  $('wellness-water-chart').innerHTML=barChart(days().map(d=>Math.round(Number(s.water[d]||0)/glass)),Math.ceil(goal/glass),'نمودار تعداد لیوان آب در هفت روز اخیر');
  $('wellness-sleep-chart').innerHTML=lineChart(days().map(d=>+(s.sleep.filter(x=>x.date===d).reduce((n,x)=>n+sleepMinutes(x),0)/60).toFixed(1)),'نمودار خطی ساعت خواب در هفت روز اخیر');
@@ -98,6 +117,6 @@ function wire(){
  });
  window.addEventListener('elara:profile-private-changed',refresh);
 }
-window.ElaraWellnessTest={defaults,lineChart,sleepMinutes,normalizeWorkout,normalizeCycle};
+window.ElaraWellnessTest={defaults,lineChart,sleepMinutes,normalizeWorkout,normalizeCycle,weeklyAnalysis};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 })();
