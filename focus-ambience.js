@@ -72,10 +72,17 @@ function markup(){
   <p class="focus-ambience-note">${t('صدا فقط بعد از لمس/کلیک شما فعال می‌شود و چیزی به سرور ارسال نمی‌شود.','Audio starts only after your click/tap and nothing is sent to a server.')}</p>
  </section>`
 }
+function focusOwner(){
+ const focus=document.getElementById('panel-focus'),books=document.getElementById('panel-books');
+ const card=focus?.querySelector('.focus-card')||books?.querySelector('.focus-card')||document.querySelector('#ref-library-focus .focus-card');
+ const panel=card?.closest('#panel-focus,#panel-books')||focus||books;
+ return{panel,card}
+}
 function mount(){
- const panel=document.getElementById('panel-focus'),card=panel?.querySelector('.focus-card');if(!panel||!card)return false;
+ const {panel,card}=focusOwner();if(!panel||!card)return false;
  let root=document.getElementById('focus-ambience');
- if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;const history=panel.querySelector('.focus-history-card');history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}
+ if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;const history=panel.querySelector('.focus-history-card'),libraryFocus=card.closest('#ref-library-focus');if(libraryFocus)libraryFocus.insertAdjacentElement('afterend',root);else history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}
+ else if(root.parentElement!==panel&&!root.closest('#ref-library-focus')){const libraryFocus=card.closest('#ref-library-focus');libraryFocus?libraryFocus.insertAdjacentElement('afterend',root):card.insertAdjacentElement('afterend',root)}
  syncState();return true
 }
 document.addEventListener('click',e=>{
@@ -92,7 +99,7 @@ window.addEventListener('elara:data-changed',()=>ensureMounted(25));
 window.addEventListener('elara:state-committed',()=>ensureMounted(25));
 window.addEventListener('elara:boot-watchdog',()=>ensureMounted(0));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing&&ctx?.state==='running')void ctx.suspend();else if(!document.hidden&&playing&&ctx?.state==='suspended')void ctx.resume()});
-const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const panel=document.getElementById('panel-focus');if(panel?.querySelector('.focus-card')&&!document.getElementById('focus-ambience'))ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
+const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const {panel,card}=focusOwner();if(panel&&card&&!document.getElementById('focus-ambience'))ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
 window.ElaraFocusAmbience={read,start:startAudio,stop:stopAudio,mount,get playing(){return playing}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
