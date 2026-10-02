@@ -11,7 +11,7 @@
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
   let root,panel,current='home';
 
-  function ensureData(d){for(const k of ['tasks','folders','tags','missionRewardClaims'])if(!Array.isArray(d[k]))d[k]=[];return d}
+  function ensureData(d){for(const k of ['tasks','taskLists','folders','tags','missionRewardClaims'])if(!Array.isArray(d[k]))d[k]=[];return d}
   function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
   const privacyUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
   const privacyKey=()=>`elara_privacy_local_v1_${privacyUid()||'guest'}`;
@@ -160,11 +160,12 @@ function renderSecurity(){
   }
   function renderFolders(){
     const host=$('drawer-folder-area');if(!host)return;const data=ensureData(read());
-    const cards=data.folders.map(name=>{
-      const tasks=data.tasks.filter(t=>t.folder===name);
-      return `<section class="drawer-folder-card" data-folder-card="${esc(name)}"><header><div><strong>${icon('folder')} ${esc(name)}</strong><small>${tasks.length.toLocaleString('fa-IR')} تسک</small></div><button type="button" class="mini-button" data-folder-toggle="${esc(name)}">باز/بسته</button></header><div class="drawer-folder-body"><form data-folder-task-form="${esc(name)}"><input maxlength="180" required placeholder="تسک جدید داخل این پوشه…"><button class="primary-button" type="submit">+ تسک</button></form><div class="drawer-folder-tasks">${tasks.length?tasks.map(t=>`<button type="button" data-open-task="${esc(t.id)}"><span>${t.completed?'✓':'○'}</span><span><strong>${esc(t.text)}</strong>${t.shortDescription?`<small>${esc(t.shortDescription)}</small>`:''}</span></button>`).join(''):'<p class="muted">هنوز تسکی داخل این پوشه نیست.</p>'}</div></div></section>`;
-    }).join('');
-    host.innerHTML=`${sectionHead('پوشه‌ها و تگ‌ها','هر پوشه را باز کن و همان‌جا تسک بساز.')}<div class="drawer-manage-actions"><button type="button" class="primary-button" data-drawer-add="folder">+ پوشه</button><button type="button" class="quiet-button" data-drawer-add="tag">+ برچسب</button></div><div class="drawer-tags">${data.tags.map(t=>`<span>#${esc(t)}</span>`).join('')||'<small class="muted">هنوز برچسبی نداری.</small>'}</div><div class="drawer-folders">${cards||'<p class="muted">اولین پوشه را اضافه کن.</p>'}</div>`;
+    const collectionCard=(kind,name)=>{
+      const key=kind==='folder'?'folder':'list',tasks=data.tasks.filter(t=>String(t[key]||'')===name),label=kind==='folder'?'پوشه':'لیست';
+      return `<section class="drawer-folder-card" data-collection-card="${esc(kind)}:${esc(name)}"><header><div><strong>${icon(kind==='folder'?'folder':'task')} ${esc(name)}</strong><small>${tasks.length.toLocaleString('fa-IR')} تسک · ${label}</small></div><button type="button" class="primary-button" data-open-task-collection="${esc(kind)}" data-collection-name="${esc(name)}">باز کردن صفحه</button></header><div class="drawer-folder-body"><form data-folder-task-form="${esc(name)}" data-folder-task-kind="${esc(kind)}"><input maxlength="180" required placeholder="تسک جدید داخل این ${label}…"><button class="primary-button" type="submit">+ تسک</button></form><div class="drawer-folder-tasks">${tasks.length?tasks.slice(0,5).map(t=>`<button type="button" data-open-task="${esc(t.id)}"><span>${t.completed?'✓':'○'}</span><span><strong data-elara-ugc dir="auto">${esc(t.text)}</strong>${t.shortDescription?`<small data-elara-ugc dir="auto">${esc(t.shortDescription)}</small>`:''}</span></button>`).join(''):'<p class="muted">هنوز تسکی داخل این بخش نیست.</p>'}</div></div></section>`
+    };
+    const lists=data.taskLists.map(name=>collectionCard('list',name)).join(''),folders=data.folders.map(name=>collectionCard('folder',name)).join('');
+    host.innerHTML=`${sectionHead('لیست‌ها، پوشه‌ها و تگ‌ها','هر لیست یا پوشه صفحهٔ مستقل خودش را دارد.')}<div class="drawer-manage-actions"><button type="button" class="primary-button" data-drawer-add="list">+ لیست</button><button type="button" class="primary-button" data-drawer-add="folder">+ پوشه</button><button type="button" class="quiet-button" data-drawer-add="tag">+ برچسب</button></div><div class="drawer-tags">${data.tags.map(t=>`<span>#${esc(t)}</span>`).join('')||'<small class="muted">هنوز برچسبی نداری.</small>'}</div><div class="drawer-collection-group"><h3>لیست‌ها</h3><div class="drawer-folders">${lists||'<p class="muted">هنوز لیستی نداری.</p>'}</div></div><div class="drawer-collection-group"><h3>پوشه‌ها</h3><div class="drawer-folders">${folders||'<p class="muted">اولین پوشه را اضافه کن.</p>'}</div></div>`;
   }
   function notificationRows(){
     const data=ensureData(read()),local=(()=>{try{return JSON.parse(localStorage.getItem(NOTIF)||'[]')}catch{return[]}})();
@@ -214,15 +215,15 @@ function renderSecurity(){
   }
 
   async function addNamed(kind){
-    const data=ensureData(read()),key=kind==='folder'?'folders':'tags';
-    const value=await window.ElaraDialog.prompt(kind==='folder'?'نام پوشه را بنویس.':'نام برچسب را بنویس.',{title:kind==='folder'?'افزودن پوشه':'افزودن برچسب',label:'نام',maxLength:60,confirmText:'افزودن'});
+    const data=ensureData(read()),key=kind==='folder'?'folders':kind==='list'?'taskLists':'tags',label=kind==='folder'?'پوشه':kind==='list'?'لیست':'برچسب';
+    const value=await window.ElaraDialog.prompt('نام '+label+' را بنویس.',{title:'افزودن '+label,label:'نام',maxLength:60,confirmText:'افزودن'});
     const name=String(value||'').trim().slice(0,60);if(!name)return;
     if(data[key].some(x=>x.toLocaleLowerCase()===name.toLocaleLowerCase()))return;
     data[key].push(name);write(data);renderFolders();
   }
-  function addTask(folder,text){
+  function addTask(collection,text,kind='folder'){
     const data=ensureData(read()),title=String(text||'').trim().slice(0,180);if(!title)return;
-    data.tasks.unshift({id:makeId(),text:title,shortDescription:'',description:'',date:'',time:'',priority:'4',folder,tag:'',completed:false,doneAt:null,xpAwarded:false,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{}});
+    data.tasks.unshift({id:makeId(),text:title,shortDescription:'',description:'',date:'',time:'',priority:'4',folder:kind==='folder'?collection:'',list:kind==='list'?collection:'',tag:'',completed:false,doneAt:null,xpAwarded:false,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{}});
     write(data);renderFolders();
   }
   function setStyle(style){savePref({style});document.body.dataset.elaraStyle=style;renderAppearance()}
@@ -266,6 +267,7 @@ function renderSecurity(){
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
     const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
+    const collection=e.target.closest('[data-open-task-collection]');if(collection){clearDrawerHistoryMarker();closeInternal();window.ElaraTaskCollections?.open?.(collection.dataset.openTaskCollection,collection.dataset.collectionName);return}
     const toggle=e.target.closest('[data-folder-toggle]');if(toggle){toggle.closest('.drawer-folder-card')?.classList.toggle('collapsed');return}
     const task=e.target.closest('[data-open-task]');if(task){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.('tasks');setTimeout(()=>document.querySelector(`[data-phase2-action="view-task"][data-id="${CSS.escape(task.dataset.openTask)}"]`)?.click(),100);return}
     const edit=e.target.closest('[data-profile-edit]');if(edit){await window.ElaraProfileSystem?.openEditor?.();return}
@@ -308,7 +310,7 @@ function renderSecurity(){
 
   document.addEventListener('submit',async e=>{
     const folderForm=e.target.closest('[data-folder-task-form]');
-    if(folderForm){e.preventDefault();const input=folderForm.querySelector('input');addTask(folderForm.dataset.folderTaskForm,input.value);input.value='';return}
+    if(folderForm){e.preventDefault();const input=folderForm.querySelector('input');addTask(folderForm.dataset.folderTaskForm,input.value,folderForm.dataset.folderTaskKind||'folder');input.value='';return}
     if(e.target.id==='drawer-password-form'){
       e.preventDefault();const form=e.target,status=form.querySelector('[data-privacy-status]'),button=form.querySelector('[type=submit]');if(form.elements.newPassword.value!==form.elements.confirmPassword.value){status.textContent='تکرار رمز جدید یکسان نیست.';return}button.disabled=true;
       try{await window.ElaraAccount?.changePassword?.(form.elements.currentPassword.value,form.elements.newPassword.value);status.textContent='✓ رمز عبور تغییر کرد.';form.reset()}

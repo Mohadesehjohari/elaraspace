@@ -34,6 +34,7 @@ on:
       - 'tests/entity-reorder-browser.mjs'
       - 'task-bulk-reorder.js'
       - 'entity-reorder.js'
+      - 'task-collections.js'
       - 'focus-ambience.js'
       - 'social-view.js'
       - 'tests/social-engagement-browser.mjs'
@@ -91,6 +92,7 @@ jobs:
           node --check dialog.js
           node --check phase2.js
           node --check entity-reorder.js
+          node --check task-collections.js
           node --check elara-levels.js
           node --check task-bulk-reorder.js
           node --check focus-ambience.js

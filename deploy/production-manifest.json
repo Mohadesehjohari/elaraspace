@@ -139,7 +139,8 @@
     "task-bulk-reorder.js",
     "focus-ambience.js",
     "elara-levels.js",
-    "entity-reorder.js"
+    "entity-reorder.js",
+    "task-collections.js"
   ],
   "files": [
     ".htaccess",
@@ -378,6 +379,7 @@
     "admin/ai.php",
     "freedom-refinement-v2.css",
     "freedom-ai.js",
-    "entity-reorder.js"
+    "entity-reorder.js",
+    "task-collections.js"
   ]
 }
