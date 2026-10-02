@@ -1364,3 +1364,31 @@ body.light .challenge-progress{background:#f3f7ff!important;border-color:#d1dced
 .page-story-detail .page-story-media{max-width:min(640px,80vw);margin-inline:auto}.page-story-detail .page-story-media img{max-height:58vh;object-fit:contain}
 body.light .page-media{background:#f2f5fb;border-color:#cbd8ea}body.light .page-media-button{color:#fff}
 @media(max-width:700px){.page-media-button,.page-media-remove{min-height:44px;flex:1 1 132px}.page-media-picker [data-page-media-preview]{width:100%}.page-media-picker [data-page-media-preview] img{width:100%;height:auto;max-height:220px;object-fit:contain}.page-media img{max-height:420px}}
+
+/* 2026-10-02 Mobile Banner Copy Stage 18 — reveal artwork after the initial readable copy. */
+@media(max-width:700px){
+ .elara-mobile-banner{touch-action:pan-y!important;-webkit-user-select:none;user-select:none}
+ .elara-mobile-banner .elara-mobile-banner-copy-target{
+  transition:opacity .28s ease,transform .28s ease,filter .28s ease!important;
+  will-change:opacity,transform
+ }
+ .elara-mobile-banner.is-copy-collapsed .elara-mobile-banner-copy-target{
+  opacity:0!important;transform:translateY(7px) scale(.985)!important;filter:blur(1px)!important;
+  pointer-events:none!important
+ }
+ #panel-home .ref-hero .hero-copy h1{font-size:clamp(1.18rem,6.1vw,1.62rem)!important;line-height:1.42!important}
+ #panel-home .ref-hero .hero-copy p{font-size:clamp(.62rem,2.9vw,.78rem)!important;line-height:1.65!important}
+ #panel-home .ref-hero-quote{font-size:clamp(.68rem,3vw,.82rem)!important;max-width:42%!important}
+ #panel-language .elara-language-hero .language-hero-copy h1,
+ #panel-books .library-hero h2,
+ #panel-freedom .freedom-hero-copy h1{font-size:clamp(1.28rem,6vw,1.7rem)!important;line-height:1.4!important}
+ #panel-language .elara-language-hero .language-hero-copy>p,
+ #panel-books .library-hero>div>p,
+ #panel-freedom .freedom-hero-copy p{font-size:clamp(.62rem,2.8vw,.78rem)!important;line-height:1.65!important}
+ #panel-language .elara-language-hero>blockquote,
+ #panel-books .library-hero>blockquote{font-size:clamp(.66rem,2.9vw,.82rem)!important;line-height:1.65!important}
+}
+@media(max-width:700px) and (prefers-reduced-motion:reduce){
+ .elara-mobile-banner .elara-mobile-banner-copy-target{transition:none!important;transform:none!important;filter:none!important}
+ .elara-mobile-banner.is-copy-collapsed .elara-mobile-banner-copy-target{opacity:1!important;pointer-events:auto!important}
+}

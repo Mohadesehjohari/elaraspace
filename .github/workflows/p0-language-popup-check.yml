@@ -35,6 +35,7 @@ on:
       - 'tests/task-bulk-reorder-browser.mjs'
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/domain-events-browser.mjs'
+      - 'tests/mobile-banner-copy-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
       - 'tests/entity-bulk-browser.mjs'
       - 'tests/task-collections-browser.mjs'
@@ -44,6 +45,7 @@ on:
       - 'task-collections.js'
       - 'focus-ambience.js'
       - 'domain-notifications.js'
+      - 'mobile-banner-copy.js'
       - 'social-view.js'
       - 'tests/social-engagement-browser.mjs'
       - 'tests/social-streak-browser.mjs'
@@ -109,6 +111,7 @@ jobs:
           node --check task-bulk-reorder.js
           node --check focus-ambience.js
           node --check domain-notifications.js
+          node --check mobile-banner-copy.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
           node --check social-groups-ui.js
@@ -128,6 +131,7 @@ jobs:
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/focus-ambience-browser.mjs
           node --check tests/domain-events-browser.mjs
+          node --check tests/mobile-banner-copy-browser.mjs
           node --check tests/entity-reorder-browser.mjs
           node --check tests/entity-bulk-browser.mjs
           node --check tests/task-collections-browser.mjs
@@ -175,6 +179,8 @@ jobs:
         run: timeout 90s node tests/focus-ambience-browser.mjs
       - name: Verify domain milestone notifications and diverse missions
         run: timeout 90s node tests/domain-events-browser.mjs
+      - name: Verify Mobile banner copy reveal
+        run: timeout 90s node tests/mobile-banner-copy-browser.mjs
       - name: Verify Habit and Goal reorder Stage 13
         run: timeout 90s node tests/entity-reorder-browser.mjs
       - name: Verify Habit and Goal bulk selection
@@ -273,6 +279,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/domain-events-browser.mjs
+      - name: Verify deployed Mobile banner copy reveal
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/mobile-banner-copy-browser.mjs
       - name: Verify real Firebase/account boot without stubs
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace

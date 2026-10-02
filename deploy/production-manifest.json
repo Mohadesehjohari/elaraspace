@@ -143,7 +143,8 @@
     "entity-reorder.js",
     "entity-bulk-selection.js",
     "task-collections.js",
-    "collection-level.js"
+    "collection-level.js",
+    "mobile-banner-copy.js"
   ],
   "files": [
     ".htaccess",
@@ -386,6 +387,7 @@
     "freedom-ai.js",
     "entity-reorder.js",
     "entity-bulk-selection.js",
-    "task-collections.js"
+    "task-collections.js",
+    "mobile-banner-copy.js"
   ]
 }
