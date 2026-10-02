@@ -4,7 +4,12 @@ const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang===
 const api=()=>window.ElaraSocial?.clubs,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
 const kindLabel=k=>({reading:t('کتاب‌خوانی','Reading'),fitness:t('ورزشی','Fitness'),focus:t('تمرکز','Focus'),general:t('عمومی','General')})[k]||t('عمومی','General');
 const roleLabel=r=>({owner:t('صاحب','Owner'),assistant:t('دستیار','Assistant'),member:t('عضو','Member')})[r]||t('عضو','Member');
-const level=()=>window.ElaraLevels?.level?.(Number(current()?.xp)||0)||1;
+function level(){
+ const socialXp=Number(current()?.xp),accountXp=Number(window.ElaraAccount?.profile?.xp);
+ let localXp=NaN;try{localXp=Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp)}catch{}
+ const xp=[socialXp,accountXp,localXp].find(Number.isFinite)??0;
+ return window.ElaraLevels?.level?.(xp)||1
+}
 const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
 let token=0;
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3300)}
