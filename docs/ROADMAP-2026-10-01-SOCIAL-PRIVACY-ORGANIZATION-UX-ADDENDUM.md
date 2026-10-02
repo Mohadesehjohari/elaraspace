@@ -682,7 +682,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **SOCIAL-REACTIONS-02 — IMPLEMENTED / BROWSER TESTED + RULES CONTRACT:** Like/Comment برای Activity و Page post.
 - **STATUS-STORY-01 — IMPLEMENTED / BROWSER TESTED, TEXT STATUS:** 24h expiry و visibility وجود دارد؛ media story هنوز **PENDING**.
 - **CLUBS-02 — PARTIAL IMPLEMENTED / BROWSER TESTED:** Level gate، Owner، حداکثر دو Assistant، invite، mission، poll/vote و rest-day contract وجود دارد؛ end-of-day scoring/reward automation و کامل‌شدن همهٔ انواع club هنوز **PENDING**.
-- **DIRECT-CHALLENGE-01 — PARTIAL IMPLEMENTED / BROWSER TESTED:** create/accept/decline/cancel/quick-chat/countdown وجود دارد؛ verified progress winner settlement و profile win stats هنوز **PENDING**.
+- **DIRECT-CHALLENGE-01 — PARTIAL IMPLEMENTED / BROWSER TESTED:** create/accept/decline/cancel/quick-chat/countdown وجود دارد؛ self progress برای Task/Habit/Reading/Exercise/Focus از canonical account state نمایش داده می‌شود. verified cross-user winner settlement و profile win stats هنوز **PENDING / SERVER-GATED**.
 - **LIBRARY-CLIPS-01 / CUSTOM-SHELVES-02 / BOOK-METADATA-02 — IMPLEMENTED / BROWSER TESTED:** custom shelf، cover upload/remove، text/image clip و Open Library metadata import وجود دارد. انتشار social تصویر clip تا Storage امن **PENDING**.
 - **TASK-COMPLETED-03 / task reorder & bulk — IMPLEMENTED / BROWSER TESTED:** strike option، linked edit/delete، pointer/keyboard reorder، bulk move/duplicate و mobile long-press.
 - **POMODORO-AMBIENCE-01 — IMPLEMENTED / BROWSER TESTED:** ambience mode، persistence، play/stop، i18n و reduced-motion test.

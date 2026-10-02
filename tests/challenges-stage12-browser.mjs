@@ -23,7 +23,7 @@ window.ElaraSocial.challenges={
 };
 window.dispatchEvent(new Event('elara:social-updated'));
 `;
-function seed(){localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:820,theme:'dark',tasks:[],habits:[],goals:[],books:[],words:[],folders:[],tags:[],taskLists:[],focusSessions:[],taskCompletionHistory:[],missionRewardClaims:[]}))}
+function seed(){const d=new Date(),day=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:820,theme:'dark',tasks:[],habits:[{id:'h1',title:'عادت QA',days:[day]}],goals:[],books:[{id:'b1',title:'کتاب QA',readingLogs:[{date:day,pagesRead:18}]}],words:[],folders:[],tags:[],taskLists:[],focusSessions:[{id:'f1',startedAt:Date.now()-25*60000,endedAt:Date.now(),durationMin:25,completed:true}],taskCompletionHistory:[{key:'t1:'+day,taskId:'t1',date:day,completedAt:Date.now()}],missionRewardClaims:[]}));localStorage.setItem('elara_private_wellness_v1_A',JSON.stringify({workouts:[{id:'w1',date:day,minutes:32}]}))}
 async function wire(page){await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));await page.addInitScript(seed)}
 async function open(width,height){const page=await browser.newPage({viewport:{width,height}});await wire(page);await page.goto(base+'/?challenge-stage12='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});await page.waitForFunction(()=>window.ElaraSocialChallengesUI&&window.ElaraSocial?.challenges&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});const tab=page.locator('[data-social-route="social"][data-social-view="friends"]');if(await tab.count())await tab.click();await page.waitForSelector('.social-challenges-section');return page}
 
@@ -33,7 +33,7 @@ assert.equal(await page.locator('[data-challenge-expiry]').count(),1,'pending ch
 await page.locator('[data-challenge-action="accepted"]').click();
 await page.waitForFunction(()=>window.__challengeState.rows.find(x=>x.id==='incoming').status==='accepted');
 await page.waitForTimeout(80);
-assert.equal(await page.locator('[data-challenge-quick]').count()>0,true,'accepted challenge quick chat missing');
+assert.equal(await page.locator('[data-challenge-quick]').count()>0,true,'accepted challenge quick chat missing');const focusProgress=page.locator('[data-challenge-card="accepted"] [data-challenge-progress]');assert.equal(await focusProgress.getAttribute('data-progress-value'),'25','focus challenge must read canonical minutes');assert.equal(await focusProgress.getAttribute('data-progress-target'),'60');assert.equal(await focusProgress.locator('[role="progressbar"]').getAttribute('aria-valuenow'),'42');
 await page.locator('[data-challenge-quick]').first().click();
 await page.waitForFunction(()=>window.__challengeState.quick.length===1);
 

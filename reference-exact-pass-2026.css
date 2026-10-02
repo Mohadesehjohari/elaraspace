@@ -1326,3 +1326,9 @@ body.light .entity-bulk-toolbar{background:#f8f9ff!important;color:#1d2940!impor
 body.light .page-post-actions>button,body.light .page-story-moderation>button{background:#f4f7ff;color:#273650;border-color:#c8d5e8}
 body.light .page-edit-form textarea,body.light .page-report-form textarea,body.light .page-edit-form select,body.light .page-report-form select{background:#fff;color:#17243c;border-color:#c8d5e8}
 @media(max-width:700px){.page-post>header{grid-template-columns:42px minmax(0,1fr)!important}.page-post-actions{grid-column:1/-1;justify-content:flex-end}.page-post-actions>button{min-height:38px;padding-inline:12px}.page-edit-form,.page-report-form{min-width:0;width:min(84vw,520px)}}
+/* 2026-10-02 Challenge canonical progress — self-owned data only; no client-side winner settlement. */
+.challenge-progress{display:grid;gap:6px;margin-top:9px;padding:8px 9px;border:1px solid #355681;border-radius:11px;background:#081b35aa}
+.challenge-progress>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:10px}.challenge-progress>div:first-child span{color:#9eb2d0;font-size:.72rem}.challenge-progress>div:first-child b{color:#8bf3dc;font-size:.75rem}
+.challenge-progress-track{height:8px;border-radius:999px;overflow:hidden;background:#142d50}.challenge-progress-track>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6342ff,#27d6c5);box-shadow:0 0 12px #5d67ff77}
+.challenge-progress>small{color:#7f94b3!important;font-size:.62rem;line-height:1.5}
+body.light .challenge-progress{background:#f3f7ff!important;border-color:#d1dced!important}.challenge-progress>div:first-child b{color:#22a391}body.light .challenge-progress-track{background:#dce6f4}

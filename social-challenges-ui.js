@@ -8,6 +8,19 @@ function toast(message){const el=document.getElementById('toast');if(!el)return;
 function expiresMs(c){return c.expiresAt?.toMillis?.()||Number(c.expiresAtMs)||0}
 function secondsLeft(c){const ms=expiresMs(c);return ms?Math.max(0,Math.ceil((ms-Date.now())/1000)):0}
 function kindLabel(k){return({task:t('تسک','Task'),habit:t('عادت','Habit'),reading:t('مطالعه','Reading'),exercise:t('ورزش','Exercise'),focus:t('تمرکز','Focus'),general:t('آزاد','Open')})[k]||t('آزاد','Open')}
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function localState(){try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}}
+function localWellness(){const uid=current()?.uid;if(!uid)return{};try{return JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{return{}}}
+function sameLocalDay(ms,day=today()){const d=new Date(Number(ms)||0);if(!Number.isFinite(d.getTime()))return false;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`===day}
+function selfProgress(kind){const s=localState(),day=today();
+ if(kind==='task')return (Array.isArray(s.taskCompletionHistory)?s.taskCompletionHistory:[]).filter(x=>x?.date===day).length;
+ if(kind==='habit')return (Array.isArray(s.habits)?s.habits:[]).filter(x=>Array.isArray(x?.days)&&x.days.includes(day)).length;
+ if(kind==='reading')return (Array.isArray(s.books)?s.books:[]).flatMap(b=>Array.isArray(b?.readingLogs)?b.readingLogs:[]).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.pagesRead)||0),0);
+ if(kind==='focus')return (Array.isArray(s.focusSessions)?s.focusSessions:[]).filter(x=>x?.completed!==false&&sameLocalDay(x?.endedAt||x?.startedAt,day)).reduce((n,x)=>n+Math.max(0,Number(x.durationMin)||0),0);
+ if(kind==='exercise')return (Array.isArray(localWellness().workouts)?localWellness().workouts:[]).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.minutes)||0),0);
+ return null
+}
+function progressMarkup(c){if(c.status!=='accepted'||c.targetKind==='general')return'';const value=selfProgress(c.targetKind),target=Math.max(1,Number(c.targetValue)||1),pct=Math.max(0,Math.min(100,Math.round((value/target)*100))),fmt=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');return '<div class="challenge-progress" data-challenge-progress data-progress-kind="'+esc(c.targetKind)+'" data-progress-value="'+value+'" data-progress-target="'+target+'"><div><span>'+t('پیشرفت من','My progress')+'</span><b>'+fmt(value)+' / '+fmt(target)+'</b></div><div class="challenge-progress-track" role="progressbar" aria-label="'+t('پیشرفت من','My progress')+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div><small>'+t('از داده‌های واقعی همین حساب؛ برنده نهایی هنوز نیازمند تأیید سمت سرور است.','From this account’s real data; final winner still requires server verification.')+'</small></div>'}
 function relationLabel(c){if(c.status==='accepted')return t('پذیرفته‌شده','Accepted');if(c.status==='declined')return t('ردشده','Declined');if(c.expired||secondsLeft(c)<=0)return t('منقضی','Expired');return c.to===current()?.uid?t('درخواست برای تو','Incoming request'):t('در انتظار دوستت','Waiting')}
 function card(c){
  const incoming=c.to===current()?.uid,p=c.person||friends().find(x=>x.uid===c.other)||{},pending=c.status==='pending'&&!c.expired&&secondsLeft(c)>0;
@@ -15,7 +28,7 @@ function card(c){
  if(pending&&incoming)actions='<button type="button" class="primary-button" data-challenge-action="accepted" data-challenge-id="'+esc(c.id)+'">'+t('قبول 🔥','Accept 🔥')+'</button><button type="button" class="quiet-button danger" data-challenge-action="declined" data-challenge-id="'+esc(c.id)+'">'+t('رد','Decline')+'</button>';
  else if(pending&&!incoming)actions='<button type="button" class="quiet-button" data-challenge-cancel="'+esc(c.id)+'">'+t('لغو','Cancel')+'</button>';
  else if(c.status==='accepted')actions='<div class="challenge-quick">'+(api()?.quick||[]).map(q=>'<button type="button" data-challenge-quick="'+esc(q)+'" data-challenge-id="'+esc(c.id)+'">'+esc(q)+'</button>').join('')+'</div>';
- return '<article class="social-challenge-card" data-challenge-card="'+esc(c.id)+'"><header><span>⚡</span><div><strong>'+esc(p.name||p.username||t('دوست','Friend'))+'</strong><small>'+kindLabel(c.targetKind)+' · '+relationLabel(c)+'</small></div>'+(pending?'<b data-challenge-expiry="'+expiresMs(c)+'">'+secondsLeft(c)+'s</b>':'')+'</header><p data-elara-ugc dir="auto">'+esc(c.targetText||'')+'</p><small>'+t('هدف: ','Target: ')+Number(c.targetValue||1).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small><footer>'+actions+'</footer></article>'
+ return '<article class="social-challenge-card" data-challenge-card="'+esc(c.id)+'"><header><span>⚡</span><div><strong>'+esc(p.name||p.username||t('دوست','Friend'))+'</strong><small>'+kindLabel(c.targetKind)+' · '+relationLabel(c)+'</small></div>'+(pending?'<b data-challenge-expiry="'+expiresMs(c)+'">'+secondsLeft(c)+'s</b>':'')+'</header><p data-elara-ugc dir="auto">'+esc(c.targetText||'')+'</p><small>'+t('هدف: ','Target: ')+Number(c.targetValue||1).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small>'+progressMarkup(c)+'<footer>'+actions+'</footer></article>'
 }
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
@@ -43,9 +56,9 @@ document.addEventListener('click',async e=>{
  if(e.target.closest('[data-social-view]'))setTimeout(mount,90)
 });
 setInterval(()=>{document.querySelectorAll('[data-challenge-expiry]').forEach(el=>{const left=Math.max(0,Math.ceil((Number(el.dataset.challengeExpiry)-Date.now())/1000));el.textContent=left+'s';if(left<=0){el.closest('.social-challenge-card')?.classList.add('is-expired')}})},1000);
-for(const event of ['elara:social-updated','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(mount,90));
+for(const event of ['elara:social-updated','elara:locale-changed','elara:state-committed','elara:wellness-saved'])window.addEventListener(event,()=>setTimeout(mount,90));
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,120)});
 window.addEventListener('hashchange',()=>setTimeout(mount,140));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,300),{once:true});else setTimeout(mount,300);
-window.ElaraSocialChallengesUI={mount,compose};
+window.ElaraSocialChallengesUI={mount,compose,selfProgress};
 })();
