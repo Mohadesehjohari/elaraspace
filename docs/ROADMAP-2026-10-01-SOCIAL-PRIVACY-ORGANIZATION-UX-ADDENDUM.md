@@ -776,3 +776,64 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - Blog در Sidebar secondary navigation قرار دارد و CTA مقاله می‌تواند به Tasks برود.
 - **BLOG-AI-TUTOR-01 همچنان BACKEND-GATED است:** فقط gate توضیحی وجود دارد؛ هیچ API key یا فراخوانی مستقیم مدل در client اضافه نشده است. فعال‌سازی نیازمند gateway server-side، rate limit، safety و provenance است.
 - Browser acceptance محلی و Pages در workflow P0 اضافه شد؛ تا سبزشدن END-HEAD فقط **TESTING** محسوب می‌شود.
+
+
+---
+
+# W — Store / Elite / Challenge UX / Sync / Information Architecture — 2026-10-03
+
+> این بخش جدیدتر از درخواست‌های V است. موارد Economy/Realtime/Media فقط با backend و Rules واقعی release-ready محسوب می‌شوند.
+
+## W1 — Store تمام‌عیار و Economy
+- **STORE-HUB-02 — REQUESTED / PRODUCT:** فروشگاه با navigation و دسته‌بندی مستقل: Eventها، Token، Skin/Profile cosmetics، Banner/Frame/Status cosmetics، Theme، Seasonal/Featured و Inventory.
+- **ELITE-PASS-01 — REQUESTED / ECONOMY-BACKEND-GATED:** عضویت/Pass ماهانه «Elite» با Token؛ entitlement ماهانه، تاریخ انقضا، inventory، restore purchase و ledger server-verifiable. Elite نباید مزیت رقابتی XP/Rank pay-to-win بدهد.
+- **SEASONAL-CATALOG-01 — REQUESTED:** همهٔ themeها یکجا عرضه نشوند؛ catalog فصلی/rotation با Featured محدود و Archive/Owned جدا.
+- **PROFILE-THEME-CATALOG-01 — REQUESTED:** خانواده‌های theme/cosmetic: Colorways؛ Animals/Masked؛ Suit؛ Zombie؛ Street/Gang؛ Mafia؛ Mommy/Daddy aesthetic؛ Birds؛ Technology؛ Leather؛ Prison؛ Doctor؛ Engineering؛ Scientist؛ Marine؛ Mermaid؛ Princess؛ Blogger؛ Librarian؛ Gaming؛ Minecraft-inspired؛ و themeهای شوتر/تاکتیکالِ original. برای IPهای تجاری مثل Call of Duty/PUBG/Valorant/Warzone از asset/name برند بدون مجوز در catalog production استفاده نشود.
+- **STORE-EVENTS-01 — REQUESTED:** صفحه Event با زمان شروع/پایان، reward، eligibility و claim idempotent.
+- **TOKEN-PURCHASE-02 — BACKEND/PLATFORM-GATED:** خرید Token فقط با payment provider و receipt verification سمت server؛ balance client-authoritative ممنوع.
+- **3D-AVATAR-COMMERCE-02 — LATE R&D:** Avatar سه‌بعدی 360°، hair motion و لباس/اکسسوری قابل خرید. قبل از production نیازمند pipeline مدل، rig، performance budget موبایل، moderation و fallback 2D است.
+
+## W2 — Challenge delivery و realtime notification
+- **CHALLENGE-DELIVERY-03 — REQUESTED / REALTIME-BACKEND-GATED:** سه mode: «همین حالا» با پنجرهٔ ۳۰ ثانیه، «وقتی آنلاین شد»، و «دائمی/Inbox».
+- **CHALLENGE-LIVE-TOAST-01:** گیرندهٔ آنلاین notification گوشه صفحه با Accept/Decline، countdown 30s، و گزینهٔ «درخواست‌های این فرد را نشان نده».
+- **CHALLENGE-RESEND-EDIT-01:** پس از timeout، Resend با همان payload و Edit challenge قبل از ارسال مجدد.
+- **CHALLENGE-MUTE-SENDER-01 — BACKEND-GATED:** mute/block per sender باید server-backed و rate-limited باشد.
+- **PRESENCE-NEON-02 — REQUESTED / REALTIME:** online friend indicator با dot سبز نئونی و TTL/reconnect واقعی.
+
+## W3 — Home Streak visual
+- **HOME-STREAK-FLAME-03 — REQUESTED:** روزهای streak به‌جای checkmark با flame نمایش داده شوند و مربع روز ring/flame neon داشته باشد؛ روز بدون streak neutral بماند.
+
+## W4 — Personal Profile vs Page Profile
+- **PAGE-IDENTITY-SEPARATION-03 — REQUESTED:** Profile شخصی و Page profile دو identity surface مستقل؛ sidebar Page avatar از Page profile بیاید.
+- **PROFILE-CLOUD-MEDIA-SYNC-02 — HIGH PRIORITY / STORAGE-BACKEND-GATED:** عکس پروفایل upload شده باید cloud-backed باشد و روی device دیگر همان حساب sync شود.
+- **STATUS-EMPTY-02 — REQUESTED:** status خالی placeholder عمومی نداشته باشد.
+- **STATUS-COLOR-01 — REQUESTED:** Wardrobe کنترل رنگ Status و sync آن برای viewers.
+- **STATUS-THEME-02 — REQUESTED:** هنگام ساخت status انتخاب theme/cosmetic با entitlement و contrast validation.
+- **DM-DRAFT-SYNC-01 — REQUESTED:** draft پیام Private Chat account-scoped بماند؛ cloud sync نیازمند privacy/retention contract.
+
+## W5 — Reports / Charts / dense screens
+- **REPORT-DELETE-02 — REQUESTED:** گزارش‌های قابل حذف با confirmation و source-safe semantics.
+- **REPORT-MINIMAL-CHARTS-02 — REQUESTED:** chartها مینیمال، کوچک، دارای scale/axis/number واضح و overview قابل مشاهده.
+- **FEATURE-HUB-IA-02 — HIGH PRIORITY / REQUESTED:** featureهای سنگین داخل Home/Library/Friends/Wellness/Focus به card/icon/CTA hub تبدیل شوند و detail به route/subpage مستقل برود.
+- **LIBRARY-CLIPS-HUB-02:** Book Clips از inline block بلند به card/icon و route مستقل منتقل شود.
+- **WELLNESS-HUB-02:** Water/Sleep/Weight/Exercise reports و Analysis به subpageها/tiles مستقل.
+- **FOCUS-HUB-02:** Pomodoro/Ambience/Focus Room به entry card و route مستقل.
+- **FRIENDS-HUB-03:** Friends بالای صفحه tabs برای Private Chats، Groups، Friends/Requests، Activity و Clubs/Clan؛ Ranking در Ranking بماند.
+
+## W6 — Page / status / messaging polish
+- **PAGE-SIDEBAR-AVATAR-01:** entry سمت چپ برای Page از Page avatar cloud-backed استفاده کند.
+- **DM-DRAFT-01:** متن تایپ‌شدهٔ ارسال‌نشده بعد navigation/reload باقی بماند و بعد send پاک شود.
+- **MEDIA-CROSS-DEVICE-01:** media با انتظار cross-device باید Storage-backed + ownership Rules باشد، نه localStorage-only.
+
+## W7 — Suggested Store release order
+1. Catalog + categories + Owned/Inventory + Event UI بدون خرید پولی.
+2. Server ledger + token grants/test economy.
+3. Elite monthly entitlement + seasonal cosmetics.
+4. Payment provider + receipt verification.
+5. 3D Avatar R&D بعد از تثبیت 2D cosmetics و performance budget.
+
+## W8 — Release gates
+- Economy بدون ledger server-authoritative و idempotent transaction DONE نیست.
+- Challenge realtime بدون presence TTL، rate-limit، mute/block و multi-UID E2E DONE نیست.
+- Cross-device avatar/status media بدون Storage Rules و دو-device test DONE نیست.
+- IP-inspired game cosmetics باید original باشند و asset/name برند ثالث بدون مجوز وارد catalog production نشود.
