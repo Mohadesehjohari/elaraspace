@@ -55,6 +55,7 @@ on:
       - 'mission-celebration.js'
       - 'mobile-banner-copy.js'
       - 'social-view.js'
+      - 'tests/social-test.cjs'
       - 'friends-hub.css'
       - 'tests/social-engagement-browser.mjs'
       - 'tests/social-streak-browser.mjs'
@@ -128,6 +129,7 @@ jobs:
           node --check mobile-banner-copy.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
+          node --check tests/social-test.cjs
           node --check social-groups-ui.js
           node --check social-clubs-ui.js
           node --check social-challenges-ui.js
