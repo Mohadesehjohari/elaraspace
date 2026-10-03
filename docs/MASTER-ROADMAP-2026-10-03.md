@@ -721,6 +721,76 @@ Member:
 
 ---
 
+
+# Product extension — 2026-10-04 / Profile, Store, Hubs, Admin & Media
+
+> این بخش جدیدترین تصمیم محصول است و در تعارض مستقیم با بندهای قدیمی دربارهٔ جای Settings، ناوبری موبایل و ساختار Hub مقدم است. قانون Done ابتدای Master همچنان برقرار است. هیچ قابلیت Realtime/Economy/Media فقط با UI، DONE محسوب نمی‌شود.
+
+## X1 — Profile-first Settings / Mobile navigation — HIGH PRIORITY
+- **PROFILE-SETTINGS-HUB-04 — REQUESTED / HIGH PRIORITY:** Settings از Sidebar حذف بماند و داخل Profile یک Gear کوچک داشته باشد. Gear در Header نیز مجاز است اما باید همان Profile Settings را باز کند؛ مقصد جدا و تکراری نسازد.
+- Profile header: Close و Gear کوچک و بدون پوشاندن Level؛ progress bar در جای ثابت و متن XP زیر آن، سمت راست و خوانا.
+- Profile Settings باید شامل Account، Privacy، Blocked accounts، App Language، Calendar، Help، Appearance/Wardrobe و Logout باشد.
+- Notifications/Messages از Profile Settings حذف شوند؛ Notification Center همچنان از Bell در Header باز شود.
+- Reports در انتهای Profile فقط روی Mobile shortcut داشته باشد؛ Desktop همان Reports navigation مستقل را حفظ کند.
+- **MOBILE-PAGE-BLOG-NAV-04:** Ellipsis موبایل برنمی‌گردد. Page در جای overflow قدیمی و Blog کنار Freedom در دسترس مستقیم Mobile قرار بگیرند؛ بدون horizontal overflow.
+- **PROFILE-BANNER-APPLY-04 — BUGFIX:** بنر Equip‌شده باید واقعاً روی Profile composition دیده شود. Avatar و Frame باید shape و اندازهٔ مشترک Circle/Square را رعایت کنند.
+- **PROFILE-NAME-CONTAINER-COSMETICS-04 — REQUESTED:** Theme برای نام و کل مستطیل/کارت Profile با entitlement روشن.
+- Status خالی هیچ placeholder عمومی نشان ندهد.
+
+## X2 — Other-user Profile actions / Relationships
+- **PROFILE-MORE-ACTIONS-04 — REQUESTED:** پروفایل هر شخص Gear ندارد؛ منوی سه‌نقطهٔ مخصوص همان شخص داشته باشد: Block، حذف/پنهان‌کردن Chat از لیست، Nickname خصوصی، Relationship slot.
+- Nickname خصوصی است و UGC ترجمه نمی‌شود.
+- Relationship presets حداقل شامل: همراه، خانواده، داش، سیسی، لاور، دوست، رفیق. هر slot quota روشن دارد؛ Lover و Companion حداکثر یک نفر.
+- **PUBLIC-PAIR-04 — BACKEND/CONSENT-GATED:** نمایش Lover/Companion روی Profile عمومی و کنارهم‌آمدن دو Profile فقط بعد از رضایت دوطرفه، Privacy، revoke و Rules چند UID. local-only metadata نباید به‌عنوان رابطهٔ عمومی جعلی نمایش داده شود.
+- حذف واقعی کل history پیام از سرور فقط با retention/delete contract و Rules انجام شود؛ تا آن زمان «حذف Chat» می‌تواند hide-local امن باشد و پیام جدید آن را دوباره ظاهر کند.
+- **DM-DRAFT-01 — HIGH PRIORITY:** Draft پیام Private Chat account-scoped بعد navigation/reload بماند و بعد Send پاک شود.
+
+## X3 — Store / Cosmetics — URGENT
+- **STORE-HUB-04 — URGENT:** Store مستقل با دسته‌های Featured، Events، Tokens، Profile Skins، Frames، Banners، Status Cosmetics، Themes، Seasonal و Owned/Inventory.
+- فاز اول فقط Catalog/Preview/Equip با assetهای واقعی موجود در repo است؛ balance یا purchase جعلی نمایش داده نشود.
+- خانواده‌های Profile Theme برای catalog/seasonal plan: Colorways، Animals/Masks، Suit، Zombie، Street/Gang، Mafia، Mommy/Daddy aesthetic، Birds، Technology، Leather، Prison، Doctor، Engineering، Scientist، Marine، Mermaid، Princess، Blogger، Librarian، Gaming، Minecraft-inspired و tactical/shooter original.
+- نام/Asset برند Call of Duty / PUBG / Valorant / Warzone بدون مجوز وارد Production catalog نشود؛ فقط aesthetic original و غیرنقض‌کننده.
+- **SEASONAL-CATALOG-04:** همهٔ Themeها همزمان عرضه نشوند؛ rotation فصلی + Featured limited drops + Owned archive.
+- **ELITE-PASS-04 — ECONOMY-BACKEND-GATED:** Elite ماهانه با Token، profile/cosmetic همان ماه، entitlement/expiry/restore purchase و بدون pay-to-win.
+- **TOKEN-LEDGER-04 — SERVER-GATED:** balance، grant، purchase و receipt verification فقط server-authoritative + idempotent ledger.
+- **LEADER-COSMETICS-04:** آیتم ویژهٔ Top Rank/Top Club/Admin با eligibility و expiration قابل audit.
+
+## X4 — Clean Feature Hubs / uploaded IA contract — HIGH PRIORITY
+- Home و Tasks در این pass redesign نشوند؛ functionality موجود حفظ شود.
+- Hub pattern: Launcher visual → route مستقل؛ business logic duplicate نشود.
+- Library Hub: Clips / Search / Reading Reports / Shelves.
+- Language Hub: Leitner / Language Books / Classes / Study Report.
+- Wellness Hub: Water / Sleep / Exercise / Weight / Reports / Analysis.
+- Focus Hub: Pomodoro / Focus Room / Music-Ambience / Deep Work.
+- Friends Hub: Friends / Chats / Groups / Clubs / Activity / Requests؛ فقط tab فعال visible؛ Ranking مستقل.
+- Reports Hub: Reading / Language / Fitness / General Productivity shortcuts و summary؛ full analytics در routeهای مستقل.
+- فقط assetهای موجود و تأییدشدهٔ repo استفاده شوند. Asset ناموجود fabricate نشود و replacement image تولید نشود.
+- freedom-hero-banner.webp و my-goals-icon.webp تا تأیید Asset جدید استفاده نشوند. Asset extra #40 نادیده گرفته شود.
+- Deep-link refresh و Back باید برای routeهای Hub پایدار باشد.
+
+## X5 — Freedom / Diary / Music / Profile song
+- **PRIVATE-DIARY-04 — REQUESTED:** دفتر خاطرات خصوصی account-scoped، edit/delete/search/tag؛ پیش‌فرض private.
+- **DIARY-EXPLORE-TAGS-04 — PRIVACY-GATED:** فقط tagهایی که کاربر صریحاً public می‌کند می‌توانند در Explore aggregation ظاهر شوند؛ متن Diary هرگز خودکار public نشود.
+- **FREEDOM-MUSIC-04 — REQUESTED / EXTERNAL-SOURCE:** بخش Music + Search Music در Freedom با provider قانونی/قابل‌اتکا؛ upload/streaming rights و attribution رعایت شود.
+- **PROFILE-SONG-04 — REQUESTED:** آهنگ Profile با privacy، autoplay خاموش، mute و ownership/source روشن.
+
+## X6 — Tasks presentation
+- **TASK-CARD-GROUP-VIEW-04 — REQUESTED:** toggle نمای فعلی ↔ کارت‌های compact؛ grouping انتخابی بر اساس Folder/List یا Priority color. داده/selection/reorder و منطق Tasks تکرار نشود.
+- Home/Tasks redesign عمومی ممنوع؛ این مورد فقط view mode در خود Tasks است.
+
+## X7 — Admin publishing
+- **ADMIN-BLOG-PUBLISH-04 — REQUESTED / BACKEND-GATED:** Admin بتواند article draft/publish/unpublish و category/cover/locale را مدیریت و داخل Blog سایت منتشر کند.
+- **ADMIN-SITE-PAGE-PUBLISH-04 — REQUESTED / BACKEND-GATED:** محتوای رسمی Site Page از Admin با audit log و role checks.
+- Admin utilities پیشنهادی: content moderation queue، reports، users/roles، catalog/events/seasonal store، notification campaigns، AI gateway/model routing، media review، feature flags، deploy health و audit log. همهٔ عملیات حساس server-side و role-gated.
+
+## X8 — Login / visual entry
+- **LOGIN-COMET-INTRO-04 — REQUESTED:** صفحه Login animation سبکِ ستاره‌های دنباله‌دار و سپس نمایش logo اصلی Elara (نه app mark)، با reduced-motion fallback و budget عملکرد Mobile.
+
+## X9 — Existing requests retained
+Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo library/cloud sync، Focus activity tone، Focus Room، Shared Task، Challenge delivery modes، Presence neon، Home streak flame، Status color/theme، Reports delete/minimal charts، Blog AI Tutor، Page identity/sections، Clubs، Store/Economy و 3D Avatar از بخش‌های قبلی حذف نشده‌اند و همچنان با status/gate فعلی ادامه دارند.
+
+---
+
 # Supersession map
 - `ROADMAP.md`: historical execution log + pointer to this Master.
 - `REMAINING-ROADMAP.md`: short operational queue only.
