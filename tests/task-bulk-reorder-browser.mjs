@@ -23,6 +23,16 @@ async function open(width,height,touch=false){const context=await browser.newCon
  const {page,context}=await open(1440,1000,false);
  const ids=async()=>page.locator('#task-list>.astra-task-row').evaluateAll(rows=>rows.map(r=>r.dataset.key));
  assert.deepEqual((await ids()).slice(0,3),['t1','t2','t3'],'initial task order');
+ const kebabs=page.locator('#task-list .astra-task-more');
+ await kebabs.nth(0).locator('summary').click();await page.waitForTimeout(40);
+ assert.equal(await kebabs.nth(0).getAttribute('open'),'','first task menu did not open');
+ assert.equal(await kebabs.nth(0).locator('summary').getAttribute('aria-expanded'),'true','first task menu aria-expanded mismatch');
+ await kebabs.nth(1).locator('summary').click();await page.waitForTimeout(40);
+ assert.equal(await kebabs.nth(0).getAttribute('open'),null,'opening second task menu did not close first');
+ assert.equal(await kebabs.nth(1).getAttribute('open'),'','second task menu did not open');
+ await page.waitForTimeout(3150);
+ assert.equal(await kebabs.nth(1).getAttribute('open'),null,'idle task menu did not auto-close after three seconds');
+ assert.equal(await kebabs.nth(1).locator('summary').getAttribute('aria-expanded'),'false','idle task menu aria-expanded did not reset');
  const h=await page.locator('[data-task-drag="t1"]').boundingBox(),target=await page.locator('#task-list>.astra-task-row[data-key="t3"]').boundingBox();assert.ok(h&&target);
  await page.mouse.move(h.x+h.width/2,h.y+h.height/2);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height*.78,{steps:8});await page.mouse.up();
  await page.waitForFunction(()=>Number.isFinite(JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id==='t1')?.manualOrder));
