@@ -49,3 +49,19 @@
 .profile-private-relation{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0;padding:9px 11px;border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);border-radius:13px;background:color-mix(in srgb,var(--surface2) 90%,var(--elara-accent) 10%)}.profile-private-relation[hidden]{display:none!important}.profile-private-relation span{display:grid;gap:1px}.profile-private-relation small,.profile-private-relation em{color:var(--muted);font-size:.62rem;font-style:normal}.profile-private-relation strong{font-size:.78rem}
 .profile-more-actions{display:grid;gap:9px}.profile-more-actions>button{min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-weight:800;cursor:pointer}.profile-more-actions>button.danger{color:#ffb3bb;border-color:#ff718055}.profile-more-actions>p{margin:4px 0 0;color:var(--muted);font-size:.68rem;line-height:1.8}
 .profile-relation-editor{display:grid;gap:12px}.profile-relation-editor label{display:grid;gap:6px;font-weight:800}.profile-relation-editor input,.profile-relation-editor select{min-height:44px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);color:var(--text);padding:8px 10px}.profile-public-pair-gate{display:grid;gap:5px;padding:10px;border:1px dashed color-mix(in srgb,var(--border) 65%,var(--elara-accent) 35%);border-radius:12px;color:var(--muted)}.profile-public-pair-gate small{line-height:1.7}
+
+/* Ten direct mobile destinations. One intentional leading track preserves Home at exact center
+   while Blog sits immediately after Freedom and Page occupies the last direct-action slot. */
+@media(max-width:700px){
+ .bottom-nav{grid-template-columns:repeat(11,minmax(0,1fr))!important;grid-auto-flow:column!important}
+ .bottom-nav [data-elara-tab="exercise"]{grid-column:2!important}
+ .bottom-nav [data-elara-tab="language"]{grid-column:3!important}
+ .bottom-nav [data-elara-tab="tasks"]{grid-column:4!important}
+ .bottom-nav [data-elara-tab="social"]{grid-column:5!important}
+ .bottom-nav [data-elara-tab="home"]{grid-column:6!important}
+ .bottom-nav [data-elara-tab="ranking"]{grid-column:7!important}
+ .bottom-nav [data-elara-tab="books"]{grid-column:8!important}
+ .bottom-nav [data-elara-tab="freedom"]{grid-column:9!important}
+ .bottom-nav [data-elara-tab="blog"]{grid-column:10!important}
+ .bottom-nav [data-elara-tab="page"]{grid-column:11!important}
+}
