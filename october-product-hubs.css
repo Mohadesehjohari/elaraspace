@@ -7,7 +7,16 @@
 .feature-source-hidden{display:none!important}.feature-subpage-head{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding:12px 0}.feature-subpage-head>div{display:grid;gap:4px}.feature-subpage-head small{color:var(--elara-accent);font-weight:900;letter-spacing:.08em}.feature-subpage-head h1{margin:0;font-size:clamp(1.25rem,2.5vw,1.85rem)}.feature-subpage-head p{margin:0;color:var(--muted)}
 .feature-back{min-height:42px;padding:8px 13px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:800;cursor:pointer}
 .feature-hub-preview{border:1px solid var(--border);border-radius:18px;background:color-mix(in srgb,var(--surface) 94%,var(--elara-accent) 6%);padding:14px}.feature-hub-preview>header{display:flex;justify-content:space-between;align-items:center;gap:12px}.feature-hub-preview>header button{border:0;background:none;color:var(--elara-accent);font-weight:800;cursor:pointer}.feature-hub-preview>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:10px}.feature-hub-preview article{display:grid;gap:4px;padding:11px;border:1px solid var(--border);border-radius:13px;background:var(--surface2)}.feature-hub-preview small{color:var(--muted)}
-.library-search-launch{display:grid;grid-template-columns:130px 1fr;align-items:center;gap:20px;padding:24px!important}.library-search-launch>.feature-launcher-art{width:120px;height:120px}.library-search-launch>div{display:grid;gap:10px;justify-items:start}.library-report-live{display:grid;gap:14px}.wellness-weight-route-card{display:grid;gap:14px}.wellness-weight-route-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wellness-weight-route-card header h2{display:flex;align-items:center;gap:10px}.wellness-weight-route-card .feature-launcher-art{width:58px;height:58px}
+.library-search-launch{display:grid;grid-template-columns:130px 1fr;align-items:center;gap:20px;padding:24px!important}.library-search-launch>.feature-launcher-art{width:120px;height:120px}.library-search-launch>div{display:grid;gap:10px;justify-items:start}.library-report-live{display:grid;gap:14px}
+/* Library business UI keeps its original layout after being moved out of #panel-books into the Shelves route. */
+#panel-library-shelves #book-form{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:12px}
+#panel-library-shelves #book-title{flex:2;min-width:150px}
+#panel-library-shelves #book-total-pages{width:125px;min-width:90px}
+#panel-library-shelves .bookshelf-filter{margin:0;min-height:35px}
+#panel-library-shelves #book-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;margin:0;padding:0;list-style:none}
+#panel-library-shelves .library-enhancement-tools{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(320px,1.6fr) auto;align-items:center;gap:14px}
+#panel-library-shelves .library-book-actions :is(button,select){position:relative;z-index:2}
+.wellness-weight-route-card{display:grid;gap:14px}.wellness-weight-route-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wellness-weight-route-card header h2{display:flex;align-items:center;gap:10px}.wellness-weight-route-card .feature-launcher-art{width:58px;height:58px}
 .feature-gated-message,.feature-deep-work{display:grid;gap:12px;max-width:760px;margin-inline:auto!important}.feature-gated-message>span{color:#e8b7ff;font-size:.76rem;font-weight:800}
 
 /* Store uses only real repository imagery. */
@@ -31,6 +40,15 @@
  .feature-hub-launchers{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.feature-launcher-card{grid-template-columns:58px minmax(0,1fr) 16px;min-height:104px;padding:11px;gap:9px;border-radius:17px}.feature-launcher-card.is-wide{grid-column:1/-1}.feature-launcher-art{width:56px;height:56px}.feature-launcher-card strong{font-size:.82rem}.feature-launcher-card small{font-size:.65rem;line-height:1.5}.feature-launcher-card>b{font-size:.9rem}
  .feature-hub-preview>div{grid-template-columns:repeat(2,minmax(0,1fr))}.library-search-launch{grid-template-columns:76px 1fr;padding:16px!important}.library-search-launch>.feature-launcher-art{width:72px;height:72px}.wellness-weight-route-fields{grid-template-columns:1fr}
  .feature-subpage-head{align-items:flex-start}.feature-back{flex:0 0 auto}
+ #panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports,#panel-language-books,#panel-language-courses,#panel-language-reports,#panel-wellness-water,#panel-wellness-sleep,#panel-wellness-exercise,#panel-wellness-weight,#panel-wellness-reports,#panel-wellness-analysis,#panel-focus-pomodoro,#panel-focus-ambience,#panel-focus-room,#panel-focus-deep-work,#panel-reports-productivity{padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
+ #panel-library-shelves #book-list{grid-template-columns:1fr!important;gap:9px!important}
+ #panel-library-shelves #book-form{display:grid;grid-template-columns:1fr 1fr}
+ #panel-library-shelves #book-title{grid-column:1/-1;min-width:0}
+ #panel-library-shelves #book-total-pages{width:100%;min-width:0}
+ #panel-library-shelves #book-form>button{grid-column:1/-1}
+ #panel-library-shelves #book-form select{width:100%;min-width:0}
+ #panel-library-shelves .library-enhancement-tools{grid-template-columns:1fr}
+ #panel-library-shelves .library-book-actions :is(button,select){scroll-margin-block-end:165px}
  .store-hero{min-height:170px;padding:18px;border-radius:22px}.store-hero-badge{width:76px;height:76px;flex-basis:76px}.store-hero-badge strong{font-size:1.35rem}.store-hero p{font-size:.75rem}.store-catalog{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.store-product{grid-template-rows:126px auto auto;padding:9px;border-radius:16px}.store-product-copy strong{font-size:.78rem}.store-product-copy small{font-size:.63rem}.store-tabs button{min-height:44px}
  .drawer-profile-head{padding-inline-end:70px!important}.drawer-profile-head .drawer-close,.drawer-profile-head .drawer-settings-gear{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;inset-block-start:7px!important}.drawer-profile-head .drawer-settings-gear{inset-inline-end:44px!important;inset-inline-start:auto!important}
  .drawer-mobile-reports{display:flex!important}.drawer-settings-grid{grid-template-columns:1fr}
