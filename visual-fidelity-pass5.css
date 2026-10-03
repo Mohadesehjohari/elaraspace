@@ -1134,3 +1134,9 @@ body.light .elara-profile-medal,body.light .elara-profile-medal-more{background:
 @media(max-width:700px){
   .elara-profile-status-bubble{inset-inline-start:64%;inset-block-start:-6px;max-width:min(154px,44vw);font-size:.61rem}
 }
+
+
+/* 2026-10-03 profile Status hit-testing: keep status bubble above adjacent profile copy. */
+.elara-profile-composition>.elara-profile-avatar-shell{position:relative;z-index:3}
+.elara-profile-composition>.elara-profile-composition-copy{position:relative;z-index:1}
+.elara-profile-status-bubble{z-index:6!important;pointer-events:auto!important}
