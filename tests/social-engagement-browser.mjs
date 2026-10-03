@@ -37,8 +37,10 @@ async function wire(page){
 async function exercise(width,height){
  const page=await browser.newPage({viewport:{width,height}});await wire(page);
  await page.goto(base+'/?engagement-stage7='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraEngagementView&&document.querySelector('[data-engagement-kind="activity"][data-engagement-id="a1"]')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
- const activity=page.locator('[data-engagement-kind="activity"][data-engagement-id="a1"]').first();
+ await page.waitForFunction(()=>window.ElaraEngagementView&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.locator('#elara-social-page [data-social-view="activity"]').click();
+ await page.waitForSelector('#elara-social-page [data-engagement-kind="activity"][data-engagement-id="a1"]');
+ const activity=page.locator('#elara-social-page [data-engagement-kind="activity"][data-engagement-id="a1"]').first();
  await activity.locator('[data-engagement-like]').click();await page.waitForFunction(()=>window.__engagementOps?.some(x=>x.type==='like'&&x.kind==='activity'));
  assert.equal(digitValue(await activity.locator('[data-engagement-like-count]').innerText()),1,width+': activity like count');
  await activity.locator('[data-engagement-comment]').click();await page.waitForSelector('.engagement-dialog');
