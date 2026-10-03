@@ -22,6 +22,7 @@ on:
       - 'tests/pass4-account-wardrobe-theme.test.mjs'
       - 'approved-wellness.js'
       - 'tests/wellness-analysis.test.cjs'
+      - 'tests/wellness-notes-browser.mjs'
       - 'reference-home-shell-2026.css'
       - 'reference-home-shell-2026.js'
       - 'visual-fidelity-pass4.css'
@@ -128,6 +129,7 @@ jobs:
           node --check approved-wellness.js
           node --check tests/wellness-analysis.test.cjs
           node tests/wellness-analysis.test.cjs
+          node --check tests/wellness-notes-browser.mjs
           node --check reference-home-shell-2026.js
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/focus-ambience-browser.mjs
@@ -155,6 +157,8 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-p0-http.log 2>&1 &
           sleep 2
+      - name: Verify private Wellness plan notes
+        run: timeout 60s node tests/wellness-notes-browser.mjs
       - name: Verify language shelf, reading/delete and centered mobile profile
         run: timeout 180s node tests/p0-language-popup-browser.mjs
       - name: Verify Library Stage 4 interactions

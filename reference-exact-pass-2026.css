@@ -1392,3 +1392,12 @@ body.light .page-media{background:#f2f5fb;border-color:#cbd8ea}body.light .page-
  .elara-mobile-banner .elara-mobile-banner-copy-target{transition:none!important;transform:none!important;filter:none!important}
  .elara-mobile-banner.is-copy-collapsed .elara-mobile-banner-copy-target{opacity:1!important;pointer-events:auto!important}
 }
+
+/* 2026-10-03 Wellness private plan notes. */
+.wellness-plans{grid-column:1/-1!important}
+.wellness-plans>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.wellness-plans>header span{color:var(--muted);font-size:.76rem}
+.wellness-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wellness-plan-grid>article{min-height:150px;padding:14px;border:1px solid color-mix(in srgb,var(--border) 76%,var(--elara-accent) 24%);border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface2) 90%,var(--elara-accent) 10%),var(--surface2))}
+.wellness-plan-grid article>header{display:flex;align-items:center;justify-content:space-between;gap:10px}.wellness-plan-grid article>header>div{display:flex;gap:7px}.wellness-plan-grid p{margin:14px 0 0;white-space:pre-wrap;line-height:1.9;color:var(--text)}
+.wellness-plan-delete{color:#ff718f!important}.wellness-plan-editor{display:grid;gap:8px}.wellness-plan-editor label{display:grid;gap:8px}.wellness-plan-editor textarea{min-height:240px;resize:vertical}
+body.light .wellness-plan-grid>article{background:#fff!important;border-color:#cfdaec!important;color:#17233c!important}
+@media(max-width:700px){.wellness-plan-grid{grid-template-columns:1fr}.wellness-plan-grid>article{min-height:126px}.wellness-plan-editor textarea{min-height:210px}}

@@ -715,7 +715,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 
 ## V3 — Wellness، Focus و Pomodoro
 
-- **WELLNESS-PLAN-NOTES-01 — REQUESTED:** داخل ورزش بخش Note برای برنامهٔ تمرینی و برنامهٔ تغذیه؛ account-scoped، قابل ویرایش/حذف و بدون انتشار پیش‌فرض.
+- **WELLNESS-PLAN-NOTES-01 — IMPLEMENTED / TESTING:** داخل ورزش بخش Note برای برنامهٔ تمرینی و برنامهٔ تغذیه؛ account-scoped، قابل ویرایش/حذف و بدون انتشار پیش‌فرض.
 - **FOCUS-ACTIVITY-02 — REQUESTED / BACKEND-REQUIRED:** مدت Focus/Deep Work و Tag اختیاری به Activity دوستان/Notification برود؛ متن صمیمی، کوتاه، locale-aware و Privacy-aware باشد. Public فقط به Global Activity مجاز برود.
 - **GLOBAL-ACTIVITY-01 — REQUESTED / BACKEND-GATED:** feed جهانی برای eventهای public با moderation/report/block/rate-limit؛ private/friends هرگز leak نشوند.
 - **FOCUS-ROOM-01 — REQUESTED / REALTIME-BACKEND-GATED:** دعوت دوست به Focus Room، Avatar اعضا، Pomodoro بزرگ، start/stop per participant و رویدادهای stop/leave/page-hide/tab-change با semantics شفاف. Presence نباید «تقلب/ترک قطعی» را صرفاً از visibilitychange حدس بزند؛ reconnect/timeout contract لازم است.
@@ -731,7 +731,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 ## V5 — Tasks، Habits و Lists
 
 - **TASK-CONTEXT-MULTISELECT-02 — REQUESTED:** Desktop right-click روی Task وارد selection mode شود؛ کلیک روی Taskهای بعدی آن‌ها را toggle کند؛ Copy/Move/Delete/Cancel و keyboard alternative حفظ شود.
-- **TASK-MENU-EXCLUSIVE-02 — REQUESTED / BUGFIX:** هم‌زمان فقط یک منوی سه‌نقطه باز باشد؛ بازکردن منوی Task جدید قبلی را ببندد؛ منوی رهاشده حداکثر بعد از ۳ ثانیه بدون تعامل بسته شود و keyboard focus را خراب نکند.
+- **TASK-MENU-EXCLUSIVE-02 — IMPLEMENTED / TESTING:** هم‌زمان فقط یک منوی سه‌نقطه باز باشد؛ بازکردن منوی Task جدید قبلی را ببندد؛ منوی رهاشده حداکثر بعد از ۳ ثانیه بدون تعامل بسته شود و keyboard focus را خراب نکند.
 - **TASK-BULK-DELETE-ALL-02 — REQUESTED:** در Tasks امکان حذف همهٔ Taskها از scopeهای معتبر با confirmation دو مرحله‌ای و حفاظت از linked sourceها.
 - **TASK-DAY-LIFECYCLE-02 — REQUESTED / DATA-MIGRATION:** Task یک‌روزهٔ دیروز در Today نماند؛ Task تکمیل‌شدهٔ یک‌روزه به بخش «تسک‌های تیک‌خورده» منتقل/آرشیو شود؛ recurrence و history پاک نشوند.
 - **CHECKLIST-01 — REQUESTED:** List بلندِ shopping-style با آیتم‌های checkable، reorder و persistence.
