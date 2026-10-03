@@ -42,6 +42,9 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="clubs"]').click();
  await page.waitForSelector('.social-clubs-section');
  assert.match(await page.locator('.social-clubs-section').innerText(),/کلاب تست/,width+': Clubs tab did not mount club service data');
+ await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
+ await page.waitForSelector('.social-dm-section');
+ assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats did not remount after switching tabs');
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);
  const enLabels=await page.locator('#elara-social-page .social-tabs [role="tab"]').allTextContents();
  for(const label of ['Chats','Groups','Friends','Requests','Activity','Clubs'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
