@@ -14,7 +14,8 @@ function seed(){
   {id:'t1',text:'تسک یک',date:day,priority:'4',completed:false,createdAt:1},
   {id:'t2',text:'تسک دو',date:day,priority:'4',completed:false,createdAt:2},
   {id:'t3',text:'تسک سه',date:day,priority:'4',completed:false,createdAt:3},
-  {id:'t4',text:'مطالعه کتاب منبع',date:day,priority:'4',completed:false,createdAt:4,linkedTask:true,sourceType:'book',sourceId:'book-source',sourceGroup:'book',sourceLabel:'کتابخانه',sourceManaged:true}
+  {id:'t4',text:'مطالعه کتاب منبع',date:day,priority:'4',completed:false,createdAt:4,linkedTask:true,sourceType:'book',sourceId:'book-source',sourceGroup:'book',sourceLabel:'کتابخانه',sourceManaged:true},
+  {id:'t5',text:'تسک تیک‌خورده دیروز',date:(()=>{const x=new Date(day+'T12:00:00');x.setDate(x.getDate()-1);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`})(),priority:'4',completed:true,doneAt:(()=>{const x=new Date(day+'T12:00:00');x.setDate(x.getDate()-1);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`})(),xpAwarded:true,createdAt:5}
  ]}));localStorage.setItem('elara_locale_v1','fa')
 }
 async function wire(page){await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));await page.route('**/elara-page.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:pageStub}));await page.route('**/social-engagement.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:engagementStub}));await page.addInitScript(seed)}
@@ -23,6 +24,9 @@ async function open(width,height,touch=false){const context=await browser.newCon
  const {page,context}=await open(1440,1000,false);
  const ids=async()=>page.locator('#task-list>.astra-task-row').evaluateAll(rows=>rows.map(r=>r.dataset.key));
  assert.deepEqual((await ids()).slice(0,3),['t1','t2','t3'],'initial task order');
+ assert.equal((await ids()).includes('t5'),false,'completed past one-off stayed in active task list');
+ assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="t5"]').count(),1,'completed past one-off missing from checked archive');
+ assert.match(await page.locator('#task-checked-archive').innerText(),/تسک تیک‌خورده دیروز/,'checked archive lost task title');
  const row1=page.locator('#task-list>.astra-task-row[data-key="t1"] .item-content'),row2=page.locator('#task-list>.astra-task-row[data-key="t2"] .item-content');
  await row1.dispatchEvent('contextmenu',{button:2});await page.waitForTimeout(40);
  assert.equal(await page.locator('#panel-tasks').evaluate(el=>el.classList.contains('task-selection-mode')),true,'desktop right-click did not enter task selection mode');
