@@ -57,6 +57,12 @@ on:
       - 'social-view.js'
       - 'tests/social-test.cjs'
       - 'friends-hub.css'
+      - 'feature-hubs-shell.js'
+      - 'feature-hubs-2026.js'
+      - 'store-view.js'
+      - 'profile-social-tools.js'
+      - 'october-product-hubs.css'
+      - 'tests/product-hubs-store-browser.mjs'
       - 'tests/social-engagement-browser.mjs'
       - 'tests/social-streak-browser.mjs'
       - 'tests/social-layout-browser.mjs'
@@ -102,7 +108,7 @@ permissions:
 jobs:
   p0-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -129,6 +135,11 @@ jobs:
           node --check mobile-banner-copy.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
+          node --check feature-hubs-shell.js
+          node --check feature-hubs-2026.js
+          node --check store-view.js
+          node --check profile-social-tools.js
+          node --check tests/product-hubs-store-browser.mjs
           node --check tests/social-test.cjs
           node --check social-groups-ui.js
           node --check social-clubs-ui.js
@@ -190,6 +201,8 @@ jobs:
         run: timeout 90s node tests/friends-groups-ui-browser.mjs
       - name: Verify dedicated Friends Hub tabs
         run: timeout 90s node tests/friends-hub-browser.mjs
+      - name: Verify product hubs, Profile Settings and Store
+        run: timeout 120s node tests/product-hubs-store-browser.mjs
       - name: Verify Clubs Stage 11 interactions
         run: timeout 90s node tests/clubs-stage11-browser.mjs
       - name: Verify Challenges Stage 12 interactions
@@ -286,6 +299,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/friends-hub-browser.mjs
+      - name: Verify deployed product hubs, Profile Settings and Store
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 120s node tests/product-hubs-store-browser.mjs
       - name: Verify deployed Clubs Stage 11 interactions
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
