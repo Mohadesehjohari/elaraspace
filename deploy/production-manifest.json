@@ -148,7 +148,12 @@
     "collection-level.js",
     "mobile-banner-copy.js",
     "blog-view.js",
-    "friends-hub.css"
+    "friends-hub.css",
+    "feature-hubs-shell.js",
+    "feature-hubs-2026.js",
+    "store-view.js",
+    "profile-social-tools.js",
+    "october-product-hubs.css"
   ],
   "files": [
     ".htaccess",
@@ -396,6 +401,11 @@
     "task-collections.js",
     "mobile-banner-copy.js",
     "blog-view.js",
-    "friends-hub.css"
+    "friends-hub.css",
+    "feature-hubs-shell.js",
+    "feature-hubs-2026.js",
+    "store-view.js",
+    "profile-social-tools.js",
+    "october-product-hubs.css"
   ]
 }
