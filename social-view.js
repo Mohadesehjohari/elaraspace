@@ -10,8 +10,8 @@ const person=p=>{const model=profileModel(p),shape=model?.shape||'circle',font=m
 const section=(title,body,cls='')=>`<section class="elara-card social-section ${cls}"><header><h2>${title}</h2></header>${body}</section>`;
 const socialStats=p=>`<span class="social-person-stats"><b>${fa(p.xp)} XP</b>${Number.isInteger(Number(p.streak))?`<small class="social-streak" aria-label="استریک ${fa(p.streak)} روز">🔥 ${fa(p.streak)}</small>`:''}</span>`;
 const rankingTabs=[['ranking','رنکینگ','Ranking','ranking-tab-active.webp'],['friends','دوستان','Friends','friends-tab.webp'],['community','جامعه','Community','community-tab.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp']];
-const socialTabs=[['chats','گفتگوها','Chats','friends-group-icon.webp'],['groups','گروه‌ها','Groups','clubs-tab.webp'],['friends','دوستان','Friends','friends-tab.webp'],['requests','درخواست‌ها','Requests','invite-friend-button.webp'],['activity','فعالیت','Activity','ranking-chart-icon.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp']];
-let selections={social:'chats',ranking:'ranking'};
+const socialTabs=[['friends','دوستان','Friends','friends-tab.webp'],['chats','گفتگوها','Chats','friends-group-icon.webp'],['groups','گروه‌ها','Groups','clubs-tab.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp'],['activity','فعالیت','Activity','ranking-chart-icon.webp'],['requests','درخواست‌ها','Requests','invite-friend-button.webp']];
+let selections={social:'friends',ranking:'ranking'};
 function render(){
  const s=window.ElaraSocial||{},friends=arr(s.friends),me=s.me,uid=me?.uid,ranked=[me,...friends].filter(Boolean).sort((a,b)=>Number(b.xp||0)-Number(a.xp||0)),incoming=arr(s.requests).filter(r=>r.to===uid&&r.status==='pending');
  const requests=incoming.map(r=>`<div class="social-row" data-key="${esc(r.id)}">${person(r.person||{})}${imageButton('accept-request-button.webp','قبول درخواست',`data-friend-action="accept" data-request="${esc(r.id)}"`)}${imageButton('decline-request-button.webp','رد درخواست',`data-friend-action="decline" data-request="${esc(r.id)}"`)}</div>`).join('')||empty('فعلاً کسی در نزده 😄 وقتی یه درخواست تازه بیاد، همین‌جا پیداش می‌کنی.');
