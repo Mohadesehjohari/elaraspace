@@ -68,4 +68,18 @@ async function open(width,height,touch=false){const context=await browser.newCon
  await page.keyboard.press('Escape');assert.equal(await page.locator('#task-bulk-toolbar').isHidden(),true,'Escape did not cancel selection');
  const m=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(m.sw<=m.w+1,'mobile task bulk overflow '+JSON.stringify(m));await page.screenshot({path:'browser-artifacts/task-bulk-390.png',fullPage:true});await context.close();
 }
+{
+ const {page,context}=await open(1440,1000,false);
+ await page.locator('#task-selection-toggle').click();
+ await page.locator('[data-task-bulk="delete-scope"]').click();
+ await page.waitForSelector('.elara-dialog-layer');
+ await page.locator('.elara-dialog-actions .elara-dialog-danger').click();
+ await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-layer').length>0);
+ await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.length===0);
+ const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));
+ assert.ok((state.linkedTaskDismissals||[]).length>=1,'delete-scope did not preserve linked-source dismissal');
+ assert.equal(await page.locator('#task-list>.astra-task-row').count(),0,'delete-scope left visible tasks behind');
+ await context.close();
+}
 await browser.close();console.log('TASK_BULK_STAGE9_PASS pointer+keyboard reorder bulk move duplicate linked-delete longpress 390/1440');
