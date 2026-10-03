@@ -4,8 +4,8 @@ const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>
 const lang=()=>document.documentElement.lang==='en'?'en':'fa',tx=(fa,en)=>lang()==='en'?en:fa;
 let category='featured';
 const cats=[
- ['featured','ویژه','Featured'],['themes','تم‌ها','Themes'],['profiles','پروفایل‌ها','Profiles'],['frames','قاب‌ها','Frames'],['banners','بنرها','Banners'],
- ['seasonal','سیزنی','Seasonal'],['owned','دارایی‌های من','Owned'],['events','ایونت‌ها','Events'],['elite','الایت','Elite'],['tokens','توکن','Tokens']
+ ['featured','ویژه','Featured'],['themes','تم‌ها','Themes'],['profiles','اسکین / پروفایل','Skins / Profiles'],['frames','قاب‌ها','Frames'],['banners','بنرها','Banners'],
+ ['status','استاتوس','Status'],['page','پیج','Page'],['seasonal','سیزنی','Seasonal'],['owned','دارایی‌های من','Owned'],['events','ایونت‌ها','Events'],['elite','الایت','Elite'],['tokens','توکن','Tokens']
 ];
 const themeAssets=[
  ['theme_dark.webp','Dark','dark'],['theme_white.webp','Light','light'],['theme_minimal.webp','Minimal','minimal'],['theme_galaxy_purple.webp','Galaxy','galaxy'],
@@ -62,6 +62,12 @@ function gatedSection(kind){
  if(kind==='elite')return '<section class="store-gated-hero"><span>ELARA ELITE</span><h2>'+tx('الایت ماهانه','Monthly Elite')+'</h2><p>'+tx('پروفایل‌ها و cosmeticهای ویژهٔ هر ماه بعد از entitlement و expiry واقعی فعال می‌شوند؛ هیچ مزیت XP/Rank فروشی وجود ندارد.','Monthly profile cosmetics activate after real entitlement and expiry; Elite never sells XP/Rank advantage.')+'</p><button disabled>'+tx('Economy backend در حال آماده‌سازی','Economy backend required')+'</button></section>';
  return '<section class="store-gated-hero"><span>EVENTS</span><h2>'+tx('فعلاً ایونت زنده‌ای منتشر نشده','No live event is published yet')+'</h2><p>'+tx('ایونت واقعی باید زمان، eligibility، reward و claim idempotent داشته باشد. این صفحه event ساختگی نشان نمی‌دهد.','A real event needs timing, eligibility, rewards and idempotent claiming. This page never fabricates events.')+'</p></section>'
 }
+function assetPending(kind){
+ const copy=kind==='status'
+  ?[tx('آیتم‌های استاتوس','Status cosmetics'),tx('رنگ، قاب و Theme استاتوس بعد از ورود Assetهای تأییدشده اینجا قرار می‌گیرند. فعلاً آیتم ساختگی نمایش داده نمی‌شود.','Status colors, frames and themes appear here after approved assets are added. No fake item is shown now.')]
+  :[tx('آیتم‌های پیج','Page cosmetics'),tx('Avatar، Banner و ظاهر مستقل Page بعد از Asset و ownership واقعی از همین دسته مدیریت می‌شوند.','Independent Page avatars, banners and cosmetics will live here after real assets and ownership are available.')];
+ return '<section class="store-gated-hero"><span>'+esc(kind==='status'?'STATUS COSMETICS':'PAGE COSMETICS')+'</span><h2>'+copy[0]+'</h2><p>'+copy[1]+'</p><button type="button" disabled>'+tx('در انتظار Asset تأییدشده','Approved assets required')+'</button></section>'
+}
 function seasonal(){
  return '<section class="store-seasonal-plan"><header><span>SEASONAL ROTATION</span><h2>'+tx('خانواده‌های تم برای Dropهای فصلی','Theme families for seasonal drops')+'</h2><p>'+tx('فقط asset واقعی که بعداً آپلود و تأیید شود وارد Catalog می‌شود. نام/Asset برندهای ثالث بدون مجوز استفاده نمی‌شود.','Only uploaded, approved assets enter the catalog. Third-party brand names/assets are not used without permission.')+'</p></header><div>'+seasonalFamilies.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div></section>'
 }
@@ -73,6 +79,7 @@ function body(){
  if(category==='banners')return bannerProducts();
  if(category==='owned')return owned();
  if(category==='seasonal')return seasonal();
+ if(['status','page'].includes(category))return assetPending(category);
  if(['events','elite','tokens'].includes(category))return gatedSection(category);
  return ''
 }
@@ -80,7 +87,7 @@ function render(){
  const host=$('#panel-store');if(!host)return;host.classList.add('store-panel');
  host.innerHTML='<section class="store-hero"><div><small>ELARA · COSMETIC STORE</small><h1>'+tx('فروشگاه الارا','Elara Store')+'</h1><p>'+tx('پروفایل، قاب، بنر و تم‌های واقعی؛ آیتم‌های اقتصادی تا Backend واقعی قفل می‌مانند.','Real profile cosmetics, frames, banners and themes; economy features stay gated until the backend is real.')+'</p></div><div class="store-hero-badge"><span>'+tx('سطح','Level')+'</span><strong>'+level().toLocaleString(lang()==='en'?'en-US':'fa-IR')+'</strong></div></section>'+
  '<nav class="store-tabs" aria-label="'+tx('دسته‌های فروشگاه','Store categories')+'">'+cats.map(([id,fa,en])=>'<button type="button" data-store-category="'+id+'" class="'+(id===category?'active':'')+'">'+tx(fa,en)+'</button>').join('')+'</nav>'+
- '<section class="store-catalog '+(['seasonal','events','elite','tokens'].includes(category)?'store-catalog-wide':'')+'">'+body()+'</section>'+
+ '<section class="store-catalog '+(['seasonal','status','page','events','elite','tokens'].includes(category)?'store-catalog-wide':'')+'">'+body()+'</section>'+
  '<aside class="store-policy-note">'+tx('فاز فعلی Catalog/Preview/Equip است. خرید پولی، Token، Elite و entitlement بدون سرور واقعی فعال نمی‌شوند.','This phase is Catalog/Preview/Equip. Payments, Tokens, Elite and entitlements stay disabled without a real server ledger.')+'</aside>';
  if($('#page-title'))$('#page-title').textContent=tx('فروشگاه','Store')
 }
