@@ -146,7 +146,8 @@
     "entity-bulk-selection.js",
     "task-collections.js",
     "collection-level.js",
-    "mobile-banner-copy.js"
+    "mobile-banner-copy.js",
+    "blog-view.js"
   ],
   "files": [
     ".htaccess",
@@ -392,6 +393,7 @@
     "entity-reorder.js",
     "entity-bulk-selection.js",
     "task-collections.js",
-    "mobile-banner-copy.js"
+    "mobile-banner-copy.js",
+    "blog-view.js"
   ]
 }
