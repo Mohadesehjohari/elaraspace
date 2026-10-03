@@ -22,10 +22,21 @@ function seed(){
  for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k?.startsWith('elara_language_books_v2_migrated_'))localStorage.removeItem(k)}
 }
 async function stub(page){
+ page.__p0Errors=[];
+ page.on('pageerror',e=>page.__p0Errors.push('pageerror: '+e.message));
+ page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))page.__p0Errors.push('console: '+m.text())});
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
 }
-async function waitBoot(page){await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraOpen&&window.ElaraDialog,null,{timeout:15000})}
+async function waitBoot(page){
+ try{return await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraOpen&&window.ElaraDialog,null,{timeout:15000})}
+ catch(error){
+  const diag=await page.evaluate(()=>({booting:document.documentElement.hasAttribute('data-elara-booting'),ready:document.readyState,hash:location.hash,open:typeof window.ElaraOpen,dialog:typeof window.ElaraDialog,levels:window.ElaraLevels?{version:window.ElaraLevels.VERSION,level820:window.ElaraLevels.level?.(820),level68030:window.ElaraLevels.level?.(68030),threshold80:window.ElaraLevels.threshold?.(80),source:String(window.ElaraLevels.level||'').slice(0,220)}:null,scripts:[...document.scripts].slice(-12).map(s=>s.src||'[inline]')}));
+  console.error('[P0-BOOT-DIAG] '+JSON.stringify({diag,errors:page.__p0Errors||[]}));
+  await page.screenshot({path:`${out}/boot-timeout-${Date.now()}.png`,fullPage:false}).catch(()=>{});
+  throw error
+ }
+}
 async function withinViewport(page,selector,label){
  const box=await page.locator(selector).first().boundingBox();assert.ok(box,label+' missing');
  const vh=await page.evaluate(()=>innerHeight);

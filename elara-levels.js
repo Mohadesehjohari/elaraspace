@@ -41,5 +41,5 @@ function progress(xp){const value=Math.max(0,Number(xp)||0),l=level(value),min=t
 function medals(counts={},xp=0,locale=document.documentElement.lang){const l=level(xp);return MEDALS.map(m=>({id:m.id,label:locale==='en'?m.en:m.fa,earned:!!m.test(counts,l),level:l}))}
 const registry=Object.freeze({VERSION:'20261003-infinite-v2',threshold,level,title,titleForLevel,rank,rankForLevel,progress,medals,TITLES,RANKS,MEDALS});
 Object.defineProperty(window,'ElaraLevels',{value:registry,writable:false,configurable:false,enumerable:true});
-window.dispatchEvent(new CustomEvent('elara:levels-ready',{detail:{version:registry.VERSION}}));
+window.dispatchEvent(new Event('elara:levels-ready'));
 })();
