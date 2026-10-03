@@ -18,7 +18,18 @@ const SIDEBAR=Object.freeze([...MAIN,FRIEND]);
 const DESKTOP_ORDER=Object.freeze(['home','tasks','language','books','exercise','ranking','social','freedom']);
 const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'chart'},PAGE,BLOG,STORE]);
 /* Navigation artwork is sourced only from files verified on the current main branch. */
-const ASSETS=Object.freeze({home:['nav-home-default.webp','nav-home-active.webp'],tasks:['nav-tasks-default.webp','nav-tasks-active.webp'],language:['nav-language-default.webp','nav-language-active.webp'],books:['nav-library-default.webp','nav-library-active.webp'],ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],social:['friends-group-icon.webp','friends-group-icon.webp'],freedom:['icon-freedom-lotus.webp','icon-freedom-lotus.webp']});
+const ASSETS=Object.freeze({
+ home:['nav-home-default.webp','nav-home-active.webp'],
+ tasks:['11-tasks-nav-default.webp','12-tasks-nav-active.webp'],
+ language:['07-language-nav-default.webp','08-language-nav-active.webp'],
+ books:['01-library-nav-default.webp','02-library-nav-active..webp'],
+ ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],
+ exercise:['03-wellness-nav-default.webp','04-wellness-nav-active.webp'],
+ social:['09-friends-nav-default.webp','10-friends-nav-active.webp'],
+ freedom:['13-freedom-nav-default.webp','14-freedom-nav-active.webp'],
+ reports:['05-reports-nav-default.webp','06-reports-nav-active.webp'],
+ store:['15-store-nav-default.webp','16-store-nav-active.webp']
+});
 const root='assets/ui/';
 const fallback=n=>window.ElaraIcons?.icon?.(n)||'<span class="elara-icon" aria-hidden="true"></span>';
 let current=(location.hash.replace(/^#/,'')||'home');
