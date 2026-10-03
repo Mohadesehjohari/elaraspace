@@ -214,7 +214,7 @@ for(const width of all){
   await check(`${width}: profile upload/shape/font and Settings modal`,async()=>{
    await page.evaluate(()=>{window.ElaraAccount={user:{uid:'profile-qa',photoURL:''},profile:{uid:'profile-qa',name:'Aren',username:'aren',xp:820}};ElaraSocial.me={uid:'profile-qa',name:'Aren',username:'aren',xp:820,profilePublic:true};ElaraSocial.saveProfileValues=async values=>({profile:values,warnings:[]});ElaraPrivateDrawer.open('account')});await page.waitForTimeout(80);
    const panel=await rect(page,'.elara-private-drawer-panel');if(mobile){assert.ok(panel.width>=width*.9&&panel.width<=width*.98);const vp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));assert.ok(Math.abs(panel.x+panel.width/2-vp.w/2)<=3&&Math.abs(panel.y+panel.height/2-vp.h/2)<=Math.max(10,vp.h*.03),'Settings panel is not centered: '+JSON.stringify({panel,vp}))}else assert.ok(panel.width>=width*.58&&panel.width<=width*.7);
-   await page.evaluate(()=>ElaraProfileSystem.openEditor());await page.waitForTimeout(40);
+   await page.evaluate(()=>{void ElaraProfileSystem.openEditor()});await page.waitForTimeout(40);
    assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'profile Save must be visible immediately');
    const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/D/PwMDAwMDEwMDAwAANQUD/TehZAAAAABJRU5ErkJggg==','base64');
    await page.locator('#elara-central-profile-form input[type=file]').setInputFiles({name:'profile.png',mimeType:'image/png',buffer:png});await page.waitForTimeout(100);
