@@ -18,7 +18,10 @@
   border-radius:14px!important;
   background:linear-gradient(145deg,#0a2342,#081a33)!important;
   color:#dce8ff!important;
-  font:800 .84rem/1.2 inherit!important;
+  font-family:inherit!important;
+  font-weight:800!important;
+  font-size:.84rem!important;
+  line-height:1.2!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
