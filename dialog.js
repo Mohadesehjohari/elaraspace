@@ -25,7 +25,7 @@
     if(root)return;
     root=document.createElement('div');root.id='elara-dialog-root';root.className='elara-dialog-root hidden';root.hidden=true;
     document.body.append(root);
-    Object.assign(root.style,{position:'fixed',inset:'0',zIndex:'100020',display:'block',width:'100vw',height:'100dvh',padding:'0',overflow:'hidden'});
+    Object.assign(root.style,{position:'fixed',inset:'0',zIndex:'2147483000',display:'block',width:'100vw',height:'100dvh',padding:'0',overflow:'hidden'});root.style.setProperty('--elara-overlay-z','2147483000');
     root.addEventListener('keydown',event=>{
       const entry=stack.at(-1);if(!entry)return;
       if(event.key==='Escape'){event.preventDefault();event.stopPropagation();finish(null);return}
@@ -68,7 +68,7 @@
   }
 
   function open({title='پیام Elara',message='',content=null,actions=null,wide=false}={}){
-    ensure();lockViewport();
+    ensure();root.style.setProperty('--elara-overlay-z','2147483000');lockViewport();
     const id='elara-dialog-title-'+(++serial),layer=document.createElement('div');
     layer.className='elara-dialog-layer';
     Object.assign(layer.style,{position:'absolute',inset:'0',display:'grid',placeItems:'center',width:'100%',height:'100%',padding:'18px',overflow:'hidden',zIndex:String(100+serial)});

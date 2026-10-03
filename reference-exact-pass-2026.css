@@ -1535,3 +1535,7 @@ body.light #panel-focus .focus-cycle-config input[type="number"],body.light #pan
 .page-hero.is-target-page{border-color:#6e52c7!important;box-shadow:inset 0 1px #fff2,0 16px 42px #0004,0 0 26px #6f47d526!important}.page-target-back{margin-top:12px!important;min-height:42px!important;font-weight:800!important}
 body.light .elara-profile-page-entry{color:#fff!important}.page-hero.is-target-page h1 [data-elara-ugc]{unicode-bidi:plaintext}
 @media(max-width:700px){.profile-fullscreen-viewer{min-width:0;max-width:92vw}.profile-fullscreen-viewer img{max-width:88vw;max-height:68vh;border-radius:18px}.elara-profile-page-entry{width:100%;min-height:52px}.page-target-back{width:100%}}
+
+
+/* 2026-10-03 Modal topmost guard — Stage 6 profile/page regression. */
+#elara-dialog-root{z-index:2147483000!important;isolation:isolate!important}
