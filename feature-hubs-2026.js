@@ -53,18 +53,20 @@ function setupLibrary(){
 }
 function setupLanguage(){
  const parent=$('panel-language');if(!parent)return;parent.classList.add('feature-hub-parent','language-feature-hub');
- const grid=parent.querySelector('.approved-language-grid'),books=parent.querySelector('[data-language-block="books"]'),report=parent.querySelector('[data-language-block="report"]'),courses=parent.querySelector('[data-language-block="courses"]'),leitner=parent.querySelector('[data-language-block="leitner"]');
- const bp=$('panel-language-books'),rp=$('panel-language-reports'),cp=$('panel-language-courses');
+ const grid=parent.querySelector('.approved-language-grid'),books=parent.querySelector('[data-language-block="books"]'),report=parent.querySelector('[data-language-block="report"]'),courses=parent.querySelector('[data-language-block="courses"]'),leitner=document.querySelector('[data-language-block="leitner"]');
+ const bp=$('panel-language-books'),rp=$('panel-language-reports'),cp=$('panel-language-courses'),lp=$('panel-words');
  head(bp,'language','LANGUAGE · BOOKS',titles['language-books'],['مطالعهٔ کتاب‌های زبان و ثبت پیشرفت.','Language reading and progress.']);
  head(rp,'language','LANGUAGE · REPORT',titles['language-reports'],['واژه‌ها، مرور و مطالعهٔ واقعی.','Real vocabulary, review and reading stats.']);
  head(cp,'language','LANGUAGE · CLASSES',titles['language-courses'],['مسیرهای یادگیری؛ بدون دورهٔ ساختگی.','Learning paths without fake courses.']);
+ if(lp)head(lp,'language','LANGUAGE · LEITNER',['جعبه لایتنر','Leitner Box'],['طراحی و تصاویر اصلی لایتنر بدون تغییر حفظ شده‌اند.','The original Leitner design and artwork are preserved.']);
  if(books)move(books,bp);if(report)move(report,rp);if(courses)move(courses,cp);
- if(leitner){leitner.classList.add('feature-source-hidden');grid?.append(leitner)}
+ if(leitner&&lp){leitner.classList.remove('feature-source-hidden');move(leitner,lp)}
+ if(grid&&!grid.children.length)grid.classList.add('feature-source-hidden');
  hub(parent,
-   card('words','assets/ui/icon_brain.webp','جعبه لایتنر','Leitner Box','مرور فاصله‌دار واژه‌ها','Spaced repetition review')+
-   card('language-books','assets/ui/book.webp','کتاب‌های زبان','Language Books','کتاب و گزارش مطالعه','Books and reading logs')+
-   card('language-courses','assets/ui/ready_to_review.webp','کلاس‌ها','Classes','مسیرهای آموزشی واقعی وقتی Backend آماده شد','Real learning paths when backend is ready',{gated:true})+
-   card('language-reports','assets/ui/ranking-chart-icon.webp','گزارش زبان','Study Report','مرور، واژه و مطالعه','Reviews, vocabulary and reading'),'language'
+   card('words','assets/ui/22-leitner-box-icon.webp','جعبه لایتنر','Leitner Box','مرور فاصله‌دار با همان طراحی و تصاویر اصلی','Spaced repetition with the original design and artwork')+
+   card('language-books','assets/ui/23-language-books-icon.webp','کتاب‌های زبان','Language Books','کتاب و گزارش مطالعه','Books and reading logs')+
+   card('language-courses','assets/ui/24-language-classes-icon.webp','کلاس‌ها','Classes','مسیرهای آموزشی واقعی وقتی Backend آماده شد','Real learning paths when backend is ready',{gated:true})+
+   card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Study Report','مرور، واژه و مطالعه','Reviews, vocabulary and reading'),'language'
  );
 }
 function splitWeight(water,weightPanel){
