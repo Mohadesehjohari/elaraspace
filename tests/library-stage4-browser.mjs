@@ -16,7 +16,8 @@ async function wire(page){
 async function open(width,height){
  const page=await browser.newPage({viewport:{width,height}});await wire(page);
  await page.goto(base+'/?library-stage4='+Date.now()+'#books',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraLibraryEnhancements&&document.querySelector('#library-clips')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>window.ElaraLibraryEnhancements&&window.ElaraFeatureHubs&&document.querySelector('#library-clips')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));await page.waitForSelector('#panel-library-shelves:not(.hidden) .library-enhancement-tools');
  return page;
 }
 const page=await open(390,844);
@@ -37,6 +38,7 @@ await page.getByRole('button',{name:'ذخیره'}).click();
 await page.waitForFunction(()=>{const b=JSON.parse(localStorage.getItem('elara_space_v1')).books.find(x=>x.id==='qa-book');return b?.customShelf==='شب‌های بارانی'&&String(b.coverData||'').startsWith('data:image/')});
 assert.ok((await page.locator('[data-key="qa-book"] .library-cover img').getAttribute('src')).startsWith('data:image/'),'uploaded cover not rendered');
 
+await page.evaluate(()=>window.ElaraOpen('library-clips',{history:'push'}));await page.waitForSelector('#panel-library-clips:not(.hidden) [data-library-clip-form]');
 const clipForm=page.locator('[data-library-clip-form]');
 await clipForm.locator('select[name="bookId"]').selectOption('qa-book');
 await clipForm.locator('input[name="page"]').fill('42');
@@ -53,7 +55,8 @@ assert.equal(clip.page,42);assert.equal(clip.visibility,'friends');assert.equal(
 assert.equal(await page.locator('.library-clip-card').count(),1,'clip card missing');
 assert.equal((await page.evaluate(()=>window.__published||[])).some(x=>x.type==='book_clip'),true,'friend clip was not published through social service');
 
-await page.locator('[data-library-search-books]').click();
+await page.evaluate(()=>window.ElaraOpen('library-search',{history:'push'}));await page.waitForSelector('#panel-library-search:not(.hidden) [data-library-search-direct]');
+await page.locator('[data-library-search-direct]').click();
 await page.locator('[data-library-online-search] input[name="q"]').fill('moon');
 await page.locator('[data-library-online-search]').getByRole('button',{name:'جستجو'}).click();
 await page.waitForSelector('[data-library-import="0"]');
@@ -63,7 +66,7 @@ const imported=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_sp
 assert.equal(imported.totalPages,321);assert.match(imported.coverUrl,/^https:\/\/covers\.openlibrary\.org\//);
 
 await page.evaluate(()=>window.ElaraI18n.set('en'));
-await page.waitForTimeout(120);
+await page.waitForTimeout(120);await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));await page.waitForSelector('#panel-library-shelves:not(.hidden) .library-enhancement-tools');
 assert.match(await page.locator('.library-enhancement-tools').innerText(),/My shelves/i,'library extension did not localize to English');
 const m=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(m.scroll<=m.w+1,'390 library horizontal overflow '+JSON.stringify(m));
 await page.screenshot({path:'browser-artifacts/library-stage4-390.png',fullPage:true});
