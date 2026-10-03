@@ -101,7 +101,7 @@ assert.equal(await page.locator('#panel-home .ref-wellness-cell').nth(3).locator
 await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page.waitForTimeout(70);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
-assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
+assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\\.webp/,'uploaded Language banner is not active');
 assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,'Language must expose four clean launcher cards');
 assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
