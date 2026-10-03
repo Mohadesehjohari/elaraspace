@@ -376,9 +376,11 @@
   }
   function timerText(sec){return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.max(0,sec%60)).padStart(2,'0')}`}
   function publishFocusWhenReady(detail,attempt=0){
+    const uid=window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
+    if(!uid){if(attempt<40)setTimeout(()=>publishFocusWhenReady(detail,attempt+1),250);return}
     const explicit=window.ElaraPrivacyLocal?.visibility?.('focus');if(explicit==='private')return;
     if(window.ElaraAccount?.user?.emailVerified&&window.ElaraSocial?.publishActivity){void window.ElaraSocial.publishActivity('focus',{category:'focus',...detail});return}
-    if(attempt<24)setTimeout(()=>publishFocusWhenReady(detail,attempt+1),250);
+    if(attempt<40)setTimeout(()=>publishFocusWhenReady(detail,attempt+1),250);
   }
   function finishFocus(active){
     clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
