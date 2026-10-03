@@ -73,16 +73,17 @@ function markup(){
  </section>`
 }
 function focusOwner(){
- const focus=document.getElementById('panel-focus'),books=document.getElementById('panel-books');
- const card=focus?.querySelector('.focus-card')||books?.querySelector('.focus-card')||document.querySelector('#ref-library-focus .focus-card');
- const panel=card?.closest('#panel-focus,#panel-books')||focus||books;
- return{panel,card}
+ const focus=document.getElementById('panel-focus'),books=document.getElementById('panel-books'),dedicated=document.getElementById('panel-focus-ambience'),pomodoro=document.getElementById('panel-focus-pomodoro');
+ const card=focus?.querySelector('.focus-card')||pomodoro?.querySelector('.focus-card')||books?.querySelector('.focus-card')||document.querySelector('#ref-library-focus .focus-card');
+ const panel=dedicated||card?.closest('#panel-focus,#panel-books,#panel-focus-pomodoro')||focus||books;
+ return{panel,card,dedicated}
 }
 function mount(){
- const {panel,card}=focusOwner();if(!panel||!card)return false;
+ const {panel,card,dedicated}=focusOwner();if(!panel||!card)return false;
  let root=document.getElementById('focus-ambience');
- if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;const history=panel.querySelector('.focus-history-card'),libraryFocus=card.closest('#ref-library-focus');if(libraryFocus)libraryFocus.insertAdjacentElement('afterend',root);else history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}
- else if(root.parentElement!==panel&&!root.closest('#ref-library-focus')){const libraryFocus=card.closest('#ref-library-focus');libraryFocus?libraryFocus.insertAdjacentElement('afterend',root):card.insertAdjacentElement('afterend',root)}
+ if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;if(dedicated)dedicated.append(root);else{const history=panel.querySelector('.focus-history-card'),libraryFocus=card.closest('#ref-library-focus');if(libraryFocus)libraryFocus.insertAdjacentElement('afterend',root);else history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}}
+ else if(dedicated&&root.parentElement!==dedicated)dedicated.append(root);
+ else if(!dedicated&&root.parentElement!==panel&&!root.closest('#ref-library-focus')){const libraryFocus=card.closest('#ref-library-focus');libraryFocus?libraryFocus.insertAdjacentElement('afterend',root):card.insertAdjacentElement('afterend',root)}
  syncState();return true
 }
 document.addEventListener('click',e=>{
