@@ -37,7 +37,9 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-reports-productivity #elara-reports-page').count(),1,width+': full report not extracted');
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
- assert.equal(await page.locator('#panel-store [data-store-category]').count(),10,width+': Store categories incomplete');
+ assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
+ assert.equal(await page.locator('#panel-store [data-store-category="status"]').count(),1,width+': Status cosmetics category missing');
+ assert.equal(await page.locator('#panel-store [data-store-category="page"]').count(),1,width+': Page cosmetics category missing');
  await page.locator('[data-store-category="themes"]').click();assert.ok(await page.locator('#panel-store .store-product').count()>=10,width+': real theme previews missing');
  await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
  await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();assert.ok(await page.evaluate(()=>!!ElaraProfileSystem.readWardrobe().banner),width+': Store banner equip did not reach wardrobe source of truth');
