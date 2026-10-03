@@ -101,7 +101,7 @@ function dragEnd(e){
  if(!drag||e.pointerId!==drag.pointerId)return;clearTimeout(drag.timer);const was=drag.started,id=drag.id,row=drag.row;drag=null;row.classList.remove('is-dragging');document.body.classList.remove('task-reordering');if(was){persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),20)}
 }
 document.addEventListener('click',e=>{
- if(Date.now()<ignoreClickUntil&&e.target.closest('#task-selection-toggle,[data-task-select],#task-list > .astra-task-row[data-key]')){e.preventDefault();e.stopImmediatePropagation();return}
+ if(Date.now()<ignoreClickUntil){const direct=e.target.closest('#task-selection-toggle,[data-task-select]'),row=e.target.closest('#task-list > .astra-task-row[data-key]');if(direct||(row&&selected.has(row.dataset.key))){e.preventDefault();e.stopImmediatePropagation();return}}
  if(e.target.closest('#task-selection-toggle')){e.preventDefault();selecting?cancel():enter();return}
  const select=e.target.closest('[data-task-select]');if(select){e.preventDefault();e.stopImmediatePropagation();toggle(select.dataset.taskSelect);return}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
