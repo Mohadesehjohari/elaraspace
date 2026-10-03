@@ -21,6 +21,7 @@ on:
       - 'elara-design.js'
       - 'reference-home-shell-2026.*'
       - 'reference-exact-pass-2026.css'
+      - 'october-product-hubs.css'
       - 'reference-shell-compat-2026.js'
       - 'artwork-home-install-2026.*'
       - 'home-functional-pass-2026.*'
@@ -28,6 +29,7 @@ on:
       - 'deploy/production-manifest.json'
       - 'docs/APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md'
       - 'tests/artwork-home-browser-acceptance.mjs'
+      - 'tests/p0-language-popup-browser.mjs'
       - 'tests/reference-computed-css.mjs'
       - '.github/workflows/browser-navigation-check.yml'
 permissions:
