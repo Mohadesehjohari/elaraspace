@@ -68,8 +68,8 @@ for(const width of all){
    assert.equal(await page.locator('.topbar').isVisible(),true);
    if(mobile){
     assert.equal(await page.locator('.bottom-nav').isVisible(),true);
-    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8);
-    assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom']);
+    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),10);
+    assert.deepEqual(await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom','blog','page']);
     const navBoxes=await page.locator('.bottom-nav>[data-elara-nav-kind]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
     const centers=navBoxes.map(x=>x.center).sort((a,b)=>a-b),gaps=centers.slice(1).map((x,i)=>x-centers[i]),spread=Math.max(...gaps)-Math.min(...gaps);
     assert.ok(spread<=3,'mobile nav spacing is uneven: '+JSON.stringify(gaps));
@@ -85,7 +85,7 @@ for(const width of all){
     await page.goto(base+'/#'+route,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:10000});await page.waitForTimeout(180);
     assert.equal(await page.locator('.topbar').isVisible(),true,route+' topbar');
     assert.equal(await page.locator('.bottom-nav').isVisible(),true,route+' bottom nav');
-    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),8,route+' nav count');
+    assert.equal(await page.locator('.bottom-nav>[data-elara-nav-kind]').count(),10,route+' nav count');
     assert.equal(await page.locator('#cloud-layer:not([hidden])').count(),0,route+' permanent cloud layer');
     await noOverflow(page);
    }
@@ -93,7 +93,7 @@ for(const width of all){
 
   if(width===390||width===1440)await check(`${width}: uploaded Language/Library/Ranking banners render`,async()=>{
    await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/);
-   const languageArt=await page.locator('.pass3-language-stat-art').evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(languageArt.length,4,'Leitner reference now has four live stat artworks');assert.equal(languageArt.every(x=>x.ok),true,'uploaded Language artwork failed to decode: '+JSON.stringify(languageArt));
+   const languageArt=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art');assert.equal(await languageArt.count(),4,'Language hub must expose four visual launchers');await page.waitForFunction(()=>[...document.querySelectorAll('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art')].every(x=>x.complete&&x.naturalWidth>0),null,{timeout:10000});const decoded=await languageArt.evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(decoded.every(x=>x.ok),true,'Language hub artwork failed to decode: '+JSON.stringify(decoded));
    await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/librairy_banner\.webp/);
    await openRoute(page,'ranking');assert.match(await page.locator('#panel-ranking>h1').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/);
    await openRoute(page,'home');
@@ -188,7 +188,7 @@ for(const width of all){
   await openRoute(page,'library-shelves');
   await check(`${width}: reading report notification/privacy`,async()=>{
    await page.evaluate(()=>{ElaraSocial.me={uid:'reader-qa',name:'Reader',username:'reader',xp:10};localStorage.setItem('elara_activity_visibility_reader-qa','friends')});
-   await page.locator('[data-reading-report]').click();await page.locator('[data-reading-report-book="pp-book"]').click();await page.waitForTimeout(40);
+   await page.locator('#panel-library-shelves:not(.hidden) [data-reading-report]').first().click();await page.locator('[data-reading-report-book="pp-book"]').click();await page.waitForTimeout(40);
    await page.locator('.library-log-form [name=pages]').fill('24');await page.locator('.library-log-form [type=submit]').click();await page.waitForTimeout(80);
    const data=await page.evaluate(()=>{const b=JSON.parse(localStorage.getItem('elara_space_v1')).books.find(x=>x.id==='pp-book');return{book:b,notifs:JSON.parse(localStorage.getItem('elara_notifications_v1')||'[]'),published:window.__published||[]}});assert.equal(data.book.currentPage,64);assert.equal(data.book.readingLogs.at(-1).pagesRead,24);assert.ok(data.notifs.some(x=>x.type==='reading'));assert.ok(data.published.some(x=>x.type==='reading'&&x.detail.visibility==='friends'));
   });
@@ -222,12 +222,13 @@ for(const width of all){
    const stored=await page.evaluate(()=>({w:ElaraProfileSystem.readWardrobe(),p:ElaraProfileSystem.readPrivate(),circle:ElaraProfileSystem.avatarPath('female',1,'circle'),square:ElaraProfileSystem.avatarPath('female',1,'square'),frameCircle:ElaraProfileSystem.frameVariantPath('bronze','circle'),frameSquare:ElaraProfileSystem.frameVariantPath('bronze','square')}));assert.equal(stored.w.shape,'square');assert.equal(stored.w.nameFont,'classic');assert.equal(stored.w.photoMode,'upload');assert.match(stored.w.photoSquare,/^data:image\/webp/);assert.equal(stored.p.sex,'male');assert.match(stored.circle,/\.png$/);assert.match(stored.square,/\.png$/);assert.notEqual(stored.circle,stored.square);assert.notEqual(stored.frameCircle,stored.frameSquare);
    await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(30);await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(50);assert.equal(await page.locator('.approved-wardrobe').isVisible(),true,'wardrobe button must open a popup above Settings');assert.equal(await page.locator('[data-wardrobe-shape="square"][aria-pressed="true"]').count(),1);
    await page.evaluate(()=>ElaraWardrobeUI.close());await page.waitForTimeout(30);
-   for(const section of ['account','privacy','folders','notifications','appearance','language','help','calendar']){
+   for(const section of ['account','privacy','blocked','folders','appearance','language','help','calendar','security']){
     await page.evaluate(section=>ElaraPrivateDrawer.open(section),section);await page.waitForTimeout(45);
     assert.equal(await page.locator('.elara-private-drawer:not(.hidden) .elara-private-drawer-panel>[data-drawer-section="'+section+'"]:not(.hidden)').count(),1,section+' must open inside the Settings modal');
     if(mobile){assert.equal(await page.locator('.elara-private-drawer-panel').getAttribute('data-mobile-section'),section);assert.equal(await page.locator('.drawer-menu').isVisible(),false,section+' should open as its own mobile subpage');const box=await page.locator('.elara-private-drawer-panel').boundingBox(),vh=await page.evaluate(()=>innerHeight);assert.ok(box&&Math.abs((box.y+box.height/2)-vh/2)<=Math.max(12,vh*.05),section+' settings panel is not vertically centered')}
     assert.equal(await page.locator('#main [data-drawer-section="'+section+'"]').count(),0,section+' leaked inline under the page');
    }
+   assert.equal(await page.locator('.drawer-menu [data-drawer-nav="notifications"]').count(),0,'notifications must stay on Bell, not Profile Settings');
    assert.equal(await page.locator('#main .drawer-account-area').count(),0,'Settings section leaked inline into page');
    await page.keyboard.press('Escape').catch(()=>{});
   });
