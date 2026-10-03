@@ -59,7 +59,7 @@ for(const width of [320,360,375,390,412,430]){
  await page.waitForFunction(()=>document.body.classList.contains('cloud-ready'),null,{timeout:5000});
  await page.waitForTimeout(150);
  const items=page.locator('.bottom-nav [data-elara-tab]');
- assert.equal(await items.count(),8,width+': boot nav DOM missing destinations');
+ assert.equal(await items.count(),10,width+': boot nav DOM missing destinations');
  assert.equal(await page.locator('#elara-boot-screen').isVisible(),true,width+': boot screen must cover the legacy shell');
  assert.equal(await page.locator('.bottom-nav').isVisible(),false,width+': navigation must not be interactive during boot');
  await items.evaluateAll(xs=>xs.forEach((x,i)=>x.dataset.qaFallback=String(i)));
@@ -73,13 +73,12 @@ for(const width of [320,360,375,390,412,430]){
  const afterItems=page.locator('.bottom-nav [data-elara-tab]');
  assert.equal(await afterItems.count(),10,width+': hydrated nav must expose direct Blog and Page routes');
  assert.deepEqual(await afterItems.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom','blog','page'],width+': hydrated mobile route order mismatch');
- assert.equal(await afterItems.evaluateAll(xs=>xs.slice(0,8).every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': existing boot nav nodes were replaced instead of hydrated');
- assert.equal(await afterItems.evaluateAll(xs=>xs.slice(8).every(x=>!x.dataset.qaFallback)),true,width+': Blog/Page should be the only hydrated additions');
+ assert.equal(await afterItems.evaluateAll(xs=>xs.every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': boot nav nodes were replaced instead of hydrated');
  const after=await afterItems.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
  assert.equal(after.every(r=>r.left>=-1&&r.right<=width+1),true,width+': hydrated nav overflow');
  const homeAfter=after.find(r=>r.route==='home');assert.ok(homeAfter&&Math.abs(homeAfter.center-width/2)<=2,width+': hydrated Home is not centered');
  const sortedAfter=[...after].sort((a,b)=>a.center-b.center),gapsAfter=sortedAfter.slice(1).map((r,i)=>r.center-sortedAfter[i].center);assert.ok(Math.max(...gapsAfter)-Math.min(...gapsAfter)<=3,width+': hydrated nav has an isolated destination '+JSON.stringify(gapsAfter));
- assert.ok(Math.max(...after.slice(0,8).map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav release caused geometry jump');
+ assert.ok(Math.max(...after.map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav release caused geometry jump');
  await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page.waitForTimeout(80);
  assert.equal(await page.evaluate(()=>location.hash),'#language',width+': hydrated Language route failed');
  assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': hydrated Language panel failed');
