@@ -174,12 +174,12 @@ const themeDecode=await themeImgs.evaluateAll(async xs=>{await Promise.all(xs.ma
 assert.equal(themeDecode.every(x=>x.complete&&x.naturalWidth>0),true,'One or more uploaded theme previews failed to decode: '+JSON.stringify(themeDecode.filter(x=>!x.complete||!x.naturalWidth)));
 await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
 await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-menu [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
+await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
 stage('settings-privacy:pass');stage('settings-account:start');
 await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-menu [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
+await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
 assert.equal(await page.locator('[data-drawer-section="security"] #drawer-password-form').isVisible(),true,'Account security page missing password form');
 assert.equal(await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').isVisible(),true,'Account Back missing');
 await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').click();await page.waitForTimeout(35);
