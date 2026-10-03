@@ -10,10 +10,13 @@ const MAIN=Object.freeze([
  {route:'freedom',label:'آزادی',icon:'freedom'}
 ]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
-const MOBILE=Object.freeze([MAIN[0],MAIN[1],MAIN[2],FRIEND,MAIN[3],MAIN[4],MAIN[5],MAIN[6]]);
+const PAGE=Object.freeze({route:'page',label:'پیج',icon:'user'});
+const BLOG=Object.freeze({route:'blog',label:'وبلاگ',icon:'book'});
+const STORE=Object.freeze({route:'store',label:'فروشگاه',icon:'spark'});
+const MOBILE=Object.freeze([MAIN[0],MAIN[1],MAIN[2],FRIEND,MAIN[3],MAIN[4],MAIN[5],MAIN[6],BLOG,PAGE]);
 const SIDEBAR=Object.freeze([...MAIN,FRIEND]);
 const DESKTOP_ORDER=Object.freeze(['home','tasks','language','books','exercise','ranking','social','freedom']);
-const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'chart'},{route:'page',label:'پیج',icon:'user'},{route:'blog',label:'وبلاگ',icon:'book'}]);
+const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'chart'},PAGE,BLOG,STORE]);
 /* Navigation artwork is sourced only from files verified on the current main branch. */
 const ASSETS=Object.freeze({home:['nav-home-default.webp','nav-home-active.webp'],tasks:['nav-tasks-default.webp','nav-tasks-active.webp'],language:['nav-language-default.webp','nav-language-active.webp'],books:['nav-library-default.webp','nav-library-active.webp'],ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],social:['friends-group-icon.webp','friends-group-icon.webp'],freedom:['icon-freedom-lotus.webp','icon-freedom-lotus.webp']});
 const root='assets/ui/';
