@@ -39,6 +39,7 @@ function rankForLevel(l,locale=document.documentElement.lang){const n=Math.max(1
 function rank(xp,locale){return rankForLevel(level(xp),locale)}
 function progress(xp){const value=Math.max(0,Number(xp)||0),l=level(value),min=threshold(l),max=threshold(l+1);return {level:l,min,max,current:value-min,needed:max-min,percent:Math.max(0,Math.min(100,(value-min)/(max-min)*100))}}
 function medals(counts={},xp=0,locale=document.documentElement.lang){const l=level(xp);return MEDALS.map(m=>({id:m.id,label:locale==='en'?m.en:m.fa,earned:!!m.test(counts,l),level:l}))}
-window.ElaraLevels={threshold,level,title,titleForLevel,rank,rankForLevel,progress,medals,TITLES,RANKS,MEDALS};
-window.dispatchEvent(new Event('elara:levels-ready'));
+const registry=Object.freeze({VERSION:'20261003-infinite-v2',threshold,level,title,titleForLevel,rank,rankForLevel,progress,medals,TITLES,RANKS,MEDALS});
+Object.defineProperty(window,'ElaraLevels',{value:registry,writable:false,configurable:false,enumerable:true});
+window.dispatchEvent(new CustomEvent('elara:levels-ready',{detail:{version:registry.VERSION}}));
 })();
