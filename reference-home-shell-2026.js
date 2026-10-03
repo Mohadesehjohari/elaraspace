@@ -83,10 +83,10 @@ function homeStructure(){
  let wellness=$('ref-wellness-card');if(!wellness){wellness=element('section','elara-card ref-card ref-wellness-card','ref-wellness-card');wellness.innerHTML=`<header><h2>${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامت / ورزش</h2><button type="button" class="elara-link" data-elara-tab="exercise">همه ←</button></header><div id="ref-wellness-data"></div>`}
  let side=$('ref-right-stack');
  let theme=$('ref-theme-strip');if(!theme){theme=element('section','elara-card ref-theme-strip','ref-theme-strip');theme.innerHTML=`<header><h2>${icon('spark')} جهان‌های تم</h2><button type="button" class="elara-link" data-drawer-appearance>مشاهده همه ←</button></header><div class="ref-theme-options">${['violet','blue','pink','green','orange','black'].map((c,i)=>`<button type="button" class="ref-theme-option" data-ref-theme="${c}" aria-label="انتخاب تم ${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}"><img class="ref-theme-option-art" src="${THEME_ART[c]}" alt="" loading="lazy" decoding="async"><small>${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}</small></button>`).join('')}</div>`}
- for(const c of [tasks,habits,wellness,missions,goals,ranks,activity])if(c){c.hidden=false;grid.append(c)}
+ for(const c of [tasks,habits,wellness,missions,goals,ranks,activity])if(c){c.hidden=false;if(c.parentElement!==grid)grid.append(c)}
  side?.remove();
- if(social){social.hidden=true;grid.append(social)}
- grid.append(theme);
+ if(social){social.hidden=true;if(social.parentElement!==grid)grid.append(social)}
+ if(theme.parentElement!==grid)grid.append(theme);
  // Reassert the exact named-area DOM contract on every reference render. Old visual passes may
  // mutate the tree after first boot; the reference owner must repair that without rebuilding cards.
  const namedAreas=[[tasks,'tasks'],[habits,'habits'],[wellness,'wellness'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity'],[theme,'themes']];
@@ -98,7 +98,7 @@ function homeStructure(){
  }
  if(desktop){grid.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');grid.style.setProperty('grid-template-areas',"'tasks habits wellness' 'missions goals ranks' 'themes themes activity'",'important')}
  else{grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')}
- const extra=card('elara-home-books');if(extra){extra.hidden=true;grid.append(extra)}
+ const extra=card('elara-home-books');if(extra){extra.hidden=true;if(extra.parentElement!==grid)grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
  ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
  ownHeading(habits,'habits',`${art(UI_ASSETS.habits,'elara-card-art ref-habits-heading-art','')} عادت‌های امروز`);
