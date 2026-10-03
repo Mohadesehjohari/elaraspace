@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const out='browser-artifacts';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const mobile=['exercise','language','tasks','social','home','ranking','books','freedom'];
+const mobile=['exercise','language','tasks','social','home','ranking','books','freedom','blog','page'];
 const desktop=['home','tasks','language','books','exercise','ranking','social','freedom'];
 const used=['hero-landscape.webp','missions-rocket.webp','streak-flame.webp','friends-tab.webp','friends-group-icon.webp','nav-home-default.webp','nav-home-active.webp','nav-tasks-default.webp','nav-tasks-active.webp','nav-language-default.webp','nav-language-active.webp','nav-library-default.webp','nav-library-active.webp','nav-ranking-default.webp','nav-ranking-active.webp','nav-exercise-default.webp','nav-exercise-active.webp','icon-mode-night-default.webp','icon-mode-night-active.webp','icon-notifications-read.webp','icon-notifications-unread.webp','icon-exercise-dumbbell.webp','green_heart.webp','icon-ranking-trophy.webp','Glowing Neon Checkmark Orb.webp','hero-tasks-astra-v2.webp','banner-running-moonlit-mountains.webp','brand-elara-app-mark.webp','button-view-all.webp'];
 const sizes=[[320,659],[375,659],[390,659],[430,659],[1440,1000],[1648,928],[1920,1000]];
