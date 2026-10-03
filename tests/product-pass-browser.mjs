@@ -5,7 +5,7 @@ import {chromium} from 'playwright';
 const sha=process.env.GITHUB_SHA||'local',base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173',out=`browser-artifacts/${sha}`;
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),results=[],failures=[];
-const mobileWidths=[320,360,375,390,412,430],desktopWidths=[1440,1648,1920],all=[...mobileWidths,...desktopWidths];
+const mobileWidths=[390],desktopWidths=[1440],all=[...mobileWidths,...desktopWidths]; // exhaustive viewport geometry lives in artwork-home-browser-acceptance + P0 nav matrix
 const routes=['home','tasks','language','books','social','exercise','freedom','settings'];
 const fa=/[\u0600-\u06ff]/;
 const clamp=(min,n,max)=>Math.max(min,Math.min(max,n));
