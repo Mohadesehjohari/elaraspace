@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium} from 'playwright';
+const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
+await mkdir('browser-artifacts',{recursive:true});
+const browser=await chromium.launch({headless:true});
+const cloud="window.ElaraAccount={user:{uid:'blog-qa'},profile:{name:'Blog QA',username:'blog_qa',xp:120,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
+const social="window.ElaraSocial={me:{uid:'blog-qa',name:'Blog QA'},friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true};window.dispatchEvent(new Event('elara:social-updated'));";
+async function run(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloud}));
+ await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
+ await page.goto(base+'/?blog='+Date.now()+'#blog',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraBlog&&document.querySelector('#panel-blog:not(.hidden) .blog-card')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ assert.equal(await page.locator('.blog-card').count(),5,width+': blog article count');
+ assert.equal(await page.locator('.sidebar [data-elara-tab="blog"]').count(),1,width+': blog navigation missing');
+ await page.locator('[data-blog-filter="focus"]').click();
+ assert.equal(await page.locator('.blog-card').count(),1,width+': focus filter failed');
+ assert.match(await page.locator('.blog-card').innerText(),/تمرکز|focus/i);
+ await page.locator('[data-blog-filter="all"]').click();
+ const search=page.locator('[data-blog-search]');await search.fill('مطالعه');
+ assert.ok(await page.locator('.blog-card').count()>=1,width+': search removed all reading results');
+ await search.fill('');
+ const first=page.locator('.blog-card').first();await first.locator('[data-blog-open]').click();
+ await page.waitForSelector('.blog-article-detail');
+ assert.equal(await page.locator('.blog-article-detail>section').count(),3,width+': article detail steps');
+ await page.locator('.blog-article-detail [data-blog-go-tasks]').click();
+ await page.waitForFunction(()=>location.hash==='#tasks');
+ await page.evaluate(()=>window.ElaraOpen('blog',{history:'replace'}));await page.waitForSelector('#panel-blog:not(.hidden) .blog-card');
+ await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);
+ assert.match(await page.locator('.blog-hero').innerText(),/Elara Journal/);
+ assert.match(await page.locator('.blog-ai-gate').innerText(),/coming later/i);
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,width+': blog horizontal overflow '+overflow);
+ await page.screenshot({path:'browser-artifacts/blog-stage-'+width+'.png',fullPage:true});
+ await page.close();
+}
+await run(390,844);await run(1440,1000);await browser.close();
+console.log('BLOG_STAGE_PASS route filter search dialog tasks i18n 390/1440');

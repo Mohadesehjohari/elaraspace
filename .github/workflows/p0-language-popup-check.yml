@@ -70,6 +70,8 @@ on:
       - 'elara-design.js'
       - 'firestore.rules'
       - 'page-view.js'
+      - 'blog-view.js'
+      - 'tests/blog-stage-browser.mjs'
       - 'elara-page.js'
       - 'elara-social.js'
       - 'i18n.js'
@@ -130,6 +132,8 @@ jobs:
           node --check social-engagement.js
           node --check social-engagement-view.js
           node --check page-view.js
+          node --check blog-view.js
+          node --check tests/blog-stage-browser.mjs
           node --check elara-page.js
           node --check reading.js
           node --check app.js
@@ -185,6 +189,8 @@ jobs:
         run: timeout 90s node tests/challenges-stage12-browser.mjs
       - name: Verify Page Stage 6 interactions
         run: timeout 90s node tests/page-stage6-browser.mjs
+      - name: Verify Blog Stage interactions
+        run: timeout 90s node tests/blog-stage-browser.mjs
       - name: Verify Social engagement Stage 7 interactions
         run: timeout 90s node tests/social-engagement-browser.mjs
       - name: Verify real-only Friend streak UI
@@ -321,6 +327,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/mobile-banner-copy-browser.mjs
+      - name: Verify deployed Blog Stage interactions
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/blog-stage-browser.mjs
       - name: Verify real Firebase/account boot without stubs
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace

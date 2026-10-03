@@ -769,3 +769,10 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **PAGE-PROFILE-ENTRY-02:** shared profile composition can expose a prominent Page CTA for another user. Targeted Page mode queries only that UID with self/friend/public visibility semantics and hides compose controls while viewing another user.
 - **PROFILE-FULLSCREEN-01:** visible profile avatar opens in a centered fullscreen viewer; edit-profile keeps its existing change-photo overlay and does not nest the viewer control.
 - Browser acceptance extends the existing Page suite at 390/1440. Production Firebase/Storage publish remains a separate release gate.
+
+
+### BLOG-STAGE-2026-10-03 — IMPLEMENTED / TESTING
+- **BLOG-01:** route مستقل `#blog`، دسته‌بندی Planning/Focus/Habits/Reading/Energy، جستجو، article detail در Dialog، responsive 390/1440 و locale زندهٔ FA/EN پیاده‌سازی شد.
+- Blog در Sidebar secondary navigation قرار دارد و CTA مقاله می‌تواند به Tasks برود.
+- **BLOG-AI-TUTOR-01 همچنان BACKEND-GATED است:** فقط gate توضیحی وجود دارد؛ هیچ API key یا فراخوانی مستقیم مدل در client اضافه نشده است. فعال‌سازی نیازمند gateway server-side، rate limit، safety و provenance است.
+- Browser acceptance محلی و Pages در workflow P0 اضافه شد؛ تا سبزشدن END-HEAD فقط **TESTING** محسوب می‌شود.
