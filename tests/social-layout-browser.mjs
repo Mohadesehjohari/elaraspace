@@ -17,7 +17,9 @@ async function run(width,height){
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.goto(base+'/?social-layout='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraSocialView&&document.querySelector('#elara-social-page .social-friend-activity .social-scroll')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>window.ElaraSocialView&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.locator('#elara-social-page [data-social-view="activity"]').click();
+ await page.waitForSelector('#elara-social-page .social-friend-activity .social-scroll');
  const activity=page.locator('#elara-social-page .social-friend-activity .social-scroll');
  const metrics=await activity.evaluate(el=>({client:el.clientHeight,scroll:el.scrollHeight,overflow:getComputedStyle(el).overflowY,touch:getComputedStyle(el).touchAction}));
  assert.ok(metrics.client<=312,width+': friend activity box grew too tall '+JSON.stringify(metrics));
@@ -26,8 +28,10 @@ async function run(width,height){
  await activity.evaluate(el=>{el.scrollTop=el.scrollHeight});assert.ok(await activity.evaluate(el=>el.scrollTop>0),width+': wheel/touch scroll target did not move');
  const faTone=await activity.innerText();for(const token of ['مأموریت','تمرین','استریک','رنکینگ','Deep Work'])assert.match(faTone,new RegExp(token),width+': missing friendly activity tone '+token);
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(100);const enTone=await activity.innerText();assert.match(enTone,/crushed a mission/i,width+': mission tone did not localize');assert.match(enTone,/wrapped a workout/i,width+': exercise tone did not localize');assert.match(enTone,/kept the streak alive/i,width+': streak tone did not localize');assert.equal(/[\u0600-\u06ff]/.test(enTone.replace(/آرین|کیان|مهسا|سینا/g,'')),false,width+': English activity UI kept Persian system copy');await page.evaluate(()=>window.ElaraI18n.set('fa'));await page.waitForTimeout(80);
+ await page.locator('#elara-social-page [data-social-view="requests"]').click();await page.waitForSelector('#elara-social-page [data-friend-action="decline"]');
  const decline=page.locator('#elara-social-page [data-friend-action="decline"]').first();assert.equal(await decline.isVisible(),true,width+': decline missing');
  const dstyle=await decline.evaluate(el=>{const s=getComputedStyle(el);return{bg:s.backgroundColor,bgi:s.backgroundImage,border:s.borderColor}});assert.ok(dstyle.bgi!=='none'||/rgb\((?:1[0-9]{2}|[7-9][0-9])/.test(dstyle.bg),width+': decline is not visibly red '+JSON.stringify(dstyle));
+ await page.locator('#elara-social-page [data-social-view="friends"]').click();await page.waitForSelector('#elara-social-page #elara-add-friend');
  const input=page.locator('#elara-social-page .social-invite input'),invite=page.locator('#elara-social-page .social-art-button.invite'),search=page.locator('#elara-social-page [data-profile-lookup]');
  const boxes=await Promise.all([input.boundingBox(),invite.boundingBox(),search.boundingBox()]);
  assert.ok(boxes.every(Boolean),width+': invite/search geometry missing');
@@ -35,8 +39,8 @@ async function run(width,height){
  else{assert.ok(boxes[0].height>=54&&boxes[1].width>=165&&boxes[2].width>=62,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForFunction(()=>document.querySelector('#elara-ranking-page:not(.hidden) .social-tabs'));
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': ranking must keep four tabs');
- assert.equal(await page.locator('#elara-social-page .social-tabs [role="tab"]').count(),3,width+': friends must remain distinct from ranking tabs');
- const tabs=await page.locator('#elara-ranking-page .social-tabs [role="tab"]').all();for(const tab of tabs){const b=await tab.boundingBox();assert.ok(b&&b.height>=width<=700?48:56,width+': ranking tab too small')}
+ assert.equal(await page.locator('#elara-social-page .social-tabs [role="tab"]').count(),6,width+': Friends Hub must expose six tabs and remain distinct from Ranking');
+ const tabs=await page.locator('#elara-ranking-page .social-tabs [role="tab"]').all();for(const tab of tabs){const b=await tab.boundingBox(),minHeight=width<=700?48:56;assert.ok(b&&b.height>=minHeight,width+': ranking tab too small')}
  const first=await page.locator('#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar').boundingBox(),other=await page.locator('#elara-ranking-page .social-podium-place.place-2 .social-podium-avatar').boundingBox();assert.ok(first&&other&&first.width>other.width,width+': first-place frame must be larger');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(overflow.sw<=overflow.w+1,width+': social/ranking horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/social-layout-'+width+'.png',fullPage:true});
