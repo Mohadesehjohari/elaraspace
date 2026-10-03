@@ -152,6 +152,7 @@ for(const width of all){
    const input=await rect(page,'#elara-social-page #elara-add-friend-name'),invite=await rect(page,'#elara-social-page .social-invite>.invite'),lookup=await rect(page,'#elara-social-page [data-profile-lookup]');
    assert.ok(input.height>=44&&invite.height>=48&&lookup.height>=48);
    if(!mobile)assert.ok(Math.abs(input.height-invite.height)<=8);
+   await page.locator('#elara-social-page [data-social-view="requests"]').click();await page.waitForSelector('#elara-social-page [data-friend-action="decline"]');
    const decline=page.locator('#elara-social-page [data-friend-action="decline"]').first();assert.equal(await decline.isVisible(),true);const bg=await decline.evaluate(el=>getComputedStyle(el).backgroundImage+' '+getComputedStyle(el).backgroundColor);assert.match(bg,/123|7b1534|69, 11, 34|linear-gradient/i);
   });
 
