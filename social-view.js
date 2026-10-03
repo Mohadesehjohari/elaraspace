@@ -10,7 +10,7 @@ const person=p=>{const model=profileModel(p),shape=model?.shape||'circle',font=m
 const section=(title,body,cls='')=>`<section class="elara-card social-section ${cls}"><header><h2>${title}</h2></header>${body}</section>`;
 const socialStats=p=>`<span class="social-person-stats"><b>${fa(p.xp)} XP</b>${Number.isInteger(Number(p.streak))?`<small class="social-streak" aria-label="استریک ${fa(p.streak)} روز">🔥 ${fa(p.streak)}</small>`:''}</span>`;
 const rankingTabs=[['ranking','رنکینگ','Ranking','ranking-tab-active.webp'],['friends','دوستان','Friends','friends-tab.webp'],['community','جامعه','Community','community-tab.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp']];
-const socialTabs=[['friends','دوستان','Friends','friends-tab.webp'],['chats','گفتگوها','Chats','friends-group-icon.webp'],['groups','گروه‌ها','Groups','clubs-tab.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp'],['activity','فعالیت','Activity','ranking-chart-icon.webp'],['requests','درخواست‌ها','Requests','invite-friend-button.webp']];
+const socialTabs=[['friends','دوستان','Friends','43-friends-icon.webp'],['chats','گفتگوها','Chats','44-private-chats-icon.webp'],['groups','گروه‌ها','Groups','45-groups-icon.webp'],['clubs','کلاب‌ها','Clubs','46-clubs-icon..webp'],['activity','فعالیت','Activity','47-friend-activity-icon..webp'],['requests','درخواست‌ها','Requests','48-friend-requests-icon.webp']];
 let selections={social:'friends',ranking:'ranking'};
 function render(){
  const s=window.ElaraSocial||{},friends=arr(s.friends),me=s.me,uid=me?.uid,ranked=[me,...friends].filter(Boolean).sort((a,b)=>Number(b.xp||0)-Number(a.xp||0)),incoming=arr(s.requests).filter(r=>r.to===uid&&r.status==='pending');
