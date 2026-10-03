@@ -19,6 +19,14 @@ function hub(host,html,kind){
  if(!root){root=document.createElement('section');root.className='feature-hub-launchers';root.dataset.hubKind=kind;host.append(root)}
  root.innerHTML=html;return root
 }
+function visualHero(host,kind,src,fa,en,copyFa='',copyEn=''){
+ if(!host)return null;
+ let hero=host.querySelector(':scope > .feature-hub-hero[data-hub-hero="'+kind+'"]');
+ if(!hero){hero=document.createElement('section');hero.className='feature-hub-hero';hero.dataset.hubHero=kind;host.prepend(hero)}
+ hero.style.setProperty('--feature-hub-hero','url("'+src+'")');
+ hero.innerHTML='<div><small>ELARA · '+kind.toUpperCase()+'</small><h1>'+tx(fa,en)+'</h1>'+(copyFa||copyEn?'<p>'+tx(copyFa,copyEn)+'</p>':'')+'</div>';
+ return hero
+}
 function head(panel,parent,eyebrow,title,sub){
  let h=panel.querySelector(':scope > .feature-subpage-head');if(!h){h=document.createElement('header');h.className='feature-subpage-head';panel.prepend(h)}
  h.innerHTML='<button type="button" class="feature-back" data-feature-route="'+parent+'">→ '+tx('بازگشت','Back')+'</button><div><small>'+esc(eyebrow)+'</small><h1>'+tx(title[0],title[1])+'</h1><p>'+tx(sub[0],sub[1])+'</p></div>';
@@ -45,10 +53,10 @@ function setupLibrary(){
  searchPanel.querySelector('.library-search-launch')?.remove();const search=document.createElement('section');search.className='elara-card library-search-launch';search.innerHTML=icon('assets/ui/search-button.webp','')+'<div><h2>'+tx('کتاب بعدی‌ات را پیدا کن','Find your next book')+'</h2><p>'+tx('نام کتاب یا نویسنده را جستجو کن؛ نتیجهٔ ساختگی نمایش داده نمی‌شود.','Search by book or author; no fabricated results are shown.')+'</p><button type="button" class="primary-button" data-library-search-direct>'+tx('باز کردن جستجو','Open search')+'</button></div>';searchPanel.append(search);
  const stats=window.ElaraReading?.stats?.(readState().books||[])||'';const chart=window.ElaraReading?.chart?.(readState().books||[])||'';reportPanel.querySelector('.library-report-live')?.remove();const report=document.createElement('section');report.className='elara-card library-report-live';report.innerHTML='<h2>'+tx('خلاصهٔ مطالعه','Reading overview')+'</h2>'+stats+chart+'<button type="button" class="quiet-button" data-feature-route="reports-productivity">'+tx('مرکز همهٔ گزارش‌ها','All reports')+'</button>';reportPanel.append(report);
  const libraryHub=hub(parent,
-   card('library-clips','assets/ui/book.webp','بریده کتاب','Book Clips','جمله‌ها، عکس‌ها و یادداشت‌های کتاب','Quotes, images and notes')+
-   card('library-search','assets/ui/search-button.webp','جستجوی کتاب','Find Books','کتاب بعدی را پیدا یا اضافه کن','Find or add your next book')+
-   card('library-reports','assets/ui/ranking-chart-icon.webp','گزارش مطالعه','Reading Report','آمار و روند مطالعه','Reading stats and trends')+
-   card('library-shelves','assets/ui/icon-library-open-book.webp','قفسه‌ها','Shelves','کتاب‌ها و مجموعه‌های شخصی','Books and custom collections'),'library'
+   card('library-clips','assets/ui/20-book-clips-icon..webp','بریده کتاب','Book Clips','جمله‌ها، عکس‌ها و یادداشت‌های کتاب','Quotes, images and notes')+
+   card('library-search','assets/ui/21-book-search-icon.webp','جستجوی کتاب','Find Books','کتاب بعدی را پیدا یا اضافه کن','Find or add your next book')+
+   card('library-reports','assets/ui/32-reading-analytics-icon.webp','گزارش مطالعه','Reading Report','آمار و روند مطالعه','Reading stats and trends')+
+   card('library-shelves','assets/ui/05-custom-shelves-icon.webp','قفسه‌ها','Shelves','کتاب‌ها و مجموعه‌های شخصی','Books and custom collections'),'library'
  );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());libraryHub.insertAdjacentHTML('afterend',readingPreview());
 }
 function setupLanguage(){
@@ -77,19 +85,20 @@ function splitWeight(water,weightPanel){
 }
 function setupWellness(){
  const parent=$('panel-exercise');if(!parent)return;parent.classList.add('feature-hub-parent','wellness-feature-hub');
+ visualHero(parent,'wellness','assets/ui/35-wellness-hero-banner.webp','حال خوب','Wellness','آب، خواب، ورزش و روندهای واقعی خودت.','Water, sleep, exercise and your real trends.');
  const water=parent.querySelector('.wellness-water'),sleep=parent.querySelector('.wellness-sleep'),exercise=parent.querySelector('.wellness-workouts'),plans=parent.querySelector('.wellness-plans'),analysis=parent.querySelector('.wellness-analysis'),context=parent.querySelector('.wellness-profile-context');
  const wp=$('panel-wellness-water'),sp=$('panel-wellness-sleep'),ep=$('panel-wellness-exercise'),weight=$('panel-wellness-weight'),ap=$('panel-wellness-analysis'),rp=$('panel-wellness-reports');
  for(const [panel,key] of [[wp,'wellness-water'],[sp,'wellness-sleep'],[ep,'wellness-exercise'],[weight,'wellness-weight'],[ap,'wellness-analysis'],[rp,'wellness-reports']])head(panel,'exercise','WELLNESS',titles[key],['ثبت خصوصی و سادهٔ حال خوب.','A private, simple wellness space.']);
  splitWeight(water,weight);
  if(water)move(water,wp);if(sleep)move(sleep,sp);if(plans)move(plans,ep);if(exercise)move(exercise,ep);if(context)move(context,ep);if(analysis)move(analysis,ap);
- rp.querySelector('.wellness-report-shortcuts')?.remove();const rs=document.createElement('section');rs.className='wellness-report-shortcuts feature-hub-launchers';rs.innerHTML=card('wellness-water','assets/ui/icon-wellness-water.webp','آب','Water','لیوان‌ها و روند هفتگی','Glasses and weekly trend')+card('wellness-sleep','assets/ui/icon-night-crescent-moon.webp','خواب','Sleep','ساعت‌های خواب ثبت‌شده','Logged sleep duration')+card('wellness-exercise','assets/ui/icon-exercise-dumbbell.webp','ورزش','Exercise','تمرین‌ها و برنامه‌ها','Workouts and plans')+card('wellness-analysis','assets/ui/ranking-chart-icon.webp','تحلیل','Analysis','جمع‌بندی بدون تشخیص پزشکی','A non-medical overview');rp.append(rs);
+ rp.querySelector('.wellness-report-shortcuts')?.remove();const rs=document.createElement('section');rs.className='wellness-report-shortcuts feature-hub-launchers';rs.innerHTML=card('wellness-water','assets/ui/26-water-tracker-icon.webp','آب','Water','لیوان‌ها و روند هفتگی','Glasses and weekly trend')+card('wellness-sleep','assets/ui/27-sleep-tracker-icon.webp','خواب','Sleep','ساعت‌های خواب ثبت‌شده','Logged sleep duration')+card('wellness-exercise','assets/ui/28-exercise-icon.webp','ورزش','Exercise','تمرین‌ها و برنامه‌ها','Workouts and plans')+card('wellness-analysis','assets/ui/ranking-chart-icon.webp','تحلیل','Analysis','جمع‌بندی بدون تشخیص پزشکی','A non-medical overview');rp.append(rs);
  hub(parent,
-   card('wellness-water','assets/ui/icon-wellness-water.webp','آب','Water','لیوان‌های امروز و هدف آب','Today’s glasses and goal')+
-   card('wellness-sleep','assets/ui/icon-night-crescent-moon.webp','خواب','Sleep','ثبت و روند خواب','Sleep log and trend')+
-   card('wellness-exercise','assets/ui/icon-exercise-dumbbell.webp','ورزش','Exercise','تمرین و برنامه ورزشی/تغذیه','Workouts and training/nutrition plans')+
-   card('wellness-weight','assets/ui/icon-wellness-weight-scale.webp','وزن','Weight','وزن فعلی و هدف شخصی','Current and target weight')+
-   card('wellness-reports','assets/ui/ranking-chart-icon.webp','گزارش‌ها','Reports','میانبر گزارش‌های حال خوب','Wellness report shortcuts',{wide:true})+
-   card('wellness-analysis','assets/ui/icon-wellness-heartbeat.webp','تحلیل','Analysis','الگوهای ثبت‌شدهٔ واقعی','Patterns from your real logs',{wide:true}),'wellness'
+   card('wellness-water','assets/ui/26-water-tracker-icon.webp','آب','Water','لیوان‌های امروز و هدف آب','Today’s glasses and goal')+
+   card('wellness-sleep','assets/ui/27-sleep-tracker-icon.webp','خواب','Sleep','ثبت و روند خواب','Sleep log and trend')+
+   card('wellness-exercise','assets/ui/28-exercise-icon.webp','ورزش','Exercise','تمرین و برنامه ورزشی/تغذیه','Workouts and training/nutrition plans')+
+   card('wellness-weight','assets/ui/29-weight-tracker-icon.webp','وزن','Weight','وزن فعلی و هدف شخصی','Current and target weight')+
+   card('wellness-reports','assets/ui/30-fitness-report-icon.webp','گزارش‌ها','Reports','میانبر گزارش‌های حال خوب','Wellness report shortcuts',{wide:true})+
+   card('wellness-analysis','assets/ui/09-wellness-analytics-icon..webp','تحلیل','Analysis','الگوهای ثبت‌شدهٔ واقعی','Patterns from your real logs',{wide:true}),'wellness'
  );
 }
 function setupFocus(){
@@ -102,20 +111,21 @@ function setupFocus(){
  room.querySelector('.feature-gated-message')?.remove();room.insertAdjacentHTML('beforeend','<section class="elara-card feature-gated-message"><h2>'+tx('اتاق تمرکز گروهی','Shared Focus Room')+'</h2><p>'+tx('دعوت دوست، حضور زنده، همگام‌سازی Pomodoro و ثبت Stop هر نفر بعد از آماده‌شدن Realtime backend فعال می‌شود.','Friend invites, live presence, synchronized Pomodoro and per-person stop events require the realtime backend.')+'</p><span>'+tx('بدون کاربر یا حضور آنلاین ساختگی','No fake users or presence')+'</span></section>');
  deep.querySelector('.feature-deep-work')?.remove();deep.insertAdjacentHTML('beforeend','<section class="elara-card feature-deep-work"><h2>'+tx('جلسهٔ کار عمیق','Deep Work session')+'</h2><p>'+tx('از Pomodoro با مدت و Tag واقعی استفاده کن؛ نتیجه طبق Privacy در Activity ثبت می‌شود.','Use Pomodoro with a real duration and tag; completion follows your Activity privacy.')+'</p><button class="primary-button" type="button" data-feature-route="focus-pomodoro">'+tx('شروع','Start')+'</button></section>');
  hub(parent,
-  card('focus-pomodoro','assets/ui/icon_brain.webp','پومودورو','Pomodoro','تایمر و چرخه‌های تمرکز','Timer and focus cycles')+
-  card('focus-room','assets/ui/friends-group-icon.webp','اتاق تمرکز','Focus Room','تمرکز مشترک با دوستان','Shared focus with friends',{gated:true})+
-  card('focus-ambience','assets/ui/icon-night-crescent-moon.webp','موسیقی و فضا','Music / Ambience','صدای محیطی و منظرهٔ تمرکز','Soundscape and focus scene')+
-  card('focus-deep-work','assets/ui/icon-achievement-star.webp','کار عمیق','Deep Work','جلسهٔ جدی با مدت و Tag','A focused session with duration and tag'),'focus'
+  card('focus-pomodoro','assets/ui/19-pomodoro-icon.webp','پومودورو','Pomodoro','تایمر و چرخه‌های تمرکز','Timer and focus cycles')+
+  card('focus-room','assets/ui/03-focus-room-icon.webp','اتاق تمرکز','Focus Room','تمرکز مشترک با دوستان','Shared focus with friends',{gated:true})+
+  card('focus-ambience','assets/ui/04-study-music-ambience-icon.webp','موسیقی و فضا','Music / Ambience','صدای محیطی و منظرهٔ تمرکز','Soundscape and focus scene')+
+  card('focus-deep-work','assets/ui/10-deep-work-icon.webp','کار عمیق','Deep Work','جلسهٔ جدی با مدت و Tag','A focused session with duration and tag'),'focus'
  );
 }
 function setupReports(){
  const parent=$('panel-reports'),prod=$('panel-reports-productivity');if(!parent||!prod)return;parent.classList.add('feature-hub-parent','reports-feature-hub');
+ visualHero(parent,'reports','assets/ui/39-reports-hero-banner.webp','گزارش‌ها','Reports','مرکز خلاصه‌ها؛ جزئیات در صفحهٔ هر گزارش.','A summary center; details live in each report page.');
  head(prod,'reports','REPORTS',titles['reports-productivity'],['همهٔ نمودارهای کامل بهره‌وری.','Your full productivity analytics.']);
  const live=$('elara-reports-page');if(live)move(live,prod);
  hub(parent,
-  card('library-reports','assets/ui/book.webp','گزارش مطالعه','Reading Report','صفحه‌ها و پیشرفت کتاب','Pages and book progress')+
-  card('language-reports','assets/ui/icon_brain.webp','گزارش زبان','Language Report','واژه، مرور و مطالعه','Vocabulary, reviews and reading')+
-  card('wellness-reports','assets/ui/icon-wellness-heartbeat.webp','گزارش ورزش و حال خوب','Fitness Report','آب، خواب و تمرین','Water, sleep and exercise')+
+  card('library-reports','assets/ui/32-reading-analytics-icon.webp','گزارش مطالعه','Reading Report','صفحه‌ها و پیشرفت کتاب','Pages and book progress')+
+  card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Language Report','واژه، مرور و مطالعه','Vocabulary, reviews and reading')+
+  card('wellness-reports','assets/ui/30-fitness-report-icon.webp','گزارش ورزش و حال خوب','Fitness Report','آب، خواب و تمرین','Water, sleep and exercise')+
   card('reports-productivity','assets/ui/ranking-chart-icon.webp','گزارش بهره‌وری','Productivity Report','تسک، عادت، هدف و تمرکز','Tasks, habits, goals and focus'),'reports'
  );
 }
