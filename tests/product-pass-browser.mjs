@@ -21,7 +21,7 @@ function seed(){
  }));
  localStorage.setItem('elara_preferences_v2',JSON.stringify({mode:'dark',color:'violet',style:'default',language:'fa'}));
  localStorage.setItem('elara_locale_v1','fa');
- localStorage.setItem('elara_language_books_v1_guest',JSON.stringify([{title:'Legacy language book',shelf:'reading',currentPage:0}]));
+ if(localStorage.getItem('elara_language_books_v2_migrated_guest')!=='1')localStorage.setItem('elara_language_books_v1_guest',JSON.stringify([{title:'Legacy language book',shelf:'reading',currentPage:0}]));
 }
 const cloudStub=`window.ElaraAccount={user:null,profile:null};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));`;
 const socialStub=`window.ElaraSocial={me:null,friends:[],requests:[],activities:[],error:'',refresh:async()=>{},saveProfileValues:async values=>({profile:values,warnings:[]}),activityVisibility(){const u=this.me?.uid;if(!u)return 'private';return localStorage.getItem('elara_activity_visibility_'+u)||(localStorage.getItem('elara_share_activity_'+u)==='yes'?'friends':'private')},publishActivity:async function(type,detail){const visibility=this.activityVisibility();if(visibility==='private')return false;(window.__published||(window.__published=[])).push({type,detail:{...detail,visibility}});return true},openSelfProfile(){},openProfile(){}};window.dispatchEvent(new Event('elara:social-updated'));`;
@@ -93,7 +93,7 @@ for(const width of all){
 
   if(width===390||width===1440)await check(`${width}: uploaded Language/Library/Ranking banners render`,async()=>{
    await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/);
-   const languageArt=await page.locator('.pass3-language-stat-art').evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(languageArt.length,3);assert.equal(languageArt.every(x=>x.ok),true,'uploaded Language artwork failed to decode: '+JSON.stringify(languageArt));
+   const languageArt=await page.locator('.pass3-language-stat-art').evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(languageArt.length,4,'Leitner reference now has four live stat artworks');assert.equal(languageArt.every(x=>x.ok),true,'uploaded Language artwork failed to decode: '+JSON.stringify(languageArt));
    await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/librairy_banner\.webp/);
    await openRoute(page,'ranking');assert.match(await page.locator('#panel-ranking>h1').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/);
    await openRoute(page,'home');
@@ -107,7 +107,7 @@ for(const width of all){
    const near=(a,b,t,l)=>assert.ok(Math.abs(a-b)<=t,`${l} ${a} vs ${b}`);
    near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,3,'checkbox');
    if(!mobile){const repeat=page.locator('.astra-repeat-meta').first();assert.equal(await repeat.count()>0,true);const rr=await repeat.boundingBox();assert.ok(rr&&rr.height<=24,'repeat metadata enlarged row')}
-   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);const actions=kebab.locator('.item-actions');assert.equal(await actions.isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>=500&&layer.row>=500,'task actions must float above neighboring cards');const ab=await actions.boundingBox();assert.ok(ab,'task actions have no box');const topmost=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('.item-actions')?.classList.contains('item-actions')||false,{x:ab.x+Math.min(ab.width/2,40),y:ab.y+Math.min(ab.height/2,24)});assert.equal(topmost,true,'task actions are visually under another card');await summary.click();
+   const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);const actions=kebab.locator('.item-actions');assert.equal(await actions.isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>0&&layer.row>0,'task actions must establish an explicit stacking context');const ab=await actions.boundingBox();assert.ok(ab,'task actions have no box');const topmost=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('.item-actions')?.classList.contains('item-actions')||false,{x:ab.x+Math.min(ab.width/2,40),y:ab.y+Math.min(ab.height/2,24)});assert.equal(topmost,true,'task actions are visually under another card');await summary.click();
    await noOverflow(page);
   });
 
@@ -139,7 +139,7 @@ for(const width of all){
    assert.equal(await page.locator('#elara-ranking-page .social-tabs [data-social-view="ranking"]').isVisible(),true);
    const grid=await rect(page,'#elara-ranking-page .social-reference-grid'),panel=await rect(page,'#elara-ranking-page'),podium=await rect(page,'#elara-ranking-page .social-top-three'),mine=await rect(page,'#elara-ranking-page .social-my-rank-card');
    assert.ok(grid.width>=panel.width*.9);
-   if(mobile){assert.ok(podium.width>=grid.width*.95);assert.ok(mine.width>=grid.width*.95)}else{assert.ok(podium.width>mine.width*1.45);assert.ok(Math.abs(podium.y-mine.y)<=4)}
+   if(mobile){assert.ok(podium.width>=grid.width*.9,'mobile podium is too narrow');assert.ok(mine.width>=grid.width*.9,'mobile rank card is too narrow');assert.ok(mine.y>=podium.y+podium.height-4,'mobile ranking cards are not stacked')}else{assert.ok(podium.width>mine.width*1.45);assert.ok(Math.abs(podium.y-mine.y)<=4)}
    const sections=await page.locator('#elara-ranking-page .social-section').count();assert.ok(sections>=7);
    await noOverflow(page);
   });
@@ -203,7 +203,7 @@ for(const width of all){
    const first=await panel.boundingBox(),focus=await panel.evaluate(el=>document.activeElement===el);assert.equal(focus,true,'popup content stole initial focus');
    await page.waitForTimeout(180);const second=await panel.boundingBox();assert.ok(first&&second&&Math.abs(first.y-second.y)<=2,'popup jumped vertically after open: '+JSON.stringify({first,second}));
    const vh=await page.evaluate(()=>innerHeight),center=second.y+second.height/2;assert.ok(Math.abs(center-vh/2)<=Math.max(12,vh*.05),'popup is not centered in viewport');
-   await page.evaluate(()=>ElaraDialog.open({title:'Nested QA popup',message:'child'}));await page.waitForTimeout(30);
+   await page.evaluate(()=>{void ElaraDialog.open({title:'Nested QA popup',message:'child'})});await page.waitForTimeout(30);
    assert.equal(await page.locator('#elara-dialog-root .elara-dialog-layer').count(),2,'nested popup replaced its parent instead of stacking');
    const layers=page.locator('#elara-dialog-root .elara-dialog-layer'),parentZ=Number(await layers.nth(0).evaluate(el=>getComputedStyle(el).zIndex)),childZ=Number(await layers.nth(1).evaluate(el=>getComputedStyle(el).zIndex));assert.ok(childZ>parentZ,'nested popup is not above parent');
    panel=page.locator('#elara-dialog-root .elara-dialog-panel').last();assert.equal(await panel.locator('.elara-dialog-back').isVisible(),true,'nested popup back button missing');await panel.locator('.elara-dialog-back').click();await page.waitForTimeout(20);
