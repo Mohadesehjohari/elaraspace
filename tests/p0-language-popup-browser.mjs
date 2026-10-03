@@ -103,10 +103,13 @@ assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Langu
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
 assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,'Language must expose four clean launcher cards');
-assert.equal(await page.locator('#panel-language [data-language-block="leitner"].feature-source-hidden .language-leitner-stats>div').count(),4,'hidden Leitner source must preserve four live stat tiles');
+assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
-const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
+const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
+assert.equal(await page.locator('#panel-words [data-language-block="leitner"] .language-leitner-stats>div').count(),4,'Dedicated Leitner route must preserve the original four live stat tiles');
+const leitnerArt=page.locator('#panel-words [data-language-block="leitner"] .pass3-language-stat-art');assert.equal(await leitnerArt.count(),4,'Dedicated Leitner route lost its original artwork');assert.equal(await leitnerArt.evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),true,'Dedicated Leitner artwork failed to decode');
+await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 
 stage('language:start');
