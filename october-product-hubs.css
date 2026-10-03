@@ -71,7 +71,8 @@
 /* Ten direct mobile destinations. One intentional leading track preserves Home at exact center
    while Blog sits immediately after Freedom and Page occupies the last direct-action slot. */
 @media(max-width:700px){
- .bottom-nav{grid-template-columns:repeat(11,minmax(0,1fr))!important;grid-auto-flow:column!important}
+ .bottom-nav{display:grid!important;direction:ltr!important;grid-template-columns:repeat(11,minmax(0,1fr))!important;grid-auto-flow:column!important}
+ .bottom-nav [data-elara-nav-kind]{width:34px!important;min-width:34px!important;max-width:34px!important;justify-self:center!important;flex:none!important;direction:rtl!important}
  .bottom-nav [data-elara-tab="exercise"]{grid-column:2!important}
  .bottom-nav [data-elara-tab="language"]{grid-column:3!important}
  .bottom-nav [data-elara-tab="tasks"]{grid-column:4!important}
