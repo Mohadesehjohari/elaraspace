@@ -371,6 +371,11 @@
     box.innerHTML=sessions.length?sessions.map(s=>`<div class="focus-history-row"><strong>${fa(s.durationMin)} دقیقه</strong><span>${s.tag?'#'+esc(s.tag):'بدون برچسب'}</span><small>${new Date(s.endedAt||s.startedAt||Date.now()).toLocaleString('fa-IR')}</small></div>`).join(''):'<p class="muted">هنوز جلسهٔ تمرکز تکمیل‌شده‌ای نداری.</p>';
   }
   function timerText(sec){return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.max(0,sec%60)).padStart(2,'0')}`}
+  function publishFocusWhenReady(detail,attempt=0){
+    const explicit=window.ElaraPrivacyLocal?.visibility?.('focus');if(explicit==='private')return;
+    if(window.ElaraAccount?.user?.emailVerified&&window.ElaraSocial?.publishActivity){void window.ElaraSocial.publishActivity('focus',{category:'focus',...detail});return}
+    if(attempt<24)setTimeout(()=>publishFocusWhenReady(detail,attempt+1),250);
+  }
   function finishFocus(active){
     clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
     if(!current||current.id!==active.id)return;
@@ -381,7 +386,7 @@
     notify(tt(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
     if(fresh){
       window.ElaraNotify?.push?.({type:'focus',title:tt('تمرکز کامل شد 🧠⚡','Focus complete 🧠⚡'),message:tt(`${fa(minutes)} دقیقه Deep Work ثبت شد${tag?' · #'+tag:''}. دمت گرم 👊`,`${minutes} minutes of Deep Work logged${tag?' · #'+tag:''}. Nice work 👊`),dedupeKey:'focus-complete:'+active.id,meta:{durationMin:minutes,tag}});
-      void window.ElaraSocial?.publishActivity?.('focus',{category:'focus',durationMin:minutes,tag});
+      publishFocusWhenReady({durationMin:minutes,tag});
     }
   }
   function updateFocusDisplay(){

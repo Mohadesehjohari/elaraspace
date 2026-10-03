@@ -36,6 +36,7 @@ on:
       - 'tests/task-bulk-reorder-browser.mjs'
       - 'tests/task-checklist-browser.mjs'
       - 'tests/focus-ambience-browser.mjs'
+      - 'tests/focus-social-i18n-browser.mjs'
       - 'tests/domain-events-browser.mjs'
       - 'tests/mission-celebration-browser.mjs'
       - 'tests/mobile-banner-copy-browser.mjs'
@@ -139,6 +140,7 @@ jobs:
           node --check reference-home-shell-2026.js
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/focus-ambience-browser.mjs
+          node --check tests/focus-social-i18n-browser.mjs
           node --check tests/domain-events-browser.mjs
           node --check tests/mission-celebration-browser.mjs
           node --check tests/mobile-banner-copy-browser.mjs
@@ -193,6 +195,8 @@ jobs:
         run: timeout 90s node tests/task-checklist-browser.mjs
       - name: Verify Pomodoro ambience Stage 13
         run: timeout 90s node tests/focus-ambience-browser.mjs
+      - name: Verify Focus social privacy and Notification i18n
+        run: timeout 90s node tests/focus-social-i18n-browser.mjs
       - name: Verify domain milestone notifications and diverse missions
         run: timeout 90s node tests/domain-events-browser.mjs
       - name: Verify real mission celebration
@@ -299,6 +303,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/focus-ambience-browser.mjs
+      - name: Verify deployed Focus social privacy and Notification i18n
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/focus-social-i18n-browser.mjs
       - name: Verify deployed real mission celebration
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
