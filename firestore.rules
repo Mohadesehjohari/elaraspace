@@ -611,11 +611,11 @@ service cloud.firestore {
         activityId.matches('^[a-zA-Z0-9_-]{10,120}$') &&
         request.resource.data.keys().hasOnly([
           'uid','type','eventKey','visibility','category','createdAt',
-          'pagesRead','percentAfter','bookTitle','excerpt'
+          'pagesRead','percentAfter','bookTitle','excerpt','durationMin','tag'
         ]) &&
-        request.resource.data.type in ['task','habit','goal','mission','reading','book','book_clip','exercise','streak','ranking'] &&
+        request.resource.data.type in ['task','habit','goal','mission','reading','book','book_clip','exercise','focus','streak','ranking'] &&
         request.resource.data.visibility in ['friends','public'] &&
-        request.resource.data.category in ['task','habit','goal','mission','reading','language','exercise','streak','ranking'] &&
+        request.resource.data.category in ['task','habit','goal','mission','reading','language','exercise','focus','streak','ranking'] &&
         request.resource.data.eventKey is string &&
         request.resource.data.eventKey.size() <= 120 &&
         request.resource.data.createdAt == request.time &&
@@ -641,6 +641,15 @@ service cloud.firestore {
             request.resource.data.bookTitle.size() <= 140 &&
             request.resource.data.excerpt is string &&
             request.resource.data.excerpt.size() <= 280
+          ) ||
+          (
+            request.resource.data.type == 'focus' &&
+            request.resource.data.keys().hasOnly(['uid','type','eventKey','visibility','category','createdAt','durationMin','tag']) &&
+            request.resource.data.category == 'focus' &&
+            request.resource.data.durationMin is int &&
+            request.resource.data.durationMin >= 1 && request.resource.data.durationMin <= 180 &&
+            request.resource.data.tag is string &&
+            request.resource.data.tag.size() <= 60
           )
         );
       allow update: if false;

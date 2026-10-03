@@ -27,6 +27,7 @@ function render(){
    if(a.type==='task')return name+' یه قدم دیگه به هدفش نزدیک شد ⚡🫡';
    if(a.type==='habit')return name+' عادت امروز رو کامل کرد 🤝🔥';
    if(a.type==='book')return name+' یه کتاب رو به پایان رسوند 😎📖';
+   if(a.type==='focus'){const minutes=Math.max(1,Math.min(180,Number(a.durationMin)||1)),tag=String(a.tag||'').trim();return name+' '+fa(minutes)+' دقیقه Deep Work زد 🧠⚡'+(tag?' · #'+esc(tag):'')}
    return name+' امروز یه قدم جلو رفت 👊🔥';
  };
  const engage=a=>a.id?`<div class="social-engagement-bar" data-engagement-kind="activity" data-engagement-id="${esc(a.id)}"><button type="button" data-engagement-like aria-pressed="false"><span data-engagement-heart>♡</span><span data-engagement-like-count>0</span></button><button type="button" data-engagement-comment>💬 <span data-engagement-comment-count>0</span></button></div>`:'';

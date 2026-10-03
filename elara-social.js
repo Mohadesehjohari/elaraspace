@@ -389,7 +389,7 @@ function render(){
  window.dispatchEvent(new Event('elara:social-updated'));
 }
 
-const ACTIVITY_CATEGORY={task:'task',habit:'habit',goal:'goal',mission:'mission',reading:'reading',book:'reading',book_clip:'reading',language:'language',exercise:'exercise',streak:'streak',ranking:'ranking'};
+const ACTIVITY_CATEGORY={task:'task',habit:'habit',goal:'goal',mission:'mission',reading:'reading',book:'reading',book_clip:'reading',language:'language',exercise:'exercise',focus:'focus',streak:'streak',ranking:'ranking'};
 function activityVisibility(owner=uid,category='activity'){
  if(!owner)return 'private';
  const wanted=ACTIVITY_CATEGORY[category]||category;
@@ -409,6 +409,7 @@ async function publish(type,detail={}){
  const safe={uid,type:String(type||'activity').slice(0,32),eventKey:id,visibility,category:category.slice(0,32),createdAt:serverTimestamp()};
  if(type==='reading'){safe.pagesRead=Math.max(0,Math.min(10000,Math.round(Number(detail.pagesRead)||0)));safe.percentAfter=Math.max(0,Math.min(100,Math.round(Number(detail.percentAfter)||0)));safe.bookTitle=String(detail.bookTitle||'').slice(0,140)}
  if(type==='book_clip'){safe.bookTitle=String(detail.bookTitle||'').slice(0,140);safe.excerpt=String(detail.excerpt||'').slice(0,280)}
+ if(type==='focus'){safe.durationMin=Math.max(1,Math.min(180,Math.round(Number(detail.durationMin)||1)));safe.tag=String(detail.tag||'').trim().slice(0,60)}
  try{await setDoc(doc(db,'activities',id),safe);return true}catch(error){console.warn('Activity sharing failed:',error);inform('ثبت فعالیت برای دوستان ناموفق بود: '+(error.code||error.message));return false}
 }
 window.ElaraSocial.publishActivity=publish;window.ElaraSocial.activityVisibility=activityVisibility;

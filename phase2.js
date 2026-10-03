@@ -374,8 +374,15 @@
   function finishFocus(active){
     clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
     if(!current||current.id!==active.id)return;
-    if(!state.focusSessions.some(s=>s.id===active.id)){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:active.durationMin,tag:active.tag||'',completed:true});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
-    state.activeFocus=null;writeState(state);notify(`${fa(active.durationMin)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`);
+    const fresh=!state.focusSessions.some(s=>s.id===active.id),minutes=Math.max(1,Math.min(180,Math.round(Number(active.durationMin)||1))),tag=String(active.tag||'').trim().slice(0,60);
+    if(fresh){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:minutes,tag,completed:true});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
+    state.activeFocus=null;writeState(state);
+    const tt=(faText,enText)=>window.ElaraI18n?.t?.(faText,enText)||faText;
+    notify(tt(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
+    if(fresh){
+      window.ElaraNotify?.push?.({type:'focus',title:tt('تمرکز کامل شد 🧠⚡','Focus complete 🧠⚡'),message:tt(`${fa(minutes)} دقیقه Deep Work ثبت شد${tag?' · #'+tag:''}. دمت گرم 👊`,`${minutes} minutes of Deep Work logged${tag?' · #'+tag:''}. Nice work 👊`),dedupeKey:'focus-complete:'+active.id,meta:{durationMin:minutes,tag}});
+      void window.ElaraSocial?.publishActivity?.('focus',{category:'focus',durationMin:minutes,tag});
+    }
   }
   function updateFocusDisplay(){
     const state=focusState(),a=state.activeFocus,display=$('timer-display');if(!display)return;

@@ -15,7 +15,7 @@
   function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
   const privacyUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
   const privacyKey=()=>`elara_privacy_local_v1_${privacyUid()||'guest'}`;
-  const SHARE_KEYS=['task','habit','goal','mission','reading','language','exercise','streak','ranking'];
+  const SHARE_KEYS=['task','habit','goal','mission','reading','language','exercise','focus','streak','ranking'];
   const validVisibility=value=>['private','friends','public'].includes(value)?value:null;
   function legacyActivityVisibility(){const id=privacyUid();if(!id)return'private';const explicit=validVisibility(localStorage.getItem('elara_activity_visibility_'+id));if(explicit)return explicit;return localStorage.getItem('elara_share_activity_'+id)==='no'?'private':'friends'}
   function readPrivacy(){let stored={};try{stored=JSON.parse(localStorage.getItem(privacyKey())||'{}')||{}}catch{}const fallback=legacyActivityVisibility(),base={showWellnessHome:true,cycle:'private'};for(const key of SHARE_KEYS)base[key]=fallback;return {...base,...stored,cycle:'private'}}
@@ -150,6 +150,7 @@
       ${privacyRow('کتابخانه و مطالعه','گزارش مطالعه و تمام‌کردن کتاب',select('reading',local.reading))}
       ${privacyRow('زبان / گزارش یادگیری','فعالیت‌های بخش زبان',select('language',local.language))}
       ${privacyRow('ورزش و سلامت','فعالیت ورزشی قابل انتشار؛ کارت سلامت روی Home خودت همیشه دیده می‌شود',select('exercise',local.exercise),'وزن، آب، خواب و داده‌های سلامت خام منتشر نمی‌شوند')}
+      ${privacyRow('تمرکز / Deep Work','فقط مدت جلسه و برچسب اختیاری؛ متن خصوصی دیگری منتشر نمی‌شود',select('focus',local.focus),'پیش‌فرض: فقط دوستان')}
       ${privacyRow('استریک','تداوم و استریک قابل اشتراک',select('streak',local.streak))}
       ${privacyRow('Ranking / Social','خلاصهٔ رقابت و دستاورد اجتماعی',select('ranking',local.ranking))}
       ${privacyRow('چرخه / پریود','این داده به‌صورت پیش‌فرض و اجباری خصوصی است','<span class="pass2-private-lock">خصوصی</span>','اشتراک با یک «همراه» فقط بعد از قرارداد Backend و رضایت صریح فعال می‌شود')}
