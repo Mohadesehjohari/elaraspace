@@ -34,7 +34,7 @@ async function run(width,height){
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing');
  await page.locator('[data-social-route="social"][data-social-view="requests"]').click();
- assert.equal(await page.locator('[data-friend-action="decline"]').isVisible(),true,width+': Requests tab missing decline');
+ assert.equal(await page.locator('#elara-social-page [data-friend-action="decline"]').isVisible(),true,width+': Requests tab missing decline');
  assert.equal(await page.locator('#elara-add-friend').count(),0,width+': Friends search leaked into Requests tab');
  await page.locator('[data-social-route="social"][data-social-view="activity"]').click();
  await page.waitForSelector('.social-friend-activity');
