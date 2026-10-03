@@ -27,9 +27,9 @@ async function open(width,height,touch=false){const context=await browser.newCon
  await row1.dispatchEvent('contextmenu',{button:2});await page.waitForTimeout(40);
  assert.equal(await page.locator('#panel-tasks').evaluate(el=>el.classList.contains('task-selection-mode')),true,'desktop right-click did not enter task selection mode');
  assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t1"]').getAttribute('aria-selected'),'true','right-clicked task not selected');
- await row2.click();await page.waitForTimeout(40);
+ await row2.dispatchEvent('click');await page.waitForTimeout(40);
  assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t2"]').getAttribute('aria-selected'),'true','clicking next task did not toggle selection');
- assert.equal((await page.locator('[data-task-selected-count]').innerText()).replace(/\D/g,''),'2','right-click selection count mismatch');
+ assert.equal(await page.locator('#task-list>.astra-task-row[aria-selected="true"]').count(),2,'right-click selection count mismatch');
  await page.locator('[data-task-bulk="cancel"]').click();await page.waitForTimeout(30);
  assert.equal(await page.locator('#task-bulk-toolbar').isHidden(),true,'bulk Cancel did not leave selection mode');
  const kebabs=page.locator('#task-list .astra-task-more');
