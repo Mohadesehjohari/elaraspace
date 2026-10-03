@@ -743,7 +743,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 
 - **MISSION-CELEBRATION-02 — IMPLEMENTED / TESTING:** بعد از Mission واقعی، haptic در دستگاه‌های پشتیبان + celebration popup + Mission بعدی؛ prefers-reduced-motion و عدم لرزش اجباری رعایت شود. Celebration is emitted only from the canonical mission reward claim path; close + 2.7s auto-dismiss are present, haptics/sound are opt-in, and refresh cannot re-claim the same mission.
 - **NOTIFICATION-I18N-02 — IMPLEMENTED / TESTING:** Notification Center، Friend Request، action labels، empty state و Bell aria-label با Locale زنده sync می‌شوند. Notification تاریخی ذخیره‌شده عمداً بازنویسی/ترجمه نمی‌شود و UGC دست‌نخورده می‌ماند.
-- **SOCIAL-EVENT-TONE-02 — REQUESTED:** eventهای مجاز Task/Habit/Goal/Reading/Language/Exercise/Focus/Streak/Mission با لحن کوتاه، صمیمی و متنوع به Friends Activity بروند؛ public فقط در Global Activity، با dedupe و Privacy canonical.
+- **SOCIAL-EVENT-TONE-02 — IMPLEMENTED / TESTING:** Friends Activity برای Task/Habit/Goal/Reading/Language/Exercise/Focus/Streak/Mission/Ranking/Book لحن کوتاه، صمیمی، حداکثر ۱–۲ Emoji و Locale-aware دارد. فقط eventهای واقعی ورودی render می‌شوند؛ ایجاد eventهای جدید همچنان باید از canonical domain source و Privacy عبور کند. Global public feed هنوز `GLOBAL-ACTIVITY-01` است.
 
 ## V7 — Shared work و Challenges
 

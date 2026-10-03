@@ -8,7 +8,8 @@ const cloudStub="window.ElaraAccount={user:{uid:'me'},profile:{uid:'me',name:'آ
 const socialStub=`
 const me={uid:'me',name:'آرین',username:'me',xp:1420,streak:12};
 const friends=[{uid:'f1',name:'کیان',username:'kian',xp:1280,streak:9},{uid:'f2',name:'مهسا',username:'mahsa',xp:946,streak:7},{uid:'f3',name:'سینا',username:'sina',xp:892,streak:5}];
-const activities=Array.from({length:14},(_,i)=>({id:'a'+i,uid:friends[i%friends.length].uid,person:friends[i%friends.length],type:i%3===0?'reading':i%3===1?'habit':'task',pagesRead:12+i,visibility:'friends',ms:Date.now()-i*60000}));
+const activityTypes=['reading','habit','task','goal','mission','exercise','streak','ranking','focus','book'];
+const activities=Array.from({length:20},(_,i)=>({id:'a'+i,uid:friends[i%friends.length].uid,person:friends[i%friends.length],type:activityTypes[i%activityTypes.length],pagesRead:12+i,durationMin:25,tag:'study',visibility:'friends',ms:Date.now()-i*60000}));
 window.ElaraSocial={me,friends,activities,error:'',requests:[{id:'r1',from:'f2',to:'me',status:'pending',person:friends[1]}],refresh:async()=>{},addFriend:async()=>{},decide:async()=>{},cancelRequest:async()=>{},removeFriend:async()=>{},openProfile(){},openSelfProfile(){},dm:{list:async()=>[],messages:async()=>[],listen:()=>()=>{},send:async()=>{}},groups:{list:async()=>[]}};
 window.dispatchEvent(new Event('elara:social-updated'));`;
 async function run(width,height){
@@ -23,6 +24,8 @@ async function run(width,height){
  assert.ok(metrics.scroll>metrics.client,width+': friend activity does not internally scroll '+JSON.stringify(metrics));
  assert.ok(['auto','scroll'].includes(metrics.overflow),width+': friend activity overflowY '+metrics.overflow);
  await activity.evaluate(el=>{el.scrollTop=el.scrollHeight});assert.ok(await activity.evaluate(el=>el.scrollTop>0),width+': wheel/touch scroll target did not move');
+ const faTone=await activity.innerText();for(const token of ['مأموریت','تمرین','استریک','رنکینگ','Deep Work'])assert.match(faTone,new RegExp(token),width+': missing friendly activity tone '+token);
+ await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(100);const enTone=await activity.innerText();assert.match(enTone,/crushed a mission/i,width+': mission tone did not localize');assert.match(enTone,/wrapped a workout/i,width+': exercise tone did not localize');assert.match(enTone,/kept the streak alive/i,width+': streak tone did not localize');assert.equal(/[\u0600-\u06ff]/.test(enTone.replace(/آرین|کیان|مهسا|سینا/g,'')),false,width+': English activity UI kept Persian system copy');await page.evaluate(()=>window.ElaraI18n.set('fa'));await page.waitForTimeout(80);
  const decline=page.locator('#elara-social-page [data-friend-action="decline"]').first();assert.equal(await decline.isVisible(),true,width+': decline missing');
  const dstyle=await decline.evaluate(el=>{const s=getComputedStyle(el);return{bg:s.backgroundColor,bgi:s.backgroundImage,border:s.borderColor}});assert.ok(dstyle.bgi!=='none'||/rgb\((?:1[0-9]{2}|[7-9][0-9])/.test(dstyle.bg),width+': decline is not visibly red '+JSON.stringify(dstyle));
  const input=page.locator('#elara-social-page .social-invite input'),invite=page.locator('#elara-social-page .social-art-button.invite'),search=page.locator('#elara-social-page [data-profile-lookup]');

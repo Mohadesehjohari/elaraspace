@@ -1,6 +1,6 @@
 /* Shared Social/Ranking view; all people come from the authenticated social service. */
 (()=>{'use strict';
-const $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],fa=n=>Number(n||0).toLocaleString('fa-IR');
+const $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],fa=n=>Number(n||0).toLocaleString('fa-IR'),num=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR'),tt=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const empty=(text,art='friends-group-icon.webp')=>`<div class="social-empty"><img src="assets/ui/${art}" alt=""><p>${text}</p></div>`;
 const imageButton=(file,label,attrs)=>`<button type="button" class="social-art-button" aria-label="${label}" ${attrs}><img src="assets/ui/${file}" alt=""></button>`;
@@ -21,14 +21,20 @@ function render(){
  const rankList=ranked.map((p,i)=>`<div class="social-row ${p.uid===uid?'is-me':''}" data-key="${esc(p.uid)}"><b>${fa(i+1)}</b>${person(p)}${socialStats(p)}</div>`).join('')||empty('هنوز رتبه‌ای شکل نگرفته 👀 با چند فعالیت واقعی، جدول کم‌کم جون می‌گیره.','ranking-chart-icon.webp');
  const sharedActivities=arr(s.activities).filter(a=>a.visibility==='friends'||a.visibility==='public');
  const activityCopy=a=>{
-   const name=esc(a.person?.name||a.person?.username||'دوستت');
-   if(a.type==='reading'){const pages=Math.max(0,Number(a.pagesRead)||0);return pages?name+' امروز '+fa(pages)+' صفحه جلو رفت 📚🔥':name+' امروز مطالعه‌شو جلو برد 😎📚'}
-   if(a.type==='book_clip')return name+' یه بریده از «'+esc(a.bookTitle||'کتابش')+'» گذاشت 👀📖 '+esc(a.excerpt||'');
-   if(a.type==='task')return name+' یه قدم دیگه به هدفش نزدیک شد ⚡🫡';
-   if(a.type==='habit')return name+' عادت امروز رو کامل کرد 🤝🔥';
-   if(a.type==='book')return name+' یه کتاب رو به پایان رسوند 😎📖';
-   if(a.type==='focus'){const minutes=Math.max(1,Math.min(180,Number(a.durationMin)||1)),tag=String(a.tag||'').trim();return name+' '+fa(minutes)+' دقیقه Deep Work زد 🧠⚡'+(tag?' · #'+esc(tag):'')}
-   return name+' امروز یه قدم جلو رفت 👊🔥';
+   const rawName=a.person?.name||a.person?.username||tt('دوستت','Your friend'),name=esc(rawName);
+   if(a.type==='reading'){const pages=Math.max(0,Number(a.pagesRead)||0);return pages?tt(name+' امروز '+num(pages)+' صفحه جلو رفت 📚🔥',name+' moved '+num(pages)+' pages forward today 📚🔥'):tt(name+' امروز مطالعه‌شو جلو برد 😎📚',name+' made reading progress today 😎📚')}
+   if(a.type==='book_clip'){const title=esc(a.bookTitle||tt('کتابش','their book')),excerpt=esc(a.excerpt||'');return tt(name+' یه بریده از «'+title+'» گذاشت 👀📖'+(excerpt?' '+excerpt:''),name+' shared a clip from “'+title+'” 👀📖'+(excerpt?' '+excerpt:''))}
+   if(a.type==='task')return tt(name+' یه کار رو جمع کرد؛ یه قدم جلوتر ⚡🫡',name+' checked off a task — one step closer ⚡🫡');
+   if(a.type==='habit')return tt(name+' عادت امروز رو زد به هدف 🤝🔥',name+' nailed today’s habit 🤝🔥');
+   if(a.type==='goal')return tt(name+' به یه مرحله از هدفش رسید ⚡👊',name+' hit a goal milestone ⚡👊');
+   if(a.type==='mission')return tt(name+' یه مأموریت رو ترکوند 🚀🔥',name+' crushed a mission 🚀🔥');
+   if(a.type==='book')return tt(name+' یه کتاب رو به پایان رسوند 😎📖',name+' finished a book 😎📖');
+   if(a.type==='exercise')return tt(name+' تمرینشو جمع کرد؛ بدن روشن، مود بهتر 🔥👊',name+' wrapped a workout — strong move 🔥👊');
+   if(a.type==='streak')return tt(name+' استریکش رو نگه داشت 🔥🤝',name+' kept the streak alive 🔥🤝');
+   if(a.type==='ranking')return tt(name+' توی رنکینگ یه پله بالا رفت 🏆⚡',name+' climbed the ranking 🏆⚡');
+   if(a.type==='language')return tt(name+' یه قدم تو زبان جلو رفت 🧠⚡',name+' made language progress 🧠⚡');
+   if(a.type==='focus'){const minutes=Math.max(1,Math.min(180,Number(a.durationMin)||1)),tag=String(a.tag||'').trim();return tt(name+' '+num(minutes)+' دقیقه Deep Work زد 🧠⚡'+(tag?' · #'+esc(tag):''),name+' did '+num(minutes)+' min of Deep Work 🧠⚡'+(tag?' · #'+esc(tag):''))}
+   return tt(name+' امروز یه قدم جلو رفت 👊🔥',name+' moved one step forward today 👊🔥');
  };
  const engage=a=>a.id?`<div class="social-engagement-bar" data-engagement-kind="activity" data-engagement-id="${esc(a.id)}"><button type="button" data-engagement-like aria-pressed="false"><span data-engagement-heart>♡</span><span data-engagement-like-count>0</span></button><button type="button" data-engagement-comment>💬 <span data-engagement-comment-count>0</span></button></div>`:'';
  const activities=sharedActivities.map(a=>`<div class="social-row social-activity-row">${person(a.person||{})}<div class="social-activity-copy"><span>${activityCopy(a)}${a.ms?'<small>'+new Date(a.ms).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small>':''}</span>${engage(a)}</div></div>`).join('')||empty('فعلاً اینجا آرومه 👀 وقتی دوستات چیزی رو با اجازه به اشتراک بذارن، خبرهای باحال‌شون همین‌جا میاد 🔥');
@@ -58,7 +64,7 @@ function render(){
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-social-view]');if(b){selections[b.dataset.socialRoute]=b.dataset.socialView;render()}if(e.target.closest('[data-social-manage]')){selections.social='friends';window.ElaraOpen('social');render()}});
-for(const event of ['elara:social-updated','elara:account-ready','elara:logout'])window.addEventListener(event,render);
+for(const event of ['elara:social-updated','elara:account-ready','elara:logout','elara:locale-changed'])window.addEventListener(event,render);
 window.addEventListener('elara:open',e=>{if(['ranking','social'].includes(e.detail?.tab))render()});
 window.ElaraSocialView={render};render();
 })();
