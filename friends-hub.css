@@ -1,0 +1,95 @@
+/* Friends Hub tabs — dedicated social IA, 2026-10-03. */
+#elara-social-page .social-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:10px!important;
+  width:min(1040px,100%)!important;
+  max-width:1040px!important;
+  margin:0 auto 16px!important;
+  padding:0!important;
+  background:none!important;
+  border:0!important;
+}
+#elara-social-page .social-tabs [role="tab"]{
+  min-width:0!important;
+  min-height:56px!important;
+  padding:9px 11px!important;
+  border:1px solid #31598a!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,#0a2342,#081a33)!important;
+  color:#dce8ff!important;
+  font:800 .84rem/1.2 inherit!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  white-space:nowrap!important;
+}
+#elara-social-page .social-tabs [role="tab"] img{
+  width:28px!important;
+  height:28px!important;
+  flex:0 0 28px!important;
+  object-fit:contain!important;
+}
+#elara-social-page .social-tabs [role="tab"][aria-selected="true"]{
+  border-color:#8c67ff!important;
+  background:linear-gradient(135deg,#5f2cff,#7046ff 52%,#3137d9)!important;
+  color:#fff!important;
+  box-shadow:0 0 0 1px #ae8cff66 inset,0 0 22px #6b35ff66!important;
+}
+#elara-social-page .social-hub-slot{min-height:1px}
+#elara-social-page .social-reference-grid>.social-dm-section,
+#elara-social-page .social-reference-grid>.social-groups-section,
+#elara-social-page .social-reference-grid>.social-clubs-section{
+  grid-column:1/-1!important;
+}
+body.light #elara-social-page .social-tabs [role="tab"]{
+  background:#fff!important;
+  border-color:#c8d7eb!important;
+  color:#203552!important;
+  box-shadow:0 7px 20px #48648317!important;
+}
+body.light #elara-social-page .social-tabs [role="tab"][aria-selected="true"]{
+  color:#fff!important;
+  border-color:#7650ef!important;
+  background:linear-gradient(135deg,#6a35f5,#7858ff)!important;
+  box-shadow:0 8px 24px #6b43e63d!important;
+}
+@media(max-width:900px){
+  #elara-social-page .social-tabs{
+    display:flex!important;
+    width:100%!important;
+    max-width:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    overscroll-behavior-inline:contain!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:thin!important;
+    justify-content:flex-start!important;
+    padding:2px 1px 8px!important;
+    gap:8px!important;
+  }
+  #elara-social-page .social-tabs [role="tab"]{
+    flex:0 0 122px!important;
+    width:122px!important;
+    min-width:122px!important;
+    min-height:52px!important;
+    scroll-snap-align:start!important;
+    font-size:.78rem!important;
+  }
+}
+@media(max-width:430px){
+  #elara-social-page .social-tabs [role="tab"]{
+    flex-basis:112px!important;
+    width:112px!important;
+    min-width:112px!important;
+    min-height:50px!important;
+    padding:8px 9px!important;
+    font-size:.74rem!important;
+  }
+  #elara-social-page .social-tabs [role="tab"] img{
+    width:25px!important;
+    height:25px!important;
+    flex-basis:25px!important;
+  }
+}
