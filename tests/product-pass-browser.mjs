@@ -163,7 +163,7 @@ for(const width of all){
    await page.evaluate(()=>ElaraProfileSystem.writePrivate({sex:'male'}));await page.waitForTimeout(50);assert.equal(await page.locator('#wellness-cycle').isVisible(),false);
   });
 
-  await openRoute(page,'language');
+  await openRoute(page,'language-books');
   await check(`${width}: language book delete and reading are interactive`,async()=>{
    const row=page.locator('.pass3-language-book').filter({hasText:'Legacy language book'}).first();assert.equal(await row.count(),1,'legacy language book must render');
    const read=row.locator('[data-language-reading]'),del=row.locator('[data-language-book-delete]');assert.equal(await read.isDisabled(),false,'language reading button is locked');assert.equal(await del.isDisabled(),false,'language delete button is locked');
@@ -185,7 +185,7 @@ for(const width of all){
    await page.evaluate(()=>{window.ElaraAccount={user:null,profile:null}});
   });
 
-  await openRoute(page,'books');
+  await openRoute(page,'library-shelves');
   await check(`${width}: reading report notification/privacy`,async()=>{
    await page.evaluate(()=>{ElaraSocial.me={uid:'reader-qa',name:'Reader',username:'reader',xp:10};localStorage.setItem('elara_activity_visibility_reader-qa','friends')});
    await page.locator('[data-reading-report]').click();await page.locator('[data-reading-report-book="pp-book"]').click();await page.waitForTimeout(40);
