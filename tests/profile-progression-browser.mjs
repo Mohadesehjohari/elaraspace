@@ -28,6 +28,6 @@ assert.match(fa.html,/elara-profile-rank-pill/);
 assert.match(fa.html,/data-medal="level-80"/);
 await page.evaluate(()=>ElaraI18n.set('en'));await page.waitForTimeout(80);
 const en=await page.evaluate(()=>{const v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true});return{rank:v.rankLabel,title:v.title,html:ElaraProfileSystem.composition(v)}});
-assert.equal(en.rank,'Cosmic Elite');assert.equal(en.title,'Cosmic Elite');assert.match(en.html,/Level 80/);
+assert.equal(en.rank,'Elite','Rank registry and Title registry are distinct at level 80');assert.equal(en.title,'Cosmic Elite');assert.match(en.html,/Level 80/);
 await browser.close();
 console.log('PROFILE_PROGRESSION_PASS infinite-level rank collection medals i18n level80');
