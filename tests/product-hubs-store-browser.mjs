@@ -50,6 +50,7 @@ async function run(width,height){
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="blocked"]').count(),1,width+': blocked accounts destination missing');
  for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,width+': dedicated Profile Settings missing '+route);
  assert.equal(await page.locator('.drawer-profile-head .drawer-settings-gear').count(),1,width+': compact profile gear missing');
+ await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(60);
  assert.equal(await page.locator('.drawer-mobile-reports').isVisible(),isMobile,width+': Reports shortcut mobile visibility mismatch');
  await page.evaluate(()=>ElaraPrivateDrawer.open('account'));await page.waitForTimeout(80);
  const xpOrder=await page.locator('#drawer-account-area .elara-profile-composition').first().evaluate(root=>{const track=root.querySelector('.elara-profile-xp-track'),row=root.querySelector('.elara-profile-xp-row'),a=track.getBoundingClientRect(),b=row.getBoundingClientRect();return{trackTop:a.top,rowTop:b.top}});
