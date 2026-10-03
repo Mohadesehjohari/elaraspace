@@ -22,7 +22,9 @@ async function run(width,height){
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.goto(base+'/?dm-ui='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&document.querySelector('.social-dm-section')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
+ await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-row').count(),1,width+': recent DM row missing');
  assert.equal(await page.locator('.social-dm-friend').count(),1,width+': friend start-chat card missing');
  await page.locator('.social-dm-row').click();
