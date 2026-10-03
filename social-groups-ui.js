@@ -5,10 +5,10 @@ let renderToken=0;
 const api=()=>window.ElaraSocial?.groups,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
 function when(ms){if(!ms)return'';try{return new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'})}catch{return''}}
 function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.uid===current()?.uid})?.avatarSrc;return src?'<img src="'+esc(src)+'" alt="">':'<span>'+esc((p?.name||p?.username||'?').slice(0,1))+'</span>'}
-function activeFriendsTab(root){return !!root?.querySelector('[data-social-view="friends"][aria-selected="true"]')}
+function activeGroupsTab(root){return !!root?.querySelector('[data-social-view="groups"][aria-selected="true"]')}
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
- if(!activeFriendsTab(root)){root.querySelector('.social-groups-section')?.remove();return}
+ if(!activeGroupsTab(root)){root.querySelector('.social-groups-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-groups-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section';section.dataset.elaraI18n='off';const dm=root.querySelector('.social-dm-section');if(dm)dm.insertAdjacentElement('afterend',section);else grid.prepend(section)}
  const token=++renderToken;
