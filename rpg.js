@@ -59,16 +59,17 @@
   const claimKey=(m,day=today())=>m.daily?`${day}:${m.key}`:m.key;
   function awardCompletedMissions(){
     const data=parse(),c=counts(data),claims=Array.isArray(data.missionRewardClaims)?data.missionRewardClaims:[],day=today();
-    let changed=false,total=0;
+    let changed=false,total=0;const newly=[];
     for(const m of missions){
       const done=m.value(c)>=m.target,key=claimKey(m,day);
-      if(done&&!claims.includes(key)){claims.push(key);data.xp=Math.max(0,Number(data.xp)||0)+m.rewardXp;changed=true;total+=m.rewardXp;window.ElaraNotify?.push?.({type:'mission',title:window.ElaraI18n?.t?.('ماموریت کامل شد 🔥','Mission complete 🔥')||'ماموریت کامل شد 🔥',message:(window.ElaraI18n?.locale?.()==='en'?'Nice! ':'دمت گرم! ')+m.name+' · +'+m.rewardXp+' XP',dedupeKey:'mission:'+key})}
+      if(done&&!claims.includes(key)){claims.push(key);data.xp=Math.max(0,Number(data.xp)||0)+m.rewardXp;changed=true;total+=m.rewardXp;newly.push({key,name:m.name,rewardXp:m.rewardXp,daily:!!m.daily});window.ElaraNotify?.push?.({type:'mission',title:window.ElaraI18n?.t?.('ماموریت کامل شد 🔥','Mission complete 🔥')||'ماموریت کامل شد 🔥',message:(window.ElaraI18n?.locale?.()==='en'?'Nice! ':'دمت گرم! ')+m.name+' · +'+m.rewardXp+' XP',dedupeKey:'mission:'+key})}
     }
     if(!changed)return 0;
     data.missionRewardClaims=claims.slice(-5000);
     localStorage.setItem(STORE,JSON.stringify(data));
     window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:data}));
     window.dispatchEvent(new Event('elara:data-changed'));
+    for(const mission of newly)window.dispatchEvent(new CustomEvent('elara:mission-claimed',{detail:mission}));
     return total;
   }
   const levelFromXp = xp => window.ElaraLevels?.level?.(xp)||Math.max(1,1+Math.floor(Math.max(0,xp)/70));
