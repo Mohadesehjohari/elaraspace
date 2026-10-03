@@ -18,13 +18,13 @@ function canCreateClub(){
  const threshold=window.ElaraLevels?.threshold?.(6)??350;
  return xpValue()>=threshold
 }
-const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
+const isClubsTab=root=>!!root?.querySelector('[data-social-view="clubs"][aria-selected="true"]');
 let token=0;
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3300)}
 function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.uid===current()?.uid})?.avatarSrc;return src?'<img src="'+esc(src)+'" alt="">':'<span>'+esc((p?.name||p?.username||'?').slice(0,1))+'</span>'}
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
- if(!isFriendsTab(root)){root.querySelector('.social-clubs-section')?.remove();return}
+ if(!isClubsTab(root)){root.querySelector('.social-clubs-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-clubs-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-clubs-section';section.dataset.elaraI18n='off';const groups=root.querySelector('.social-groups-section');groups?groups.insertAdjacentElement('afterend',section):grid.append(section)}
  const mine=++token,userLevel=level(),createAllowed=canCreateClub();section.innerHTML='<header class="social-clubs-head"><div><small>ELARA · CLUBS</small><h2>'+t('باشگاه‌ها','Clubs')+'</h2><p>'+t('ماموریت، نظرسنجی و مسیر مشترک؛ جدا از چت گروهی.','Structured missions, polls and shared progress — separate from group chat.')+'</p></div><button type="button" class="primary-button" data-club-create '+(!createAllowed?'disabled':'')+'>'+t('ساخت باشگاه','Create club')+'</button></header>'+(!createAllowed?'<p class="social-club-lock">'+t('ساخت باشگاه از Level 6 باز می‌شود. الان Level ','Club creation unlocks at Level 6. You are Level ')+userLevel+'</p>':'')+'<div class="social-club-invites" data-club-invites></div><div class="social-clubs-grid" data-club-list><p class="muted">'+t('در حال بارگذاری…','Loading…')+'</p></div>';
