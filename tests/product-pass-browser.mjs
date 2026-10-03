@@ -9,7 +9,7 @@ const mobileWidths=[390],desktopWidths=[1440],all=[...mobileWidths,...desktopWid
 const routes=['home','tasks','language','books','social','exercise','freedom','settings'];
 const fa=/[\u0600-\u06ff]/;
 const clamp=(min,n,max)=>Math.max(min,Math.min(max,n));
-const check=async(name,fn)=>{try{await fn();results.push({name,status:'PASS'})}catch(error){results.push({name,status:'FAIL',error:error.message});failures.push({name,error:error.stack||String(error)})}};
+const check=async(name,fn)=>{const started=Date.now();console.log('[PRODUCT-CHECK] '+name+' start');try{await fn();results.push({name,status:'PASS'});console.log('[PRODUCT-CHECK] '+name+' PASS '+(Date.now()-started)+'ms')}catch(error){results.push({name,status:'FAIL',error:error.message});failures.push({name,error:error.stack||String(error)});console.log('[PRODUCT-CHECK] '+name+' FAIL '+(Date.now()-started)+'ms '+error.message)}};
 function seed(){
  const now=new Date(),date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
  localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:820,
@@ -50,7 +50,7 @@ const noOverflow=async page=>{const m=await page.evaluate(()=>({sw:document.docu
 for(const width of all){
  const mobile=width<701,height=mobile?844:(width===1648?928:1000);
  const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:mobile?2:1});
- const page=await context.newPage(),net=await wire(page);page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(15000);console.log('[PRODUCT] width '+width+' start');
+ const page=await context.newPage(),net=await wire(page);page.setDefaultTimeout(3000);page.setDefaultNavigationTimeout(15000);console.log('[PRODUCT] width '+width+' start');
  try{
   await boot(page,'home');
   if(width===390){
