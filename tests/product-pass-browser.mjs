@@ -92,9 +92,9 @@ for(const width of all){
   });
 
   if(width===390||width===1440)await check(`${width}: uploaded Language/Library/Ranking banners render`,async()=>{
-   await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/);
+   await openRoute(page,'language');assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\\.webp/);
    const languageArt=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art');assert.equal(await languageArt.count(),4,'Language hub must expose four visual launchers');await page.waitForFunction(()=>[...document.querySelectorAll('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art')].every(x=>x.complete&&x.naturalWidth>0),null,{timeout:10000});const decoded=await languageArt.evaluateAll(xs=>xs.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));assert.equal(decoded.every(x=>x.ok),true,'Language hub artwork failed to decode: '+JSON.stringify(decoded));
-   await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/librairy_banner\.webp/);
+   await openRoute(page,'books');assert.match(await page.locator('.library-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/31-library-hero-banner\\.webp/);
    await openRoute(page,'ranking');assert.match(await page.locator('#panel-ranking>h1').evaluate(el=>getComputedStyle(el).backgroundImage),/ranking_banner\.webp/);
    await openRoute(page,'home');
   });
