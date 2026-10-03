@@ -562,6 +562,13 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
  #panel-home.ref-home .ref-home-grid>.ref-goals,
  #panel-home.ref-home .ref-right-stack>.ref-ranks,
  #panel-home.ref-home .ref-right-stack>.ref-activity{grid-column:1!important;width:100%!important}
+ #panel-home.ref-home .ref-home-grid>.ref-tasks{grid-row:1!important}
+ #panel-home.ref-home .ref-home-grid>.ref-habits{grid-row:2!important}
+ #panel-home.ref-home .ref-home-grid>.ref-wellness-card{grid-row:3!important}
+ #panel-home.ref-home .ref-home-grid>.ref-missions{grid-row:4!important}
+ #panel-home.ref-home .ref-home-grid>.ref-goals{grid-row:5!important}
+ #panel-home.ref-home .ref-right-stack>.ref-ranks{grid-row:6!important}
+ #panel-home.ref-home .ref-right-stack>.ref-activity{grid-row:7!important}
 }
 
 
