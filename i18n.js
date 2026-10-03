@@ -18,6 +18,7 @@ const exact=new Map(Object.entries({
 'تغییر حالت روشن یا تاریک':'Toggle light or dark mode','حالت ظاهر':'Appearance mode','ویرایش پروفایل':'Edit Profile','عکس پروفایل':'Profile photo','آواتار Elara':'Elara avatar','عکس آپلودی':'Uploaded photo','شکل تصویر':'Image shape','فونت نام':'Display-name font','اطلاعات پروفایل':'Profile information',
 'تکمیل نشده':'Not completed','زن':'Woman','مرد':'Man','سایر / ترجیح می‌دهم نگویم':'Other / Prefer not to say','ویرایش پروفایل':'Edit profile',
 'فعالیت‌هایی که دوستان با اجازه به اشتراک می‌گذارند، اینجا دیده می‌شوند.':'Activities friends choose to share appear here.',
+'استاتوس +':'Add status','استاتوس تصویری':'Photo status','باز کردن پیج و استاتوس':'Open Page & Status','باز کردن استاتوس':'Open status',
 'کتاب «در حال مطالعه» با تعداد صفحات مشخص نداری.':'You have no reading book with a known page count.','کتاب در حال مطالعه را انتخاب کن.':'Choose a book you are reading.',
 'ثبت':'Save','حذف':'Delete','ویرایش':'Edit','تلاش دوباره':'Retry','بارگذاری…':'Loading…','در حال اتصال امن…':'Connecting securely…',
 'پیشرفت امروز':'Today Progress','استریک تسک‌ها':'Task Streak','روز متوالی':'day streak','سطح':'Level','مرحله':'Level','امتیاز':'XP',
