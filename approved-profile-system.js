@@ -67,7 +67,8 @@ function statusLabel(row,self=false){
 function statusBubble(v){
  const row=activeStatus(v.uid),label=statusLabel(row,!!v.self);if(!label)return '';
  const title=v.self?(document.documentElement.lang==='en'?'Open Page & Status':'باز کردن پیج و استاتوس'):(document.documentElement.lang==='en'?'Open status':'باز کردن استاتوس');
- return '<button type="button" class="elara-profile-status-bubble" data-profile-status-link data-profile-status-id="'+esc(row?.id||'')+'" aria-label="'+esc(title)+'"><span data-elara-ugc dir="auto">'+esc(label)+'</span></button>';
+ const userText=!!String(row?.text||'').trim(),ugc=userText?' data-elara-ugc':'';
+ return '<button type="button" class="elara-profile-status-bubble" data-profile-status-link data-profile-status-id="'+esc(row?.id||'')+'" aria-label="'+esc(title)+'"><span'+ugc+' dir="auto">'+esc(label)+'</span></button>';
 }
 function composition(view,opts={}){
  const v=view||viewModel({},{}),compact=opts.compact?' elara-profile-composition-compact':'',avatar=v.avatarSrc?'<img data-profile-asset class="elara-profile-avatar-img" src="'+esc(v.avatarSrc)+'" alt="آواتار '+esc(v.name)+'">':'',frame=v.frameSrc?'<img data-profile-asset class="elara-profile-frame-img" src="'+esc(v.frameSrc)+'" alt="">':'',tier=v.frame||'none';
