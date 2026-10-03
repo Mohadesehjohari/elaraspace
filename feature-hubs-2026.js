@@ -44,12 +44,12 @@ function setupLibrary(){
  for(const n of [tools,form,filter,list,empty])if(n)move(n,shelfPanel);
  searchPanel.querySelector('.library-search-launch')?.remove();const search=document.createElement('section');search.className='elara-card library-search-launch';search.innerHTML=icon('assets/ui/search-button.webp','')+'<div><h2>'+tx('کتاب بعدی‌ات را پیدا کن','Find your next book')+'</h2><p>'+tx('نام کتاب یا نویسنده را جستجو کن؛ نتیجهٔ ساختگی نمایش داده نمی‌شود.','Search by book or author; no fabricated results are shown.')+'</p><button type="button" class="primary-button" data-library-search-direct>'+tx('باز کردن جستجو','Open search')+'</button></div>';searchPanel.append(search);
  const stats=window.ElaraReading?.stats?.(readState().books||[])||'';const chart=window.ElaraReading?.chart?.(readState().books||[])||'';reportPanel.querySelector('.library-report-live')?.remove();const report=document.createElement('section');report.className='elara-card library-report-live';report.innerHTML='<h2>'+tx('خلاصهٔ مطالعه','Reading overview')+'</h2>'+stats+chart+'<button type="button" class="quiet-button" data-feature-route="reports-productivity">'+tx('مرکز همهٔ گزارش‌ها','All reports')+'</button>';reportPanel.append(report);
- hub(parent,
+ const libraryHub=hub(parent,
    card('library-clips','assets/ui/book.webp','بریده کتاب','Book Clips','جمله‌ها، عکس‌ها و یادداشت‌های کتاب','Quotes, images and notes')+
    card('library-search','assets/ui/search-button.webp','جستجوی کتاب','Find Books','کتاب بعدی را پیدا یا اضافه کن','Find or add your next book')+
    card('library-reports','assets/ui/ranking-chart-icon.webp','گزارش مطالعه','Reading Report','آمار و روند مطالعه','Reading stats and trends')+
    card('library-shelves','assets/ui/icon-library-open-book.webp','قفسه‌ها','Shelves','کتاب‌ها و مجموعه‌های شخصی','Books and custom collections'),'library'
- ).insertAdjacentHTML('afterend',readingPreview());
+ );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());libraryHub.insertAdjacentHTML('afterend',readingPreview());
 }
 function setupLanguage(){
  const parent=$('panel-language');if(!parent)return;parent.classList.add('feature-hub-parent','language-feature-hub');
