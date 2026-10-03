@@ -1,13 +1,41 @@
-# کارهای باقی‌مانده — به ترتیب اولویت
+# کارهای باقی‌مانده — Operational Queue
 
-این Pass تغییرات قابل‌اجرای UI و منطق روز/تکرار را تحویل می‌دهد؛ همهٔ معیارهای Done کاربر هنوز تأیید نشده‌اند.
+> مرجع کامل و canonical: [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)
 
-1. **تأیید بصری Home / Tasks / Ranking:** Preview واقعی در عرض‌های 320، 375، 390، 430، 1440، 1648، 1920. مقایسه کنار تصاویر مرجع؛ بررسی overflow، clipping، ابعاد کارت‌ها، اندازهٔ هدف لمس، font fallback، بازشدن keyboard، bottom sheet، Tab/Escape و اسکرول Goals. Screenshotها در review-screenshots ذخیره شوند. هیچ تأیید پیکسلی در این بسته وجود ندارد.
-2. **آزمون حساب واقعی:** sign-in/out، تعویض حساب، sync هم‌زمان دو tab، ذخیره/دریافت recurrence، XP، درخواست دوستی قبول/رد/حذف، username، profile و wardrobe. اتصال و Rules تغییر نکرده‌اند ولی تست زنده انجام نشده است.
-3. **تکمیل Fidelity صفحات دیگر:** Language و Profile تغییرات محدود typography/spacing گرفته‌اند؛ Wellness، Library و Freedom هنوز تمام ساختار و Artwork مرجع را ندارند. Freedom نیازمند note/idea/dream persistence واقعی است. برای Library باید cover و metadata واقعی کتاب، دسته‌بندی و دادهٔ آمار تعریف شود؛ محتوای نمونهٔ تصویر نباید seed شود.
-4. **قرارداد دادهٔ Social:** weekly XP ledger، presence مجاز و clubs/cafes واقعی لازم‌اند. اکنون تنها XP کل دوستان نمایش داده می‌شود و کلاب‌ها به‌صراحت غیرفعال‌اند. طراحی این بخش‌ها نباید با کاربر یا count ساختگی پر شود.
-5. **تاریخچهٔ گزارش‌ها:** هماهنگی با export/import اصلی و cloud sync خصوصی، ویرایش/حذف ثبت صفحات، تاریخچهٔ قابل‌انتخاب هر Goal، انتقال داده هنگام تعویض دستگاه و تست quota. تاریخچهٔ پیش از نصب در این Pass ساخته نمی‌شود. در صورت نیاز کاربر، تکرار ماهانه بر اساس تقویم فارسی نیز باید به‌صورت گزینهٔ صریح مدل شود.
-6. **Theme و فونت:** تم مستقل Pink/White، dim artwork و تست کنتراست همهٔ صفحات؛ تم فعلی و tokenها حفظ شده‌اند اما تم صورتی کامل آماده نیست. فونت فارسی محلی با مجوز مناسب برای offline اضافه شود.
-7. **Consolidation تدریجی:** فایل نهایی Home بازنویسی و handler تکراری ساخت metadata حذف شد؛ هنوز چند نسل CSS فعال است. پس از ثبت screenshots و regression tests، ادغام کامل انجام شود؛ حذف گستردهٔ قواعد بدون این پوشش انجام نشده است.
+این فایل فقط صف اجرای کوتاه‌مدت است و نباید با Master Roadmap رقابت کند.
 
-Assets لازم در MISSING-ASSETS.md و مرز دقیق آزمون‌ها در TEST-NOTES.md ثبت شده‌اند.
+## اکنون — P0/P1
+1. END-HEAD CI: P0 / Browser / Reference / Pages.
+2. Library Clips Hub → route مستقل و خلوت‌کردن صفحهٔ Library.
+3. Wellness Hub → Water/Sleep/Weight/Exercise/Analysis subpages.
+4. Focus Hub → Pomodoro عادی دایره‌ای + Fullscreen vertical dark reference mode.
+5. Task Kebab → فقط یک menu باز + 3s auto-close + topmost.
+6. Mobile/Profile media cross-device design با Storage Rules.
+7. Friends Hub tabs و جداسازی قطعی از Ranking.
+8. Notification locale + Social event coverage audit.
+
+## بعدی — P2/P3
+1. Page identity separation + Page avatar/banner.
+2. Profile Photo Library + delete + cloud sync.
+3. Status color/theme.
+4. DM draft persistence.
+5. Page sections: Clips / Free / Text / Blog.
+6. Report delete + minimal charts.
+7. Cursor themes + Lemon/Vampire/Ocean/Snow visual pass.
+
+## Backend-gated
+1. Publish Firestore Rules + two-UID tests.
+2. Presence.
+3. Shared Task.
+4. Challenge Now/When Online/Persistent + 30s toast.
+5. Focus Room.
+6. Global Activity moderation.
+7. Store token ledger / Elite / payment verification.
+8. Clubs/Clan realtime + rewards.
+
+## Late
+1. 3D Avatar / wardrobe commerce.
+2. Calm/Farm/Voice.
+3. Final Theme pass.
+
+آخرین وضعیت و تمام جزئیات قابلیت‌ها فقط در Master Roadmap نگه‌داری می‌شود.
