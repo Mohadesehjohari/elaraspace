@@ -1497,3 +1497,15 @@ body.light .task-checklist-editor,body.light .task-checklist-row{background:#f8f
  }
  #panel-home.ref-home .ref-view-all-button .ref-view-all-art{width:158px!important;min-width:158px!important}
 }
+
+/* 2026-10-03 Mission Celebration Stage — real-claim only, dismissible and reduced-motion safe. */
+.mission-celebration{position:fixed;z-index:2147482000;inset:auto 18px 18px auto;display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center;width:min(430px,calc(100vw - 36px));padding:15px 48px 15px 16px;border:1px solid #8f66ff;border-radius:20px;background:linear-gradient(145deg,#101d43f5,#29165cf2);box-shadow:0 20px 60px #0009,0 0 34px #7b4cff55;color:#f7f4ff;animation:missionPop .22s ease-out both;overflow:hidden}
+.mission-celebration::before{content:"";position:absolute;inset:-45% auto auto -12%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#a96cff3a,transparent 70%);pointer-events:none}
+.mission-celebration-burst{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,#fff7b9 0 8%,#ffcf54 9% 28%,#8145ff 31% 58%,transparent 62%);font-size:1.4rem;filter:drop-shadow(0 0 10px #a768ff)}
+.mission-celebration>div{display:grid;gap:3px;min-width:0}.mission-celebration small{color:#c8baff;font-weight:800}.mission-celebration strong{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mission-celebration p{margin:0;color:#d7e2f7;font-size:.78rem;line-height:1.55}.mission-celebration b{color:#ffd75d;font-size:.78rem}
+.mission-celebration-close{position:absolute;inset:9px 9px auto auto;width:32px;height:32px;border:1px solid #7b67b7;border-radius:10px;background:#0b1738b8;color:#fff;font-size:1.15rem}
+.mission-celebration.is-leaving{animation:missionOut .16s ease-in both}
+@keyframes missionPop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}@keyframes missionOut{to{opacity:0;transform:translateY(10px) scale(.98)}}
+body.light .mission-celebration{background:linear-gradient(145deg,#fff,#f2edff);color:#182039;border-color:#9b7cff;box-shadow:0 18px 50px #4d3d7a2e,0 0 30px #8d60ff36}.light .mission-celebration p{color:#4f5d79}.light .mission-celebration small{color:#694cc0}
+@media(max-width:620px){.mission-celebration{inset:auto 10px calc(82px + env(safe-area-inset-bottom)) 10px;width:auto;padding:13px 43px 13px 13px;grid-template-columns:42px minmax(0,1fr);border-radius:18px}.mission-celebration-burst{width:42px;height:42px}.mission-celebration strong{font-size:.9rem}}
+@media(prefers-reduced-motion:reduce){.mission-celebration,.mission-celebration.is-leaving{animation:none!important}}

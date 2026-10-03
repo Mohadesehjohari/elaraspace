@@ -741,7 +741,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 
 ## V6 — Missions و Notification tone
 
-- **MISSION-CELEBRATION-02 — REQUESTED:** بعد از Mission واقعی، haptic در دستگاه‌های پشتیبان + celebration popup + Mission بعدی؛ prefers-reduced-motion و عدم لرزش اجباری رعایت شود.
+- **MISSION-CELEBRATION-02 — IMPLEMENTED / TESTING:** بعد از Mission واقعی، haptic در دستگاه‌های پشتیبان + celebration popup + Mission بعدی؛ prefers-reduced-motion و عدم لرزش اجباری رعایت شود. Celebration is emitted only from the canonical mission reward claim path; close + 2.7s auto-dismiss are present, haptics/sound are opt-in, and refresh cannot re-claim the same mission.
 - **NOTIFICATION-I18N-02 — REQUESTED / BUGFIX:** Notification template دقیقاً مطابق Locale انتخابی کاربر تولید/نمایش شود؛ UGC ترجمه نشود.
 - **SOCIAL-EVENT-TONE-02 — REQUESTED:** eventهای مجاز Task/Habit/Goal/Reading/Language/Exercise/Focus/Streak/Mission با لحن کوتاه، صمیمی و متنوع به Friends Activity بروند؛ public فقط در Global Activity، با dedupe و Privacy canonical.
 

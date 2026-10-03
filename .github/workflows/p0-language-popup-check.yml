@@ -37,6 +37,7 @@ on:
       - 'tests/task-checklist-browser.mjs'
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/domain-events-browser.mjs'
+      - 'tests/mission-celebration-browser.mjs'
       - 'tests/mobile-banner-copy-browser.mjs'
       - 'tests/profile-progression-browser.mjs'
       - 'tests/entity-reorder-browser.mjs'
@@ -49,6 +50,7 @@ on:
       - 'task-collections.js'
       - 'focus-ambience.js'
       - 'domain-notifications.js'
+      - 'mission-celebration.js'
       - 'mobile-banner-copy.js'
       - 'social-view.js'
       - 'tests/social-engagement-browser.mjs'
@@ -116,6 +118,7 @@ jobs:
           node --check task-checklist.js
           node --check focus-ambience.js
           node --check domain-notifications.js
+          node --check mission-celebration.js
           node --check mobile-banner-copy.js
           node --check library-enhancements.js
           node --check social-messaging-ui.js
@@ -137,6 +140,7 @@ jobs:
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/focus-ambience-browser.mjs
           node --check tests/domain-events-browser.mjs
+          node --check tests/mission-celebration-browser.mjs
           node --check tests/mobile-banner-copy-browser.mjs
           node --check tests/profile-progression-browser.mjs
           node --check tests/entity-reorder-browser.mjs
@@ -191,6 +195,8 @@ jobs:
         run: timeout 90s node tests/focus-ambience-browser.mjs
       - name: Verify domain milestone notifications and diverse missions
         run: timeout 90s node tests/domain-events-browser.mjs
+      - name: Verify real mission celebration
+        run: timeout 90s node tests/mission-celebration-browser.mjs
       - name: Verify Mobile banner copy reveal
         run: timeout 90s node tests/mobile-banner-copy-browser.mjs
       - name: Verify infinite profile progression
@@ -293,6 +299,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/focus-ambience-browser.mjs
+      - name: Verify deployed real mission celebration
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/mission-celebration-browser.mjs
       - name: Verify deployed domain milestone notifications and diverse missions
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
