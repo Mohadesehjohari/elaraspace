@@ -147,7 +147,8 @@
     "task-collections.js",
     "collection-level.js",
     "mobile-banner-copy.js",
-    "blog-view.js"
+    "blog-view.js",
+    "friends-hub.css"
   ],
   "files": [
     ".htaccess",
@@ -394,6 +395,7 @@
     "entity-bulk-selection.js",
     "task-collections.js",
     "mobile-banner-copy.js",
-    "blog-view.js"
+    "blog-view.js",
+    "friends-hub.css"
   ]
 }
