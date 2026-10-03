@@ -107,6 +107,7 @@ document.addEventListener('click',e=>{
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
  if(selecting){const row=e.target.closest('#task-list > .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag]')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
 },true);
+document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list > .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-select-control,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
 document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data-task-drag]');if(handle){dragStart(e,handle);return}const row=e.target.closest('#task-list > .astra-task-row[data-key]');if(row)startCardPress(e,row)},true);
 document.addEventListener('pointermove',e=>{moveCardPress(e);dragMove(e)},true);
 document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();dragEnd(e)},true);
