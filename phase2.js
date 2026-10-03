@@ -364,7 +364,11 @@
 
   const focusState=()=>ensureState(readState());
   function focusSelectedMinutes(){const n=Math.round(Number($('focus-duration')?.value||25));return Math.max(1,Math.min(180,Number.isFinite(n)?n:25))}
-  function focusControls(disabled){document.querySelectorAll('[data-focus-preset],#focus-duration,#focus-tag,[data-phase2-create][data-phase2-target="focus-tag"]').forEach(el=>el.disabled=disabled)}
+  function focusBreakMinutes(){const n=Math.round(Number($('focus-break-duration')?.value||5));return Math.max(1,Math.min(60,Number.isFinite(n)?n:5))}
+  function focusSessionCount(){const n=Math.round(Number($('focus-session-count')?.value||1));return Math.max(1,Math.min(8,Number.isFinite(n)?n:1))}
+  function focusAutoBreak(){return !!$('focus-auto-break')?.checked}
+  const focusT=(faText,enText)=>window.ElaraI18n?.t?.(faText,enText)||faText;
+  function focusControls(disabled){document.querySelectorAll('[data-focus-preset],#focus-duration,#focus-tag,#focus-break-duration,#focus-session-count,#focus-auto-break,[data-phase2-create][data-phase2-target="focus-tag"]').forEach(el=>el.disabled=disabled)}
   function renderFocusHistory(){
     const state=focusState(),box=$('focus-history');if(!box)return;
     const sessions=[...state.focusSessions].sort((a,b)=>(b.endedAt||0)-(a.endedAt||0)).slice(0,20);
@@ -379,46 +383,64 @@
   function finishFocus(active){
     clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
     if(!current||current.id!==active.id)return;
-    const fresh=!state.focusSessions.some(s=>s.id===active.id),minutes=Math.max(1,Math.min(180,Math.round(Number(active.durationMin)||1))),tag=String(active.tag||'').trim().slice(0,60);
-    if(fresh){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:minutes,tag,completed:true});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
-    state.activeFocus=null;writeState(state);
-    const tt=(faText,enText)=>window.ElaraI18n?.t?.(faText,enText)||faText;
-    notify(tt(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
+    const kind=active.kind==='break'?'break':'focus',sessionCount=Math.max(1,Math.min(8,Math.round(Number(active.sessionCount)||1))),sessionIndex=Math.max(1,Math.min(sessionCount,Math.round(Number(active.sessionIndex)||1))),focusMin=Math.max(1,Math.min(180,Math.round(Number(active.focusDurationMin)||(kind==='focus'?Number(active.durationMin):25)||25))),breakMin=Math.max(1,Math.min(60,Math.round(Number(active.breakMin)||5))),autoBreak=!!active.autoBreak,tag=String(active.tag||'').trim().slice(0,60),sequenceId=String(active.sequenceId||active.id||makeId()).slice(0,100);
+    if(kind==='break'){
+      state.activeFocus=null;
+      state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,waiting:'focus'}:null;
+      writeState(state);notify(focusT(sessionIndex<sessionCount?`استراحت تموم شد؛ جلسهٔ ${fa(sessionIndex+1)} آماده‌ست. 🌿`:'چرخهٔ تمرکز تموم شد. دمت گرم 🌿','Break complete — '+(sessionIndex<sessionCount?'session '+(sessionIndex+1)+' is ready. 🌿':'focus cycle complete. Nice work 🌿')));
+      updateFocusDisplay();renderFocusHistory();return;
+    }
+    const minutes=Math.max(1,Math.min(180,Math.round(Number(active.durationMin)||focusMin))),fresh=!state.focusSessions.some(s=>s.id===active.id);
+    if(fresh){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:minutes,tag,completed:true,sequenceId,sessionIndex,sessionCount});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
+    if(sessionIndex<sessionCount&&autoBreak){
+      const now=Date.now();state.activeFocus={id:makeId(),kind:'break',durationMin:breakMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,startedAt:now,endAt:now+breakMin*60000,remainingSec:breakMin*60,status:'running'};state.focusPlanProgress=null;
+    }else{
+      state.activeFocus=null;state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,waiting:'focus'}:null;
+    }
+    writeState(state);
+    notify(focusT(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
     if(fresh){
-      window.ElaraNotify?.push?.({type:'focus',title:tt('تمرکز کامل شد 🧠⚡','Focus complete 🧠⚡'),message:tt(`${fa(minutes)} دقیقه Deep Work ثبت شد${tag?' · #'+tag:''}. دمت گرم 👊`,`${minutes} minutes of Deep Work logged${tag?' · #'+tag:''}. Nice work 👊`),dedupeKey:'focus-complete:'+active.id,meta:{durationMin:minutes,tag}});
+      window.ElaraNotify?.push?.({type:'focus',title:focusT('تمرکز کامل شد 🧠⚡','Focus complete 🧠⚡'),message:focusT(`${fa(minutes)} دقیقه Deep Work ثبت شد${tag?' · #'+tag:''}. دمت گرم 👊`,`${minutes} minutes of Deep Work logged${tag?' · #'+tag:''}. Nice work 👊`),dedupeKey:'focus-complete:'+active.id,meta:{durationMin:minutes,tag,sessionIndex,sessionCount}});
       publishFocusWhenReady({durationMin:minutes,tag});
     }
+    if(state.activeFocus?.status==='running')focusInterval=setInterval(updateFocusDisplay,250);
+    updateFocusDisplay();renderFocusHistory();
   }
-  function updateFocusDisplay(){
-    const state=focusState(),a=state.activeFocus,display=$('timer-display');if(!display)return;
-    if(!a){const sec=focusSelectedMinutes()*60;display.textContent=timerText(sec);$('focus-status').textContent='آمادهٔ تمرکز';$('timer-start').textContent='شروع';focusControls(false);return}
-    const sec=a.status==='running'?Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000)):Math.max(0,Number(a.remainingSec)||0);
-    display.textContent=timerText(sec);$('focus-status').textContent=a.status==='running'?`در حال تمرکز${a.tag?' · #'+a.tag:''}`:'مکث';$('timer-start').textContent=a.status==='running'?'مکث':'ادامه';focusControls(true);
+function updateFocusDisplay(){
+    const state=focusState(),a=state.activeFocus,p=state.focusPlanProgress,display=$('timer-display');if(!display)return;
+    const start=$('timer-start'),reset=$('timer-reset'),status=$('focus-status');
+    if(!a){
+      const sec=(p?.focusMin||focusSelectedMinutes())*60;display.textContent=timerText(sec);
+      if(p){status.textContent=focusT(`جلسهٔ ${fa(p.sessionIndex)} از ${fa(p.sessionCount)} آماده‌ست`,`Session ${p.sessionIndex} of ${p.sessionCount} is ready`);start.textContent=focusT(`شروع جلسهٔ ${fa(p.sessionIndex)}`,`Start session ${p.sessionIndex}`);if(reset)reset.textContent=focusT('لغو چرخه','Cancel cycle');focusControls(true)}
+      else{status.textContent=focusT('آمادهٔ تمرکز','Ready to focus');start.textContent=focusT('شروع','Start');if(reset)reset.textContent=focusT('شروع دوباره','Reset');focusControls(false)}
+      return;
+    }
+    const sec=a.status==='running'?Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000)):Math.max(0,Number(a.remainingSec)||0),kind=a.kind==='break'?'break':'focus',idx=Math.max(1,Number(a.sessionIndex)||1),count=Math.max(idx,Number(a.sessionCount)||1);
+    display.textContent=timerText(sec);
+    status.textContent=a.status==='paused'?focusT(kind==='break'?'استراحت در مکث':'تمرکز در مکث',kind==='break'?'Break paused':'Focus paused'):kind==='break'?focusT(`استراحت · جلسهٔ ${fa(idx)} از ${fa(count)}`,`Break · session ${idx} of ${count}`):focusT(`در حال تمرکز · جلسهٔ ${fa(idx)} از ${fa(count)}${a.tag?' · #'+a.tag:''}`,`Focusing · session ${idx} of ${count}${a.tag?' · #'+a.tag:''}`);
+    start.textContent=a.status==='running'?focusT('مکث','Pause'):focusT('ادامه','Resume');if(reset)reset.textContent=focusT(kind==='break'?'رد کردن / لغو چرخه':'شروع دوباره','Reset');focusControls(true);
     if(a.status==='running'&&sec<=0)finishFocus(a);
   }
-  function restoreFocus(){
-    clearInterval(focusInterval);focusInterval=null;const state=focusState(),a=state.activeFocus;
-    syncSelectors();if(a){if($('focus-duration'))$('focus-duration').value=a.durationMin||25;if($('focus-tag'))$('focus-tag').value=a.tag||''}
+function restoreFocus(){
+    clearInterval(focusInterval);focusInterval=null;const state=focusState(),a=state.activeFocus,p=state.focusPlanProgress;
+    syncSelectors();const source=a||p;if(source){if($('focus-duration'))$('focus-duration').value=source.focusDurationMin||source.focusMin||(source.kind==='focus'?source.durationMin:25)||25;if($('focus-break-duration'))$('focus-break-duration').value=source.breakMin||5;if($('focus-session-count'))$('focus-session-count').value=source.sessionCount||1;if($('focus-auto-break'))$('focus-auto-break').checked=!!source.autoBreak;if($('focus-tag'))$('focus-tag').value=source.tag||''}
     updateFocusDisplay();if(a?.status==='running'&&Number(a.endAt)>Date.now())focusInterval=setInterval(updateFocusDisplay,250);renderFocusHistory();
   }
-  function toggleFocus(){
+function toggleFocus(){
     const state=focusState(),a=state.activeFocus;
-    if(a?.status==='running'){a.remainingSec=Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000));a.endAt=0;a.status='paused';writeState(state);return}
-    if(a?.status==='paused'){a.endAt=Date.now()+Math.max(1,Number(a.remainingSec)||1)*1000;a.status='running';writeState(state);return}
-    const durationMin=focusSelectedMinutes(),tag=$('focus-tag')?.value||'',id=makeId(),startedAt=Date.now();
-    state.activeFocus={id,durationMin,tag,startedAt,endAt:startedAt+durationMin*60000,remainingSec:durationMin*60,status:'running'};writeState(state);
+    if(a?.status==='running'){a.remainingSec=Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000));a.endAt=0;a.status='paused';writeState(state);clearInterval(focusInterval);focusInterval=null;updateFocusDisplay();return}
+    if(a?.status==='paused'){a.endAt=Date.now()+Math.max(1,Number(a.remainingSec)||1)*1000;a.status='running';writeState(state);clearInterval(focusInterval);focusInterval=setInterval(updateFocusDisplay,250);updateFocusDisplay();return}
+    const p=state.focusPlanProgress,focusMin=p?.focusMin||focusSelectedMinutes(),breakMin=p?.breakMin||focusBreakMinutes(),sessionCount=p?.sessionCount||focusSessionCount(),sessionIndex=p?.sessionIndex||1,autoBreak=p?!!p.autoBreak:focusAutoBreak(),tag=p?.tag??($('focus-tag')?.value||''),sequenceId=p?.sequenceId||makeId(),id=makeId(),startedAt=Date.now();
+    state.focusPlanProgress=null;state.activeFocus={id,kind:'focus',durationMin:focusMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,startedAt,endAt:startedAt+focusMin*60000,remainingSec:focusMin*60,status:'running'};writeState(state);clearInterval(focusInterval);focusInterval=setInterval(updateFocusDisplay,250);updateFocusDisplay();
   }
-  async function resetFocus(){
-    const state=focusState(),active=state.activeFocus;
-    if(!active){updateFocusDisplay();return}
-    const confirmed=await window.ElaraDialog.confirm('جلسهٔ فعلی پایان داده شود و زمان‌سنج برای شروع دوباره آماده شود؟',{title:'شروع دوبارهٔ تمرکز',confirmText:'شروع دوباره',cancelText:'ادامهٔ جلسه',danger:true});
+async function resetFocus(){
+    const state=focusState(),active=state.activeFocus,progress=state.focusPlanProgress;
+    if(!active&&!progress){updateFocusDisplay();return}
+    const confirmed=await window.ElaraDialog.confirm(focusT('چرخهٔ فعلی پایان داده شود و زمان‌سنج برای شروع تازه آماده شود؟','End the current cycle and reset the timer?'),{title:focusT('شروع دوبارهٔ تمرکز','Reset focus'),confirmText:focusT('شروع دوباره','Reset'),cancelText:focusT('ادامهٔ جلسه','Keep going'),danger:true});
     if(!confirmed)return;
-    clearInterval(focusInterval);focusInterval=null;
-    state.activeFocus=null;
-    writeState(state);
-    notify('زمان‌سنج برای جلسهٔ جدید آماده شد.');
+    clearInterval(focusInterval);focusInterval=null;state.activeFocus=null;state.focusPlanProgress=null;writeState(state);notify(focusT('زمان‌سنج برای چرخهٔ جدید آماده شد.','Timer is ready for a new cycle.'));updateFocusDisplay();
   }
-  function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHistory();updateFocusDisplay()}
+function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHistory();updateFocusDisplay()}
 
   function bind(){
     injectUI();resetTaskForm();resetHabitForm();refreshAll();restoreFocus();

@@ -12,7 +12,7 @@ const app = initializeApp({
 // Use the Firebase SDK default transport with automatic long-polling detection when needed.
 const auth=getAuth(app), db=getFirestore(app), $=id=>document.getElementById(id);
 const layer=$('cloud-layer'), status=$('cloud-status'), retry=$('cloud-retry');
-const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],bookShelves:[],bookClips:[],words:[],taskLists:[],folders:[],tags:[],linkedTaskDismissals:[],focusSessions:[],activeFocus:null,taskCompletionHistory:[],missionRewardClaims:[],xp:0,theme:'dark'});
+const empty=()=>({version:1,tasks:[],habits:[],goals:[],books:[],bookShelves:[],bookClips:[],words:[],taskLists:[],folders:[],tags:[],linkedTaskDismissals:[],focusSessions:[],activeFocus:null,focusPlanProgress:null,taskCompletionHistory:[],missionRewardClaims:[],xp:0,theme:'dark'});
 const safe=s=>String(s??'').trim();
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 let user=null, profile=null, loaded=false, saving=false, dirty=false, timer=null, lastPayload='';
