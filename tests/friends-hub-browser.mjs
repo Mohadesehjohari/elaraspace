@@ -23,8 +23,11 @@ async function run(width,height){
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  const tabs=page.locator('#elara-social-page .social-tabs [role="tab"]');
  assert.equal(await tabs.count(),6,width+': Friends Hub must expose six dedicated tabs');
- assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['chats','groups','friends','requests','activity','clubs']);
- assert.equal(await page.locator('[data-social-route="social"][data-social-view="chats"]').getAttribute('aria-selected'),'true');
+ assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests']);
+ assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
+ await page.waitForSelector('#elara-add-friend');
+ assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing on default tab');
+ await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats tab did not mount DM');
  await page.locator('[data-social-route="social"][data-social-view="groups"]').click();
@@ -32,7 +35,7 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-section').count(),0,width+': DM section leaked into Groups tab');
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  await page.waitForSelector('#elara-add-friend');
- assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing');
+ assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing after tab switch');
  await page.locator('[data-social-route="social"][data-social-view="requests"]').click();
  assert.equal(await page.locator('#elara-social-page [data-friend-action="decline"]').isVisible(),true,width+': Requests tab missing decline');
  assert.equal(await page.locator('#elara-add-friend').count(),0,width+': Friends search leaked into Requests tab');
