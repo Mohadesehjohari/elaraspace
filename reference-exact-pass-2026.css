@@ -1559,3 +1559,31 @@ body.light .elara-profile-page-entry{color:#fff!important}.page-hero.is-target-p
 body.light .blog-hero,body.light .blog-toolbar,body.light .blog-card,body.light .blog-ai-gate{background:#fff!important;border-color:#ced9ea!important;color:#17233c!important}body.light .blog-hero{background:radial-gradient(circle at 80% 25%,#8563ff1f,transparent 24%),linear-gradient(135deg,#fff,#f5f7ff)!important}.body.light .blog-hero p{color:#40526c!important}body.light .blog-hero p,body.light .blog-card-copy p,body.light .blog-ai-gate p{color:#536987!important}body.light .blog-search{background:#f6f8ff!important;border-color:#c8d6e9!important}body.light .blog-search input{color:#17233c!important}body.light .blog-cats button{background:#f6f8ff;color:#273650;border-color:#c7d5e8}
 @media(max-width:900px){.blog-grid{grid-template-columns:1fr}.blog-toolbar{grid-template-columns:1fr}.blog-hero{grid-template-columns:1fr 110px;min-height:190px;padding:24px}.blog-hero-orbit{width:94px;height:94px;font-size:3.2rem}}
 @media(max-width:620px){#panel-blog{padding-inline:12px!important}.blog-hero{grid-template-columns:1fr;min-height:178px;padding:22px 18px}.blog-hero h1{font-size:2rem}.blog-hero p{font-size:.84rem;line-height:1.75}.blog-hero-orbit{position:absolute;inset:auto 15px 12px auto;width:68px;height:68px;font-size:2.3rem;opacity:.65}.blog-card{grid-template-columns:52px minmax(0,1fr);padding:14px;gap:10px}.blog-card-icon{width:50px;height:50px;border-radius:14px;font-size:1.55rem}.blog-open{grid-column:1/-1;width:100%}.blog-ai-gate{grid-template-columns:1fr}.blog-ai-gate>span{display:none}}
+
+
+/* 2026-10-03 Ranking mobile final owner — preserve the approved two-column card flow.
+   These selectors intentionally match desktop specificity so desktop grid-line rules cannot
+   create implicit 12-column tracks on narrow viewports. */
+@media(max-width:700px){
+ #elara-ranking-page .social-reference-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important
+ }
+ #elara-ranking-page .social-reference-grid>.social-top-three,
+ #elara-ranking-page .social-reference-grid>.social-my-rank-card,
+ #elara-ranking-page .social-reference-grid>.social-side-stack,
+ #elara-ranking-page .social-reference-grid>.social-clubs{
+  grid-column:1/-1!important
+ }
+ #elara-ranking-page .social-reference-grid>.social-weekly{grid-column:1!important}
+ #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:2!important}
+ #elara-ranking-page .social-reference-grid>.social-side-stack{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:auto!important
+ }
+}
+@media(max-width:360px){
+ #elara-ranking-page .social-reference-grid>.social-weekly,
+ #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:1/-1!important}
+ #elara-ranking-page .social-reference-grid>.social-side-stack{grid-template-columns:1fr!important}
+}
