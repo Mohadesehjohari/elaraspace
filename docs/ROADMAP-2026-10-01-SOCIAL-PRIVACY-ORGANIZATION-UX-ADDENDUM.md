@@ -735,7 +735,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **TASK-BULK-DELETE-ALL-02 — REQUESTED:** در Tasks امکان حذف همهٔ Taskها از scopeهای معتبر با confirmation دو مرحله‌ای و حفاظت از linked sourceها.
 - **TASK-DAY-LIFECYCLE-02 — REQUESTED / DATA-MIGRATION:** Task یک‌روزهٔ دیروز در Today نماند؛ Task تکمیل‌شدهٔ یک‌روزه به بخش «تسک‌های تیک‌خورده» منتقل/آرشیو شود؛ recurrence و history پاک نشوند.
 - **CHECKLIST-01 — REQUESTED:** List بلندِ shopping-style با آیتم‌های checkable، reorder و persistence.
-- **HOME-ALL-BUTTON-02 — REQUESTED / VISUAL:** دکمهٔ «همه» در Home بزرگ‌تر و hit target مناسب‌تر شود.
+- **HOME-ALL-BUTTON-02 — IMPLEMENTED / TESTING:** دکمهٔ «همه» در Home بزرگ‌تر و hit target مناسب‌تر شود.
 - **HABIT-SCHEDULE-COMPACT-02 — IMPLEMENTED / TESTING:** کنترل Repeat/Schedule و check همراه آن کوچک‌تر و گوشه‌ای شود؛ Edit Habit دکمهٔ واضح «ثبت تغییرات» داشته باشد.
 - **CHECK-CIRCLE-CONSISTENCY-02 — IMPLEMENTED / TESTING:** قطر و hit-area دایره‌های check در Task/Habit/Goal و surfaceهای مرتبط یکسان شود.
 

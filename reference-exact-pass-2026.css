@@ -1421,3 +1421,34 @@ body.light .wellness-plan-grid>article{background:#fff!important;border-color:#c
  #panel-habits .phase2-habit-form .recurrence-toggle{min-height:26px!important;padding:3px 7px!important;font-size:.64rem!important}
  #panel-habits #habit-submit{min-width:104px!important}
 }
+
+
+/* 2026-10-03 Home View All accessible hit target.
+   Keep the approved transparent artwork, enlarge only the real interactive wrapper. */
+#panel-home.ref-home .ref-card>header>.ref-view-all-button,
+#panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button,
+#panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button{
+ width:92px!important;min-width:92px!important;max-width:92px!important;
+ height:42px!important;min-height:42px!important;max-height:42px!important;
+ padding:0!important;margin:-5px 0!important;overflow:hidden!important
+}
+#panel-home.ref-home .ref-card>header>.ref-view-all-button>.ref-view-all-art,
+#panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button>.ref-view-all-art,
+#panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button>.ref-view-all-art{
+ width:168px!important;min-width:168px!important;max-width:none!important;height:auto!important;max-height:none!important;
+ position:absolute!important;left:50%!important;top:50%!important;transform:translate(-54%,-50%)!important
+}
+@media(max-width:700px){
+ #panel-home.ref-home .ref-card>header>.ref-view-all-button,
+ #panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button,
+ #panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button{
+  width:88px!important;min-width:88px!important;max-width:88px!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:-7px 0!important
+ }
+ #panel-home.ref-home .ref-card>header>.ref-view-all-button>.ref-view-all-art,
+ #panel-home.ref-home .ref-right-stack>.ref-card>header>.ref-view-all-button>.ref-view-all-art,
+ #panel-home.ref-home .ref-theme-strip>header>.ref-view-all-button>.ref-view-all-art{
+  width:158px!important;min-width:158px!important
+ }
+}
