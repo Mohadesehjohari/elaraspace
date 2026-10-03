@@ -305,7 +305,7 @@ async function decide(request,status){if(request.to!==uid||request.status!=='pen
 async function profileUidFromUsername(value){const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');return claim.data().uid}
 function profileSummary(person){
  const system=window.ElaraProfileSystem,view=system?.viewModel?.(person,{self:person?.uid===uid});
- if(view&&system?.composition)return '<div class="pass4-public-profile-summary">'+system.composition(view)+'</div>';
+ if(view&&system?.composition)return '<div class="pass4-public-profile-summary">'+system.composition(view,{profilePage:person?.uid!==uid})+'</div>';
  return '<div class="elara-public-head">'+avatar(person.name)+'<div><h2>'+esc(person.name||person.username||'کاربر')+'</h2><p>@'+esc(person.username||'')+' · '+esc(title(person.xp))+' · Level '+lv(person.xp)+'</p></div><strong>'+Number(person.xp||0).toLocaleString('fa-IR')+' XP</strong></div>';
 }
 function renderProfile(person=state.profileView){

@@ -763,3 +763,9 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **Repo/UI implementation:** حدود **55–60٪ انجام‌شده یا substantially implemented**؛ حدود **40–45٪ کار feature-level** باقی مانده.
 - **Production/release readiness:** با احتساب Firebase/Storage publish، realtime Focus Room/Shared Task، Global Activity، Economy/Store، Blog AI، media moderation، multi-UID E2E و visual final pass، حدود **55–65٪ کار release-hardening/remaining** هنوز باقی است.
 - آیتم‌های بزرگِ باقیمانده بیشتر backend/realtime/economy هستند، نه P0 پایهٔ Language/Popup/Settings که قبلاً پوشش browser دارند.
+
+
+### PROFILE-PAGE-ENTRY-STAGE-2026-10-03 — IMPLEMENTED / AWAITING CI
+- **PAGE-PROFILE-ENTRY-02:** shared profile composition can expose a prominent Page CTA for another user. Targeted Page mode queries only that UID with self/friend/public visibility semantics and hides compose controls while viewing another user.
+- **PROFILE-FULLSCREEN-01:** visible profile avatar opens in a centered fullscreen viewer; edit-profile keeps its existing change-photo overlay and does not nest the viewer control.
+- Browser acceptance extends the existing Page suite at 390/1440. Production Firebase/Storage publish remains a separate release gate.

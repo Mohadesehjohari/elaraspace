@@ -4,13 +4,13 @@ import {getFirestore,collection,query,where,getDocs,getDoc,setDoc,updateDoc,dele
 import {getStorage,ref as storageRef,uploadBytes,deleteObject,getBytes} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js';
 
 const app=getApps()[0]||null,auth=app?getAuth(app):null,db=app?getFirestore(app):null,storage=app?getStorage(app):null;
-const state={posts:[],stories:[],loading:false,error:''};
+const state={posts:[],stories:[],loading:false,error:'',targetUid:'',targetPerson:null};
 let liveMediaUrls=new Set();
 const safe=(v,n)=>String(v??'').trim().slice(0,n);
 const visibility=v=>['private','friends','public'].includes(v)?v:'friends';
 const ms=v=>typeof v?.toMillis==='function'?v.toMillis():Number(v?.seconds)*1000||Number(v)||0;
 const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
-const person=uid=>uid===auth?.currentUser?.uid?({...window.ElaraAccount?.profile,uid,name:window.ElaraAccount?.profile?.name||window.ElaraSocial?.me?.name||'Elara'}):(friends().find(x=>x.uid===uid)||{uid,name:'دوست'});
+const person=uid=>uid===auth?.currentUser?.uid?({...window.ElaraAccount?.profile,uid,name:window.ElaraAccount?.profile?.name||window.ElaraSocial?.me?.name||'Elara'}):(state.targetPerson?.uid===uid?state.targetPerson:(friends().find(x=>x.uid===uid)||{uid,name:'دوست'}));
 const emit=()=>window.dispatchEvent(new CustomEvent('elara:page-updated',{detail:{...state}}));
 function row(snapshot){const d=snapshot.data()||{};return{id:snapshot.id,...d,createdMs:ms(d.createdAt),updatedMs:ms(d.updatedAt),expiresMs:ms(d.expiresAt),person:person(d.uid)}}
 const MEDIA_TYPES=new Map([['image/jpeg','jpg'],['image/png','png'],['image/webp','webp']]);
@@ -29,7 +29,23 @@ async function collectFor(name,{story=false,urls=new Set()}={}){
  }
  const now=Date.now(),rows=[...map.values()].filter(x=>!story||x.uid===current.uid||x.expiresMs>now).sort((a,b)=>(b.createdMs||0)-(a.createdMs||0));return hydrateMedia(rows,urls)
 }
+async function collectUser(name,target,{story=false,urls=new Set()}={}){
+ const current=auth?.currentUser;if(!current?.emailVerified||!db||!target)return[];
+ const ref=collection(db,name),map=new Map(),self=target===current.uid,isFriend=friends().some(x=>x.uid===target),visibilities=self?[]:(isFriend?['friends','public']:['public']);
+ if(self){const snap=await getDocs(query(ref,where('uid','==',target)));snap.forEach(x=>map.set(x.id,row(x)))}
+ else for(const vis of visibilities){const clauses=[where('uid','==',target),where('visibility','==',vis)];if(story)clauses.push(where('expiresAt','>',Timestamp.now()));try{const snap=await getDocs(query(ref,...clauses));snap.forEach(x=>map.set(x.id,row(x)))}catch(error){console.warn('Elara targeted page query:',name,target,vis,error)}}
+ const now=Date.now(),rows=[...map.values()].filter(x=>self||!story||x.expiresMs>now).sort((a,b)=>(b.createdMs||0)-(a.createdMs||0));return hydrateMedia(rows,urls)
+}
+async function loadTarget(targetUid,personHint=null){
+ const current=auth?.currentUser,target=String(targetUid||'');if(!current?.emailVerified||!db||!target)throw Error('صفحهٔ کاربر در دسترس نیست.');
+ state.targetUid=target;state.targetPerson=target===current.uid?person(target):{...(friends().find(x=>x.uid===target)||{}),...(personHint||{}),uid:target};state.loading=true;state.error='';emit();const urls=new Set();
+ try{const [posts,stories]=await Promise.all([collectUser('socialPosts',target,{urls}),collectUser('socialStories',target,{story:true,urls})]);for(const url of liveMediaUrls)URL.revokeObjectURL(url);liveMediaUrls=urls;state.posts=posts;state.stories=stories;return state}
+ catch(error){for(const url of urls)URL.revokeObjectURL(url);state.error=String(error?.message||error);console.error('Elara target page:',error);return state}
+ finally{state.loading=false;emit()}
+}
+async function clearTarget(){state.targetUid='';state.targetPerson=null;return refresh()}
 async function refresh(){
+ if(state.targetUid)return loadTarget(state.targetUid,state.targetPerson);
  state.loading=true;state.error='';emit();
  try{
   const current=auth?.currentUser;if(!current?.emailVerified||!db){state.posts=[];state.stories=[];return state}
@@ -75,6 +91,6 @@ async function remove(kind,id){
  if(kind==='post')try{await window.ElaraEngagement?.purge?.('post',id)}catch(error){console.warn('Elara post engagement cleanup:',error)}
  await deleteDoc(doc(db,collectionName,id));if(row.mediaPath)await removeMedia(row.mediaPath);await refresh();return true
 }
-window.ElaraPage={state,refresh,createPost,createStory,editPost,reportContent,deletePost:id=>remove('post',id),deleteStory:id=>remove('story',id),person};
+window.ElaraPage={state,refresh,viewUser:loadTarget,clearTarget,createPost,createStory,editPost,reportContent,deletePost:id=>remove('post',id),deleteStory:id=>remove('story',id),person};
 for(const event of ['elara:account-ready','elara:social-updated'])window.addEventListener(event,()=>{if(auth?.currentUser?.emailVerified)void refresh();else emit()});
 if(auth?.currentUser?.emailVerified)void refresh();else emit();
