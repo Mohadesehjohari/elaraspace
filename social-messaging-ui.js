@@ -9,7 +9,7 @@ function avatar(p){const model=window.ElaraProfileSystem?.viewModel?.(p,{self:fa
 function when(ms){if(!ms)return'';try{return new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'})}catch{return''}}
 async function mount(){
  const root=document.getElementById('elara-social-page');if(!root||!api())return;
- const selected=root.querySelector('[data-social-view="friends"][aria-selected="true"]');if(!selected){root.querySelector('.social-dm-section')?.remove();return}
+ const selected=root.querySelector('[data-social-view="chats"][aria-selected="true"]');if(!selected){root.querySelector('.social-dm-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-dm-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-dm-section';section.dataset.elaraI18n='off';grid.prepend(section)}
  const token=++renderToken,me=current(),friends=window.ElaraSocial?.friends||[];
