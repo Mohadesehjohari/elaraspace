@@ -37,7 +37,7 @@ async function openChat(other){
  wrap.querySelector('form').addEventListener('submit',async e=>{e.preventDefault();const input=e.currentTarget.elements.text,text=input.value.trim();if(!text)return;const btn=e.currentTarget.querySelector('button');btn.disabled=true;status.textContent=t('در حال ارسال…','Sending…');try{await dm.send(other,text);input.value='';status.textContent='';input.focus()}catch(error){status.textContent=String(error?.message||error)}finally{btn.disabled=false}});
  try{await window.ElaraDialog.open({title:t('گفتگو','Chat'),content:wrap,wide:true,actions:[{label:t('بستن','Close'),value:false}]})}finally{try{stop?.()}catch{};setTimeout(mount,0)}
 }
-document.addEventListener('click',e=>{const btn=e.target.closest('[data-social-open-dm]');if(btn){e.preventDefault();void openChat(btn.dataset.socialOpenDm)}});
+document.addEventListener('click',e=>{const btn=e.target.closest('[data-social-open-dm]');if(btn){e.preventDefault();void openChat(btn.dataset.socialOpenDm);return}if(e.target.closest('[data-social-view]'))setTimeout(mount,40)});
 window.addEventListener('elara:social-updated',()=>setTimeout(mount,0));window.addEventListener('elara:locale-changed',()=>setTimeout(mount,0));window.addEventListener('hashchange',()=>setTimeout(mount,120));
 const socialObserver=new MutationObserver(()=>{if(document.getElementById('elara-social-page')){socialObserver.disconnect();setTimeout(mount,20)}});if(!document.getElementById('elara-social-page'))socialObserver.observe(document.documentElement,{subtree:true,childList:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,200),{once:true});else setTimeout(mount,200);
