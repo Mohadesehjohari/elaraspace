@@ -55,6 +55,7 @@ on:
       - 'mission-celebration.js'
       - 'mobile-banner-copy.js'
       - 'social-view.js'
+      - 'friends-hub.css'
       - 'tests/social-engagement-browser.mjs'
       - 'tests/social-streak-browser.mjs'
       - 'tests/social-layout-browser.mjs'
@@ -89,6 +90,7 @@ on:
       - 'tests/p0-language-popup-browser.mjs'
       - 'tests/library-stage4-browser.mjs'
       - 'tests/friends-dm-ui-browser.mjs'
+      - 'tests/friends-hub-browser.mjs'
       - 'tests/page-stage6-browser.mjs'
       - 'tests/profile-assets-contract.test.mjs'
       - 'tests/restore-browser.mjs'
@@ -156,6 +158,7 @@ jobs:
           node --check tests/task-collections-browser.mjs
           node --check tests/library-stage4-browser.mjs
           node --check tests/friends-dm-ui-browser.mjs
+          node --check tests/friends-hub-browser.mjs
           node --check tests/friends-groups-ui-browser.mjs
           node --check tests/clubs-stage11-browser.mjs
           node --check tests/challenges-stage12-browser.mjs
@@ -183,6 +186,8 @@ jobs:
         run: timeout 90s node tests/friends-dm-ui-browser.mjs
       - name: Verify Friends group chat interactions
         run: timeout 90s node tests/friends-groups-ui-browser.mjs
+      - name: Verify dedicated Friends Hub tabs
+        run: timeout 90s node tests/friends-hub-browser.mjs
       - name: Verify Clubs Stage 11 interactions
         run: timeout 90s node tests/clubs-stage11-browser.mjs
       - name: Verify Challenges Stage 12 interactions
@@ -275,6 +280,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/friends-groups-ui-browser.mjs
+      - name: Verify deployed dedicated Friends Hub tabs
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/friends-hub-browser.mjs
       - name: Verify deployed Clubs Stage 11 interactions
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
