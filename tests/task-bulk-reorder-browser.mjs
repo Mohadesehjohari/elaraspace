@@ -76,9 +76,10 @@ async function open(width,height,touch=false){const context=await browser.newCon
  await page.locator('.elara-dialog-actions .elara-dialog-danger').click();
  await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-layer').length>0);
  await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();
- await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.length===0);
+ await page.waitForFunction(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return ['t1','t2','t3','t4'].every(id=>!s.tasks.some(x=>x.id===id))});
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));
  assert.ok((state.linkedTaskDismissals||[]).length>=1,'delete-scope did not preserve linked-source dismissal');
+ assert.deepEqual(state.tasks.map(x=>x.id),['t5'],'delete-scope must preserve completed archived tasks outside the current view');
  assert.equal(await page.locator('#task-list>.astra-task-row').count(),0,'delete-scope left visible tasks behind');
  await context.close();
 }
