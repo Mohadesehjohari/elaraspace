@@ -475,6 +475,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     for(const id of ['focus-duration','focus-break-duration','focus-session-count'])$(id)?.addEventListener('input',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
+    window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
     window.addEventListener('elara:data-changed',()=>{renderTasks();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
   }
   window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,habitScheduled,openComposer:openTaskComposer,render:renderTasks,reset:resetTaskForm};

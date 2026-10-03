@@ -37,6 +37,7 @@ on:
       - 'tests/task-checklist-browser.mjs'
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/focus-social-i18n-browser.mjs'
+      - 'tests/pomodoro-sessions-browser.mjs'
       - 'tests/domain-events-browser.mjs'
       - 'tests/mission-celebration-browser.mjs'
       - 'tests/mobile-banner-copy-browser.mjs'
@@ -141,6 +142,7 @@ jobs:
           node --check tests/p0-language-popup-browser.mjs
           node --check tests/focus-ambience-browser.mjs
           node --check tests/focus-social-i18n-browser.mjs
+          node --check tests/pomodoro-sessions-browser.mjs
           node --check tests/domain-events-browser.mjs
           node --check tests/mission-celebration-browser.mjs
           node --check tests/mobile-banner-copy-browser.mjs
