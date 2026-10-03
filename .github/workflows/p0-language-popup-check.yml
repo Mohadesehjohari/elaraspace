@@ -34,6 +34,7 @@ on:
       - 'elara-levels.js'
       - 'collection-level.js'
       - 'tests/task-bulk-reorder-browser.mjs'
+      - 'tests/task-checklist-browser.mjs'
       - 'tests/focus-ambience-browser.mjs'
       - 'tests/domain-events-browser.mjs'
       - 'tests/mobile-banner-copy-browser.mjs'
@@ -42,6 +43,7 @@ on:
       - 'tests/entity-bulk-browser.mjs'
       - 'tests/task-collections-browser.mjs'
       - 'task-bulk-reorder.js'
+      - 'task-checklist.js'
       - 'entity-reorder.js'
       - 'entity-bulk-selection.js'
       - 'task-collections.js'
@@ -111,6 +113,7 @@ jobs:
           node --check elara-levels.js
           node --check collection-level.js
           node --check task-bulk-reorder.js
+          node --check task-checklist.js
           node --check focus-ambience.js
           node --check domain-notifications.js
           node --check mobile-banner-copy.js
@@ -149,6 +152,7 @@ jobs:
           node --check tests/social-streak-browser.mjs
           node --check tests/social-layout-browser.mjs
           node --check tests/task-bulk-reorder-browser.mjs
+          node --check tests/task-checklist-browser.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -181,6 +185,8 @@ jobs:
         run: timeout 90s node tests/social-layout-browser.mjs
       - name: Verify Task bulk selection and reorder Stage 9
         run: timeout 90s node tests/task-bulk-reorder-browser.mjs
+      - name: Verify Task checklist persistence
+        run: timeout 90s node tests/task-checklist-browser.mjs
       - name: Verify Pomodoro ambience Stage 13
         run: timeout 90s node tests/focus-ambience-browser.mjs
       - name: Verify domain milestone notifications and diverse missions
@@ -275,6 +281,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 90s node tests/social-layout-browser.mjs
+      - name: Verify deployed Task checklist persistence
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/task-checklist-browser.mjs
       - name: Verify deployed Task bulk selection and reorder Stage 9
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace

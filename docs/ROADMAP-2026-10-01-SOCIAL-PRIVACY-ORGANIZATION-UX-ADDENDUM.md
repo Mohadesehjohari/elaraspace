@@ -734,7 +734,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **TASK-MENU-EXCLUSIVE-02 — IMPLEMENTED / TESTING:** هم‌زمان فقط یک منوی سه‌نقطه باز باشد؛ بازکردن منوی Task جدید قبلی را ببندد؛ منوی رهاشده حداکثر بعد از ۳ ثانیه بدون تعامل بسته شود و keyboard focus را خراب نکند.
 - **TASK-BULK-DELETE-ALL-02 — IMPLEMENTED / TESTING:** در Tasks امکان حذف همهٔ Taskها از scopeهای معتبر با confirmation دو مرحله‌ای و حفاظت از linked sourceها. Delete this view uses the current visible Task scope (filter/list/folder); linked source records remain intact and are dismissed only from Tasks.
 - **TASK-DAY-LIFECYCLE-02 — IMPLEMENTED / TESTING:** Task یک‌روزهٔ دیروز در Today نماند؛ Task تکمیل‌شدهٔ یک‌روزه به بخش «تسک‌های تیک‌خورده» منتقل/آرشیو شود؛ recurrence و history پاک نشوند.
-- **CHECKLIST-01 — REQUESTED:** List بلندِ shopping-style با آیتم‌های checkable، reorder و persistence.
+- **CHECKLIST-01 — IMPLEMENTED / TESTING:** List بلندِ shopping-style با آیتم‌های checkable، reorder و persistence. Task-level checklist stores up to 300 ordered items, supports check/uncheck, inline text edit, touch-safe up/down reorder, delete, card progress and canonical persistence.
 - **HOME-ALL-BUTTON-02 — IMPLEMENTED / TESTING:** دکمهٔ «همه» در Home بزرگ‌تر و hit target مناسب‌تر شود.
 - **HABIT-SCHEDULE-COMPACT-02 — IMPLEMENTED / TESTING:** کنترل Repeat/Schedule و check همراه آن کوچک‌تر و گوشه‌ای شود؛ Edit Habit دکمهٔ واضح «ثبت تغییرات» داشته باشد.
 - **CHECK-CIRCLE-CONSISTENCY-02 — IMPLEMENTED / TESTING:** قطر و hit-area دایره‌های check در Task/Habit/Goal و surfaceهای مرتبط یکسان شود.

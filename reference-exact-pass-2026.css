@@ -1465,3 +1465,15 @@ body.light .wellness-plan-grid>article{background:#fff!important;border-color:#c
 #panel-tasks .task-archive-row>div:first-child{display:grid;gap:3px;min-width:0}.task-archive-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.task-archive-row small{color:var(--muted);font-size:.64rem}
 #panel-tasks .task-archive-row>div:last-child{display:flex;gap:7px;flex:0 0 auto}
 @media(max-width:700px){#panel-tasks .task-archive-row{align-items:flex-start;flex-direction:column}.task-archive-row>div:last-child{width:100%}.task-archive-row>div:last-child button{flex:1}}
+
+/* 2026-10-03 Task Checklist Stage — shopping-style items inside Task details. */
+.task-checklist-progress{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid #4d5f91;border-radius:999px;background:#17284b;color:#c9d7f4;font-size:.72rem}
+.task-checklist-editor{grid-column:1/-1;display:grid;gap:10px;padding:12px;border:1px solid #355781;border-radius:14px;background:#071d38}
+.task-checklist-editor>header{display:flex;align-items:center;justify-content:space-between;gap:10px}.task-checklist-editor>header>div{display:grid;gap:2px}.task-checklist-editor>header small{color:#91a6c6;font-size:.72rem}.task-checklist-editor>header>[data-task-checklist-count]{min-width:54px;text-align:center;padding:4px 8px;border:1px solid #6855bd;border-radius:999px;background:#422b8338;color:#cfbeff}
+.task-checklist-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px;border:1px solid #284b76;border-radius:12px;background:#0a2342}
+.task-checklist-row>input{width:100%;min-width:0;border:1px solid transparent;background:transparent;color:#eef3ff;padding:8px;border-radius:9px}.task-checklist-row>input:focus{border-color:#7758d4;background:#071a33;outline:none}
+.task-checklist-toggle{width:36px;height:36px;border-radius:50%;border:1px solid #735aff;background:#2a2458;color:#fff;font-weight:800}.task-checklist-toggle[aria-pressed="true"]{background:linear-gradient(135deg,#6a35ff,#9d57ff);box-shadow:0 0 16px #8050ff66}
+.task-checklist-order{display:flex;gap:4px}.task-checklist-order button{width:34px;height:34px;border:1px solid #385a86;border-radius:9px;background:#0a2140;color:#dbe7f8}.task-checklist-order button.danger{border-color:#b43d5d;background:#64152d;color:#fff}.task-checklist-order button:disabled{opacity:.35}
+.task-checklist-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.task-checklist-add input{min-height:42px}
+body.light .task-checklist-editor,body.light .task-checklist-row{background:#f8faff!important;border-color:#d0dced!important;color:#17233c!important}body.light .task-checklist-row>input{color:#17233c!important}body.light .task-checklist-progress{background:#f2f5fb!important;color:#283750!important;border-color:#c6d3e8!important}
+@media(max-width:620px){.task-checklist-row{grid-template-columns:36px minmax(0,1fr)}.task-checklist-order{grid-column:1/-1;justify-content:flex-end}.task-checklist-add{grid-template-columns:1fr}.task-checklist-add button{width:100%}}
