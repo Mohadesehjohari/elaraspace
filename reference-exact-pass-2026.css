@@ -1401,3 +1401,23 @@ body.light .page-media{background:#f2f5fb;border-color:#cbd8ea}body.light .page-
 .wellness-plan-delete{color:#ff718f!important}.wellness-plan-editor{display:grid;gap:8px}.wellness-plan-editor label{display:grid;gap:8px}.wellness-plan-editor textarea{min-height:240px;resize:vertical}
 body.light .wellness-plan-grid>article{background:#fff!important;border-color:#cfdaec!important;color:#17233c!important}
 @media(max-width:700px){.wellness-plan-grid{grid-template-columns:1fr}.wellness-plan-grid>article{min-height:126px}.wellness-plan-editor textarea{min-height:210px}}
+
+/* 2026-10-03 Habit schedule compact + shared check circles. */
+#panel-tasks .check-button,#panel-habits .check-button,#panel-goals .check-button{
+ width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;max-width:42px!important;max-height:42px!important;
+ aspect-ratio:1/1!important;border-radius:50%!important;padding:0!important;display:grid!important;place-items:center!important;flex:0 0 42px!important
+}
+#panel-habits .phase2-habit-form .recurrence-box{flex:0 0 auto!important;display:grid!important;gap:7px!important;align-self:center!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important}
+#panel-habits .phase2-habit-form .recurrence-toggle{
+ display:inline-flex!important;align-items:center!important;gap:5px!important;width:max-content!important;min-height:28px!important;padding:4px 8px!important;
+ border:1px solid color-mix(in srgb,var(--border) 70%,var(--elara-accent) 30%)!important;border-radius:999px!important;
+ background:color-mix(in srgb,var(--surface2) 86%,var(--elara-accent) 14%)!important;font-size:.68rem!important;color:var(--muted)!important
+}
+#panel-habits .phase2-habit-form .recurrence-toggle input{width:14px!important;height:14px!important;min-width:14px!important;min-height:14px!important;margin:0!important;accent-color:var(--elara-accent)!important}
+#panel-habits .phase2-habit-form .recurrence-options{grid-column:1/-1!important;max-width:100%!important}
+#panel-habits #habit-submit{min-width:116px!important}
+@media(max-width:700px){
+ #panel-tasks .check-button,#panel-habits .check-button,#panel-goals .check-button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;max-width:34px!important;max-height:34px!important;flex-basis:34px!important}
+ #panel-habits .phase2-habit-form .recurrence-toggle{min-height:26px!important;padding:3px 7px!important;font-size:.64rem!important}
+ #panel-habits #habit-submit{min-width:104px!important}
+}

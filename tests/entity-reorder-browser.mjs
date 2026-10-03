@@ -10,6 +10,9 @@ async function open(width,height,touch=false){const ctx=await browser.newContext
  const {page,ctx}=await open(1440,1000,false);
  const ids=kind=>page.locator((kind==='habit'?'#habit-list':'#goal-list')+'>[data-entity-kind="'+kind+'"]').evaluateAll(r=>r.map(x=>x.dataset.entityId));
  assert.deepEqual(await ids('habit'),['h1','h2','h3']);
+ const habitCheck=await page.locator('#habit-list .check-button').first().boundingBox();assert.ok(habitCheck&&Math.abs(habitCheck.width-habitCheck.height)<=1&&Math.abs(habitCheck.width-42)<=2,'desktop habit check circle geometry '+JSON.stringify(habitCheck));
+ await page.locator('[data-phase2-action="edit-habit"][data-id="h2"]').click();await page.waitForTimeout(60);assert.equal((await page.locator('#habit-submit').innerText()).trim(),'ثبت تغییرات','Habit edit submit label is not explicit');
+ const repeatBox=await page.locator('#habit-form .recurrence-toggle').boundingBox(),repeatCheck=await page.locator('#habit-recurrence').boundingBox();assert.ok(repeatBox&&repeatBox.height<=32,'Habit repeat control is too tall '+JSON.stringify(repeatBox));assert.ok(repeatCheck&&repeatCheck.width<=16&&repeatCheck.height<=16,'Habit repeat check is oversized '+JSON.stringify(repeatCheck));await page.locator('#habit-cancel').click();
  const a=await page.locator('[data-entity-drag="habit"][data-entity-id="h1"]').boundingBox(),c=await page.locator('[data-entity-kind="habit"][data-entity-id="h3"]').boundingBox();assert.ok(a&&c);
  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(c.x+c.width/2,c.y+c.height*.8,{steps:8});await page.mouse.up();await page.waitForTimeout(120);
  assert.deepEqual(await ids('habit'),['h2','h3','h1'],'habit pointer reorder failed');
@@ -20,7 +23,7 @@ async function open(width,height,touch=false){const ctx=await browser.newContext
  await ctx.close()
 }
 {
- const {page,ctx}=await open(390,844,true);await page.evaluate(()=>window.ElaraOpen?.('goals'));await page.waitForSelector('[data-entity-drag="goal"][data-entity-id="g1"]');
+ const {page,ctx}=await open(390,844,true);const mobileHabitCheck=await page.locator('#habit-list .check-button').first().boundingBox();assert.ok(mobileHabitCheck&&Math.abs(mobileHabitCheck.width-34)<=2&&Math.abs(mobileHabitCheck.width-mobileHabitCheck.height)<=1,'mobile habit check circle geometry '+JSON.stringify(mobileHabitCheck));await page.evaluate(()=>window.ElaraOpen?.('goals'));await page.waitForSelector('[data-entity-drag="goal"][data-entity-id="g1"]');
  const handle=page.locator('[data-entity-drag="goal"][data-entity-id="g1"]'),target=page.locator('[data-entity-kind="goal"][data-entity-id="g3"]'),hb=await handle.boundingBox(),tb=await target.boundingBox();assert.ok(hb&&tb);
  await handle.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:51,isPrimary:true,clientX:hb.x+10,clientY:hb.y+10});
  await page.dispatchEvent('body','pointermove',{pointerType:'touch',pointerId:51,isPrimary:true,clientX:tb.x+30,clientY:tb.y+tb.height*.8});

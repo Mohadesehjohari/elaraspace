@@ -236,7 +236,7 @@
     if(taskPanel&&!$('astra-task-streak')){const streak=document.createElement('section');streak.id='astra-task-streak';streak.className='elara-card astra-task-streak';$('astra-task-insights').append(streak)}
     if(taskForm&&!taskForm.dataset.elaraTaskComposer){taskForm.hidden=true;taskForm.dataset.elaraTaskComposer='closed'}
     if(!$('habit-recurrence')){
-      const form=$('habit-form');form?.classList.add('phase2-habit-form');
+      const form=$('habit-form');form?.classList.add('phase2-habit-form');const habitSubmit=form?.querySelector('button[type="submit"]');if(habitSubmit){habitSubmit.id='habit-submit';habitSubmit.textContent='+ افزودن'}
       form?.insertAdjacentHTML('beforeend','<button id="habit-cancel" class="quiet-button hidden" type="button">لغو ویرایش</button><label class="phase2-date-label" for="habit-start">شروع</label><input id="habit-start" type="date">');
       form?.insertAdjacentHTML('beforeend',recurrenceMarkup('habit'));
     }
@@ -334,10 +334,10 @@
     $('habit-empty')?.classList.toggle('hidden',state.habits.length!==0);
   }
   function resetHabitForm(){
-    editingHabit=null;editingHabitScope='series';$('habit-form')?.reset();if($('habit-start'))$('habit-start').value=today();$('habit-cancel')?.classList.add('hidden');setRuleForm('habit',null,today());syncRecurrenceVisibility('habit');
+    editingHabit=null;editingHabitScope='series';$('habit-form')?.reset();if($('habit-start'))$('habit-start').value=today();$('habit-cancel')?.classList.add('hidden');if($('habit-submit'))$('habit-submit').textContent='+ افزودن';setRuleForm('habit',null,today());syncRecurrenceVisibility('habit');
   }
   function fillHabitForm(habit,scope){
-    const v=scope==='occurrence'?habitView(habit,today()):habit;editingHabit=habit.id;editingHabitScope=scope;$('habit-title').value=v.title||habit.title||'';$('habit-start').value=scope==='future'?today():(habit.recurrenceRule?.startDate||today());setRuleForm('habit',habit.recurrenceRule,$('habit-start').value);syncRecurrenceVisibility('habit');$('habit-cancel').classList.remove('hidden');$('habit-title').focus();
+    const v=scope==='occurrence'?habitView(habit,today()):habit;editingHabit=habit.id;editingHabitScope=scope;$('habit-title').value=v.title||habit.title||'';$('habit-start').value=scope==='future'?today():(habit.recurrenceRule?.startDate||today());setRuleForm('habit',habit.recurrenceRule,$('habit-start').value);syncRecurrenceVisibility('habit');$('habit-cancel').classList.remove('hidden');if($('habit-submit'))$('habit-submit').textContent='ثبت تغییرات';$('habit-title').focus();
   }
   function submitHabit(){
     const state=ensureState(readState()),title=String($('habit-title').value||'').trim().slice(0,120);if(!title)return;const start=$('habit-start').value||today();
