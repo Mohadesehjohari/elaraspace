@@ -1116,3 +1116,21 @@ body.light .elara-profile-rank-pill{background:#fff7dc!important;color:#715213!i
 body.light .elara-profile-collection-pill{background:#f2edff!important;color:#4e2d9a!important;border-color:#a98af0!important}
 body.light .elara-profile-medal,body.light .elara-profile-medal-more{background:#f7f3ff!important;color:#473574!important;border-color:#b8a7df!important}
 @media(max-width:700px){.elara-profile-medals{gap:4px}.elara-profile-medal,.elara-profile-medal-more{min-height:25px;padding:3px 7px;font-size:.61rem}}
+
+
+/* 2026-10-03 profile Status bubble: shared self/friend status affordance. */
+.elara-profile-avatar-shell{position:relative}
+.elara-profile-status-bubble{
+  position:absolute;z-index:5;inset-inline-start:78%;inset-block-start:-10px;
+  max-width:min(190px,42vw);min-height:34px;padding:7px 11px;
+  border:1px solid color-mix(in srgb,var(--elara-accent) 58%,var(--border));
+  border-radius:18px 18px 18px 7px;background:color-mix(in srgb,var(--surface2) 84%,var(--elara-accent) 16%);
+  color:var(--text);box-shadow:0 8px 24px #0006,0 0 20px color-mix(in srgb,var(--elara-accent) 20%,transparent);
+  font:800 .67rem/1.35 inherit;text-align:start;cursor:pointer;
+}
+[dir="ltr"] .elara-profile-status-bubble{border-radius:18px 18px 7px 18px}
+.elara-profile-status-bubble span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.elara-profile-status-bubble:focus-visible{outline:2px solid color-mix(in srgb,var(--elara-accent) 78%,#fff);outline-offset:3px}
+@media(max-width:700px){
+  .elara-profile-status-bubble{inset-inline-start:64%;inset-block-start:-6px;max-width:min(154px,44vw);font-size:.61rem}
+}

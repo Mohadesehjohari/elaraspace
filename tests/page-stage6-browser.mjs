@@ -35,6 +35,9 @@ async function run(width,height){
  await friendPost.getByRole('button',{name:'مسدود'}).click();await page.getByRole('button',{name:'مسدودکردن'}).click();await page.waitForFunction(before=>window.__socialOps.some(x=>x.type==='block'&&x.uid==='friend-1')&&window.__pageOps.filter(x=>x==='refresh').length>before,refreshesBeforeBlock);await page.waitForFunction(()=>document.querySelectorAll('#elara-dialog-root .elara-dialog-layer').length===0);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await page.waitForSelector('[data-page-story-form]');
  const story=page.locator('[data-page-story-form]');await story.locator('textarea').fill('استاتوس تست ⚡');await story.locator('select').selectOption('private');await story.getByRole('button',{name:'گذاشتن استاتوس'}).click();
  await page.waitForFunction(()=>window.__pageOps.some(x=>x?.type==='story'));assert.equal(await page.locator('.page-story').count(),2,width+': own status not rendered');
+ const profileStatus=await page.evaluate(()=>({self:ElaraProfileSystem.composition(ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true})),friend:ElaraProfileSystem.composition(ElaraProfileSystem.viewModel(ElaraSocial.friends[0],{self:false}))}));
+ assert.match(profileStatus.self,/data-profile-status-link/);assert.match(profileStatus.self,/استاتوس تست/);assert.match(profileStatus.friend,/بزن بریم/);
+ await page.evaluate(()=>{const host=document.createElement('div');host.id='profile-status-qa';host.innerHTML=ElaraProfileSystem.composition(ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}));document.body.append(host);ElaraOpen('home')});await page.waitForFunction(()=>location.hash==='#home');await page.locator('#profile-status-qa [data-profile-status-link]').click();await page.waitForFunction(()=>location.hash==='#page');
  await page.locator('.page-story').first().click();await page.waitForSelector('.page-story-detail');assert.match(await page.locator('.page-story-detail').innerText(),/استاتوس تست/);await page.locator('.elara-dialog-close').click();
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(overflow.sw<=overflow.w+1,width+': page horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/page-stage6-'+width+'.png',fullPage:true});
@@ -43,4 +46,4 @@ async function run(width,height){
 }
 await run(390,844);await run(1440,1000);
 await browser.close();
-console.log('PAGE_STAGE17_MEDIA_PASS posts status image-preview-remove edit report block friends-cta 390/1440');
+console.log('PAGE_STAGE18_STATUS_PROFILE_PASS posts status profile-bubble image-preview-remove edit report block friends-cta 390/1440');

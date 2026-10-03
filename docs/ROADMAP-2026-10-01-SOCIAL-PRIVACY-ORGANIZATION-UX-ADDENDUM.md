@@ -689,3 +689,77 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **LEVELS-INFINITE-01 / COLLECTION-LEVEL-01 — IMPLEMENTED CONTRACT:** Level registry و Collection Level module در repo و tests وجود دارند؛ economy/reward balancing نهایی همچنان roadmap است.
 
 - **PROFILE-PROGRESSION-01 — IMPLEMENTED / TESTING:** Profile composition از curve مرکزی `ElaraLevels` استفاده می‌کند، سقف نمایشی Level 10 حذف شده و Rank + Collection Level + Medalهای earned برای صاحب حساب نمایش داده می‌شوند. Public profile فقط دادهٔ progression عمومی موجود را نشان می‌دهد و Medal خصوصی حدس زده نمی‌شود.
+
+
+---
+
+# V — الحاقیهٔ درخواست‌های محصول — 2026-10-03
+
+> این بخش از نظر زمان ثبت از بخش‌های قبلی جدیدتر است. وضعیت هر مورد تا وجود شواهد واقعی مستقل است؛ وجود UI به معنی DONE نیست. قابلیت‌های realtime/social/economy بدون schema، Rules، abuse controls و تست چند UID release-ready محسوب نمی‌شوند.
+
+## V1 — Theme، Cursor و فضای بصری
+
+- **CURSOR-THEME-01 — REQUESTED / ASSET / DESKTOP-ONLY:** شکل cursor با Theme هماهنگ شود؛ مجموعهٔ Lemon، Space/Moon/Star، Minimal، Blood-red Halloween/Vampire، Ocean و Snow. Cursor سفارشی روی touch اعمال نشود، fallback استاندارد و prefers-reduced-motion/accessibility حفظ شود.
+- **THEME-EXPANSION-04 — REQUESTED / ASSET:** تم‌های Lime/Lemon، Vampire/Blood Halloween، Ocean و Snow به Mode/Style/Accent فعلی اضافه شوند؛ Dark/Light/AMOLED و contrast تست شوند.
+- **VAMPIRE-COPY-01 — REQUESTED:** تم خون‌آشامی می‌تواند microcopy سیستمی ترسناک/فان و locale-aware داشته باشد؛ UGC کاربر هرگز با Theme بازنویسی نشود.
+- **THEMES-FINAL-PASS-02 — REQUESTED:** polish نهایی Theme و cursor بعد از تثبیت featureها؛ Visual PASS فقط با screenshot/reference واقعی همان viewport.
+
+## V2 — Blog، Page و AI Tutor
+
+- **BLOG-01 — REQUESTED:** بخش وبلاگ/مقاله‌های سایت با دسته‌هایی مثل برنامه‌ریزی، تمرکز، عادت، مطالعه و روش کار.
+- **BLOG-AI-TUTOR-01 — REQUESTED / BACKEND-GATED:** معلم AI داخل مقاله/وبلاگ با provenance شفاف، rate limit، safety و gateway server-side؛ کلید API سمت client ممنوع.
+- **PAGE-PROFILE-ENTRY-02 — REQUESTED:** روی پروفایل دیگران CTA بولد و در دسترس برای ورود به Page همان شخص.
+- **PAGE-SECTIONS-02 — REQUESTED / BACKEND-REQUIRED:** Page هر کاربر بخش‌های جدا برای Book Clips، Free Posts، Text Posts و Blog داشته باشد؛ محتوای Public همان کاربر در بخش متناظر نمایش یابد و Commentهای واقعی حفظ شوند.
+- **PAGE-COSMETICS-02 — REQUESTED:** Avatar/Banner مستقل برای Page با ownership و unlock روشن.
+- **STATUS-PROFILE-BUBBLE-02 — CODED / AWAITING END-HEAD BROWSER:** Status فعال خود کاربر و دوستان به‌صورت حباب کوتاه کنار shared Profile composition نمایش داده می‌شود؛ کلیک به Page & Status می‌رود. Dedicated per-user Page navigation هنوز مورد جداگانه است.
+
+## V3 — Wellness، Focus و Pomodoro
+
+- **WELLNESS-PLAN-NOTES-01 — REQUESTED:** داخل ورزش بخش Note برای برنامهٔ تمرینی و برنامهٔ تغذیه؛ account-scoped، قابل ویرایش/حذف و بدون انتشار پیش‌فرض.
+- **FOCUS-ACTIVITY-02 — REQUESTED / BACKEND-REQUIRED:** مدت Focus/Deep Work و Tag اختیاری به Activity دوستان/Notification برود؛ متن صمیمی، کوتاه، locale-aware و Privacy-aware باشد. Public فقط به Global Activity مجاز برود.
+- **GLOBAL-ACTIVITY-01 — REQUESTED / BACKEND-GATED:** feed جهانی برای eventهای public با moderation/report/block/rate-limit؛ private/friends هرگز leak نشوند.
+- **FOCUS-ROOM-01 — REQUESTED / REALTIME-BACKEND-GATED:** دعوت دوست به Focus Room، Avatar اعضا، Pomodoro بزرگ، start/stop per participant و رویدادهای stop/leave/page-hide/tab-change با semantics شفاف. Presence نباید «تقلب/ترک قطعی» را صرفاً از visibilitychange حدس بزند؛ reconnect/timeout contract لازم است.
+- **POMODORO-SESSIONS-02 — REQUESTED:** مدت Focus/Break قابل انتخاب، تعداد session قابل انتخاب، auto-start break فقط در صورت انتخاب کاربر و امکان session تکی بدون break.
+
+## V4 — Profile، Cosmetics و Economy
+
+- **PROFILE-PHOTO-LIBRARY-01 — REQUESTED / STORAGE-DESIGN:** عکس آپلودشده بعداً در Photo Library قابل انتخاب مجدد باشد و Delete واقعی داشته باشد؛ orphan blob و leak بین UID ممنوع.
+- **PROFILE-FULLSCREEN-01 — REQUESTED:** Profile کمی بزرگ‌تر و Avatar فعلی/آپلودی با viewer تمام‌صفحه قابل مشاهده باشد.
+- **LEADER-SKINS-01 — REQUESTED / ECONOMY-POLICY:** skin/cosmetic ویژهٔ رتبه‌های برتر، Clubهای برتر و مدیران با source-of-truth و expiration/eligibility روشن.
+- **STORE-TOKENS-01 — REQUESTED / ECONOMY-BACKEND-GATED:** Store برای Token و خرید Profile/Banner/Skin؛ دسته‌بندی cosmetic بر اساس رنگ، ledger تراکنش server-verifiable و anti-pay-to-win.
+
+## V5 — Tasks، Habits و Lists
+
+- **TASK-CONTEXT-MULTISELECT-02 — REQUESTED:** Desktop right-click روی Task وارد selection mode شود؛ کلیک روی Taskهای بعدی آن‌ها را toggle کند؛ Copy/Move/Delete/Cancel و keyboard alternative حفظ شود.
+- **TASK-MENU-EXCLUSIVE-02 — REQUESTED / BUGFIX:** هم‌زمان فقط یک منوی سه‌نقطه باز باشد؛ بازکردن منوی Task جدید قبلی را ببندد؛ منوی رهاشده حداکثر بعد از ۳ ثانیه بدون تعامل بسته شود و keyboard focus را خراب نکند.
+- **TASK-BULK-DELETE-ALL-02 — REQUESTED:** در Tasks امکان حذف همهٔ Taskها از scopeهای معتبر با confirmation دو مرحله‌ای و حفاظت از linked sourceها.
+- **TASK-DAY-LIFECYCLE-02 — REQUESTED / DATA-MIGRATION:** Task یک‌روزهٔ دیروز در Today نماند؛ Task تکمیل‌شدهٔ یک‌روزه به بخش «تسک‌های تیک‌خورده» منتقل/آرشیو شود؛ recurrence و history پاک نشوند.
+- **CHECKLIST-01 — REQUESTED:** List بلندِ shopping-style با آیتم‌های checkable، reorder و persistence.
+- **HOME-ALL-BUTTON-02 — REQUESTED / VISUAL:** دکمهٔ «همه» در Home بزرگ‌تر و hit target مناسب‌تر شود.
+- **HABIT-SCHEDULE-COMPACT-02 — REQUESTED / UX:** کنترل Repeat/Schedule و check همراه آن کوچک‌تر و گوشه‌ای شود؛ Edit Habit دکمهٔ واضح «ثبت تغییرات» داشته باشد.
+- **CHECK-CIRCLE-CONSISTENCY-02 — REQUESTED / VISUAL:** قطر و hit-area دایره‌های check در Task/Habit/Goal و surfaceهای مرتبط یکسان شود.
+
+## V6 — Missions و Notification tone
+
+- **MISSION-CELEBRATION-02 — REQUESTED:** بعد از Mission واقعی، haptic در دستگاه‌های پشتیبان + celebration popup + Mission بعدی؛ prefers-reduced-motion و عدم لرزش اجباری رعایت شود.
+- **NOTIFICATION-I18N-02 — REQUESTED / BUGFIX:** Notification template دقیقاً مطابق Locale انتخابی کاربر تولید/نمایش شود؛ UGC ترجمه نشود.
+- **SOCIAL-EVENT-TONE-02 — REQUESTED:** eventهای مجاز Task/Habit/Goal/Reading/Language/Exercise/Focus/Streak/Mission با لحن کوتاه، صمیمی و متنوع به Friends Activity بروند؛ public فقط در Global Activity، با dedupe و Privacy canonical.
+
+## V7 — Shared work و Challenges
+
+- **SHARED-TASK-01 — REQUESTED / BACKEND-GATED:** Task مشترک با یک دوست، invite/accept/decline، رنگ/Badge متفاوت در Tasks، completion semantics و conflict resolution چنددستگاه.
+- **CHALLENGE-FOCUS-ROOM-02 — REQUESTED / REALTIME-BACKEND-GATED:** Challenge بتواند به Focus Room متصل شود؛ شرکت‌کننده‌ها و session state واقعی باشند و winner/stop از server-verifiable events نتیجه‌گیری شود.
+
+## V8 — Status release note
+
+- Status text + 24h expiry + private/friends/public + delete + report/block در repo از قبل وجود دارد و browser-tested است.
+- این pass، Status را روی shared Profile surface قابل مشاهده و قابل ورود می‌کند.
+- Media/Global/public aggregation و dedicated per-user Page همچنان باید با Storage/Rules/production multi-UID verification بسته شوند.
+
+## V9 — Progress snapshot after this expansion
+
+برای «چند درصد مانده» یک درصد مطلق قابل اتکا نیست چون بعضی آیتم‌ها یک CSS pass هستند و بعضی realtime backend کامل. برآورد مهندسی فعلی بر اساس feature-group و release gate:
+
+- **Repo/UI implementation:** حدود **55–60٪ انجام‌شده یا substantially implemented**؛ حدود **40–45٪ کار feature-level** باقی مانده.
+- **Production/release readiness:** با احتساب Firebase/Storage publish، realtime Focus Room/Shared Task، Global Activity، Economy/Store، Blog AI، media moderation، multi-UID E2E و visual final pass، حدود **55–65٪ کار release-hardening/remaining** هنوز باقی است.
+- آیتم‌های بزرگِ باقیمانده بیشتر backend/realtime/economy هستند، نه P0 پایهٔ Language/Popup/Settings که قبلاً پوشش browser دارند.
