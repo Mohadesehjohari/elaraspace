@@ -5,10 +5,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+
 jobs:
-  browser:
+  restore-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,21 +19,34 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Start test server
         run: python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
-      - name: End HEAD browser acceptance and screenshots
-        run: |
-          set +e
-          node tests/restore-browser.mjs
-          restore_status=$?
-          node tests/product-pass-browser.mjs
-          product_status=$?
-          if [ "$restore_status" -ne 0 ] || [ "$product_status" -ne 0 ]; then
-            echo "restore_status=$restore_status product_status=$product_status"
-            exit 1
-          fi
+      - name: Restore screenshots and geometry
+        run: timeout 1080s node tests/restore-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: elara-reference-${{ github.sha }}
+          name: elara-reference-restore-${{ github.sha }}
           path: browser-artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
+          retention-days: 30
+
+  product-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Start test server
+        run: python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
+      - name: Product browser acceptance
+        run: timeout 1080s node tests/product-pass-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: elara-reference-product-${{ github.sha }}
+          path: browser-artifacts/
+          if-no-files-found: warn
           retention-days: 30

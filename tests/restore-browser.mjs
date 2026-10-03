@@ -13,7 +13,7 @@ async function open(page){await page.goto(base+'/#home',{waitUntil:'domcontentlo
 async function route(page,name){await page.evaluate(name=>ElaraOpen(name),name);await page.waitForTimeout(350);await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode?.().catch(()=>{}))));}
 async function check(name,fn){try{await fn();results.push({name,status:'PASS'})}catch(e){failures.push({name,error:e.stack});results.push({name,status:'FAIL',error:e.message})}}
 for(const width of [1440,1648,1920,320,375,390,430]){
- const context=await browser.newContext({viewport:{width,height:width<701?844:1000},deviceScaleFactor:1});await context.addInitScript(seed);const page=await context.newPage(),missing=[],errors=[];
+ const context=await browser.newContext({viewport:{width,height:width<701?844:1000},deviceScaleFactor:1});await context.addInitScript(seed);const page=await context.newPage(),missing=[],errors=[];page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(15000);console.log('[RESTORE] width '+width+' start');
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Test-only offline boundary. Production Firebase is not exercised.'}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:'// Empty social data in offline browser acceptance; no fabricated users.'}));
  page.on('response',r=>{if(r.status()===404)missing.push(r.url())});page.on('pageerror',e=>errors.push(e.message));
@@ -45,8 +45,8 @@ for(const width of [1440,1648,1920,320,375,390,430]){
  }
  await check(`${width}: no asset 404 / page errors`,async()=>{assert.deepEqual(missing,[]);assert.deepEqual(errors,[])});
  }catch(e){failures.push({name:`${width}: startup`,error:e.stack});await page.screenshot({path:`${out}/error-${width}.png`,fullPage:true}).catch(()=>{})}
- await context.close();
+ console.log('[RESTORE] width '+width+' done');await context.close();
 }
 // Genuine empty-state capture, in a clean browser storage context.
-const p=await browser.newPage({viewport:{width:1440,height:1000}});await p.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));await p.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));await open(p);await route(p,'social');await p.screenshot({path:`${out}/social-1440-empty.png`,fullPage:true});await p.close();
+const p=await browser.newPage({viewport:{width:1440,height:1000}});p.setDefaultTimeout(8000);p.setDefaultNavigationTimeout(15000);await p.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));await p.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));await open(p);await route(p,'social');await p.screenshot({path:`${out}/social-1440-empty.png`,fullPage:true});await p.close();
 await browser.close();writeFileSync(`${out}/acceptance.json`,JSON.stringify({sha,fixtureNotice:'Isolated local test records only. No production Firebase account or synthetic social users.',results,failures},null,2));console.log(JSON.stringify({sha,results,failures},null,2));if(failures.length)process.exitCode=1;

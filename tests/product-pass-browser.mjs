@@ -50,7 +50,7 @@ const noOverflow=async page=>{const m=await page.evaluate(()=>({sw:document.docu
 for(const width of all){
  const mobile=width<701,height=mobile?844:(width===1648?928:1000);
  const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:mobile?2:1});
- const page=await context.newPage(),net=await wire(page);
+ const page=await context.newPage(),net=await wire(page);page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(15000);console.log('[PRODUCT] width '+width+' start');
  try{
   await boot(page,'home');
   if(width===390){
@@ -252,7 +252,7 @@ for(const width of all){
   }
   await check(`${width}: no 404/page errors/fatal console`,async()=>{assert.deepEqual(net.missing,[]);assert.deepEqual(net.errors,[]);assert.deepEqual(net.badConsole,[])});
  }catch(error){failures.push({name:`${width}: fatal startup`,error:error.stack||String(error)});await screenshot(page,`product-error-${width}`,true).catch(()=>{})}
- await context.close();
+ console.log('[PRODUCT] width '+width+' done');await context.close();
 }
 
 // Degraded boot: an optional feature/module failure must never leave the shell hidden.
