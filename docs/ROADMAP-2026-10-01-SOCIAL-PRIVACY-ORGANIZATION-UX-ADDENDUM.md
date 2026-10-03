@@ -719,7 +719,7 @@ Page/Chat/Clubs/Like/Comment/Story بدون schema + Security Rules + report/blo
 - **FOCUS-ACTIVITY-02 — IMPLEMENTED / TESTING / RULES-DEPLOY-GATED:** completion واقعی Focus با duration + Tag اختیاری، Notification dedupe و Activity privacy-aware به دستهٔ مستقل Focus وصل شده است. Friends visibility در feed دوستان قابل خواندن است؛ `public` تا زمان GLOBAL-ACTIVITY-01 فقط رکورد public می‌سازد و Global feed جدا هنوز PENDING است. Publish واقعی Rules production جداگانه باید تأیید شود.
 - **GLOBAL-ACTIVITY-01 — REQUESTED / BACKEND-GATED:** feed جهانی برای eventهای public با moderation/report/block/rate-limit؛ private/friends هرگز leak نشوند.
 - **FOCUS-ROOM-01 — REQUESTED / REALTIME-BACKEND-GATED:** دعوت دوست به Focus Room، Avatar اعضا، Pomodoro بزرگ، start/stop per participant و رویدادهای stop/leave/page-hide/tab-change با semantics شفاف. Presence نباید «تقلب/ترک قطعی» را صرفاً از visibilitychange حدس بزند؛ reconnect/timeout contract لازم است.
-- **POMODORO-SESSIONS-02 — REQUESTED:** مدت Focus/Break قابل انتخاب، تعداد session قابل انتخاب، auto-start break فقط در صورت انتخاب کاربر و امکان session تکی بدون break.
+- **POMODORO-SESSIONS-02 — IMPLEMENTED / TESTING:** مدت Focus/Break قابل انتخاب، تعداد session از ۱ تا ۸، auto-start Break فقط با opt-in، session تکی بدون Break و persistence chain بعد از Refresh. Break هیچ XP/Activity اجتماعی تولید نمی‌کند.
 
 ## V4 — Profile، Cosmetics و Economy
 

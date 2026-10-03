@@ -1509,3 +1509,16 @@ body.light .task-checklist-editor,body.light .task-checklist-row{background:#f8f
 body.light .mission-celebration{background:linear-gradient(145deg,#fff,#f2edff);color:#182039;border-color:#9b7cff;box-shadow:0 18px 50px #4d3d7a2e,0 0 30px #8d60ff36}.light .mission-celebration p{color:#4f5d79}.light .mission-celebration small{color:#694cc0}
 @media(max-width:620px){.mission-celebration{inset:auto 10px calc(82px + env(safe-area-inset-bottom)) 10px;width:auto;padding:13px 43px 13px 13px;grid-template-columns:42px minmax(0,1fr);border-radius:18px}.mission-celebration-burst{width:42px;height:42px}.mission-celebration strong{font-size:.9rem}}
 @media(prefers-reduced-motion:reduce){.mission-celebration,.mission-celebration.is-leaving{animation:none!important}}
+
+
+/* 2026-10-03 Pomodoro Sessions Stage — canonical Focus/Break chain. */
+#panel-focus .focus-cycle-config{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:10px;border:1px solid #31557e;border-radius:16px;background:#071d37}
+#panel-focus .focus-cycle-config>label{display:grid;gap:6px;color:#a9bad4;font-size:.75rem}
+#panel-focus .focus-cycle-config input[type="number"]{width:100%;min-height:42px;border:1px solid #365f8e;border-radius:11px;background:#091f3a;color:#eef3ff;padding:8px 10px}
+#panel-focus .focus-cycle-config .focus-auto-break{grid-template-columns:22px 1fr;align-items:center;align-content:center;padding:8px 10px;border:1px solid #3d608c;border-radius:12px;background:#0a2443;color:#e5eeff}
+#panel-focus .focus-cycle-config .focus-auto-break input{width:20px;height:20px;accent-color:#8d5cff}
+#panel-focus .focus-config:has(#focus-session-count:disabled) .focus-cycle-config{opacity:.7}
+body.light #panel-focus .focus-cycle-config{background:#f7f9ff;border-color:#cedaeb}
+body.light #panel-focus .focus-cycle-config>label{color:#4d607b}
+body.light #panel-focus .focus-cycle-config input[type="number"],body.light #panel-focus .focus-cycle-config .focus-auto-break{background:#fff;color:#17233c;border-color:#c5d3e8}
+@media(max-width:620px){#panel-focus .focus-cycle-config{grid-template-columns:1fr 1fr}.focus-auto-break{grid-column:1/-1}}
