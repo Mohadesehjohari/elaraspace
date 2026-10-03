@@ -160,7 +160,9 @@ const settingsScroll=await page.locator('.drawer-menu').evaluate(el=>({overflow:
 await page.locator('.drawer-menu [data-drawer-nav="appearance"]').click();await page.waitForTimeout(100);
 const themeImgs=page.locator('[data-drawer-section="appearance"] img.pass4-theme-art,[data-drawer-section="appearance"] img.pass4-accent-art');
 assert.equal(await themeImgs.count(),16,'Appearance must render 8 mode/style + 8 accent uploaded previews');
-assert.equal(await themeImgs.evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),true,'One or more uploaded theme previews failed to decode');
+await page.waitForFunction(()=>{const xs=[...document.querySelectorAll('[data-drawer-section="appearance"] img.pass4-theme-art,[data-drawer-section="appearance"] img.pass4-accent-art')];return xs.length===16&&xs.every(x=>x.complete)},{},{timeout:15000});
+const themeDecode=await themeImgs.evaluateAll(async xs=>{await Promise.all(xs.map(x=>typeof x.decode==='function'?x.decode().catch(()=>{}):Promise.resolve()));return xs.map(x=>({src:x.currentSrc||x.src,complete:x.complete,naturalWidth:x.naturalWidth}))});
+assert.equal(themeDecode.every(x=>x.complete&&x.naturalWidth>0),true,'One or more uploaded theme previews failed to decode: '+JSON.stringify(themeDecode.filter(x=>!x.complete||!x.naturalWidth)));
 await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
 await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
 await page.locator('.drawer-menu [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
