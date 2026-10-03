@@ -101,15 +101,16 @@ await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner\.webp/,'uploaded Language banner is not active');
-assert.equal(await page.locator('#panel-language [data-language-block]').count(),4,'Language must expose the four reference blocks');
-assert.equal(await page.locator('#panel-language [data-language-block="leitner"] .language-leitner-stats>div').count(),4,'Leitner must keep four live stat tiles');
+assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,'Language must expose four clean launcher cards');
+assert.equal(await page.locator('#panel-language [data-language-block="leitner"].feature-source-hidden .language-leitner-stats>div').count(),4,'hidden Leitner source must preserve four live stat tiles');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
-const leitnerAll=page.locator('#panel-language [data-lang-leitner]');assert.equal((await leitnerAll.innerText()).trim().startsWith('همه'),true,'Language Leitner header CTA must be همه');await leitnerAll.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner همه must open the full Leitner page');await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
+const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
 
 stage('language:start');
 // Language: add -> render -> refresh -> report -> refresh -> delete -> refresh.
+await page.evaluate(()=>window.ElaraOpen('language-books',{history:'push'}));await page.waitForSelector('#panel-language-books:not(.hidden) #language-book-form');
 await page.locator('#language-book-form [name=title]').fill('QA Language Book');await page.locator('#language-book-form').evaluate(form=>form.requestSubmit());
 await page.locator('#elara-dialog-root .language-book-add-dialog [name=total]').fill('200');await page.locator('#elara-dialog-root .language-book-add-dialog [name=current]').fill('10');await page.locator('#elara-dialog-root .language-book-add-dialog [type=submit]').click();await page.waitForTimeout(100);
 let row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();
