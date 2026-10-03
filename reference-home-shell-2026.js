@@ -19,6 +19,13 @@ function syncThemeArtwork(theme=$('theme-toggle')){
  if(img&&img.getAttribute('src')!==src)img.setAttribute('src',src);
  theme.dataset.elaraThemeArtwork=active?'active':'default';
 }
+function syncViewAllHitTargets(){
+ const mobile=matchMedia('(max-width:700px)').matches,w=mobile?'88px':'92px',h=mobile?'44px':'42px',artW=mobile?'158px':'168px';
+ document.querySelectorAll('#panel-home .ref-view-all-button').forEach(button=>{
+  for(const [name,value] of [['width',w],['min-width',w],['max-width',w],['height',h],['min-height',h],['max-height',h],['padding','0px'],['overflow','hidden']])button.style.setProperty(name,value,'important');
+  const img=button.querySelector('.ref-view-all-art');if(img){img.style.setProperty('width',artW,'important');img.style.setProperty('min-width',artW,'important');img.style.setProperty('max-width','none','important');img.style.setProperty('height','auto','important');img.style.setProperty('max-height','none','important')}
+ });
+}
 function installViewAllArtwork(){
  const specs=[
   ['.ref-tasks','tasks','مشاهده همهٔ تسک‌ها'],
@@ -36,7 +43,9 @@ function installViewAllArtwork(){
   button.setAttribute('aria-label',button.getAttribute('aria-label')||label);button.classList.add('ref-view-all-button');button.dataset.viewAllArtwork='uploaded';
   if(!button.querySelector('.ref-view-all-art'))button.innerHTML=art(UI_ASSETS.viewAll,'ref-view-all-art','');
  }
+ syncViewAllHitTargets();
 }
+addEventListener('resize',syncViewAllHitTargets,{passive:true});
 const NOTIF='elara_notifications_v1';
 function unreadNotifications(){try{return arr(JSON.parse(localStorage.getItem(NOTIF)||'[]')).filter(x=>x&&(x.unread===true||x.read===false||x.status==='unread')).length}catch{return 0}}
 const darkModeActive=()=>document.body.classList.contains('dark')||document.body.classList.contains('amoled');
