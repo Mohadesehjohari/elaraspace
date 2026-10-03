@@ -188,7 +188,7 @@ for(const width of all){
   await openRoute(page,'library-shelves');
   await check(`${width}: reading report notification/privacy`,async()=>{
    await page.evaluate(()=>{ElaraSocial.me={uid:'reader-qa',name:'Reader',username:'reader',xp:10};localStorage.setItem('elara_activity_visibility_reader-qa','friends')});
-   await page.locator('#panel-library-shelves:not(.hidden) [data-reading-report]').first().click();await page.locator('[data-reading-report-book="pp-book"]').click();await page.waitForTimeout(40);
+   const reading=page.locator('#panel-library-shelves:not(.hidden) [data-reading-book="pp-book"]').first();await reading.scrollIntoViewIfNeeded();await reading.click();await page.waitForTimeout(40);
    await page.locator('.library-log-form [name=pages]').fill('24');await page.locator('.library-log-form [type=submit]').click();await page.waitForTimeout(80);
    const data=await page.evaluate(()=>{const b=JSON.parse(localStorage.getItem('elara_space_v1')).books.find(x=>x.id==='pp-book');return{book:b,notifs:JSON.parse(localStorage.getItem('elara_notifications_v1')||'[]'),published:window.__published||[]}});assert.equal(data.book.currentPage,64);assert.equal(data.book.readingLogs.at(-1).pagesRead,24);assert.ok(data.notifs.some(x=>x.type==='reading'));assert.ok(data.published.some(x=>x.type==='reading'&&x.detail.visibility==='friends'));
   });
