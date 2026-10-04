@@ -20,8 +20,9 @@ async function run(width,height){
  const freedomTiles=async(selector,label)=>{
   const boxes=await page.locator(selector).evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art,img')?.getBoundingClientRect();return{y:r.y,h:r.height,radius:getComputedStyle(x).borderRadius,imgH:img?.height||0}}));
   assert.ok(boxes.length>0,width+': '+label+' tiles missing');
-  assert.equal(boxes.every(x=>x.h>=(isMobile?120:140)&&x.h<=(isMobile?145:160)&&x.imgH>=(isMobile?65:80)),true,width+': '+label+' tiles drifted from Freedom sizing '+JSON.stringify(boxes));
-  assert.equal(Math.max(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))-Math.min(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))<=2,true,width+': '+label+' first visual row is not horizontal '+JSON.stringify(boxes));
+  assert.equal(boxes.every(x=>x.h>=(isMobile?160:188)&&x.h<=(isMobile?184:210)&&x.imgH>=(isMobile?100:125)),true,width+': '+label+' tiles drifted from large Freedom sizing '+JSON.stringify(boxes));
+  const rowSize=isMobile?2:Math.min(4,boxes.length);
+  assert.equal(Math.max(...boxes.slice(0,rowSize).map(x=>x.y))-Math.min(...boxes.slice(0,rowSize).map(x=>x.y))<=2,true,width+': '+label+' first visual row is not aligned '+JSON.stringify(boxes));
  };
  assert.equal(await page.locator('#panel-books .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card').count(),4,width+': Library must be a four-launcher hub');
  assert.equal(await page.locator('#panel-books>.feature-hub-preview').count(),0,width+': Library main hub must not duplicate reading/report content outside its dedicated route');
