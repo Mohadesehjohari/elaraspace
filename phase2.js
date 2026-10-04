@@ -445,7 +445,11 @@
   function clearTaskHold(){
     if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-holding');taskHold=null
   }
-  function taskHoldProtected(target){return !!target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-daily-quick],.astra-task-more,input,select,textarea,a,button')}
+  function taskHoldProtected(target){
+    if(target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-daily-quick],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
+    const button=target.closest('button');if(!button)return false;
+    return !button.matches('.task-summary-button,[data-board-open],[data-section-task-detail]')
+  }
   function taskHoldPointerDown(event){
     if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
     const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;
