@@ -17,24 +17,41 @@ async function open(width,height){
 async function run(width,height){
  const {context,page}=await open(width,height);
  const isMobile=width<=700;
+ const freedomTiles=async(selector,label)=>{
+  const boxes=await page.locator(selector).evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art,img')?.getBoundingClientRect();return{y:r.y,h:r.height,radius:getComputedStyle(x).borderRadius,imgH:img?.height||0}}));
+  assert.ok(boxes.length>0,width+': '+label+' tiles missing');
+  assert.equal(boxes.every(x=>x.h>=(isMobile?120:140)&&x.h<=(isMobile?145:160)&&x.imgH>=(isMobile?65:80)),true,width+': '+label+' tiles drifted from Freedom sizing '+JSON.stringify(boxes));
+  assert.equal(Math.max(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))-Math.min(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))<=2,true,width+': '+label+' first visual row is not horizontal '+JSON.stringify(boxes));
+ };
  assert.equal(await page.locator('#panel-books .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card').count(),4,width+': Library must be a four-launcher hub');
+ await freedomTiles('#panel-books .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card','Library');
  assert.equal(await page.locator('#panel-library-clips #library-clips').count(),1,width+': clips must live on dedicated route');
  await page.locator('#panel-books [data-feature-route="library-clips"]').click();await page.waitForSelector('#panel-library-clips:not(.hidden) #library-clips');
  assert.equal(await page.locator('#panel-library-clips').isVisible(),true,width+': Book Clips deep route missing');
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
  assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,width+': Language hub launcher count');
+ await freedomTiles('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card','Language');
  assert.equal(await page.locator('#panel-language-books [data-language-block="books"]').count(),1,width+': language books not extracted');
  await page.evaluate(()=>ElaraOpen('exercise',{history:'replace'}));await page.waitForSelector('#panel-exercise:not(.hidden)');
  assert.equal(await page.locator('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card').count(),6,width+': Wellness hub launcher count');
+ await freedomTiles('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card','Wellness');
  assert.equal(await page.locator('#panel-wellness-water .wellness-water').count(),1,width+': water tracker not extracted');
  assert.equal(await page.locator('#panel-wellness-weight #wellness-weight').count(),1,width+': weight route missing');
  await page.evaluate(()=>ElaraOpen('focus',{history:'replace'}));await page.waitForSelector('#panel-focus:not(.hidden)');
  assert.equal(await page.locator('#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-card').count(),4,width+': Focus hub launcher count');
+ await freedomTiles('#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-card','Focus');
  assert.equal(await page.locator('#panel-focus-pomodoro .focus-card').count(),1,width+': Pomodoro must live on dedicated route');
  assert.equal(await page.locator('#panel-books .focus-card').count(),0,width+': Pomodoro leaked back into Library');
  await page.evaluate(()=>ElaraOpen('reports',{history:'replace'}));await page.waitForSelector('#panel-reports:not(.hidden)');
  assert.equal(await page.locator('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card').count(),4,width+': Reports hub launcher count');
+ await freedomTiles('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card','Reports');
  assert.equal(await page.locator('#panel-reports-productivity #elara-reports-page').count(),1,width+': full report not extracted');
+
+ await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
+ const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
+ assert.equal(await socialTiles.count(),6,width+': Friends hub tab count');
+ const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect();return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y}}));
+ assert.equal(socialBoxes.every(x=>x.h>=(isMobile?120:140)&&x.imgH>=(isMobile?65:80)&&x.labelY>x.y+x.h*.68),true,width+': Friends tabs are not Freedom-style artwork tiles '+JSON.stringify(socialBoxes));
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
  assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
