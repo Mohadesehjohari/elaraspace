@@ -198,7 +198,7 @@ stage('settings-account:pass');stage('wardrobe:start');
 await page.locator('.drawer-menu [data-approved-wardrobe]').click();await page.waitForTimeout(70);
 await withinViewport(page,'.approved-wardrobe-window','Wardrobe');await topmost(page,'.approved-wardrobe-window','Wardrobe');
 let z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),wardrobe:Number(getComputedStyle(document.querySelector('.approved-wardrobe')).zIndex)}));assert.ok(z.wardrobe>z.drawer,'Wardrobe below Settings '+JSON.stringify(z));
-assert.equal(await page.locator('.approved-wardrobe .wardrobe-title-art').evaluate(x=>x.complete&&x.naturalWidth>0),true,'Wardrobe hanger artwork failed to load');
+await page.waitForFunction(()=>{const x=document.querySelector('.approved-wardrobe .wardrobe-title-art');return !!x&&x.complete&&x.naturalWidth>0},{timeout:3000});assert.equal(await page.locator('.approved-wardrobe .wardrobe-title-art').evaluate(x=>x.complete&&x.naturalWidth>0),true,'Wardrobe hanger artwork failed to load');
 const moreBanners=page.locator('.approved-wardrobe [data-wardrobe-more="banner"]');if(await moreBanners.count())await moreBanners.click();await page.waitForTimeout(60);
 const wardrobeBanners=page.locator('.approved-wardrobe [data-wardrobe-item="banner"]');assert.equal(await wardrobeBanners.count(),4,'Wardrobe must expose four uploaded banners');
 const bannerBackgrounds=await wardrobeBanners.evaluateAll(xs=>xs.map(x=>getComputedStyle(x.querySelector('.wardrobe-banner')).backgroundImage));
