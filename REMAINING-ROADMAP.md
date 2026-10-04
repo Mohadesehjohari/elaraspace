@@ -1,50 +1,84 @@
 # کارهای باقی‌مانده — Operational Queue
 
-> مرجع کامل و canonical: [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)
+> مرجع کامل و canonical: [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)  
+> آخرین handoff اجرایی: بخش **Execution Handoff — 2026-10-04** در Master Roadmap.  
+> این فایل فقط صف کوتاه‌مدت است و نباید با Master رقابت کند.
 
-این فایل فقط صف اجرای کوتاه‌مدت است و نباید با Master Roadmap رقابت کند.
+## P0 — همین الان، قبل از Feature جدید
+1. **Ranking visual + profile/frame sync**
+   - Avatar/Frame هم‌مرکز و هم‌شکل Circle/Square در Podium، جدول، Friends و Public Profile.
+   - Desktop: Podium + My Rank، سپس Weekly/Friends/Requests/Online/Clubs بدون ستون باریک یا overflow.
+   - Mobile: Podium و My Rank تمام‌عرض.
+   - چهار کنترل Ranking/Friends/Community/Clubs مطابق artwork موجود و بدون متن تکراری.
+   - League فقط به‌عنوان backlog backend-gated؛ fake league ممنوع.
 
-## اکنون — اجرای فوری 2026-10-04
-1. Profile-first Settings: Gear کوچک داخل Profile + Header entry، XP زیر progress، Blocked، حذف Notifications/Messages از Profile و Reports shortcut فقط Mobile.
-2. Mobile navigation: Page در جای overflow قدیمی، Blog کنار Freedom؛ ellipsis برنگردد.
-3. Store Hub v1: Catalog واقعی با assetهای موجود، Themes/Profile/Frames/Banners/Featured/Seasonal/Owned + gate شفاف Tokens/Elite/Events.
-4. Library Hub: Clips / Search / Reading Reports / Shelves در routeهای مستقل.
-5. Wellness Hub: Water / Sleep / Weight / Exercise / Analysis در subpageهای مستقل.
-6. Focus Hub: Pomodoro / Ambience / Focus Room / Deep Work؛ حذف redirect قدیمی Focus → Library.
-7. Language Hub: Leitner / Books / Classes / Study Report.
-8. Reports Hub: shortcuts + summary؛ full analytics در routeهای مستقل.
-9. DM draft persistence + other-profile menu (Block / hide chat / private nickname / relationship slot).
-10. Banner/Profile shape regression fix + END-HEAD browser coverage.
+2. **Friends Hub cleanup**
+   - 6 کنترل اصلی Desktop در یک ردیف افقی.
+   - Mobile همان یک ردیف با horizontal scroll؛ دو ردیف نشود.
+   - Cards/boxes grid منظم و spacing/height هماهنگ.
+   - Presence فقط واقعی؛ در غیر این صورت empty state.
 
-## بعدی — Product / Social
-1. Page identity separation + Page avatar/banner + Page sections.
-2. Profile Photo Library + delete + cloud sync.
-3. Public Lover/Companion pair با consent دوطرفه و Rules.
-4. Status color/theme + Profile name/container cosmetics.
-5. Report delete + minimal charts.
-6. Tasks compact grouped-card view.
-7. Private Diary + public Explore tags opt-in.
-8. Freedom Music/Search + Profile song.
-9. Admin Blog/Site Page publishing + moderation/catalog/feature-flag tools.
-10. Login comet intro + main Elara logo.
+3. **Tasks interaction cleanup**
+   - حذف دایرهٔ بزرگ selection/completion که در screenshot فعلی دیده شده.
+   - Long-press/pointer-hold روی خود Task row → Selection mode؛ Bulk toolbar فقط بعد از انتخاب.
+   - Habit امروز، Goal Step، Task عادی و Section-linked Task همگی از Tasks قابل completion باشند و با source اصلی sync بمانند.
+   - Habit full-row سبز/فیروزه‌ای، Goal Step full-row بنفش در list و grouped view.
+   - `dailyTarget` / چند نوبت در روز روی یک Task، بدون duplicate.
+   - Grouped compact cards بر اساس Folder/List یا Priority.
+   - Drag/reorder + trash-drop بدون تداخل با long-press.
 
-## Backend-gated
-1. Publish Firestore/Storage Rules + production multi-UID/two-device tests.
-2. Profile/Page media cloud sync.
-3. Presence.
-4. Shared Task.
-5. Challenge Now/When Online/Persistent + 30s toast/resend/edit/mute.
-6. Focus Room.
-7. Global Activity moderation.
-8. Store token ledger / Elite / payment verification.
-9. Clubs/Clan realtime + scoring/rewards.
-10. AI Tutor server gateway.
+4. **Section Tasks verification**
+   - Language / Library / Wellness-Exercise shelf زیر launcherها.
+   - Add Task از همان بخش → همان Task در Home و Tasks.
+   - completion/edit/delete/repeat/select یکسان.
 
-## Visual / Late
-1. Cursor themes + Lemon/Vampire/Ocean/Snow.
-2. Seasonal original cosmetics؛ برندهای ثالث بدون مجوز وارد Production نشوند.
-3. 3D Avatar / wardrobe commerce.
-4. Calm/Farm/Voice.
-5. Final Theme pass.
+## P1 — Profile / Mobile shell
+1. Avatar/Frame/Shape contract واحد در Header/Home/Ranking/Friends/Public Profile/Store.
+2. Mobile Gear فقط داخل Profile؛ Page بالا کنار Profile؛ Blog در bottom nav.
+3. Profile Settings: Account، Privacy، Language، Calendar، Help، Blocked، Logout؛ Reports فقط Mobile.
+4. XP زیر progress؛ controls روی Level نیفتند.
+5. Profile Banner + name/container themes واقعاً Equip و sync شوند.
+6. Other-user menu: Block / hide chat / nickname / relationship slot؛ public pair فقط consent + Rules.
+7. Store Catalog/Preview/Equip برای Profile/Frames/Banners/Themes فوری؛ fake token/purchase ممنوع.
 
-آخرین وضعیت و تمام جزئیات قابلیت‌ها فقط در Master Roadmap نگه‌داری می‌شود.
+## P2 — Freedom / Media
+1. Music + Search Music در Freedom با provider قانونی.
+2. Profile Song با privacy/mute و autoplay خاموش.
+3. Private Diary؛ public Explore فقط opt-in.
+4. Freedom subpages موجود حفظ شوند.
+
+## P3 — Language / Classes
+1. Custom Online / Offline / Linked Class.
+2. Term count، sessions per term، duration، weekdays، study time و ETA.
+3. Reports + Edit.
+4. Shared class / classmate progress / join flow فقط با backend و Rules واقعی.
+
+## P4 — Progression / Login / Ambient
+1. XP Journey فضایی: swipe-left Mobile، trigger Desktop، rewards locked بر اساس XP.
+2. Home day/night sun/moon based on local time.
+3. Morning greeting + mission/reward/CTA واقعی.
+4. Login comet/star intro → main Elara logo + reduced-motion.
+
+## P5 — Mobile navigation
+1. Page بالا کنار Profile.
+2. Gear از main Mobile shell حذف؛ فقط Profile.
+3. Blog در bottom nav.
+4. Desktop nav بدون درخواست مستقیم دست نخورد.
+
+## Backend-gated — هیچ دادهٔ جعلی مجاز نیست
+1. Firestore/Storage Rules publish + 2 UID / 2 device tests.
+2. Presence.
+3. Public relationship pair.
+4. Shared Task/Class.
+5. League authoritative result.
+6. Clubs realtime.
+7. Store token ledger / Elite / payment verification.
+8. AI gateway.
+
+## Definition of Done برای چت اجرایی
+- هر نوبت HEAD واقعی `main` را بگیر.
+- patch روی همان HEAD؛ concurrent commits را rollback نکن.
+- asset موجود repo، نه filename/visual حدسی.
+- intentional visual contract → تست stale را به‌روز کن، نه اینکه UI را عقب ببری.
+- END HEAD باید Validate + Reference + Browser + P0 + Pages را ببیند.
+- «DONE» فقط بعد از deploy/test همان END HEAD؛ در غیر این صورت CODED/TESTING بگو.
