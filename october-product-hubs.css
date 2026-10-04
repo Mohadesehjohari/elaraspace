@@ -1456,3 +1456,12 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
 #elara-ranking-page .social-podium-place [data-avatar-shell].social-podium-avatar{
   min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important
 }
+
+
+/* P0 ranking shell specificity ownership v115. */
+#elara-ranking-page .social-top-three .social-podium-place [data-avatar-shell].social-podium-avatar,
+#elara-ranking-page .social-top-three .social-podium-place.place-1 [data-avatar-shell].social-podium-avatar,
+#elara-ranking-page .social-top-three .social-podium-place.place-2 [data-avatar-shell].social-podium-avatar,
+#elara-ranking-page .social-top-three .social-podium-place.place-3 [data-avatar-shell].social-podium-avatar{
+  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important
+}
