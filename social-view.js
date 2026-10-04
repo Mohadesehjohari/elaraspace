@@ -43,14 +43,16 @@ function render(){
   const tabs=route==='social'?socialTabs:rankingTabs,allowed=tabs.map(x=>x[0]);if(!allowed.includes(selections[route]))selections[route]=allowed[0];
   const tab=selections[route];let body='';
   if(tab==='ranking'){
-    const top=section('۳ نفر برتر این هفته','<div class="social-podium">'+podium+'</div>','social-top-three');
-    const mine=section('رتبهٔ من در این جمع',me?person(me)+`<div class="social-my-rank-line"><strong class="social-my-rank">${fa(ranked.findIndex(p=>p.uid===uid)+1)}</strong><span>${fa(me.xp)} XP</span></div><p class="muted">هر قدم، تو را قوی‌تر می‌کند.</p>`:empty('وارد حسابت شو تا رتبهٔ واقعی خودت رو ببینی 🏆','icon-ranking-trophy.webp'),'social-my-rank-card');
-    const weekly=section('رنکینگ این هفته',empty('این هفته هنوز دادهٔ رتبه‌بندی مستقلی نرسیده؛ به محض رسیدن، جدول واقعی همین‌جا میاد ⚡','ranking-chart-icon.webp'),'social-weekly');
-    const friendRank=section('رنکینگ دوستان',rankList,'social-friend-rank');
-    const requestCard=section('درخواست‌های دوستی',requests+outgoing,'social-requests');
-    const online=section('دوستان آنلاین',empty('وضعیت آنلاین واقعی هنوز وصل نیست؛ فعلاً چیزی الکی نشونت نمی‌دیم 😎'),'social-online');
-    const clubs=section('کلاب‌ها و کافهٔ الارا',empty('کلاب‌ها فعلاً ساکتن 🌚 وقتی کلاب واقعی آماده باشه، اینجا پیداش می‌کنی.','clubs-tab.webp'),'social-clubs');
-    body=top+mine+weekly+friendRank+'<div class="social-side-stack">'+requestCard+online+'</div>'+clubs;
+    const myIndex=me?ranked.findIndex(p=>p.uid===uid):-1,myRank=myIndex>=0?myIndex+1:0,ahead=myIndex>0?ranked[myIndex-1]:null;
+    const gap=ahead?Math.max(0,Number(ahead.xp||0)-Number(me?.xp||0)):0,progress=ahead&&Number(ahead.xp)>0?Math.max(8,Math.min(100,Math.round(Number(me?.xp||0)/Number(ahead.xp)*100))):100;
+    const top=section('<span class="social-section-title"><img src="assets/ui/icon-ranking-trophy.webp" alt="">۳ نفر برتر این هفته</span>','<div class="social-podium">'+podium+'</div>','social-top-three');
+    const mine=section('<span class="social-section-title"><img src="assets/ui/icon-ranking-trophy.webp" alt="">رتبهٔ من در این هفته</span>',me?`<div class="social-my-rank-shell">${person(me)}<div class="social-my-rank-line"><strong class="social-my-rank">${fa(myRank)}</strong><span>${fa(me.xp)} XP</span></div><div class="social-rank-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}"><i style="width:${progress}%"></i></div><p class="social-rank-gap">${ahead?fa(gap)+' XP تا رتبهٔ بالاتر':'فعلاً بالاترین رتبهٔ این جمع برای توست.'}</p><blockquote>هر قدم، تو را قوی‌تر می‌کند.</blockquote></div>`:empty('وارد حسابت شو تا رتبهٔ واقعی خودت رو ببینی.','icon-ranking-trophy.webp'),'social-my-rank-card');
+    const weekly=section('<span class="social-section-title"><img src="assets/ui/ranking-chart-icon.webp" alt="">رنکینگ این هفته</span>','<div class="social-rank-table">'+rankList+'</div>','social-weekly');
+    const friendRank=section('<span class="social-section-title"><img src="assets/ui/43-friends-icon.webp" alt="">رنکینگ دوستان</span>','<div class="social-rank-table">'+rankList+'</div>','social-friend-rank');
+    const requestCard=section('<span class="social-section-title"><img src="assets/ui/48-friend-requests-icon.webp" alt="">درخواست‌های دوستی'+(incoming.length?`<b class="social-count-badge">${fa(incoming.length)}</b>`:'')+'</span>',requests+outgoing,'social-requests');
+    const online=section('<span class="social-section-title"><img src="assets/ui/online-status.webp" alt="">دوستان آنلاین</span>',empty('وقتی presence واقعی دوستان فعال باشد، فقط همان وضعیت واقعی اینجا نمایش داده می‌شود.','43-friends-icon.webp'),'social-online');
+    const clubs=section('<span class="social-section-title"><img src="assets/ui/clubs-tab.webp" alt="">کلاب‌ها و کافهٔ الارا</span>',`<div class="social-club-promo"><div><strong>با آدم‌های هم‌فکر مسیرت را ادامه بده.</strong><small>کلاب‌های واقعی حساب تو اینجا نمایش داده می‌شوند.</small></div><button type="button" data-social-view="clubs" data-social-route="ranking">رفتن به کلاب‌ها</button></div>`,'social-clubs');
+    body=top+mine+weekly+friendRank+requestCard+online+clubs;
   }
   if(tab==='friends'){
     if(route==='ranking')body=section(tt('رنکینگ دوستان','Friends ranking'),rankList,'social-friend-rank ranking-friends-only')+section(tt('رتبهٔ من بین دوستان','My rank among friends'),me?person(me)+`<div class="social-my-rank-line"><strong class="social-my-rank">${fa(ranked.findIndex(p=>p.uid===uid)+1)}</strong><span>${fa(me.xp)} XP</span></div>`:empty(tt('هنوز رتبهٔ دوستی شکل نگرفته.','No friend ranking yet.'),'icon-ranking-trophy.webp'),'social-my-rank-card');
