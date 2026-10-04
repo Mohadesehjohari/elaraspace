@@ -212,6 +212,17 @@ function renderAccount(){
   $('cloud-sync').textContent='✓ اطلاعات حساب بارگذاری شد';
   refreshFriends().catch(e=>notify(actionError(e)));
 }
+async function listPublishedContent(collectionName){
+  const snapshot=await getDocs(query(collection(db,collectionName),where('status','==','published')));
+  return snapshot.docs.map(item=>({id:item.id,...item.data()})).sort((a,b)=>{
+    const am=a.updatedAt?.toMillis?.()||a.updatedAt?.seconds*1000||0,bm=b.updatedAt?.toMillis?.()||b.updatedAt?.seconds*1000||0;
+    return bm-am;
+  });
+}
+window.ElaraPublicContent={
+  listBlogArticles:()=>listPublishedContent('blogArticles'),
+  listSitePages:()=>listPublishedContent('sitePages')
+};
 window.ElaraAccount={
   get user(){return auth.currentUser},
   get profile(){return profile},
