@@ -1151,3 +1151,158 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
     grid-area:auto!important;grid-column:1 / 3!important;grid-row:5!important;
   }
 }
+
+
+/* 2026-10-04 hold-select Tasks + social frame/friends alignment v102. */
+/* Tasks: selection is entered only by holding a row. No selection checkbox or Select button. */
+#panel-tasks #task-selection-toggle,
+#panel-tasks .task-select-control,
+#panel-tasks [data-task-select]{display:none!important}
+#panel-tasks.task-selection-mode #task-list .astra-task-row{cursor:pointer}
+#panel-tasks.task-selection-mode #task-list .astra-task-row>.check-button{
+  display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important
+}
+#panel-tasks.task-selection-mode #task-list .astra-task-row .task-summary-button{pointer-events:none!important;opacity:.72!important}
+#panel-tasks.task-selection-mode #task-list .astra-task-row .astra-task-more{pointer-events:auto!important;opacity:1!important}
+#panel-tasks #task-list .astra-task-row.is-selected{
+  border-color:#9b75ff!important;
+  box-shadow:inset 4px 0 0 #9b75ff,0 0 0 1px #8a62ff77,0 12px 28px #0004!important
+}
+/* Completion stays available everywhere, but the unwanted hollow circle is now a compact tick control. */
+#panel-tasks #task-list .check-button{
+  width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;
+  aspect-ratio:1/1!important;border-radius:10px!important;border:1px solid #5973a8!important;
+  background:linear-gradient(145deg,#102846,#0a1b34)!important;color:#dfe8ff!important;
+  display:grid!important;place-items:center!important;overflow:hidden!important
+}
+#panel-tasks #task-list .check-button::before{
+  content:"✓";font-size:17px!important;font-weight:900!important;line-height:1!important;opacity:.48!important
+}
+#panel-tasks #task-list .check-button[aria-pressed="true"]{
+  border-color:#8d67ff!important;background:linear-gradient(145deg,#41269e,#6b39de)!important
+}
+#panel-tasks #task-list .check-button[aria-pressed="true"]::before{display:none!important}
+#panel-tasks #task-list .check-button .elara-check-art{
+  border-radius:9px!important;object-fit:cover!important
+}
+#panel-tasks #task-list .check-button:disabled{opacity:.45!important;cursor:not-allowed!important}
+
+/* Social profile ownership: avatar and frame share one box and one shape everywhere. */
+#elara-ranking-page .social-profile-stack,
+#elara-social-page .social-profile-stack{
+  position:relative!important;display:grid!important;place-items:center!important;isolation:isolate!important;
+  flex:0 0 auto!important
+}
+#elara-ranking-page .social-person .social-profile-stack,
+#elara-social-page .social-person .social-profile-stack{width:42px!important;height:42px!important}
+#elara-ranking-page .social-profile-stack>.social-portrait,
+#elara-social-page .social-profile-stack>.social-portrait{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;z-index:1!important;margin:0!important
+}
+#elara-ranking-page .social-profile-stack.has-frame>.social-portrait,
+#elara-social-page .social-profile-stack.has-frame>.social-portrait{
+  inset:13%!important;width:74%!important;height:74%!important
+}
+#elara-ranking-page .social-profile-stack>.social-profile-frame,
+#elara-social-page .social-profile-stack>.social-profile-frame{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  max-width:none!important;max-height:none!important;object-fit:contain!important;z-index:2!important;pointer-events:none!important
+}
+#elara-ranking-page .social-profile-stack[data-profile-shape="circle"]>.social-portrait,
+#elara-social-page .social-profile-stack[data-profile-shape="circle"]>.social-portrait{border-radius:50%!important}
+#elara-ranking-page .social-profile-stack[data-profile-shape="square"]>.social-portrait,
+#elara-social-page .social-profile-stack[data-profile-shape="square"]>.social-portrait{border-radius:22%!important}
+
+/* Ranking podium: the frame can no longer drift away from its own profile image. */
+#elara-ranking-page .social-podium-profile{
+  display:grid!important;justify-items:center!important;gap:5px!important;width:100%!important;
+  border:0!important;background:transparent!important;color:inherit!important;padding:0!important
+}
+#elara-ranking-page .social-podium-avatar{
+  position:relative!important;width:142px!important;height:154px!important;display:grid!important;place-items:center!important
+}
+#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:186px!important;height:198px!important}
+#elara-ranking-page .social-podium-avatar>.social-portrait{
+  position:absolute!important;inset:22% 20% 22%!important;width:60%!important;height:60%!important;
+  object-fit:cover!important;z-index:1!important;margin:0!important
+}
+#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar>.social-portrait{
+  inset:20% 18% 20%!important;width:64%!important;height:64%!important
+}
+#elara-ranking-page .social-podium-avatar>.social-rank-frame{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;z-index:2!important
+}
+#elara-ranking-page .social-podium-copy{display:grid!important;justify-items:center!important;gap:1px!important;min-width:0!important}
+#elara-ranking-page .social-podium-copy strong{font-size:.82rem!important}
+#elara-ranking-page .social-podium-copy small{font-size:.64rem!important;color:#9cadca!important}
+
+/* Friends main destinations: exactly one horizontal row on desktop. */
+#elara-social-page .social-tabs{
+  display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  width:100%!important;max-width:none!important;gap:12px!important;margin:10px 0 16px!important;
+  overflow:visible!important
+}
+#elara-social-page .social-tabs [role="tab"]{
+  min-width:0!important;width:100%!important;min-height:104px!important;height:104px!important;
+  padding:5px 5px 25px!important;border:0!important;background:transparent!important;box-shadow:none!important
+}
+#elara-social-page .social-tabs [role="tab"] img{
+  width:66px!important;height:66px!important;object-fit:contain!important
+}
+#elara-social-page .social-tabs .social-tab-label{
+  position:absolute!important;inset:auto 0 4px!important;width:auto!important;height:auto!important;
+  margin:0!important;clip:auto!important;clip-path:none!important;overflow:visible!important;
+  font-size:.76rem!important;font-weight:900!important;white-space:nowrap!important;text-align:center!important
+}
+/* Friends content cards are aligned instead of stacking arbitrary full-width blocks. */
+#elara-social-page.social-friends-page .social-reference-grid{
+  display:grid!important;grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr)!important;
+  gap:16px!important;align-items:stretch!important
+}
+#elara-social-page.social-friends-page .social-reference-grid>.social-friend-invite{
+  grid-column:1!important;min-height:250px!important
+}
+#elara-social-page.social-friends-page .social-reference-grid>.social-friends-list{
+  grid-column:2!important;min-height:250px!important
+}
+#elara-social-page.social-friends-page .social-reference-grid>:is(.social-requests,.social-friend-activity,.social-hub-slot){
+  grid-column:1/-1!important
+}
+#elara-social-page.social-friends-page .social-section{
+  margin:0!important;padding:18px!important;border-radius:20px!important
+}
+#elara-social-page .social-invite{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;gap:10px!important;align-items:center!important
+}
+#elara-social-page .social-scroll{max-height:340px!important;overflow:auto!important}
+
+/* Ranking top controls also stay in a single horizontal row. */
+#elara-ranking-page .social-tabs{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  width:min(760px,100%)!important;max-width:760px!important;gap:14px!important;margin:4px auto 12px!important
+}
+
+@media(max-width:700px){
+  #panel-tasks #task-list .check-button{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;border-radius:9px!important}
+  #elara-ranking-page .social-podium-avatar{width:96px!important;height:108px!important}
+  #elara-ranking-page .social-podium-place.place-1 .social-podium-avatar{width:126px!important;height:140px!important}
+  #elara-ranking-page .social-podium-copy strong{font-size:.7rem!important}
+  #elara-ranking-page .social-podium-copy small{font-size:.58rem!important}
+
+  #elara-social-page .social-tabs{
+    display:flex!important;flex-wrap:nowrap!important;width:100%!important;max-width:none!important;
+    gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:0 1px 8px!important;
+    scroll-snap-type:x proximity!important
+  }
+  #elara-social-page .social-tabs [role="tab"]{
+    flex:0 0 92px!important;width:92px!important;min-width:92px!important;min-height:88px!important;height:88px!important;
+    padding:3px 2px 22px!important;scroll-snap-align:start!important
+  }
+  #elara-social-page .social-tabs [role="tab"] img{width:52px!important;height:52px!important}
+  #elara-social-page .social-tabs .social-tab-label{font-size:.66rem!important;bottom:2px!important}
+  #elara-social-page.social-friends-page .social-reference-grid{grid-template-columns:1fr!important;gap:10px!important}
+  #elara-social-page.social-friends-page .social-reference-grid>.social-friend-invite,
+  #elara-social-page.social-friends-page .social-reference-grid>.social-friends-list{grid-column:1!important;min-height:0!important}
+  #elara-social-page .social-invite{grid-template-columns:minmax(0,1fr) auto auto!important}
+}
