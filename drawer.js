@@ -125,9 +125,11 @@
     return `<div class="drawer-section-head"><button type="button" data-drawer-nav="home" aria-label="بازگشت">→</button><div><strong>${esc(title)}</strong><small>${esc(sub||'')}</small></div></div>`;
   }
   function renderHub(){
-    const host=panel?.querySelector('[data-drawer-section="home"]');if(!host)return;const view=profileView(),person=profile();
-    const name=esc(view?.name||person?.name||'Elara'),level=Number(view?.level||1),title=esc(view?.title||'مسیر شخصی تو');
-    host.innerHTML=`<section class="pass5-drawer-hub"><div class="pass5-drawer-hub-copy"><span class="eyebrow">ELARA SPACE</span><h2>پروفایل من</h2><p>سلام ${name}؛ هویت، کمد و ارتباطات پروفایلت اینجاست. تنظیمات حساب از چرخ‌دندهٔ بالا باز می‌شود.</p><div class="pass5-drawer-hub-meta"><span>Level ${level}</span><span>${title}</span></div></div><div class="pass5-drawer-hub-grid"><button type="button" data-drawer-nav="account">${icon('user')}<span><b>پروفایل من</b><small>نمایش و ویرایش هویت</small></span></button><button type="button" data-drawer-nav="blocked">${icon('shield')}<span><b>بلاک‌شده‌ها</b><small>مدیریت افراد مسدودشده</small></span></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<span><b>کمد</b><small>آواتار، فریم و بنر</small></span></button><button type="button" data-drawer-action="store">${icon('spark')}<span><b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></span></button></div></section>`;
+    const host=panel?.querySelector('[data-drawer-section="home"]');if(!host)return;
+    /* Desktop profile home is intentionally empty below the banner.
+       Profile / Blocked / Wardrobe / Store already live in the left rail, so
+       duplicating them here only makes the drawer noisy. */
+    host.replaceChildren();
   }
   function renderSettings(){
     const host=$('drawer-settings-area');if(!host)return;
