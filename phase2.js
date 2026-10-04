@@ -21,6 +21,7 @@
     '4':{label:'عادی',className:'priority-gray'}
   };
   const sourceMeta={
+    habit:{label:'عادت',className:'source-habit',art:'icon-habits-sprout.webp'},
     goal:{label:'هدف',className:'source-goal',art:'icon-achievement-star.webp'},
     exercise:{label:'ورزش',className:'source-exercise',art:'icon-exercise-dumbbell.webp'},
     language:{label:'زبان',className:'source-language',art:'nav-language-default.webp'},
