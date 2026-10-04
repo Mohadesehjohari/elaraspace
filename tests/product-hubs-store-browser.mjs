@@ -24,6 +24,7 @@ async function run(width,height){
   assert.equal(Math.max(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))-Math.min(...boxes.slice(0,Math.min(4,boxes.length)).map(x=>x.y))<=2,true,width+': '+label+' first visual row is not horizontal '+JSON.stringify(boxes));
  };
  assert.equal(await page.locator('#panel-books .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card').count(),4,width+': Library must be a four-launcher hub');
+ assert.equal(await page.locator('#panel-books>.feature-hub-preview').count(),0,width+': Library main hub must not duplicate reading/report content outside its dedicated route');
  await freedomTiles('#panel-books .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card','Library');
  assert.equal(await page.locator('#panel-library-clips #library-clips').count(),1,width+': clips must live on dedicated route');
  await page.locator('#panel-books [data-feature-route="library-clips"]').click();await page.waitForSelector('#panel-library-clips:not(.hidden) #library-clips');
@@ -50,8 +51,8 @@ async function run(width,height){
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
  assert.equal(await socialTiles.count(),6,width+': Friends hub tab count');
- const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect();return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y}}));
- assert.equal(socialBoxes.every(x=>x.h>=(isMobile?120:140)&&x.imgH>=(isMobile?65:80)&&x.labelY>x.y+x.h*.68),true,width+': Friends tabs are not Freedom-style artwork tiles '+JSON.stringify(socialBoxes));
+ const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect(),s=getComputedStyle(x);return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y,border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}));
+ assert.equal(socialBoxes.every(x=>x.h>=(isMobile?80:90)&&x.h<=(isMobile?94:106)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
  assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
