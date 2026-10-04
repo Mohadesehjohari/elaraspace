@@ -57,7 +57,7 @@ function setupLibrary(){
    card('library-search','assets/ui/21-book-search-icon.webp','جستجوی کتاب','Find Books','کتاب بعدی را پیدا یا اضافه کن','Find or add your next book')+
    card('library-reports','assets/ui/32-reading-analytics-icon.webp','گزارش مطالعه','Reading Report','آمار و روند مطالعه','Reading stats and trends')+
    card('library-shelves','assets/ui/05-custom-shelves-icon.webp','قفسه‌ها','Shelves','کتاب‌ها و مجموعه‌های شخصی','Books and custom collections'),'library'
- );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());libraryHub.insertAdjacentHTML('afterend',readingPreview());
+ );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());
 }
 function setupLanguage(){
  const parent=$('panel-language');if(!parent)return;parent.classList.add('feature-hub-parent','language-feature-hub');
