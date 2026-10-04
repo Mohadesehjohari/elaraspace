@@ -1508,3 +1508,46 @@ body.light .elara-profile-composition[data-profile-theme]:not([data-profile-them
 .page-official-detail>div>p{margin:0;padding:13px 14px;border:1px solid #2e4f77;border-radius:13px;background:#081d38;line-height:1.95}
 @media(max-width:720px){.page-official-grid{grid-template-columns:1fr}.page-official-grid>article{grid-template-columns:1fr}.page-official-grid button{width:100%}}
 body.light .page-official-grid>article,body.light .page-official-detail>div>p{background:#fff!important;border-color:#ced9ea!important}
+
+
+/* Freedom private diary + music / profile song */
+.freedom-diary-dialog,.freedom-music-dialog{display:grid;gap:14px;min-width:min(780px,78vw);max-width:900px}
+.freedom-private-note,.freedom-music-provider{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--accent,#9a7cff) 42%,#263a5b);border-radius:14px;background:color-mix(in srgb,#081a31 88%,var(--accent,#9a7cff));color:#dce7ff;line-height:1.7}
+.freedom-music-provider{justify-content:space-between;flex-wrap:wrap}
+.freedom-music-provider strong{color:#f6f2ff}.freedom-music-provider span{color:#aebbd2}
+.freedom-diary-dialog form,.freedom-music-dialog form{display:grid;gap:10px;padding:14px;border:1px solid #294568;border-radius:16px;background:#071a31}
+.freedom-diary-dialog label{display:grid;gap:6px;color:#dce7ff;font-weight:700}
+.freedom-diary-dialog input,.freedom-diary-dialog textarea,.freedom-music-dialog input{width:100%;border:1px solid #36567c;border-radius:11px;background:#061329;color:white;padding:11px 12px}
+.freedom-diary-share{display:flex!important;grid-template-columns:22px 1fr;align-items:center;font-weight:500!important;color:#aebbd2!important}
+.freedom-diary-share input{width:18px;height:18px}
+.freedom-diary-form-actions,.freedom-diary-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.freedom-diary-toolbar input{width:100%;border:1px solid #294568;border-radius:12px;background:#061329;color:white;padding:11px 12px}
+.freedom-diary-explore{display:grid;gap:8px;padding:12px;border:1px solid #294568;border-radius:14px;background:#07172a}
+.freedom-diary-explore>div,.freedom-diary-tags{display:flex;gap:6px;flex-wrap:wrap}
+.freedom-diary-explore span,.freedom-diary-tags span{padding:4px 8px;border-radius:999px;background:#152d4c;color:#a9cbff;font-size:.78rem}
+.freedom-diary-list,.freedom-music-results{display:grid;gap:10px;max-height:min(52vh,600px);overflow:auto;padding-inline-end:2px}
+.freedom-diary-list>article{display:grid;gap:9px;padding:14px;border:1px solid #294568;border-radius:15px;background:#06172c}
+.freedom-diary-list header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.freedom-diary-list header>div{display:grid;gap:3px}.freedom-diary-list small{color:#8fa5c5}.freedom-diary-list p{margin:0;color:#dce7ff;line-height:1.85;white-space:pre-wrap}
+.freedom-diary-list footer{display:flex;gap:8px;justify-content:flex-end}
+.freedom-music-dialog form{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.freedom-music-row,.freedom-profile-song-current{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(170px,230px) auto;gap:10px;align-items:center;padding:10px;border:1px solid #294568;border-radius:14px;background:#06172c}
+.freedom-music-row>img,.freedom-profile-song-current>img{width:64px;height:64px;border-radius:11px;object-fit:cover;background:#0f2440}
+.freedom-music-row>div,.freedom-profile-song-current>div{display:grid;gap:3px;min-width:0}.freedom-music-row strong,.freedom-profile-song-current strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.freedom-music-row span,.freedom-profile-song-current span,.freedom-music-row small,.freedom-profile-song-current small{color:#93a9c8}
+.freedom-music-row audio,.freedom-profile-song-current audio{width:100%;height:34px}
+.freedom-music-row>a{color:#9ebcff;font-size:.78rem;text-decoration:none;text-align:center}
+.freedom-profile-song-current{margin-bottom:2px;border-color:#6552a1;background:linear-gradient(135deg,#0b1b35,#17123a)}
+.elara-profile-song-card{display:grid;grid-template-columns:38px minmax(0,1fr) minmax(140px,210px);gap:8px;align-items:center;margin-top:10px;padding:8px;border:1px solid color-mix(in srgb,var(--accent,#9a7cff) 45%,#2a3856);border-radius:12px;background:rgba(8,19,42,.72)}
+.elara-profile-song-card>img{width:38px;height:38px;object-fit:cover;border-radius:8px}.elara-profile-song-card>div{display:grid;min-width:0}.elara-profile-song-card small{color:#9fb0c9;font-size:.68rem}.elara-profile-song-card strong,.elara-profile-song-card span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.elara-profile-song-card span{color:#9fb0c9;font-size:.74rem}.elara-profile-song-card audio{width:100%;height:30px}
+@media(max-width:720px){
+ .freedom-diary-dialog,.freedom-music-dialog{min-width:0;width:100%}
+ .freedom-music-dialog form{grid-template-columns:1fr}
+ .freedom-music-row,.freedom-profile-song-current{grid-template-columns:52px minmax(0,1fr);align-items:start}
+ .freedom-music-row>img,.freedom-profile-song-current>img{width:52px;height:52px}
+ .freedom-music-row audio,.freedom-profile-song-current audio,.freedom-music-row>button,.freedom-profile-song-current>button,.freedom-music-row>a{grid-column:1/-1;width:100%}
+ .elara-profile-song-card{grid-template-columns:38px minmax(0,1fr)}.elara-profile-song-card audio{grid-column:1/-1}
+ .freedom-diary-list footer>*{flex:1}
+}
+body.light .freedom-diary-dialog form,body.light .freedom-music-dialog form,body.light .freedom-diary-list>article,body.light .freedom-music-row{background:#fff!important;color:#1f2940!important;border-color:#ccd7e7!important}
+body.light .freedom-diary-dialog input,body.light .freedom-diary-dialog textarea,body.light .freedom-music-dialog input,body.light .freedom-diary-toolbar input{background:#f7f9fc!important;color:#1d2638!important;border-color:#cbd6e5!important}
+body.light .freedom-diary-explore{background:#f7f9fc!important;border-color:#ccd7e7!important}
