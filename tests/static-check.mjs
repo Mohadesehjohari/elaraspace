@@ -28,7 +28,7 @@ assert.deepEqual(mainRoutes,[['exercise','ورزش'],['language','زبان'],['t
 assert.equal(mainRoutes[3][0],'home','Home must remain the visual center route');
 const initialBottom=html.match(/<nav class="bottom-nav"[^>]*data-elara-main-nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
 const initialRoutes=[...initialBottom.matchAll(/data-elara-tab="([^"]+)"/g)].map(m=>m[1]);
-assert.deepEqual(initialRoutes,['exercise','language','tasks','social','home','ranking','books','freedom','blog','page'],'Initial Bottom Nav must contain all ten direct mobile fallback destinations');
+assert.deepEqual(initialRoutes,['tasks','social','books','home','freedom','blog','page'],'Initial Bottom Nav must contain the seven mobile dock destinations with Home centered');
 for(const route of initialRoutes)assert.match(initialBottom,new RegExp('href="#'+route+'"'),'Fallback Bottom Nav route '+route+' must work before JS hydration');
 assert.match(html,/<a class="identity" href="#home"/,'Initial identity must point to Home');
 for (const asset of ['styles.css','dialog.js','drawer.js','app.js','phase2.js']) assert.match(html,new RegExp(`(?:href|src)=["']${asset.replace('.', '\\.')}(?:\\?[^"']*)?["']`),`Missing asset: ${asset}`);
