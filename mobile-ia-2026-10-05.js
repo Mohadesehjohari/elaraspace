@@ -32,7 +32,6 @@ function renderLanguageStrip(){
   strip.innerHTML=`<header class="ref-language-strip-head">
     <h2><img class="ref-language-brain" src="assets/icon-brain.png" alt="" aria-hidden="true"> زبان · جعبه لایتنر</h2>
     <div class="ref-language-strip-actions">
-      <button type="button" class="ref-home-reports-button" data-home-reports aria-label="گزارش‌ها">گزارش‌ها</button>
       <button type="button" class="elara-link ref-language-all" data-home-language-all>همه ←</button>
     </div>
    </header>
@@ -52,6 +51,17 @@ function renderLanguageStrip(){
  }else{
   strip.style.setProperty('grid-area','themes','important');
   strip.style.removeProperty('grid-column');strip.style.removeProperty('grid-row');
+ }
+}
+
+function ensureHomeReportsButton(){
+ const hero=document.querySelector('#panel-home .ref-hero');if(!hero)return;
+ let button=hero.querySelector('[data-home-reports]');
+ if(!button){
+  button=document.createElement('button');button.type='button';button.className='ref-hero-reports';button.dataset.homeReports='';
+  button.setAttribute('aria-label','گزارش‌ها');
+  button.innerHTML='<span aria-hidden="true">▥</span><b>گزارش‌ها</b>';
+  hero.append(button);
  }
 }
 
@@ -81,7 +91,7 @@ function handleClick(e){
 }
 let queued=false;
 function refresh(){
- queued=false;ensureStoreButton();renderLanguageStrip();ensureFriendsRankingEntry();
+ queued=false;ensureStoreButton();renderLanguageStrip();ensureHomeReportsButton();ensureFriendsRankingEntry();
 }
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(refresh)}
 function observe(){
