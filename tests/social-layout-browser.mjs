@@ -39,8 +39,12 @@ async function run(width,height){
  else{assert.ok(boxes[0].height>=48&&boxes[1].width>=52&&boxes[2].width>=52,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
  const friendTabRects=await page.locator('#elara-social-page .social-tabs [role="tab"]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
  assert.ok(friendTabRects.every(r=>r.w>0&&r.h>0),'Friends controls must be measured while visible');
- assert.ok(Math.max(...friendTabRects.map(r=>r.y))-Math.min(...friendTabRects.map(r=>r.y))<=2,width+': all six Friends controls must stay in one row');
- if(width<=700)assert.equal(await page.locator('#elara-social-page .social-tabs').evaluate(el=>getComputedStyle(el).overflowX),'auto');
+ const friendTabsStyle=await page.locator('#elara-social-page .social-tabs').evaluate(el=>{const s=getComputedStyle(el);return{display:s.display,direction:s.flexDirection,wrap:s.flexWrap,overflow:s.overflowX,client:el.clientWidth,scroll:el.scrollWidth}});
+ assert.equal(friendTabsStyle.display,'flex',width+': Friends destinations must use horizontal flex strip');
+ assert.equal(friendTabsStyle.direction,'row',width+': Friends destinations must use one row direction');
+ assert.equal(friendTabsStyle.wrap,'nowrap',width+': Friends destinations must not wrap');
+ assert.equal(friendTabsStyle.overflow,'auto',width+': Friends destinations must scroll horizontally when needed');
+ assert.ok(friendTabsStyle.scroll>=friendTabsStyle.client,width+': Friends strip geometry missing horizontal scroll surface');
  await page.screenshot({path:'browser-artifacts/friends-layout-'+width+'.png',fullPage:true});
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForFunction(()=>document.querySelector('#elara-ranking-page:not(.hidden) .social-tabs'));
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': ranking must keep four tabs');
