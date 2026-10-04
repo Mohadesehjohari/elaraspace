@@ -958,3 +958,25 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-ranking-page .social-weekly,#elara-ranking-page .social-online{min-height:310px!important}
   #elara-ranking-page .social-requests,#elara-ranking-page .social-clubs{min-height:236px!important}
 }
+
+
+/* v98 ranking specificity ownership */
+#elara-ranking-page .social-reference-grid>.social-top-three{grid-area:podium!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-my-rank-card{grid-area:mine!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-weekly{grid-area:weekly!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-friend-rank{grid-area:friends!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-requests{grid-area:requests!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-online{grid-area:online!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-reference-grid>.social-clubs{grid-area:clubs!important;grid-column:auto!important;grid-row:auto!important}
+#elara-ranking-page .social-podium-place .social-podium-avatar>.social-rank-frame{
+  inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
+}
+@media(max-width:700px){
+  #elara-ranking-page .social-reference-grid>.social-top-three{grid-area:podium!important}
+  #elara-ranking-page .social-reference-grid>.social-my-rank-card{grid-area:mine!important}
+  #elara-ranking-page .social-reference-grid>.social-weekly{grid-area:weekly!important}
+  #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-area:friends!important}
+  #elara-ranking-page .social-reference-grid>.social-requests{grid-area:requests!important}
+  #elara-ranking-page .social-reference-grid>.social-online{grid-area:online!important}
+  #elara-ranking-page .social-reference-grid>.social-clubs{grid-area:clubs!important}
+}
