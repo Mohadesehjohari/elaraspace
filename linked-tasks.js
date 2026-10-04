@@ -34,7 +34,7 @@ function upsert(state,spec){
  const sourceId=safe(spec.sourceId,128),sourceParentId=safe(spec.sourceParentId,128),wanted=keyOf(spec.sourceType,sourceId,sourceParentId);
  if(state.linkedTaskDismissals.includes(wanted))return {task:null,changed:false,dismissed:true};
  let task=state.tasks.find(t=>t?.linkedTask&&taskKey(t)===wanted),changed=false;
- if(!task){task={id:makeId(),text:safe(spec.title)||meta.label,shortDescription:'',description:'',date:'',time:'',priority:meta.priority,list:'',folder:'',tag:'',completed:false,doneAt:null,xpAwarded:true,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},linkedTask:true,sourceType:spec.sourceType,sourceId,sourceParentId,sourceGroup:meta.group,sourceLabel:meta.label,sourceManaged:true,sourceCompletionLocked:!!meta.locked,sourceOwner:safe(spec.sourceOwner,128)};state.tasks.unshift(task);changed=true}
+ if(!task){task={id:makeId(),text:safe(spec.title)||meta.label,shortDescription:'',description:'',date:'',time:'',priority:meta.priority,list:'',folder:'',tag:'',completed:false,doneAt:null,xpAwarded:true,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},dailyTarget:1,dailyProgress:{},linkedTask:true,sourceType:spec.sourceType,sourceId,sourceParentId,sourceGroup:meta.group,sourceLabel:meta.label,sourceManaged:true,sourceCompletionLocked:!!meta.locked,sourceOwner:safe(spec.sourceOwner,128)};state.tasks.unshift(task);changed=true}
  const set=(k,v)=>{if(v!==undefined&&task[k]!==v){task[k]=v;changed=true}};
  set('linkedTask',true);set('sourceType',spec.sourceType);set('sourceId',sourceId);set('sourceParentId',sourceParentId);set('sourceGroup',meta.group);set('sourceLabel',meta.label);set('sourceManaged',true);set('sourceCompletionLocked',!!meta.locked);set('xpAwarded',true);
  if(spec.sourceOwner!==undefined)set('sourceOwner',safe(spec.sourceOwner,128));
@@ -43,6 +43,7 @@ function upsert(state,spec){
   if(spec.shortDescription!==undefined)set('shortDescription',safe(spec.shortDescription,280));
   if(spec.date!==undefined)set('date',validDate(spec.date)?spec.date:'');
   if(spec.priority!==undefined)set('priority',String(spec.priority));
+  if(spec.dailyTarget!==undefined)set('dailyTarget',Math.max(1,Math.min(24,Math.round(Number(spec.dailyTarget)||1))));
  }
  if(spec.completed!==undefined)changed=setCompleted(state,task,!!spec.completed,spec.completedDate||spec.date||'')||changed;
  return {task,changed};
