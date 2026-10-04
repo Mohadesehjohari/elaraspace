@@ -3,7 +3,7 @@ const KEY='elara_space_v1',$=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const makeId=()=>crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2);
-const selected=new Set();let selecting=false,pressTimer=null,pressStart=null,drag=null,ignoreClickUntil=0;
+const selected=new Set();let selecting=false,pressTimer=null,pressStart=null,drag=null,ignoreClickUntil=0,ignoreClickId='';
 function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.tasks=Array.isArray(s.tasks)?s.tasks:[];s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];s.folders=Array.isArray(s.folders)?s.folders:[];s.taskCompletionHistory=Array.isArray(s.taskCompletionHistory)?s.taskCompletionHistory:[];return s}catch{return{tasks:[],taskLists:[],folders:[],taskCompletionHistory:[]}}}
 function write(state){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}
@@ -90,7 +90,7 @@ async function bulk(action){if(action==='cancel'){cancel();return}if(action==='a
 function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressStart=null}
 function startCardPress(e,row){
  if(e.pointerType==='mouse'&&e.button!==0)return;if(e.target.closest('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,[data-task-bulk]'))return;clearPress();pressStart={x:e.clientX,y:e.clientY,id:row.dataset.key,pointerId:e.pointerId};
- pressTimer=setTimeout(()=>{ignoreClickUntil=Date.now()+700;enter(row.dataset.key);navigator.vibrate?.(18);clearPress()},e.pointerType==='touch'?560:520)
+ pressTimer=setTimeout(()=>{ignoreClickUntil=Date.now()+700;ignoreClickId=row.dataset.key;enter(row.dataset.key);navigator.vibrate?.(18);clearPress()},e.pointerType==='touch'?560:520)
 }
 function moveCardPress(e){if(pressStart&&Math.hypot(e.clientX-pressStart.x,e.clientY-pressStart.y)>9)clearPress()}
 function trashTarget(){
@@ -101,7 +101,7 @@ function trashTarget(){
 function dragStart(e,handle){
  if(e.button!==undefined&&e.button!==0)return;const row=handle.closest('.astra-task-row');if(!row)return;e.preventDefault();
  const state={id:row.dataset.key,row,handle,pointerId:e.pointerId,x:e.clientX,y:e.clientY,started:false,timer:null};drag=state;
- const activate=()=>{if(drag!==state)return;state.started=true;ignoreClickUntil=Date.now()+800;row.classList.add('is-dragging');handle.setPointerCapture?.(e.pointerId);document.body.classList.add('task-reordering');trashTarget().hidden=false};
+ const activate=()=>{if(drag!==state)return;state.started=true;ignoreClickUntil=Date.now()+800;ignoreClickId=row.dataset.key;row.classList.add('is-dragging');handle.setPointerCapture?.(e.pointerId);document.body.classList.add('task-reordering');trashTarget().hidden=false};
  if(e.pointerType==='touch')state.timer=setTimeout(activate,180);else activate()
 }
 function dragMove(e){
@@ -113,11 +113,11 @@ function dragEnd(e){
  if(!drag||e.pointerId!==drag.pointerId)return;clearTimeout(drag.timer);const was=drag.started,id=drag.id,row=drag.row,trash=drag.overTrash;drag=null;row.classList.remove('is-dragging');document.body.classList.remove('task-reordering');const target=document.getElementById('task-trash-drop');if(target)target.hidden=true;if(was&&trash){window.ElaraTasks?.render?.();void window.ElaraTasks?.taskAction?.('delete-task',id);return}if(was){persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),20)}
 }
 document.addEventListener('click',e=>{
- if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row){e.preventDefault();e.stopImmediatePropagation();return}}
+ if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&row.dataset.key===ignoreClickId){e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=0;ignoreClickId='';return}}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
  if(selecting){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag],.check-button,.astra-task-more')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
 },true);
-document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
+document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;ignoreClickId=row.dataset.key;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
 document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data-task-drag]');if(handle){dragStart(e,handle);return}const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row)startCardPress(e,row)},true);
 document.addEventListener('pointermove',e=>{moveCardPress(e);dragMove(e)},true);
 document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();if(drag){clearTimeout(drag.timer);drag.row.classList.remove('is-dragging');drag=null;document.getElementById('task-trash-drop')?.setAttribute('hidden','');document.body.classList.remove('task-reordering');window.ElaraTasks?.render?.()}},true);
