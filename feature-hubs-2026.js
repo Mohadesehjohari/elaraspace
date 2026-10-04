@@ -59,7 +59,7 @@ function setupLibrary(){
    card('library-search','assets/ui/21-book-search-icon.webp','جستجوی کتاب','Find Books','کتاب بعدی را پیدا یا اضافه کن','Find or add your next book')+
    card('library-reports','assets/ui/32-reading-analytics-icon.webp','گزارش مطالعه','Reading Report','آمار و روند مطالعه','Reading stats and trends')+
    card('library-shelves','assets/ui/05-custom-shelves-icon.webp','قفسه‌ها','Shelves','کتاب‌ها و مجموعه‌های شخصی','Books and custom collections'),'library'
- );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());
+ );parent.querySelectorAll(':scope > .feature-hub-preview').forEach(x=>x.remove());sectionTasks(parent,'book','library');
 }
 function setupLanguage(){
  const parent=$('panel-language');if(!parent)return;parent.classList.add('feature-hub-parent','language-feature-hub');
@@ -77,7 +77,7 @@ function setupLanguage(){
    card('language-books','assets/ui/23-language-books-icon.webp','کتاب‌های زبان','Language Books','کتاب و گزارش مطالعه','Books and reading logs')+
    card('language-courses','assets/ui/24-language-classes-icon.webp','کلاس‌ها','Classes','مسیرهای آموزشی واقعی وقتی Backend آماده شد','Real learning paths when backend is ready',{gated:true})+
    card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Study Report','مرور، واژه و مطالعه','Reviews, vocabulary and reading'),'language'
- );
+ );sectionTasks(parent,'language','language');
 }
 function splitWeight(water,weightPanel){
  const settings=water?.querySelector('.wellness-water-settings');if(!settings)return;
@@ -101,7 +101,7 @@ function setupWellness(){
    card('wellness-weight','assets/ui/29-weight-tracker-icon.webp','وزن','Weight','وزن فعلی و هدف شخصی','Current and target weight')+
    card('wellness-reports','assets/ui/30-fitness-report-icon.webp','گزارش‌ها','Reports','میانبر گزارش‌های حال خوب','Wellness report shortcuts',{wide:true})+
    card('wellness-analysis','assets/ui/09-wellness-analytics-icon..webp','تحلیل','Analysis','الگوهای ثبت‌شدهٔ واقعی','Patterns from your real logs',{wide:true}),'wellness'
- );
+ );sectionTasks(parent,'exercise','wellness');
 }
 function setupFocus(){
  const parent=$('panel-focus');if(!parent)return;parent.classList.add('feature-hub-parent','focus-feature-hub');
@@ -138,6 +138,8 @@ function setupAliases(){
 function openRoute(route){if(route==='words')window.ElaraOpen?.('words');else window.ElaraOpen?.(route,{history:'push'})}
 function bind(){
  document.addEventListener('click',e=>{
+  const add=e.target.closest('[data-section-task-add]');if(add){e.preventDefault();window.ElaraTasks?.reset?.();window.ElaraTasks?.openComposer?.({date:window.ElaraSchedule?.today?.(),sourceGroup:add.dataset.sectionTaskAdd});return}
+  const toggle=e.target.closest('[data-section-task-toggle]');if(toggle){e.preventDefault();void window.ElaraTasks?.taskAction?.('toggle-task',toggle.dataset.sectionTaskToggle);return}
   const go=e.target.closest('[data-feature-route]');if(go){e.preventDefault();openRoute(go.dataset.featureRoute);return}
   if(e.target.closest('[data-library-search-direct]')){void window.ElaraLibraryEnhancements?.searchBooks?.()}
  });
@@ -146,6 +148,6 @@ let scheduled=false;
 function setup(){scheduled=false;setupLibrary();setupLanguage();setupWellness();setupFocus();setupReports();window.ElaraFeatureHubs={refresh:setup,card}}
 function schedule(){if(scheduled)return;scheduled=true;setTimeout(setup,0)}
 setupAliases();bind();
-for(const ev of ['elara:locale-changed','elara:state-committed','elara:hydrate'])window.addEventListener(ev,schedule);
+for(const ev of ['elara:locale-changed','elara:state-committed','elara:hydrate','elara:data-changed'])window.addEventListener(ev,schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,0),{once:true});else setTimeout(setup,0);
 })();
