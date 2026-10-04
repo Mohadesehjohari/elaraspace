@@ -195,7 +195,35 @@ service cloud.firestore {
     match /sitePages/{pageId} {
       allow get, list: if isAdmin() || resource.data.status == 'published';
       allow create: if isPublisher()
-        && pageId.matches('^[a-z0-9][a-z0-9-]{1,79}
+        && pageId.matches('^[a-z0-9][a-z0-9-]{1,79}$')
+        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.keys().hasAll(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.slug == pageId
+        && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
+        && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
+        && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 16000
+        && request.resource.data.locale in ['fa','en']
+        && request.resource.data.status in ['draft','published']
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isPublisher()
+        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.slug == pageId
+        && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
+        && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
+        && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 16000
+        && request.resource.data.locale in ['fa','en']
+        && request.resource.data.status in ['draft','published']
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isPublisher();
+    }
+
+    match /usernames/{username} {
       allow get: if signed();
       allow list: if false;
       allow create: if signed() && username.matches('^[a-z][a-z0-9_]{2,19}$')
