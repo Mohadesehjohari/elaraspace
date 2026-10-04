@@ -1382,3 +1382,23 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-ranking-page .social-podium-place [data-avatar-shell].social-podium-avatar {width:min(100%,88px)!important}
   #elara-ranking-page .social-podium-place.place-1 [data-avatar-shell].social-podium-avatar {width:min(100%,108px)!important}
 }
+
+/* Completion is a compact action; row hold exclusively owns selection. */
+#panel-tasks #task-list .check-button {width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;border-radius:7px!important}
+#panel-tasks #task-list .astra-task-row.source-habit {background:linear-gradient(100deg,#064737,#0b4d4d)!important}
+#panel-tasks #task-list .astra-task-row.source-goal {background:linear-gradient(100deg,#3a1c62,#432368)!important}
+body.light #panel-tasks #task-list .astra-task-row.source-habit {background:linear-gradient(100deg,#d1f5e6,#d8f7f3)!important}
+body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linear-gradient(100deg,#eadcff,#f0e3ff)!important}
+#task-trash-drop {position:fixed;inset:auto 20px 90px;z-index:25000;padding:22px;text-align:center;border:2px dashed #ff7575;border-radius:16px;background:#411b2a;color:#fff;pointer-events:none}
+#task-trash-drop[hidden]{display:none!important}
+#task-trash-drop.is-over{background:#8c2239;border-style:solid}
+
+@media(max-width:700px){
+  #elara-ranking-page .social-reference-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+  #elara-ranking-page .social-reference-grid>.social-top-three,#elara-ranking-page .social-reference-grid>.social-my-rank-card{grid-column:1/-1!important;grid-row:auto!important}
+  #elara-ranking-page .social-reference-grid>.social-weekly{grid-column:1!important;grid-row:auto!important}
+  #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:2!important;grid-row:auto!important}
+  #elara-ranking-page .social-reference-grid>.social-requests{grid-column:1!important;grid-row:auto!important}
+  #elara-ranking-page .social-reference-grid>.social-online{grid-column:2!important;grid-row:auto!important}
+  #elara-ranking-page .social-reference-grid>.social-clubs{grid-column:1/-1!important;grid-row:auto!important}
+}

@@ -38,7 +38,7 @@ function enter(id=null){selecting=true;if(id)selected.add(id);syncUi()}
 function cancel(){selecting=false;selected.clear();syncUi()}
 function toggle(id){if(!selecting)enter(id);else{selected.has(id)?selected.delete(id):selected.add(id);selected.size?syncUi():cancel()}}
 function baseSorted(state){
- const api=window.ElaraTasks,now=new Date().toISOString().slice(0,10);
+ const api=window.ElaraTasks,now=window.ElaraSchedule.today();
  return [...state.tasks].sort((a,b)=>{
   const da=api?.taskDone?.(a,now)?1:0,db=api?.taskDone?.(b,now)?1:0;if(da!==db)return da-db;
   const oa=a.manualOrder!=null&&Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):null,ob=b.manualOrder!=null&&Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):null;
@@ -54,7 +54,7 @@ function persistDomOrder(){
  write(state);window.ElaraTasks?.render?.();setTimeout(decorate,0)
 }
 function shift(id,delta){
- const row=rowById(id);if(!row)return;const candidates=rows().filter(x=>x.classList.contains('done')===row.classList.contains('done')),i=candidates.indexOf(row),target=candidates[i+delta];if(!target)return;
+ const row=rowById(id);if(!row)return;const candidates=rows().filter(x=>x.classList.contains('done')===row.classList.contains('done')),i=candidates.indexOf(row),target=candidates[i+delta];if(!target||target.parentElement!==row.parentElement)return;
  delta<0?target.before(row):target.after(row);persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),30)
 }
 async function bulkDelete(){
@@ -71,7 +71,7 @@ async function bulkDeleteScope(){
  state.tasks=state.tasks.filter(x=>!set.has(x.id));state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>!set.has(x.taskId));write(state);cancel();window.ElaraTasks?.render?.();toast(t('تسک‌های همین نما حذف شدند.','Tasks in this view were deleted.'))
 }
 function cleanClone(task,index){
- const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.manualOrder=null;
+ const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;
  for(const k of ['linkedTask','sourceType','sourceId','sourceParentId','sourceGroup','sourceLabel','sourceManaged','sourceCompletionLocked','sourceOwner','sourceUserEdited'])delete copy[k];return copy
 }
 function bulkDuplicate(){
@@ -93,29 +93,34 @@ function startCardPress(e,row){
  pressTimer=setTimeout(()=>{ignoreClickUntil=Date.now()+700;enter(row.dataset.key);navigator.vibrate?.(18);clearPress()},e.pointerType==='touch'?560:520)
 }
 function moveCardPress(e){if(pressStart&&Math.hypot(e.clientX-pressStart.x,e.clientY-pressStart.y)>9)clearPress()}
+function trashTarget(){
+ let target=document.getElementById('task-trash-drop');
+ if(!target){target=document.createElement('div');target.id='task-trash-drop';target.setAttribute('role','status');document.body.append(target)}
+ target.textContent=t('برای حذف این تسک، اینجا رها کن','Drop here to delete this task');return target;
+}
 function dragStart(e,handle){
  if(e.button!==undefined&&e.button!==0)return;const row=handle.closest('.astra-task-row');if(!row)return;e.preventDefault();
  const state={id:row.dataset.key,row,handle,pointerId:e.pointerId,x:e.clientX,y:e.clientY,started:false,timer:null};drag=state;
- const activate=()=>{if(drag!==state)return;state.started=true;ignoreClickUntil=Date.now()+800;row.classList.add('is-dragging');handle.setPointerCapture?.(e.pointerId);document.body.classList.add('task-reordering')};
+ const activate=()=>{if(drag!==state)return;state.started=true;ignoreClickUntil=Date.now()+800;row.classList.add('is-dragging');handle.setPointerCapture?.(e.pointerId);document.body.classList.add('task-reordering');trashTarget().hidden=false};
  if(e.pointerType==='touch')state.timer=setTimeout(activate,180);else activate()
 }
 function dragMove(e){
  if(!drag||e.pointerId!==drag.pointerId)return;if(!drag.started){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>7){clearTimeout(drag.timer);drag=null}return}
  e.preventDefault();if(e.clientY<70)window.scrollBy(0,-18);else if(e.clientY>innerHeight-90)window.scrollBy(0,18);
- const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('#task-list .astra-task-row');if(!hit||hit===drag.row||hit.classList.contains('done')!==drag.row.classList.contains('done'))return;const r=hit.getBoundingClientRect();e.clientY<r.top+r.height/2?hit.before(drag.row):hit.after(drag.row)
+ const trash=document.getElementById('task-trash-drop'),rect=trash?.getBoundingClientRect();drag.overTrash=!!rect&&e.clientX>=rect.left&&e.clientX<=rect.right&&e.clientY>=rect.top&&e.clientY<=rect.bottom;trash?.classList.toggle('is-over',drag.overTrash);const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('#task-list .astra-task-row');if(!hit||hit===drag.row||hit.parentElement!==drag.row.parentElement||hit.classList.contains('done')!==drag.row.classList.contains('done'))return;const r=hit.getBoundingClientRect();e.clientY<r.top+r.height/2?hit.before(drag.row):hit.after(drag.row)
 }
 function dragEnd(e){
- if(!drag||e.pointerId!==drag.pointerId)return;clearTimeout(drag.timer);const was=drag.started,id=drag.id,row=drag.row;drag=null;row.classList.remove('is-dragging');document.body.classList.remove('task-reordering');if(was){persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),20)}
+ if(!drag||e.pointerId!==drag.pointerId)return;clearTimeout(drag.timer);const was=drag.started,id=drag.id,row=drag.row,trash=drag.overTrash;drag=null;row.classList.remove('is-dragging');document.body.classList.remove('task-reordering');const target=document.getElementById('task-trash-drop');if(target)target.hidden=true;if(was&&trash){window.ElaraTasks?.render?.();void window.ElaraTasks?.taskAction?.('delete-task',id);return}if(was){persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),20)}
 }
 document.addEventListener('click',e=>{
- if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&selected.has(row.dataset.key)){e.preventDefault();e.stopImmediatePropagation();return}}
+ if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row){e.preventDefault();e.stopImmediatePropagation();return}}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
  if(selecting){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag],.check-button,.astra-task-more')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
 },true);
 document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
 document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data-task-drag]');if(handle){dragStart(e,handle);return}const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row)startCardPress(e,row)},true);
 document.addEventListener('pointermove',e=>{moveCardPress(e);dragMove(e)},true);
-document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();dragEnd(e)},true);
+document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();if(drag){clearTimeout(drag.timer);drag.row.classList.remove('is-dragging');drag=null;document.getElementById('task-trash-drop')?.setAttribute('hidden','');document.body.classList.remove('task-reordering');window.ElaraTasks?.render?.()}},true);
 document.addEventListener('keydown',e=>{const h=e.target.closest?.('[data-task-drag]');if(h&&e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();shift(h.dataset.taskDrag,e.key==='ArrowUp'?-1:1)}if(e.key==='Escape'&&selecting){e.preventDefault();cancel()}},true);
 window.addEventListener('elara:data-changed',()=>setTimeout(decorate,0));window.addEventListener('elara:locale-changed',()=>{document.getElementById('task-bulk-toolbar')?.remove();setTimeout(ensureUi,0)});window.addEventListener('elara:open',e=>{if(e.detail?.tab==='tasks')setTimeout(ensureUi,50);else if(selecting)cancel()});window.addEventListener('hashchange',()=>{if(location.hash!=='#tasks'&&selecting)cancel();setTimeout(ensureUi,80)});
 let observer=null,mountAttempts=0;

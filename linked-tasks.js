@@ -26,6 +26,12 @@ function removeHistory(state,task,date){if(!validDate(date))return;const key=com
 function setCompleted(state,task,value,date=''){
  const before=!!task.completed,oldDate=task.doneAt;
  task.completed=!!value;task.xpAwarded=true;
+ // A source-side toggle must also invalidate a projected partial/complete turn count.
+ if(before!==task.completed&&Number(task.dailyTarget)>1){
+  const day=validDate(date)?date:(validDate(task.date)?task.date:today());
+  task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
+  task.dailyProgress[day]=task.completed?Math.min(24,Number(task.dailyTarget)):0;
+ }
  if(task.completed){if(validDate(date))task.doneAt=date;else if(!validDate(task.doneAt))task.doneAt=null;if(validDate(task.doneAt))recordHistory(state,task,task.doneAt)}
  else{task.doneAt=null;if(validDate(oldDate))removeHistory(state,task,oldDate)}
  return before!==task.completed||oldDate!==task.doneAt;
