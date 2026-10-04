@@ -101,12 +101,13 @@ assert.equal(await page.locator('#panel-home .ref-wellness-cell').nth(3).locator
 await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page.waitForTimeout(70);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
-assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\\.webp/,'uploaded Language banner is not active');
+assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/,'uploaded Language banner is not active');
 const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
 assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
 const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
-assert.equal(Math.max(...languageGeometry.map(x=>x.y))-Math.min(...languageGeometry.map(x=>x.y))<=2,true,'Language launchers must stay in one Freedom-style horizontal row: '+JSON.stringify(languageGeometry));
-assert.equal(languageGeometry.every(x=>x.h>=120&&x.h<=155&&x.imgH>=65),true,'Language launcher sizing drifted from Freedom-style tiles: '+JSON.stringify(languageGeometry));
+assert.equal(Math.max(...languageGeometry.slice(0,2).map(x=>x.y))-Math.min(...languageGeometry.slice(0,2).map(x=>x.y))<=2,true,'Language first launcher row must align in the new 2x2 mobile layout: '+JSON.stringify(languageGeometry));
+assert.ok(languageGeometry[2].y>languageGeometry[0].y+40,'Language second launcher row did not move below the artwork row: '+JSON.stringify(languageGeometry));
+assert.equal(languageGeometry.every(x=>x.h>=160&&x.h<=184&&x.imgH>=100),true,'Language launcher sizing drifted from large image-first tiles: '+JSON.stringify(languageGeometry));
 assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
