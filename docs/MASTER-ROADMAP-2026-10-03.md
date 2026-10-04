@@ -899,3 +899,46 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 6. هر commit باید یک موضوع روشن داشته باشد.
 7. آخر کار: END HEAD → Validate + Reference + Browser + P0 + Pages؛ وضعیت incomplete را صریح بگو.
 8. هیچ‌وقت «انجام شد» نگو مگر همان HEAD واقعاً deploy/test شده باشد.
+
+
+---
+
+# Intake 2026-10-04 — Profile / Content / Freedom / Tasks / Classes
+
+این بخش ورودی محصول ۴ اکتبر را به وضعیت اجرایی قابل پیگیری تبدیل می‌کند. وضعیت CODED به معنی وجود کد در repo است، نه تأیید کامل Firebase/دو-device/E2E.
+
+| درخواست | وضعیت فعلی | معیار بعدی |
+|---|---|---|
+| دفتر خاطرات خصوصی در Freedom | CODED | تست privacy/persistence و عدم انتشار ناخواسته |
+| تگ خاطرات در Explore | REQUESTED | طراحی index/search بدون نشت محتوای private |
+| Admin Studio برای انتشار Blog و Site Page | CODED / BACKEND-GATED | Publish واقعی Rules + تست نقش admin |
+| Profile avatar/frame هم‌اندازه و circle/square sync | CODED | visual regression موبایل/دسکتاپ |
+| Music search در Freedom | CODED | provider policy + خطا/empty state |
+| Profile song | CODED | privacy + cross-device persistence |
+| Task compact cards by Folder/Priority | CODED در شاخهٔ intake | تست interaction با drag/hold/bulk و موبایل |
+| Banner روی Profile + Name/Container themes | CODED/PARTIAL | تست banner persistence و theme compatibility |
+| Login comet/star intro → main Elara logo | CODED | reduced-motion + auth timing |
+| Store با Profile themes/cosmetics | CODED/PARTIAL | inventory/ownership/seasonal catalog و backend entitlement |
+| Mobile Profile: Gear/Account/Privacy/Language/Calendar/Help/Logout | CODED/PARTIAL | acceptance روی 320–430px |
+| Blocked users داخل Profile settings | CODED | multi-UID unblock/block test |
+| حذف Notification/Messages از Profile و Reports فقط Mobile | CODED/PARTIAL | viewport acceptance |
+| Mobile Page/Blog placement contract | DESIGNED/CODED-PARTIAL | عدم overflow و nav regression |
+| Public profile menu: block/delete chat/nickname/relationship slot | CODED/PARTIAL | limits + rules + privacy |
+| Relationship slots مثل companion/family/friend/lover و محدودیت ظرفیت | CODED/PARTIAL / BACKEND-GATED | authoritative constraint با دو UID |
+| نمایش paired public profiles | REQUESTED / BACKEND-GATED | consent دوطرفه + privacy |
+| XP Journey با swipe-left Mobile و trigger Desktop | REQUESTED | route مستقل + locked rewards از XP واقعی |
+| Home banner day/night Sun/Moon/Crescent | REQUESTED | local-time + reduced motion + hover/tap reveal |
+| Morning greeting popup + mission/reward/CTA | REQUESTED | once-per-day policy و eventهای واقعی |
+| Drag/hold Task → Trash | CODED | تست touch/mouse و undo/confirmation policy |
+| Custom Language Classes Online/Offline/Linked | CODED | edit/report acceptance |
+| Terms/Sessions/Duration/Weekdays/Study time + ETA | CODED | timezone/schedule edge cases |
+| Shared Class / join link / classmates stats | REQUESTED / BACKEND-GATED | schema/rules + privacy + multi-UID |
+| Blog/Page mobile responsive placement | CODED-PARTIAL | 320/360/390/430 acceptance |
+| Admin dashboard utilities beyond content publishing | REQUESTED | audit log, moderation, feature flags, analytics scoped by role |
+
+## ترتیب اجرای باقی‌مانده
+1. تست و merge نمای کارت تسک‌ها.
+2. XP Journey + day/night Home banner + morning greeting به‌عنوان یک Ambient Progress sprint.
+3. Shared Class و relationship limits فقط بعد از قرارداد Firestore/Rules و تست دو UID.
+4. Explore tags برای Diary فقط با مدل metadata-safe؛ متن دفتر خصوصی نباید index عمومی شود.
+5. Admin dashboard utilities با RBAC/audit قبل از ابزارهای write گسترده.

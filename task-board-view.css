@@ -1,0 +1,16 @@
+.task-board-switch{display:inline-flex;gap:4px;margin-inline-start:8px;padding:3px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
+.task-board-switch button{border:0;background:transparent;color:var(--muted);border-radius:7px;padding:5px 8px;font-size:.68rem;font-weight:800}
+.task-board-switch button.active{background:var(--surface);color:var(--accent);box-shadow:0 2px 10px #0002}
+.task-board-view{display:grid;gap:14px}
+.task-board-group{border:1px solid var(--border);border-radius:16px;background:color-mix(in srgb,var(--surface) 88%,transparent);padding:12px}
+.task-board-group>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.task-board-group>header strong{font-size:.78rem}.task-board-group>header span{font-size:.67rem;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:999px}
+.task-board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.task-board-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:8px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);min-height:72px}
+.task-board-card.is-done{opacity:.7}.task-board-check{width:23px;height:23px;border:2px solid var(--accent);border-radius:7px;background:transparent;color:var(--text);display:grid;place-items:center;padding:0}
+.task-board-card.is-done .task-board-check{background:var(--accent);color:var(--bg)}
+.task-board-open{min-width:0;border:0;background:transparent;color:inherit;text-align:start;padding:0}
+.task-board-open strong{display:block;font-size:.76rem;line-height:1.65;overflow-wrap:anywhere}.task-board-card.is-done .task-board-open strong{text-decoration:line-through;color:var(--muted)}
+.task-board-open small{display:block;margin-top:5px;color:var(--muted);font-size:.61rem;line-height:1.55;overflow-wrap:anywhere}
+@media(max-width:700px){.task-board-switch{width:100%;margin:7px 0 0}.task-board-switch button{flex:1}.task-board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.task-board-card{padding:9px;min-height:68px}}
+@media(max-width:390px){.task-board-grid{grid-template-columns:1fr}}
