@@ -8,27 +8,26 @@ function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.tasks=
 function write(state){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}
 const list=()=>document.getElementById('task-list');
-const rows=()=>[...(list()?.querySelectorAll(':scope > .astra-task-row[data-key]')||[])];
+const rows=()=>[...(list()?.querySelectorAll('.astra-task-row[data-key]')||[])];
 const visibleIds=()=>rows().filter(x=>!x.hidden).map(x=>x.dataset.key);
-const rowById=id=>list()?.querySelector(':scope > .astra-task-row[data-key="'+CSS.escape(id)+'"]')||null;
+const rowById=id=>list()?.querySelector('.astra-task-row[data-key="'+CSS.escape(id)+'"]')||null;
 function syncUi(){
  const panel=document.getElementById('panel-tasks');panel?.classList.toggle('task-selection-mode',selecting);
- for(const row of rows()){const on=selected.has(row.dataset.key);row.classList.toggle('is-selected',on);row.setAttribute('aria-selected',String(on));const b=row.querySelector('[data-task-select]');if(b){if(selecting){b.hidden=false;b.removeAttribute('hidden')}else{b.hidden=true;b.setAttribute('hidden','')}b.style.setProperty('display',selecting?'grid':'none','important');b.style.setProperty('visibility',selecting?'visible':'hidden','important');b.style.setProperty('opacity',selecting?'1':'0','important');b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',on?t('برداشتن از انتخاب','Deselect task'):t('انتخاب تسک','Select task'));b.textContent=on?'✓':'○'}}
+ for(const row of rows()){const on=selected.has(row.dataset.key);row.classList.toggle('is-selected',on);row.setAttribute('aria-selected',String(on))}
  const bar=document.getElementById('task-bulk-toolbar');if(bar){bar.hidden=!selecting;const count=bar.querySelector('[data-task-selected-count]');if(count)count.textContent=Number(selected.size).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')}
- const toggle=document.getElementById('task-selection-toggle');if(toggle){toggle.setAttribute('aria-pressed',String(selecting));toggle.textContent=selecting?t('لغو انتخاب','Cancel selection'):t('انتخاب','Select')}
+ document.getElementById('task-selection-toggle')?.remove();
+ document.querySelectorAll('[data-task-select],.task-select-control').forEach(x=>x.remove());
 }
 function decorate(){
+ document.querySelectorAll('[data-task-select],.task-select-control,#task-selection-toggle').forEach(x=>x.remove());
  for(const row of rows()){
-  if(!row.querySelector('[data-task-select]')){const b=document.createElement('button');b.type='button';b.className='task-select-control';b.dataset.taskSelect=row.dataset.key;b.setAttribute('aria-label',t('انتخاب تسک','Select task'));b.hidden=!selecting;if(selecting)b.removeAttribute('hidden');b.style.setProperty('display',selecting?'grid':'none','important');b.style.setProperty('visibility',selecting?'visible':'hidden','important');b.style.setProperty('opacity',selecting?'1':'0','important');b.textContent=selected.has(row.dataset.key)?'✓':'○';b.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+500;toggle(b.dataset.taskSelect)},{capture:true});row.insertBefore(b,row.firstChild)}
   if(!row.querySelector('[data-task-drag]')){const h=document.createElement('button');h.type='button';h.className='task-drag-handle';h.dataset.taskDrag=row.dataset.key;h.setAttribute('aria-label',t('جابجایی تسک؛ Alt و کلید بالا یا پایین برای مرتب‌سازی','Move task; use Alt + Up/Down to reorder'));h.innerHTML='<span aria-hidden="true">⋮⋮</span>';const more=row.querySelector('.astra-task-more');more?row.insertBefore(h,more):row.append(h)}
  }
  syncUi()
 }
 function ensureUi(){
  const panel=document.getElementById('panel-tasks'),toolbar=panel?.querySelector('.list-toolbar'),actions=panel?.querySelector('.elara-task-page-actions');if(!panel||!toolbar)return false;
- let toggle=document.getElementById('task-selection-toggle');
- if(!toggle){toggle=document.createElement('button');toggle.id='task-selection-toggle';toggle.type='button';toggle.className='quiet-button task-selection-toggle';toggle.setAttribute('aria-pressed','false');toggle.textContent=t('انتخاب','Select');toggle.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+500;selecting?cancel():enter()},{capture:true})}
- const visibleOwner=actions||toolbar;if(toggle.parentElement!==visibleOwner)visibleOwner.append(toggle);
+ document.getElementById('task-selection-toggle')?.remove();
  let bar=document.getElementById('task-bulk-toolbar');
  if(!bar){bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" class="danger task-delete-scope" data-task-bulk="delete-scope">'+t('حذف همهٔ این نما','Delete this view')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>'}
  const filterDetails=toolbar.closest('.astra-task-filters'),anchor=filterDetails||panel.querySelector('#astra-task-toolbar')||toolbar;
@@ -90,7 +89,7 @@ async function bulkMove(){
 async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
 function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressStart=null}
 function startCardPress(e,row){
- if(e.pointerType==='mouse'&&e.button!==0)return;if(e.target.closest('.check-button,.astra-task-more,.task-select-control,.task-drag-handle,input,select,textarea,a'))return;clearPress();pressStart={x:e.clientX,y:e.clientY,id:row.dataset.key,pointerId:e.pointerId};
+ if(e.pointerType==='mouse'&&e.button!==0)return;if(e.target.closest('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,[data-task-bulk]'))return;clearPress();pressStart={x:e.clientX,y:e.clientY,id:row.dataset.key,pointerId:e.pointerId};
  pressTimer=setTimeout(()=>{ignoreClickUntil=Date.now()+700;enter(row.dataset.key);navigator.vibrate?.(18);clearPress()},e.pointerType==='touch'?560:520)
 }
 function moveCardPress(e){if(pressStart&&Math.hypot(e.clientX-pressStart.x,e.clientY-pressStart.y)>9)clearPress()}
@@ -103,24 +102,22 @@ function dragStart(e,handle){
 function dragMove(e){
  if(!drag||e.pointerId!==drag.pointerId)return;if(!drag.started){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>7){clearTimeout(drag.timer);drag=null}return}
  e.preventDefault();if(e.clientY<70)window.scrollBy(0,-18);else if(e.clientY>innerHeight-90)window.scrollBy(0,18);
- const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('#task-list > .astra-task-row');if(!hit||hit===drag.row||hit.classList.contains('done')!==drag.row.classList.contains('done'))return;const r=hit.getBoundingClientRect();e.clientY<r.top+r.height/2?hit.before(drag.row):hit.after(drag.row)
+ const hit=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('#task-list .astra-task-row');if(!hit||hit===drag.row||hit.classList.contains('done')!==drag.row.classList.contains('done'))return;const r=hit.getBoundingClientRect();e.clientY<r.top+r.height/2?hit.before(drag.row):hit.after(drag.row)
 }
 function dragEnd(e){
  if(!drag||e.pointerId!==drag.pointerId)return;clearTimeout(drag.timer);const was=drag.started,id=drag.id,row=drag.row;drag=null;row.classList.remove('is-dragging');document.body.classList.remove('task-reordering');if(was){persistDomOrder();setTimeout(()=>rowById(id)?.querySelector('[data-task-drag]')?.focus(),20)}
 }
 document.addEventListener('click',e=>{
- if(Date.now()<ignoreClickUntil){const direct=e.target.closest('#task-selection-toggle,[data-task-select]'),row=e.target.closest('#task-list > .astra-task-row[data-key]');if(direct||(row&&selected.has(row.dataset.key))){e.preventDefault();e.stopImmediatePropagation();return}}
- if(e.target.closest('#task-selection-toggle')){e.preventDefault();selecting?cancel():enter();return}
- const select=e.target.closest('[data-task-select]');if(select){e.preventDefault();e.stopImmediatePropagation();toggle(select.dataset.taskSelect);return}
+ if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&selected.has(row.dataset.key)){e.preventDefault();e.stopImmediatePropagation();return}}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
- if(selecting){const row=e.target.closest('#task-list > .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag]')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
+ if(selecting){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag],.check-button,.astra-task-more')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
 },true);
-document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list > .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-select-control,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
-document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data-task-drag]');if(handle){dragStart(e,handle);return}const row=e.target.closest('#task-list > .astra-task-row[data-key]');if(row)startCardPress(e,row)},true);
+document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('#task-list > .astra-task-row[data-key]');if(!row||e.target.closest?.('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,button'))return;e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=Date.now()+450;selecting?toggle(row.dataset.key):enter(row.dataset.key)},true);
+document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data-task-drag]');if(handle){dragStart(e,handle);return}const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row)startCardPress(e,row)},true);
 document.addEventListener('pointermove',e=>{moveCardPress(e);dragMove(e)},true);
 document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();dragEnd(e)},true);
 document.addEventListener('keydown',e=>{const h=e.target.closest?.('[data-task-drag]');if(h&&e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();shift(h.dataset.taskDrag,e.key==='ArrowUp'?-1:1)}if(e.key==='Escape'&&selecting){e.preventDefault();cancel()}},true);
-window.addEventListener('elara:data-changed',()=>setTimeout(decorate,0));window.addEventListener('elara:locale-changed',()=>{document.getElementById('task-selection-toggle')?.remove();document.getElementById('task-bulk-toolbar')?.remove();setTimeout(ensureUi,0)});window.addEventListener('elara:open',e=>{if(e.detail?.tab==='tasks')setTimeout(ensureUi,50);else if(selecting)cancel()});window.addEventListener('hashchange',()=>{if(location.hash!=='#tasks'&&selecting)cancel();setTimeout(ensureUi,80)});
+window.addEventListener('elara:data-changed',()=>setTimeout(decorate,0));window.addEventListener('elara:locale-changed',()=>{document.getElementById('task-bulk-toolbar')?.remove();setTimeout(ensureUi,0)});window.addEventListener('elara:open',e=>{if(e.detail?.tab==='tasks')setTimeout(ensureUi,50);else if(selecting)cancel()});window.addEventListener('hashchange',()=>{if(location.hash!=='#tasks'&&selecting)cancel();setTimeout(ensureUi,80)});
 let observer=null,mountAttempts=0;
 function start(){
  const target=list();
