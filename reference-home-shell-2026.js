@@ -33,8 +33,7 @@ function installViewAllArtwork(){
   ['.ref-wellness-card','exercise','مشاهده همهٔ سلامت و ورزش'],
   ['.ref-goals','goals','مشاهده همهٔ هدف‌ها'],
   ['.ref-ranks','ranking','مشاهده همهٔ رنکینگ'],
-  ['.ref-missions','missions','مشاهده همهٔ مأموریت‌ها'],
-  ['.ref-theme-strip','appearance','مشاهده همهٔ تم‌ها']
+  ['.ref-missions','missions','مشاهده همهٔ مأموریت‌ها']
  ];
  for(const [selector,route,label] of specs){
   const root=document.querySelector('#panel-home '+selector);if(!root)continue;const header=root.querySelector(':scope > header');if(!header)continue;
