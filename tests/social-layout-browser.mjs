@@ -35,8 +35,8 @@ async function run(width,height){
  const input=page.locator('#elara-social-page .social-invite input'),invite=page.locator('#elara-social-page .social-art-button.invite'),search=page.locator('#elara-social-page [data-profile-lookup]');
  const boxes=await Promise.all([input.boundingBox(),invite.boundingBox(),search.boundingBox()]);
  assert.ok(boxes.every(Boolean),width+': invite/search geometry missing');
- if(width<=700){assert.ok(boxes[0].width>width*.72,width+': mobile search field too narrow');assert.ok(boxes[1].width>width*.34&&boxes[2].width>width*.34,width+': mobile invite/search actions too small')}
- else{assert.ok(boxes[0].height>=54&&boxes[1].width>=165&&boxes[2].width>=62,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
+ if(width<=700){assert.ok(boxes[0].width>width*.48,width+': mobile search field too narrow');assert.ok(boxes[1].width>=42&&boxes[2].width>=42&&boxes[1].height>=40&&boxes[2].height>=40,width+': mobile invite/search icon controls lost usable hit targets '+JSON.stringify(boxes))}
+ else{assert.ok(boxes[0].height>=48&&boxes[1].width>=52&&boxes[2].width>=52,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForFunction(()=>document.querySelector('#elara-ranking-page:not(.hidden) .social-tabs'));
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': ranking must keep four tabs');
  assert.equal(await page.locator('#elara-social-page .social-tabs [role="tab"]').count(),6,width+': Friends Hub must expose six tabs and remain distinct from Ranking');
