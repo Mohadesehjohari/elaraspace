@@ -7,11 +7,7 @@ const cats=[
  ['featured','ویژه','Featured'],['themes','تم‌ها','Themes'],['profiles','اسکین / پروفایل','Skins / Profiles'],['frames','قاب‌ها','Frames'],['banners','بنرها','Banners'],
  ['status','استاتوس','Status'],['page','پیج','Page'],['seasonal','سیزنی','Seasonal'],['owned','دارایی‌های من','Owned'],['events','ایونت‌ها','Events'],['elite','الایت','Elite'],['tokens','توکن','Tokens']
 ];
-const themeAssets=[
- ['theme_dark.webp','Dark','dark'],['theme_white.webp','Light','light'],['theme_minimal.webp','Minimal','minimal'],['theme_galaxy_purple.webp','Galaxy','galaxy'],
- ['theme_blue.webp','Blue','blue'],['theme_pink.webp','Pink','pink'],['theme_red.webp','Red','red'],['theme_orange.webp','Orange','orange'],
- ['theme_forest_green.webp','Forest','forest'],['theme_spring.webp','Spring','spring'],['city_theme.webp','Midnight City','city']
-];
+const themeAssets=()=>system()?.PROFILE_THEMES||[];
 const seasonalFamilies=['Colorways','Animals / Masks','Suit','Zombie','Street / Gang','Mafia','Mommy / Daddy','Birds','Technology','Leather','Prison','Doctor','Engineering','Scientist','Marine','Mermaid','Princess','Blogger','Librarian','Gaming','Minecraft-inspired','Original tactical / shooter'];
 function system(){return window.ElaraProfileSystem}
 function level(){const s=system();return Number(s?.viewModel?.(window.ElaraSocial?.me||window.ElaraAccount?.profile||{},{self:true})?.level||1)}
@@ -24,7 +20,6 @@ function product({kind,id,label,sub,src,required=1,equipped=false,action='equip'
   '<div class="store-product-media">'+(src?art(src,label):'<span class="store-product-fallback">✦</span>')+(badge?'<em>'+esc(badge)+'</em>':'')+'</div>'+
   '<div class="store-product-copy"><strong>'+esc(label)+'</strong><small>'+esc(sub||'')+'</small>'+(required>1?'<span>Level '+required+'</span>':'')+'</div>'+
   (action==='gated'?'<button type="button" disabled>'+tx('نیازمند Backend','Backend required')+'</button>':
-   action==='theme'?'<button type="button" data-store-theme="'+esc(id)+'">'+tx('تنظیم تم','Set theme')+'</button>':
    '<button type="button" data-store-equip="'+esc(kind)+'" data-store-id="'+esc(id)+'" '+(isLocked?'disabled':'')+'>'+(equipped?tx('انتخاب شده','Equipped'):tx('انتخاب','Equip'))+'</button>')+
  '</article>'
 }
@@ -39,7 +34,7 @@ function profileProducts(){
  const rows=[];for(const group of ['female','male'])for(let n=1;n<=10;n++)rows.push(product({kind:'avatar',id:group+':'+n,label:(group==='female'?tx('آواتار زنانه ','Female avatar '):tx('آواتار مردانه ','Male avatar '))+n,sub:tx('دارایی واقعی Elara · '+shape,'Real Elara asset · '+shape),src:s.avatarPath(group,n,shape),required:n,equipped:w.avatarGroup===group&&Number(w.avatarLevel)===n}));
  return rows.join('')
 }
-function themeProducts(){return themeAssets.map(([file,label,id])=>product({kind:'theme',id,label,sub:tx('پیش‌نمایش واقعی موجود در مخزن','Real preview currently in the repository'),src:'assets/ui/'+file,action:'theme'})).join('')}
+function themeProducts(){const w=wardrobe();return themeAssets().map(item=>product({kind:'profileTheme',id:item.id,label:item.label,sub:tx('تم کانتینر و نام پروفایل با Asset واقعی مخزن','Profile container and name theme using a real repository asset'),src:item.path,equipped:w.profileTheme===item.id})).join('')}
 function owned(){
  const s=system(),w=wardrobe(),v=s?.viewModel?.(window.ElaraSocial?.me||window.ElaraAccount?.profile||{},{self:true});
  if(!s||!v)return '<p class="store-empty">'+tx('پروفایل هنوز آماده نیست.','Profile is not ready yet.')+'</p>';
@@ -47,6 +42,7 @@ function owned(){
  if(v.avatarSrc)rows.push(product({kind:'current',id:'avatar',label:tx('آواتار فعلی','Current avatar'),sub:tx('انتخاب فعلی پروفایل','Current profile selection'),src:v.avatarSrc,equipped:true}));
  if(v.frameSrc)rows.push(product({kind:'current',id:'frame',label:v.frameLabel,sub:tx('قاب مجهز','Equipped frame'),src:v.frameSrc,equipped:true}));
  if(v.bannerSrc)rows.push(product({kind:'current',id:'banner',label:v.bannerLabel,sub:tx('بنر مجهز','Equipped banner'),src:v.bannerSrc,equipped:true}));
+ if(v.profileThemeSrc)rows.push(product({kind:'current',id:'profileTheme',label:v.profileThemeLabel,sub:tx('تم پروفایل مجهز','Equipped profile theme'),src:v.profileThemeSrc,equipped:true}));
  return rows.join('')
 }
 function featured(){
@@ -54,7 +50,7 @@ function featured(){
  const banner=(s?.BANNERS||[]).find(x=>!locked(x.required))||(s?.BANNERS||[])[0],frame=(s?.FRAMES||[]).findLast?.(x=>!locked(x.required))||(s?.FRAMES||[])[0];
  if(banner)rows.push(product({kind:'banner',id:banner.id,label:banner.label,sub:tx('انتخاب ویژهٔ این سطح','Featured for your current level'),src:banner.path,required:banner.required,equipped:w.banner===banner.id,badge:tx('ویژه','Featured')}));
  if(frame)rows.push(product({kind:'frame',id:frame.id,label:frame.label,sub:tx('قاب قابل استفادهٔ فعلی','Available frame for your level'),src:s.frameVariantPath(frame.id,w.shape||'circle'),required:frame.required,equipped:w.frame===frame.id,badge:tx('منتخب','Pick')}));
- rows.push(product({kind:'theme',id:'galaxy',label:'Galaxy',sub:tx('پیش‌نمایش تم موجود','Existing theme preview'),src:'assets/ui/theme_galaxy_purple.webp',action:'theme',badge:tx('تم','Theme')}));
+ rows.push(product({kind:'profileTheme',id:'galaxy',label:'Galaxy',sub:tx('تم پروفایل قابل تجهیز','Equippable profile theme'),src:'assets/ui/theme_galaxy_purple.webp',equipped:w.profileTheme==='galaxy',badge:tx('تم','Theme')}));
  return rows.join('')
 }
 function gatedSection(kind){
@@ -96,12 +92,12 @@ function equip(kind,id){
  if(kind==='frame'){const f=s.frameBy(id);if(!f||!s.canEquipFrame(id,level()))return;s.writeWardrobe({frame:id})}
  else if(kind==='banner'){const b=s.bannerBy(id);if(!b||!s.canEquipBanner(id,level()))return;s.writeWardrobe({banner:id})}
  else if(kind==='avatar'){const [group,nRaw]=String(id).split(':'),n=Number(nRaw);if(!s.canEquipAvatar(group,n,level()))return;s.writeWardrobe({avatarGroup:group,avatarLevel:n,photoMode:'elara'})}
+ else if(kind==='profileTheme'){const theme=s.profileThemeBy?.(id);if(!theme)return;s.writeWardrobe({profileTheme:theme.id})}
  render()
 }
 document.addEventListener('click',e=>{
  const cat=e.target.closest('[data-store-category]');if(cat){category=cat.dataset.storeCategory;render();return}
  const eq=e.target.closest('[data-store-equip]');if(eq){equip(eq.dataset.storeEquip,eq.dataset.storeId);return}
- const theme=e.target.closest('[data-store-theme]');if(theme){window.ElaraPrivateDrawer?.open?.('appearance');return}
 });
 for(const ev of ['elara:wardrobe-changed','elara:locale-changed','elara:account-ready'])window.addEventListener(ev,()=>{if(location.hash==='#store')setTimeout(render,0)});
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='store')render()});

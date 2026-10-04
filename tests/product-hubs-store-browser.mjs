@@ -74,8 +74,16 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-store [data-store-category="status"]').count(),1,width+': Status cosmetics category missing');
  assert.equal(await page.locator('#panel-store [data-store-category="page"]').count(),1,width+': Page cosmetics category missing');
  await page.locator('[data-store-category="themes"]').click();assert.ok(await page.locator('#panel-store .store-product').count()>=10,width+': real theme previews missing');
+ assert.equal(await page.locator('#panel-store [data-store-theme]').count(),0,width+': Store theme must equip directly instead of redirecting to Appearance');
+ await page.locator('#panel-store [data-store-equip="profileTheme"]').first().click();
+ const themeState=await page.evaluate(()=>{ElaraProfileSystem.writeWardrobe({nameFont:'classic'});const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),host=document.createElement('div');host.innerHTML=ElaraProfileSystem.composition(v);const root=host.firstElementChild;document.body.append(root);const name=root.querySelector('.elara-display-name'),out={theme:w.profileTheme,dataTheme:root.dataset.profileTheme,style:root.getAttribute('style'),nameFont:getComputedStyle(name).fontFamily};root.remove();return out});
+ assert.ok(themeState.theme&&themeState.dataTheme===themeState.theme,width+': Store profile theme did not persist into profile composition '+JSON.stringify(themeState));
+ assert.match(themeState.style,/theme_.*\.webp|city_theme\.webp/,width+': equipped profile theme asset missing from profile composition');
+ assert.match(themeState.nameFont,/Georgia|Times/i,width+': equipped profile name font is not applied');
  await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
- await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();assert.ok(await page.evaluate(()=>!!ElaraProfileSystem.readWardrobe().banner),width+': Store banner equip did not reach wardrobe source of truth');
+ await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();
+ const bannerState=await page.evaluate(()=>{const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),html=ElaraProfileSystem.composition(v);return{banner:w.banner,html}});
+ assert.ok(!!bannerState.banner,width+': Store banner equip did not reach wardrobe source of truth');assert.match(bannerState.html,/assets\/ui\/banner[1-4]\.webp/,width+': equipped banner did not reach profile composition');
 
  await page.evaluate(()=>ElaraPrivateDrawer.open('settings'));await page.waitForSelector('.elara-private-drawer:not(.hidden) [data-drawer-section="settings"]:not(.hidden)');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="notifications"]').count(),0,width+': notifications must stay out of Profile settings');

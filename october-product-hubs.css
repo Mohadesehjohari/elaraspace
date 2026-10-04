@@ -1465,3 +1465,28 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
 #elara-ranking-page .social-top-three .social-podium-place.place-3 [data-avatar-shell].social-podium-avatar{
   min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important
 }
+
+
+/* P1 profile cosmetic equip contract v117 — banner remains visible while profile theme decorates the container/name. */
+.elara-profile-composition .elara-display-name{font-family:var(--elara-name-font,inherit)!important}
+.elara-profile-composition[data-profile-theme]:not([data-profile-theme="none"]){
+  background:
+    linear-gradient(90deg,color-mix(in srgb,#040a18 84%,transparent),color-mix(in srgb,#081a38 32%,transparent) 58%,color-mix(in srgb,#030813 66%,transparent)),
+    linear-gradient(0deg,color-mix(in srgb,var(--surface) 86%,transparent),transparent 64%),
+    var(--elara-profile-theme) center/cover no-repeat,
+    var(--elara-profile-banner) center/cover no-repeat!important;
+  background-blend-mode:normal,normal,soft-light,normal!important;
+  border-color:color-mix(in srgb,var(--border) 42%,var(--elara-accent) 58%)!important;
+  box-shadow:var(--pass5-inner),0 18px 52px #0006,0 0 34px color-mix(in srgb,var(--elara-accent) 22%,transparent)!important
+}
+.elara-profile-composition[data-profile-theme]:not([data-profile-theme="none"]) .elara-display-name{
+  color:color-mix(in srgb,var(--text) 78%,var(--elara-accent) 22%)!important;
+  text-shadow:0 0 18px color-mix(in srgb,var(--elara-accent) 34%,transparent)
+}
+body.light .elara-profile-composition[data-profile-theme]:not([data-profile-theme="none"]){
+  background:
+    linear-gradient(90deg,color-mix(in srgb,#eef4ff 90%,transparent),color-mix(in srgb,#eef4ff 34%,transparent) 64%,color-mix(in srgb,#eef4ff 70%,transparent)),
+    var(--elara-profile-theme) center/cover no-repeat,
+    var(--elara-profile-banner) center/cover no-repeat!important;
+  background-blend-mode:normal,soft-light,normal!important
+}
