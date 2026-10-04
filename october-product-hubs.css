@@ -1425,3 +1425,28 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
     width:108px!important;height:108px!important
   }
 }
+
+
+/* P0 ranking/friends control strip contract v113. */
+#elara-ranking-page .social-tabs [role="tab"]{
+  min-height:72px!important;height:72px!important;padding:2px 4px!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important
+}
+#elara-ranking-page .social-tabs [role="tab"] img{
+  width:64px!important;height:60px!important;max-width:100%!important;object-fit:contain!important
+}
+#elara-ranking-page .social-tabs .social-tab-label{
+  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;
+  white-space:nowrap!important;border:0!important
+}
+#elara-social-page .social-tabs{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:flex-start!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important
+}
+#elara-social-page .social-tabs>[role="tab"]{flex:1 1 0!important;min-width:0!important;width:auto!important}
+@media(max-width:700px){
+  #elara-ranking-page .social-tabs [role="tab"]{min-height:64px!important;height:64px!important;padding:1px 2px!important}
+  #elara-ranking-page .social-tabs [role="tab"] img{width:52px!important;height:48px!important}
+  #elara-social-page .social-tabs>[role="tab"]{flex:0 0 92px!important;min-width:92px!important;width:92px!important}
+}
