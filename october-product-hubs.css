@@ -626,7 +626,7 @@ body.light #elara-social-page .social-tabs [role="tab"]{
     grid-template-columns:repeat(3,40px) minmax(0,1fr)!important;gap:5px!important
   }
   #panel-tasks #task-group-by{min-width:0!important;width:100%!important;font-size:.76rem!important}
-  #panel-tasks #elara-task-add-main{grid-column:1!important;grid-row:2!important;width:100%!important}
+  #panel-tasks #elara-task-add-main{grid-column:1!important;grid-row:2!important;width:calc(100vw - 160px)!important;max-width:none!important;justify-self:start!important}
   #panel-tasks #elara-task-tools-toggle{grid-column:2!important;grid-row:2!important}
   #panel-tasks[data-task-view="group"] #task-list>.astra-task-group-card{padding:10px!important;border-radius:16px!important}
   #panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-row{min-height:104px!important;padding:10px!important}
