@@ -427,3 +427,148 @@
   #elara-ranking-page .social-reference-grid>.social-weekly,
   #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:1/-1!important}
 }
+
+
+/* 2026-10-04 v92 — large primary hubs, compact Friends controls, clean Ranking. */
+/* Library owns Reading Report only through its dedicated launcher/subpage. */
+#panel-books>.feature-hub-preview{display:none!important}
+
+/* Primary product hubs follow Freedom's image-first hierarchy: artwork dominates, copy sits below it. */
+.feature-hub-parent>.feature-hub-launchers{
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;
+  gap:16px!important;margin:12px 0 24px!important
+}
+.feature-hub-parent>.feature-hub-launchers .feature-launcher-card,
+.language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card{
+  min-height:198px!important;height:198px!important;border-radius:18px!important
+}
+.feature-hub-parent>.feature-hub-launchers .feature-launcher-art,
+.language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art{
+  inset:5px 10px 58px!important;width:calc(100% - 20px)!important;height:138px!important;
+  object-fit:contain!important;filter:drop-shadow(0 13px 18px #0007) drop-shadow(0 0 18px #755bff55)!important
+}
+.feature-hub-parent>.feature-hub-launchers .feature-launcher-card>span,
+.language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card>span{
+  inset:auto 14px 13px!important;display:grid!important;gap:3px!important;max-width:calc(100% - 40px)!important
+}
+.feature-hub-parent>.feature-hub-launchers .feature-launcher-card strong,
+.language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card strong{
+  font-size:19px!important;line-height:1.2!important
+}
+.feature-hub-parent>.feature-hub-launchers .feature-launcher-card small,
+.language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card small{
+  font-size:11px!important;line-height:1.45!important
+}
+.feature-hub-hero{min-height:230px!important;border-radius:22px!important}
+
+/* Ranking navigation: larger artwork, no rectangular button chrome. */
+#elara-ranking-page .social-tabs{
+  width:min(980px,100%)!important;max-width:980px!important;gap:22px!important;margin:6px auto 28px!important
+}
+#elara-ranking-page .social-tabs [role="tab"]{
+  -webkit-appearance:none!important;appearance:none!important;
+  min-height:166px!important;height:166px!important;padding:4px 6px 30px!important;
+  border:0!important;border-radius:0!important;background:none!important;background-color:transparent!important;
+  background-image:none!important;box-shadow:none!important;outline-offset:5px!important;overflow:visible!important
+}
+#elara-ranking-page .social-tabs [role="tab"]::before,
+#elara-ranking-page .social-tabs [role="tab"]::after{display:none!important;content:none!important}
+#elara-ranking-page .social-tabs [role="tab"] img{
+  position:static!important;inset:auto!important;width:128px!important;height:116px!important;max-width:100%!important;object-fit:contain!important
+}
+#elara-ranking-page .social-tabs .social-tab-label{
+  inset:auto 0 2px!important;text-align:center!important;font-size:1.04rem!important
+}
+body.light #elara-ranking-page .social-tabs [role="tab"]{
+  border:0!important;background:none!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important
+}
+
+/* Community content must occupy real sections, never tiny auto-grid columns. */
+#elara-ranking-page .social-community,
+#elara-ranking-page .social-community-note{grid-column:1/-1!important}
+#elara-ranking-page .social-community{min-height:330px!important}
+#elara-ranking-page .social-community .social-scroll{max-height:360px!important;overflow:auto!important;overscroll-behavior:contain!important}
+#elara-ranking-page .social-community-note{min-height:150px!important;display:grid!important;align-content:center!important}
+
+/* Friends tabs are intentionally compact buttons, not full product cards. */
+#elara-social-page .social-tabs{
+  grid-template-columns:repeat(6,minmax(74px,1fr))!important;
+  width:min(820px,100%)!important;max-width:820px!important;gap:10px!important;margin:4px auto 20px!important
+}
+#elara-social-page .social-tabs [role="tab"]{
+  -webkit-appearance:none!important;appearance:none!important;
+  min-height:88px!important;height:88px!important;padding:2px 3px 22px!important;
+  border:0!important;border-radius:0!important;background:none!important;background-color:transparent!important;
+  background-image:none!important;box-shadow:none!important;overflow:visible!important
+}
+#elara-social-page .social-tabs [role="tab"]::before,
+#elara-social-page .social-tabs [role="tab"]::after{display:none!important;content:none!important}
+#elara-social-page .social-tabs [role="tab"] img{
+  position:static!important;inset:auto!important;width:48px!important;height:48px!important;max-width:100%!important;object-fit:contain!important
+}
+#elara-social-page .social-tabs .social-tab-label{
+  inset:auto 0 1px!important;text-align:center!important;font-size:.72rem!important
+}
+body.light #elara-social-page .social-tabs [role="tab"]{
+  border:0!important;background:none!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important
+}
+#elara-social-page.social-friends-page .social-reference-grid{grid-template-columns:1fr!important;gap:18px!important}
+#elara-social-page .social-section{min-height:180px!important;padding:22px!important}
+#elara-social-page .social-friends-list{min-height:320px!important}
+#elara-social-page .social-friend-activity{min-height:300px!important}
+
+/* Uploaded Goals artwork is the single visual owner for the Home Goals heading. */
+#panel-home.ref-home .ref-goals-heading-art{
+  display:inline-block!important;width:42px!important;height:42px!important;object-fit:contain!important;
+  vertical-align:middle!important;margin-inline-end:8px!important;filter:drop-shadow(0 7px 12px #0005)!important
+}
+
+@media(max-width:700px){
+  /* Main sections become genuinely larger: two columns instead of four squeezed cards. */
+  .feature-hub-parent>.feature-hub-launchers,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"]{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important;margin:10px 0 20px!important
+  }
+  .feature-hub-parent>.feature-hub-launchers .feature-launcher-card,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card{
+    min-height:172px!important;height:172px!important;border-radius:17px!important
+  }
+  .feature-hub-parent>.feature-hub-launchers .feature-launcher-art,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-art{
+    inset:4px 6px 54px!important;width:calc(100% - 12px)!important;height:112px!important
+  }
+  .feature-hub-parent>.feature-hub-launchers .feature-launcher-card>span,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card>span{
+    inset:auto 10px 10px!important;max-width:calc(100% - 28px)!important
+  }
+  .feature-hub-parent>.feature-hub-launchers .feature-launcher-card strong,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card strong{font-size:15px!important}
+  .feature-hub-parent>.feature-hub-launchers .feature-launcher-card small,
+  .language-feature-hub>.feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card small{
+    display:block!important;font-size:9.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+  }
+  .feature-hub-hero{min-height:188px!important}
+
+  #elara-ranking-page .social-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;margin-bottom:22px!important}
+  #elara-ranking-page .social-tabs [role="tab"]{min-height:120px!important;height:120px!important;padding:2px 1px 24px!important}
+  #elara-ranking-page .social-tabs [role="tab"] img{width:78px!important;height:76px!important}
+  #elara-ranking-page .social-tabs .social-tab-label{font-size:.7rem!important}
+  #elara-ranking-page .social-section{padding:16px!important}
+  #elara-ranking-page .social-community{min-height:280px!important}
+  #elara-ranking-page .social-community-note{min-height:130px!important}
+
+  #elara-social-page .social-tabs{
+    display:flex!important;width:100%!important;max-width:none!important;gap:6px!important;
+    overflow-x:auto!important;overflow-y:visible!important;padding:0 1px 8px!important
+  }
+  #elara-social-page .social-tabs [role="tab"]{
+    flex:0 0 76px!important;width:76px!important;min-width:76px!important;
+    min-height:80px!important;height:80px!important;padding:1px 2px 20px!important
+  }
+  #elara-social-page .social-tabs [role="tab"] img{width:42px!important;height:42px!important}
+  #elara-social-page .social-tabs .social-tab-label{font-size:.64rem!important}
+  #elara-social-page .social-section{min-height:160px!important;padding:16px!important}
+  #elara-social-page .social-friends-list{min-height:250px!important}
+  #elara-social-page .social-friend-activity{min-height:260px!important}
+  #panel-home.ref-home .ref-goals-heading-art{width:36px!important;height:36px!important}
+}
