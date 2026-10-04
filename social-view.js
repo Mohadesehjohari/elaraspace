@@ -76,6 +76,13 @@ function render(){
    tabStrip.style.setProperty('justify-content','flex-start','important');
    tabStrip.style.setProperty('white-space','nowrap','important');
   }
+  root.querySelectorAll('[data-avatar-shell].social-podium-avatar').forEach(shell=>{
+   const featured=!!shell.closest('.place-1'),mobile=window.matchMedia?.('(max-width:700px)').matches;
+   const size=mobile?(featured?108:88):(featured?176:142);
+   shell.style.setProperty('width',size+'px','important');
+   shell.style.setProperty('height',size+'px','important');
+   shell.style.setProperty('aspect-ratio','1','important');
+  });
  }
  window.ElaraDOM.patch($('elara-home-activity'),arr(s.activities).length?activities: '<p class="ref-empty">اینجا فعلاً ساکته 👀 وقتی دوستات فعالیتی رو باهات share کنن، خبرها همین‌جا میاد 🔥</p>');setTimeout(()=>window.ElaraEngagementView?.scan?.(),0);
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
