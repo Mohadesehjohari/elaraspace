@@ -497,7 +497,7 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
 }
 #elara-social-page .social-tabs [role="tab"]{
   -webkit-appearance:none!important;appearance:none!important;
-  min-height:88px!important;height:88px!important;padding:2px 3px 22px!important;
+  min-height:92px!important;height:92px!important;padding:2px 3px 22px!important;
   border:0!important;border-radius:0!important;background:none!important;background-color:transparent!important;
   background-image:none!important;box-shadow:none!important;overflow:visible!important
 }
