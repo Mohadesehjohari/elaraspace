@@ -19,10 +19,7 @@ function syncUi(){
  document.querySelectorAll('[data-task-select],.task-select-control').forEach(x=>x.remove());
 }
 function decorate(){
- document.querySelectorAll('[data-task-select],.task-select-control,#task-selection-toggle').forEach(x=>x.remove());
- for(const row of rows()){
-  if(!row.querySelector('[data-task-drag]')){const h=document.createElement('button');h.type='button';h.className='task-drag-handle';h.dataset.taskDrag=row.dataset.key;h.setAttribute('aria-label',t('جابجایی تسک؛ Alt و کلید بالا یا پایین برای مرتب‌سازی','Move task; use Alt + Up/Down to reorder'));h.innerHTML='<span aria-hidden="true">⋮⋮</span>';const more=row.querySelector('.astra-task-more');more?row.insertBefore(h,more):row.append(h)}
- }
+ document.querySelectorAll('[data-task-select],.task-select-control,#task-selection-toggle,.task-drag-handle,[data-task-drag]').forEach(x=>x.remove());
  syncUi()
 }
 function ensureUi(){
