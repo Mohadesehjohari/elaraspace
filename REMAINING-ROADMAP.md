@@ -24,8 +24,8 @@
    - Habit امروز، Goal Step، Task عادی و Section-linked Task همگی از Tasks قابل completion باشند و با source اصلی sync بمانند.
    - Habit full-row سبز/فیروزه‌ای، Goal Step full-row بنفش در list و grouped view.
    - `dailyTarget` / چند نوبت در روز روی یک Task، بدون duplicate.
-   - Grouped compact cards بر اساس Folder/List یا Priority.
-   - Drag/reorder + trash-drop بدون تداخل با long-press.
+   - Grouped compact cards بر اساس Folder/List یا Priority — **CODED؛ END-HEAD acceptance باقی است**.
+   - Drag/reorder + trash-drop Mouse/Touch بدون تداخل با long-press — **CODED + browser fixture؛ CI/Pages acceptance باقی است**.
 
 4. **Section Tasks verification**
    - Language / Library / Wellness-Exercise shelf زیر launcherها.
@@ -64,6 +64,13 @@
 2. Gear از main Mobile shell حذف؛ فقط Profile.
 3. Blog در bottom nav.
 4. Desktop nav بدون درخواست مستقیم دست نخورد.
+
+## P6 — Admin Content Studio — CODED / VERIFY
+1. Blog Publisher: Draft/Published، category، locale، cover، read-time، edit/delete و Audit.
+2. Site Page Publisher: slug، locale، Draft/Published، edit/delete و Audit؛ Published در Page به‌صورت Official card.
+3. Role contract: owner/admin publish؛ moderator read-only.
+4. Firestore Rules جدید `blogArticles` / `sitePages` باید روی پروژه Firebase publish شوند.
+5. Acceptance: Draft از app مخفی، Published در Blog/Page دیده شود، browser 390/1440 + Admin smoke + production read.
 
 ## Backend-gated — هیچ دادهٔ جعلی مجاز نیست
 1. Firestore/Storage Rules publish + 2 UID / 2 device tests.
