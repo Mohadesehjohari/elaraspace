@@ -51,12 +51,16 @@ async function open(width,height,touch=false){const context=await browser.newCon
  await page.waitForFunction(()=>Number.isFinite(JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id==='t1')?.manualOrder));
  let order=await ids();assert.ok(order.indexOf('t1')>order.indexOf('t3'),'pointer drag did not move t1 after t3: '+order.join(','));
  const handle=page.locator('[data-task-drag="t1"]');await handle.focus();await page.keyboard.down('Alt');await page.keyboard.press('ArrowUp');await page.keyboard.up('Alt');await page.waitForTimeout(100);order=await ids();assert.ok(order.indexOf('t1')<order.indexOf('t3'),'keyboard reorder did not move t1 upward: '+order.join(','));
- await page.locator('#task-selection-toggle').click();await page.locator('[data-task-select="t1"]').click();await page.locator('[data-task-select="t2"]').click();assert.equal(await page.locator('[data-task-selected-count]').innerText(),'۲');
+ assert.equal(await page.locator('#task-selection-toggle,[data-task-select],.task-select-control').count(),0,'manual task selection controls must not be rendered');
+ const hold1=page.locator('#task-list>.astra-task-row[data-key="t1"] .task-summary-button'),holdBox=await hold1.boundingBox();assert.ok(holdBox);
+ await hold1.dispatchEvent('pointerdown',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});await page.waitForTimeout(620);await hold1.dispatchEvent('pointerup',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});
+ await page.waitForFunction(()=>document.getElementById('panel-tasks')?.classList.contains('task-selection-mode'));
+ await page.locator('#task-list>.astra-task-row[data-key="t2"] .task-summary-button').click();assert.equal(await page.locator('[data-task-selected-count]').innerText(),'۲');
  await page.locator('[data-task-bulk="move"]').click();await page.waitForSelector('.task-bulk-move');await page.locator('.task-bulk-move select[name="list"]').selectOption('بعداً');await page.locator('.task-bulk-move select[name="folder"]').selectOption('آرشیو');await page.locator('.elara-dialog-actions .primary-button').click();
  await page.waitForFunction(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return ['t1','t2'].every(id=>{const t=s.tasks.find(x=>x.id===id);return t?.list==='بعداً'&&t?.folder==='آرشیو'})});
- await page.locator('#task-selection-toggle').click();await page.locator('[data-task-select="t1"]').click();await page.locator('[data-task-bulk="duplicate"]').click();
+ await page.locator('#task-list>.astra-task-row[data-key="t1"] .item-content').dispatchEvent('contextmenu',{button:2});await page.locator('[data-task-bulk="duplicate"]').click();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.text==='تسک یک (کپی)'));let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));const copy=state.tasks.find(x=>x.text==='تسک یک (کپی)');assert.equal(copy.completed,false);assert.equal(copy.linkedTask,undefined);
- await page.locator('#task-selection-toggle').click();await page.locator('[data-task-select="t4"]').click();await page.locator('[data-task-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');await page.locator('.elara-dialog-actions .elara-dialog-danger').click();
+ await page.locator('#task-list>.astra-task-row[data-key="t4"] .item-content').dispatchEvent('contextmenu',{button:2});await page.locator('[data-task-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');await page.locator('.elara-dialog-actions .elara-dialog-danger').click();
  await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.id==='t4'));state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.ok((state.linkedTaskDismissals||[]).length>=1,'linked bulk delete did not persist dismissal');
  const m=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(m.sw<=m.w+1,'desktop task bulk overflow '+JSON.stringify(m));await page.screenshot({path:'browser-artifacts/task-bulk-1440.png',fullPage:true});await context.close();
 }
@@ -70,7 +74,7 @@ async function open(width,height,touch=false){const context=await browser.newCon
 }
 {
  const {page,context}=await open(1440,1000,false);
- await page.locator('#task-selection-toggle').click();
+ await page.locator('#task-list>.astra-task-row[data-key="t1"] .item-content').dispatchEvent('contextmenu',{button:2});
  await page.locator('[data-task-bulk="delete-scope"]').click();
  await page.waitForSelector('.elara-dialog-layer');
  await page.locator('.elara-dialog-actions .elara-dialog-danger').click();
