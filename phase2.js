@@ -169,7 +169,7 @@
     const name=String(value||'').trim().slice(0,60);if(!name){restoreTaskDraft(draft);return''}
     state=ensureState(readState());const existing=state[field].find(x=>x.toLocaleLowerCase()===name.toLocaleLowerCase());
     if(existing){restoreTaskDraft(draft);syncSelectors();if(targetId&&$(targetId))$(targetId).value=existing;notify('این نام از قبل وجود دارد؛ همان مورد انتخاب شد.');return existing}
-    state[field].push(name);writeState(state);restoreTaskDraft(draft);if(draft)openTaskComposer({focus:false});syncSelectors();if(targetId&&$(targetId))$(targetId).value=name;
+    state[field].push(name);writeState(state);restoreTaskDraft(draft);if(draft)openTaskComposer({focus:false,sourceGroup:composerSourceGroup});syncSelectors();if(targetId&&$(targetId))$(targetId).value=name;
     notify(kind==='list'?'لیست ساخته و انتخاب شد.':kind==='folder'?'پوشه ساخته و انتخاب شد.':'برچسب ساخته و انتخاب شد.');return name;
   }
   let composerReturn=null,composerSourceGroup='';
