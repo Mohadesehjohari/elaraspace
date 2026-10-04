@@ -55,7 +55,7 @@ async function open(width,height,touch=false){const context=await browser.newCon
  const hold1=page.locator('#task-list>.astra-task-row[data-key="t1"] .task-summary-button'),holdBox=await hold1.boundingBox();assert.ok(holdBox);
  await hold1.dispatchEvent('pointerdown',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});await page.waitForTimeout(620);await hold1.dispatchEvent('pointerup',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});
  await page.waitForFunction(()=>document.getElementById('panel-tasks')?.classList.contains('task-selection-mode'));
- await page.locator('#task-list>.astra-task-row[data-key="t2"] .task-summary-button').click();assert.equal(await page.locator('[data-task-selected-count]').innerText(),'۲');
+ await page.locator('#task-list>.astra-task-row[data-key="t2"] .item-content').click({position:{x:8,y:8}});assert.equal(await page.locator('[data-task-selected-count]').innerText(),'۲');
  await page.locator('[data-task-bulk="move"]').click();await page.waitForSelector('.task-bulk-move');await page.locator('.task-bulk-move select[name="list"]').selectOption('بعداً');await page.locator('.task-bulk-move select[name="folder"]').selectOption('آرشیو');await page.locator('.elara-dialog-actions .primary-button').click();
  await page.waitForFunction(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return ['t1','t2'].every(id=>{const t=s.tasks.find(x=>x.id===id);return t?.list==='بعداً'&&t?.folder==='آرشیو'})});
  await page.locator('#task-list>.astra-task-row[data-key="t1"] .item-content').dispatchEvent('contextmenu',{button:2});await page.locator('[data-task-bulk="duplicate"]').click();
