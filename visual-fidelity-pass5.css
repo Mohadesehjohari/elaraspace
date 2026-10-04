@@ -1140,3 +1140,8 @@ body.light .elara-profile-medal,body.light .elara-profile-medal-more{background:
 .elara-profile-composition>.elara-profile-avatar-shell{position:relative;z-index:3}
 .elara-profile-composition>.elara-profile-composition-copy{position:relative;z-index:1}
 .elara-profile-status-bubble{z-index:6!important;pointer-events:auto!important}
+
+
+/* Daily task session targets */
+.task-daily-target-setting{display:grid;gap:7px;padding:12px 14px;border:1px solid #304b77;border-radius:14px;background:#071a35}.task-daily-target-setting>label{font-weight:800}.task-daily-target-setting>div{display:flex;align-items:center;gap:8px}.task-daily-target-setting input{width:92px;min-height:42px;text-align:center}.task-daily-target-setting small{color:var(--muted);line-height:1.6}.astra-session-meta{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid #6f55c966;border-radius:999px;background:#472b7b2b;color:#d8c8ff!important;font-weight:800}.task-detail-form [data-detail="dailyTarget"]{min-height:44px}.task-detail-form label:has([data-detail="dailyTarget"]) small{display:block;margin-top:5px;color:var(--muted)}
+@media(max-width:700px){.task-daily-target-setting{padding:10px 11px}.task-daily-target-setting input{width:78px}.astra-session-meta{font-size:.72rem}}
