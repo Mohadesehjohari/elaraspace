@@ -383,6 +383,67 @@
     if(action==='delete-task'){if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'حذف تسک تکرارشونده',message:'کدام بخش حذف شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'کل سری',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){task.skippedDates=dateList(task.skippedDates);if(!task.skippedDates.includes(now))task.skippedDates.push(now);task.occurrenceDone=dateList(task.occurrenceDone).filter(x=>x!==now);writeState(state);renderTasks();notify('نوبت امروز حذف شد.');return}}if(await window.ElaraDialog.confirm(task.recurrenceRule?'کل سری این تسک حذف شود؟':'این تسک حذف شود؟',{title:'حذف تسک',confirmText:'حذف',danger:true})){state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks()}}
   }
 
+  const taskSurfaceSelector='#task-list .astra-task-row[data-key],.feature-section-task-row[data-section-task-id],.task-board-card[data-task-board-id],#panel-home .ref-task-row[data-key],.task-archive-row[data-task-archive-id]';
+  const surfaceTx=(faText,enText)=>window.ElaraI18n?.t?.(faText,enText)||(document.documentElement.lang==='en'?enText:faText);
+  let taskSurfaceObserver=null,taskSurfaceQueued=false,taskHold=null,taskHoldSuppressId='',taskHoldSuppressUntil=0;
+  const taskSurfaceId=card=>String(card?.dataset?.key||card?.dataset?.sectionTaskId||card?.dataset?.taskBoardId||card?.dataset?.taskArchiveId||'');
+  function decorateTaskSurfaces(){
+    taskSurfaceQueued=false;const state=ensureState(readState()),map=new Map(state.tasks.map(x=>[String(x.id),x]));
+    document.querySelectorAll(taskSurfaceSelector).forEach(card=>{
+      const id=taskSurfaceId(card),task=map.get(id);if(!task)return;
+      let button=card.querySelector(':scope > [data-task-daily-quick]');
+      if(!button){button=document.createElement('button');button.type='button';button.className='task-daily-quick';button.dataset.taskDailyQuick=id;card.append(button)}
+      const n=taskDailyTarget(task),label=document.documentElement.lang==='en'?'↻ '+n+'/day':'↻ '+fa(n)+'/روز';
+      if(button.textContent!==label)button.textContent=label;
+      button.dataset.taskDailyQuick=id;button.classList.toggle('is-multi',n>1);button.title=surfaceTx('تکرار در روز','Repeat per day');
+      button.setAttribute('aria-label',surfaceTx('تکرار در روز: '+fa(n)+' بار؛ برای تغییر بزن','Repeat per day: '+n+'; tap to change'));
+    })
+  }
+  function scheduleTaskSurfaceDecorate(){if(taskSurfaceQueued)return;taskSurfaceQueued=true;requestAnimationFrame(decorateTaskSurfaces)}
+  async function editTaskDailyTarget(id){
+    const state=ensureState(readState()),task=state.tasks.find(x=>String(x.id)===String(id));if(!task)return;
+    const current=taskDailyTarget(task),raw=await window.ElaraDialog.prompt(surfaceTx('تعداد دفعات انجام این تسک در یک روز را وارد کن.','How many times should this task be completed per day?'),{title:surfaceTx('تکرار در روز','Repeat per day'),label:surfaceTx('تعداد دفعات (۱ تا ۲۴)','Times per day (1–24)'),value:String(current),maxLength:2,confirmText:surfaceTx('ذخیره','Save')});
+    if(raw==null)return;const n=Math.round(Number(String(raw).trim()));if(!Number.isFinite(n)||n<1||n>24){notify(surfaceTx('عدد باید بین ۱ تا ۲۴ باشد.','Enter a number from 1 to 24.'));return}
+    task.dailyTarget=n;if(task.sourceManaged)task.sourceUserEdited=true;
+    task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
+    for(const [d,count] of Object.entries(task.dailyProgress))task.dailyProgress[d]=Math.max(0,Math.min(n,Math.round(Number(count)||0)));
+    window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state);writeState(state);renderTasks();scheduleTaskSurfaceDecorate();
+    notify(n===1?surfaceTx('تکرار روزانه روی ۱ بار تنظیم شد.','Daily repeat set to 1.'):surfaceTx('این تسک روزی '+fa(n)+' بار تکرار می‌شود.','This task repeats '+n+' times per day.'));
+  }
+  function taskTrashTarget(){
+    let target=document.getElementById('task-trash-drop');if(!target){target=document.createElement('div');target.id='task-trash-drop';target.setAttribute('role','status');document.body.append(target)}
+    target.innerHTML='<span class="task-core-trash-icon" aria-hidden="true">🗑</span><span><b>'+surfaceTx('سطل آشغال','Trash')+'</b><small>'+surfaceTx('تسک را اینجا رها کن','Drop task here')+'</small></span>';return target
+  }
+  function taskHoldGhost(card,x,y){
+    const ghost=document.createElement('div');ghost.id='task-core-drag-ghost';ghost.innerHTML='<span aria-hidden="true">↕</span><strong></strong>';
+    ghost.querySelector('strong').textContent=(card.querySelector('.item-title,.task-summary-button strong,.task-board-open strong,.ref-task-row>strong,.task-archive-row strong')?.textContent||surfaceTx('تسک','Task')).trim();
+    document.body.append(ghost);moveTaskHoldGhost(ghost,x,y);return ghost
+  }
+  function moveTaskHoldGhost(ghost,x,y){if(ghost)ghost.style.transform='translate3d('+(x+14)+'px,'+(y+14)+'px,0)'}
+  function clearTaskHold(){
+    if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-dragging');taskHold.ghost?.remove();
+    const trash=document.getElementById('task-trash-drop');if(trash){trash.hidden=true;trash.classList.remove('is-over')}
+    document.body.classList.remove('task-core-dragging');taskHold=null
+  }
+  function taskHoldProtected(target){return !!target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-drag],.task-drag-handle,.astra-task-more,[data-task-bulk],[data-task-daily-quick],input,select,textarea,a')}
+  function taskHoldPointerDown(event){
+    if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
+    const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;
+    const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,x:event.clientX,y:event.clientY,active:false,overTrash:false,ghost:null,timer:null};taskHold=hold;
+    hold.timer=setTimeout(()=>{if(taskHold!==hold)return;hold.active=true;card.classList.add('is-core-task-dragging');document.body.classList.add('task-core-dragging');try{card.setPointerCapture?.(hold.pointerId)}catch{}hold.ghost=taskHoldGhost(card,hold.x,hold.y);taskTrashTarget().hidden=false;navigator.vibrate?.(18)},event.pointerType==='touch'?420:260)
+  }
+  function taskHoldPointerMove(event){
+    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;hold.x=event.clientX;hold.y=event.clientY;
+    const distance=Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY);if(!hold.active){if(distance>10)clearTaskHold();return}
+    event.preventDefault();moveTaskHoldGhost(hold.ghost,event.clientX,event.clientY);
+    const trash=document.getElementById('task-trash-drop'),rect=trash?.getBoundingClientRect();hold.overTrash=!!rect&&event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom;trash?.classList.toggle('is-over',hold.overTrash)
+  }
+  function taskHoldPointerUp(event){
+    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;const active=hold.active,over=hold.overTrash,id=hold.id;
+    if(active){taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+850}clearTaskHold();if(active&&over)void taskAction('delete-task',id)
+  }
+  function taskHoldContextMenu(event){const card=event.target.closest?.(taskSurfaceSelector);if(card)event.preventDefault()}
+
   function renderHabits(){
     const state=ensureState(readState()),list=$('habit-list');if(!list)return;const now=today();
     const ordered=[...state.habits].sort((a,b)=>(a.manualOrder??Number.MAX_SAFE_INTEGER)-(b.manualOrder??Number.MAX_SAFE_INTEGER));
@@ -506,6 +567,8 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     },true);
     document.addEventListener('click',async event=>{
       handleTaskKebabClick(event);
+      const dailyQuick=event.target.closest('[data-task-daily-quick]');if(dailyQuick){event.preventDefault();event.stopImmediatePropagation();await editTaskDailyTarget(dailyQuick.dataset.taskDailyQuick);return}
+      if(Date.now()<taskHoldSuppressUntil){const card=event.target.closest(taskSurfaceSelector);if(card&&taskSurfaceId(card)===taskHoldSuppressId){event.preventDefault();event.stopImmediatePropagation();taskHoldSuppressUntil=0;taskHoldSuppressId='';return}}
       const addMain=event.target.closest('#elara-task-add-main');if(addMain){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
       const toolsToggle=event.target.closest('#elara-task-tools-toggle');if(toolsToggle){event.preventDefault();event.stopImmediatePropagation();toggleTaskTools();return}
       const meta=event.target.closest('[data-meta-edit],[data-meta-remove]');if(meta){event.preventDefault();event.stopImmediatePropagation();await manageMetadata(meta);return}
@@ -521,6 +584,11 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
       const action=event.target.closest('[data-phase2-action]');if(action){event.preventDefault();event.stopImmediatePropagation();if(action.closest('.astra-task-more'))closeTaskKebabs();const type=action.dataset.phase2Action;if(type.endsWith('task'))await taskAction(type,action.dataset.id);else await habitAction(type,action.dataset.id);return}
     },true);
     document.addEventListener('pointerdown',event=>{const details=event.target.closest('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)},true);
+    document.addEventListener('pointerdown',taskHoldPointerDown,true);
+    document.addEventListener('pointermove',taskHoldPointerMove,{capture:true,passive:false});
+    document.addEventListener('pointerup',taskHoldPointerUp,true);
+    document.addEventListener('pointercancel',clearTaskHold,true);
+    document.addEventListener('contextmenu',taskHoldContextMenu,true);
     document.addEventListener('focusin',event=>{const details=event.target.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)},true);
     for(const prefix of ['task','habit']){
       $(`${prefix}-recurrence`)?.addEventListener('change',()=>syncRecurrenceVisibility(prefix));
@@ -530,10 +598,12 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeTaskTools();closeTaskKebabs(null,true);if(document.activeElement?.closest?.('#task-form'))closeComposer()}else{const details=document.activeElement?.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)}},true);
     for(const id of ['focus-duration','focus-break-duration','focus-session-count'])$(id)?.addEventListener('input',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
+    taskSurfaceObserver=new MutationObserver(scheduleTaskSurfaceDecorate);taskSurfaceObserver.observe(document.body,{childList:true,subtree:true});scheduleTaskSurfaceDecorate();
     window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
     window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
-    window.addEventListener('elara:data-changed',()=>{renderTasks();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
+    window.addEventListener('elara:data-changed',()=>{renderTasks();scheduleTaskSurfaceDecorate();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
   }
+  window.ElaraCoreTaskHold={decorate:decorateTaskSurfaces,editDailyTarget:editTaskDailyTarget};
   window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,taskDailyTarget,taskDailyProgress,habitScheduled,openComposer:openTaskComposer,render:renderTasks,reset:resetTaskForm};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
