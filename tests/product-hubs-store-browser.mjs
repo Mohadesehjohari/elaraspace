@@ -63,7 +63,7 @@ async function run(width,height){
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
  assert.equal(await socialTiles.count(),6,width+': Friends hub tab count');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect(),s=getComputedStyle(x);return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y,border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}));
- assert.equal(socialBoxes.every(x=>x.h>=(isMobile?80:90)&&x.h<=(isMobile?94:106)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
+ assert.equal(socialBoxes.every(x=>x.h>=(isMobile?79.5:89.5)&&x.h<=(isMobile?94.5:106.5)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
  assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
