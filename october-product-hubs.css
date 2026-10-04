@@ -1228,7 +1228,7 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   object-fit:cover!important;z-index:1!important;margin:0!important
 }
 #elara-ranking-page .social-podium-place.place-1 .social-podium-avatar>.social-portrait{
-  inset:20% 18% 20%!important;width:64%!important;height:64%!important
+  inset:18%!important;width:64%!important;height:64%!important
 }
 #elara-ranking-page .social-podium-avatar>.social-rank-frame{
   position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;z-index:2!important
