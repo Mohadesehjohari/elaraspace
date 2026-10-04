@@ -89,7 +89,7 @@ async function bulkMove(){
 async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
 function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressStart=null}
 function startCardPress(e,row){
- if(window.ElaraUniversalTaskInteractions)return;
+ if(window.ElaraCoreTaskHold||window.ElaraUniversalTaskInteractions)return;
  if(e.pointerType==='mouse'&&e.button!==0)return;if(e.target.closest('.check-button,.astra-task-more,.task-drag-handle,input,select,textarea,a,[data-task-bulk]'))return;clearPress();pressStart={x:e.clientX,y:e.clientY,id:row.dataset.key,pointerId:e.pointerId};
  pressTimer=setTimeout(()=>{ignoreClickUntil=Date.now()+700;ignoreClickId=row.dataset.key;enter(row.dataset.key);navigator.vibrate?.(18);clearPress()},e.pointerType==='touch'?560:520)
 }
