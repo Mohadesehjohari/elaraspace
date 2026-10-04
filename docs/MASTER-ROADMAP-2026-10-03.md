@@ -872,9 +872,14 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Login: comet/star intro → main Elara logo؛ reduced-motion fallback.
 
 ## H5 — Mobile navigation contract
-- Page در Mobile بالای صفحه کنار Profile؛ Gear از main mobile shell حذف و فقط داخل Profile.
-- Bottom nav مرتب و Blog در آن حاضر باشد.
-- Blog/Page اگر جا کم بود با responsive/overflow منطقی حل شوند، نه حذف capability.
+- Mobile topbar: Profile + Store + Moon/Theme + Notifications + Brand؛ سه‌نقطه/Hamburger و Gear از shell اصلی موبایل حذف شوند. Settings فقط داخل Profile باقی بماند.
+- Store در Mobile جای Edit Profile shortcut بالای صفحه قرار بگیرد؛ Edit Profile از داخل Profile قابل دسترس بماند.
+- Bottom nav فقط ۷ مقصد با آیکون خوانا و Home در مرکز: Tasks / Friends / Library / Home / Freedom / Blog / Page.
+- Exercise، Language و Ranking از Bottom nav موبایل حذف شوند، اما route/page مستقل هیچ‌کدام حذف نشود.
+- Ranking صفحهٔ مستقل `#ranking` را حفظ کند و از Friends یک CTA مستقیم به همان صفحه داشته باشد. **TODO visual:** دکمهٔ Ranking داخل Friends در pass بعدی Gold skin بگیرد؛ semantics/navigation تغییر نکند.
+- Home: Theme strip حذف و با نوار باریک Language/Leitner جایگزین شود؛ Brain/Leitner artwork، تعداد واژه‌های آمادهٔ مرور، کل واژه‌ها، +Word و «همه» → صفحهٔ اصلی Language.
+- Home: Reports فقط یک دکمهٔ کوچک/کم‌جا داشته باشد که route مستقل Reports را باز کند.
+- Blog و Page هر دو capability مستقل باقی بمانند و در Dock موبایل حاضر باشند؛ با هم merge نشوند.
 - Desktop navigation فعلی بدون درخواست مستقیم بازطراحی نشود.
 
 ## H6 — Data/backend gates that must not be faked
