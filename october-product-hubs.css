@@ -1412,16 +1412,16 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
 }
 /* The shared podium shell owns both dimensions so the frame and portrait cannot stretch it. */
 #elara-ranking-page .social-podium-place [data-avatar-shell].social-podium-avatar{
-  width:min(100%,142px)!important;height:min(100%,142px)!important;aspect-ratio:1!important
+  width:142px!important;height:142px!important;aspect-ratio:1!important
 }
 #elara-ranking-page .social-podium-place.place-1 [data-avatar-shell].social-podium-avatar{
-  width:min(100%,176px)!important;height:min(100%,176px)!important;aspect-ratio:1!important
+  width:176px!important;height:176px!important;aspect-ratio:1!important
 }
 @media(max-width:700px){
   #elara-ranking-page .social-podium-place [data-avatar-shell].social-podium-avatar{
-    width:min(100%,88px)!important;height:min(100%,88px)!important
+    width:88px!important;height:88px!important
   }
   #elara-ranking-page .social-podium-place.place-1 [data-avatar-shell].social-podium-avatar{
-    width:min(100%,108px)!important;height:min(100%,108px)!important
+    width:108px!important;height:108px!important
   }
 }
