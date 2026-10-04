@@ -92,10 +92,59 @@
           </div>
 
           <div id="panel-content" class="panel hidden">
-            <div class="heading"><div><p class="kicker">CONTENT</p><h2>مدیریت محتوا</h2></div></div>
-            <article class="card placeholder">
-              <h3>مرحله بعد</h3>
-              <p>Level، Mission، Medal، Title، Avatar، Frame، Banner، Theme، Audio و Shop Items از این بخش مدیریت خواهند شد.</p>
+            <div class="heading">
+              <div><p class="kicker">CONTENT STUDIO</p><h2>انتشار وبلاگ و صفحات رسمی</h2></div>
+              <button id="content-refresh" class="secondary" type="button">به‌روزرسانی محتوا</button>
+            </div>
+            <p class="muted content-intro">Draft فقط برای مدیرهاست. Publish باعث می‌شود محتوا از Firestore در خود سایت خوانده شود و هر تغییر در Audit Log ثبت شود.</p>
+            <div class="content-admin-grid">
+              <article class="card content-editor">
+                <div class="card-title-row"><div><h3>مقالهٔ وبلاگ</h3><p class="muted">برای Blog سایت؛ دسته، زبان، زمان مطالعه و وضعیت انتشار را مدیریت کن.</p></div><span class="content-badge">BLOG</span></div>
+                <form id="blog-content-form" class="content-form">
+                  <input id="blog-content-id" type="hidden">
+                  <label>عنوان<input id="blog-content-title" maxlength="160" required placeholder="عنوان مقاله"></label>
+                  <label>خلاصه<textarea id="blog-content-excerpt" maxlength="500" rows="3" required placeholder="خلاصه‌ای که روی کارت Blog دیده می‌شود"></textarea></label>
+                  <label>متن مقاله<textarea id="blog-content-body" maxlength="12000" rows="10" required placeholder="متن مقاله؛ پاراگراف‌ها را با خط خالی جدا کن"></textarea></label>
+                  <div class="content-form-grid">
+                    <label>دسته<select id="blog-content-category">
+                      <option value="planning">برنامه‌ریزی</option><option value="focus">تمرکز</option><option value="habits">عادت</option><option value="reading">مطالعه</option><option value="wellbeing">انرژی</option><option value="productivity">بهره‌وری</option>
+                    </select></label>
+                    <label>زبان<select id="blog-content-locale"><option value="fa">فارسی</option><option value="en">English</option></select></label>
+                    <label>وضعیت<select id="blog-content-status"><option value="draft">Draft</option><option value="published">Published</option></select></label>
+                    <label>زمان مطالعه<input id="blog-content-minutes" type="number" min="1" max="60" value="5"></label>
+                  </div>
+                  <label>Cover URL اختیاری<input id="blog-content-cover" maxlength="1000" dir="ltr" placeholder="https://..."></label>
+                  <div class="actions content-actions"><button class="primary" type="submit">ذخیره مقاله</button><button id="blog-content-reset" class="secondary" type="button">مقاله جدید</button></div>
+                </form>
+                <p id="blog-content-status-message" class="muted" role="status"></p>
+              </article>
+
+              <article class="card content-editor">
+                <div class="card-title-row"><div><h3>صفحهٔ رسمی سایت</h3><p class="muted">صفحه‌های رسمی Elara که در بخش Page سایت نمایش داده می‌شوند.</p></div><span class="content-badge">PAGE</span></div>
+                <form id="site-page-form" class="content-form">
+                  <input id="site-page-id" type="hidden">
+                  <label>Slug<input id="site-page-slug" maxlength="80" dir="ltr" pattern="[a-z0-9][a-z0-9-]{1,79}" required placeholder="about-elara"></label>
+                  <label>عنوان<input id="site-page-title" maxlength="160" required placeholder="عنوان صفحه"></label>
+                  <label>خلاصه<textarea id="site-page-excerpt" maxlength="500" rows="3" required></textarea></label>
+                  <label>متن صفحه<textarea id="site-page-body" maxlength="16000" rows="10" required></textarea></label>
+                  <div class="content-form-grid">
+                    <label>زبان<select id="site-page-locale"><option value="fa">فارسی</option><option value="en">English</option></select></label>
+                    <label>وضعیت<select id="site-page-status"><option value="draft">Draft</option><option value="published">Published</option></select></label>
+                  </div>
+                  <div class="actions content-actions"><button class="primary" type="submit">ذخیره صفحه</button><button id="site-page-reset" class="secondary" type="button">صفحه جدید</button></div>
+                </form>
+                <p id="site-page-status-message" class="muted" role="status"></p>
+              </article>
+            </div>
+
+            <div class="content-admin-grid content-lists">
+              <article class="card"><div class="card-title-row"><h3>مقاله‌ها</h3><span id="blog-content-count" class="content-badge">۰</span></div><div id="blog-content-list" class="content-list"><p class="muted">در حال بارگذاری…</p></div></article>
+              <article class="card"><div class="card-title-row"><h3>صفحه‌ها</h3><span id="site-page-count" class="content-badge">۰</span></div><div id="site-page-list" class="content-list"><p class="muted">در حال بارگذاری…</p></div></article>
+            </div>
+
+            <article class="card content-next-card">
+              <h3>ابزارهای بعدی Content Studio</h3>
+              <p class="muted">مدیریت Level، Mission، Medal، Title، Avatar، Frame، Banner، Theme، Audio، Shop Catalog، Moderation Queue و Notification Campaign بدون مخلوط‌شدن با Publisher به همین بخش اضافه می‌شود.</p>
             </article>
           </div>
 
