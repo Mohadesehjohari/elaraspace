@@ -37,7 +37,11 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
  await page.locator('#panel-language [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
  await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target').fill('2');await page.locator('#task-submit').click();
- await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.some(t=>t.text==='تمرین زبان از بخش اصلی'&&t.sourceGroup==='language'&&t.dailyTarget===2));
+ try{
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.some(t=>t.text==='تمرین زبان از بخش اصلی'&&t.sourceGroup==='language'&&t.dailyTarget===2));
+ }catch(error){
+  const diagnostic=await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),form=document.getElementById('task-form');return{tasks:(state.tasks||[]).map(t=>({text:t.text,sourceGroup:t.sourceGroup,dailyTarget:t.dailyTarget,date:t.date})),form:{hidden:!!form?.hidden,composer:form?.dataset?.elaraTaskComposer||'',title:document.getElementById('task-title')?.value||'',dailyTarget:document.getElementById('task-daily-target')?.value||'',due:document.getElementById('task-due')?.value||''},panel:location.hash}});console.error('SECTION_TASK_DIAGNOSTIC '+width+' '+JSON.stringify(diagnostic));throw error;
+ }
  await page.waitForSelector('#panel-language [data-section-task-id]');
  const sectionTaskId=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.text==='تمرین زبان از بخش اصلی').id);
  await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));await page.waitForSelector('#panel-home:not(.hidden)');assert.equal(await page.locator('[data-ref-task="'+sectionTaskId+'"]').count(),1,width+': section-created Language Task did not reach Home');
