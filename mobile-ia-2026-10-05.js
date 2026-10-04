@@ -27,7 +27,7 @@ function renderLanguageStrip(){
  strip.dataset.mobileIaLanguage='true';
  const data=read(),words=Array.isArray(data.words)?data.words:[],day=today();
  const ready=words.filter(w=>!w?.due||String(w.due)<=day).length,total=words.length,signature=ready+':'+total;
- if(strip.dataset.languageSignature!==signature){
+ if(strip.dataset.languageSignature!==signature||!strip.querySelector('[data-home-language-all]')){
   strip.dataset.languageSignature=signature;
   strip.innerHTML=`<header class="ref-language-strip-head">
     <h2><img class="ref-language-brain" src="assets/icon-brain.png" alt="" aria-hidden="true"> زبان · جعبه لایتنر</h2>
