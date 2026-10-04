@@ -66,7 +66,7 @@ function setupLanguage(){
  head(bp,'language','LANGUAGE · BOOKS',titles['language-books'],['مطالعهٔ کتاب‌های زبان و ثبت پیشرفت.','Language reading and progress.']);
  head(rp,'language','LANGUAGE · REPORT',titles['language-reports'],['واژه‌ها، مرور و مطالعهٔ واقعی.','Real vocabulary, review and reading stats.']);
  head(cp,'language','LANGUAGE · CLASSES',titles['language-courses'],['مسیرهای یادگیری؛ بدون دورهٔ ساختگی.','Learning paths without fake courses.']);
- if(lp)head(lp,'language','LANGUAGE · LEITNER',['جعبه لایتنر','Leitner Box'],['طراحی و تصاویر اصلی لایتنر بدون تغییر حفظ شده‌اند.','The original Leitner design and artwork are preserved.']);
+ if(lp){lp.classList.add('pass3-language','leitner-route-preserved');head(lp,'language','LANGUAGE · LEITNER',['جعبه لایتنر','Leitner Box'],['طراحی و تصاویر اصلی لایتنر بدون تغییر حفظ شده‌اند.','The original Leitner design and artwork are preserved.'])}
  if(books)move(books,bp);if(report)move(report,rp);if(courses)move(courses,cp);
  if(leitner&&lp){leitner.classList.remove('feature-source-hidden');move(leitner,lp)}
  if(grid&&!grid.children.length)grid.classList.add('feature-source-hidden');
