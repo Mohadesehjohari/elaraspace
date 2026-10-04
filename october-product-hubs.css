@@ -1405,3 +1405,8 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
 /* Keep completion control compact while preserving the approved hit target. */
 #panel-tasks #task-list .check-button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
 @media(max-width:700px){#panel-tasks #task-list .check-button{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important}}
+/* Friends destinations are a single flex strip at every narrow viewport. */
+@media(max-width:700px){
+  #elara-social-page .social-tabs{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:flex-start!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important}
+  #elara-social-page .social-tabs>[role="tab"]{display:block!important;flex:0 0 92px!important;margin:0!important;align-self:flex-start!important;transform:none!important}
+}
