@@ -1,0 +1,38 @@
+/* Universal task hold/drag + repeat-per-day controls. */
+#task-trash-drop{
+ display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-content:center;gap:10px;
+ min-height:70px;padding:12px 18px!important;pointer-events:none!important;
+ box-shadow:0 18px 45px #0009,0 0 0 1px #ff7d8a33;backdrop-filter:blur(12px)
+}
+#task-trash-drop .task-trash-icon{font-size:2rem;line-height:1;filter:drop-shadow(0 0 9px #ff6277aa)}
+#task-trash-drop>span:last-child{display:grid;gap:2px;text-align:start}
+#task-trash-drop b{font-size:.78rem}#task-trash-drop small{font-size:.6rem;color:#ffdbe0}
+#task-trash-drop.is-over{transform:scale(1.025);box-shadow:0 18px 48px #0009,0 0 22px #ff526f66}
+body.task-universal-dragging{user-select:none!important;overscroll-behavior:none}
+.is-universal-task-dragging{opacity:.5!important;outline:2px solid color-mix(in srgb,#ff5f77 65%,var(--border))!important;outline-offset:2px!important}
+#task-universal-drag-ghost{
+ position:fixed;left:0;top:0;z-index:26000;display:flex;align-items:center;gap:8px;
+ width:min(300px,72vw);min-height:48px;padding:9px 12px;border:1px solid color-mix(in srgb,var(--elara-accent) 50%,var(--border));
+ border-radius:13px;background:color-mix(in srgb,var(--surface) 94%,transparent);color:var(--text);
+ box-shadow:0 20px 48px #000b,0 0 20px color-mix(in srgb,var(--elara-accent) 22%,transparent);
+ pointer-events:none;will-change:transform
+}
+#task-universal-drag-ghost>span{color:var(--accent);font-size:1rem}#task-universal-drag-ghost strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
+:where(.astra-task-row,.feature-section-task-row,.task-board-card,.ref-task-row,.task-archive-row){position:relative}
+.task-daily-target-chip{
+ position:absolute;z-index:7;inset-inline-start:5px;inset-block-end:4px;
+ display:grid;place-items:center;min-width:28px;height:20px;padding:0 5px;border:1px solid color-mix(in srgb,var(--border) 72%,var(--elara-accent) 28%);
+ border-radius:999px;background:color-mix(in srgb,var(--surface2) 88%,transparent);color:var(--muted);
+ font:800 .52rem/1 inherit;box-shadow:none
+}
+.task-daily-target-chip.is-multi{border-color:color-mix(in srgb,var(--elara-accent) 62%,var(--border));color:var(--text);background:color-mix(in srgb,var(--elara-accent) 16%,var(--surface2))}
+.task-daily-target-chip:focus-visible{outline:2px solid var(--elara-accent);outline-offset:2px}
+#panel-home .ref-task-row .task-daily-target-chip{inset-inline-start:1px;inset-block-end:1px;min-width:22px;height:17px;padding:0 3px;font-size:.43rem}
+.feature-section-task-row .task-daily-target-chip,.task-board-card .task-daily-target-chip{inset-inline-start:6px;inset-block-end:5px}
+@media(max-width:700px){
+ #task-trash-drop{inset:auto 10px calc(86px + env(safe-area-inset-bottom))!important;min-height:66px;padding:10px 14px!important;border-radius:15px!important}
+ #task-trash-drop .task-trash-icon{font-size:1.8rem}
+ #task-universal-drag-ghost{width:min(270px,76vw);min-height:46px;padding:8px 10px}
+ .task-daily-target-chip{min-width:26px;height:19px;font-size:.49rem}
+}
+@media(prefers-reduced-motion:reduce){#task-trash-drop,#task-universal-drag-ghost{transition:none!important}}
