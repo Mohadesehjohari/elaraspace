@@ -572,3 +572,62 @@ body.light #elara-social-page .social-tabs [role="tab"]{
   #elara-social-page .social-friend-activity{min-height:260px!important}
   #panel-home.ref-home .ref-goals-heading-art{width:36px!important;height:36px!important}
 }
+
+
+/* 2026-10-04 Task grouped card view */
+#panel-tasks .astra-task-view-controls{
+  display:flex!important;align-items:center!important;gap:5px!important;width:auto!important;min-width:0!important
+}
+#panel-tasks .astra-task-view-controls button{
+  flex:0 0 40px!important;width:40px!important;height:42px!important;min-width:40px!important
+}
+#panel-tasks #task-group-by{
+  min-width:190px!important;height:42px!important;padding:0 10px!important;border:1px solid #405586!important;
+  border-radius:10px!important;background:#0b2347!important;color:#dfe8ff!important
+}
+#panel-tasks[data-task-view="group"] #task-list{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:start!important
+}
+#panel-tasks[data-task-view="group"] #task-list>.astra-task-group-card{
+  list-style:none!important;display:grid!important;gap:10px!important;padding:12px!important;
+  border:1px solid #34517e!important;border-radius:18px!important;background:linear-gradient(145deg,#081d3a,#06162f)!important;
+  box-shadow:inset 0 1px #ffffff0a,0 12px 28px #0002f!important;min-width:0!important
+}
+#panel-tasks .astra-task-group-card>header{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+  min-height:36px!important;padding:0 4px 8px!important;border-bottom:1px solid #38527a88!important
+}
+#panel-tasks .astra-task-group-card>header strong{font-size:.96rem!important;color:#edf2ff!important}
+#panel-tasks .astra-task-group-card>header span{
+  padding:4px 8px!important;border-radius:999px!important;background:#6545c62e!important;color:#cdbfff!important;font-size:.72rem!important
+}
+#panel-tasks .astra-task-group-card>ul{display:grid!important;gap:8px!important;margin:0!important;padding:0!important;list-style:none!important}
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-row{
+  width:100%!important;min-height:108px!important;padding:11px 12px!important;border-radius:14px!important;
+  grid-template-columns:38px minmax(0,1fr) auto!important;gap:10px!important
+}
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-completion{
+  grid-column:2/-1!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:6px!important
+}
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-completion-label,
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-category,
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-xp{font-size:.7rem!important}
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-completion-label img{display:none!important}
+#panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-more{grid-column:auto!important}
+@media(max-width:900px){
+  #panel-tasks[data-task-view="group"] #task-list{grid-template-columns:1fr!important}
+}
+@media(max-width:700px){
+  #panel-tasks .elara-task-page-actions{
+    grid-template-columns:minmax(0,1fr) 44px!important;grid-template-rows:auto auto!important
+  }
+  #panel-tasks .astra-task-view-controls{
+    grid-column:1/-1!important;grid-row:1!important;width:100%!important;display:grid!important;
+    grid-template-columns:repeat(3,40px) minmax(0,1fr)!important;gap:5px!important
+  }
+  #panel-tasks #task-group-by{min-width:0!important;width:100%!important;font-size:.76rem!important}
+  #panel-tasks #elara-task-add-main{grid-column:1!important;grid-row:2!important;width:100%!important}
+  #panel-tasks #elara-task-tools-toggle{grid-column:2!important;grid-row:2!important}
+  #panel-tasks[data-task-view="group"] #task-list>.astra-task-group-card{padding:10px!important;border-radius:16px!important}
+  #panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-row{min-height:104px!important;padding:10px!important}
+}
