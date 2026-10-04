@@ -1490,3 +1490,21 @@ body.light .elara-profile-composition[data-profile-theme]:not([data-profile-them
     var(--elara-profile-banner) center/cover no-repeat!important;
   background-blend-mode:normal,soft-light,normal!important
 }
+
+
+/* Admin-published official pages inside Page */
+.page-official-content{display:grid;gap:14px;margin-top:14px}
+.page-official-content>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.page-official-content>header small,.page-official-detail header small{color:#a98cff;font-weight:800;letter-spacing:.12em}
+.page-official-content>header h2{margin:3px 0}
+.page-official-content>header>span{display:grid;place-items:center;min-width:36px;height:36px;border:1px solid #5b4d83;border-radius:50%;background:#171331;color:#d9ceff;font-weight:800}
+.page-official-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.page-official-grid>article{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:14px;border:1px solid #2e4f77;border-radius:14px;background:#081d38}
+.page-official-grid p{margin:5px 0 0;color:#9fb0cc;line-height:1.75}
+.page-official-detail{display:grid;gap:16px;max-width:820px}
+.page-official-detail header h2{margin:5px 0}
+.page-official-detail header p{margin:0;color:#9fb0cc;line-height:1.8}
+.page-official-detail>div{display:grid;gap:12px}
+.page-official-detail>div>p{margin:0;padding:13px 14px;border:1px solid #2e4f77;border-radius:13px;background:#081d38;line-height:1.95}
+@media(max-width:720px){.page-official-grid{grid-template-columns:1fr}.page-official-grid>article{grid-template-columns:1fr}.page-official-grid button{width:100%}}
+body.light .page-official-grid>article,body.light .page-official-detail>div>p{background:#fff!important;border-color:#ced9ea!important}
