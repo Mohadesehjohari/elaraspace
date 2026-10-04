@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261005-task-core-v2';
+  const BUILD='20261005-task-actions-v4';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
