@@ -96,3 +96,111 @@ body.light #elara-social-page .social-tabs [role="tab"][aria-selected="true"]{
     flex-basis:25px!important;
   }
 }
+
+
+/* Freedom-style Friends/Ranking tabs: artwork-first tiles, Home/Tasks unaffected. */
+#elara-social-page .social-tabs,
+#elara-ranking-page .social-tabs{
+  align-items:stretch!important;
+}
+#elara-social-page .social-tabs [role="tab"],
+#elara-ranking-page .social-tabs [role="tab"]{
+  position:relative!important;
+  min-height:150px!important;
+  height:150px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:14px!important;
+  border:1px solid #315787!important;
+  background:linear-gradient(145deg,#092142ed,#071a34f5)!important;
+  color:#fff!important;
+  display:block!important;
+  text-align:right!important;
+  box-shadow:inset 0 1px #ffffff08!important;
+}
+#elara-social-page .social-tabs [role="tab"]::after,
+#elara-ranking-page .social-tabs [role="tab"]::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(0deg,#06162bf2 0 23%,#06162b8a 42%,transparent 70%);
+}
+#elara-social-page .social-tabs [role="tab"] img,
+#elara-ranking-page .social-tabs [role="tab"] img{
+  position:absolute!important;
+  z-index:0!important;
+  inset:8px 10px 42px!important;
+  width:calc(100% - 20px)!important;
+  height:96px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 9px 14px #0006) drop-shadow(0 0 12px #7258ff55)!important;
+}
+#elara-social-page .social-tabs [role="tab"],
+#elara-ranking-page .social-tabs [role="tab"]{
+  font-size:18px!important;
+  line-height:1.2!important;
+}
+#elara-social-page .social-tabs [role="tab"]::before,
+#elara-ranking-page .social-tabs [role="tab"]::before{
+  content:"";
+  position:absolute;
+  inset:auto 12px 11px;
+  height:24px;
+  z-index:1;
+  background:linear-gradient(90deg,#07172de8,transparent);
+  pointer-events:none;
+}
+#elara-social-page .social-tabs [role="tab"]{
+  text-indent:0!important;
+}
+#elara-social-page .social-tabs [role="tab"][aria-selected="true"],
+#elara-ranking-page .social-tabs [role="tab"][aria-selected="true"]{
+  border-color:#8c67ff!important;
+  background:linear-gradient(145deg,#102751,#0b1c3c)!important;
+  box-shadow:inset 0 1px #ffffff12,0 0 22px #6b35ff66!important;
+}
+body.light #elara-social-page .social-tabs [role="tab"],
+body.light #elara-ranking-page .social-tabs [role="tab"]{
+  background:linear-gradient(145deg,#eaf2ff,#dce8fb)!important;
+  color:#16294a!important;
+  border-color:#b7cbe6!important;
+}
+@media(max-width:900px){
+  #elara-social-page .social-tabs,
+  #elara-ranking-page .social-tabs{
+    display:flex!important;
+    gap:7px!important;
+    overflow-x:auto!important;
+    padding-bottom:8px!important;
+    scroll-snap-type:x proximity!important;
+  }
+  #elara-social-page .social-tabs [role="tab"],
+  #elara-ranking-page .social-tabs [role="tab"]{
+    flex:0 0 calc((100vw - 52px)/4)!important;
+    width:calc((100vw - 52px)/4)!important;
+    min-width:74px!important;
+    min-height:138px!important;
+    height:138px!important;
+    font-size:14px!important;
+    scroll-snap-align:start!important;
+  }
+  #elara-social-page .social-tabs [role="tab"] img,
+  #elara-ranking-page .social-tabs [role="tab"] img{
+    inset:6px 5px 42px!important;
+    width:calc(100% - 10px)!important;
+    height:82px!important;
+  }
+}
+@media(max-width:360px){
+  #elara-social-page .social-tabs [role="tab"],
+  #elara-ranking-page .social-tabs [role="tab"]{
+    min-height:126px!important;
+    height:126px!important;
+    font-size:12px!important;
+  }
+  #elara-social-page .social-tabs [role="tab"] img,
+  #elara-ranking-page .social-tabs [role="tab"] img{height:72px!important}
+}
