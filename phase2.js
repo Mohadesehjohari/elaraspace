@@ -80,7 +80,11 @@
     const key=completionKey(task.id,date);ensureCompletionHistory(state);state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>x.key!==key);
   };
   const completedTodayCount=(state,date=today())=>ensureCompletionHistory(state).filter(x=>x.date===date).length;
-  const taskDone=(task,date=today())=>task.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task.completed;
+  const taskDailyTarget=task=>{const n=Math.round(Number(task?.dailyTarget)||1);return Math.max(1,Math.min(24,Number.isFinite(n)?n:1))};
+  const taskDailyProgress=(task,date=today())=>{const raw=task?.dailyProgress&&typeof task.dailyProgress==='object'?Number(task.dailyProgress[date]):0;return Math.max(0,Math.min(taskDailyTarget(task),Number.isFinite(raw)?Math.round(raw):0))};
+  const hasExplicitDailyProgress=(task,date=today())=>!!(task?.dailyProgress&&typeof task.dailyProgress==='object'&&Object.prototype.hasOwnProperty.call(task.dailyProgress,date));
+  const legacyTaskDone=(task,date=today())=>task.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task.completed;
+  const taskDone=(task,date=today())=>taskDailyTarget(task)>1?(hasExplicitDailyProgress(task,date)?taskDailyProgress(task,date)>=taskDailyTarget(task):legacyTaskDone(task,date)):legacyTaskDone(task,date);
   const taskView=(task,date=today())=>{
     if(!task.recurrenceRule||!applies(task,date))return task;
     const o=task.occurrenceOverrides&&typeof task.occurrenceOverrides==='object'?task.occurrenceOverrides[date]:null;
