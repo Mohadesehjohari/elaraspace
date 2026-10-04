@@ -798,3 +798,96 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - `docs/V2-COMPLETE-FEATURE-ROADMAP.md`: detailed backlog archive.
 - `docs/ROADMAP-2026-10-01-SOCIAL-PRIVACY-ORGANIZATION-UX-ADDENDUM.md`: detailed change log / evidence ledger.
 - **This file is canonical for priority and conflict resolution from 2026-10-03 onward.**
+
+
+---
+
+# Execution Handoff — 2026-10-04 (current user-approved queue)
+
+> **Baseline inspected before this roadmap update:** `d55ede332cf4d14c6ff003efe0e19e1372c95091`. این SHA فقط نقطهٔ handoff است؛ اجراکننده باید در هر نوبت HEAD واقعی `main` را دوباره بگیرد و هیچ تغییر همزمان جدید را rollback نکند.  
+> **قاعدهٔ تحویل:** CODED ≠ DONE. برای هر تغییر UI/Interaction، END-HEAD Browser + Pages + CI مرتبط باید روی همان HEAD بررسی شود و در صورت visual request، screenshot همان build ملاک است.
+
+## H0 — P0 visual/interaction regressions — FIRST, before new features
+
+### H0.1 Ranking / Friends visual acceptance — REGRESSION OPEN / HIGH
+- Ranking باید با تصاویر مرجع Desktop/Mobile کاربر هم‌راستا شود، بدون حذف قابلیت‌های واقعی.
+- Avatar و Frame در Ranking/Friends/Public Profile باید **یک shell و یک shape/size owner** داشته باشند؛ Circle/Square بودن و اندازهٔ Frame با خود Avatar sync باشد و Frame بیرون پروفایل نایستد.
+- Ranking Desktop: Podium و «رتبهٔ من» در ردیف اصلی؛ Weekly/Friends ranking، Requests، Online و Clubs با grid پایدار و بدون ستون‌های باریک/خارج‌شده.
+- Ranking Mobile: Podium و رتبهٔ خود کاربر full-width؛ بقیه کارت‌ها responsive و بدون overflow.
+- چهار کنترل Ranking/Friends/Community/Clubs باید از artwork واقعی repo استفاده کنند؛ متن تکراری اگر داخل خود artwork وجود دارد در UI دوباره نمایش داده نشود.
+- **League — REQUESTED / BACKEND-GATED:** لیگ هفتگی شبیه promotion/demotion 7 روزه، با rank thresholds روشن، history و نتیجهٔ server-authoritative. تا backend معتبر آماده نیست رتبه/لیگ ساختگی نمایش داده نشود.
+- Friends main hub: همهٔ 6 کنترل اصلی **در Desktop یک ردیف افقی** باشند؛ روی Mobile در یک ردیف horizontal-scroll بمانند و به دو ردیف شکسته نشوند.
+- Friends cards/boxes باید grid منظم، gap و height هماهنگ داشته باشند؛ Requests / Activity / Friends / Chats / Groups / Clubs از هم جدا ولی مرتب باشند.
+- Presence فقط دادهٔ واقعی؛ empty state به‌جای Online ساختگی.
+- معیار پذیرش: 1440/1648/1920 + 390/430، بدون horizontal overflow، Avatar/Frame هم‌مرکز، controls یک‌خطی، screenshots artifact همان END HEAD.
+
+### H0.2 Tasks selection/completion contract — REGRESSION OPEN / HIGH
+- دایرهٔ بزرگ/checkbox selection که در screenshot Tasks ظاهر شده **حذف شود**؛ selection نباید با control دائمی کنار هر Task انجام شود.
+- Selection mode:
+  - Desktop: pointer hold / long-press روی خود row (و در صورت وجود right-click contract فعلی، بدون تداخل).
+  - Mobile: long-press روی خود row.
+  - بعد از ورود به selection mode، Bulk toolbar ظاهر شود؛ قبل از selection پنهان بماند.
+  - click/tap عادی همچنان برای completion/details طبق UI نهایی کار کند؛ long-press نباید completion را ناخواسته trigger کند.
+- **همهٔ task-like sources قابل completion باشند**: Task عادی، Habit امروز، Goal Step و Section-linked tasks.
+- Habit/Goal Step دادهٔ duplicate نسازند؛ completion از Tasks همان canonical Habit/Goal را تغییر دهد و completion از منبع اصلی نیز Tasks را sync کند.
+- Habit در Tasks کل نوار رنگ مستقل سبز/فیروزه‌ای و Goal Step کل نوار رنگ مستقل بنفش داشته باشد؛ این قرارداد در list و grouped-card view هر دو حفظ شود.
+- **Daily turns / repeat count — CODED, acceptance pending:** یک Task با `dailyTarget=N` بدون duplicate شدن باید بعد از N نوبت complete شود و progress مثل `1/2` نشان داده شود؛ XP فقط در completion نهایی و idempotent.
+- **Grouped Task view — CODED, acceptance pending:** toggle نمای لیست ↔ کارت‌های compact، grouping بر اساس Folder/List یا Priority؛ داده duplicate نشود.
+- Drag/reorder با Mouse/Touch و trash-drop برای حذف همچنان در roadmap باقی است؛ drag نباید long-press selection را خراب کند.
+- معیار پذیرش: تست integration + Browser 390/1440؛ Habit/Goal/Task همگی قابل tick، long-press selection، no giant circle، no duplicate data، undo/XP درست.
+
+### H0.3 Section-specific Tasks — CODED PARTIAL / VERIFY
+- زیر launcherهای اصلی Language / Library / Wellness-Exercise، shelf تسک مخصوص همان بخش نمایش داده شود.
+- Add Task از داخل هر بخش sourceGroup مناسب بسازد، در Tasks و Home هم همان canonical Task دیده شود.
+- همان Daily turns، completion، edit/delete و selection contract روی Section Taskها نیز کار کند.
+- Business logic duplicate نشود؛ فقط surface متفاوت است.
+
+## H1 — Profile / Mobile shell — NEXT
+- Avatar + Frame + Profile shape باید در Header، Home، Ranking، Friends، Public Profile و Store preview از یک قرارداد مشترک استفاده کنند.
+- Mobile: Gear اصلی از shell صفحه حذف شود و Settings داخل Profile باشد؛ Page بالا کنار Profile قرار گیرد؛ Blog در bottom nav باشد. Desktop layout فعلی بی‌دلیل جابه‌جا نشود.
+- Profile Settings: Account، Privacy، Language، Calendar، Help، Blocked، Logout؛ Reports shortcut فقط Mobile؛ Notifications/Messages از Profile حذف شوند و Notification bell مستقل بماند.
+- XP زیر progress منتقل شود و close/settings controls روی Level نیفتند.
+- Profile Banner و Profile container/name themes باید واقعاً Equip شوند و در Home/Profile sync بمانند.
+- Other-user profile menu: Block، hide/delete-chat semantics امن، nickname، relationship slot؛ public Lover/Companion فقط consent + Rules.
+- Store Catalog/Preview/Equip برای Profile/Frames/Banners/Themes **URGENT**؛ purchase/token جعلی ممنوع.
+
+## H2 — Freedom / Media
+- Music + Search Music در Freedom با provider قانونی/قابل‌اعتماد.
+- Profile Song با privacy، autoplay خاموش و mute.
+- Private Diary account-scoped؛ public explore فقط opt-in tags/content.
+- Freedom subpages موجود حفظ شوند؛ چیزی برای «شبیه مرجع کردن» حذف نشود.
+
+## H3 — Language / Classes
+- Custom Class برای Online / Offline / Linked class.
+- کاربر Term count، Sessions per term، Session duration، روزهای هفته و study time را تعیین کند؛ ETA اتمام محاسبه شود.
+- Class report و edit.
+- Shared class با Friend و challenge دائمی بدون timer؛ share-link/join flow؛ progress همکلاسی‌ها فقط از دادهٔ واقعی و privacy-aware.
+- این بخش تا schema/Rules چند UID تست نشود VERIFIED نیست.
+
+## H4 — Progression / ambient UX
+- XP Journey screen: Mobile swipe-left به فضای سیاره/ستاره با مسیر XP و rewardهای locked؛ Desktop trigger کنار notification جایگزین edit-profile button طبق تصمیم نهایی.
+- Back to main app واضح.
+- Home banner local-time-aware: day=sun، night=moon/crescent؛ hover/reveal بدون پوشاندن محتوا.
+- Morning greeting popup با mission/reward/CTA واقعی و عدم تکرار آزاردهنده.
+- Login: comet/star intro → main Elara logo؛ reduced-motion fallback.
+
+## H5 — Mobile navigation contract
+- Page در Mobile بالای صفحه کنار Profile؛ Gear از main mobile shell حذف و فقط داخل Profile.
+- Bottom nav مرتب و Blog در آن حاضر باشد.
+- Blog/Page اگر جا کم بود با responsive/overflow منطقی حل شوند، نه حذف capability.
+- Desktop navigation فعلی بدون درخواست مستقیم بازطراحی نشود.
+
+## H6 — Data/backend gates that must not be faked
+- Firestore/Storage Rules publish واقعی و تست دو UID/two-device.
+- Presence، public relationships، Shared Class/Task، League authoritative result، Clubs realtime، Store token ledger، payment/Elite، AI gateway.
+- برای هر مورد backend-gated، UI می‌تواند empty/locked state واقعی داشته باشد ولی دادهٔ جعلی، user ساختگی، fake balance یا fake online ممنوع است.
+
+## H7 — Executor discipline
+1. قبل از هر patch: `main` HEAD واقعی + فایل‌های همان HEAD را بگیر.
+2. تغییر همزمان را rollback نکن؛ patch کوچک و additive/targeted باشد.
+3. Asset موجود repo را استفاده کن؛ filename/shape را حدس نزن.
+4. بعد از intentional visual change، تست قدیمی را فقط اگر contract قدیمی شده اصلاح کن؛ UI را برای راضی‌کردن تست stale عقب نبر.
+5. Cache-bust/boot version فقط وقتی asset/runtime واقعاً تغییر کرده.
+6. هر commit باید یک موضوع روشن داشته باشد.
+7. آخر کار: END HEAD → Validate + Reference + Browser + P0 + Pages؛ وضعیت incomplete را صریح بگو.
+8. هیچ‌وقت «انجام شد» نگو مگر همان HEAD واقعاً deploy/test شده باشد.
