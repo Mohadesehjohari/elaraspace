@@ -1,6 +1,7 @@
 # نقشهٔ راه Elara Space ✦ — به‌روزرسانی ۲۱ سپتامبر ۲۰۲۶
 > **مرجع canonical جدید:** [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)  
 > از ۳ اکتبر ۲۰۲۶، اولویت‌ها و تعارض‌های محصول از Master Roadmap حل می‌شوند. این فایل برای تاریخچهٔ اجرا نگه داشته شده است.
+> **Handoff اجرایی فعلی (۴ اکتبر ۲۰۲۶):** بخش `Execution Handoff — 2026-10-04` در Master و صف کوتاه‌مدت `REMAINING-ROADMAP.md` مرجع شروع چت اجرایی بعدی هستند.
 
 
 **مرجع اصلی و به‌روز وضعیت محصول:** [رودمپ کامل و چک‌لیست مراحل](docs/PRODUCT-ROADMAP.md)؛ [بک‌لاگ جامع V2](docs/V2-COMPLETE-FEATURE-ROADMAP.md)؛ [داشبورد ادمین و Gemini](docs/ADMIN-GEMINI-ROADMAP.md)؛ [راهنمای محدودیت‌های بتا](README-ELARA-APPROVED-FA.md).
