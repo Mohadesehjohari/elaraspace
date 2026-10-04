@@ -328,7 +328,46 @@
   }
   async function taskAction(action,id,date=today()){
     const state=ensureState(readState()),task=state.tasks.find(t=>t.id===id);if(!task)return;const now=validDate(date)?date:today();if(action==='toggle-task'&&(now>today()||!window.ElaraSchedule.taskDue(task,now))){notify('این نوبت هنوز قابل تکمیل نیست.');return}
-    if(action==='toggle-task'){if(task.sourceCompletionLocked){notify(`این مورد از بخش ${task.sourceLabel||'مربوطه'} ثبت شده و وضعیتش از همان بخش مدیریت می‌شود.`);return}if(task.recurrenceRule){if(!applies(task,now)){notify('این تسک برای امروز برنامه‌ریزی نشده.');return}task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);if(task.occurrenceDone.includes(now)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now)}else{task.occurrenceDone.push(now);recordCompletion(state,task,now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}}else{const oldDate=task.doneAt;task.completed=!task.completed;task.doneAt=task.completed?now:null;if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}else if(oldDate){removeCompletion(state,task,oldDate)}}window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();return;}
+    if(action==='toggle-task'){
+      if(task.sourceCompletionLocked){notify(`این مورد از بخش ${task.sourceLabel||'مربوطه'} ثبت شده و وضعیتش از همان بخش مدیریت می‌شود.`);return}
+      const target=taskDailyTarget(task);
+      if(task.recurrenceRule&&!applies(task,now)){notify('این تسک برای امروز برنامه‌ریزی نشده.');return}
+      if(target>1){
+        task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
+        const legacyDone=legacyTaskDone(task,now),explicit=hasExplicitDailyProgress(task,now);
+        let count=explicit?taskDailyProgress(task,now):(legacyDone?target:0);
+        count=count>=target?target-1:Math.min(target,count+1);
+        task.dailyProgress[now]=count;
+        const complete=count>=target;
+        if(task.recurrenceRule){
+          task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);
+          if(complete){
+            if(!task.occurrenceDone.includes(now))task.occurrenceDone.push(now);
+            recordCompletion(state,task,now);
+            if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}
+          }else{
+            task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now);
+          }
+        }else{
+          const oldDate=task.doneAt;task.completed=complete;task.doneAt=complete?now:null;
+          if(complete){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
+          else removeCompletion(state,task,oldDate||now);
+        }
+        window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();
+        notify(complete?`همهٔ ${fa(target)} نوبت انجام شد.`:`نوبت ${fa(count)} از ${fa(target)} ثبت شد.`);
+        return;
+      }
+      if(task.recurrenceRule){
+        task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);
+        if(task.occurrenceDone.includes(now)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now)}
+        else{task.occurrenceDone.push(now);recordCompletion(state,task,now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}
+      }else{
+        const oldDate=task.doneAt;task.completed=!task.completed;task.doneAt=task.completed?now:null;
+        if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
+        else if(oldDate){removeCompletion(state,task,oldDate)}
+      }
+      window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();return;
+    }
     if(action==='view-task'){await openTaskDetails(task);return}
     if(action==='edit-task'){let scope='series';if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'ویرایش تسک تکرارشونده',message:'می‌خواهی تغییر برای کدام بخش اعمال شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'از امروز به بعد',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillTaskForm(task,scope);return;}
     if(action==='delete-task'&&task.sourceManaged){if(await window.ElaraDialog.confirm(`نمای «${task.text||task.sourceLabel||'این مورد'}» از تسک‌ها حذف شود؟ منبع اصلی در ${task.sourceLabel||'بخش مربوطه'} پاک نمی‌شود.`,{title:'حذف از تسک‌ها',confirmText:'حذف',danger:true})){window.ElaraLinkedTasks?.dismissTask?.(state,task);state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks();notify('از تسک‌ها حذف شد.')}return}
