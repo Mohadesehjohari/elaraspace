@@ -631,3 +631,42 @@ body.light #elara-social-page .social-tabs [role="tab"]{
   #panel-tasks[data-task-view="group"] #task-list>.astra-task-group-card{padding:10px!important;border-radius:16px!important}
   #panel-tasks[data-task-view="group"] .astra-task-group-card .astra-task-row{min-height:104px!important;padding:10px!important}
 }
+
+
+/* Section-owned canonical task shelves */
+.feature-section-tasks{
+  display:grid!important;gap:14px!important;margin:4px 0 24px!important;padding:18px!important;
+  border:1px solid #34557f!important;border-radius:20px!important;background:linear-gradient(145deg,#081e3c,#06162f)!important
+}
+.feature-section-tasks>header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important}
+.feature-section-tasks>header>div{display:grid!important;gap:2px!important}
+.feature-section-tasks>header small{font-size:.68rem!important;letter-spacing:.16em!important;color:#aab8d6!important}
+.feature-section-tasks>header h2{margin:0!important;font-size:1.05rem!important}
+.feature-section-tasks>header p{margin:0!important;color:#9eadc9!important;font-size:.78rem!important}
+.feature-section-task-add{min-height:42px!important;padding:8px 15px!important;white-space:nowrap!important}
+.feature-section-task-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.feature-section-task-row{
+  display:grid!important;grid-template-columns:38px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;
+  min-height:86px!important;padding:10px 12px!important;border:1px solid #314c76!important;border-radius:15px!important;background:#081b36!important
+}
+.feature-section-task-row.done{opacity:.78!important}
+.feature-section-task-check{
+  display:grid!important;place-items:center!important;width:36px!important;height:36px!important;padding:0!important;border:1px solid #5b73a2!important;
+  border-radius:50%!important;background:transparent!important;overflow:hidden!important
+}
+.feature-section-task-check img{width:100%!important;height:100%!important;object-fit:contain!important}
+.feature-section-task-row>div{display:grid!important;gap:5px!important;min-width:0!important}
+.feature-section-task-row strong{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:.9rem!important}
+.feature-section-task-row>div>span{display:block!important;height:5px!important;border-radius:999px!important;background:#172e50!important;overflow:hidden!important}
+.feature-section-task-row>div>span i{display:block!important;height:100%!important;border-radius:inherit!important;background:linear-gradient(90deg,#6f49ff,#aa6bff)!important}
+.feature-section-task-row small{font-size:.7rem!important;color:#aebbd4!important}
+.feature-section-task-row>b{font-size:.72rem!important;color:#cdbfff!important}
+.feature-section-task-empty{grid-column:1/-1!important;margin:0!important;padding:18px!important;text-align:center!important;border:1px dashed #35537c!important;border-radius:14px!important;color:#91a2c0!important}
+@media(max-width:700px){
+ .feature-section-tasks{padding:14px!important;border-radius:18px!important;margin-bottom:20px!important}
+ .feature-section-tasks>header{align-items:flex-start!important}
+ .feature-section-tasks>header p{font-size:.7rem!important}
+ .feature-section-task-add{min-height:40px!important;padding:7px 11px!important;font-size:.78rem!important}
+ .feature-section-task-list{grid-template-columns:1fr!important}
+ .feature-section-task-row{min-height:82px!important}
+}
