@@ -155,7 +155,7 @@ function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar
  const theme=$('theme-toggle');if(theme){theme.classList.add('ref-theme-art-control');syncThemeArtwork(theme)}
  document.getElementById('ref-header-settings')?.remove();
  let notify=$('ref-header-notifications');if(!notify){notify=element('button','icon-button ref-header-notifications','ref-header-notifications');notify.type='button';notify.setAttribute('aria-label','اعلان‌ها');actions.append(notify)}const unread=Number(window.ElaraNotify?.unreadCount?.()??unreadNotifications())||0;notify.dataset.unreadCount=String(unread);window.ElaraDOM.patch(notify,art(unread>0?UI_ASSETS.notificationUnread:UI_ASSETS.notificationRead,'ref-header-art ref-notification-art',''));
- let edit=$('ref-header-edit');if(!edit){edit=element('button','icon-button ref-header-edit','ref-header-edit');edit.type='button';edit.setAttribute('aria-label','ویرایش پروفایل');edit.innerHTML=icon('edit');edit.addEventListener('click',()=>window.ElaraProfileSystem?.openEditor?.());actions.append(edit)}
+ document.getElementById('ref-header-edit')?.remove();
 }
 function renderDynamic(kind='all'){accountHeader();if(kind==='task'){renderTasks();renderMissions();streakView();return}if(kind==='habit'){renderHabits();renderMissions();streakView();return}if(kind==='goal'){renderGoals();return}renderTasks();renderHabits();renderGoals();renderMissions();wellness();streakView()}
 function render(){homeStructure();libraryFocus();renderDynamic();accountHeader();const p=$('panel-home');if(p){const h=p.querySelector('.hero-copy h1');if(h)h.textContent='قدم‌های کوچک، آینده‌های بزرگ می‌سازند.'}}
