@@ -1306,3 +1306,20 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-social-page.social-friends-page .social-reference-grid>.social-friends-list{grid-column:1!important;min-height:0!important}
   #elara-social-page .social-invite{grid-template-columns:minmax(0,1fr) auto auto!important}
 }
+
+
+/* v104: rank frame physical anchor — cancel legacy half-width translation. */
+#elara-ranking-page .social-podium-avatar>.social-rank-frame,
+#elara-ranking-page .social-podium-avatar>.social-profile-frame{
+  position:absolute!important;
+  left:0!important;top:0!important;right:auto!important;bottom:auto!important;
+  inset:auto!important;
+  width:100%!important;height:100%!important;
+  margin:0!important;
+  transform:none!important;
+  translate:none!important;
+  scale:none!important;
+  rotate:none!important;
+  object-fit:contain!important;
+  transform-origin:center!important;
+}
