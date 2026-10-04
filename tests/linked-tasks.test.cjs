@@ -16,19 +16,27 @@ vm.createContext(context);
 vm.runInContext(source,context);
 const api=context.window.ElaraLinkedTasks,day=api.today();
 const state={
+  xp:0,
   tasks:[],
+  habits:[{id:'h1',title:'آب خوردن',days:[],rewardDays:[]}],
   goals:[{id:'g1',title:'هدف من',steps:[{id:'s1',text:'قدم اول',done:false}]}],
   books:[{id:'b1',title:'کتاب تست',shelf:'reading'}],
   words:[{id:'w1',front:'hello',back:'سلام',due:day}],
   taskCompletionHistory:[]
 };
 assert.equal(api.syncCoreState(state),true);
-assert.equal(state.tasks.filter(t=>t.linkedTask).length,3);
+assert.equal(state.tasks.filter(t=>t.linkedTask).length,4);
 const gt=state.tasks.find(t=>t.sourceType==='goal-step');
 assert.equal(gt.sourceGroup,'goal');
 gt.completed=true;
 api.syncSourcesFromTasks(state);
 assert.equal(state.goals[0].steps[0].done,true);
+const ht=state.tasks.find(t=>t.sourceType==='habit');
+assert.equal(ht.sourceGroup,'habit');assert.equal(ht.date,day);assert.equal(ht.completed,false);
+ht.completed=true;ht.doneAt=day;api.syncSourcesFromTasks(state);
+assert.equal(state.habits[0].days.includes(day),true);assert.equal(state.xp,15);
+ht.completed=false;ht.doneAt=null;api.syncSourcesFromTasks(state);
+assert.equal(state.habits[0].days.includes(day),false);assert.equal(state.xp,15,'Habit undo must not award twice');
 const bt=state.tasks.find(t=>t.sourceType==='book');
 bt.completed=true;
 api.syncSourcesFromTasks(state);
