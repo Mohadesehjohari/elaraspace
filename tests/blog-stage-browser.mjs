@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 await mkdir('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
-const cloud="window.ElaraAccount={user:{uid:'blog-qa'},profile:{name:'Blog QA',username:'blog_qa',xp:120,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
+const cloud="window.ElaraAccount={user:{uid:'blog-qa'},profile:{name:'Blog QA',username:'blog_qa',xp:120,profilePublic:true}};window.ElaraPublicContent={listBlogArticles:async()=>[{id:'admin-productivity',title:'مقاله ادمین',excerpt:'از Content Studio منتشر شده',body:'بخش اول\\n\\nبخش دوم',category:'productivity',locale:'fa',status:'published',readMinutes:4}]};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
 const social="window.ElaraSocial={me:{uid:'blog-qa',name:'Blog QA'},friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true};window.dispatchEvent(new Event('elara:social-updated'));";
 async function run(width,height){
  const page=await browser.newPage({viewport:{width,height}});
@@ -12,7 +12,7 @@ async function run(width,height){
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
  await page.goto(base+'/?blog='+Date.now()+'#blog',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraBlog&&document.querySelector('#panel-blog:not(.hidden) .blog-card')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
- assert.equal(await page.locator('.blog-card').count(),5,width+': blog article count');
+ await page.waitForFunction(()=>document.querySelectorAll('.blog-card').length===6);assert.equal(await page.locator('.blog-card').count(),6,width+': static + admin-published blog article count');assert.match(await page.locator('[data-blog-id="published:admin-productivity"]').innerText(),/مقاله ادمین/);
  assert.equal(await page.locator('.sidebar [data-elara-tab="blog"]').count(),1,width+': blog navigation missing');
  await page.locator('[data-blog-filter="focus"]').click();
  assert.equal(await page.locator('.blog-card').count(),1,width+': focus filter failed');
