@@ -224,7 +224,7 @@
       const dueLabel=document.querySelector('label[for="task-due"]');if(dueLabel)dueLabel.textContent='تاریخ شروع / انجام';
       grid?.insertAdjacentHTML('afterend','<div class="task-description-fields"><label for="task-short-description">توضیح کوتاه<textarea id="task-short-description" maxlength="280" rows="2" placeholder="یک خلاصهٔ کوتاه برای لیست تسک…"></textarea></label><label for="task-description">توضیحات کامل<textarea id="task-description" maxlength="4000" rows="5" placeholder="جزئیات کامل، نکته‌ها، مراحل یا هر چیزی که برای این تسک لازم داری…"></textarea></label></div>');
       if(taskForm?.querySelector('.task-description-fields')){const more=document.createElement('details');more.className='task-more-settings';more.innerHTML='<summary>تنظیمات بیشتر و توضیحات</summary>';const fields=taskForm.querySelector('.task-description-fields');fields.before(more);more.append(fields)}
-      taskForm?.querySelector('.task-more-settings')?.insertAdjacentHTML('afterend','<div class="task-daily-target-setting"><label for="task-daily-target">تکرار در روز</label><div><input id="task-daily-target" type="number" min="1" max="24" step="1" value="1" inputmode="numeric"><span>بار در همان روز</span></div><small>مثلاً ۲ یعنی با بار اول ۱/۲ و با بار دوم تکمیل می‌شود؛ لازم نیست تسک را دوبار بسازی.</small></div>'+recurrenceMarkup('task'));
+      taskForm?.querySelector('.task-more-settings')?.insertAdjacentHTML('afterend','<div class="task-repeat-settings-row"><div class="task-daily-target-setting"><label for="task-daily-target">تکرار در روز</label><div><input id="task-daily-target" type="number" min="1" max="24" step="1" value="1" inputmode="numeric"><span>بار در همان روز</span></div><small>مثلاً ۲ یعنی ۱/۲ و بعد ۲/۲.</small></div>'+recurrenceMarkup('task')+'</div>');
       const filters=taskForm?.parentElement?.querySelector('.filters');
       if(filters&&!$('task-list-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-list-filter">فیلتر لیست</label><select id="task-list-filter"><option value="">همهٔ لیست‌ها</option></select>');
       if(filters&&!$('task-priority-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-priority-filter">فیلتر اولویت</label><select id="task-priority-filter"><option value="">همهٔ اولویت‌ها</option><option value="1">فوری · P1</option><option value="2">بالا · P2</option><option value="3">متوسط · P3</option><option value="4">عادی · P4</option></select>');
@@ -391,12 +391,14 @@
     taskSurfaceQueued=false;const state=ensureState(readState()),map=new Map(state.tasks.map(x=>[String(x.id),x]));
     document.querySelectorAll(taskSurfaceSelector).forEach(card=>{
       const id=taskSurfaceId(card),task=map.get(id);if(!task)return;
+      let dragHandle=card.querySelector(':scope > [data-core-task-drag]');
+      if(!dragHandle){dragHandle=document.createElement('button');dragHandle.type='button';dragHandle.className='core-task-drag-handle';dragHandle.dataset.coreTaskDrag=id;dragHandle.innerHTML='<span aria-hidden="true">⋮⋮</span>';dragHandle.title=surfaceTx('نگه‌دار و به سطل بکش','Hold and drag to trash');dragHandle.setAttribute('aria-label',surfaceTx('گرفتن تسک برای جابه‌جایی یا حذف','Grab task to move or delete'));card.append(dragHandle)}
       let button=card.querySelector(':scope > [data-task-daily-quick]');
       if(!button){button=document.createElement('button');button.type='button';button.className='task-daily-quick';button.dataset.taskDailyQuick=id;card.append(button)}
       const n=taskDailyTarget(task),label=document.documentElement.lang==='en'?'↻ '+n+'/day':'↻ '+fa(n)+'/روز';
       if(button.textContent!==label)button.textContent=label;
-      button.dataset.taskDailyQuick=id;button.classList.toggle('is-multi',n>1);button.title=surfaceTx('تکرار در روز','Repeat per day');
-      button.setAttribute('aria-label',surfaceTx('تکرار در روز: '+fa(n)+' بار؛ برای تغییر بزن','Repeat per day: '+n+'; tap to change'));
+      if(button.dataset.taskDailyQuick!==id)button.dataset.taskDailyQuick=id;button.classList.toggle('is-multi',n>1);const title=surfaceTx('تکرار در روز','Repeat per day');if(button.title!==title)button.title=title;
+      const aria=surfaceTx('تکرار در روز: '+fa(n)+' بار؛ برای تغییر بزن','Repeat per day: '+n+'; tap to change');if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
     })
   }
   function scheduleTaskSurfaceDecorate(){if(taskSurfaceQueued)return;taskSurfaceQueued=true;requestAnimationFrame(decorateTaskSurfaces)}
@@ -426,11 +428,13 @@
     document.body.classList.remove('task-core-dragging');taskHold=null
   }
   function taskHoldProtected(target){return !!target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-drag],.task-drag-handle,.astra-task-more,[data-task-bulk],[data-task-daily-quick],input,select,textarea,a')}
+  function activateTaskHold(hold){if(taskHold!==hold||hold.active)return;hold.active=true;hold.card.classList.add('is-core-task-dragging');document.body.classList.add('task-core-dragging');try{hold.card.setPointerCapture?.(hold.pointerId)}catch{}hold.ghost=taskHoldGhost(hold.card,hold.x,hold.y);taskTrashTarget().hidden=false;navigator.vibrate?.(18)}
   function taskHoldPointerDown(event){
-    if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
-    const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;
-    const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,x:event.clientX,y:event.clientY,active:false,overTrash:false,ghost:null,timer:null};taskHold=hold;
-    hold.timer=setTimeout(()=>{if(taskHold!==hold)return;hold.active=true;card.classList.add('is-core-task-dragging');document.body.classList.add('task-core-dragging');try{card.setPointerCapture?.(hold.pointerId)}catch{}hold.ghost=taskHoldGhost(card,hold.x,hold.y);taskTrashTarget().hidden=false;navigator.vibrate?.(18)},event.pointerType==='touch'?420:260)
+    if(taskHold||(event.pointerType==='mouse'&&event.button!==0))return;
+    const explicit=event.target.closest('[data-core-task-drag]'),card=explicit?.closest(taskSurfaceSelector)||event.target.closest(taskSurfaceSelector);if(!card)return;
+    if(!explicit&&taskHoldProtected(event.target))return;const id=taskSurfaceId(card);if(!id)return;
+    event.preventDefault();const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,x:event.clientX,y:event.clientY,active:false,overTrash:false,ghost:null,timer:null};taskHold=hold;
+    if(explicit)activateTaskHold(hold);else hold.timer=setTimeout(()=>activateTaskHold(hold),event.pointerType==='touch'?360:220)
   }
   function taskHoldPointerMove(event){
     const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;hold.x=event.clientX;hold.y=event.clientY;
@@ -567,6 +571,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     },true);
     document.addEventListener('click',async event=>{
       handleTaskKebabClick(event);
+      if(event.target.closest('[data-core-task-drag]')){event.preventDefault();event.stopImmediatePropagation();return}
       const dailyQuick=event.target.closest('[data-task-daily-quick]');if(dailyQuick){event.preventDefault();event.stopImmediatePropagation();await editTaskDailyTarget(dailyQuick.dataset.taskDailyQuick);return}
       if(Date.now()<taskHoldSuppressUntil){const card=event.target.closest(taskSurfaceSelector);if(card&&taskSurfaceId(card)===taskHoldSuppressId){event.preventDefault();event.stopImmediatePropagation();taskHoldSuppressUntil=0;taskHoldSuppressId='';return}}
       const addMain=event.target.closest('#elara-task-add-main');if(addMain){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
