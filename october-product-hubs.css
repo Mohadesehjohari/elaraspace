@@ -673,45 +673,45 @@ body.light #elara-social-page .social-tabs [role="tab"]{
 
 
 /* 2026-10-04 canonical Habit/Goal rows inside Tasks. */
-#panel-tasks #task-list>.astra-task-row.source-habit{
+#panel-tasks #task-list .astra-task-row.source-habit{
   border-color:#2f8f73!important;
   background:linear-gradient(100deg,#06382f 0%,#082f35 52%,#071d34 100%)!important;
   box-shadow:inset 4px 0 0 #42d6a3aa,0 9px 22px #001b1838!important
 }
-#panel-tasks #task-list>.astra-task-row.source-habit .astra-task-category,
-#panel-tasks #task-list>.astra-task-row.source-habit .astra-task-completion-label{
+#panel-tasks #task-list .astra-task-row.source-habit .astra-task-category,
+#panel-tasks #task-list .astra-task-row.source-habit .astra-task-completion-label{
   color:#9ff4d6!important
 }
-#panel-tasks #task-list>.astra-task-row.source-habit .priority-badge{
+#panel-tasks #task-list .astra-task-row.source-habit .priority-badge{
   border-color:#42b99266!important;background:#0f654c42!important;color:#b9f8e4!important
 }
-#panel-tasks #task-list>.astra-task-row.source-habit .astra-row-track i{
+#panel-tasks #task-list .astra-task-row.source-habit .astra-row-track i{
   background:linear-gradient(90deg,#32b98d,#6be0ba)!important
 }
-#panel-tasks #task-list>.astra-task-row.source-goal{
+#panel-tasks #task-list .astra-task-row.source-goal{
   border-color:#7656b8!important;
   background:linear-gradient(100deg,#2b174f 0%,#1b1d4b 52%,#081d38 100%)!important;
   box-shadow:inset 4px 0 0 #9b6cffaa,0 9px 22px #12082b42!important
 }
-#panel-tasks #task-list>.astra-task-row.source-goal .astra-task-category,
-#panel-tasks #task-list>.astra-task-row.source-goal .astra-task-completion-label{
+#panel-tasks #task-list .astra-task-row.source-goal .astra-task-category,
+#panel-tasks #task-list .astra-task-row.source-goal .astra-task-completion-label{
   color:#d8c3ff!important
 }
-#panel-tasks #task-list>.astra-task-row.source-goal .priority-badge{
+#panel-tasks #task-list .astra-task-row.source-goal .priority-badge{
   border-color:#9d78e866!important;background:#6036a842!important;color:#eadfff!important
 }
-#panel-tasks #task-list>.astra-task-row.source-goal .astra-row-track i{
+#panel-tasks #task-list .astra-task-row.source-goal .astra-row-track i{
   background:linear-gradient(90deg,#7b53e8,#bd83ff)!important
 }
-#panel-tasks #task-list>.astra-task-row.source-habit.done,
-#panel-tasks #task-list>.astra-task-row.source-goal.done{
+#panel-tasks #task-list .astra-task-row.source-habit.done,
+#panel-tasks #task-list .astra-task-row.source-goal.done{
   opacity:.82!important
 }
-body.light #panel-tasks #task-list>.astra-task-row.source-habit{
+body.light #panel-tasks #task-list .astra-task-row.source-habit{
   background:linear-gradient(100deg,#e8fff6,#effff9 55%,#f5fbff)!important;
   border-color:#63b99d!important
 }
-body.light #panel-tasks #task-list>.astra-task-row.source-goal{
+body.light #panel-tasks #task-list .astra-task-row.source-goal{
   background:linear-gradient(100deg,#f4ecff,#f8f3ff 55%,#f6f9ff)!important;
   border-color:#a58bd5!important
 }
