@@ -94,3 +94,32 @@ body.task-core-dragging{user-select:none!important;overscroll-behavior:none}
  .task-daily-quick{min-width:34px;height:20px;padding:0 5px;font-size:.51rem}
 }
 @media(prefers-reduced-motion:reduce){#task-core-drag-ghost,#task-trash-drop{transition:none!important}}
+
+
+/* 2026-10-05 task repeat layout + explicit grab handle */
+.task-repeat-settings-row{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:10px;align-items:stretch;margin-top:10px}
+.task-repeat-settings-row>.task-daily-target-setting,.task-repeat-settings-row>.recurrence-box{margin:0!important;min-width:0}
+.task-repeat-settings-row>.task-daily-target-setting{display:grid;align-content:start;gap:7px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface2)}
+.task-repeat-settings-row>.task-daily-target-setting>label{font-size:.7rem;font-weight:900}
+.task-repeat-settings-row>.task-daily-target-setting>div{display:flex;align-items:center;gap:7px}
+.task-repeat-settings-row>.task-daily-target-setting input{width:68px;min-width:68px}
+.task-repeat-settings-row>.task-daily-target-setting span{font-size:.62rem;color:var(--muted)}
+.task-repeat-settings-row>.task-daily-target-setting small{font-size:.56rem;line-height:1.55;color:var(--muted)}
+.core-task-drag-handle{
+ position:absolute;z-index:10;inset-inline-end:5px;inset-block-start:5px;display:grid;place-items:center;
+ width:30px;height:30px;min-width:30px;padding:0;border:1px solid color-mix(in srgb,var(--border) 70%,var(--accent) 30%);
+ border-radius:9px;background:color-mix(in srgb,var(--surface2) 92%,transparent);color:var(--muted);
+ cursor:grab;touch-action:none;user-select:none;box-shadow:0 3px 10px #0002
+}
+.core-task-drag-handle:active{cursor:grabbing}
+.core-task-drag-handle span{font-size:.9rem;letter-spacing:-3px;transform:rotate(90deg);display:block}
+.is-core-task-dragging .core-task-drag-handle{color:#fff;border-color:#ff6f82;background:#7f2437}
+#panel-home .ref-task-row .core-task-drag-handle{width:24px;height:24px;min-width:24px;inset-inline-end:1px;inset-block-start:1px;border-radius:7px}
+#panel-home .ref-task-row .core-task-drag-handle span{font-size:.72rem}
+.task-board-card .core-task-drag-handle,.feature-section-task-row .core-task-drag-handle{inset-inline-end:6px;inset-block-start:6px}
+@media(max-width:700px){
+ .task-repeat-settings-row{grid-template-columns:1fr 1fr;gap:7px}
+ .task-repeat-settings-row>.task-daily-target-setting{padding:9px}
+ .core-task-drag-handle{width:32px;height:32px;min-width:32px}
+}
+@media(max-width:380px){.task-repeat-settings-row{grid-template-columns:1fr}}
