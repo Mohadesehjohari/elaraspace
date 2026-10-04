@@ -88,7 +88,7 @@ function chipFor(card){
  let chip=card.querySelector(':scope > .task-daily-target-chip');
  if(!chip){chip=document.createElement('button');chip.type='button';chip.className='task-daily-target-chip';card.append(chip)}
  const n=dailyTarget(task);chip.dataset.taskDailyOpen=id;chip.dataset.dailyTarget=String(n);chip.classList.toggle('is-multi',n>1);
- chip.textContent='↻'+n.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
+ const text='↻'+n.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');if(chip.textContent!==text)chip.textContent=text;
  chip.setAttribute('aria-label',t('تکرار در روز: '+n+' بار؛ برای تغییر باز کن','Repeat per day: '+n+'; open to change'));
  chip.title=t('تکرار در روز','Repeat per day')
 }
