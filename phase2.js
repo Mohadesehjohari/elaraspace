@@ -391,8 +391,7 @@
     taskSurfaceQueued=false;const state=ensureState(readState()),map=new Map(state.tasks.map(x=>[String(x.id),x]));
     document.querySelectorAll(taskSurfaceSelector).forEach(card=>{
       const id=taskSurfaceId(card),task=map.get(id);if(!task)return;
-      let dragHandle=card.querySelector(':scope > [data-core-task-drag]');
-      if(!dragHandle){dragHandle=document.createElement('button');dragHandle.type='button';dragHandle.className='core-task-drag-handle';dragHandle.dataset.coreTaskDrag=id;dragHandle.innerHTML='<span aria-hidden="true">⋮⋮</span>';dragHandle.title=surfaceTx('نگه‌دار و به سطل بکش','Hold and drag to trash');dragHandle.setAttribute('aria-label',surfaceTx('گرفتن تسک برای جابه‌جایی یا حذف','Grab task to move or delete'));card.append(dragHandle)}
+      card.querySelector(':scope > [data-core-task-drag]')?.remove();
       let button=card.querySelector(':scope > [data-task-daily-quick]');
       if(!button){button=document.createElement('button');button.type='button';button.className='task-daily-quick';button.dataset.taskDailyQuick=id;card.append(button)}
       const n=taskDailyTarget(task),label=document.documentElement.lang==='en'?'↻ '+n+'/day':'↻ '+fa(n)+'/روز';
@@ -412,41 +411,50 @@
     window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state);writeState(state);renderTasks();scheduleTaskSurfaceDecorate();
     notify(n===1?surfaceTx('تکرار روزانه روی ۱ بار تنظیم شد.','Daily repeat set to 1.'):surfaceTx('این تسک روزی '+fa(n)+' بار تکرار می‌شود.','This task repeats '+n+' times per day.'));
   }
-  function taskTrashTarget(){
-    let target=document.getElementById('task-trash-drop');if(!target){target=document.createElement('div');target.id='task-trash-drop';target.setAttribute('role','status');document.body.append(target)}
-    target.innerHTML='<span class="task-core-trash-icon" aria-hidden="true">🗑</span><span><b>'+surfaceTx('سطل آشغال','Trash')+'</b><small>'+surfaceTx('تسک را اینجا رها کن','Drop task here')+'</small></span>';return target
+  function cloneQuickTask(task){
+    const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now();copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;
+    for(const key of ['linkedTask','sourceType','sourceId','sourceParentId','sourceGroup','sourceLabel','sourceManaged','sourceCompletionLocked','sourceOwner','sourceUserEdited'])delete copy[key];return copy
   }
-  function taskHoldGhost(card,x,y){
-    const ghost=document.createElement('div');ghost.id='task-core-drag-ghost';ghost.innerHTML='<span aria-hidden="true">↕</span><strong></strong>';
-    ghost.querySelector('strong').textContent=(card.querySelector('.item-title,.task-summary-button strong,.task-board-open strong,.ref-task-row>strong,.task-archive-row strong')?.textContent||surfaceTx('تسک','Task')).trim();
-    document.body.append(ghost);moveTaskHoldGhost(ghost,x,y);return ghost
+  async function quickMoveTask(id){
+    const state=ensureState(readState()),task=state.tasks.find(x=>String(x.id)===String(id));if(!task)return;
+    const wrap=document.createElement('div');wrap.className='task-quick-move';wrap.dataset.elaraI18n='off';
+    const options=(items,current,noneFa,noneEn)=>'<option value="__none__">'+surfaceTx(noneFa,noneEn)+'</option>'+items.map(x=>'<option value="'+esc(x)+'" '+(x===current?'selected':'')+'>'+esc(x)+'</option>').join('');
+    wrap.innerHTML='<label>'+surfaceTx('لیست','List')+'<select name="list">'+options(state.taskLists,task.list||'','بدون لیست','No list')+'</select></label><label>'+surfaceTx('پوشه','Folder')+'<select name="folder">'+options(state.folders,task.folder||'','بدون پوشه','No folder')+'</select></label>';
+    const ok=await window.ElaraDialog.open({title:surfaceTx('انتقال تسک','Move task'),content:wrap,actions:[{label:surfaceTx('انصراف','Cancel'),value:false},{label:surfaceTx('انتقال','Move'),value:true,kind:'primary'}]});if(ok!==true)return;
+    const listValue=wrap.querySelector('[name=list]').value,folderValue=wrap.querySelector('[name=folder]').value;task.list=listValue==='__none__'?'':listValue;task.folder=folderValue==='__none__'?'':folderValue;if(task.sourceManaged)task.sourceUserEdited=true;
+    writeState(state);renderTasks();scheduleTaskSurfaceDecorate();notify(surfaceTx('تسک منتقل شد.','Task moved.'))
   }
-  function moveTaskHoldGhost(ghost,x,y){if(ghost)ghost.style.transform='translate3d('+(x+14)+'px,'+(y+14)+'px,0)'}
+  async function quickDuplicateTask(id){
+    const state=ensureState(readState()),task=state.tasks.find(x=>String(x.id)===String(id));if(!task)return;state.tasks.unshift(cloneQuickTask(task));writeState(state);renderTasks();scheduleTaskSurfaceDecorate();notify(surfaceTx('یک کپی از تسک ساخته شد.','Task duplicated.'))
+  }
+  async function openTaskQuickActions(id){
+    const state=ensureState(readState()),task=state.tasks.find(x=>String(x.id)===String(id));if(!task)return;
+    const choice=await window.ElaraDialog.choice({title:task.text||surfaceTx('تسک','Task'),message:surfaceTx('چه کاری می‌خواهی انجام بدهی؟','Choose an action for this task.'),options:[
+      {label:surfaceTx('ویرایش','Edit'),value:'edit',kind:'primary'},
+      {label:surfaceTx('انتقال','Move'),value:'move'},
+      {label:surfaceTx('کپی','Duplicate'),value:'duplicate'},
+      {label:surfaceTx('تکرار در روز','Repeat per day'),value:'daily'},
+      {label:surfaceTx('حذف','Delete'),value:'delete',kind:'danger'}
+    ]});
+    if(choice==='edit'){await taskAction('edit-task',id);return}
+    if(choice==='move'){await quickMoveTask(id);return}
+    if(choice==='duplicate'){await quickDuplicateTask(id);return}
+    if(choice==='daily'){await editTaskDailyTarget(id);return}
+    if(choice==='delete'){await taskAction('delete-task',id)}
+  }
   function clearTaskHold(){
-    if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-dragging');taskHold.ghost?.remove();
-    const trash=document.getElementById('task-trash-drop');if(trash){trash.hidden=true;trash.classList.remove('is-over')}
-    document.body.classList.remove('task-core-dragging');taskHold=null
+    if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-holding');taskHold=null
   }
-  function taskHoldProtected(target){return !!target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-drag],.task-drag-handle,.astra-task-more,[data-task-bulk],[data-task-daily-quick],input,select,textarea,a')}
-  function activateTaskHold(hold){if(taskHold!==hold||hold.active)return;hold.active=true;hold.card.classList.add('is-core-task-dragging');document.body.classList.add('task-core-dragging');try{hold.card.setPointerCapture?.(hold.pointerId)}catch{}hold.ghost=taskHoldGhost(hold.card,hold.x,hold.y);taskTrashTarget().hidden=false;navigator.vibrate?.(18)}
+  function taskHoldProtected(target){return !!target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-daily-quick],.astra-task-more,input,select,textarea,a,button')}
   function taskHoldPointerDown(event){
-    if(taskHold||(event.pointerType==='mouse'&&event.button!==0))return;
-    const explicit=event.target.closest('[data-core-task-drag]'),card=explicit?.closest(taskSurfaceSelector)||event.target.closest(taskSurfaceSelector);if(!card)return;
-    if(!explicit&&taskHoldProtected(event.target))return;const id=taskSurfaceId(card);if(!id)return;
-    event.preventDefault();const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,x:event.clientX,y:event.clientY,active:false,overTrash:false,ghost:null,timer:null};taskHold=hold;
-    if(explicit)activateTaskHold(hold);else hold.timer=setTimeout(()=>activateTaskHold(hold),event.pointerType==='touch'?360:220)
+    if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
+    const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;
+    const hold={card,id,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,timer:null};taskHold=hold;card.classList.add('is-core-task-holding');
+    hold.timer=setTimeout(()=>{if(taskHold!==hold)return;taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+900;clearTaskHold();navigator.vibrate?.(16);void openTaskQuickActions(id)},event.pointerType==='touch'?430:380)
   }
-  function taskHoldPointerMove(event){
-    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;hold.x=event.clientX;hold.y=event.clientY;
-    const distance=Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY);if(!hold.active){if(distance>10)clearTaskHold();return}
-    event.preventDefault();moveTaskHoldGhost(hold.ghost,event.clientX,event.clientY);
-    const trash=document.getElementById('task-trash-drop'),rect=trash?.getBoundingClientRect();hold.overTrash=!!rect&&event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom;trash?.classList.toggle('is-over',hold.overTrash)
-  }
-  function taskHoldPointerUp(event){
-    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;const active=hold.active,over=hold.overTrash,id=hold.id;
-    if(active){taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+850}clearTaskHold();if(active&&over)void taskAction('delete-task',id)
-  }
-  function taskHoldContextMenu(event){const card=event.target.closest?.(taskSurfaceSelector);if(card)event.preventDefault()}
+  function taskHoldPointerMove(event){const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;if(Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY)>10)clearTaskHold()}
+  function taskHoldPointerUp(event){const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;clearTaskHold()}
+  function taskHoldContextMenu(event){const card=event.target.closest?.(taskSurfaceSelector);if(!card||taskHoldProtected(event.target))return;event.preventDefault();taskHoldSuppressId=taskSurfaceId(card);taskHoldSuppressUntil=Date.now()+900;void openTaskQuickActions(taskHoldSuppressId)}
 
   function renderHabits(){
     const state=ensureState(readState()),list=$('habit-list');if(!list)return;const now=today();
@@ -571,7 +579,6 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     },true);
     document.addEventListener('click',async event=>{
       handleTaskKebabClick(event);
-      if(event.target.closest('[data-core-task-drag]')){event.preventDefault();event.stopImmediatePropagation();return}
       const dailyQuick=event.target.closest('[data-task-daily-quick]');if(dailyQuick){event.preventDefault();event.stopImmediatePropagation();await editTaskDailyTarget(dailyQuick.dataset.taskDailyQuick);return}
       if(Date.now()<taskHoldSuppressUntil){const card=event.target.closest(taskSurfaceSelector);if(card&&taskSurfaceId(card)===taskHoldSuppressId){event.preventDefault();event.stopImmediatePropagation();taskHoldSuppressUntil=0;taskHoldSuppressId='';return}}
       const addMain=event.target.closest('#elara-task-add-main');if(addMain){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
@@ -590,7 +597,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     },true);
     document.addEventListener('pointerdown',event=>{const details=event.target.closest('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)},true);
     document.addEventListener('pointerdown',taskHoldPointerDown,true);
-    document.addEventListener('pointermove',taskHoldPointerMove,{capture:true,passive:false});
+    document.addEventListener('pointermove',taskHoldPointerMove,true);
     document.addEventListener('pointerup',taskHoldPointerUp,true);
     document.addEventListener('pointercancel',clearTaskHold,true);
     document.addEventListener('contextmenu',taskHoldContextMenu,true);
@@ -608,7 +615,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
     window.addEventListener('elara:data-changed',()=>{renderTasks();scheduleTaskSurfaceDecorate();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
   }
-  window.ElaraCoreTaskHold={decorate:decorateTaskSurfaces,editDailyTarget:editTaskDailyTarget};
+  window.ElaraCoreTaskHold={decorate:decorateTaskSurfaces,editDailyTarget:editTaskDailyTarget,openActions:openTaskQuickActions};
   window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,taskDailyTarget,taskDailyProgress,habitScheduled,openComposer:openTaskComposer,render:renderTasks,reset:resetTaskForm};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
