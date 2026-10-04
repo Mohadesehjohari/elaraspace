@@ -33,12 +33,6 @@ function head(panel,parent,eyebrow,title,sub){
 }
 function move(node,panel){if(!node||!panel)return;panel.append(node);moved.add(node)}
 function readState(){try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}}
-function readingPreview(){
- const s=readState(),books=Array.isArray(s.books)?s.books:[],active=books.filter(b=>b.shelf==='reading').slice(0,4);
- return '<section class="feature-hub-preview"><header><h2>'+tx('در حال مطالعه','Currently reading')+'</h2><button type="button" data-feature-route="library-shelves">'+tx('همه کتاب‌ها','All books')+' ←</button></header><div>'+(
-  active.length?active.map(b=>'<article><strong data-elara-ugc dir="auto">'+esc(b.title||tx('بدون عنوان','Untitled'))+'</strong><small>'+Number(b.currentPage||0).toLocaleString(lang()==='en'?'en-US':'fa-IR')+' / '+(Number(b.totalPages)||'—')+'</small></article>').join(''):'<p class="muted">'+tx('کتابی در حال مطالعه نیست؛ از جستجو یا قفسه‌ها شروع کن.','No current book; start from Search or Shelves.')+'</p>'
- )+'</div></section>'
-}
 function setupLibrary(){
  const parent=$('panel-books');if(!parent)return;
  parent.classList.add('feature-hub-parent','library-feature-hub');
