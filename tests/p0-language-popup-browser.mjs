@@ -102,12 +102,19 @@ await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\\.webp/,'uploaded Language banner is not active');
-assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,'Language must expose four clean launcher cards');
+const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
+assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
+const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
+assert.equal(Math.max(...languageGeometry.map(x=>x.y))-Math.min(...languageGeometry.map(x=>x.y))<=2,true,'Language launchers must stay in one Freedom-style horizontal row: '+JSON.stringify(languageGeometry));
+assert.equal(languageGeometry.every(x=>x.h>=120&&x.h<=155&&x.imgH>=65),true,'Language launcher sizing drifted from Freedom-style tiles: '+JSON.stringify(languageGeometry));
 assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
 const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
-assert.equal(await page.locator('#panel-words [data-language-block="leitner"] .language-leitner-stats>div').count(),4,'Dedicated Leitner route must preserve the original four live stat tiles');
+const leitnerStats=page.locator('#panel-words [data-language-block="leitner"] .language-leitner-stats>div');
+assert.equal(await leitnerStats.count(),4,'Dedicated Leitner route must preserve the original four live stat tiles');
+const leitnerRows=await leitnerStats.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
+assert.equal(Math.max(...leitnerRows.map(x=>x.y))-Math.min(...leitnerRows.map(x=>x.y))<=2,true,'Leitner stats must remain horizontal like the original design: '+JSON.stringify(leitnerRows));
 const leitnerArt=page.locator('#panel-words [data-language-block="leitner"] .pass3-language-stat-art');assert.equal(await leitnerArt.count(),4,'Dedicated Leitner route lost its original artwork');assert.equal(await leitnerArt.evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),true,'Dedicated Leitner artwork failed to decode');
 await page.evaluate(()=>window.ElaraOpen('language',{history:'replace'}));await page.waitForTimeout(70);
 await page.screenshot({path:`${out}/language-390.png`,fullPage:false});
