@@ -45,7 +45,8 @@ function clearAccount(){
 function form(mode='login'){
   locked();
   layer.replaceChildren();
-  const wrap=document.createElement('div');wrap.className='cloud-card';
+  const wrap=document.createElement('div');wrap.className='cloud-card cloud-auth-card';
+  const intro=document.createElement('div');intro.className='cloud-login-intro';intro.setAttribute('aria-hidden','true');intro.innerHTML='<span class="cloud-comet c1"></span><span class="cloud-comet c2"></span><span class="cloud-comet c3"></span><span class="cloud-comet c4"></span><div class="cloud-logo-reveal"><img src="assets/logo.svg" alt=""><b>ELARA SPACE</b></div>';
   const title=document.createElement('h2');title.textContent=mode==='register'?'Create an account':'Welcome to Elara';
   const sub=document.createElement('p');sub.className='muted';sub.textContent=mode==='register'?'حساب اختصاصی و دوستان واقعی':'برای نمایش اطلاعات خصوصی خودت وارد شو.';
   const f=document.createElement('form');f.id='cloud-form';
@@ -69,7 +70,7 @@ function form(mode='login'){
   const send=document.createElement('button');send.type='submit';send.className='primary-button';send.textContent=mode==='register'?'ثبت‌نام و ارسال لینک تأیید ایمیل':'ورود';f.append(send);
   const switcher=document.createElement('button');switcher.type='button';switcher.className='quiet-button';switcher.textContent=mode==='register'?'حساب دارم · ورود':'حساب ندارم · ثبت‌نام';switcher.addEventListener('click',()=>form(mode==='register'?'login':'register'));
   const forgot=document.createElement('button');forgot.type='button';forgot.className='mini-button';forgot.textContent='فراموشی رمز';forgot.addEventListener('click',async()=>{try{if(!email.value)throw new Error('اول ایمیلت را وارد کن.');await sendPasswordResetEmail(auth,email.value.trim());message('اگر این ایمیل ثبت شده باشد، لینک بازیابی ارسال می‌شود.');}catch(e){message(actionError(e));}});
-  wrap.append(title,sub,f,switcher);if(mode==='login')wrap.append(forgot);
+  wrap.append(intro,title,sub,f,switcher);if(mode==='login')wrap.append(forgot);
   wrap.append(status,retry);wrap.dataset.elaraAccountGateReady=mode;layer.append(wrap);window.dispatchEvent(new Event('elara:account-gate-ready')); const msg=document.createElement('p');msg.id='cloud-form-message';msg.className='muted';wrap.append(msg);
   f.addEventListener('submit',async e=>{
     e.preventDefault();send.disabled=true;msg.textContent='در حال بررسی…';
