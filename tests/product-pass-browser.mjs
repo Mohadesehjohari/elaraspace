@@ -100,12 +100,14 @@ for(const width of all){
   });
 
   await openRoute(page,'tasks');
-  await check(`${width}: Tasks reference geometry and circle`,async()=>{
+  await check(`${width}: Tasks reference geometry and compact tick control`,async()=>{
    const hero=await rect(page,'#astra-task-hero'),row=await rect(page,'#task-list>.item'),content=await rect(page,'#panel-tasks'),cta=await rect(page,'#elara-task-add-main'),cb=await rect(page,'#task-list>.item .check-button');
-   assert.ok(Math.abs(cb.width-cb.height)<=1,`ellipse ${cb.width}x${cb.height}`);
-   const ref=mobile?{hero:Math.round(clamp(116,width*.364,156)),row:Math.round(clamp(88,width*.238,104)),content:width-24,ctaW:width-160,ctaH:46,cb:34}:{hero:Math.round(clamp(202,height*.223,218)),row:Math.round(clamp(70,height*.0765,76)),content:Math.round(width-clamp(190,width*.1244,208)-2*clamp(16,width*.012,20)),ctaW:220,ctaH:52,cb:42};
+   assert.ok(Math.abs(cb.width-cb.height)<=1,`completion control is not square ${cb.width}x${cb.height}`);
+   const cbStyle=await page.locator('#task-list>.item .check-button').first().evaluate(el=>({radius:parseFloat(getComputedStyle(el).borderTopLeftRadius)||0}));
+   assert.ok(cbStyle.radius<=12,`completion control returned to a circle: radius ${cbStyle.radius}`);
+   const ref=mobile?{hero:Math.round(clamp(116,width*.364,156)),row:Math.round(clamp(88,width*.238,104)),content:width-24,ctaW:width-160,ctaH:46,cb:32}:{hero:Math.round(clamp(202,height*.223,218)),row:Math.round(clamp(70,height*.0765,76)),content:Math.round(width-clamp(190,width*.1244,208)-2*clamp(16,width*.012,20)),ctaW:220,ctaH:52,cb:34};
    const near=(a,b,t,l)=>assert.ok(Math.abs(a-b)<=t,`${l} ${a} vs ${b}`);
-   near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,3,'checkbox');
+   near(hero.height,ref.hero,mobile?6:8,'hero');near(row.height,ref.row,mobile?6:8,'row');near(content.width,ref.content,mobile?6:8,'content');near(cta.width,ref.ctaW,8,'cta width');near(cta.height,ref.ctaH,5,'cta height');near(cb.width,ref.cb,2,'completion control');
    if(!mobile){const repeat=page.locator('.astra-repeat-meta').first();assert.equal(await repeat.count()>0,true);const rr=await repeat.boundingBox();assert.ok(rr&&rr.height<=24,'repeat metadata enlarged row')}
    const kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'task three-dot must stay visible');assert.match((await summary.innerText()).trim(),/⋮/,'task three-dot glyph missing');const kb=await summary.boundingBox();assert.ok(kb&&kb.width>=34&&kb.height>=38,'task three-dot hit target is too small');await summary.click();await page.waitForTimeout(30);const actions=kebab.locator('.item-actions');assert.equal(await actions.isVisible(),true,'task actions popup must be visible');const layer=await kebab.evaluate(el=>({detail:Number(getComputedStyle(el).zIndex)||0,row:Number(getComputedStyle(el.closest('.item')).zIndex)||0}));assert.ok(layer.detail>0&&layer.row>0,'task actions must establish an explicit stacking context');const ab=await actions.boundingBox();assert.ok(ab,'task actions have no box');const topmost=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('.item-actions')?.classList.contains('item-actions')||false,{x:ab.x+Math.min(ab.width/2,40),y:ab.y+Math.min(ab.height/2,24)});assert.equal(topmost,true,'task actions are visually under another card');await summary.click();
    await noOverflow(page);
