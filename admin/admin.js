@@ -1,6 +1,6 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,getCountFromServer,addDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,getCountFromServer,addDoc,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const firebaseConfig={
   apiKey:'AIzaSyBpCsIvc3A8sLrdvUiaGDQjMH6qE9lUTGo',
@@ -12,7 +12,7 @@ const firebaseConfig={
 };
 const app=initializeApp(firebaseConfig,'elara-admin');
 const auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
-let currentUser=null,currentAdmin=null,deploymentBusy=false,deploymentPoll=null,aiState=null;
+let currentUser=null,currentAdmin=null,deploymentBusy=false,deploymentPoll=null,aiState=null,contentState={articles:[],pages:[]};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function authErrorMessage(error){
@@ -43,7 +43,7 @@ function openApp(){
   $('admin-role').textContent=currentAdmin.role.toUpperCase();
   $('stat-role').textContent=currentAdmin.role;
   $('admin-identity').textContent=currentUser.email||currentUser.uid;
-  void refreshOverview();void loadSiteSettings();void loadDeploymentStatus();
+  void refreshOverview();void loadSiteSettings();void loadDeploymentStatus();void loadContentStudio();
 }
 async function resolveAdmin(user){
   if(!user.emailVerified)throw new Error('ایمیل این حساب هنوز تأیید نشده است.');
@@ -183,6 +183,106 @@ async function addAiKey(event){event.preventDefault();const button=event.target.
 async function saveAiModel(event){event.preventDefault();const button=event.target.querySelector('[type=submit]');button.disabled=true;try{renderAi(await aiRequest('model-save',{method:'POST',body:{id:$('ai-model-row-id').value,display_name:$('ai-model-display').value.trim(),technical_model_id:$('ai-model-technical').value.trim(),enabled:$('ai-model-enabled').checked}}));event.target.reset();$('ai-model-row-id').value='';$('ai-model-enabled').checked=true;toast('مدل ذخیره شد.')}catch(error){toast(error.message||'ذخیره مدل ناموفق بود.')}finally{button.disabled=false}}
 async function testAi(){try{const data=await aiRequest('test',{method:'POST',body:{model_id:$('ai-default-model').value}});$('ai-status-message').textContent='✓ اتصال '+(data.model_display_name||'مدل')+' تأیید شد.'}catch(error){$('ai-status-message').textContent=error.message||'تست اتصال ناموفق بود.'}}
 
+
+const canPublishContent=()=>!!currentAdmin&&['owner','admin'].includes(currentAdmin.role);
+const slugify=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,80);
+const asMillis=value=>value?.toMillis?.()||value?.seconds*1000||0;
+function contentDate(value){const ms=asMillis(value);return ms?new Date(ms).toLocaleString('fa-IR'):'—'}
+async function auditContent(action,target,meta={}){
+  await addDoc(collection(db,'adminAudit'),{uid:currentUser.uid,role:currentAdmin.role,action,target,meta,createdAt:serverTimestamp()});
+}
+function contentRow(kind,row){
+  const isArticle=kind==='blog',id=row.id,title=row.title||id,status=row.status==='published'?'published':'draft';
+  return '<div class="content-row" data-content-kind="'+kind+'" data-content-id="'+esc(id)+'"><div class="content-row-copy"><strong>'+esc(title)+'</strong><span class="content-row-status '+status+'">'+(status==='published'?'Published':'Draft')+'</span><small>'+(isArticle?esc(row.category||'—')+' · ':'')+esc(row.locale||'fa')+' · '+esc(contentDate(row.updatedAt))+'</small>'+(isArticle?'':'<code>'+esc(row.slug||id)+'</code>')+'</div><div class="content-row-actions"><button type="button" class="secondary" data-content-edit="'+kind+'" data-id="'+esc(id)+'">ویرایش</button><button type="button" class="secondary danger" data-content-delete="'+kind+'" data-id="'+esc(id)+'" '+(canPublishContent()?'':'disabled')+'>حذف</button></div></div>';
+}
+function renderContentStudio(){
+  const articles=[...contentState.articles].sort((a,b)=>asMillis(b.updatedAt)-asMillis(a.updatedAt));
+  const pages=[...contentState.pages].sort((a,b)=>asMillis(b.updatedAt)-asMillis(a.updatedAt));
+  if($('blog-content-list'))$('blog-content-list').innerHTML=articles.length?articles.map(x=>contentRow('blog',x)).join(''):'<p class="muted">هنوز مقاله‌ای ثبت نشده است.</p>';
+  if($('site-page-list'))$('site-page-list').innerHTML=pages.length?pages.map(x=>contentRow('page',x)).join(''):'<p class="muted">هنوز صفحه‌ای ثبت نشده است.</p>';
+  if($('blog-content-count'))$('blog-content-count').textContent=articles.length.toLocaleString('fa-IR');
+  if($('site-page-count'))$('site-page-count').textContent=pages.length.toLocaleString('fa-IR');
+  const allowed=canPublishContent();
+  for(const formId of ['blog-content-form','site-page-form'])$(formId)?.querySelectorAll('input,textarea,select,button').forEach(el=>{if(!['blog-content-reset','site-page-reset'].includes(el.id))el.disabled=!allowed});
+  if(!allowed){
+    if($('blog-content-status-message'))$('blog-content-status-message').textContent='نقش moderator فقط مشاهده دارد؛ انتشار برای owner/admin است.';
+    if($('site-page-status-message'))$('site-page-status-message').textContent='نقش moderator فقط مشاهده دارد؛ انتشار برای owner/admin است.';
+  }
+}
+async function loadContentStudio(){
+  if(!currentUser||!currentAdmin)return;
+  try{
+    const [articles,pages]=await Promise.all([getDocs(collection(db,'blogArticles')),getDocs(collection(db,'sitePages'))]);
+    contentState={
+      articles:articles.docs.map(d=>({id:d.id,...d.data()})),
+      pages:pages.docs.map(d=>({id:d.id,...d.data()}))
+    };
+    renderContentStudio();
+  }catch(error){
+    console.error('Elara admin content:',error);
+    if($('blog-content-status-message'))$('blog-content-status-message').textContent='خواندن محتوا ناموفق بود. Rules جدید باید روی Firebase منتشر شود.';
+    if($('site-page-status-message'))$('site-page-status-message').textContent='خواندن محتوا ناموفق بود. Rules جدید باید روی Firebase منتشر شود.';
+  }
+}
+function resetBlogForm(){
+  const form=$('blog-content-form');if(!form)return;form.reset();$('blog-content-id').value='';$('blog-content-minutes').value='5';$('blog-content-locale').value='fa';$('blog-content-status').value='draft';$('blog-content-title').focus();
+  if($('blog-content-status-message'))$('blog-content-status-message').textContent='';
+}
+function resetPageForm(){
+  const form=$('site-page-form');if(!form)return;form.reset();$('site-page-id').value='';$('site-page-locale').value='fa';$('site-page-status').value='draft';$('site-page-slug').readOnly=false;$('site-page-slug').focus();
+  if($('site-page-status-message'))$('site-page-status-message').textContent='';
+}
+function editContent(kind,id){
+  if(kind==='blog'){
+    const row=contentState.articles.find(x=>x.id===id);if(!row)return;
+    $('blog-content-id').value=row.id;$('blog-content-title').value=row.title||'';$('blog-content-excerpt').value=row.excerpt||'';$('blog-content-body').value=row.body||'';$('blog-content-category').value=row.category||'planning';$('blog-content-locale').value=row.locale||'fa';$('blog-content-status').value=row.status||'draft';$('blog-content-minutes').value=Number(row.readMinutes||5);$('blog-content-cover').value=row.coverUrl||'';$('blog-content-title').focus();return;
+  }
+  const row=contentState.pages.find(x=>x.id===id);if(!row)return;
+  $('site-page-id').value=row.id;$('site-page-slug').value=row.slug||row.id;$('site-page-slug').readOnly=true;$('site-page-title').value=row.title||'';$('site-page-excerpt').value=row.excerpt||'';$('site-page-body').value=row.body||'';$('site-page-locale').value=row.locale||'fa';$('site-page-status').value=row.status||'draft';$('site-page-title').focus();
+}
+async function saveBlogContent(event){
+  event.preventDefault();if(!canPublishContent())return toast('این نقش اجازهٔ انتشار محتوا ندارد.');
+  const button=event.target.querySelector('[type=submit]'),existingId=$('blog-content-id').value.trim(),title=$('blog-content-title').value.trim().slice(0,160),excerpt=$('blog-content-excerpt').value.trim().slice(0,500),body=$('blog-content-body').value.trim().slice(0,12000);
+  if(!title||!excerpt||!body)return toast('عنوان، خلاصه و متن مقاله لازم است.');
+  const id=existingId||((slugify(title)||'article')+'-'+Date.now().toString(36));
+  const existing=contentState.articles.find(x=>x.id===id);
+  const payload={title,excerpt,body,category:$('blog-content-category').value,locale:$('blog-content-locale').value,status:$('blog-content-status').value,coverUrl:$('blog-content-cover').value.trim().slice(0,1000),readMinutes:Math.max(1,Math.min(60,Math.round(Number($('blog-content-minutes').value)||5))),updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+  if(!existing){payload.createdAt=serverTimestamp();payload.createdBy=currentUser.uid}
+  button.disabled=true;
+  try{
+    await setDoc(doc(db,'blogArticles',id),payload,{merge:true});
+    await auditContent(existing?'blog_article_update':'blog_article_create','blogArticles/'+id,{status:payload.status,locale:payload.locale,category:payload.category});
+    $('blog-content-status-message').textContent=payload.status==='published'?'✓ مقاله منتشر شد و Blog سایت آن را می‌خواند.':'✓ Draft ذخیره شد.';
+    await loadContentStudio();$('blog-content-id').value=id;toast('مقاله ذخیره شد.');
+  }catch(error){console.error(error);$('blog-content-status-message').textContent=error.message||'ذخیره مقاله ناموفق بود.'}
+  finally{button.disabled=false}
+}
+async function saveSitePage(event){
+  event.preventDefault();if(!canPublishContent())return toast('این نقش اجازهٔ انتشار محتوا ندارد.');
+  const button=event.target.querySelector('[type=submit]'),existingId=$('site-page-id').value.trim(),rawSlug=$('site-page-slug').value.trim(),slug=existingId||slugify(rawSlug),title=$('site-page-title').value.trim().slice(0,160),excerpt=$('site-page-excerpt').value.trim().slice(0,500),body=$('site-page-body').value.trim().slice(0,16000);
+  if(!slug||slug.length<2||!title||!excerpt||!body)return toast('Slug معتبر، عنوان، خلاصه و متن صفحه لازم است.');
+  const existing=contentState.pages.find(x=>x.id===slug);
+  const payload={slug,title,excerpt,body,locale:$('site-page-locale').value,status:$('site-page-status').value,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+  if(!existing){payload.createdAt=serverTimestamp();payload.createdBy=currentUser.uid}
+  button.disabled=true;
+  try{
+    await setDoc(doc(db,'sitePages',slug),payload,{merge:true});
+    await auditContent(existing?'site_page_update':'site_page_create','sitePages/'+slug,{status:payload.status,locale:payload.locale});
+    $('site-page-status-message').textContent=payload.status==='published'?'✓ صفحه منتشر شد و بخش Page سایت آن را می‌خواند.':'✓ Draft ذخیره شد.';
+    await loadContentStudio();$('site-page-id').value=slug;$('site-page-slug').readOnly=true;toast('صفحه ذخیره شد.');
+  }catch(error){console.error(error);$('site-page-status-message').textContent=error.message||'ذخیره صفحه ناموفق بود.'}
+  finally{button.disabled=false}
+}
+async function deleteContent(kind,id){
+  if(!canPublishContent())return toast('این نقش اجازهٔ حذف محتوا ندارد.');
+  const label=kind==='blog'?'مقاله':'صفحه';
+  if(!confirm(label+' حذف شود؟ این عملیات در Audit Log ثبت می‌شود.'))return;
+  const collectionName=kind==='blog'?'blogArticles':'sitePages';
+  try{
+    await deleteDoc(doc(db,collectionName,id));await auditContent(kind==='blog'?'blog_article_delete':'site_page_delete',collectionName+'/'+id,{});await loadContentStudio();if(kind==='blog')resetBlogForm();else resetPageForm();toast(label+' حذف شد.');
+  }catch(error){console.error(error);toast(error.message||'حذف محتوا ناموفق بود.')}
+}
+
 $('admin-password-toggle').addEventListener('click',()=>{
   const input=$('admin-password'),button=$('admin-password-toggle'),show=input.type==='password';
   input.type=show?'text':'password';button.textContent=show?'🙈':'👁';
@@ -202,6 +302,13 @@ $('admin-reset-password').addEventListener('click',async()=>{
 $('gate-signout').addEventListener('click',()=>signOut(auth));
 $('admin-signout').addEventListener('click',()=>signOut(auth));
 $('refresh-overview').addEventListener('click',()=>refreshOverview());
+$('content-refresh')?.addEventListener('click',()=>loadContentStudio());
+$('blog-content-form')?.addEventListener('submit',saveBlogContent);
+$('site-page-form')?.addEventListener('submit',saveSitePage);
+$('blog-content-reset')?.addEventListener('click',resetBlogForm);
+$('site-page-reset')?.addEventListener('click',resetPageForm);
+$('panel-content')?.addEventListener('click',e=>{const edit=e.target.closest('[data-content-edit]'),del=e.target.closest('[data-content-delete]');if(edit)editContent(edit.dataset.contentEdit,edit.dataset.id);if(del)void deleteContent(del.dataset.contentDelete,del.dataset.id)});
+
 $('save-site-settings').addEventListener('click',()=>saveSiteSettings());
 $('deploy-refresh-status').addEventListener('click',()=>loadDeploymentStatus());
 $('deploy-check').addEventListener('click',()=>{checkDeployment().catch(error=>{console.error(error);$('deployment-status-message').textContent=error.message||'Check Update ناموفق بود.'})});
@@ -220,6 +327,7 @@ document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListene
   $('panel-'+button.dataset.panel).classList.remove('hidden');
   if(button.dataset.panel==='deployment')void loadDeploymentStatus();
   if(button.dataset.panel==='ai')void loadAiStatus();
+  if(button.dataset.panel==='content')void loadContentStudio();
 }));
 
 onAuthStateChanged(auth,async user=>{
