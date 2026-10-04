@@ -51,3 +51,46 @@ body>.elara-dialog-root>.elara-dialog-panel{position:relative!important;inset:au
 @keyframes cloudLogoReveal{to{opacity:1;transform:scale(1)}}
 @media(max-width:520px){.cloud-login-intro{height:104px}.cloud-logo-reveal img{width:54px;height:54px}}
 @media(prefers-reduced-motion:reduce){.cloud-comet{display:none}.cloud-logo-reveal{opacity:1;transform:none;animation:none}}
+
+
+/* 2026-10-05 core task interactions: visible repeat-per-day + hold/drag to trash */
+:where(#task-list .astra-task-row,.feature-section-task-row,.task-board-card,#panel-home .ref-task-row,.task-archive-row){position:relative}
+.task-daily-quick{
+ position:absolute;z-index:9;inset-inline-start:6px;inset-block-end:5px;display:inline-grid;place-items:center;
+ min-width:38px;height:22px;padding:0 7px;border:1px solid color-mix(in srgb,var(--border) 76%,var(--accent) 24%);
+ border-radius:999px;background:color-mix(in srgb,var(--surface2) 90%,transparent);color:var(--muted);
+ font-size:.56rem;font-weight:900;line-height:1;box-shadow:0 4px 12px #0002
+}
+.task-daily-quick.is-multi{color:var(--text);border-color:color-mix(in srgb,var(--accent) 68%,var(--border));background:color-mix(in srgb,var(--accent) 18%,var(--surface2));box-shadow:0 0 15px color-mix(in srgb,var(--accent) 20%,transparent)}
+.task-daily-quick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#panel-home .ref-task-row .task-daily-quick{inset-inline-start:2px;inset-block-end:1px;min-width:31px;height:18px;padding:0 4px;font-size:.45rem}
+.feature-section-task-row .task-daily-quick,.task-board-card .task-daily-quick{inset-inline-start:6px;inset-block-end:5px}
+body.task-core-dragging{user-select:none!important;overscroll-behavior:none}
+.is-core-task-dragging{opacity:.48!important;outline:2px solid #ff6579!important;outline-offset:2px!important}
+#task-core-drag-ghost{
+ position:fixed;left:0;top:0;z-index:2147482900;display:flex;align-items:center;gap:8px;width:min(320px,74vw);
+ min-height:50px;padding:9px 12px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));
+ border-radius:14px;background:color-mix(in srgb,var(--surface) 95%,transparent);color:var(--text);
+ box-shadow:0 22px 52px #000c,0 0 24px color-mix(in srgb,var(--accent) 24%,transparent);
+ pointer-events:none;will-change:transform
+}
+#task-core-drag-ghost>span{color:var(--accent);font-size:1rem}
+#task-core-drag-ghost strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.74rem}
+#task-trash-drop{
+ position:fixed!important;inset:auto 18px 88px!important;z-index:2147482950!important;display:grid!important;
+ grid-template-columns:auto minmax(0,1fr)!important;align-items:center!important;gap:10px!important;
+ min-height:72px!important;padding:12px 18px!important;border:2px dashed #ff667c!important;border-radius:18px!important;
+ background:color-mix(in srgb,#571a2b 88%,transparent)!important;color:#fff!important;pointer-events:none!important;
+ box-shadow:0 20px 50px #000b,0 0 0 1px #ff829044!important;backdrop-filter:blur(12px)!important
+}
+#task-trash-drop[hidden]{display:none!important}
+#task-trash-drop .task-core-trash-icon{font-size:2rem;line-height:1;filter:drop-shadow(0 0 8px #ff687baa)}
+#task-trash-drop>span:last-child{display:grid;gap:2px;text-align:start}
+#task-trash-drop b{font-size:.8rem}#task-trash-drop small{font-size:.61rem;color:#ffdce2}
+#task-trash-drop.is-over{border-style:solid!important;background:#96243d!important;transform:scale(1.025);box-shadow:0 20px 50px #000c,0 0 28px #ff5b7488!important}
+@media(max-width:700px){
+ #task-trash-drop{inset:auto 10px calc(88px + env(safe-area-inset-bottom))!important;min-height:68px!important;padding:10px 14px!important}
+ #task-core-drag-ghost{width:min(280px,76vw);min-height:46px;padding:8px 10px}
+ .task-daily-quick{min-width:34px;height:20px;padding:0 5px;font-size:.51rem}
+}
+@media(prefers-reduced-motion:reduce){#task-core-drag-ghost,#task-trash-drop{transition:none!important}}
