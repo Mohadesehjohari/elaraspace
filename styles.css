@@ -35,3 +35,19 @@ body>.elara-dialog-root.hidden{display:none!important}
 body>.elara-dialog-root>.elara-dialog-scrim{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
 body>.elara-dialog-root>.elara-dialog-panel{position:relative!important;inset:auto!important;margin:auto!important;align-self:center!important;justify-self:center!important}
 @media(max-width:700px){body>.elara-dialog-root{padding:14px!important}body>.elara-dialog-root>.elara-dialog-panel{width:min(92vw,520px)!important;max-height:82dvh!important;border-radius:20px!important}}
+
+
+/* Login comet intro: primary Elara logo, no app-mark substitution. */
+.cloud-auth-card{overflow:hidden;position:relative}
+.cloud-login-intro{position:relative;height:118px;margin:-8px -8px 4px;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 70%,#7d5aff35,transparent 30%),linear-gradient(180deg,#041126,#071b38 72%,transparent)}
+.cloud-login-intro:before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.2px),radial-gradient(circle,#8bc8ff 0 1px,transparent 1.2px);background-position:12px 18px,47px 9px;background-size:58px 47px,73px 61px;opacity:.42}
+.cloud-logo-reveal{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:3px;opacity:0;transform:scale(.84);animation:cloudLogoReveal .65s ease-out .78s forwards}
+.cloud-logo-reveal img{display:block;width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 0 16px #8d6cff88)}
+.cloud-logo-reveal b{color:#edf3ff;font-size:.72rem;letter-spacing:.2em}
+.cloud-comet{position:absolute;width:92px;height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,#8fd6ff 62%,#fff);box-shadow:0 0 12px #77caff;transform:rotate(-22deg);opacity:0;animation:cloudComet 1.15s ease-out forwards}
+.cloud-comet:after{content:"";position:absolute;right:-2px;top:-2px;width:6px;height:6px;border-radius:50%;background:white;box-shadow:0 0 10px #c8edff}
+.cloud-comet.c1{top:22px;left:-100px;animation-delay:.05s}.cloud-comet.c2{top:48px;left:-130px;animation-delay:.22s;transform:rotate(-16deg);width:72px}.cloud-comet.c3{top:75px;left:-115px;animation-delay:.4s;transform:rotate(-25deg);width:105px}.cloud-comet.c4{top:94px;left:-90px;animation-delay:.56s;transform:rotate(-13deg);width:60px}
+@keyframes cloudComet{0%{opacity:0;translate:0 0}12%{opacity:1}80%{opacity:.95}100%{opacity:0;translate:620px -88px}}
+@keyframes cloudLogoReveal{to{opacity:1;transform:scale(1)}}
+@media(max-width:520px){.cloud-login-intro{height:104px}.cloud-logo-reveal img{width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){.cloud-comet{display:none}.cloud-logo-reveal{opacity:1;transform:none;animation:none}}
