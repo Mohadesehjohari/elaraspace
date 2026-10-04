@@ -307,6 +307,8 @@
     for(const field of ['occurrenceDone','occurrenceRewardDays','skippedDates','days','rewardDays'])if(Array.isArray(item[field])){next[field]=item[field].filter(d=>d>=cut);item[field]=item[field].filter(d=>d<cut)}
     next.occurrenceOverrides=Object.fromEntries(Object.entries(item.occurrenceOverrides||{}).filter(([d])=>d>=cut));
     item.occurrenceOverrides=Object.fromEntries(Object.entries(item.occurrenceOverrides||{}).filter(([d])=>d<cut));
+    next.dailyProgress=Object.fromEntries(Object.entries(item.dailyProgress||{}).filter(([d])=>d>=cut));
+    item.dailyProgress=Object.fromEntries(Object.entries(item.dailyProgress||{}).filter(([d])=>d<cut));
     if(collection==='tasks'){next.date=cut;for(const entry of state.taskCompletionHistory)if(entry.taskId===item.id&&entry.date>=cut){entry.taskId=next.id;entry.key=completionKey(next.id,entry.date)}}
     state[collection].unshift(next);return next;
   }
