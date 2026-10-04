@@ -775,12 +775,12 @@ Member:
 - **PROFILE-SONG-04 — REQUESTED:** آهنگ Profile با privacy، autoplay خاموش، mute و ownership/source روشن.
 
 ## X6 — Tasks presentation
-- **TASK-CARD-GROUP-VIEW-04 — REQUESTED:** toggle نمای فعلی ↔ کارت‌های compact؛ grouping انتخابی بر اساس Folder/List یا Priority color. داده/selection/reorder و منطق Tasks تکرار نشود.
+- **TASK-CARD-GROUP-VIEW-04 — CODED / ACCEPTANCE PENDING:** toggle نمای فعلی ↔ کارت‌های compact؛ grouping انتخابی بر اساس Folder/List یا Priority color. داده/selection/reorder و منطق Tasks تکرار نشود. Browser/integration coverage موجود است؛ DONE بعد از END-HEAD CI/Pages.
 - Home/Tasks redesign عمومی ممنوع؛ این مورد فقط view mode در خود Tasks است.
 
 ## X7 — Admin publishing
-- **ADMIN-BLOG-PUBLISH-04 — REQUESTED / BACKEND-GATED:** Admin بتواند article draft/publish/unpublish و category/cover/locale را مدیریت و داخل Blog سایت منتشر کند.
-- **ADMIN-SITE-PAGE-PUBLISH-04 — REQUESTED / BACKEND-GATED:** محتوای رسمی Site Page از Admin با audit log و role checks.
+- **ADMIN-BLOG-PUBLISH-04 — CODED / RULES-DEPLOY + ACCEPTANCE PENDING:** Content Studio در Admin برای draft/publish/unpublish، category/cover/locale/read-time کدنویسی شده؛ publish از collection `blogArticles` داخل Blog سایت خوانده می‌شود، Audit ثبت می‌شود و moderator فقط read دارد. تا انتشار Rules و END-HEAD browser/production check، DONE نیست.
+- **ADMIN-SITE-PAGE-PUBLISH-04 — CODED / RULES-DEPLOY + ACCEPTANCE PENDING:** Content Studio برای `sitePages` با slug/locale/status/audit و role checks کدنویسی شده و Published page در Page به‌صورت ELARA · OFFICIAL نمایش داده می‌شود؛ Draft عمومی نیست. تا Rules deploy و acceptance نهایی DONE نیست.
 - Admin utilities پیشنهادی: content moderation queue، reports، users/roles، catalog/events/seasonal store، notification campaigns، AI gateway/model routing، media review، feature flags، deploy health و audit log. همهٔ عملیات حساس server-side و role-gated.
 
 ## X8 — Login / visual entry
@@ -833,7 +833,7 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Habit در Tasks کل نوار رنگ مستقل سبز/فیروزه‌ای و Goal Step کل نوار رنگ مستقل بنفش داشته باشد؛ این قرارداد در list و grouped-card view هر دو حفظ شود.
 - **Daily turns / repeat count — CODED, acceptance pending:** یک Task با `dailyTarget=N` بدون duplicate شدن باید بعد از N نوبت complete شود و progress مثل `1/2` نشان داده شود؛ XP فقط در completion نهایی و idempotent.
 - **Grouped Task view — CODED, acceptance pending:** toggle نمای لیست ↔ کارت‌های compact، grouping بر اساس Folder/List یا Priority؛ داده duplicate نشود.
-- Drag/reorder با Mouse/Touch و trash-drop برای حذف همچنان در roadmap باقی است؛ drag نباید long-press selection را خراب کند.
+- **Drag/reorder + trash-drop — CODED / BROWSER COVERAGE ADDED:** Mouse و Touch drag target و حذف با confirmation کدنویسی شده و browser fixture برای هر دو pointer type اضافه شده؛ drag نباید long-press selection را خراب کند. VERIFIED فقط بعد از END-HEAD CI/Pages.
 - معیار پذیرش: تست integration + Browser 390/1440؛ Habit/Goal/Task همگی قابل tick، long-press selection، no giant circle، no duplicate data، undo/XP درست.
 
 ### H0.3 Section-specific Tasks — CODED PARTIAL / VERIFY
@@ -881,6 +881,14 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Firestore/Storage Rules publish واقعی و تست دو UID/two-device.
 - Presence، public relationships، Shared Class/Task، League authoritative result، Clubs realtime، Store token ledger، payment/Elite، AI gateway.
 - برای هر مورد backend-gated، UI می‌تواند empty/locked state واقعی داشته باشد ولی دادهٔ جعلی، user ساختگی، fake balance یا fake online ممنوع است.
+
+## H6.5 — Execution delta · 2026-10-04 Content Studio / Task trash
+- Admin Content Studio: Blog + official Site Page forms، list/edit/delete، role gate (`owner/admin` publish؛ `moderator` read-only) و `adminAudit` کدنویسی شد.
+- Firestore contract: `blogArticles` و `sitePages` فقط Published را برای app قابل query می‌کنند؛ Draft فقط Admin. تغییر Rules در repo است و **باید روی Firebase project publish شود**.
+- App bridge: `ElaraPublicContent.listBlogArticles/listSitePages` از Cloud layer؛ Blog به‌صورت additive مقاله‌های admin-published را می‌گیرد و fallback پنج مقالهٔ داخلی حفظ می‌شود.
+- Page: Published official pages فقط در Page خود کاربر با کارت `ELARA · OFFICIAL` نمایش داده می‌شوند؛ روی profile/page شخص دیگر inject نمی‌شوند.
+- Browser fixtures: Blog published article، Official Page و Mouse/Touch task trash-drop اضافه شد.
+- وضعیت: **CODED / TESTING**؛ تا END-HEAD Actions/Pages + Firebase Rules deploy، DONE/VERIFIED نیست.
 
 ## H7 — Executor discipline
 1. قبل از هر patch: `main` HEAD واقعی + فایل‌های همان HEAD را بگیر.
