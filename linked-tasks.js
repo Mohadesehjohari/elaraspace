@@ -8,13 +8,14 @@ const makeId=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random
 const safe=(v,n=180)=>String(v??'').trim().slice(0,n);
 const META={
  'goal-step':{group:'goal',label:'هدف',priority:'3',locked:false},
+ 'habit':{group:'habit',label:'عادت',priority:'3',locked:false},
  'book':{group:'book',label:'کتابخانه',priority:'3',locked:false},
  'language-review':{group:'language',label:'زبان',priority:'3',locked:false},
  'language-log':{group:'language',label:'زبان',priority:'3',locked:true},
  'exercise':{group:'exercise',label:'ورزش',priority:'3',locked:true}
 };
 let syncing=false;
-function ensure(s){if(!s||typeof s!=='object'||Array.isArray(s))s={};for(const k of ['tasks','goals','books','words','taskCompletionHistory','linkedTaskDismissals'])if(!Array.isArray(s[k]))s[k]=[];return s}
+function ensure(s){if(!s||typeof s!=='object'||Array.isArray(s))s={};for(const k of ['tasks','habits','goals','books','words','taskCompletionHistory','linkedTaskDismissals'])if(!Array.isArray(s[k]))s[k]=[];return s}
 function readCore(){try{return ensure(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return ensure({})}}
 function keyOf(type,id,parent=''){return `${type}:${parent||''}:${id||''}`}
 function taskKey(t){return keyOf(t?.sourceType,t?.sourceId,t?.sourceParentId)}
@@ -56,6 +57,15 @@ function syncSourcesFromTasks(state){
   if(task.sourceType==='goal-step'){
    const goal=state.goals.find(g=>String(g?.id)===String(task.sourceParentId)),step=goal?.steps?.find(s=>String(s?.id)===String(task.sourceId));
    if(step&&!!step.done!==!!task.completed){step.done=!!task.completed;changed=true}
+  }else if(task.sourceType==='habit'){
+   const habit=state.habits.find(h=>String(h?.id)===String(task.sourceId));if(habit){
+    const day=validDate(task.doneAt)?task.doneAt:(validDate(task.date)?task.date:today());
+    habit.days=Array.isArray(habit.days)?[...new Set(habit.days.filter(validDate))]:[];
+    habit.rewardDays=Array.isArray(habit.rewardDays)?[...new Set(habit.rewardDays.filter(validDate))]:[];
+    const has=habit.days.includes(day);
+    if(task.completed&&!has){habit.days.push(day);if(!habit.rewardDays.includes(day)){habit.rewardDays.push(day);state.xp=Number(state.xp||0)+15}changed=true}
+    else if(!task.completed&&has){habit.days=habit.days.filter(x=>x!==day);changed=true}
+   }
   }else if(task.sourceType==='book'){
    const book=state.books.find(b=>String(b?.id)===String(task.sourceId));
    if(book){const next=task.completed?'finished':(book.shelf==='finished'?'reading':book.shelf);if(next!==book.shelf){book.shelf=next;book.finishedAt=task.completed?Date.now():null;if(task.completed&&book.totalPages)book.currentPage=book.totalPages;changed=true}}
@@ -64,7 +74,14 @@ function syncSourcesFromTasks(state){
  return changed;
 }
 function syncCoreState(input){
- const state=ensure(input),originalCount=state.tasks.length,seen=new Set();state.tasks=state.tasks.filter(t=>{if(!t?.linkedTask)return true;const key=taskKey(t);if(seen.has(key))return false;seen.add(key);return true});const goalKeys=new Set(),bookKeys=new Set();let changed=originalCount!==state.tasks.length;
+ const state=ensure(input),originalCount=state.tasks.length,seen=new Set();state.tasks=state.tasks.filter(t=>{if(!t?.linkedTask)return true;const key=taskKey(t);if(seen.has(key))return false;seen.add(key);return true});const goalKeys=new Set(),habitKeys=new Set(),bookKeys=new Set();let changed=originalCount!==state.tasks.length;
+ const day=today();
+ for(const habit of state.habits){
+  if(!habit?.id)continue;const scheduled=habit.recurrenceRule?!!globalThis.ElaraSchedule?.applies?.(habit,day):true;if(!scheduled)continue;
+  habitKeys.add(keyOf('habit',habit.id,''));
+  const done=Array.isArray(habit.days)&&habit.days.includes(day);
+  changed=upsert(state,{sourceType:'habit',sourceId:habit.id,title:habit.title||'عادت امروز',shortDescription:'عادت امروز',date:day,completed:done,completedDate:done?day:''}).changed||changed;
+ }
  for(const goal of state.goals){
   for(const step of Array.isArray(goal?.steps)?goal.steps:[]){
    if(!step?.id)continue;goalKeys.add(keyOf('goal-step',step.id,goal.id));
@@ -76,10 +93,10 @@ function syncCoreState(input){
   changed=upsert(state,{sourceType:'book',sourceId:book.id,title:`مطالعه کتاب: ${book.title||'کتاب'}`,shortDescription:'ایجادشده از کتابخانه',completed:book.shelf==='finished'}).changed||changed;
  }
  const before=state.tasks.length;
- state.tasks=state.tasks.filter(t=>!(t?.linkedTask&&t.sourceType==='goal-step'&&!goalKeys.has(taskKey(t)))&&!(t?.linkedTask&&t.sourceType==='book'&&!bookKeys.has(taskKey(t))));
+ state.tasks=state.tasks.filter(t=>!(t?.linkedTask&&t.sourceType==='habit'&&!habitKeys.has(taskKey(t)))&&!(t?.linkedTask&&t.sourceType==='goal-step'&&!goalKeys.has(taskKey(t)))&&!(t?.linkedTask&&t.sourceType==='book'&&!bookKeys.has(taskKey(t))));
  if(state.tasks.length!==before)changed=true;
  if(!state.words.length){const n=state.tasks.length;state.tasks=state.tasks.filter(t=>!(t.linkedTask&&t.sourceType==='language-review'));changed=changed||n!==state.tasks.length}
- const day=today(),pending=state.words.filter(w=>validDate(w?.due)&&w.due<=day),lang=state.tasks.find(t=>t?.linkedTask&&t.sourceType==='language-review'&&t.sourceId===day);
+ const pending=state.words.filter(w=>validDate(w?.due)&&w.due<=day),lang=state.tasks.find(t=>t?.linkedTask&&t.sourceType==='language-review'&&t.sourceId===day);
  if(pending.length||lang){
   changed=upsert(state,{sourceType:'language-review',sourceId:day,title:'مرور واژه‌های زبان',shortDescription:pending.length?`${pending.length.toLocaleString('fa-IR')} واژه برای مرور`:'مرور امروز کامل شد',date:day,completed:pending.length===0?true:undefined,completedDate:pending.length===0?day:''}).changed||changed;
  }
