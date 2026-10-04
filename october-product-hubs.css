@@ -1450,3 +1450,9 @@ body.light #panel-tasks #task-list .astra-task-row.source-goal {background:linea
   #elara-ranking-page .social-tabs [role="tab"] img{width:52px!important;height:48px!important}
   #elara-social-page .social-tabs>[role="tab"]{flex:0 0 92px!important;min-width:92px!important;width:92px!important}
 }
+
+
+/* P0 ranking shell dimension ownership v114 — legacy min-size rules cannot stretch the shared shell. */
+#elara-ranking-page .social-podium-place [data-avatar-shell].social-podium-avatar{
+  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important
+}
