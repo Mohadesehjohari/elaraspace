@@ -103,6 +103,10 @@ for(const token of ['ElaraSocial.clubs=','createClub','setClubAssistant','create
 console.log(`Static check passed: ${ids.size} HTML ids, base panels, canonical seven-route navigation, local assets, phase 2 recurrence/focus module and selector references.`);
 
 const taskBulkSource=readFileSync(new URL('task-bulk-reorder.js',root),'utf8');for(const token of ['data-task-bulk','data-task-drag','persistDomOrder','bulkDuplicate','bulkMove','pointerdown','ArrowUp'])assert.ok(taskBulkSource.includes(token),'Task bulk/reorder missing '+token);
+const universalTaskSource=readFileSync(new URL('task-universal-interactions.js',root),'utf8'),universalTaskCss=readFileSync(new URL('task-universal-interactions.css',root),'utf8');
+for(const token of ['feature-section-task-row','task-board-card','#panel-home .ref-task-row','task-archive-row','task-daily-target-chip','task-trash-drop',"taskAction?.('delete-task'"])assert.ok(universalTaskSource.includes(token),'Universal task interaction missing '+token);
+for(const token of ['#task-trash-drop','#task-universal-drag-ghost','.task-daily-target-chip','is-universal-task-dragging'])assert.ok(universalTaskCss.includes(token),'Universal task interaction CSS missing '+token);
+assert.ok(phase2.includes('تکرار در روز')&&phase2.includes('task-daily-target'),'All task composers/details must expose repeat-per-day');
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
