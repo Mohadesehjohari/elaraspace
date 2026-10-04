@@ -204,3 +204,31 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-social-page .social-tabs [role="tab"] img,
   #elara-ranking-page .social-tabs [role="tab"] img{height:72px!important}
 }
+
+
+/* Freedom tab labels sit on the same lower caption rail as Freedom feature cards. */
+#elara-social-page .social-tabs .social-tab-label,
+#elara-ranking-page .social-tabs .social-tab-label{
+  position:absolute!important;
+  z-index:2!important;
+  inset:auto 12px 11px!important;
+  display:block!important;
+  color:inherit!important;
+  font-size:18px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-width:900px){
+  #elara-social-page .social-tabs .social-tab-label,
+  #elara-ranking-page .social-tabs .social-tab-label{
+    inset:auto 7px 8px!important;
+    font-size:14px!important;
+  }
+}
+@media(max-width:360px){
+  #elara-social-page .social-tabs .social-tab-label,
+  #elara-ranking-page .social-tabs .social-tab-label{font-size:12px!important}
+}
