@@ -51,7 +51,7 @@ function unreadNotifications(){try{return arr(JSON.parse(localStorage.getItem(NO
 const darkModeActive=()=>document.body.classList.contains('dark')||document.body.classList.contains('amoled');
 const isMobile=()=>matchMedia('(max-width:700px)').matches;
 const selected=()=>window.ElaraHomeDay||today();
-const done=(t,d=selected())=>t?.recurrenceRule?arr(t.occurrenceDone).includes(d):!!t?.completed;
+const done=(t,d=selected())=>{if(window.ElaraTasks?.taskDone)return !!window.ElaraTasks.taskDone(t,d);const target=Math.max(1,Math.min(24,Math.round(Number(t?.dailyTarget)||1))),progress=t?.dailyProgress&&typeof t.dailyProgress==='object'&&Object.prototype.hasOwnProperty.call(t.dailyProgress,d)?Math.max(0,Math.round(Number(t.dailyProgress[d])||0)):null;if(target>1&&progress!==null)return progress>=target;return t?.recurrenceRule?arr(t.occurrenceDone).includes(d):!!t?.completed};
 const due=(t,d=selected())=>window.ElaraSchedule.taskDue(t,d);
 function activityDates(){const s=read(),dates=new Set();for(const row of arr(s.taskCompletionHistory))if(row?.date)dates.add(row.date);for(const h of arr(s.habits))for(const d of arr(h.days))dates.add(d);return dates}
 function streak(){const dates=activityDates(),d=new Date();d.setHours(12,0,0,0);if(!dates.has(iso(d)))d.setDate(d.getDate()-1);let n=0;while(dates.has(iso(d))){n++;d.setDate(d.getDate()-1)}return n}
