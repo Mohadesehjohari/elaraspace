@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261004-friends-strip-v107';
+  const BUILD='20261004-friends-strip-v108';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
