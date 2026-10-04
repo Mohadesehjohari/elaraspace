@@ -75,7 +75,7 @@ function setupLanguage(){
  hub(parent,
    card('words','assets/ui/22-leitner-box-icon.webp','جعبه لایتنر','Leitner Box','مرور فاصله‌دار با همان طراحی و تصاویر اصلی','Spaced repetition with the original design and artwork')+
    card('language-books','assets/ui/23-language-books-icon.webp','کتاب‌های زبان','Language Books','کتاب و گزارش مطالعه','Books and reading logs')+
-   card('language-courses','assets/ui/24-language-classes-icon.webp','کلاس‌ها','Classes','مسیرهای آموزشی واقعی وقتی Backend آماده شد','Real learning paths when backend is ready',{gated:true})+
+   card('language-courses','assets/ui/24-language-classes-icon.webp','کلاس‌ها','Classes','کلاس سفارشی آنلاین/آفلاین، برنامه و ETA','Custom online/offline classes, schedule and ETA')+
    card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Study Report','مرور، واژه و مطالعه','Reviews, vocabulary and reading'),'language'
  );sectionTasks(parent,'language','language');
 }
