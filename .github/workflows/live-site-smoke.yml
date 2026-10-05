@@ -1,0 +1,35 @@
+name: Live site smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/live-site-smoke.mjs'
+      - '.github/workflows/live-site-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait briefly for Pages deployment
+        run: sleep 30
+      - name: Check live GitHub Pages boot
+        run: node tests/live-site-smoke.mjs
+      - name: Upload live diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-site-smoke-${{ github.sha }}
+          path: browser-artifacts/live-site/
+          if-no-files-found: warn
+          retention-days: 14
