@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261005-profile-gallery-v2 -->
+<!-- deploy-refresh: 20261005-social-recovery-v1 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -43,17 +43,20 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="i18n.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="reading.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="notifications.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="app.js?v=20261005-task-detail-v15"></script>
+  <script defer src="app.js?v=20261005-social-recovery-v1"></script>
   <script defer src="library-enhancements.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="linked-tasks.js?v=20261005-goal-task-v10"></script>
-  <script defer src="phase2.js?v=20261005-task-detail-v15"></script>
+  <script defer src="phase2.js?v=20261005-social-recovery-v1"></script>
   <script defer src="task-board-view.js?v=20261005-goal-task-v10"></script>
   <script defer src="elara-levels.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="collection-level.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261005-profile-gallery-v2"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261005-profile-gallery-v2"></script>
+  <script defer src="boot.js?v=20261005-social-recovery-v1"></script>
+  <script>
+  (()=>{const release=()=>{document.documentElement.removeAttribute('data-elara-booting');const body=document.body;if(body&&!body.classList.contains('cloud-ready'))body.classList.add('cloud-ready','cloud-offline');const layer=document.getElementById('cloud-layer');if(layer&&!document.querySelector('[data-elara-account-gate-ready]'))layer.hidden=true};window.setTimeout(()=>{if(document.documentElement.hasAttribute('data-elara-booting')){console.error('Elara HTML failsafe released a stalled boot.');release()}},9000);window.addEventListener('error',e=>{const src=e.target?.src||'';if(e.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src))window.setTimeout(release,0)},true)})();
+  </script>
   <script defer src="drawer.js?v=20261005-profile-gallery-v2"></script>
   <script defer src="avatar-3d.js?v=20261005-avatar-v2"></script>
   <style id="elara-p0-friends-strip">
