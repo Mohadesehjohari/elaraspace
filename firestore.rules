@@ -62,6 +62,13 @@ service cloud.firestore {
     function clubInvitePath(id, memberId) { return /databases/$(database)/documents/clubs/$(id)/clubInvites/$(memberId); }
     function isClubMember(id) { return signed() && exists(clubMemberPath(id, request.auth.uid)); }
     function isClubOwner(id) { return signed() && exists(clubPath(id)) && get(clubPath(id)).data.owner == request.auth.uid; }
+    function collabPath(id) { return /databases/$(database)/documents/collabSpaces/$(id); }
+    function collabMemberPath(id, memberId) { return /databases/$(database)/documents/collabSpaces/$(id)/members/$(memberId); }
+    function collabInvitePath(id, memberId) { return /databases/$(database)/documents/collabInvites/$(id + '__' + memberId); }
+    function collabLinkPath(token) { return /databases/$(database)/documents/collabLinks/$(token); }
+    function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
+    function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
+    function validCollabKind(kind) { return kind in ['task','habit','language-class','leitner-word']; }
     function isClubManager(id) {
       return signed() && exists(clubPath(id)) && (
         get(clubPath(id)).data.owner == request.auth.uid ||
@@ -613,6 +620,168 @@ service cloud.firestore {
       allow get, list: if signed() && resource.data.to == request.auth.uid;
     }
 
+
+    match /collabSpaces/{spaceId} {
+      allow get: if isCollabMember(spaceId);
+      allow list: if false;
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['ownerUid','kind','title','payloadJson','visibility','createdAt','updatedAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && validCollabKind(request.resource.data.kind)
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.payloadJson is string
+        && request.resource.data.payloadJson.size() > 1
+        && request.resource.data.payloadJson.size() <= 12000
+        && request.resource.data.visibility == 'private'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isCollabOwner(spaceId)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.keys().hasOnly(['ownerUid','kind','title','payloadJson','visibility','createdAt','updatedAt'])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.payloadJson is string
+        && request.resource.data.payloadJson.size() > 1
+        && request.resource.data.payloadJson.size() <= 12000
+        && request.resource.data.visibility == 'private'
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isCollabOwner(spaceId);
+
+      match /members/{memberId} {
+        allow get: if signed() && (memberId == request.auth.uid || isCollabMember(spaceId));
+        allow list: if isCollabMember(spaceId);
+        allow create: if signed()
+          && memberId == request.auth.uid
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.role in ['owner','member']
+          && request.resource.data.localEntityId is string
+          && request.resource.data.localEntityId.size() <= 120
+          && request.resource.data.progressCompleted is int
+          && request.resource.data.progressCompleted >= 0
+          && request.resource.data.progressTotal is int
+          && request.resource.data.progressTotal >= 1
+          && request.resource.data.progressTotal <= 1000000
+          && request.resource.data.progressCompleted <= request.resource.data.progressTotal
+          && request.resource.data.progressPercent is int
+          && request.resource.data.progressPercent >= 0
+          && request.resource.data.progressPercent <= 100
+          && request.resource.data.joinedAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && (
+            (
+              request.resource.data.role == 'owner'
+              && get(collabPath(spaceId)).data.ownerUid == request.auth.uid
+              && request.resource.data.keys().hasOnly(['uid','role','localEntityId','progressCompleted','progressTotal','progressPercent','joinedAt','updatedAt'])
+            ) ||
+            (
+              request.resource.data.role == 'member'
+              && request.resource.data.keys().hasOnly(['uid','role','localEntityId','progressCompleted','progressTotal','progressPercent','joinedAt','updatedAt'])
+              && existsAfter(collabInvitePath(spaceId, memberId))
+              && getAfter(collabInvitePath(spaceId, memberId)).data.to == request.auth.uid
+              && getAfter(collabInvitePath(spaceId, memberId)).data.spaceId == spaceId
+              && getAfter(collabInvitePath(spaceId, memberId)).data.status == 'accepted'
+            ) ||
+            (
+              request.resource.data.role == 'member'
+              && request.resource.data.keys().hasOnly(['uid','role','joinToken','localEntityId','progressCompleted','progressTotal','progressPercent','joinedAt','updatedAt'])
+              && request.resource.data.joinToken is string
+              && request.resource.data.joinToken.size() >= 20
+              && request.resource.data.joinToken.size() <= 80
+              && exists(collabLinkPath(request.resource.data.joinToken))
+              && get(collabLinkPath(request.resource.data.joinToken)).data.active == true
+              && get(collabLinkPath(request.resource.data.joinToken)).data.spaceId == spaceId
+            )
+          );
+        allow update: if signed()
+          && memberId == request.auth.uid
+          && resource.data.uid == request.auth.uid
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.joinedAt == resource.data.joinedAt
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['localEntityId','progressCompleted','progressTotal','progressPercent','updatedAt'])
+          && request.resource.data.localEntityId is string
+          && request.resource.data.localEntityId.size() <= 120
+          && request.resource.data.progressCompleted is int
+          && request.resource.data.progressCompleted >= 0
+          && request.resource.data.progressTotal is int
+          && request.resource.data.progressTotal >= 1
+          && request.resource.data.progressTotal <= 1000000
+          && request.resource.data.progressCompleted <= request.resource.data.progressTotal
+          && request.resource.data.progressPercent is int
+          && request.resource.data.progressPercent >= 0
+          && request.resource.data.progressPercent <= 100
+          && request.resource.data.updatedAt == request.time;
+        allow delete: if signed() && (memberId == request.auth.uid || isCollabOwner(spaceId));
+      }
+    }
+
+    match /collabInvites/{inviteId} {
+      allow get, list: if signed() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['spaceId','from','to','kind','title','status','createdAt','updatedAt'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid
+        && friendOf(request.resource.data.to)
+        && request.resource.data.spaceId is string
+        && request.resource.data.spaceId.size() > 0
+        && request.resource.data.spaceId.size() <= 120
+        && inviteId == request.resource.data.spaceId + '__' + request.resource.data.to
+        && isCollabOwner(request.resource.data.spaceId)
+        && validCollabKind(request.resource.data.kind)
+        && request.resource.data.kind == get(collabPath(request.resource.data.spaceId)).data.kind
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if signed()
+        && resource.data.to == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.resource.data.spaceId == resource.data.spaceId
+        && request.resource.data.from == resource.data.from
+        && request.resource.data.to == resource.data.to
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['accepted','declined']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if signed() && resource.data.from == request.auth.uid && resource.data.status == 'pending';
+    }
+
+    match /collabLinks/{token} {
+      allow get: if signed();
+      allow list: if false;
+      allow create: if signed()
+        && token.size() >= 20
+        && token.size() <= 80
+        && request.resource.data.keys().hasOnly(['spaceId','ownerUid','kind','title','active','createdAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.spaceId is string
+        && isCollabOwner(request.resource.data.spaceId)
+        && request.resource.data.kind == get(collabPath(request.resource.data.spaceId)).data.kind
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.active == true
+        && request.resource.data.createdAt == request.time;
+      allow update: if signed()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.spaceId == resource.data.spaceId
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active'])
+        && request.resource.data.active is bool;
+      allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
+    }
 
     match /challenges/{challengeId} {
       allow get, list: if signed() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
