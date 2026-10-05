@@ -91,12 +91,14 @@
     const o=task.occurrenceOverrides&&typeof task.occurrenceOverrides==='object'?task.occurrenceOverrides[date]:null;
     return o&&typeof o==='object'?{...task,...o}:task;
   };
-  const habitDone=(habit,date=today())=>dateList(habit.days).includes(date);
   const habitView=(habit,date=today())=>{
     if(!habit.recurrenceRule||!applies(habit,date))return habit;
     const o=habit.occurrenceOverrides&&typeof habit.occurrenceOverrides==='object'?habit.occurrenceOverrides[date]:null;
     return o&&typeof o==='object'?{...habit,...o}:habit;
   };
+  const habitDailyTarget=(habit,date=today())=>{const v=habitView(habit,date),n=Math.round(Number(v?.dailyTarget)||1);return Math.max(1,Math.min(24,Number.isFinite(n)?n:1))};
+  const habitDailyProgress=(habit,date=today())=>{const target=habitDailyTarget(habit,date),map=habit?.dailyProgress&&typeof habit.dailyProgress==='object'?habit.dailyProgress:null,explicit=!!map&&Object.prototype.hasOwnProperty.call(map,date),raw=explicit?Number(map[date]):0;if(!explicit&&target>1&&dateList(habit.days).includes(date))return target;return Math.max(0,Math.min(target,Number.isFinite(raw)?Math.round(raw):0))};
+  const habitDone=(habit,date=today())=>habitDailyTarget(habit,date)>1?habitDailyProgress(habit,date)>=habitDailyTarget(habit,date):dateList(habit.days).includes(date);
   const habitScheduled=(habit,date=today())=>habit.recurrenceRule?applies(habit,date):true;
   const scheduledStreak=habit=>{
     let d=new Date(`${today()}T12:00:00`),count=0,started=false;
@@ -139,8 +141,8 @@
     if(options)options.classList.toggle('hidden',!on);
     if(on&&!document.querySelector(`input[name="${prefix}-weekday"]:checked`))document.querySelectorAll(`input[name="${prefix}-weekday"]`).forEach(x=>x.checked=true);
   }
-  function syncDailyTargetVisibility(){
-    const enabled=$('task-daily-target-enabled')?.checked,options=$('task-daily-target-options'),input=$('task-daily-target');
+  function syncDailyTargetVisibility(prefix='task'){
+    const enabled=$(`${prefix}-daily-target-enabled`)?.checked,options=$(`${prefix}-daily-target-options`),input=$(`${prefix}-daily-target`);
     if(options)options.classList.toggle('hidden',!enabled);
     if(input)input.disabled=!enabled;
   }
@@ -218,8 +220,8 @@
 
   function recurrenceMarkup(prefix){
     const scheduled=`<div class="recurrence-box"><label class="recurrence-toggle"><input id="${prefix}-recurrence" type="checkbox"> تکرار زمان‌بندی‌شده</label><div id="${prefix}-recurrence-options" class="recurrence-options hidden"><div class="recurrence-actions"><label>نوع تکرار<select id="${prefix}-frequency"><option value="weekly">روزهای هفته</option><option value="daily">روزانه / فاصله‌دار</option><option value="monthly">ماهانه</option></select></label><label>هر چند نوبت<input id="${prefix}-interval" type="number" min="1" max="365" value="1"></label></div><div class="weekday-picks">${weekOrder.map(d=>`<label><input type="checkbox" name="${prefix}-weekday" value="${d}"><span>${weekNames[d]}</span></label>`).join('')}</div><div class="recurrence-actions"><button type="button" class="quiet-button" data-weekdays-all="${prefix}">هر روز</button><label>پایان <input id="${prefix}-recurrence-end" type="date"></label><label class="no-end"><input id="${prefix}-recurrence-no-end" type="checkbox"> بدون تاریخ پایان</label></div><small class="muted">تکمیل هر نوبت جدا ثبت می‌شود؛ سری بی‌نهایت رکورد تولید نمی‌کند.</small></div></div>`;
-    if(prefix!=='task')return scheduled;
-    return `<div class="task-repeat-controls"><div class="task-daily-repeat-box"><label class="recurrence-toggle"><input id="task-daily-target-enabled" type="checkbox"> تکرار در روز</label><div id="task-daily-target-options" class="task-daily-target-options hidden"><label>تعداد دفعات<input id="task-daily-target" type="number" min="2" max="24" step="1" value="2" inputmode="numeric"><span>بار در همان روز</span></label></div></div>${scheduled}</div>`;
+    if(!['task','habit'].includes(prefix))return scheduled;
+    return `<div class="repeat-controls ${prefix}-repeat-controls"><div class="daily-repeat-box ${prefix}-daily-repeat-box"><label class="recurrence-toggle"><input id="${prefix}-daily-target-enabled" type="checkbox"> تکرار در روز</label><div id="${prefix}-daily-target-options" class="daily-target-options hidden"><label>تعداد دفعات<input id="${prefix}-daily-target" type="number" min="2" max="24" step="1" value="2" inputmode="numeric"><span>بار در همان روز</span></label></div></div>${scheduled}</div>`;
   }
   function injectUI(){
     if(!$('task-recurrence')){
@@ -464,33 +466,33 @@
     const state=ensureState(readState()),list=$('habit-list');if(!list)return;const now=today();
     const ordered=[...state.habits].sort((a,b)=>(a.manualOrder??Number.MAX_SAFE_INTEGER)-(b.manualOrder??Number.MAX_SAFE_INTEGER));
     list.innerHTML=ordered.map(h=>{
-      const v=habitView(h,now),done=habitDone(h,now),scheduled=habitScheduled(h,now);
-      return `<li class="item ${done?'done':''}" data-entity-kind="habit" data-entity-id="${esc(h.id)}"><button type="button" class="entity-drag-handle" data-entity-drag="habit" data-entity-id="${esc(h.id)}" aria-label="جابجایی عادت"><span aria-hidden="true">⋮⋮</span></button><button type="button" class="check-button" data-phase2-action="toggle-habit" data-id="${esc(h.id)}" aria-pressed="${done}" ${!scheduled?'disabled':''} aria-label="${scheduled?'ثبت امروز':'امروز زمان‌بندی نشده'} برای ${esc(v.title||h.title)}">${done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="item-content"><div class="item-title" data-elara-ugc dir="auto">${esc(v.title||h.title)}</div><div class="item-meta"><span>تداوم: ${fa(scheduledStreak(h))} نوبت</span><span>کل ثبت‌ها: ${fa(dateList(h.days).length)}</span>${h.recurrenceRule?`<span>↻ ${esc(recurrenceLabel(h.recurrenceRule))}</span>`:'<span>هر روز</span>'}</div></div><div class="item-actions"><button type="button" class="mini-button" data-phase2-action="edit-habit" data-id="${esc(h.id)}">ویرایش</button><button type="button" class="mini-button danger" data-phase2-action="delete-habit" data-id="${esc(h.id)}">حذف</button></div></li>`;
+      const v=habitView(h,now),done=habitDone(h,now),scheduled=habitScheduled(h,now),target=habitDailyTarget(h,now),progress=habitDailyProgress(h,now);
+      return `<li class="item ${done?'done':''}" data-entity-kind="habit" data-entity-id="${esc(h.id)}"><button type="button" class="entity-drag-handle" data-entity-drag="habit" data-entity-id="${esc(h.id)}" aria-label="جابجایی عادت"><span aria-hidden="true">⋮⋮</span></button><button type="button" class="check-button" data-phase2-action="toggle-habit" data-id="${esc(h.id)}" aria-pressed="${done}" ${!scheduled?'disabled':''} aria-label="${scheduled?(target>1?'ثبت نوبت بعدی':'ثبت امروز'):'امروز زمان‌بندی نشده'} برای ${esc(v.title||h.title)}">${done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="item-content"><div class="item-title" data-elara-ugc dir="auto">${esc(v.title||h.title)}</div><div class="item-meta"><span>تداوم: ${fa(scheduledStreak(h))} نوبت</span><span>کل ثبت‌ها: ${fa(dateList(h.days).length)}</span>${target>1?`<span>نوبت امروز: ${fa(progress)} / ${fa(target)}</span>`:''}${h.recurrenceRule?`<span>↻ ${esc(recurrenceLabel(h.recurrenceRule))}</span>`:'<span>هر روز</span>'}</div></div><div class="item-actions"><button type="button" class="mini-button" data-phase2-action="edit-habit" data-id="${esc(h.id)}">ویرایش</button><button type="button" class="mini-button danger" data-phase2-action="delete-habit" data-id="${esc(h.id)}">حذف</button></div></li>`;
     }).join('');
     $('habit-empty')?.classList.toggle('hidden',state.habits.length!==0);
   }
   function resetHabitForm(){
-    editingHabit=null;editingHabitScope='series';$('habit-form')?.reset();if($('habit-start'))$('habit-start').value=today();$('habit-cancel')?.classList.add('hidden');if($('habit-submit'))$('habit-submit').textContent='+ افزودن';setRuleForm('habit',null,today());syncRecurrenceVisibility('habit');
+    editingHabit=null;editingHabitScope='series';$('habit-form')?.reset();if($('habit-start'))$('habit-start').value=today();if($('habit-daily-target'))$('habit-daily-target').value='2';if($('habit-daily-target-enabled'))$('habit-daily-target-enabled').checked=false;syncDailyTargetVisibility('habit');$('habit-cancel')?.classList.add('hidden');if($('habit-submit'))$('habit-submit').textContent='+ افزودن';setRuleForm('habit',null,today());syncRecurrenceVisibility('habit');
   }
   function fillHabitForm(habit,scope){
-    const v=scope==='occurrence'?habitView(habit,today()):habit;editingHabit=habit.id;editingHabitScope=scope;$('habit-title').value=v.title||habit.title||'';$('habit-start').value=scope==='future'?today():(habit.recurrenceRule?.startDate||today());setRuleForm('habit',habit.recurrenceRule,$('habit-start').value);syncRecurrenceVisibility('habit');$('habit-cancel').classList.remove('hidden');if($('habit-submit'))$('habit-submit').textContent='ثبت تغییرات';$('habit-title').focus();
+    const v=scope==='occurrence'?habitView(habit,today()):habit;editingHabit=habit.id;editingHabitScope=scope;$('habit-title').value=v.title||habit.title||'';$('habit-start').value=scope==='future'?today():(habit.recurrenceRule?.startDate||today());const dailyTarget=habitDailyTarget(v);if($('habit-daily-target'))$('habit-daily-target').value=String(Math.max(2,dailyTarget));if($('habit-daily-target-enabled'))$('habit-daily-target-enabled').checked=dailyTarget>1;syncDailyTargetVisibility('habit');setRuleForm('habit',habit.recurrenceRule,$('habit-start').value);syncRecurrenceVisibility('habit');$('habit-cancel').classList.remove('hidden');if($('habit-submit'))$('habit-submit').textContent='ثبت تغییرات';$('habit-title').focus();
   }
   function submitHabit(){
-    const state=ensureState(readState()),title=String($('habit-title').value||'').trim().slice(0,120);if(!title)return;const start=$('habit-start').value||today();
+    const state=ensureState(readState()),title=String($('habit-title').value||'').trim().slice(0,120);if(!title)return;const start=$('habit-start').value||today(),dailyTarget=$('habit-daily-target-enabled')?.checked?Math.max(2,Math.min(24,Math.round(Number($('habit-daily-target')?.value||2)||2))):1;
     let rule=null;try{rule=ruleFromForm('habit',start)}catch(e){notify(e.message);return}
     if(editingHabit){
       let h=state.habits.find(x=>x.id===editingHabit);if(!h)return resetHabitForm();if(editingHabitScope==='future')h=splitFuture(state,h,'habits');
-      if(editingHabitScope==='occurrence'){h.occurrenceOverrides=h.occurrenceOverrides&&typeof h.occurrenceOverrides==='object'?h.occurrenceOverrides:{};h.occurrenceOverrides[today()]={title}}
-      else{if(editingHabitScope==='future'){if(!rule)rule={frequency:'daily',interval:1,weekdays:[],startDate:today(),endDate:null,timezone:timezone()};rule.startDate=today()}h.title=title;h.recurrenceRule=rule}
+      if(editingHabitScope==='occurrence'){h.occurrenceOverrides=h.occurrenceOverrides&&typeof h.occurrenceOverrides==='object'?h.occurrenceOverrides:{};h.occurrenceOverrides[today()]={title,dailyTarget}}
+      else{if(editingHabitScope==='future'){if(!rule)rule={frequency:'daily',interval:1,weekdays:[],startDate:today(),endDate:null,timezone:timezone()};rule.startDate=today()}h.title=title;h.dailyTarget=dailyTarget;h.dailyProgress=h.dailyProgress&&typeof h.dailyProgress==='object'?h.dailyProgress:{};h.recurrenceRule=rule}
       notify('عادت ویرایش شد.');
     }else{state.habits.unshift({id:makeId(),title,days:[],rewardDays:[],recurrenceRule:rule,skippedDates:[],occurrenceOverrides:{}});notify('عادت اضافه شد.')}
     writeState(state);resetHabitForm();renderHabits();
   }
   async function habitAction(action,id,date=today()){
     const state=ensureState(readState()),h=state.habits.find(x=>x.id===id);if(!h)return;const now=validDate(date)?date:today();if(action==='toggle-habit'&&now>today()){notify('روز آینده هنوز قابل تکمیل نیست.');return}
-    if(action==='toggle-habit'){if(!habitScheduled(h,now)){notify('این عادت برای امروز برنامه‌ریزی نشده.');return}h.days=dateList(h.days);h.rewardDays=dateList(h.rewardDays);if(h.days.includes(now))h.days=h.days.filter(x=>x!==now);else{h.days.push(now);if(!h.rewardDays.includes(now)){h.rewardDays.push(now);state.xp=Number(state.xp||0)+15}}writeState(state);renderHabits();return;}
+    if(action==='toggle-habit'){if(!habitScheduled(h,now)){notify('این عادت برای امروز برنامه‌ریزی نشده.');return}h.days=dateList(h.days);h.rewardDays=dateList(h.rewardDays);const target=habitDailyTarget(h,now);if(target>1){h.dailyProgress=h.dailyProgress&&typeof h.dailyProgress==='object'?h.dailyProgress:{};let count=habitDailyProgress(h,now);count=count>=target?target-1:Math.min(target,count+1);h.dailyProgress[now]=count;if(count>=target){if(!h.days.includes(now))h.days.push(now);if(!h.rewardDays.includes(now)){h.rewardDays.push(now);state.xp=Number(state.xp||0)+15}}else h.days=h.days.filter(x=>x!==now)}else if(h.days.includes(now))h.days=h.days.filter(x=>x!==now);else{h.days.push(now);if(!h.rewardDays.includes(now)){h.rewardDays.push(now);state.xp=Number(state.xp||0)+15}}writeState(state);renderHabits();return;}
     if(action==='edit-habit'){let scope='series';if(h.recurrenceRule&&applies(h,now)){const choice=await window.ElaraDialog.choice({title:'ویرایش عادت تکرارشونده',message:'تغییر برای کدام بخش باشد؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'از امروز به بعد',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillHabitForm(h,scope);return;}
-    if(action==='delete-habit'){if(h.recurrenceRule&&applies(h,now)){const choice=await window.ElaraDialog.choice({title:'حذف عادت تکرارشونده',message:'کدام بخش حذف شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'کل سری',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){h.skippedDates=dateList(h.skippedDates);if(!h.skippedDates.includes(now))h.skippedDates.push(now);h.days=dateList(h.days).filter(x=>x!==now);writeState(state);renderHabits();notify('نوبت امروز حذف شد.');return}}if(await window.ElaraDialog.confirm(h.recurrenceRule?'کل سری این عادت حذف شود؟':'این عادت حذف شود؟',{title:'حذف عادت',confirmText:'حذف',danger:true})){state.habits=state.habits.filter(x=>x.id!==id);writeState(state);resetHabitForm();renderHabits()}}
+    if(action==='delete-habit'){if(h.recurrenceRule&&applies(h,now)){const choice=await window.ElaraDialog.choice({title:'حذف عادت تکرارشونده',message:'کدام بخش حذف شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'کل سری',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){h.skippedDates=dateList(h.skippedDates);if(!h.skippedDates.includes(now))h.skippedDates.push(now);h.days=dateList(h.days).filter(x=>x!==now);if(h.dailyProgress&&typeof h.dailyProgress==='object')delete h.dailyProgress[now];writeState(state);renderHabits();notify('نوبت امروز حذف شد.');return}}if(await window.ElaraDialog.confirm(h.recurrenceRule?'کل سری این عادت حذف شود؟':'این عادت حذف شود؟',{title:'حذف عادت',confirmText:'حذف',danger:true})){state.habits=state.habits.filter(x=>x.id!==id);writeState(state);resetHabitForm();renderHabits()}}
   }
 
   const focusState=()=>ensureState(readState());
@@ -605,7 +607,8 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     document.addEventListener('pointercancel',clearTaskHold,true);
     document.addEventListener('contextmenu',taskHoldContextMenu,true);
     document.addEventListener('focusin',event=>{const details=event.target.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)},true);
-    $('task-daily-target-enabled')?.addEventListener('change',syncDailyTargetVisibility);
+    $('task-daily-target-enabled')?.addEventListener('change',()=>syncDailyTargetVisibility('task'));
+    $('habit-daily-target-enabled')?.addEventListener('change',()=>syncDailyTargetVisibility('habit'));
     for(const prefix of ['task','habit']){
       $(`${prefix}-recurrence`)?.addEventListener('change',()=>syncRecurrenceVisibility(prefix));
       $(`${prefix}-recurrence-no-end`)?.addEventListener('change',e=>{const end=$(`${prefix}-recurrence-end`);if(end){end.disabled=e.target.checked;if(e.target.checked)end.value=''}});
