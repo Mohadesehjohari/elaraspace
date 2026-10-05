@@ -19,11 +19,11 @@ assert.ok(!drawer.includes('rebuildMobileNav'),'Drawer must not rebuild the mobi
 const defsSource=navigation.match(/const MAIN=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'';
 const defs=[...defsSource.matchAll(/route:'([^']+)',label:'([^']+)'/g)].map(m=>[m[1],m[2]]);
 assert.deepEqual(defs,[
-  ['exercise','ورزش'],
+  ['exercise','ورزش و سلامتی'],
   ['language','زبان'],
-  ['tasks','تسک‌ها'],
+  ['tasks','کارها'],
   ['home','خانه'],
-  ['ranking','رنکینگ'],
+  ['ranking','رتبه‌بندی'],
   ['books','کتابخانه'],
   ['freedom','آزادی']
 ],'Seven-route navigation order/labels changed unexpectedly');
