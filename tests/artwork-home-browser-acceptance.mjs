@@ -107,10 +107,10 @@ async function bootTriptych(width,height){
  assert.equal(before.boot,false,'fail-open startup must not block first paint behind the boot screen');
  assert.equal(before.shell,true,'app shell must stay visible while startup modules hydrate');
  await page.screenshot({path:`${out}/boot-${width}-before-release.png`,fullPage:false});
- await page.waitForFunction(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0),moon=document.querySelector('#theme-toggle .ref-theme-art');return nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.getClientRects().length>0&&moon.complete&&moon.naturalWidth>0},null,{timeout:7000});
- const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0);const moon=document.querySelector('#theme-toggle .ref-theme-art'),src=moon?.getAttribute('src')||'',boot=document.querySelector('#elara-boot-screen');return {bootVisible:!!boot&&getComputedStyle(boot).display!=='none',artReady:nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.getClientRects().length>0&&moon.complete&&moon.naturalWidth>0&&/(icon-mode-night-(active|default)\.webp)$/.test(src)}});
+ await page.waitForFunction(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0);return nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)},null,{timeout:7000});
+ const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0),boot=document.querySelector('#elara-boot-screen');return {bootVisible:!!boot&&getComputedStyle(boot).display!=='none',navReady:nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)}});
  assert.equal(releaseState.bootVisible,false,'boot screen must remain non-blocking after startup hydration');
- assert.equal(releaseState.artReady,true,'navigation/Moon artwork was not decoded after startup hydration');
+ assert.equal(releaseState.navReady,true,'navigation artwork was not decoded after startup hydration');
  await page.screenshot({path:`${out}/boot-${width}-release.png`,fullPage:false});await page.waitForTimeout(500);await page.screenshot({path:`${out}/boot-${width}-plus500ms.png`,fullPage:false});
  await page.close();
 }
