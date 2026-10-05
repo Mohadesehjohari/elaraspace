@@ -84,7 +84,7 @@ await page.waitForFunction(()=>location.hash==='#tasks');
 await page.waitForTimeout(250);
 const taskHero=await rect('#astra-task-hero'),toolbar=await rect('#astra-task-toolbar'),cta=await rect('#elara-task-add-main'),row=await rect('#task-list>.astra-task-row'),check=await rect('#task-list>.astra-task-row .check-button');
 assert.ok(taskHero.height>=115&&taskHero.height<=130,'task streak banner height '+taskHero.height);
-assert.ok(toolbar.height>=50&&toolbar.height<=72,'task toolbar height '+toolbar.height);
+assert.ok(toolbar.height>=68&&toolbar.height<=80,'task toolbar height '+toolbar.height);
 assert.ok(cta.width>=200&&cta.width<=225,'CTA width '+cta.width);
 assert.ok(cta.height>=48&&cta.height<=53,'CTA height '+cta.height);
 assert.match(await page.locator('#elara-task-add-main').innerText(),/افزودن کار/);
