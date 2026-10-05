@@ -63,7 +63,7 @@ assert.ok(!approved.includes("tab==='words'?'language':tab"),'words route must n
 
 const mainSource=nav.match(/const MAIN=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'';
 const defs=[...mainSource.matchAll(/route:'([^']+)',label:'([^']+)'/g)].map(m=>[m[1],m[2]]);
-assert.deepEqual(defs,[['exercise','ورزش'],['language','زبان'],['tasks','تسک‌ها'],['home','خانه'],['ranking','رنکینگ'],['books','کتابخانه'],['freedom','آزادی']]);
+assert.deepEqual(defs,[['exercise','ورزش و سلامتی'],['language','زبان'],['tasks','کارها'],['home','خانه'],['ranking','رتبه‌بندی'],['books','کتابخانه'],['freedom','آزادی']]);
 assert.equal(defs[3][0],'home');
 
 assert.ok(wellness.includes('data-workout-custom')&&wellness.includes('name="customType"'),'Custom workout text field missing');
