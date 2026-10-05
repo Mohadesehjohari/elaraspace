@@ -21,11 +21,6 @@
   function material(THREE,color,rough=.76,metal=.01){
     return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
   }
-  function mesh(parent,geometry,mat,position=[0,0,0],scale=[1,1,1],rotation=[0,0,0],name=''){
-    const o=new parent.constructor===Function?null:null;
-    const m=new geometry.constructor===Function?null:null;
-    return {parent,geometry,mat,position,scale,rotation,name};
-  }
   function addMesh(THREE,parent,geometry,mat,position=[0,0,0],scale=[1,1,1],rotation=[0,0,0],name=''){
     const o=new THREE.Mesh(geometry,mat);o.position.set(...position);o.scale.set(...scale);o.rotation.set(...rotation);o.name=name;
     o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;
@@ -152,8 +147,8 @@
       :[[.32,0],[.45,.17],[.48,.38],[.39,.61],[.325,.80],[.34,1.01],[.41,1.20],[.46,1.38],[.425,1.52],[.30,1.62]];
     const torsoMesh=bodyLathe(THREE,torso,m.suit,profile,isMale?.62:.60);refs.torsoMesh=torsoMesh;
     if(!isMale){
-      ellipsoid(THREE,torso,sphere,m.suit,[-.18,4.77-3.35,.19],[.19,.22,.12],'chest-soft');
-      ellipsoid(THREE,torso,sphere,m.suit,[.18,4.77-3.35,.19],[.19,.22,.12],'chest-soft');
+      ellipsoid(THREE,torso,sphere,m.suit,[-.18,4.77,.19],[.19,.22,.12],'chest-soft');
+      ellipsoid(THREE,torso,sphere,m.suit,[.18,4.77,.19],[.19,.22,.12],'chest-soft');
     }
 
     cylinder(THREE,root,m.suit,.125,.145,.37,[0,5.10,0],[],28,'neck');
