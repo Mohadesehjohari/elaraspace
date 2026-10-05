@@ -17,7 +17,7 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).goals?.find(x=>x.id==='g1')?.steps?.find(x=>x.id==='s1')?.done===true);
  assert.equal(await page.locator('#task-list .astra-task-row.source-habit .check-button').getAttribute('aria-pressed'),'true','Habit linked row did not remain tickable in Tasks');
  assert.equal(await page.locator('#task-list .astra-task-row.source-goal .check-button').getAttribute('aria-pressed'),'true','Goal linked row did not remain tickable in Tasks');
- await page.locator('[data-phase2-action="edit-task"][data-id="t1"]').click();
+ await page.locator('[data-phase2-action="view-task"][data-id="t1"]').click();
  await page.waitForSelector('[data-task-checklist-editor]');
  const input=page.locator('[data-task-checklist-new]');
  for(const item of ['نان','شیر','میوه']){await input.fill(item);await page.locator('[data-task-checklist-add]').click()}
@@ -25,17 +25,21 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.locator('.task-checklist-row').nth(1).locator('[data-check-action="toggle"]').click();
  await page.locator('.task-checklist-row').nth(2).locator('[data-check-action="up"]').click();
  await page.locator('.task-checklist-row').nth(0).locator('[data-check-text]').fill('نان سبوس‌دار');
+ await page.locator('.task-checklist-row').nth(0).locator('[data-check-description]').fill('توضیح زیرتسک برای تست');
+ assert.equal(await page.locator('.task-detail-settings').getAttribute('open'),null,'title-open task details should start collapsed');
  await page.locator('.elara-dialog-actions .primary-button').click();
  await page.waitForFunction(()=>{const t=JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id==='t1');return Array.isArray(t?.checklist)&&t.checklist.length===3});
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id==='t1').checklist);
  assert.deepEqual(state.map(x=>x.text),['نان سبوس‌دار','میوه','شیر']);
  assert.equal(state[2].done,true,'checked item state did not persist');
+ assert.equal(state[0].description,'توضیح زیرتسک برای تست','subtask description did not persist');
  await page.waitForFunction(()=>document.querySelector('#task-list>.astra-task-row[data-key="t1"] .task-checklist-progress'));
  const progress=await page.locator('#task-list>.astra-task-row[data-key="t1"] .task-checklist-progress').innerText();assert.match(progress,/۱|1/);assert.match(progress,/۳|3/);
  await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ElaraTaskChecklist&&!document.documentElement.hasAttribute('data-elara-booting'));await page.waitForSelector('#task-list>.astra-task-row[data-key="t1"]');
- await page.locator('[data-phase2-action="edit-task"][data-id="t1"]').click();await page.waitForSelector('[data-task-checklist-editor]');
+ await page.locator('[data-phase2-action="view-task"][data-id="t1"]').click();await page.waitForSelector('[data-task-checklist-editor]');
  assert.equal(await page.locator('.task-checklist-row').count(),3,'checklist lost after refresh');
  assert.equal(await page.locator('.task-checklist-row').nth(0).locator('[data-check-text]').inputValue(),'نان سبوس‌دار');
+ assert.equal(await page.locator('.task-checklist-row').nth(0).locator('[data-check-description]').inputValue(),'توضیح زیرتسک برای تست');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=2,'checklist horizontal overflow '+width+' '+overflow);
  await context.close();
 }
