@@ -129,6 +129,8 @@
     for (const [id,names,placeholder] of fields) { const el = $(id),prev = el.value; el.innerHTML = optionHTML(names,placeholder); if (names.includes(prev)) el.value = prev; }
   }
   function renderTasks() {
+    const canonical=window.ElaraTasks?.render;
+    if(typeof canonical==='function'&&canonical!==renderTasks){canonical();return}
     const search = $('task-search').value.trim().toLocaleLowerCase();
     const filter = $('task-filter').value,folder = $('task-folder-filter').value,tag = $('task-tag-filter').value;
     const visible = state.tasks.filter(t => (!search || [t.text,t.tag,t.folder].some(x => x.toLocaleLowerCase().includes(search))) && (!folder || t.folder === folder) && (!tag || t.tag === tag) && (filter === 'all' || filter === 'active' && !t.completed || filter === 'completed' && t.completed || filter === 'today' && t.date === today() || filter === 'overdue' && !t.completed && t.date && t.date < today())).sort(taskSort);
