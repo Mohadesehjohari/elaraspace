@@ -156,3 +156,43 @@ body.task-core-dragging{user-select:none!important;overscroll-behavior:none}
 .task-detail-daily-target small{font-size:.56rem;color:var(--muted)}
 .task-detail-recurrence{grid-column:1/-1}
 @media(max-width:520px){.task-daily-target-inline{align-items:stretch;flex-direction:column}.task-daily-target-inline input{width:100%}}
+
+
+/* 2026-10-05 repeat controls: two peer opt-in toggles */
+.task-repeat-controls{
+ display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:10px;align-items:start;margin-top:12px
+}
+.task-repeat-controls>.task-daily-repeat-box,
+.task-repeat-controls>.recurrence-box{
+ margin:0!important;min-width:0;padding:13px;border:1px solid var(--border);border-radius:14px;
+ background:color-mix(in srgb,var(--surface2) 62%,transparent)
+}
+.task-daily-repeat-box{display:grid;gap:10px}
+.task-daily-target-options{margin-top:2px}
+.task-daily-target-options>label{display:grid;grid-template-columns:auto minmax(72px,96px) auto;align-items:center;gap:7px;margin:0!important;font-size:.65rem;color:var(--muted)}
+.task-daily-target-options input{width:100%;min-width:72px}
+.task-daily-target-options span{white-space:nowrap;font-size:.6rem;color:var(--muted)}
+
+.task-detail-repeat-controls{
+ grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:10px;align-items:start
+}
+.task-detail-repeat-controls>.task-detail-daily-repeat,
+.task-detail-repeat-controls>.task-detail-recurrence{
+ grid-column:auto!important;min-width:0;padding:12px;border:1px solid var(--border);border-radius:13px;
+ background:color-mix(in srgb,var(--surface2) 62%,transparent)
+}
+.task-detail-daily-repeat{display:grid;gap:10px}
+.task-detail-daily-options>label{display:grid;gap:6px;margin:0!important;font-size:.65rem;color:var(--muted)}
+.task-detail-daily-options input{width:100%;max-width:110px}
+.task-detail-daily-options small{font-size:.56rem;color:var(--muted)}
+.task-detail-recurrence [data-detail-recurrence-options]{display:grid;gap:10px;margin-top:10px}
+.task-detail-recurrence [data-detail-recurrence-options].hidden{display:none!important}
+
+@media(max-width:700px){
+ .task-repeat-controls,.task-detail-repeat-controls{grid-template-columns:1fr 1fr;gap:7px}
+ .task-repeat-controls>.task-daily-repeat-box,.task-repeat-controls>.recurrence-box,
+ .task-detail-repeat-controls>.task-detail-daily-repeat,.task-detail-repeat-controls>.task-detail-recurrence{padding:10px}
+}
+@media(max-width:460px){
+ .task-repeat-controls,.task-detail-repeat-controls{grid-template-columns:1fr}
+}
