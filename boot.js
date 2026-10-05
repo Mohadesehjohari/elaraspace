@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261005-profile-gallery-v2';
+  const BUILD='20261005-social-recovery-v1';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -77,10 +77,16 @@
         }
       },15000);
       await import(assetUrl('./cloud.js'));
-      try{await import(assetUrl('./elara-social.js'))}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
-      try{await import(assetUrl('./elara-collab.js'))}catch(error){console.error('Elara collaboration startup:',error)}
-      try{await import(assetUrl('./elara-page.js'))}catch(error){console.error('Elara page startup:',error)}
-      try{await import(assetUrl('./social-engagement.js'))}catch(error){console.error('Elara engagement startup:',error)}
+      const optionalCloudModules=[
+        ['./elara-social.js','Elara social startup:'],
+        ['./elara-collab.js','Elara collaboration startup:'],
+        ['./elara-page.js','Elara page startup:'],
+        ['./social-engagement.js','Elara engagement startup:']
+      ];
+      await Promise.allSettled(optionalCloudModules.map(async([name,label])=>{
+        try{await import(assetUrl(name))}
+        catch(error){console.error(label,error);if(name==='./elara-social.js'){const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}throw error}
+      }));
     }catch(error){
       settleAccount();
       console.error('Elara cloud startup:',error);
