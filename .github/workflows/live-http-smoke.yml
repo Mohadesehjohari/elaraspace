@@ -1,0 +1,32 @@
+name: Live HTTP smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-http-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Wait for Pages
+        run: sleep 20
+      - name: Fetch live site
+        run: |
+          set -euxo pipefail
+          curl -Lsv --connect-timeout 10 --max-time 30 -o /tmp/elara-live.html -w '\nHTTP_CODE=%{http_code}\nFINAL_URL=%{url_effective}\nSIZE=%{size_download}\n' 'https://mohadesehjohari.github.io/elaraspace/?http-smoke=${{ github.sha }}#home' 2>&1 | tee /tmp/curl.log
+          test -s /tmp/elara-live.html
+          grep -q 'Elara Space' /tmp/elara-live.html
+          grep -q 'boot.js' /tmp/elara-live.html
+      - name: Upload response
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-http-${{ github.sha }}
+          path: |
+            /tmp/curl.log
+            /tmp/elara-live.html
+          retention-days: 7
