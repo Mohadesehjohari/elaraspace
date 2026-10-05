@@ -83,7 +83,7 @@ assert.ok(navApi,'canonical navigation API missing');
 const routes=navApi.routes.map(x=>x.route);
 const labels=navApi.routes.map(x=>x.label);
 assert.deepEqual(JSON.parse(JSON.stringify(routes)),['exercise','language','tasks','home','ranking','books','freedom']);
-assert.deepEqual(JSON.parse(JSON.stringify(labels)),['ورزش','زبان','تسک‌ها','خانه','رنکینگ','کتابخانه','آزادی']);
+assert.deepEqual(JSON.parse(JSON.stringify(labels)),['ورزش و سلامتی','زبان','کارها','خانه','رتبه‌بندی','کتابخانه','آزادی']);
 
 const childRoutes=rootEl=>rootEl.children.map(x=>x.dataset.elaraTab);
 assert.deepEqual(childRoutes(bottom),routes,'mobile nav must render exactly the canonical seven routes');
