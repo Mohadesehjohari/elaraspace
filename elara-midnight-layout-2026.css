@@ -20,7 +20,7 @@ body.dark{
 }
 body.dark .shell{max-width:none!important;grid-template-columns:232px minmax(0,1fr)!important}
 body.dark .workspace{min-width:0!important;background:transparent!important}
-body.dark main{max-width:none!important;margin:0!important;padding:14px 18px 30px!important}
+body.dark main,body.dark #main{max-width:none!important;margin:0!important;padding:14px 18px 30px!important}
 body.dark :where(.elara-card,.surface,.stat-card){
  background:linear-gradient(145deg,rgba(13,39,77,.90),rgba(4,20,42,.94))!important;
  border-color:var(--elara-line)!important;
@@ -74,8 +74,8 @@ body.dark #ref-sidebar-banner strong{font-size:.91rem!important;line-height:1.65
 body.dark #ref-sidebar-banner span{color:#a9bada!important}
 
 /* ================== HEADER ================== */
-body.dark .topbar.ref-topbar{
- height:64px!important;padding:8px 18px!important;border-bottom:0!important;
+body.dark .workspace .topbar.ref-topbar{
+ height:64px!important;min-height:64px!important;max-height:64px!important;padding:8px 18px!important;border-bottom:0!important;
  display:flex!important;align-items:center!important;gap:11px!important;direction:ltr!important;
  background:rgba(2,18,42,.70)!important;backdrop-filter:blur(16px)!important;
 }
@@ -477,7 +477,7 @@ body.dark .elara-card:hover{border-color:rgba(76,184,231,.40)!important}
  body.dark .shell{display:block!important}
  body.dark .sidebar{display:none!important}
  body.dark main{padding:10px 10px 105px!important}
- body.dark .topbar.ref-topbar{height:62px!important;padding:7px 10px!important}
+ body.dark .workspace .topbar.ref-topbar{height:62px!important;min-height:62px!important;max-height:62px!important;padding:7px 10px!important}
  body.dark .ref-topbar #ref-header-search{width:100%!important;flex:1!important}
  body.dark .ref-topbar #ref-header-account{min-width:48px!important;width:48px!important}
  body.dark .ref-topbar #ref-header-account .ref-account-copy{display:none!important}
