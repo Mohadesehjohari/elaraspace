@@ -31,7 +31,7 @@ for (const name of ['tasks','habits','goals','focus','books','words','settings']
 }
 const mainSource=navigation.match(/const MAIN=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'';
 const mainRoutes=[...mainSource.matchAll(/route:'([^']+)',label:'([^']+)'/g)].map(m=>[m[1],m[2]]);
-assert.deepEqual(mainRoutes,[['exercise','ورزش'],['language','زبان'],['tasks','تسک‌ها'],['home','خانه'],['ranking','رنکینگ'],['books','کتابخانه'],['freedom','آزادی']],'Canonical main navigation must stay at seven routes');
+assert.deepEqual(mainRoutes,[['exercise','ورزش و سلامتی'],['language','زبان'],['tasks','کارها'],['home','خانه'],['ranking','رتبه‌بندی'],['books','کتابخانه'],['freedom','آزادی']],'Canonical main navigation must stay at seven routes with approved Persian labels');
 assert.equal(mainRoutes[3][0],'home','Home must remain the visual center route');
 const initialBottom=html.match(/<nav class="bottom-nav"[^>]*data-elara-main-nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
 const initialRoutes=[...initialBottom.matchAll(/data-elara-tab="([^"]+)"/g)].map(m=>m[1]);
