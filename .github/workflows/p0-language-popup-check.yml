@@ -87,7 +87,6 @@ on:
       - 'avatar-3d.js'
       - 'avatar-3d.css'
       - 'tests/avatar-3d-browser.mjs'
-      - 'tests/avatar-vrm-preview-browser.mjs'
       - 'dialog.js'
       - 'reference-exact-pass-2026.css'
       - 'deploy/production-manifest.json'
@@ -126,7 +125,6 @@ jobs:
           node --check drawer.js
           node --check avatar-3d.js
           node --check tests/avatar-3d-browser.mjs
-          node --check tests/avatar-vrm-preview-browser.mjs
           node --check dialog.js
           node --check phase2.js
           node --check entity-reorder.js
@@ -196,8 +194,6 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-p0-http.log 2>&1 &
           sleep 2
-      - name: Preview CC0 VRM avatar bases
-        run: timeout 120s node tests/avatar-vrm-preview-browser.mjs
       - name: Verify desktop 3D avatar
         run: timeout 90s node tests/avatar-3d-browser.mjs
       - name: Verify private Wellness plan notes
