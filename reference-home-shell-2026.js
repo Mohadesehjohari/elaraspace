@@ -69,6 +69,33 @@ function localSearch(q){
 }
 
 function element(tag,cls,id){const e=document.createElement(tag);e.className=cls;if(id)e.id=id;return e}
+function ensureQuickAccess(panel,grid){
+ let q=$('ref-quick-access');if(!q){q=element('section','ref-quick-access','ref-quick-access');q.innerHTML='<header><h2>ورود سریع به بخش‌ها</h2></header><div class="ref-quick-access-grid"></div>';grid?.insertAdjacentElement('afterend',q)}
+ const host=q.querySelector('.ref-quick-access-grid');
+ const cards=[
+  ['tasks','کارها','برنامه‌ریزی روزانه','✓'],
+  ['language','یادگیری زبان','مسیر رشد فردی','文'],
+  ['books','کتابخانه','دانش بی‌مرز','▤'],
+  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','♥'],
+  ['social','دوستان','با هم، دورتر','♟'],
+  ['freedom','آزادی','زندگی دلخواه تو','✦']
+ ];
+ if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><span class="ref-quick-icon">'+ic+'</span><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
+ return q
+}
+function ensureAchievements(grid){
+ let a=$('ref-achievements');if(!a){a=element('section','elara-card ref-card ref-achievements','ref-achievements');a.innerHTML='<header><h2>★ آخرین دستاوردها</h2><button type="button" class="elara-link" data-elara-tab="missions">مشاهده همه ←</button></header><div id="ref-achievements-list"></div>';grid?.append(a)}return a
+}
+function renderAchievements(){
+ const host=$('ref-achievements-list');if(!host)return;
+ const data=read(),rows=[];
+ const history=arr(data.taskCompletionHistory).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,2);
+ for(const h of history)rows.push({icon:'✓',title:'کار انجام‌شده',desc:h.date||'امروز',tone:'blue'});
+ const missions=arr(window.ElaraMissions?.snapshot?.()).filter(x=>x?.completed).slice(0,3-rows.length);
+ for(const m of missions)rows.push({icon:'★',title:m.name||'مأموریت کامل شد',desc:m.detail||('+'+fa(m.rewardXp||0)+' XP'),tone:'gold'});
+ const streakNow=streak();if(streakNow>1&&rows.length<3)rows.push({icon:'🔥',title:fa(streakNow)+' روز متوالی',desc:'رکورد فعالیت فعلی',tone:'fire'});
+ window.ElaraDOM.patch(host,rows.length?rows.slice(0,3).map(r=>'<button type="button" class="ref-achievement-row '+r.tone+'" data-elara-tab="missions"><span>'+r.icon+'</span><span><strong>'+esc(r.title)+'</strong><small>'+esc(r.desc)+'</small></span><b aria-hidden="true">‹</b></button>').join(''):'<p class="ref-empty">با اولین پیشرفت واقعی، دستاوردها اینجا ظاهر می‌شوند.</p>')
+}
 function ownHeading(root,key,html){
  const h=root?.querySelector(':scope > header h2');if(!h)return;
  if(h.dataset.refHeadingOwner===key)return;
@@ -82,21 +109,25 @@ function homeStructure(){
  let wellness=$('ref-wellness-card');if(!wellness){wellness=element('section','elara-card ref-card ref-wellness-card','ref-wellness-card');wellness.innerHTML=`<header><h2>${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامت / ورزش</h2><button type="button" class="elara-link" data-elara-tab="exercise">همه ←</button></header><div id="ref-wellness-data"></div>`}
  let side=$('ref-right-stack');
  let theme=$('ref-theme-strip');if(!theme){theme=element('section','elara-card ref-theme-strip','ref-theme-strip');theme.innerHTML=`<header><h2>${icon('spark')} جهان‌های تم</h2><button type="button" class="elara-link" data-drawer-appearance>مشاهده همه ←</button></header><div class="ref-theme-options">${['violet','blue','pink','green','orange','black'].map((c,i)=>`<button type="button" class="ref-theme-option" data-ref-theme="${c}" aria-label="انتخاب تم ${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}"><img class="ref-theme-option-art" src="${THEME_ART[c]}" alt="" loading="lazy" decoding="async"><small>${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}</small></button>`).join('')}</div>`}
- for(const c of [tasks,habits,wellness,missions,goals,ranks,activity])if(c){c.hidden=false;if(c.parentElement!==grid)grid.append(c)}
+ const streakCard=$('ref-streak-card')||element('section','ref-streak-card ref-card','ref-streak-card');
+ if(!streakCard.isConnected){const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
+ const achievements=ensureAchievements(grid);
+ for(const c of [streakCard,tasks,wellness,goals,habits,ranks,achievements])if(c){c.hidden=false;if(c.parentElement!==grid)grid.append(c)}
+ // Reference dashboard intentionally consolidates secondary Home cards: Missions remain reachable
+ // through Achievements, Friends through Quick Access/sidebar, and all routes/state stay canonical.
+ for(const c of [missions,activity,social,theme])if(c)c.hidden=true;
  side?.remove();
- if(social){social.hidden=true;if(social.parentElement!==grid)grid.append(social)}
- if(theme.parentElement!==grid)grid.append(theme);
- // Reassert the exact named-area DOM contract on every reference render. Old visual passes may
- // mutate the tree after first boot; the reference owner must repair that without rebuilding cards.
- const namedAreas=[[tasks,'tasks'],[habits,'habits'],[wellness,'wellness'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity'],[theme,'themes']];
- const desktop=matchMedia('(min-width:701px)').matches,desktopSlots=new Map([[tasks,['1','1']],[habits,['2','1']],[wellness,['3','1']],[missions,['1','2']],[goals,['2','2']],[ranks,['3','2']],[theme,['1 / span 2','3']],[activity,['3','3']]]);
- for(const [c,area] of namedAreas)if(c){
-   if(c.parentElement!==grid)grid.append(c);
-   c.style.setProperty('grid-area',area,'important');c.style.setProperty('position','relative','important');c.style.setProperty('inset','auto','important');c.style.setProperty('transform','none','important');
-   const slot=desktopSlots.get(c);if(desktop&&slot){c.style.setProperty('grid-column',slot[0],'important');c.style.setProperty('grid-row',slot[1],'important')}else{c.style.removeProperty('grid-column');c.style.removeProperty('grid-row')}
+ ensureQuickAccess(panel,grid);
+ const namedAreas=[[streakCard,'streak'],[tasks,'tasks'],[wellness,'wellness'],[goals,'goals'],[ranks,'ranks'],[habits,'habits'],[achievements,'achievements']];
+ for(const [cardNode,area] of namedAreas)if(cardNode){
+   if(cardNode.parentElement!==grid)grid.append(cardNode);
+   cardNode.style.setProperty('grid-area',area,'important');
+   cardNode.style.setProperty('position','relative','important');
+   cardNode.style.setProperty('inset','auto','important');
+   cardNode.style.setProperty('transform','none','important');
+   cardNode.style.removeProperty('grid-column');cardNode.style.removeProperty('grid-row')
  }
- if(desktop){grid.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');grid.style.setProperty('grid-template-areas',"'tasks habits wellness' 'missions goals ranks' 'themes themes activity'",'important')}
- else{grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')}
+ grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')
  const extra=card('elara-home-books');if(extra){extra.hidden=true;if(extra.parentElement!==grid)grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
  ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
@@ -107,8 +138,8 @@ function homeStructure(){
  ownHeading(ranks,'ranks',`${art(UI_ASSETS.ranking,'elara-card-art ref-ranking-heading-art','')} رنکینگ دوستان`);
  if(activity){const header=activity.querySelector('header');ownHeading(activity,'activity',`${art(UI_ASSETS.friendsGroup,'elara-card-art ref-friends-heading-art','')} فعالیت دوستان`);if(header){let open=header.querySelector('[data-ref-friends-open]')||header.querySelector('[data-elara-tab="social"]');if(!open){open=document.createElement('button');open.type='button';header.append(open)}open.className='elara-link ref-friends-open';open.dataset.refFriendsOpen='1';open.dataset.elaraTab='social';open.setAttribute('aria-label','باز کردن فهرست دوستان');open.innerHTML='<span>همه ←</span>'}}
  const stats=$('elara-stats');if(stats)stats.hidden=true;
- let streakCard=$('ref-streak-card');if(!streakCard){streakCard=element('section','ref-streak-card','ref-streak-card');const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
- const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('ref-hero');const heading=hero.querySelector('.hero-copy h1');if(heading)heading.textContent='قدم‌های کوچک، آینده‌های بزرگ می‌سازند.';let quote=$('ref-hero-quote');if(!quote){quote=element('aside','ref-hero-quote','ref-hero-quote');quote.innerHTML='<strong>امروز بهتر از دیروز!</strong><span>همیشه ممکن است.</span>';hero.append(quote)}let desktopStreak=$('ref-desktop-streak');if(!desktopStreak){desktopStreak=element('div','ref-desktop-streak','ref-desktop-streak');desktopStreak.setAttribute('aria-label','استریک روزانه');hero.append(desktopStreak)}}
+ let streakCard=$('ref-streak-card');if(!streakCard){streakCard=element('section','ref-streak-card ref-card','ref-streak-card');grid.prepend(streakCard)}
+ const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('ref-hero');const heading=hero.querySelector('.hero-copy h1');if(heading)heading.textContent='سفر به نسخه‌ای بهتر تو از همین امروز آغاز می‌شود.';const copy=hero.querySelector('.hero-copy');if(copy&&!copy.querySelector('.ref-hero-continue'))copy.insertAdjacentHTML('beforeend','<button type="button" class="ref-hero-continue" data-elara-tab="tasks">ادامه مسیر <span aria-hidden="true">‹</span></button>');if(!hero.querySelector('.ref-hero-floating'))hero.insertAdjacentHTML('beforeend','<aside class="ref-hero-floating"><b>✦ پیشرفت</b><span>یک مسیر روزانه است، نه یک مقصد دور.</span></aside>');let quote=$('ref-hero-quote');if(!quote){quote=element('aside','ref-hero-quote','ref-hero-quote');quote.innerHTML='<strong>امروز بهتر از دیروز!</strong><span>همیشه ممکن است.</span>';hero.append(quote)}let desktopStreak=$('ref-desktop-streak');if(!desktopStreak){desktopStreak=element('div','ref-desktop-streak','ref-desktop-streak');desktopStreak.setAttribute('aria-label','استریک روزانه');hero.append(desktopStreak)}}
  installViewAllArtwork();
 }
 function libraryFocus(){
@@ -157,8 +188,8 @@ function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar
  let notify=$('ref-header-notifications');if(!notify){notify=element('button','icon-button ref-header-notifications','ref-header-notifications');notify.type='button';notify.setAttribute('aria-label','اعلان‌ها');actions.append(notify)}const unread=Number(window.ElaraNotify?.unreadCount?.()??unreadNotifications())||0;notify.dataset.unreadCount=String(unread);window.ElaraDOM.patch(notify,art(unread>0?UI_ASSETS.notificationUnread:UI_ASSETS.notificationRead,'ref-header-art ref-notification-art',''));
  document.getElementById('ref-header-edit')?.remove();
 }
-function renderDynamic(kind='all'){accountHeader();if(kind==='task'){renderTasks();renderMissions();streakView();return}if(kind==='habit'){renderHabits();renderMissions();streakView();return}if(kind==='goal'){renderGoals();return}renderTasks();renderHabits();renderGoals();renderMissions();wellness();streakView()}
-function render(){homeStructure();libraryFocus();renderDynamic();accountHeader();const p=$('panel-home');if(p){const h=p.querySelector('.hero-copy h1');if(h)h.textContent='قدم‌های کوچک، آینده‌های بزرگ می‌سازند.'}}
+function renderDynamic(kind='all'){accountHeader();if(kind==='task'){renderTasks();renderMissions();streakView();renderAchievements();return}if(kind==='habit'){renderHabits();renderMissions();streakView();renderAchievements();return}if(kind==='goal'){renderGoals();renderAchievements();return}renderTasks();renderHabits();renderGoals();renderMissions();wellness();streakView();renderAchievements()}
+function render(){homeStructure();libraryFocus();renderDynamic();accountHeader();const p=$('panel-home');if(p){const h=p.querySelector('.hero-copy h1');if(h)h.textContent='سفر به نسخه‌ای بهتر تو از همین امروز آغاز می‌شود.'}}
 let scheduled=false,dynamicScheduled=false,pendingDynamic=new Set(),localMutationKind=null;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;render()})}function scheduleDynamic(event){const kind=localMutationKind||window.ElaraDataChangeHint||event?.detail?.kind||'all';pendingDynamic.add(kind);if(dynamicScheduled)return;dynamicScheduled=true;requestAnimationFrame(()=>{dynamicScheduled=false;const kinds=[...pendingDynamic];pendingDynamic.clear();if(kinds.includes('all')||kinds.length>1)renderDynamic('all');else renderDynamic(kinds[0])})}
 function actions(e){
  const date=e.target.closest('[data-home-date]');if(date){window.ElaraHomeDay=date.dataset.homeDate;render();return}if(e.target.closest('[data-home-calendar]')){window.ElaraCalendar?.open(selected(),d=>{window.ElaraHomeDay=d;render()});return}
