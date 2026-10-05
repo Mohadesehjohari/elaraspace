@@ -2,6 +2,7 @@
 > **مرجع canonical جدید:** [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)  
 > از ۳ اکتبر ۲۰۲۶، اولویت‌ها و تعارض‌های محصول از Master Roadmap حل می‌شوند. این فایل برای تاریخچهٔ اجرا نگه داشته شده است.
 > **Handoff اجرایی فعلی (۴ اکتبر ۲۰۲۶):** بخش `Execution Handoff — 2026-10-04` در Master و صف کوتاه‌مدت `REMAINING-ROADMAP.md` مرجع شروع چت اجرایی بعدی هستند.
+> **Avatar System اختصاصی (۵ اکتبر ۲۰۲۶):** مرجع canonical طراحی، Blender، VRM/GLB، Rig، Hair Physics، Face Morphs و Store در [docs/AVATAR-SYSTEM-ROADMAP.md](docs/AVATAR-SYSTEM-ROADMAP.md) است. مدل procedural فعلی فقط Prototype فنی است و مدل Production محسوب نمی‌شود.
 
 
 **مرجع اصلی و به‌روز وضعیت محصول:** [رودمپ کامل و چک‌لیست مراحل](docs/PRODUCT-ROADMAP.md)؛ [بک‌لاگ جامع V2](docs/V2-COMPLETE-FEATURE-ROADMAP.md)؛ [داشبورد ادمین و Gemini](docs/ADMIN-GEMINI-ROADMAP.md)؛ [راهنمای محدودیت‌های بتا](README-ELARA-APPROVED-FA.md).
