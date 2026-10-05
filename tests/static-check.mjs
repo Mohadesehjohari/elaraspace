@@ -13,6 +13,7 @@ const drawer = readFileSync(new URL('drawer.js',root),'utf8');
 const dialog = readFileSync(new URL('dialog.js',root),'utf8');
 const pass2 = readFileSync(new URL('visual-fidelity-pass2.js',root),'utf8');
 const navigation = readFileSync(new URL('approved-navigation-extension.js',root),'utf8');
+const featureHubs = readFileSync(new URL('feature-hubs-2026.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
 assert.ok(ids.size > 50,'Application markup seems incomplete');
