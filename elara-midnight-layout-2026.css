@@ -1,452 +1,529 @@
-/* Elara Midnight visual system — Home + Tasks layout/color pass
-   2026-10-05. Presentation-only: no task/account/storage behavior is changed. */
+/* Elara direct-reference redesign — 2026-10-05
+   Visual/layout owner for Home + Tasks. No business/data/API logic lives here. */
 
 :root{
-  --elara-midnight-bg:#06111f;
-  --elara-midnight-bg-2:#0a1630;
-  --elara-midnight-header:#08182a;
-  --elara-midnight-surface:#0c2036;
-  --elara-midnight-surface-2:#102a46;
-  --elara-midnight-border:#24405f;
-  --elara-midnight-border-hover:#3e628b;
-  --elara-midnight-text:#f5f8ff;
-  --elara-midnight-muted:#a8b7cc;
-  --elara-midnight-blue:#4f8cff;
-  --elara-midnight-cyan:#2dd4d7;
-  --elara-midnight-purple:#8b5cf6;
-  --elara-midnight-gold:#f5c45b;
-  --elara-midnight-success:#38d39f;
-  --elara-midnight-warning:#f6a84b;
-  --elara-midnight-danger:#f0627d;
+ --elara-bg:#02122a;--elara-bg2:#04172e;--elara-bg3:#061d39;--elara-panel:#0d274de6;
+ --elara-panel2:#071a34f2;--elara-line:rgba(75,170,255,.25);--elara-line-strong:rgba(55,196,255,.58);
+ --elara-text:#f7faff;--elara-secondary:rgba(230,240,255,.78);--elara-muted:rgba(190,210,235,.55);
+ --elara-cyan:#20d7ff;--elara-blue:#31bceb;--elara-purple:#9255ff;--elara-green:#18e0ba;
+ --elara-orange:#ff943f;--elara-gold:#ffd067;--elara-pink:#ff5f9a;
 }
 body.dark{
-  --bg:var(--elara-midnight-bg);
-  --surface:var(--elara-midnight-surface);
-  --surface2:var(--elara-midnight-surface-2);
-  --border:var(--elara-midnight-border);
-  --text:var(--elara-midnight-text);
-  --muted:var(--elara-midnight-muted);
-  --accent:var(--elara-midnight-blue);
-  --accent2:var(--elara-midnight-cyan);
-  --input:#081a30;
-  --shadow:0 16px 42px #0004;
-  --elara-accent:var(--elara-midnight-blue);
-  background:
-    radial-gradient(circle at 74% 0%,rgba(79,140,255,.09),transparent 30%),
-    radial-gradient(circle at 12% 72%,rgba(45,212,215,.045),transparent 28%),
-    linear-gradient(180deg,var(--elara-midnight-bg) 0%,var(--elara-midnight-bg-2) 100%)!important;
-  background-attachment:fixed!important;
+ --bg:var(--elara-bg);--surface:#0a203e;--surface2:#0c294b;--border:#244e73;
+ --text:var(--elara-text);--muted:#9fb5cf;--accent:var(--elara-cyan);--accent2:var(--elara-purple);--input:#061a34;
+ color:var(--elara-text)!important;
+ background:
+  radial-gradient(circle at 70% -8%,rgba(41,118,255,.15),transparent 32%),
+  radial-gradient(circle at 12% 74%,rgba(113,72,255,.09),transparent 28%),
+  linear-gradient(155deg,#02122a 0%,#04172e 46%,#061d39 100%)!important;
+ background-attachment:fixed!important;
 }
-body.dark .shell{max-width:none!important}
-body.dark .workspace{background:transparent!important}
-body.dark .sidebar{
-  background:
-    radial-gradient(circle at 50% 0%,rgba(79,140,255,.08),transparent 26%),
-    linear-gradient(180deg,#07192c 0%,#061321 58%,#050f1c 100%)!important;
-  border-color:#1c3854!important;
-  box-shadow:8px 0 34px #0002!important;
-}
-body.dark .topbar{
-  background:color-mix(in srgb,#08182a 92%,transparent)!important;
-  border-color:#1e3a59!important;
-  backdrop-filter:blur(14px);
-}
+body.dark .shell{max-width:none!important;grid-template-columns:232px minmax(0,1fr)!important}
+body.dark .workspace{min-width:0!important;background:transparent!important}
+body.dark main{max-width:none!important;margin:0!important;padding:14px 18px 30px!important}
 body.dark :where(.elara-card,.surface,.stat-card){
-  border-color:var(--elara-midnight-border);
-  background:linear-gradient(145deg,#0b2139,#091a2e);
-}
-body.dark :where(input,select,textarea){
-  background:#081a30;
-  border-color:#284563;
-}
-body.dark :where(input,select,textarea):focus{border-color:#4f8cff!important}
-body.dark :where(button,a,input,select,textarea):focus-visible{
-  outline-color:#69cfe5!important;
-}
-body.dark .primary-button{
-  background:linear-gradient(115deg,#2bbfc7 0%,#4f8cff 64%,#6e73ff 100%)!important;
-  border-color:#63b8e5!important;
-  box-shadow:0 9px 22px rgba(38,135,215,.24)!important;
-}
-body.dark .quiet-button,
-body.dark .file-button{
-  background:#0b223c!important;
-  border-color:#2b4968!important;
-}
-body.dark .quiet-button:hover,
-body.dark .file-button:hover{border-color:#4f8cff!important}
-
-/* Sidebar — identity stays cosmic; state is communicated with contrast, not purple flooding. */
-body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav){
-  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease,transform .2s ease!important;
-}
-body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav):hover{
-  color:#edf8ff!important;
-  background:linear-gradient(90deg,rgba(45,212,215,.07),rgba(79,140,255,.09))!important;
-  border-color:#2d5878!important;
-}
-body.dark .sidebar :where(a[data-elara-tab][aria-current="page"],.nav-item.active,.elara-extension-nav.active){
-  color:#f6fbff!important;
-  background:linear-gradient(90deg,rgba(45,212,215,.15),rgba(79,140,255,.18))!important;
-  border-color:#4389b6!important;
-  box-shadow:inset 3px 0 0 #2dd4d7,0 8px 20px #0002,0 0 16px rgba(79,140,255,.10)!important;
-}
-[dir="rtl"] body.dark .sidebar :where(a[data-elara-tab][aria-current="page"],.nav-item.active,.elara-extension-nav.active){
-  box-shadow:inset -3px 0 0 #2dd4d7,0 8px 20px #0002,0 0 16px rgba(79,140,255,.10)!important;
-}
-body.dark .sidebar .elara-nav-art{filter:saturate(.86) brightness(.94)!important}
-body.dark .sidebar :where([aria-current="page"],.active) .elara-nav-art{
-  filter:saturate(1.08) brightness(1.06) drop-shadow(0 0 7px rgba(78,171,255,.32))!important;
+ background:linear-gradient(145deg,rgba(13,39,77,.90),rgba(4,20,42,.94))!important;
+ border-color:var(--elara-line)!important;
+ box-shadow:0 8px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important;
 }
 
-/* ---------------- HOME ---------------- */
-body.dark #panel-home.ref-home{
-  --home-blue:#5ba8ff;
-  --home-cyan:#36d6e7;
-  --home-green:#38d39f;
-  --home-wellness:#20c9a6;
-  --home-gold:#f5c45b;
-  --home-orange:#f6a84b;
-  --home-coral:#ff7d88;
+/* ================== SIDEBAR ================== */
+body.dark .sidebar{
+ width:232px!important;padding:18px 13px 16px!important;
+ border-inline-end:1px solid rgba(68,151,220,.28)!important;border-inline-start:0!important;
+ background:
+  radial-gradient(circle at 40% 0%,rgba(35,145,255,.12),transparent 28%),
+  linear-gradient(180deg,#03152d 0%,#04172d 62%,#031225 100%)!important;
+ box-shadow:12px 0 36px rgba(0,0,0,.18)!important;
 }
+body.dark .sidebar .identity{min-height:102px!important;padding:0 8px 20px!important;justify-content:center!important}
+body.dark .sidebar .identity .brand-mark{display:none!important}
+body.dark .sidebar .identity>span:last-child{font-size:1.32rem!important}
+body.dark .sidebar :where(.elara-sidebar-primary,.elara-sidebar-secondary){gap:4px!important}
+body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav){
+ min-height:49px!important;border-radius:12px!important;padding:7px 11px!important;
+ color:rgba(230,240,255,.82)!important;border:1px solid transparent!important;
+ background:transparent!important;box-shadow:none!important;
+}
+body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav) small{
+ color:inherit!important;font-size:.81rem!important;font-weight:780!important
+}
+body.dark .sidebar .elara-nav-art{width:31px!important;height:31px!important;object-fit:contain!important;filter:saturate(.8) brightness(.96)!important}
+body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav):hover{
+ background:linear-gradient(90deg,rgba(12,190,255,.10),rgba(28,91,205,.14))!important;
+ border-color:rgba(50,165,232,.28)!important;
+}
+body.dark .sidebar :where([aria-current="page"],.active){
+ background:linear-gradient(90deg,rgba(12,190,255,.25),rgba(28,91,205,.32))!important;
+ border-color:#20d7ff!important;color:#fff!important;
+ box-shadow:inset 4px 0 0 #30e4ff,0 0 17px rgba(0,190,255,.15)!important;
+}
+[dir="rtl"] body.dark .sidebar :where([aria-current="page"],.active){box-shadow:inset -4px 0 0 #30e4ff,0 0 17px rgba(0,190,255,.15)!important}
+body.dark .sidebar :where([aria-current="page"],.active) .elara-nav-art{filter:brightness(1.12) saturate(1.04) drop-shadow(0 0 7px rgba(32,215,255,.28))!important}
+body.dark .sidebar .elara-sidebar-secondary{margin-top:11px!important;padding-top:11px!important;border-top:1px solid rgba(91,154,209,.34)!important}
+body.dark #ref-sidebar-banner{
+ margin-top:auto!important;min-height:138px!important;padding:17px 15px!important;border:1px solid rgba(116,98,255,.60)!important;
+ border-radius:15px!important;background-image:
+  linear-gradient(180deg,rgba(3,15,38,.16),rgba(3,15,38,.94)),
+  radial-gradient(circle at 78% 16%,rgba(145,108,255,.44),transparent 16%),
+  linear-gradient(145deg,#10164c,#062b4c 48%,#07142e)!important;
+ box-shadow:0 14px 28px #0005,0 0 18px rgba(113,72,255,.12)!important;
+}
+body.dark #ref-sidebar-banner img{width:48px!important;height:48px!important;filter:drop-shadow(0 0 9px rgba(255,208,103,.35))!important}
+body.dark #ref-sidebar-banner strong{font-size:.91rem!important;line-height:1.65!important}
+body.dark #ref-sidebar-banner span{color:#a9bada!important}
+
+/* ================== HEADER ================== */
+body.dark .topbar.ref-topbar{
+ height:64px!important;padding:8px 18px!important;border-bottom:0!important;
+ display:flex!important;align-items:center!important;gap:11px!important;direction:ltr!important;
+ background:rgba(2,18,42,.70)!important;backdrop-filter:blur(16px)!important;
+}
+body.dark .ref-topbar .topbar-leading{display:none!important}
+body.dark .ref-topbar #ref-header-search{order:1!important;width:min(470px,38vw)!important;position:relative!important;direction:rtl!important}
+body.dark .ref-topbar #ref-search-input{
+ width:100%!important;height:44px!important;padding:8px 46px 8px 68px!important;border-radius:13px!important;
+ border:1px solid rgba(76,184,231,.34)!important;background:rgba(4,24,51,.86)!important;color:#f7faff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+body.dark .ref-topbar #ref-search-input::placeholder{color:rgba(210,225,244,.64)!important}
+body.dark .ref-topbar #ref-header-search::before{
+ content:"⌕";position:absolute;left:15px;top:50%;transform:translateY(-52%);z-index:3;color:#d7e9ff;font-size:1.35rem
+}
+body.dark .ref-topbar #ref-header-search::after{
+ content:"Ctrl + K";position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:3;
+ padding:3px 7px;border-radius:7px;background:#102d52;border:1px solid rgba(104,169,225,.28);color:#a9c2dd;font:700 .58rem/1 Arial
+}
+body.dark .ref-topbar .topbar-actions{order:2!important;margin-left:auto!important;direction:rtl!important;gap:8px!important}
+body.dark .ref-topbar #ref-header-account{order:3!important;direction:rtl!important;min-width:170px!important}
+body.dark .ref-topbar :where(#ref-header-settings,[data-drawer-settings],[aria-label="تنظیمات"]){display:none!important}
+body.dark .ref-topbar .icon-button,
+body.dark .ref-topbar #ref-header-notifications{
+ width:42px!important;height:42px!important;border-radius:11px!important;border:1px solid rgba(76,184,231,.28)!important;
+ background:#08213f!important;color:#e7f5ff!important;
+}
+body.dark .ref-topbar .icon-button:hover,
+body.dark .ref-topbar #ref-header-notifications:hover{border-color:#20d7ff!important;box-shadow:0 0 15px rgba(32,215,255,.14)!important}
+body.dark #ref-header-account{
+ border:0!important;background:transparent!important;color:#fff!important;padding:2px 6px!important;display:flex!important;align-items:center!important;gap:9px!important
+}
+body.dark #ref-header-account .ref-account-avatar{width:46px!important;height:46px!important}
+body.dark #ref-header-account .ref-account-copy strong{font-size:.77rem!important}
+body.dark #ref-header-account .ref-account-copy small{font-size:.58rem!important;color:#9eb6cf!important}
+body.dark #ref-header-account .ref-xp-track{display:none!important}
+
+/* ================== HOME HERO ================== */
 body.dark #panel-home.ref-home .ref-hero{
-  min-height:228px!important;
-  border:1px solid #315d82!important;
-  border-radius:22px!important;
-  overflow:hidden!important;
-  background:
-    linear-gradient(90deg,rgba(4,17,37,.92) 0%,rgba(5,23,48,.65) 31%,rgba(4,17,37,.18) 58%,rgba(5,20,43,.78) 100%),
-    url("assets/ui/hero-landscape.webp") center 52%/cover no-repeat!important;
-  box-shadow:0 18px 46px #0004!important;
+ position:relative!important;height:196px!important;min-height:196px!important;max-height:196px!important;
+ padding:25px 30px!important;margin:0 0 14px!important;border:1px solid rgba(76,184,231,.38)!important;border-radius:16px!important;
+ overflow:hidden!important;background:
+  linear-gradient(90deg,rgba(2,15,35,.28),rgba(2,15,35,.84)),
+  radial-gradient(circle at 34% 22%,rgba(146,85,255,.33),transparent 25%),
+  radial-gradient(circle at 62% 44%,rgba(32,215,255,.24),transparent 23%),
+  linear-gradient(135deg,#0c2450,#13215d 48%,#082e52 100%)!important;
+ box-shadow:0 14px 36px rgba(0,0,0,.30)!important;
 }
-body.dark #panel-home.ref-home .ref-hero::after{
-  content:"";position:absolute;inset:auto 0 0;height:48%;
-  pointer-events:none;background:linear-gradient(180deg,transparent,rgba(6,17,31,.24));
+body.dark #panel-home.ref-home .ref-hero::before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;
+ background-image:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1.4px),radial-gradient(circle at 68% 18%,#88cfff 0 1px,transparent 1.4px);
+ background-size:96px 82px,133px 101px;
 }
-body.dark #panel-home.ref-home .ref-hero-quote{
-  border-color:#315a79!important;
-  background:rgba(6,22,43,.80)!important;
-  box-shadow:0 12px 30px #0005!important;
-  backdrop-filter:blur(12px);
+body.dark #panel-home.ref-home .ref-hero .hero-copy{position:relative;z-index:2;width:min(520px,46%)!important;margin-inline-start:auto!important;text-align:right!important}
+body.dark #panel-home.ref-home .ref-hero .elara-kicker{font-size:.65rem!important;color:#b9d5ef!important}
+body.dark #panel-home.ref-home .ref-hero .hero-copy h1{font-size:clamp(1.75rem,2.1vw,2.12rem)!important;line-height:1.45!important;margin:2px 0 6px!important}
+body.dark #panel-home.ref-home .ref-hero .hero-copy>p:not(.elara-kicker){font-size:.8rem!important;color:rgba(230,240,255,.78)!important;margin-bottom:10px!important}
+body.dark #panel-home.ref-home .ref-hero-quote{display:none!important}
+body.dark #panel-home.ref-home .ref-hero-continue{
+ min-width:132px!important;height:38px!important;border:0!important;border-radius:999px!important;padding:7px 16px!important;
+ background:linear-gradient(120deg,#f1ffff,#8cefff)!important;color:#062239!important;font-weight:900!important;
+ box-shadow:0 0 18px rgba(32,215,255,.20)!important;
 }
-body.dark #panel-home.ref-home .ref-hero-quote strong{color:#f7fbff!important}
-body.dark #panel-home.ref-home .ref-hero-quote span{color:#a8c8de!important}
+body.dark #panel-home.ref-home .ref-hero-floating{
+ position:absolute!important;left:28px!important;top:50%!important;transform:translateY(-50%)!important;z-index:2!important;
+ width:178px!important;min-height:96px!important;padding:15px!important;border-radius:14px!important;
+ border:1px solid rgba(174,184,255,.24)!important;background:rgba(10,27,63,.68)!important;backdrop-filter:blur(12px)!important;
+ display:grid!important;gap:7px!important;box-shadow:0 12px 28px rgba(0,0,0,.25)!important;
+}
+body.dark #panel-home.ref-home .ref-hero-floating b{font-size:.72rem!important;color:#ffe285!important}
+body.dark #panel-home.ref-home .ref-hero-floating span{font-size:.68rem!important;line-height:1.8!important;color:#edf4ff!important}
 
-/* Streak is the one intentionally warm anchor on Home. */
-body.dark #panel-home.ref-home #ref-streak-card{
-  margin:14px 0!important;
-  min-height:122px!important;
-  border:1px solid #8b4d32!important;
-  border-radius:20px!important;
-  background:
-    radial-gradient(circle at 13% 38%,rgba(255,155,74,.24),transparent 28%),
-    linear-gradient(112deg,#201925 0%,#10233a 47%,#0b1d33 100%)!important;
-  box-shadow:inset 0 0 0 1px rgba(255,184,92,.045),0 16px 34px #0003!important;
+/* ================== HOME MAIN FOUR ================== */
+body.dark #panel-home.ref-home .ref-home-grid{
+ display:grid!important;grid-template-columns:1.13fr 1.08fr 1fr 1.13fr!important;
+ grid-template-areas:"streak tasks wellness goals"!important;gap:12px!important;direction:ltr!important;
+ margin:0!important;width:100%!important;
 }
-body.dark #ref-streak-card .ref-streak-flame{
-  filter:drop-shadow(0 0 12px rgba(255,132,56,.38)) saturate(1.02)!important;
+body.dark #panel-home.ref-home .ref-home-grid>*{direction:rtl!important}
+body.dark #panel-home.ref-home .ref-home-grid>.ref-streak-card{grid-area:streak!important}
+body.dark #panel-home.ref-home .ref-home-grid>.ref-tasks{grid-area:tasks!important}
+body.dark #panel-home.ref-home .ref-home-grid>.ref-wellness-card{grid-area:wellness!important}
+body.dark #panel-home.ref-home .ref-home-grid>.ref-goals{grid-area:goals!important}
+body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
+ height:252px!important;min-height:252px!important;max-height:252px!important;overflow:hidden!important;
+ border-radius:16px!important;
 }
-body.dark #ref-streak-card .ref-streak-summary>strong{color:#ffd27a!important}
-body.dark #ref-streak-card .ref-streak-summary small{color:#ebc8a5!important}
-body.dark #ref-streak-card .ref-streak-day{
-  background:#0a1d34!important;border-color:#31516c!important;color:#c8d5e5!important;
-}
-body.dark #ref-streak-card .ref-streak-day.done{
-  border-color:#ad713c!important;background:#2a211f!important;color:#ffe0a3!important;
-}
-body.dark #ref-streak-card .ref-streak-day.today{
-  border-color:#f6a84b!important;
-  box-shadow:0 0 0 2px rgba(246,168,75,.11),0 0 15px rgba(246,168,75,.13)!important;
-}
-body.dark #ref-streak-card .ref-day-tools button{
-  background:#0a2038!important;border-color:#31516d!important;color:#dce8f4!important;
-}
-
-/* Home composition: preserve every feature, re-balance visual hierarchy only. */
-@media(min-width:1181px){
-  body.dark #panel-home.ref-home .ref-home-grid{
-    display:flex!important;
-    flex-wrap:wrap!important;
-    gap:14px!important;
-    align-items:stretch!important;
-    grid-template-columns:none!important;
-    grid-template-areas:none!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-tasks,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-habits,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-goals{
-    order:1!important;
-    flex:1 1 calc(25% - 11px)!important;
-    width:auto!important;min-width:238px!important;
-    height:224px!important;min-height:224px!important;max-height:224px!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-missions,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-ranks,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-activity{
-    order:2!important;
-    flex:1 1 calc(33.333% - 10px)!important;
-    width:auto!important;min-width:280px!important;
-    height:192px!important;min-height:192px!important;max-height:192px!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-theme-strip{
-    order:3!important;flex:1 1 100%!important;width:100%!important;
-  }
-}
-@media(min-width:701px) and (max-width:1180px){
-  body.dark #panel-home.ref-home .ref-home-grid{
-    display:flex!important;flex-wrap:wrap!important;gap:12px!important;
-    grid-template-columns:none!important;grid-template-areas:none!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-tasks,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-habits,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-goals{
-    order:1!important;flex:1 1 calc(50% - 6px)!important;width:auto!important;min-width:300px!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-missions,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-ranks,
-  body.dark #panel-home.ref-home .ref-home-grid>.ref-activity{
-    order:2!important;flex:1 1 calc(50% - 6px)!important;width:auto!important;min-width:300px!important;
-  }
-}
-body.dark #panel-home.ref-home .ref-theme-strip{display:none!important}
-
-/* Domain accents are restrained to borders, headers and tiny glows. */
 body.dark #panel-home.ref-home .ref-card{
-  --card-accent:#4f8cff;
-  position:relative!important;
-  border-color:color-mix(in srgb,var(--card-accent) 34%,#24405f)!important;
-  background:
-    radial-gradient(circle at 92% 0%,color-mix(in srgb,var(--card-accent) 9%,transparent),transparent 34%),
-    linear-gradient(145deg,#0b2139,#091a2e)!important;
-  box-shadow:inset 0 2px 0 color-mix(in srgb,var(--card-accent) 38%,transparent),0 13px 30px #0002!important;
+ padding:13px!important;border:1px solid var(--elara-line)!important;
+ background:linear-gradient(145deg,rgba(13,39,77,.90),rgba(4,20,42,.94))!important;
+ box-shadow:0 8px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important;
 }
-body.dark #panel-home.ref-home .ref-tasks{--card-accent:#5ba8ff}
-body.dark #panel-home.ref-home .ref-habits{--card-accent:#38d39f}
-body.dark #panel-home.ref-home .ref-wellness-card{--card-accent:#20c9a6}
-body.dark #panel-home.ref-home .ref-goals{--card-accent:#f2c052}
-body.dark #panel-home.ref-home .ref-missions{--card-accent:#f6a84b}
-body.dark #panel-home.ref-home .ref-ranks{--card-accent:#f5c45b}
-body.dark #panel-home.ref-home .ref-activity{--card-accent:#53a8ff}
-body.dark #panel-home.ref-home .ref-card>header{
-  border-bottom-color:color-mix(in srgb,var(--card-accent) 18%,#24405f)!important;
+body.dark #panel-home.ref-home .ref-card>header{min-height:35px!important;padding-bottom:8px!important;margin-bottom:7px!important;border-bottom:1px solid rgba(75,170,255,.12)!important}
+body.dark #panel-home.ref-home .ref-card>header h2{font-size:.92rem!important;color:#f7faff!important;margin:0!important}
+body.dark #panel-home.ref-home .ref-card>header .elara-link{font-size:.62rem!important;color:#b9d4ec!important}
+body.dark #panel-home.ref-home .ref-view-all-button{width:auto!important;min-width:0!important;height:auto!important;max-height:none!important;background:none!important;border:0!important;padding:3px!important}
+body.dark #panel-home.ref-home .ref-view-all-art{display:none!important}
+body.dark #panel-home.ref-home .ref-view-all-button::after{content:"دیدن همه ←";color:#b9d4ec;font-size:.62rem;font-weight:700}
+
+/* fire/streak card */
+body.dark #panel-home.ref-home #ref-streak-card{
+ display:grid!important;grid-template-rows:auto 1fr auto!important;padding:15px!important;
+ border:1px solid rgba(255,114,61,.80)!important;background:
+  radial-gradient(circle at 28% 18%,rgba(255,148,63,.30),transparent 23%),
+  linear-gradient(160deg,rgba(58,24,24,.94),rgba(15,29,48,.95) 62%,rgba(9,24,43,.98))!important;
+ box-shadow:0 10px 30px #0005,inset 0 0 0 1px rgba(255,184,77,.05),0 0 16px rgba(255,114,61,.12)!important;
 }
-body.dark #panel-home.ref-home .ref-card>header h2{color:#f4f8ff!important}
-body.dark #panel-home.ref-home .ref-card-count{color:color-mix(in srgb,var(--card-accent) 72%,#d9e8f8)!important}
-body.dark #panel-home.ref-home .elara-track{background:#0a1b30!important}
-body.dark #panel-home.ref-home .elara-track>i{
-  background:linear-gradient(90deg,color-mix(in srgb,var(--card-accent) 76%,#fff 24%),var(--card-accent))!important;
+body.dark #ref-streak-card::before{content:"رکورد روزانه";position:absolute;top:15px;right:16px;font-weight:850;font-size:.82rem;color:#fff}
+body.dark #ref-streak-card .ref-streak-summary{align-self:center!important;display:grid!important;grid-template-columns:76px auto!important;align-items:center!important;justify-content:center!important;gap:8px!important}
+body.dark #ref-streak-card .ref-streak-flame{width:78px!important;height:78px!important;filter:drop-shadow(0 0 14px rgba(255,115,48,.44))!important}
+body.dark #ref-streak-card .ref-streak-summary>strong{font-size:2.2rem!important;line-height:1!important;color:#ffd067!important}
+body.dark #ref-streak-card .ref-streak-summary small{font-size:.66rem!important;color:#ffe4b1!important}
+body.dark #ref-streak-card .ref-streak-summary small>span{display:block!important;margin-top:4px!important;color:#fff!important;font-weight:800!important}
+body.dark #ref-streak-card .ref-streak-days{display:grid!important;grid-template-columns:repeat(7,1fr)!important;gap:5px!important}
+body.dark #ref-streak-card .ref-streak-day{min-width:0!important;height:43px!important;border:0!important;background:transparent!important;padding:0!important}
+body.dark #ref-streak-card .ref-day-mark{width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,190,100,.45)!important;background:#171e2c!important}
+body.dark #ref-streak-card .ref-streak-day.done .ref-day-mark,
+body.dark #ref-streak-card .ref-streak-day.today .ref-day-mark{background:linear-gradient(145deg,#ff943f,#ffd067)!important;border-color:#ffd067!important;box-shadow:0 0 12px rgba(255,148,63,.22)!important}
+body.dark #ref-streak-card .ref-day-flame{width:25px!important;height:25px!important}
+body.dark #ref-streak-card .ref-day-check{width:28px!important;height:28px!important}
+body.dark #ref-streak-card .ref-streak-day>b{font-size:.48rem!important;color:#d8c7bd!important}
+body.dark #ref-streak-card .ref-streak-day>strong{display:none!important}
+body.dark #ref-streak-card .ref-day-tools{display:none!important}
+
+/* today's tasks */
+body.dark #panel-home.ref-home .ref-tasks{border-color:rgba(32,215,255,.38)!important}
+body.dark #panel-home.ref-home .ref-tasks-heading-art{filter:hue-rotate(160deg) saturate(1.1)!important}
+body.dark #panel-home.ref-home .ref-task-list{display:grid!important;gap:0!important}
+body.dark #panel-home.ref-home .ref-task-row{min-height:36px!important;padding:4px 2px!important;border-bottom:1px solid rgba(92,149,201,.14)!important}
+body.dark #panel-home.ref-home .ref-task-check{width:22px!important;height:22px!important;border-radius:50%!important;border:1.5px solid #4f799d!important;background:#061b33!important}
+body.dark #panel-home.ref-home .ref-task-check[aria-pressed="true"]{background:linear-gradient(145deg,#18e0ba,#20d7ff)!important;border-color:#42ead1!important}
+body.dark #panel-home.ref-home .ref-card-count{font-size:.64rem!important;color:#5de3e7!important}
+body.dark #panel-home.ref-home .ref-priority{font-size:.52rem!important}
+body.dark #panel-home.ref-home .ref-task-row:has(.ref-task-subitems){min-height:48px!important}
+body.dark #panel-home.ref-home .ref-tasks::after{
+ content:"";position:absolute;left:13px;right:13px;top:69px;height:5px;border-radius:999px;background:#0b3355;box-shadow:inset 0 0 0 1px rgba(50,135,190,.15)
 }
 
-/* Home task controls: rounded square, not orb/circle. */
-body.dark #panel-home.ref-home :where(.ref-task-check,.ref-habit-mark,.ref-goal-step){
-  border-radius:9px!important;
-  border:1px solid #416482!important;
-  background:#081b31!important;
-  box-shadow:none!important;
-}
-body.dark #panel-home.ref-home :where(.ref-task-check,.ref-goal-step)[aria-pressed="true"],
-body.dark #panel-home.ref-home .ref-habit-mark.done{
-  background:linear-gradient(145deg,#24bfc1,#4f8cff)!important;
-  border-color:#70dce1!important;
-}
-body.dark #panel-home.ref-home :where(.ref-task-check-art,.ref-goal-check-art,.ref-habit-mark .ref-task-check-art){
-  border-radius:7px!important;
-  filter:none!important;
-}
-
-/* Wellness retains green; Goals gets gold. */
+/* wellness */
+body.dark #panel-home.ref-home .ref-wellness-card{border-color:rgba(24,224,186,.52)!important}
+body.dark #panel-home.ref-home #ref-wellness-data{display:grid!important;grid-template-rows:1fr auto!important;height:calc(100% - 44px)!important}
+body.dark #panel-home.ref-home .ref-wellness-summaries{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important;align-self:end!important}
 body.dark #panel-home.ref-home .ref-wellness-cell{
-  background:#092438!important;border-color:#245c5d!important;
+ min-height:64px!important;padding:7px 3px!important;border-radius:11px!important;background:rgba(6,46,58,.70)!important;border:1px solid rgba(24,224,186,.18)!important
 }
-body.dark #panel-home.ref-home .ref-wellness-cell:hover{border-color:#20c9a6!important}
-body.dark #panel-home.ref-home .ref-goal-row{border-color:#4b4a3b!important}
-body.dark #panel-home.ref-home .ref-goal-row b{color:#f5c45b!important}
-body.dark #panel-home.ref-home .ref-mission-reward{color:#ffd16d!important}
+body.dark #panel-home.ref-home .ref-wellness-cell:nth-child(4){display:none!important}
+body.dark #panel-home.ref-home .ref-wellness-cell span img{width:23px!important;height:23px!important}
+body.dark #panel-home.ref-home .ref-wellness-cell strong{font-size:.74rem!important}
+body.dark #panel-home.ref-home .ref-wellness-cell small{font-size:.49rem!important}
+body.dark #panel-home.ref-home .ref-wellness-banner{
+ order:-1!important;min-height:98px!important;margin-bottom:7px!important;border-radius:12px!important;border:0!important;
+ background:radial-gradient(circle at 22% 30%,rgba(24,224,186,.26),transparent 31%),linear-gradient(145deg,#073c49,#092e43)!important;
+}
+body.dark #panel-home.ref-home .ref-wellness-banner-art{display:none!important}
+body.dark #panel-home.ref-home .ref-wellness-banner-copy{position:static!important}
+body.dark #panel-home.ref-home .ref-wellness-banner-copy strong{font-size:.82rem!important;color:#bffff3!important}
 
-/* ---------------- TASKS ---------------- */
-body.dark #panel-tasks{
-  --task-default:#4f8cff;
-  --task-personal:#4f8cff;
-  --task-habit:#f6a84b;
-  --task-language:#36d6e7;
-  --task-exercise:#20c9a6;
-  --task-book:#5b6fe8;
-  --task-goal:#f2c052;
-  --task-focus:#ff9b4a;
-  color:var(--text)!important;
+/* goals */
+body.dark #panel-home.ref-home .ref-goals{border-color:rgba(255,208,103,.45)!important}
+body.dark #panel-home.ref-home .ref-goals::before{
+ content:"◎";position:absolute;left:22px;top:61px;font-size:4.8rem;line-height:1;color:#ffd067;text-shadow:0 0 18px rgba(255,208,103,.18);opacity:.92
 }
+body.dark #panel-home.ref-home .ref-goals .ref-goals-scroll{position:relative;z-index:2;max-height:145px!important;overflow:auto!important;padding-left:5px!important}
+body.dark #panel-home.ref-home .ref-goal-row{min-height:36px!important;border:1px solid rgba(255,208,103,.18)!important;background:rgba(10,30,57,.74)!important;border-radius:9px!important;padding:5px!important;margin-bottom:5px!important}
+body.dark #panel-home.ref-home .ref-goal-row:nth-child(2){border-color:rgba(76,184,231,.25)!important}
+body.dark #panel-home.ref-home .ref-goal-row:nth-child(3){border-color:rgba(146,85,255,.30)!important}
+body.dark #panel-home.ref-home .ref-goal-row b{color:#ffd067!important}
+
+/* ================== QUICK ACCESS ================== */
+body.dark #panel-home.ref-home .ref-quick-access{
+ margin-top:12px!important;padding:11px!important;border:1px solid rgba(75,170,255,.24)!important;border-radius:15px!important;
+ background:linear-gradient(145deg,rgba(7,29,58,.92),rgba(3,18,41,.95))!important;
+}
+body.dark #panel-home.ref-home .ref-quick-access>header{display:flex!important;align-items:center!important;justify-content:flex-start!important;padding:0 3px 8px!important}
+body.dark #panel-home.ref-home .ref-quick-access h2{font-size:.9rem!important;margin:0!important}
+body.dark #panel-home.ref-home .ref-quick-access-grid{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:10px!important}
+body.dark #panel-home.ref-home .ref-quick-card{
+ position:relative!important;overflow:hidden!important;min-width:0!important;height:116px!important;padding:12px!important;border-radius:14px!important;
+ display:grid!important;grid-template-columns:auto 1fr auto!important;align-items:end!important;gap:8px!important;text-align:right!important;
+ border:1px solid rgba(100,170,235,.30)!important;color:#fff!important;background:
+  radial-gradient(circle at 78% 18%,rgba(32,215,255,.18),transparent 29%),
+  linear-gradient(145deg,#12315c,#071e40 66%,#07162e)!important;
+}
+body.dark #panel-home.ref-home .ref-quick-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,15,35,.06),rgba(2,15,35,.63));pointer-events:none}
+body.dark #panel-home.ref-home .ref-quick-card>*{position:relative;z-index:2}
+body.dark #panel-home.ref-home .ref-quick-card:hover{transform:translateY(-2px)!important;border-color:#20d7ff!important;box-shadow:0 8px 22px rgba(0,0,0,.26),0 0 15px rgba(32,215,255,.10)!important}
+body.dark #panel-home.ref-home .ref-quick-icon{font-size:1.7rem!important;color:#65e9ff!important;align-self:start!important}
+body.dark #panel-home.ref-home .ref-quick-copy strong{display:block!important;font-size:.84rem!important}
+body.dark #panel-home.ref-home .ref-quick-copy small{font-size:.55rem!important;color:#c2d5ea!important}
+body.dark #panel-home.ref-home .ref-quick-card>i{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;border-radius:50%!important;background:rgba(50,160,230,.32)!important;font-style:normal!important}
+body.dark #panel-home.ref-home .ref-quick-language{background:radial-gradient(circle at 75% 15%,rgba(32,215,255,.22),transparent 28%),linear-gradient(145deg,#0b4164,#061c3d)!important}
+body.dark #panel-home.ref-home .ref-quick-books{background:radial-gradient(circle at 80% 12%,rgba(146,85,255,.26),transparent 28%),linear-gradient(145deg,#2c2364,#071b3a)!important}
+body.dark #panel-home.ref-home .ref-quick-exercise{background:radial-gradient(circle at 75% 15%,rgba(24,224,186,.23),transparent 28%),linear-gradient(145deg,#0a4b48,#071d38)!important}
+body.dark #panel-home.ref-home .ref-quick-social{background:radial-gradient(circle at 75% 15%,rgba(32,215,255,.22),transparent 28%),linear-gradient(145deg,#14375a,#071b3b)!important}
+body.dark #panel-home.ref-home .ref-quick-freedom{background:radial-gradient(circle at 75% 15%,rgba(177,92,255,.28),transparent 28%),linear-gradient(145deg,#322168,#0a193b)!important}
+body.dark #panel-home.ref-home .ref-quick-tasks{background:radial-gradient(circle at 75% 15%,rgba(255,114,61,.22),transparent 28%),linear-gradient(145deg,#5a2839,#071b3a)!important}
+
+/* ================== HOME BOTTOM ROW ================== */
+body.dark #panel-home.ref-home .ref-bottom-grid{
+ display:grid!important;grid-template-columns:1.05fr 1.34fr .82fr!important;grid-template-areas:"ranks habits achievements"!important;
+ gap:12px!important;margin-top:12px!important;direction:ltr!important;
+}
+body.dark #panel-home.ref-home .ref-bottom-grid>*{direction:rtl!important;height:190px!important;min-height:190px!important;max-height:190px!important;overflow:hidden!important;border-radius:16px!important}
+body.dark #panel-home.ref-home .ref-bottom-grid>.ref-ranks{grid-area:ranks!important}
+body.dark #panel-home.ref-home .ref-bottom-grid>.ref-habits{grid-area:habits!important}
+body.dark #panel-home.ref-home .ref-bottom-grid>.ref-achievements{grid-area:achievements!important}
+body.dark #panel-home.ref-home .ref-ranks{
+ border-color:rgba(255,208,103,.34)!important;background:radial-gradient(circle at 52% 18%,rgba(255,208,103,.12),transparent 33%),linear-gradient(145deg,#0c2851,#061b38)!important
+}
+body.dark #panel-home.ref-home .ref-ranks>header h2{color:#fff!important}
+body.dark #panel-home.ref-home .ref-habits{
+ border-color:rgba(146,85,255,.38)!important;background:radial-gradient(circle at 74% 15%,rgba(146,85,255,.18),transparent 32%),linear-gradient(145deg,#17255a,#071c3c 58%,#06172f)!important
+}
+body.dark #panel-home.ref-home .ref-habit-list{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px 9px!important}
+body.dark #panel-home.ref-home .ref-habit-row{min-height:43px!important;padding:5px 7px!important;border:1px solid rgba(119,121,255,.16)!important;border-radius:10px!important;background:rgba(5,24,52,.62)!important}
+body.dark #panel-home.ref-home .ref-habit-mark{width:22px!important;height:22px!important;border-radius:50%!important}
+body.dark #panel-home.ref-home .ref-achievements{border-color:rgba(76,184,231,.30)!important}
+body.dark #panel-home.ref-home #ref-achievements-list{display:grid!important;gap:3px!important}
+body.dark #panel-home.ref-home .ref-achievement-row{
+ min-height:43px!important;border:0!important;border-bottom:1px solid rgba(75,170,255,.12)!important;background:transparent!important;color:#fff!important;
+ display:grid!important;grid-template-columns:34px 1fr auto!important;align-items:center!important;gap:7px!important;text-align:right!important;padding:4px!important
+}
+body.dark #panel-home.ref-home .ref-achievement-row>span:first-child{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;border-radius:50%!important;background:#15375b!important}
+body.dark #panel-home.ref-home .ref-achievement-row.gold>span:first-child{background:#5a411a!important;color:#ffd067!important}
+body.dark #panel-home.ref-home .ref-achievement-row.fire>span:first-child{background:#5a281d!important;color:#ff943f!important}
+body.dark #panel-home.ref-home .ref-achievement-row strong{font-size:.67rem!important}
+body.dark #panel-home.ref-home .ref-achievement-row small{display:block!important;font-size:.51rem!important;color:#9fb5cf!important}
+
+/* ================== TASKS PAGE ================== */
+body.dark #panel-tasks{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+body.dark #panel-tasks>.section-heading{display:none!important}
 body.dark #panel-tasks .astra-task-hero{
-  border-color:#315b7e!important;
-  background:
-    linear-gradient(90deg,rgba(4,16,35,.93) 0%,rgba(5,23,48,.66) 34%,rgba(5,20,42,.18) 62%,rgba(5,20,43,.80) 100%),
-    url("assets/ui/hero-tasks-astra-v2.webp") 58% 51%/cover no-repeat!important;
-  box-shadow:0 18px 42px #0004!important;
+ position:relative!important;width:100%!important;height:122px!important;min-height:122px!important;max-height:122px!important;
+ margin:0 0 12px!important;padding:13px 18px!important;border-radius:15px!important;border:1px solid rgba(92,157,226,.34)!important;
+ display:grid!important;grid-template-columns:minmax(390px,1fr) minmax(320px,.9fr)!important;align-items:center!important;gap:18px!important;direction:ltr!important;
+ overflow:hidden!important;background:
+  linear-gradient(90deg,rgba(2,15,35,.20),rgba(2,15,35,.76)),
+  radial-gradient(circle at 40% 30%,rgba(255,114,61,.23),transparent 20%),
+  radial-gradient(circle at 72% 18%,rgba(113,72,255,.34),transparent 28%),
+  linear-gradient(135deg,#122b5c,#171f58 50%,#08284b)!important;
+ box-shadow:0 10px 30px rgba(0,0,0,.26)!important;
 }
-body.dark #panel-tasks .astra-task-hero p{color:#75c8dc!important}
-body.dark #panel-tasks .astra-task-hero>div>span{color:#d9e7f3!important}
+body.dark #panel-tasks .astra-task-hero::before{
+ content:"";position:absolute;inset:0;opacity:.28;pointer-events:none;
+ background-image:radial-gradient(circle,#fff 0 1px,transparent 1.2px);background-size:89px 73px
+}
+body.dark #panel-tasks .task-streak-summary{position:relative;z-index:2;direction:rtl!important;display:grid!important;grid-template-columns:80px auto 1fr!important;align-items:center!important;gap:10px!important}
+body.dark #panel-tasks .task-streak-summary>img{width:70px!important;height:70px!important;object-fit:contain!important;filter:drop-shadow(0 0 12px rgba(255,115,61,.36))!important}
+body.dark #panel-tasks .task-streak-summary>span{display:grid!important;gap:3px!important}
+body.dark #panel-tasks .task-streak-summary>span b{font-size:1.55rem!important;color:#ffd067!important}
+body.dark #panel-tasks .task-streak-summary>span strong{font-size:.68rem!important;color:#fff!important}
+body.dark #panel-tasks .task-streak-days{display:flex!important;gap:5px!important;align-items:center!important;justify-content:center!important}
+body.dark #panel-tasks .task-streak-days>i{display:grid!important;justify-items:center!important;gap:2px!important;font-style:normal!important}
+body.dark #panel-tasks .task-streak-days>i small{font-size:.48rem!important;color:#b8c9dd!important}
+body.dark #panel-tasks .task-streak-days .task-streak-check,
+body.dark #panel-tasks .task-streak-days .astra-streak-empty{display:grid!important;place-items:center!important;width:25px!important;height:25px!important;border-radius:50%!important}
+body.dark #panel-tasks .task-streak-days .task-streak-check{background:linear-gradient(145deg,#ff943f,#ffd067)!important;color:#4a260a!important;font-weight:900!important}
+body.dark #panel-tasks .task-streak-days .astra-streak-empty{border:1px solid #657187!important;background:#17223a!important}
 body.dark #panel-tasks .astra-task-hero blockquote{
-  border-color:#315a79!important;background:rgba(6,22,43,.82)!important;color:#eff7ff!important;
-  box-shadow:0 10px 28px #0004!important;backdrop-filter:blur(10px);
+ position:relative;z-index:2!important;direction:rtl!important;justify-self:end!important;width:100%!important;max-width:390px!important;
+ border:0!important;background:transparent!important;padding:0!important;display:grid!important;gap:4px!important;text-align:right!important;
 }
-body.dark #panel-tasks .astra-task-hero blockquote small{color:#91b9cf!important}
+body.dark #panel-tasks .astra-task-hero blockquote b{font-size:.76rem!important;color:#ffe3a1!important}
+body.dark #panel-tasks .astra-task-hero blockquote span{font-size:.73rem!important;line-height:1.75!important;color:#edf5ff!important}
+body.dark #panel-tasks .astra-task-hero blockquote small{font-size:.57rem!important;color:#9eb8d4!important}
 
+/* toolbar */
 body.dark #panel-tasks .astra-task-toolbar{
-  border-color:#294866!important;
-  background:linear-gradient(145deg,#0a2038,#08192d)!important;
-  box-shadow:0 10px 26px #0002!important;
+ width:100%!important;min-height:60px!important;margin:0 0 10px!important;padding:7px 8px!important;border:0!important;border-radius:0!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;direction:rtl!important;background:transparent!important;box-shadow:none!important;
 }
+body.dark #panel-tasks .astra-task-chips{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important;min-width:0!important;overflow-x:auto!important;scrollbar-width:none!important}
+body.dark #panel-tasks .astra-task-chips::-webkit-scrollbar{display:none}
 body.dark #panel-tasks .astra-task-chips button{
-  border-color:#31516e!important;background:#091c32!important;color:#c4d3e5!important;
+ height:39px!important;min-height:39px!important;padding:7px 17px!important;border-radius:999px!important;white-space:nowrap!important;
+ border:1px solid rgba(76,184,231,.34)!important;background:rgba(5,25,53,.74)!important;color:#dceafd!important;font-size:.68rem!important;
 }
-body.dark #panel-tasks .astra-task-chips button:hover{border-color:#4d7898!important;color:#f5fbff!important}
+body.dark #panel-tasks .astra-task-chips button:hover{border-color:#20d7ff!important;color:#fff!important}
 body.dark #panel-tasks .astra-task-chips [aria-pressed="true"]{
-  border-color:#65c8de!important;
-  background:linear-gradient(115deg,#22aeb9,#3f82e7)!important;
-  color:#fff!important;
-  box-shadow:0 0 0 2px rgba(45,212,215,.07),0 8px 18px rgba(32,133,190,.22)!important;
+ border-color:#67eaff!important;background:linear-gradient(110deg,#20d7ff,#338fef)!important;color:#03213b!important;
+ box-shadow:0 0 17px rgba(32,215,255,.22)!important;font-weight:900!important;
 }
-body.dark #panel-tasks .astra-task-view-controls button{
-  border-color:#31516f!important;background:#0a2039!important;color:#c9d8e9!important;
+body.dark #panel-tasks .elara-task-page-actions{display:flex!important;align-items:center!important;gap:7px!important;flex:0 0 auto!important;direction:ltr!important}
+body.dark #panel-tasks .astra-task-view-controls{display:flex!important;gap:6px!important}
+body.dark #panel-tasks :where(.astra-task-view-controls button,#task-reorder-toggle,#elara-task-tools-toggle){
+ width:42px!important;height:42px!important;min-width:42px!important;padding:0!important;border-radius:11px!important;
+ border:1px solid rgba(76,184,231,.33)!important;background:#08213f!important;color:#dcecff!important;
 }
-body.dark #panel-tasks .astra-task-view-controls button[aria-pressed="true"]{
-  border-color:#4fbad0!important;background:#123d62!important;color:#fff!important;box-shadow:none!important;
-}
+body.dark #panel-tasks :where(.astra-task-view-controls button,#task-reorder-toggle,#elara-task-tools-toggle):hover{border-color:#20d7ff!important;box-shadow:0 0 13px rgba(32,215,255,.12)!important}
+body.dark #panel-tasks .astra-task-view-controls button[aria-pressed="true"]{border-color:#9255ff!important;background:#35227c!important;box-shadow:0 0 13px rgba(146,85,255,.20)!important}
 body.dark #panel-tasks #elara-task-add-main{
-  min-height:48px!important;
-  border-color:#68d5df!important;
-  background:linear-gradient(115deg,#25bcc4 0%,#4289ee 68%,#6275f4 100%)!important;
-  background-image:linear-gradient(115deg,#25bcc4 0%,#4289ee 68%,#6275f4 100%)!important;
-  box-shadow:0 10px 24px rgba(50,136,211,.28)!important;
+ width:212px!important;height:50px!important;min-height:50px!important;padding:8px 20px!important;border:1px solid rgba(255,255,255,.34)!important;border-radius:13px!important;
+ background:linear-gradient(100deg,#ff9b62 0%,#ff5f90 30%,#a04dff 65%,#5046ff 100%)!important;color:#fff!important;font-size:.88rem!important;
+ box-shadow:0 0 18px rgba(255,95,144,.20),0 0 22px rgba(112,72,255,.14)!important;
 }
-body.dark #panel-tasks #elara-task-add-main:hover{filter:brightness(1.07)!important}
+body.dark #panel-tasks #elara-task-add-main:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
+body.dark #panel-tasks #elara-task-add-main>span{display:grid!important;place-items:center!important;width:25px!important;height:25px!important;border-radius:50%!important;background:rgba(255,255,255,.20)!important;font-size:1.1rem!important}
 
-body.dark #panel-tasks .list-toolbar,
-body.dark #panel-tasks .astra-task-filters>summary{
-  border-color:#284765!important;background:#081c32!important;
-}
-body.dark #panel-tasks #elara-task-tools-menu{
-  border-color:#315777!important;background:#081b30!important;box-shadow:0 24px 60px #0008!important;
-}
+/* advanced filters remain functional, visually secondary */
+body.dark #panel-tasks .astra-task-filters{margin:0 0 9px!important}
+body.dark #panel-tasks .astra-task-filters>summary{width:max-content!important;margin-inline-start:auto!important;padding:7px 11px!important;border:1px solid rgba(76,184,231,.25)!important;border-radius:9px!important;background:#061c38!important;color:#a9bfd8!important;font-size:.62rem!important}
+body.dark #panel-tasks .list-toolbar{padding:9px!important;border:1px solid rgba(76,184,231,.18)!important;border-radius:12px!important;background:rgba(5,24,50,.76)!important}
+body.dark #panel-tasks .toolbar-title{display:none!important}
+body.dark #panel-tasks .filters{display:grid!important;grid-template-columns:repeat(6,minmax(110px,1fr))!important;gap:7px!important}
+body.dark #panel-tasks .filters :where(input,select){width:100%!important;max-width:none!important;min-height:35px!important;font-size:.62rem!important}
 
-/* Category color system: tint, never full-card saturation. */
+/* task rows */
+body.dark #panel-tasks #task-list{display:grid!important;gap:8px!important;width:100%!important;margin:0!important;padding:0!important}
 body.dark #panel-tasks #task-list>.astra-task-row{
-  --task-accent:var(--task-default);
-  position:relative!important;
-  min-height:76px!important;
-  border:1px solid color-mix(in srgb,var(--task-accent) 34%,#274562)!important;
-  border-inline-start:4px solid var(--task-accent)!important;
-  border-radius:15px!important;
-  background:
-    linear-gradient(100deg,color-mix(in srgb,var(--task-accent) 8%,#0b2138) 0%,#091b30 42%,#08192c 100%)!important;
-  box-shadow:0 8px 20px #0001!important;
+ --task-accent:#20d7ff;
+ display:grid!important;grid-template-columns:40px minmax(260px,1.35fr) minmax(360px,1.2fr) 92px 84px 36px!important;
+ align-items:center!important;direction:rtl!important;gap:8px!important;
+ width:100%!important;height:73px!important;min-height:73px!important;max-height:73px!important;padding:8px 11px!important;
+ border:1px solid color-mix(in srgb,var(--task-accent) 52%,#265376)!important;border-inline-start:6px solid var(--task-accent)!important;border-radius:13px!important;
+ background:linear-gradient(95deg,color-mix(in srgb,var(--task-accent) 12%,#0b2648) 0%,rgba(5,28,57,.96) 30%,rgba(4,21,45,.98) 100%)!important;
+ box-shadow:0 8px 22px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.025)!important;
+ overflow:visible!important;
 }
-body.dark #panel-tasks #task-list>.astra-task-row:hover{
-  border-color:color-mix(in srgb,var(--task-accent) 62%,#31516e)!important;
-  background:
-    linear-gradient(100deg,color-mix(in srgb,var(--task-accent) 12%,#0b2138) 0%,#0a1e34 44%,#091a2e 100%)!important;
-  box-shadow:0 12px 26px #0002!important;
+body.dark #panel-tasks #task-list>.astra-task-row:hover{transform:translateY(-1px)!important;border-color:color-mix(in srgb,var(--task-accent) 80%,#fff 20%)!important;box-shadow:0 10px 25px rgba(0,0,0,.25),0 0 13px color-mix(in srgb,var(--task-accent) 12%,transparent)!important}
+body.dark #panel-tasks #task-list>.astra-task-row.source-habit{--task-accent:#ff943f}
+body.dark #panel-tasks #task-list>.astra-task-row.source-language{--task-accent:#9255ff}
+body.dark #panel-tasks #task-list>.astra-task-row.source-exercise{--task-accent:#18e0ba}
+body.dark #panel-tasks #task-list>.astra-task-row.source-book{--task-accent:#4cb8e7}
+body.dark #panel-tasks #task-list>.astra-task-row.source-goal{--task-accent:#ffd067}
+body.dark #panel-tasks #task-list>.astra-task-row.source-focus{--task-accent:#ff5f9a}
+body.dark #panel-tasks #task-list>.astra-task-row.done{opacity:.84!important;filter:saturate(.82)!important}
+body.dark #panel-tasks #task-list>.astra-task-row .check-button{
+ grid-column:1!important;width:32px!important;height:32px!important;min-width:32px!important;border-radius:7px!important;
+ border:2px solid color-mix(in srgb,var(--task-accent) 60%,#8da6bd)!important;background:#061a32!important;color:#06213a!important;overflow:hidden!important;
 }
-body.dark #panel-tasks #task-list>.astra-task-row.source-habit{--task-accent:var(--task-habit)}
-body.dark #panel-tasks #task-list>.astra-task-row.source-language{--task-accent:var(--task-language)}
-body.dark #panel-tasks #task-list>.astra-task-row.source-exercise,
-body.dark #panel-tasks #task-list>.astra-task-row.source-wellness{--task-accent:var(--task-exercise)}
-body.dark #panel-tasks #task-list>.astra-task-row.source-book,
-body.dark #panel-tasks #task-list>.astra-task-row.source-reading{--task-accent:var(--task-book)}
-body.dark #panel-tasks #task-list>.astra-task-row.source-goal{--task-accent:var(--task-goal)}
-body.dark #panel-tasks #task-list>.astra-task-row.source-focus{--task-accent:var(--task-focus)}
-body.dark #panel-tasks #task-list>.astra-task-row.done{
-  opacity:.76!important;
-  --task-accent:#5d8594;
-  background:linear-gradient(100deg,#102531,#091b2c)!important;
+body.dark #panel-tasks #task-list>.astra-task-row .check-button .elara-check-art{display:none!important}
+body.dark #panel-tasks #task-list>.astra-task-row .check-button[aria-pressed="true"]{background:linear-gradient(145deg,#18e0ba,#36e8cc)!important;border-color:#4ff0d5!important}
+body.dark #panel-tasks #task-list>.astra-task-row .check-button[aria-pressed="true"]::after{content:"✓";font-weight:1000;font-size:1rem;color:#07332e!important}
+body.dark #panel-tasks #task-list>.astra-task-row>.item-content{grid-column:2!important;min-width:0!important}
+body.dark #panel-tasks #task-list>.astra-task-row .item-title{font-size:.82rem!important;font-weight:820!important;color:#f8fbff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body.dark #panel-tasks #task-list>.astra-task-row .task-short-description{display:none!important}
+body.dark #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta{
+ grid-column:3!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:5px!important;flex-wrap:nowrap!important;overflow:hidden!important;
 }
-body.dark #panel-tasks #task-list>.astra-task-row.is-selected{
-  background:linear-gradient(100deg,rgba(45,212,215,.14),#0b2138)!important;
-  border-color:#55c7d2!important;
+body.dark #panel-tasks #task-list>.astra-task-row .astra-task-core-meta>span{
+ min-height:24px!important;padding:4px 8px!important;border-radius:999px!important;border:1px solid rgba(89,154,213,.30)!important;
+ background:#092344!important;color:#c5d6e9!important;font-size:.55rem!important;white-space:nowrap!important;
 }
+body.dark #panel-tasks #task-list>.astra-task-row .priority-badge.priority-red{color:#ff806d!important;border-color:#ff723d!important;background:rgba(255,114,61,.10)!important}
+body.dark #panel-tasks #task-list>.astra-task-row .priority-badge.priority-yellow{color:#ffd067!important;border-color:#dcae4c!important;background:rgba(255,208,103,.08)!important}
+body.dark #panel-tasks #task-list>.astra-task-row .priority-badge.priority-blue{color:#70e6c8!important;border-color:#18e0ba!important;background:rgba(24,224,186,.08)!important}
+body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-category{
+ grid-column:4!important;justify-self:stretch!important;min-height:30px!important;padding:5px 8px!important;border-radius:999px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;border:1px solid color-mix(in srgb,var(--task-accent) 58%,#365b7d)!important;
+ background:color-mix(in srgb,var(--task-accent) 12%,#09213d)!important;color:color-mix(in srgb,var(--task-accent) 74%,#fff)!important;font-size:.58rem!important;font-weight:900!important;
+}
+body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-status{display:none!important}
+body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-xp{
+ grid-column:5!important;width:82px!important;height:31px!important;border-radius:999px!important;border:1px solid #7346c9!important;
+ background:rgba(71,42,123,.44)!important;color:#e8a9ff!important;font-size:.66rem!important;font-weight:900!important;
+}
+body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-more{grid-column:6!important}
+body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-more>summary{
+ width:34px!important;height:34px!important;display:grid!important;place-items:center!important;padding:0!important;border-radius:9px!important;border:1px solid rgba(76,184,231,.28)!important;background:#08203c!important;color:#fff!important;
+}
+body.dark #panel-tasks .astra-task-more .item-actions{background:#08203c!important;border-color:#315d82!important;box-shadow:0 18px 45px #0009!important}
 
-/* Small semantic chips inherit the category color without repainting the card. */
-body.dark #panel-tasks #task-list>.astra-task-row :where(.source-badge,.astra-source-chip,.task-source-chip){
-  color:color-mix(in srgb,var(--task-accent) 78%,#fff)!important;
-  border-color:color-mix(in srgb,var(--task-accent) 42%,#2b4966)!important;
-  background:color-mix(in srgb,var(--task-accent) 11%,#0a2037)!important;
-}
-body.dark #panel-tasks .astra-task-xp{
-  color:#88dbe8!important;
-  border-color:#2e6a79!important;
-  background:#0b2a3a!important;
-}
+/* checklist detail stays available without breaking reference row height */
+body.dark #panel-tasks #task-list>.astra-task-row>.task-checklist-preview{display:none!important}
 
-/* Task checkboxes: crisp rounded square matching the actual control hole. */
-body.dark #panel-tasks #task-list .check-button{
-  width:34px!important;height:34px!important;min-width:34px!important;
-  border:2px solid color-mix(in srgb,var(--task-accent) 58%,#557086)!important;
-  border-radius:10px!important;
-  background:#071a2e!important;
-  color:#fff!important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)!important;
-  position:relative!important;overflow:hidden!important;
+/* completed container */
+body.dark #panel-tasks #task-checked-archive{
+ display:block!important;margin-top:14px!important;padding:12px!important;border-radius:15px!important;border:1px solid rgba(76,184,231,.28)!important;
+ background:linear-gradient(145deg,#092442,#06192f)!important;
 }
-body.dark #panel-tasks #task-list .check-button .elara-check-art{display:none!important}
-body.dark #panel-tasks #task-list .check-button::after{
-  content:"";width:13px;height:7px;border-inline-start:3px solid #fff;border-bottom:3px solid #fff;
-  transform:rotate(-45deg) scale(.35);opacity:0;transition:opacity .16s ease,transform .16s ease;
-}
-body.dark #panel-tasks #task-list .check-button[aria-pressed="true"]{
-  border-color:color-mix(in srgb,var(--task-accent) 68%,#fff)!important;
-  background:linear-gradient(145deg,color-mix(in srgb,var(--task-accent) 82%,#31d5cd),var(--task-accent))!important;
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--task-accent) 8%,transparent)!important;
-}
-body.dark #panel-tasks #task-list .check-button[aria-pressed="true"]::after{
-  opacity:1;transform:rotate(-45deg) scale(1);
-}
+body.dark #panel-tasks #task-checked-archive[hidden]{display:none!important}
+body.dark #panel-tasks #task-checked-archive>header{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:0 3px 9px!important;border-bottom:1px solid rgba(75,170,255,.14)!important}
+body.dark #panel-tasks #task-checked-archive h2{font-size:.88rem!important;margin:0!important}
+body.dark #panel-tasks #task-checked-archive small{font-size:.55rem!important;color:#7fc9e8!important}
+body.dark #panel-tasks #task-checked-archive [data-task-archive-count]{display:grid!important;place-items:center!important;width:28px!important;height:28px!important;border-radius:50%!important;background:#183964!important;color:#cfe9ff!important}
 
-/* Secondary task surfaces use calm blue, not purple. */
-body.dark #panel-tasks :where(.astra-task-progress,.astra-task-streak,.task-archive-card,#task-checked-archive){
-  border-color:#294968!important;
-  background:linear-gradient(145deg,#0a2038,#08192d)!important;
-}
-body.dark #panel-tasks :where(.counter,.date-chip){color:#80d8e4!important}
-body.dark #panel-tasks .progress-track{background:#08182a!important}
-body.dark #panel-tasks .progress-track>div{
-  background:linear-gradient(90deg,#2dd4d7,#4f8cff)!important;
-}
+/* reference requires rows then completed container; old analytics stay computed but not visually duplicated */
+body.dark #panel-tasks #astra-task-insights{display:none!important}
 
-/* Keep menus legible above the new surfaces. */
-body.dark #panel-tasks .astra-task-more .item-actions{
-  background:#0a2037!important;border-color:#31506e!important;box-shadow:0 18px 44px #0008!important;
-}
+/* shared buttons */
+body.dark .primary-button{background:linear-gradient(100deg,#ff9b62 0%,#ff5f90 30%,#a04dff 65%,#5046ff 100%)!important;color:#fff!important}
+body.dark :where(.quiet-button,.file-button){background:#08213f!important;border-color:rgba(76,184,231,.28)!important;color:#dcecff!important}
+body.dark :where(.quiet-button,.file-button):hover{border-color:#20d7ff!important}
+body.dark :where(button,.elara-card){transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,filter .16s ease!important}
+body.dark .elara-card:hover{border-color:rgba(76,184,231,.40)!important}
 
-/* Mobile keeps all actions and routes, only reduces decorative intensity. */
+/* ================== RESPONSIVE ================== */
+@media(max-width:1200px) and (min-width:701px){
+ body.dark .shell{grid-template-columns:205px minmax(0,1fr)!important}
+ body.dark .sidebar{width:205px!important}
+ body.dark #panel-home.ref-home .ref-home-grid{grid-template-columns:1fr 1fr!important;grid-template-areas:"streak tasks" "wellness goals"!important}
+ body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){height:236px!important;min-height:236px!important;max-height:236px!important}
+ body.dark #panel-home.ref-home .ref-quick-access-grid{grid-template-columns:repeat(3,1fr)!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid{grid-template-columns:1fr 1fr!important;grid-template-areas:"ranks habits" "achievements achievements"!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-achievements{height:160px!important;min-height:160px!important;max-height:160px!important}
+ body.dark #panel-tasks #task-list>.astra-task-row{grid-template-columns:38px minmax(220px,1.2fr) minmax(260px,1fr) 84px 74px 34px!important}
+ body.dark #panel-tasks .filters{grid-template-columns:repeat(3,1fr)!important}
+}
 @media(max-width:700px){
-  body.dark #panel-home.ref-home .ref-hero{min-height:156px!important;border-radius:17px!important}
-  body.dark #panel-home.ref-home #ref-streak-card{min-height:0!important;border-radius:16px!important}
-  body.dark #panel-home.ref-home .ref-home-grid{
-    display:flex!important;flex-direction:column!important;gap:10px!important;
-    grid-template-columns:none!important;grid-template-areas:none!important;
-  }
-  body.dark #panel-home.ref-home .ref-home-grid>*{
-    flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;
-    height:auto!important;min-height:0!important;max-height:none!important;
-  }
-  body.dark #panel-home.ref-home .ref-tasks,
-  body.dark #panel-home.ref-home .ref-habits,
-  body.dark #panel-home.ref-home .ref-wellness-card,
-  body.dark #panel-home.ref-home .ref-goals{order:1!important}
-  body.dark #panel-home.ref-home .ref-missions,
-  body.dark #panel-home.ref-home .ref-ranks,
-  body.dark #panel-home.ref-home .ref-activity{order:2!important}
-  body.dark #panel-tasks .astra-task-hero{border-radius:17px!important}
-  body.dark #panel-tasks #task-list>.astra-task-row{
-    min-height:92px!important;
-    border-inline-start-width:3px!important;
-  }
-  body.dark #panel-tasks #task-list .check-button{
-    width:32px!important;height:32px!important;min-width:32px!important;border-radius:9px!important;
-  }
+ body.dark .shell{display:block!important}
+ body.dark .sidebar{display:none!important}
+ body.dark main{padding:10px 10px 105px!important}
+ body.dark .topbar.ref-topbar{height:62px!important;padding:7px 10px!important}
+ body.dark .ref-topbar #ref-header-search{width:100%!important;flex:1!important}
+ body.dark .ref-topbar #ref-header-account{min-width:48px!important;width:48px!important}
+ body.dark .ref-topbar #ref-header-account .ref-account-copy{display:none!important}
+ body.dark .ref-topbar .topbar-actions{margin-left:0!important}
+ body.dark .ref-topbar .topbar-actions #theme-toggle{display:none!important}
+ body.dark #panel-home.ref-home .ref-hero{height:154px!important;min-height:154px!important;max-height:154px!important;padding:15px!important}
+ body.dark #panel-home.ref-home .ref-hero .hero-copy{width:72%!important}
+ body.dark #panel-home.ref-home .ref-hero .hero-copy h1{font-size:1.35rem!important}
+ body.dark #panel-home.ref-home .ref-hero-floating{display:none!important}
+ body.dark #panel-home.ref-home .ref-home-grid{grid-template-columns:1fr!important;grid-template-areas:"streak" "tasks" "wellness" "goals"!important;gap:9px!important}
+ body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){height:auto!important;min-height:208px!important;max-height:none!important}
+ body.dark #panel-home.ref-home .ref-quick-access-grid{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;gap:9px!important;padding-bottom:3px!important}
+ body.dark #panel-home.ref-home .ref-quick-card{flex:0 0 176px!important;height:106px!important;scroll-snap-align:start!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid{grid-template-columns:1fr!important;grid-template-areas:"ranks" "habits" "achievements"!important;gap:9px!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>*{height:auto!important;min-height:170px!important;max-height:none!important}
+ body.dark #panel-home.ref-home .ref-habit-list{grid-template-columns:1fr!important}
+ body.dark #panel-tasks .astra-task-hero{height:150px!important;min-height:150px!important;max-height:150px!important;grid-template-columns:1fr!important;padding:10px 12px!important}
+ body.dark #panel-tasks .astra-task-hero blockquote{display:none!important}
+ body.dark #panel-tasks .task-streak-summary{grid-template-columns:58px auto 1fr!important;gap:6px!important}
+ body.dark #panel-tasks .task-streak-summary>img{width:52px!important;height:52px!important}
+ body.dark #panel-tasks .task-streak-summary>span b{font-size:1.22rem!important}
+ body.dark #panel-tasks .task-streak-days{gap:3px!important}
+ body.dark #panel-tasks .task-streak-days .task-streak-check,
+ body.dark #panel-tasks .task-streak-days .astra-streak-empty{width:22px!important;height:22px!important}
+ body.dark #panel-tasks .astra-task-toolbar{display:grid!important;grid-template-columns:1fr!important;gap:7px!important;padding:0!important}
+ body.dark #panel-tasks .astra-task-chips{order:1!important}
+ body.dark #panel-tasks .elara-task-page-actions{order:2!important;width:100%!important;display:grid!important;grid-template-columns:auto auto 1fr auto!important;direction:ltr!important}
+ body.dark #panel-tasks #elara-task-add-main{width:100%!important;min-width:0!important}
+ body.dark #panel-tasks .filters{grid-template-columns:1fr 1fr!important}
+ body.dark #panel-tasks #task-list>.astra-task-row{
+  height:auto!important;min-height:102px!important;max-height:none!important;padding:9px!important;
+  grid-template-columns:34px minmax(0,1fr) auto!important;grid-template-rows:auto auto auto!important;gap:6px 8px!important;
+ }
+ body.dark #panel-tasks #task-list>.astra-task-row .check-button{grid-column:1!important;grid-row:1!important;width:30px!important;height:30px!important;min-width:30px!important}
+ body.dark #panel-tasks #task-list>.astra-task-row>.item-content{grid-column:2!important;grid-row:1!important}
+ body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-more{grid-column:3!important;grid-row:1!important}
+ body.dark #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta{grid-column:1/4!important;grid-row:2!important;justify-content:flex-start!important;overflow-x:auto!important}
+ body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-category{grid-column:1/2!important;grid-row:3!important;min-width:76px!important}
+ body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-xp{grid-column:3!important;grid-row:3!important;justify-self:end!important}
+}
+@media(max-width:390px){
+ body.dark .ref-topbar #ref-header-notifications{display:none!important}
+ body.dark #panel-tasks .filters{grid-template-columns:1fr!important}
+ body.dark #panel-home.ref-home .ref-hero .hero-copy{width:100%!important}
 }
 @media(prefers-reduced-motion:reduce){
-  body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav),
-  body.dark #panel-tasks #task-list .check-button::after{transition:none!important}
+ body.dark :where(button,.elara-card){transition:none!important}
+ body.dark :where(button,.elara-card):hover{transform:none!important}
 }
