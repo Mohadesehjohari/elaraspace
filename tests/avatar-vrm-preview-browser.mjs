@@ -19,8 +19,13 @@ try{
   await page.setContent(html,{waitUntil:'load'});
   await page.waitForFunction(()=>typeof window.loadVrm==='function',{timeout:30000});
   for(const [name,url] of [
-    ['female','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/fem_vroid.vrm'],
-    ['male','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/masc_vroid.vrm']
+    ['female-base','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/fem_vroid.vrm'],
+    ['male-base','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/masc_vroid.vrm'],
+    ['female-hair','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/beta/HairSample_Female.vrm'],
+    ['male-hair','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/beta/HairSample_Male.vrm'],
+    ['stable-a','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/stable/AvatarSample_A.vrm'],
+    ['stable-b','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/stable/AvatarSample_B.vrm'],
+    ['stable-c','https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/stable/AvatarSample_C.vrm']
   ]){
     await page.evaluate(({url,name})=>window.loadVrm(url,name),{url,name});
     await page.waitForFunction(n=>window.__vrmReady===n,name,{timeout:60000});
