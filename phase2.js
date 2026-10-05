@@ -459,7 +459,7 @@
     const rect=hit.getBoundingClientRect();event.clientY<rect.top+rect.height/2?hit.before(hold.card):hit.after(hold.card)
   }
   function taskHoldProtected(target){
-    if(target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
+    if(target.closest('.check-button,.feature-section-task-check,.feature-section-task-more,.task-board-check,[data-ref-task],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
     const button=target.closest('button');if(!button)return false;
     return !button.matches('.task-summary-button,[data-board-open],[data-section-task-detail]')
   }
