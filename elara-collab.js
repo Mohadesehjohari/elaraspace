@@ -125,11 +125,22 @@ async function openInbox(){
  await window.ElaraDialog.open({title:tx('درخواست‌های مشترک','Shared requests'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]})
 }
 function mountInbox(){
- const root=document.querySelector('#elara-social-page,#panel-social');if(!root)return;let host=root.querySelector('[data-collab-inbox-launcher]');if(!inbox.length){host?.remove();return}if(!host){host=document.createElement('button');host.type='button';host.className='collab-inbox-launcher';host.dataset.collabInboxLauncher='';root.prepend(host)}host.innerHTML='<span>🤝</span><strong>'+tx('درخواست‌های مشترک','Shared requests')+'</strong><b>'+inbox.length.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</b>'
+ const root=document.querySelector('#elara-social-page,#panel-social');if(!root)return;let host=root.querySelector('[data-collab-inbox-launcher]');if(!inbox.length){host?.remove();return}
+ if(!host){host=document.createElement('button');host.type='button';host.className='collab-inbox-launcher';host.dataset.collabInboxLauncher='';root.prepend(host)}
+ const locale=document.documentElement.lang==='en'?'en':'fa',renderKey=locale+'|'+inbox.length;
+ if(host.dataset.collabRenderKey===renderKey)return;
+ host.dataset.collabRenderKey=renderKey;
+ host.innerHTML='<span>🤝</span><strong>'+tx('درخواست‌های مشترک','Shared requests')+'</strong><b>'+inbox.length.toLocaleString(locale==='en'?'en-US':'fa-IR')+'</b>'
 }
 function mountWordShareControl(){
- const form=document.getElementById('word-form');if(!form)return;let host=form.querySelector('[data-collab-word-add]');if(!host){host=document.createElement('label');host.className='word-share-on-add';host.dataset.collabWordAdd='';host.innerHTML='<span>🤝 '+tx('افزودن به لایتنر','Add to Leitner')+'</span><select id="word-share-friend" aria-label="'+tx('لایتنر مقصد','Target Leitner')+'"></select>';form.append(host)}
- const select=host.querySelector('select'),current=select.value,rows=friends();select.innerHTML='<option value="">'+tx('فقط لایتنر من','My Leitner only')+'</option>'+rows.map(p=>'<option value="'+esc(p.uid)+'">'+tx('من + ','Me + ')+esc(p.name||p.username||tx('دوست','Friend'))+'</option>').join('');if(rows.some(p=>p.uid===current))select.value=current
+ const form=document.getElementById('word-form');if(!form)return;let host=form.querySelector('[data-collab-word-add]');
+ if(!host){host=document.createElement('label');host.className='word-share-on-add';host.dataset.collabWordAdd='';host.innerHTML='<span>🤝 '+tx('افزودن به لایتنر','Add to Leitner')+'</span><select id="word-share-friend" aria-label="'+tx('لایتنر مقصد','Target Leitner')+'"></select>';form.append(host)}
+ const select=host.querySelector('select'),current=select.value,rows=friends(),locale=document.documentElement.lang==='en'?'en':'fa';
+ const renderKey=locale+'|'+JSON.stringify(rows.map(p=>[String(p.uid||''),String(p.name||''),String(p.username||'')]));
+ if(host.dataset.collabRenderKey===renderKey)return;
+ host.dataset.collabRenderKey=renderKey;
+ select.innerHTML='<option value="">'+tx('فقط لایتنر من','My Leitner only')+'</option>'+rows.map(p=>'<option value="'+esc(p.uid)+'">'+tx('من + ','Me + ')+esc(p.name||p.username||tx('دوست','Friend'))+'</option>').join('');
+ if(rows.some(p=>p.uid===current))select.value=current
 }
 let syncTimer=null,progressCache=new Map();
 async function syncProgress(){
@@ -144,7 +155,13 @@ async function handleJoinFromUrl(){
 document.addEventListener('click',e=>{if(e.target.closest('[data-collab-inbox-launcher]'))void openInbox()});
 for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
 for(const ev of ['elara:account-ready','elara:social-updated'])window.addEventListener(ev,()=>{setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},200)});
-const observer=new MutationObserver(()=>{mountInbox();mountWordShareControl()});observer.observe(document.documentElement,{childList:true,subtree:true});
+let observerQueued=false;
+const observer=new MutationObserver(()=>{
+ if(observerQueued)return;
+ observerQueued=true;
+ setTimeout(()=>{try{mountInbox();mountWordShareControl()}finally{observerQueued=false}},0)
+});
+observer.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
 window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
