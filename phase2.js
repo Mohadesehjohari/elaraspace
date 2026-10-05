@@ -25,7 +25,8 @@
     goal:{label:'هدف',className:'source-goal',art:'icon-achievement-star.webp'},
     exercise:{label:'ورزش',className:'source-exercise',art:'icon-exercise-dumbbell.webp'},
     language:{label:'زبان',className:'source-language',art:'nav-language-default.webp'},
-    book:{label:'کتابخانه',className:'source-book',art:'icon-library-open-book.webp'}
+    book:{label:'کتابخانه',className:'source-book',art:'icon-library-open-book.webp'},
+    focus:{label:'تمرکز',className:'source-focus',art:'19-pomodoro-icon.webp'}
   };
   let editingTask=null,editingTaskScope='series',editingHabit=null,editingHabitScope='series',focusInterval=null;
 
@@ -181,7 +182,7 @@
   }
   let composerReturn=null,composerSourceGroup='';
   function closeComposer(){const shell=$('task-composer-shell');if(shell)shell.hidden=true;const f=$('task-form');if(f)f.hidden=true;composerReturn?.focus?.()}
-  function openTaskComposer({focus=true,date=null,sourceGroup=''}={}){composerSourceGroup=['book','language','exercise'].includes(String(sourceGroup||''))?String(sourceGroup):'';
+  function openTaskComposer({focus=true,date=null,sourceGroup=''}={}){composerSourceGroup=['book','language','exercise','focus'].includes(String(sourceGroup||''))?String(sourceGroup):'';
     const form=$('task-form');if(!form)return;let shell=$('task-composer-shell');
     if(!shell){shell=document.createElement('section');shell.id='task-composer-shell';shell.className='task-composer-shell';shell.hidden=true;shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','افزودن و ویرایش تسک');shell.innerHTML='<div class="task-composer-window"><header><h2>تسک من</h2><button type="button" class="quiet-button" data-composer-close aria-label="بستن">×</button></header><div class="task-date-shortcuts"><button type="button" data-date-offset="0">امروز</button><button type="button" data-date-offset="1">فردا</button><button type="button" data-task-calendar>انتخاب تاریخ</button></div></div>';document.body.append(shell);shell.firstElementChild.append(form);shell.addEventListener('click',e=>{if(e.target===shell||e.target.closest('[data-composer-close]'))closeComposer();const b=e.target.closest('[data-date-offset]');if(b){const d=new Date();d.setDate(d.getDate()+Number(b.dataset.dateOffset));$('task-due').value=iso(d)}if(e.target.closest('[data-task-calendar]'))window.ElaraCalendar?.open($('task-due').value||today(),d=>$('task-due').value=d)});shell.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeComposer()}if(e.key==='Tab'){const els=[...shell.querySelectorAll('button,input,select,textarea')].filter(x=>!x.disabled&&x.getClientRects().length);const first=els[0],last=els.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}})}
     composerReturn=document.activeElement;shell.hidden=false;form.hidden=false;form.dataset.elaraTaskComposer='open';if(date)$('task-due').value=date;
@@ -285,9 +286,10 @@
     });
     const taskRowHtml=t=>{
       const v=taskView(t,now),done=taskDone(t,now),scheduled=window.ElaraSchedule.taskDue(t,now),p=priorityMeta[String(v.priority)]||priorityMeta['4'];
-      const target=taskDailyTarget(v),count=taskDailyProgress(v,now),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||v.list||v.folder||v.tag||'شخصی',percent=target>1?Math.round(count/target*100):(done?100:0),locked=!!t.sourceCompletionLocked;
-      const art=source?.art||(/کتاب|مطالعه|خوان|زبان/.test(v.text)?'icon-library-open-book.webp':/ورزش|تمرین|پیاده/.test(v.text)?'icon-exercise-dumbbell.webp':'nav-tasks-default.webp');
-      return `<li data-key="${esc(t.id)}" class="item astra-task-row priority-${esc(v.priority||'4')} ${source?.className||''} ${done?'done':''}" data-task-source="${esc(v.sourceGroup||t.sourceGroup||'personal')}"><button class="check-button" type="button" data-phase2-action="toggle-task" data-id="${esc(t.id)}" aria-pressed="${done}" ${(!scheduled||locked)?'disabled':''} aria-label="${locked?'وضعیت از بخش '+esc(t.sourceLabel||'مربوطه')+' مدیریت می‌شود':scheduled?(target>1?(done?'کم‌کردن یک نوبت':'ثبت نوبت '+fa(Math.min(target,count+1))+' از '+fa(target)):(done?'بازگرداندن':'تکمیل')):'برای امروز برنامه‌ریزی نشده'} ${esc(v.text||t.text)}">${done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="item-content"><button class="task-summary-button" type="button" data-phase2-action="view-task" data-id="${esc(t.id)}"><span class="item-title" data-elara-ugc dir="auto">${esc(v.text||t.text)}</span></button><div class="item-meta"><span class="priority-badge ${p.className}">${p.label} · P${esc(v.priority||'4')}</span>${t.recurrenceRule?`<span class="astra-repeat-meta"><i aria-hidden="true">↻</i><span>${esc(recurrenceLabel(t.recurrenceRule).replace(/^تکرار:\s*/,''))}</span><b aria-hidden="true">${done?'✓':'○'}</b></span>`:t.date?`<span class="astra-schedule-meta"><i aria-hidden="true">◷</i><span>${esc(labelDate(t.date))}${v.time?' · '+esc(v.time):''}</span></span>`:''}${v.folder?`<span class="astra-folder-chip">${esc(v.folder)}</span>`:''}${v.list?`<span class="astra-list-chip">${esc(v.list)}</span>`:''}${v.tag?`<span>#${esc(v.tag)}</span>`:''}${target>1?`<span class="astra-session-meta">↻ نوبت ${fa(count)} / ${fa(target)}</span>`:''}</div>${v.shortDescription?`<p class="task-short-description">${esc(v.shortDescription)}</p>`:''}</div><span class="astra-task-category ${source?.className||''}">${esc(kind)}</span><div class="astra-task-completion"><span class="astra-task-completion-label"><img src="assets/ui/${art}" alt="">${target>1?(done?'همهٔ نوبت‌ها انجام شد':fa(count)+' از '+fa(target)+' نوبت'):done?'انجام شد':'در انتظار انجام'}</span><span class="astra-row-track" role="progressbar" aria-label="تکمیل تسک" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><i style="width:${percent}%"></i></span><b>${fa(percent)}٪</b></div><span class="astra-task-xp ${t.linkedTask?'is-source':''}">${t.linkedTask?esc(t.sourceLabel||'مرتبط'):'+۱۰ XP'}</span><details class="astra-task-more"><summary aria-label="گزینه‌های تسک" aria-expanded="false"><span aria-hidden="true">⋮</span></summary><div class="item-actions"><button class="mini-button" type="button" data-phase2-action="edit-task" data-id="${esc(t.id)}">ویرایش</button><button class="mini-button danger" type="button" data-phase2-action="delete-task" data-id="${esc(t.id)}">حذف</button></div></details></li>`;
+      const target=taskDailyTarget(v),count=taskDailyProgress(v,now),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||'شخصی',locked=!!t.sourceCompletionLocked;
+      const overdue=!t.recurrenceRule&&!done&&!!t.date&&t.date<now,statusText=done?'انجام شد':target>1&&count>0?`در حال انجام · ${fa(count)}/${fa(target)}`:overdue?'عقب‌افتاده':scheduled?'در انتظار':'زمان‌بندی نشده',statusClass=done?'is-done':overdue?'is-overdue':target>1&&count>0?'is-progress':'is-pending';
+      const scheduleText=t.recurrenceRule?recurrenceLabel(t.recurrenceRule).replace(/^تکرار:\s*/,''):(t.date?labelDate(t.date)+(v.time?' · '+v.time:''):'');
+      return `<li data-key="${esc(t.id)}" class="item astra-task-row priority-${esc(v.priority||'4')} ${source?.className||''} ${done?'done':''}" data-task-source="${esc(v.sourceGroup||t.sourceGroup||'personal')}"><button class="check-button" type="button" data-phase2-action="toggle-task" data-id="${esc(t.id)}" aria-pressed="${done}" ${(!scheduled||locked)?'disabled':''} aria-label="${locked?'وضعیت از بخش '+esc(t.sourceLabel||'مربوطه')+' مدیریت می‌شود':scheduled?(target>1?(done?'کم‌کردن یک نوبت':'ثبت نوبت '+fa(Math.min(target,count+1))+' از '+fa(target)):(done?'بازگرداندن':'تکمیل')):'برای امروز برنامه‌ریزی نشده'} ${esc(v.text||t.text)}">${done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="item-content"><button class="task-summary-button" type="button" data-phase2-action="view-task" data-id="${esc(t.id)}"><span class="item-title" data-elara-ugc dir="auto">${esc(v.text||t.text)}</span></button><div class="item-meta astra-task-core-meta">${v.folder?`<span class="astra-folder-chip">${esc(v.folder)}</span>`:''}${v.tag?`<span class="astra-tag-chip">#${esc(v.tag)}</span>`:''}<span class="priority-badge ${p.className}">${p.label} · P${esc(v.priority||'4')}</span>${v.list?`<span class="astra-list-chip">${esc(v.list)}</span>`:''}</div>${v.shortDescription?`<p class="task-short-description">${esc(v.shortDescription)}</p>`:''}</div><span class="astra-task-category ${source?.className||''}">${esc(kind)}</span><span class="astra-task-status ${statusClass}" title="${esc(scheduleText)}">${esc(statusText)}</span><span class="astra-task-xp ${t.linkedTask?'is-source':''}">${t.linkedTask?esc(t.sourceLabel||'مرتبط'):'+۱۰ XP'}</span><details class="astra-task-more"><summary aria-label="گزینه‌های تسک" aria-expanded="false"><span aria-hidden="true">⋮</span></summary><div class="item-actions"><button class="mini-button" type="button" data-phase2-action="edit-task" data-id="${esc(t.id)}">ویرایش</button><button class="mini-button danger" type="button" data-phase2-action="delete-task" data-id="${esc(t.id)}">حذف</button></div></details></li>`;
     };
     const viewMode=taskPanel?.dataset.taskView||'list',groupBy=$('task-group-by')?.value||'folder';
     if(viewMode==='group'){
@@ -387,7 +389,7 @@
       window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();return;
     }
     if(action==='view-task'){await openTaskDetails(task);return}
-    if(action==='edit-task'){let scope='series';if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'ویرایش تسک تکرارشونده',message:'می‌خواهی تغییر برای کدام بخش اعمال شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'از امروز به بعد',value:'future',kind:'primary'}]});if(!choice)return;scope=choice}fillTaskForm(task,scope);return;}
+    if(action==='edit-task'){await openTaskDetails(task);return;}
     if(action==='delete-task'&&task.sourceManaged){if(await window.ElaraDialog.confirm(`نمای «${task.text||task.sourceLabel||'این مورد'}» از تسک‌ها حذف شود؟ منبع اصلی در ${task.sourceLabel||'بخش مربوطه'} پاک نمی‌شود.`,{title:'حذف از تسک‌ها',confirmText:'حذف',danger:true})){window.ElaraLinkedTasks?.dismissTask?.(state,task);state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks();notify('از تسک‌ها حذف شد.')}return}
     if(action==='delete-task'){if(task.recurrenceRule&&applies(task,now)){const choice=await window.ElaraDialog.choice({title:'حذف تسک تکرارشونده',message:'کدام بخش حذف شود؟',options:[{label:'فقط نوبت امروز',value:'occurrence'},{label:'کل سری',value:'series',kind:'danger'}]});if(!choice)return;if(choice==='occurrence'){task.skippedDates=dateList(task.skippedDates);if(!task.skippedDates.includes(now))task.skippedDates.push(now);task.occurrenceDone=dateList(task.occurrenceDone).filter(x=>x!==now);writeState(state);renderTasks();notify('نوبت امروز حذف شد.');return}}if(await window.ElaraDialog.confirm(task.recurrenceRule?'کل سری این تسک حذف شود؟':'این تسک حذف شود؟',{title:'حذف تسک',confirmText:'حذف',danger:true})){state.tasks=state.tasks.filter(t=>t.id!==id);writeState(state);resetTaskForm();renderTasks()}}
   }
@@ -444,8 +446,17 @@
     if(choice==='duplicate'){await quickDuplicateTask(id);return}
     if(choice==='delete'){await taskAction('delete-task',id)}
   }
-  function clearTaskHold(){
-    if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-holding');taskHold=null
+  function clearTaskHold({keepSuppress=false}={}){
+    if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-holding','is-core-task-reordering');document.body.classList.remove('task-card-reordering');if(!keepSuppress&&taskHold.mode==='reorder'){taskHoldSuppressId=taskHold.id;taskHoldSuppressUntil=Date.now()+700}taskHold=null
+  }
+  function beginTaskCardReorder(hold,event){
+    if(!hold||hold.mode==='reorder'||!hold.card.matches('#task-list .astra-task-row[data-key]'))return false;
+    clearTimeout(hold.timer);hold.mode='reorder';hold.card.classList.remove('is-core-task-holding');hold.card.classList.add('is-core-task-reordering');document.body.classList.add('task-card-reordering');try{hold.card.setPointerCapture?.(hold.pointerId)}catch{}event?.preventDefault?.();return true
+  }
+  function moveTaskCardReorder(hold,event){
+    if(hold?.mode!=='reorder')return;event.preventDefault();const hit=document.elementFromPoint(event.clientX,event.clientY)?.closest?.('#task-list .astra-task-row[data-key]');
+    if(!hit||hit===hold.card||hit.parentElement!==hold.card.parentElement||hit.classList.contains('done')!==hold.card.classList.contains('done'))return;
+    const rect=hit.getBoundingClientRect();event.clientY<rect.top+rect.height/2?hit.before(hold.card):hit.after(hold.card)
   }
   function taskHoldProtected(target){
     if(target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
@@ -455,11 +466,22 @@
   function taskHoldPointerDown(event){
     if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
     const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;
-    const hold={card,id,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,timer:null};taskHold=hold;card.classList.add('is-core-task-holding');
-    hold.timer=setTimeout(()=>{if(taskHold!==hold)return;taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+900;clearTaskHold();navigator.vibrate?.(16);void openTaskQuickActions(id)},event.pointerType==='touch'?430:380)
+    const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,startedAt:performance.now(),timer:null,mode:'hold'};taskHold=hold;card.classList.add('is-core-task-holding');
+    hold.timer=setTimeout(()=>{if(taskHold!==hold||hold.mode==='reorder')return;taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+900;clearTaskHold({keepSuppress:true});navigator.vibrate?.(16);void openTaskQuickActions(id)},event.pointerType==='touch'?430:380)
   }
-  function taskHoldPointerMove(event){const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;if(Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY)>10)clearTaskHold()}
-  function taskHoldPointerUp(event){const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;clearTaskHold()}
+  function taskHoldPointerMove(event){
+    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;const distance=Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY);
+    if(hold.mode==='reorder'){moveTaskCardReorder(hold,event);return}
+    if(distance<=9)return;
+    const elapsed=performance.now()-hold.startedAt;
+    if(hold.card.matches('#task-list .astra-task-row[data-key]')&&(hold.pointerType!=='touch'||elapsed>=140)){if(beginTaskCardReorder(hold,event))moveTaskCardReorder(hold,event);return}
+    clearTaskHold()
+  }
+  function taskHoldPointerUp(event){
+    const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;
+    if(hold.mode==='reorder'){taskHoldSuppressId=hold.id;taskHoldSuppressUntil=Date.now()+800;window.ElaraTaskBulk?.persistDomOrder?.();clearTaskHold({keepSuppress:true});return}
+    clearTaskHold()
+  }
   function taskHoldContextMenu(event){const card=event.target.closest?.(taskSurfaceSelector);if(!card||taskHoldProtected(event.target))return;event.preventDefault();taskHoldSuppressId=taskSurfaceId(card);taskHoldSuppressUntil=Date.now()+900;void openTaskQuickActions(taskHoldSuppressId)}
 
   function renderHabits(){
@@ -604,7 +626,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     document.addEventListener('pointerdown',taskHoldPointerDown,true);
     document.addEventListener('pointermove',taskHoldPointerMove,true);
     document.addEventListener('pointerup',taskHoldPointerUp,true);
-    document.addEventListener('pointercancel',clearTaskHold,true);
+    document.addEventListener('pointercancel',()=>{if(taskHold?.mode==='reorder')window.ElaraTaskBulk?.persistDomOrder?.();clearTaskHold()},true);
     document.addEventListener('contextmenu',taskHoldContextMenu,true);
     document.addEventListener('focusin',event=>{const details=event.target.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)},true);
     $('task-daily-target-enabled')?.addEventListener('change',()=>syncDailyTargetVisibility('task'));
