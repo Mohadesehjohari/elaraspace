@@ -1,0 +1,185 @@
+/* Profile avatar gallery inside Settings > Profile. */
+#elara-central-profile-form .profile-avatar-source-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(170px,.75fr);
+  gap:10px;
+  align-items:start;
+}
+#elara-central-profile-form .profile-avatar-gallery,
+#elara-central-profile-form .profile-device-photo-button{
+  border:1px solid color-mix(in srgb,var(--border) 78%,var(--accent) 22%);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--surface2) 86%,transparent);
+}
+#elara-central-profile-form .profile-avatar-gallery{
+  overflow:hidden;
+}
+#elara-central-profile-form .profile-avatar-gallery>summary,
+#elara-central-profile-form .profile-device-photo-button{
+  min-height:48px;
+  padding:9px 11px;
+}
+#elara-central-profile-form .profile-avatar-gallery>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  list-style:none;
+}
+#elara-central-profile-form .profile-avatar-gallery>summary::-webkit-details-marker{display:none}
+#elara-central-profile-form .profile-avatar-gallery>summary::after{
+  content:"⌄";
+  font-size:1rem;
+  font-weight:900;
+  color:var(--accent);
+  transition:transform .18s ease;
+}
+#elara-central-profile-form .profile-avatar-gallery[open]>summary::after{transform:rotate(180deg)}
+#elara-central-profile-form .profile-avatar-gallery>summary>span,
+#elara-central-profile-form .profile-device-photo-button>span{
+  display:block;
+  color:var(--text);
+  font-size:.72rem;
+  font-weight:900;
+}
+#elara-central-profile-form .profile-avatar-gallery>summary>small,
+#elara-central-profile-form .profile-device-photo-button>small{
+  display:block;
+  margin-inline-start:auto;
+  color:var(--muted);
+  font-size:.56rem;
+  line-height:1.35;
+}
+#elara-central-profile-form .profile-device-photo-button{
+  display:grid;
+  align-content:center;
+  gap:3px;
+  cursor:pointer;
+  text-align:start;
+  position:relative;
+  overflow:hidden;
+}
+#elara-central-profile-form .profile-device-photo-button:hover,
+#elara-central-profile-form .profile-avatar-gallery>summary:hover{
+  border-color:color-mix(in srgb,var(--accent) 58%,var(--border));
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface2));
+}
+#elara-central-profile-form .profile-device-photo-button input{
+  position:absolute;
+  inline-size:1px;
+  block-size:1px;
+  opacity:0;
+  pointer-events:none;
+}
+#elara-central-profile-form .profile-avatar-gallery-body{
+  display:grid;
+  gap:12px;
+  padding:0 11px 12px;
+}
+#elara-central-profile-form .profile-avatar-gallery-group{
+  display:grid;
+  gap:7px;
+}
+#elara-central-profile-form .profile-avatar-gallery-group>header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#elara-central-profile-form .profile-avatar-gallery-group>header strong{
+  color:var(--text);
+  font-size:.68rem;
+  font-weight:900;
+}
+#elara-central-profile-form .profile-avatar-gallery-group>header small{
+  color:var(--muted);
+  font-size:.55rem;
+}
+#elara-central-profile-form .profile-avatar-gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+}
+#elara-central-profile-form .profile-avatar-gallery-item{
+  position:relative;
+  display:grid;
+  place-items:center;
+  gap:4px;
+  min-width:0;
+  min-height:84px;
+  padding:6px 4px;
+  border:1px solid color-mix(in srgb,var(--border) 86%,transparent);
+  border-radius:13px;
+  background:color-mix(in srgb,var(--surface) 72%,var(--surface2));
+  color:var(--muted);
+  overflow:hidden;
+}
+#elara-central-profile-form .profile-avatar-gallery-item img{
+  width:56px;
+  height:56px;
+  max-width:100%;
+  object-fit:contain;
+  border-radius:inherit;
+}
+#elara-central-profile-form .profile-avatar-gallery-item>span{
+  font-size:.52rem;
+  font-weight:800;
+}
+#elara-central-profile-form .profile-avatar-gallery-item:not(.is-locked):hover{
+  transform:translateY(-1px);
+  border-color:color-mix(in srgb,var(--accent) 64%,var(--border));
+  box-shadow:0 8px 20px #0004,0 0 15px color-mix(in srgb,var(--accent) 18%,transparent);
+}
+#elara-central-profile-form .profile-avatar-gallery-item.is-active{
+  border-color:color-mix(in srgb,#58ded2 78%,var(--border));
+  background:linear-gradient(145deg,color-mix(in srgb,#58ded2 18%,var(--surface2)),var(--surface2));
+  box-shadow:0 0 0 2px #58ded22d,0 0 18px #58ded226;
+}
+#elara-central-profile-form .profile-avatar-gallery-item.is-active::after{
+  content:"✓";
+  position:absolute;
+  inset-block-start:5px;
+  inset-inline-end:5px;
+  display:grid;
+  place-items:center;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#58ded2;
+  color:#062c31;
+  font-size:.58rem;
+  font-weight:1000;
+}
+#elara-central-profile-form .profile-avatar-gallery-item.is-locked{
+  opacity:.48;
+  filter:saturate(.55);
+  cursor:not-allowed;
+}
+#elara-central-profile-form .profile-avatar-gallery-item.is-locked em{
+  position:absolute;
+  inset:auto 4px 4px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:#07152bd9;
+  color:var(--muted);
+  font-size:.48rem;
+  font-style:normal;
+  font-weight:850;
+}
+#elara-central-profile-form .pass5-profile-edit-preview{
+  margin-bottom:2px;
+}
+#elara-central-profile-form .pass5-profile-edit-preview .elara-profile-avatar-shell{
+  transition:border-radius .18s ease,transform .18s ease;
+}
+
+@media(max-width:700px){
+  #elara-central-profile-form .profile-avatar-source-actions{grid-template-columns:1fr}
+  #elara-central-profile-form .profile-avatar-gallery-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  #elara-central-profile-form .profile-avatar-gallery-item{min-height:76px;padding:5px 3px}
+  #elara-central-profile-form .profile-avatar-gallery-item img{width:50px;height:50px}
+}
+@media(max-width:390px){
+  #elara-central-profile-form .profile-avatar-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
