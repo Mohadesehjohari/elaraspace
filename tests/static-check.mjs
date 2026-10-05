@@ -21,6 +21,10 @@ const taskChecklist = readFileSync(new URL('task-checklist.js',root),'utf8');
 const referenceHome = readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
 const profileGalleryCss = readFileSync(new URL('profile-gallery-2026.css',root),'utf8');
+const collab = readFileSync(new URL('elara-collab.js',root),'utf8');
+const collabCss = readFileSync(new URL('collab-2026.css',root),'utf8');
+const languageClasses = readFileSync(new URL('language-custom-classes.js',root),'utf8');
+const bootSource = readFileSync(new URL('boot.js',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
 assert.ok(ids.size > 50,'Application markup seems incomplete');
 const optionalDynamicIds=new Set(['word-share-friend']);
@@ -48,6 +52,14 @@ assert.ok(profileSystem.includes('window.ElaraProfileSystem=')&&profileSystem.in
 for(const token of ['profile-avatar-gallery','data-profile-avatar-choice','galleryOpen=false','عکس از گالری دستگاه','photoMode.value=\'elara\''])assert.ok(profileSystem.includes(token),'Profile avatar gallery contract missing '+token);
 assert.ok(drawer.includes('data-profile-avatar-gallery')&&drawer.includes('openEditor?.({galleryOpen:true})'),'Settings Profile must expose the avatar gallery directly');
 for(const token of ['.profile-avatar-gallery-grid','.profile-avatar-gallery-item.is-active','.profile-device-photo-button'])assert.ok(profileGalleryCss.includes(token),'Profile gallery responsive CSS missing '+token);
+assert.ok(bootSource.includes("./elara-collab.js")&&bootSource.includes("'collab-2026.css'"),'Collaboration runtime/CSS must load from boot');
+for(const token of ['collabSpaces','collabInvites','collabLinks','shareEntity','acceptInvite','joinLink','memberRows',"['task','habit','language-class','leitner-word']"])assert.ok(collab.includes(token),'Collaboration service missing '+token);
+for(const token of ['match /collabSpaces/{spaceId}','match /collabInvites/{inviteId}','match /collabLinks/{token}','isCollabMember','isCollabOwner',"validCollabKind"])assert.ok(rules.includes(token),'Firestore collaboration contract missing '+token);
+for(const token of ['studyHoursPerDay','sessionsPerDay','data-class-add-type="offline"','data-class-add-type="online"','data-class-add-type="linked"','data-class-share','data-class-classmates','data-class-share-link','collabRole===\'member\''])assert.ok(languageClasses.includes(token),'Custom class collaboration/pacing missing '+token);
+for(const token of ['share-task','shared-task','share-habit','shared-habit','astra-shared-chip','entity-shared-chip'])assert.ok(phase2.includes(token),'Task/Habit collaboration surface missing '+token);
+for(const token of ['word-share-friend','share-word','shared-word','leitner-word'])assert.ok(js.includes(token)||collab.includes(token),'Leitner collaboration surface missing '+token);
+for(const token of ['.collab-inbox-dialog','.collab-member-list','.language-class-type-adders','.word-share-on-add','.astra-shared-chip'])assert.ok(collabCss.includes(token),'Collaboration responsive CSS missing '+token);
+
 assert.ok(drawer.includes('function renderAccount()')&&!drawer.includes('id="drawer-account-form"'),'Drawer Account must be view-only with central edit dialog');
 for (const token of ["['profile'",'data-elara-profile-self']) assert.ok(design.includes(token),`Profile navigation missing ${token}`);
 assert.ok(drawer.includes('data-drawer-nav="help"'),'Help must live in the account/settings drawer');
