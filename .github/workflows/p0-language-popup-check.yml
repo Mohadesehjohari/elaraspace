@@ -84,6 +84,9 @@ on:
       - 'elara-social.js'
       - 'i18n.js'
       - 'drawer.js'
+      - 'avatar-3d.js'
+      - 'avatar-3d.css'
+      - 'tests/avatar-3d-browser.mjs'
       - 'dialog.js'
       - 'reference-exact-pass-2026.css'
       - 'deploy/production-manifest.json'
@@ -120,6 +123,8 @@ jobs:
           node --check approved-navigation-extension.js
           node --check notifications.js
           node --check drawer.js
+          node --check avatar-3d.js
+          node --check tests/avatar-3d-browser.mjs
           node --check dialog.js
           node --check phase2.js
           node --check entity-reorder.js
@@ -189,6 +194,8 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-p0-http.log 2>&1 &
           sleep 2
+      - name: Verify desktop 3D avatar
+        run: timeout 90s node tests/avatar-3d-browser.mjs
       - name: Verify private Wellness plan notes
         run: timeout 60s node tests/wellness-notes-browser.mjs
       - name: Verify language shelf, reading/delete and centered mobile profile
@@ -279,6 +286,10 @@ jobs:
           echo "GitHub Pages did not expose ${ELARA_BUILD_MARKER} for ${GITHUB_SHA}" >&2
           head -n 8 /tmp/elara-pages-index.html 2>/dev/null || true
           exit 1
+      - name: Verify deployed desktop 3D avatar
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 90s node tests/avatar-3d-browser.mjs
       - name: Verify deployed Pages with real Playwright
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
