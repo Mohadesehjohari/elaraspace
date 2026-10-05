@@ -38,7 +38,9 @@ jobs:
           python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
           sleep 2
       - name: Verify 1672x941 Home and Tasks
-        run: node tests/direct-reference-visual-qa.mjs
+        run: |
+          mkdir -p browser-artifacts/direct-reference
+          node tests/direct-reference-visual-qa.mjs > browser-artifacts/direct-reference/run.log 2>&1 || (cat browser-artifacts/direct-reference/run.log && exit 1)
       - name: Upload direct-reference screenshots
         if: always()
         uses: actions/upload-artifact@v4
