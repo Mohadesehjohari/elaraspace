@@ -101,19 +101,16 @@ async function bootTriptych(width,height){
  await page.route('**/cloud.js*',route=>route.abort());
  await page.route('**/assets/ui/*.webp',async route=>{await new Promise(r=>setTimeout(r,220));await route.continue()});
  await page.goto('http://127.0.0.1:4173/#home',{waitUntil:'commit',timeout:30000});
- await page.waitForFunction(()=>document.documentElement?.hasAttribute('data-elara-booting'),null,{timeout:3000});
+ await page.waitForFunction(()=>!!document.querySelector('.shell'),null,{timeout:3000});
  await page.waitForTimeout(70);
- const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {boot:visible(document.querySelector('#elara-boot-screen')),shell:visible(document.querySelector('.shell')),bottom:visible(document.querySelector('.bottom-nav')),dock:visible(document.querySelector('.elara-desktop-dock')),routes:[...document.querySelectorAll('.bottom-nav [data-elara-tab]')].map(x=>x.dataset.elaraTab)}});
- assert.equal(before.boot,true,'boot screen must be the only first-frame shell');
- assert.equal(before.shell,false,'app shell leaked during boot');
- assert.equal(before.bottom,false,'bottom navigation leaked during boot');
- assert.equal(before.dock,false,'desktop dock leaked during boot');
- if(width<=700)assert.deepEqual(before.routes,mobile,'mobile nav DOM routes incomplete during boot');
+ const before=await page.evaluate(()=>{const visible=el=>{if(!el)return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&s.opacity!=='0'&&r.width>0&&r.height>0};return {boot:visible(document.querySelector('#elara-boot-screen')),shell:visible(document.querySelector('.shell'))}});
+ assert.equal(before.boot,false,'fail-open startup must not block first paint behind the boot screen');
+ assert.equal(before.shell,true,'app shell must stay visible while startup modules hydrate');
  await page.screenshot({path:`${out}/boot-${width}-before-release.png`,fullPage:false});
- await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:5000});
+ await page.waitForFunction(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0),moon=document.querySelector('#theme-toggle .ref-theme-art');return nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.getClientRects().length>0&&moon.complete&&moon.naturalWidth>0},null,{timeout:7000});
  const releaseState=await page.evaluate(()=>{const nav=[...document.querySelectorAll('.bottom-nav .elara-nav-art,.sidebar .elara-nav-art')].filter(x=>x.getClientRects().length>0);const moon=document.querySelector('#theme-toggle .ref-theme-art'),src=moon?.getAttribute('src')||'',boot=document.querySelector('#elara-boot-screen');return {bootVisible:!!boot&&getComputedStyle(boot).display!=='none',artReady:nav.length>0&&nav.every(x=>x.complete&&x.naturalWidth>0)&&!!moon&&moon.getClientRects().length>0&&moon.complete&&moon.naturalWidth>0&&/(icon-mode-night-(active|default)\.webp)$/.test(src)}});
- assert.equal(releaseState.bootVisible,false,'boot screen did not clear at shell release');
- assert.equal(releaseState.artReady,true,'navigation/Moon artwork was not decoded at shell release');
+ assert.equal(releaseState.bootVisible,false,'boot screen must remain non-blocking after startup hydration');
+ assert.equal(releaseState.artReady,true,'navigation/Moon artwork was not decoded after startup hydration');
  await page.screenshot({path:`${out}/boot-${width}-release.png`,fullPage:false});await page.waitForTimeout(500);await page.screenshot({path:`${out}/boot-${width}-plus500ms.png`,fullPage:false});
  await page.close();
 }
