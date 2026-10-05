@@ -35,3 +35,10 @@
 .language-class-classmates{display:grid;gap:8px;padding:11px;border:1px solid #58ded245;border-radius:13px;background:#12333c2f}.language-class-classmates h3{margin:0 0 3px}.language-class-classmates>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.7fr) auto;gap:8px;align-items:center}.language-class-classmates>div>span:first-child{display:grid;gap:2px}.language-class-classmates small{color:var(--muted)}.language-class-classmates .language-class-progress{height:7px}.language-class-classmates>b{font-size:.62rem;color:#9ff5ed}
 .language-class-card.is-shared{border-color:#58ded264!important;box-shadow:inset 3px 0 0 #58ded280,0 8px 22px #0002!important}
 @media(max-width:700px){.word-share-on-add{width:100%!important;justify-content:space-between!important}.word-share-on-add select{min-width:0!important;max-width:58%!important}.language-class-classmates>div{grid-template-columns:1fr auto}.language-class-classmates .language-class-progress{grid-column:1/-1}}
+
+.language-class-type-adders{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.language-class-type-adders>button{min-width:100px}
+.language-class-member-note{display:grid;gap:5px;padding:9px 10px;border:1px solid #58ded24a;border-radius:11px;background:#12333c38}
+.language-class-member-note strong{color:#9ff5ed;font-size:.68rem}.language-class-member-note p{margin:0!important}
+@media(max-width:700px){.language-class-type-adders{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.language-class-type-adders>button{min-width:0;width:100%;padding-inline:6px}}
+@media(max-width:390px){.language-class-type-adders{grid-template-columns:1fr}.language-class-type-adders>button{min-height:38px}}
