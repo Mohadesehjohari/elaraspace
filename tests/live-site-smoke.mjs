@@ -5,15 +5,16 @@ const url=process.env.ELARA_LIVE_URL||'https://mohadesehjohari.github.io/elarasp
 const out='browser-artifacts/live-site';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
 let lastError='';
-for(let attempt=1;attempt<=8;attempt++){
+for(let attempt=1;attempt<=4;attempt++){
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   const errors=[],consoleErrors=[],responses=[];
   page.on('pageerror',e=>errors.push(String(e.message||e)));
   page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
   page.on('response',r=>{if(r.status()>=400)responses.push({status:r.status(),url:r.url()})});
+  let status=0;
   try{
     const response=await page.goto(url+'?live-smoke='+Date.now()+'#home',{waitUntil:'domcontentloaded',timeout:30000});
-    const status=response?.status()||0;
+    status=response?.status()||0;
     await page.waitForTimeout(1200);
     await page.waitForFunction(()=>{
       const workspace=document.querySelector('.workspace');
@@ -46,11 +47,30 @@ for(let attempt=1;attempt<=8;attempt++){
     lastError='site shell not usable: '+JSON.stringify(report);
   }catch(error){
     lastError=error.stack||String(error);
-    writeFileSync(out+'/live-report.json',JSON.stringify({attempt,error:lastError,errors,consoleErrors,responses},null,2));
+    const state=await page.evaluate(()=>{
+      const workspace=document.querySelector('.workspace'),style=workspace?getComputedStyle(workspace):null,rect=workspace?.getBoundingClientRect();
+      return {
+        title:document.title,
+        bodyClass:document.body?.className||'',
+        ready:document.body?.classList.contains('cloud-ready')||false,
+        offline:document.body?.classList.contains('cloud-offline')||false,
+        locked:document.body?.classList.contains('cloud-locked')||false,
+        workspace:!!workspace,
+        workspaceVisible:!!workspace&&style.display!=='none'&&style.visibility!=='hidden'&&style.opacity!=='0'&&rect.width>0&&rect.height>0,
+        cloudHidden:!!document.getElementById('cloud-layer')?.hidden,
+        hash:location.hash,
+        booting:document.documentElement.hasAttribute('data-elara-booting'),
+        bootSrc:document.querySelector('script[src*="boot.js"]')?.getAttribute('src')||''
+      };
+    }).catch(()=>null);
+    const html=await page.content().catch(()=>'');
+    writeFileSync(out+'/live-report.json',JSON.stringify({attempt,status,error:lastError,state,errors,consoleErrors,responses},null,2));
+    writeFileSync(out+'/live-dom.html',html);
+    console.error('LIVE_SITE_FAIL '+JSON.stringify({attempt,status,state,errors,consoleErrors,responses}));
     await page.screenshot({path:out+'/live-error-'+attempt+'.png',fullPage:false}).catch(()=>{});
   }
   await page.close();
-  if(attempt<8)await new Promise(r=>setTimeout(r,15000));
+  if(attempt<4)await new Promise(r=>setTimeout(r,10000));
 }
 await browser.close();
 console.error(lastError);process.exit(1);
