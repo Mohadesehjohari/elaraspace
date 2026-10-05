@@ -1,0 +1,38 @@
+name: Diagnose live startup now
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-live-startup-now.yml'
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run live browser diagnostic
+        continue-on-error: true
+        run: node tests/live-site-smoke.mjs
+      - name: Capture live HTML and headers
+        continue-on-error: true
+        run: |
+          mkdir -p diagnostics
+          curl -Lsv --connect-timeout 10 --max-time 30 -D diagnostics/live-startup-headers.txt -o diagnostics/live-startup.html 'https://mohadesehjohari.github.io/elaraspace/?diag=${{ github.sha }}#home' 2> diagnostics/live-startup-curl.txt || true
+          cp browser-artifacts/live-site/live-report.json diagnostics/live-startup.json 2>/dev/null || printf '{"error":"live report missing"}\n' > diagnostics/live-startup.json
+      - name: Commit diagnostics
+        run: |
+          git config user.name 'Elara Live Diagnostic'
+          git config user.email '139713890+Mohadesehjohari@users.noreply.github.com'
+          git add diagnostics/live-startup.json diagnostics/live-startup.html diagnostics/live-startup-headers.txt diagnostics/live-startup-curl.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'diagnostic: capture live startup failure'
+          git push origin HEAD:main
