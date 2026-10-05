@@ -742,8 +742,6 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
       allow update: if signed()
-        && resource.data.to == request.auth.uid
-        && resource.data.status == 'pending'
         && request.resource.data.spaceId == resource.data.spaceId
         && request.resource.data.from == resource.data.from
         && request.resource.data.to == resource.data.to
@@ -751,8 +749,20 @@ service cloud.firestore {
         && request.resource.data.title == resource.data.title
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
-        && request.resource.data.status in ['accepted','declined']
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            resource.data.to == request.auth.uid
+            && resource.data.status == 'pending'
+            && request.resource.data.status in ['accepted','declined']
+          ) ||
+          (
+            resource.data.from == request.auth.uid
+            && isCollabOwner(resource.data.spaceId)
+            && resource.data.status == 'declined'
+            && request.resource.data.status == 'pending'
+          )
+        );
       allow delete: if signed() && resource.data.from == request.auth.uid && resource.data.status == 'pending';
     }
 
