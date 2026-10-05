@@ -15,6 +15,7 @@ Use the approved Female/Male turnaround as image planes and follow:
 
 Run:
 - `elara_avatar_setup.py` once in a fresh file to create the project collections and metadata.
+- Save the approved turnaround PNGs under `avatar/reference/` using the canonical filenames, then run `elara_reference_setup.py` to load them as protected reference empties.
 - `elara_avatar_validate.py` before every candidate export.
 
 ## What the artist/user must do manually
