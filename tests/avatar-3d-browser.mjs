@@ -34,6 +34,7 @@ try{
   assert.ok(box&&box.width>300&&box.height>420,'desktop avatar stage must fill the empty profile area');
   assert.equal(await page.evaluate(()=>window.ElaraAvatar3D.base),'female','female profile must mount female base');
 
+  await page.screenshot({path:'browser-artifacts/avatar-3d-female-front-desktop.png',fullPage:false});
   const before=await page.evaluate(()=>document.querySelector('.elara-avatar-canvas')?.toDataURL().slice(0,64));
   await page.mouse.move(box.x+box.width*.70,box.y+box.height*.50);
   await page.mouse.down();
@@ -43,7 +44,7 @@ try{
   const after=await page.evaluate(()=>document.querySelector('.elara-avatar-canvas')?.toDataURL().slice(0,64));
   assert.ok(before&&after,'WebGL canvas must be readable');
 
-  await page.screenshot({path:'browser-artifacts/avatar-3d-female-desktop.png',fullPage:false});
+  await page.screenshot({path:'browser-artifacts/avatar-3d-female-rotated-desktop.png',fullPage:false});
 
   await page.evaluate(()=>window.ElaraProfileSystem.writePrivate({sex:'male'}));
   await page.waitForFunction(()=>window.ElaraAvatar3D?.base==='male',{timeout:5000});
