@@ -3,11 +3,13 @@ import { chromium } from 'playwright';
 fs.mkdirSync('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader']});
 const page=await browser.newPage({viewport:{width:920,height:1040},deviceScaleFactor:1});
+page.on('console',m=>console.log('BROWSER',m.type(),m.text()));
+page.on('pageerror',e=>console.error('PAGEERROR',String(e)));
 try{
-  const html='<!doctype html><html><head><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(#07152b,#04101f)}#stage{width:100%;height:100%;position:relative}canvas{display:block;width:100%;height:100%}#label{position:absolute;top:20px;left:20px;color:white;font:18px sans-serif;z-index:3}</style></head><body><div id="stage"><div id="label"></div></div><script type="module">'+
-  "import * as THREE from 'https://esm.sh/three@0.180.0';"+
-  "import { GLTFLoader } from 'https://esm.sh/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';"+
-  "import { VRMLoaderPlugin, VRMUtils } from 'https://esm.sh/@pixiv/three-vrm@3.4.2?deps=three@0.180.0';"+
+  const html='<!doctype html><html><head><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/","@pixiv/three-vrm":"https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.min.js"}}</script><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(#07152b,#04101f)}#stage{width:100%;height:100%;position:relative}canvas{display:block;width:100%;height:100%}#label{position:absolute;top:20px;left:20px;color:white;font:18px sans-serif;z-index:3}</style></head><body><div id="stage"><div id="label"></div></div><script type="module">'+
+  "import * as THREE from 'three';"+
+  "import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';"+
+  "import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';"+
   "const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;document.querySelector('#stage').append(renderer.domElement);"+
   "const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(28,innerWidth/innerHeight,.01,100);scene.add(camera);scene.add(new THREE.HemisphereLight(0xeaf2ff,0x172139,2.5));const key=new THREE.DirectionalLight(0xffe9df,4);key.position.set(3,6,5);scene.add(key);const rim=new THREE.DirectionalLight(0x8b74ff,2.5);rim.position.set(-4,4,-3);scene.add(rim);"+
   "const loader=new GLTFLoader();loader.register(parser=>new VRMLoaderPlugin(parser));let current=null;"+
