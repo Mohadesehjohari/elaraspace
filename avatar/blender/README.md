@@ -40,3 +40,18 @@ First candidate:
 - neutral expression
 - A-pose bind
 - no animation baked into base unless intentional
+
+
+## Automated Female blockout
+Run `elara_female_production_blockout.py` after scene/reference setup.
+
+It creates a substantially better structured starting mesh than the website prototype:
+- integrated torso/pelvis silhouette
+- long adult anime-fashion proportions
+- head/eyes/face components
+- hair guide curves
+- rig scaffold
+- face shape-key scaffold
+- studio camera/light
+
+It is intentionally marked BLOCKOUT. Final quality still requires sculpt/retopo/hair/weights work against the approved turnaround.
