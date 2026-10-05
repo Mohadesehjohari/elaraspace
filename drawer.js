@@ -126,10 +126,10 @@
   }
   function renderHub(){
     const host=panel?.querySelector('[data-drawer-section="home"]');if(!host)return;
-    /* Desktop profile home is intentionally empty below the banner.
-       Profile / Blocked / Wardrobe / Store already live in the left rail, so
-       duplicating them here only makes the drawer noisy. */
-    host.replaceChildren();
+    if(!host.querySelector('[data-elara-avatar-stage]')){
+      host.innerHTML='<div class="elara-avatar-stage" data-elara-avatar-stage aria-label="آواتار سه‌بعدی"><div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال آماده‌سازی…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>درگ: چرخش ۳۶۰° · اسکرول: زوم</span></div><button type="button" class="elara-avatar-edit" data-elara-avatar-edit>ویرایش مدل پایه</button></div>';
+    }
+    window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderSettings(){
     const host=$('drawer-settings-area');if(!host)return;
