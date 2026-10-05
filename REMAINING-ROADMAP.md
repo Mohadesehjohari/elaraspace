@@ -3,6 +3,7 @@
 > مرجع کامل و canonical: [docs/MASTER-ROADMAP-2026-10-03.md](docs/MASTER-ROADMAP-2026-10-03.md)  
 > آخرین handoff اجرایی: بخش **Execution Handoff — 2026-10-04** در Master Roadmap.  
 > این فایل فقط صف کوتاه‌مدت است و نباید با Master رقابت کند.
+> مرجع صف طراحی رنگ/تم/Asset: [docs/DESIGN-COLOR-ROADMAP.md](docs/DESIGN-COLOR-ROADMAP.md)
 
 ## P0 — همین الان، قبل از Feature جدید
 1. **Ranking visual + profile/frame sync**
