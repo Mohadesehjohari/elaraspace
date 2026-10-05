@@ -43,7 +43,7 @@ for (const token of ['recurrenceRule','occurrenceDone','focusSessions','data-foc
 for (const token of ['openSelfProfile','saveProfileValues','runTransaction','profilePublic','removeFriend']) assert.ok(social.includes(token),`Profile phase missing ${token}`);
 assert.ok(html.includes('approved-profile-system.js'),'Shared profile system must load before account UI');
 assert.ok(profileSystem.includes('window.ElaraProfileSystem=')&&profileSystem.includes('window.ElaraDialog.open')&&profileSystem.includes('saveProfileValues'),'Central profile editor/source of truth missing');
-for(const token of ['profile-avatar-gallery','data-profile-avatar-choice','galleryOpen=false','عکس از گالری دستگاه','photoMode=\'elara\''])assert.ok(profileSystem.includes(token),'Profile avatar gallery contract missing '+token);
+for(const token of ['profile-avatar-gallery','data-profile-avatar-choice','galleryOpen=false','عکس از گالری دستگاه','photoMode.value=\'elara\''])assert.ok(profileSystem.includes(token),'Profile avatar gallery contract missing '+token);
 assert.ok(drawer.includes('data-profile-avatar-gallery')&&drawer.includes('openEditor?.({galleryOpen:true})'),'Settings Profile must expose the avatar gallery directly');
 for(const token of ['.profile-avatar-gallery-grid','.profile-avatar-gallery-item.is-active','.profile-device-photo-button'])assert.ok(profileGalleryCss.includes(token),'Profile gallery responsive CSS missing '+token);
 assert.ok(drawer.includes('function renderAccount()')&&!drawer.includes('id="drawer-account-form"'),'Drawer Account must be view-only with central edit dialog');
