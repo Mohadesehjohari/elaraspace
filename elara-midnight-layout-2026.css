@@ -176,19 +176,19 @@ body.dark #panel-home.ref-home .ref-view-all-button::after{content:"دیدن ه�
 
 /* fire/streak card */
 body.dark #panel-home.ref-home #ref-streak-card{
- display:grid!important;grid-template-rows:minmax(0,1fr) 54px!important;padding:43px 15px 12px!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 54px!important;padding:43px 15px 12px!important;
  border:1px solid rgba(255,114,61,.80)!important;background:
   radial-gradient(circle at 28% 18%,rgba(255,148,63,.30),transparent 23%),
   linear-gradient(160deg,rgba(58,24,24,.94),rgba(15,29,48,.95) 62%,rgba(9,24,43,.98))!important;
  box-shadow:0 10px 30px #0005,inset 0 0 0 1px rgba(255,184,77,.05),0 0 16px rgba(255,114,61,.12)!important;
 }
 body.dark #ref-streak-card::before{content:"رکورد روزانه";position:absolute;top:15px;right:16px;font-weight:850;font-size:.82rem;color:#fff}
-body.dark #ref-streak-card .ref-streak-summary{position:relative!important;inset:auto!important;transform:none!important;margin:0!important;align-self:center!important;display:grid!important;grid-template-columns:78px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:center!important;gap:3px 9px!important}
+body.dark #ref-streak-card .ref-streak-summary{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;margin:0!important;align-self:center!important;display:grid!important;grid-template-columns:78px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:center!important;justify-content:center!important;gap:3px 9px!important}
 body.dark #ref-streak-card .ref-streak-flame{grid-column:1!important;grid-row:1/3!important;width:76px!important;height:76px!important;filter:drop-shadow(0 0 14px rgba(255,115,48,.44))!important}
 body.dark #ref-streak-card .ref-streak-summary>strong{grid-column:2!important;grid-row:1!important;font-size:2.2rem!important;line-height:1!important;color:#ffd067!important}
 body.dark #ref-streak-card .ref-streak-summary small{grid-column:2!important;grid-row:2!important;font-size:.66rem!important;color:#ffe4b1!important}
 body.dark #ref-streak-card .ref-streak-summary small>span{display:block!important;margin-top:4px!important;color:#fff!important;font-weight:800!important}
-body.dark #ref-streak-card .ref-streak-days{position:relative!important;inset:auto!important;transform:none!important;margin:0!important;align-self:end!important;display:grid!important;grid-template-columns:repeat(7,1fr)!important;gap:5px!important}
+body.dark #ref-streak-card .ref-streak-days{grid-column:1!important;grid-row:2!important;width:100%!important;position:relative!important;inset:auto!important;transform:none!important;margin:0!important;align-self:end!important;display:grid!important;grid-template-columns:repeat(7,1fr)!important;gap:5px!important}
 body.dark #ref-streak-card .ref-streak-day{min-width:0!important;height:43px!important;border:0!important;background:transparent!important;padding:0!important}
 body.dark #ref-streak-card .ref-day-mark{width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,190,100,.45)!important;background:#171e2c!important}
 body.dark #ref-streak-card .ref-streak-day.done .ref-day-mark,
