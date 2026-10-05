@@ -190,6 +190,10 @@ body.dark #ref-streak-card .ref-streak-summary small{grid-column:2!important;gri
 body.dark #ref-streak-card .ref-streak-summary small>span{display:block!important;margin-top:4px!important;color:#fff!important;font-weight:800!important}
 body.dark #ref-streak-card .ref-streak-days{grid-column:1!important;grid-row:2!important;width:100%!important;position:relative!important;inset:auto!important;transform:none!important;margin:0!important;align-self:end!important;display:grid!important;grid-template-columns:repeat(7,1fr)!important;gap:5px!important}
 body.dark #ref-streak-card .ref-streak-day{min-width:0!important;height:43px!important;border:0!important;background:transparent!important;padding:0!important}
+body.dark #panel-home.ref-home #ref-streak-card .ref-streak-day.today{
+ height:43px!important;min-height:43px!important;max-height:43px!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important
+}
 body.dark #ref-streak-card .ref-day-mark{width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,190,100,.45)!important;background:#171e2c!important}
 body.dark #ref-streak-card .ref-streak-day.done .ref-day-mark,
 body.dark #ref-streak-card .ref-streak-day.today .ref-day-mark{background:linear-gradient(145deg,#ff943f,#ffd067)!important;border-color:#ffd067!important;box-shadow:0 0 12px rgba(255,148,63,.22)!important}
