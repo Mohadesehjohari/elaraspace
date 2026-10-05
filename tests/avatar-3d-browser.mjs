@@ -27,7 +27,7 @@ try{
 
   await page.waitForSelector('[data-elara-avatar-stage]',{state:'visible',timeout:10000});
   await page.waitForSelector('.elara-avatar-canvas',{state:'visible',timeout:30000});
-  await page.waitForFunction(()=>window.ElaraAvatar3D?.version==='procedural-desktop-v1',{timeout:30000});
+  await page.waitForFunction(()=>window.ElaraAvatar3D?.version==='procedural-desktop-v2',{timeout:30000});
 
   const stage=page.locator('[data-elara-avatar-stage]');
   const box=await stage.boundingBox();
@@ -43,11 +43,13 @@ try{
   const after=await page.evaluate(()=>document.querySelector('.elara-avatar-canvas')?.toDataURL().slice(0,64));
   assert.ok(before&&after,'WebGL canvas must be readable');
 
+  await page.screenshot({path:'browser-artifacts/avatar-3d-female-desktop.png',fullPage:false});
+
   await page.evaluate(()=>window.ElaraProfileSystem.writePrivate({sex:'male'}));
   await page.waitForFunction(()=>window.ElaraAvatar3D?.base==='male',{timeout:5000});
   assert.equal(await page.evaluate(()=>window.ElaraAvatar3D.dance()),true,'dance hook must remain available');
-
-  await page.screenshot({path:'browser-artifacts/avatar-3d-desktop.png',fullPage:false});
+  await page.waitForTimeout(300);
+  await page.screenshot({path:'browser-artifacts/avatar-3d-male-desktop.png',fullPage:false});
   assert.equal(errors.filter(x=>/avatar-3d|three/i.test(x)).length,0,'avatar runtime must not throw');
   console.log('3D avatar browser acceptance passed',JSON.stringify({box,base:await page.evaluate(()=>window.ElaraAvatar3D.base)}));
 }finally{
