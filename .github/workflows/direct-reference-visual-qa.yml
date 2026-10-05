@@ -1,0 +1,49 @@
+name: Direct reference visual QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'reference-home-shell-2026.js'
+      - 'phase2.js'
+      - 'approved-navigation-extension.js'
+      - 'elara-midnight-layout-2026.css'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/direct-reference-visual-qa.mjs'
+      - '.github/workflows/direct-reference-visual-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  direct-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript
+        run: |
+          node --check reference-home-shell-2026.js
+          node --check phase2.js
+          node --check approved-navigation-extension.js
+          node --check tests/direct-reference-visual-qa.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
+          sleep 2
+      - name: Verify 1672x941 Home and Tasks
+        run: node tests/direct-reference-visual-qa.mjs
+      - name: Upload direct-reference screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: direct-reference-visual-${{ github.sha }}
+          path: browser-artifacts/direct-reference/
+          if-no-files-found: warn
+          retention-days: 30
