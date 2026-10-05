@@ -290,13 +290,11 @@ Tabs روشن در بالای Friends:
 # P4 — Realtime Collaboration / Challenges
 
 ## P4.1 Shared Task
-- Task مشترک با یک دوست.
-- Invite / Accept / Decline.
-- رنگ/Badge متفاوت.
-- completion semantics.
-- conflict resolution.
-- multi-device.
-- server-verifiable source.
+- **CODED / BACKEND-GATED:** Task مشترک با یک دوست؛ Invite / Accept / Decline و badge مشترک.
+- **CODED:** همان collaboration API برای Habit، Language Class و Leitner Word نیز استفاده می‌شود.
+- **CODED:** progress هر عضو جداگانه sync می‌شود و Shared-space آمار اعضا را نمایش می‌دهد.
+- **CODED:** لینک عضویت owner-controlled برای کلاس/فضای مشترک، بدون expiry timer.
+- **PENDING VERIFICATION:** conflict resolution دو-device، Rules deploy واقعی، reconnect/offline reconciliation و server-verifiable acceptance روی Firebase production.
 
 ## P4.2 Friendly Challenge
 سه mode ارسال:
@@ -865,11 +863,13 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Freedom subpages موجود حفظ شوند؛ چیزی برای «شبیه مرجع کردن» حذف نشود.
 
 ## H3 — Language / Classes
-- Custom Class برای Online / Offline / Linked class.
-- کاربر Term count، Sessions per term، Session duration، روزهای هفته و study time را تعیین کند؛ ETA اتمام محاسبه شود.
-- Class report و edit.
-- Shared class با Friend و challenge دائمی بدون timer؛ share-link/join flow؛ progress همکلاسی‌ها فقط از دادهٔ واقعی و privacy-aware.
-- این بخش تا schema/Rules چند UID تست نشود VERIFIED نیست.
+- **CODED:** Custom Class برای Online / Offline / Linked class؛ برای هر نوع CTA `+` مستقیم وجود دارد.
+- **CODED:** Term count، Sessions per term، Session duration، روزهای هفته، ساعت شروع و study-hours-per-selected-day ذخیره می‌شود؛ ETA از ظرفیت واقعی جلسات در روزهای انتخابی محاسبه می‌شود.
+- **CODED:** Class report/edit، session log، زمان انجام‌شده/باقی‌مانده و pace.
+- **CODED / BACKEND-GATED:** Shared class با Friend و همکاری دائمی بدون timer؛ Invite/Accept/Decline، share-link/join، membership و progress مستقل هر همکلاسی. آمار همکلاسی‌ها فقط از Firestore member progress واقعی است.
+- **CODED / BACKEND-GATED:** collaboration عمومی برای `Task`، `Habit`، `Language Class` و `Leitner Word` با consent؛ Taskهای منبع‌دار Language/Exercise/Book/Focus نیز چون canonical Task هستند از همان Shared Task flow استفاده می‌کنند.
+- **CODED:** در افزودن واژهٔ Leitner می‌توان «فقط من» یا «من + دوست» را انتخاب کرد؛ نوشتن مستقیم در دادهٔ دوست انجام نمی‌شود و دریافت‌کننده باید دعوت را Accept کند.
+- Firestore schema/Rules و emulator contract داخل repo اضافه شده‌اند؛ تا Rules روی Firebase واقعی publish و تست دو UID/two-device روی deployment نهایی انجام نشود این بخش **VERIFIED نیست**.
 
 ## H4 — Progression / ambient UX
 - XP Journey screen: Mobile swipe-left به فضای سیاره/ستاره با مسیر XP و rewardهای locked؛ Desktop trigger کنار notification جایگزین edit-profile button طبق تصمیم نهایی.
