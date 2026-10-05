@@ -1,0 +1,145 @@
+/* Persistent collaboration for Tasks, Habits, Language Classes and Leitner words.
+   Firestore owns consent/membership; local entities remain usable offline. */
+import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
+const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
+const KINDS=new Set(['task','habit','language-class','leitner-word']);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
+const id=()=>crypto.randomUUID?.()||('collab-'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
+const me=()=>auth.currentUser?.uid||window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'';
+const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,Math.round(Number(n)||0)));
+const kindLabel=kind=>kind==='task'?tx('تسک مشترک','Shared task'):kind==='habit'?tx('عادت مشترک','Shared habit'):kind==='language-class'?tx('کلاس مشترک','Shared class'):tx('واژهٔ مشترک لایتنر','Shared Leitner word');
+
+function readLocal(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}')||{};for(const k of ['tasks','habits','languageClasses','words'])if(!Array.isArray(s[k]))s[k]=[];return s}catch{return{tasks:[],habits:[],languageClasses:[],words:[]}}}
+function writeLocal(s){localStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:collab-local-changed'))}
+function cleanRule(r){if(!r||typeof r!=='object')return null;return{frequency:['daily','weekly','monthly'].includes(r.frequency)?r.frequency:'weekly',interval:clamp(r.interval||1,1,365),weekdays:Array.isArray(r.weekdays)?r.weekdays.map(Number).filter(x=>x>=0&&x<=6).slice(0,7):[],startDate:String(r.startDate||'').slice(0,10),endDate:r.endDate?String(r.endDate).slice(0,10):null,timezone:String(r.timezone||'').slice(0,80)}}
+function payloadFor(kind,e={}){
+ if(kind==='task')return{text:String(e.text||e.title||'').slice(0,180),shortDescription:String(e.shortDescription||'').slice(0,280),description:String(e.description||'').slice(0,1800),date:String(e.date||'').slice(0,10),time:String(e.time||'').slice(0,5),priority:String(e.priority||'4').slice(0,1),list:String(e.list||'').slice(0,80),folder:String(e.folder||'').slice(0,80),tag:String(e.tag||'').slice(0,80),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule),sourceGroup:String(e.sourceGroup||'personal').slice(0,32),checklist:(Array.isArray(e.checklist)?e.checklist:[]).slice(0,30).map((x,i)=>({id:String(x.id||i).slice(0,100),text:String(x.text||x.title||'').slice(0,240),description:String(x.description||'').slice(0,600),done:false,order:i})).filter(x=>x.text)};
+ if(kind==='habit')return{title:String(e.title||'').slice(0,120),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule)};
+ if(kind==='language-class')return{title:String(e.title||'').slice(0,120),type:['offline','online','linked'].includes(e.type)?e.type:'offline',terms:clamp(e.terms||1,1,40),sessionsPerTerm:clamp(e.sessionsPerTerm||1,1,100),durationMin:clamp(e.durationMin||60,10,480),weekdays:(Array.isArray(e.weekdays)?e.weekdays:[]).map(Number).filter(x=>x>=0&&x<=6).slice(0,7),studyTime:String(e.studyTime||'').slice(0,5),linkUrl:String(e.linkUrl||'').slice(0,1000)};
+ return{front:String(e.front||'').slice(0,120),back:String(e.back||'').slice(0,240)}
+}
+function entityTitle(kind,e){return String(kind==='task'?(e.text||e.title):kind==='habit'?e.title:kind==='language-class'?e.title:e.front||'').trim().slice(0,120)||kindLabel(kind)}
+function localArray(s,kind){return kind==='task'?s.tasks:kind==='habit'?s.habits:kind==='language-class'?s.languageClasses:s.words}
+function findLocal(kind,entityId){const s=readLocal();return localArray(s,kind).find(x=>String(x.id)===String(entityId))||null}
+function progressFor(kind,e={}){
+ const day=today();
+ if(kind==='task'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed){if(e.recurrenceRule&&Array.isArray(e.occurrenceDone)&&e.occurrenceDone.includes(day))completed=total;else if(!e.recurrenceRule&&e.completed)completed=total}return{completed,total,percent:Math.round(completed/total*100)}}
+ if(kind==='habit'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed&&Array.isArray(e.days)&&e.days.includes(day))completed=total;return{completed,total,percent:Math.round(completed/total*100)}}
+ if(kind==='language-class'){const total=Math.max(1,clamp(e.terms||1,1,40)*clamp(e.sessionsPerTerm||1,1,100)),completed=Math.min(total,Array.isArray(e.sessionLogs)?e.sessionLogs.length:clamp(e.completedSessions||0,0,total));return{completed,total,percent:Math.round(completed/total*100)}}
+ const total=5,completed=clamp(e.box||1,1,5);return{completed,total,percent:Math.round(completed/total*100)}
+}
+function markLocal(kind,entityId,spaceId,role='owner',ownerUid=me()){
+ const s=readLocal(),row=localArray(s,kind).find(x=>String(x.id)===String(entityId));if(!row)return null;
+ row.collabSpaceId=String(spaceId);row.collabRole=role;row.collabOwnerUid=String(ownerUid||'');row.shared=true;writeLocal(s);return row
+}
+function materialize(space){
+ const kind=space.kind;if(!KINDS.has(kind))throw Error(tx('نوع مورد مشترک پشتیبانی نمی‌شود.','Unsupported shared item.'));
+ let payload={};try{payload=JSON.parse(space.payloadJson||'{}')||{}}catch{throw Error(tx('دادهٔ مورد مشترک خراب است.','Shared item payload is invalid.'))}
+ const s=readLocal(),arr=localArray(s,kind),found=arr.find(x=>x.collabSpaceId===space.id);if(found)return found.id;
+ const localId='shared-'+String(space.id).slice(0,72)+'-'+Math.random().toString(36).slice(2,6),common={id:localId,collabSpaceId:space.id,collabRole:'member',collabOwnerUid:space.ownerUid,shared:true};
+ let row;
+ if(kind==='task')row={...common,text:String(payload.text||space.title||'تسک مشترک'),shortDescription:payload.shortDescription||'',description:payload.description||'',date:payload.date||'',time:payload.time||'',priority:payload.priority||'4',list:payload.list||'',folder:payload.folder||'',tag:payload.tag||'',dailyTarget:clamp(payload.dailyTarget||1,1,24),dailyProgress:{},recurrenceRule:cleanRule(payload.recurrenceRule),sourceGroup:payload.sourceGroup||'personal',checklist:Array.isArray(payload.checklist)?payload.checklist:[],completed:false,doneAt:null,xpAwarded:false,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},createdAt:Date.now()};
+ else if(kind==='habit')row={...common,title:String(payload.title||space.title||'عادت مشترک'),dailyTarget:clamp(payload.dailyTarget||1,1,24),dailyProgress:{},recurrenceRule:cleanRule(payload.recurrenceRule),days:[],rewardDays:[],skippedDates:[],occurrenceOverrides:{}};
+ else if(kind==='language-class')row={...common,title:String(payload.title||space.title||'کلاس مشترک'),type:['offline','online','linked'].includes(payload.type)?payload.type:'offline',terms:clamp(payload.terms||1,1,40),sessionsPerTerm:clamp(payload.sessionsPerTerm||1,1,100),durationMin:clamp(payload.durationMin||60,10,480),weekdays:Array.isArray(payload.weekdays)?payload.weekdays:[],studyTime:String(payload.studyTime||''),linkUrl:String(payload.linkUrl||''),createdAt:Date.now(),updatedAt:Date.now(),sessionLogs:[]};
+ else row={...common,front:String(payload.front||space.title||'واژه'),back:String(payload.back||''),box:1,due:today()};
+ arr.unshift(row);writeLocal(s);window.ElaraLanguageClasses?.render?.();window.ElaraTasks?.render?.();return row.id
+}
+function requireUser(){const uid=me();if(!uid||!auth.currentUser?.emailVerified)throw Error(tx('برای اشتراک، حساب تأییدشده لازم است.','A verified account is required for sharing.'));return uid}
+async function createSpace(kind,entity){
+ if(!KINDS.has(kind))throw Error(tx('این نوع هنوز قابل اشتراک نیست.','This type is not shareable yet.'));
+ const uid=requireUser(),existing=entity?.collabSpaceId;if(existing)return String(existing);
+ const payload=payloadFor(kind,entity),payloadJson=JSON.stringify(payload);if(payloadJson.length>12000)throw Error(tx('محتوای این مورد برای اشتراک خیلی بزرگ است.','This item is too large to share.'));
+ const ref=doc(collection(db,'collabSpaces')),title=entityTitle(kind,entity),progress=progressFor(kind,entity);
+ await setDoc(ref,{ownerUid:uid,kind,title,payloadJson,visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ await setDoc(doc(ref,'members',uid),{uid,role:'owner',localEntityId:String(entity.id||''),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ markLocal(kind,entity.id,ref.id,'owner',uid);return ref.id
+}
+async function pickFriend(title=tx('انتخاب دوست','Choose a friend')){
+ const rows=friends();if(!rows.length){await window.ElaraDialog?.alert?.(tx('اول باید حداقل یک دوست تأییدشده داشته باشی.','You need at least one accepted friend first.'),{title});return null}
+ const box=document.createElement('div');box.className='collab-friend-picker';box.innerHTML=rows.map((p,i)=>'<label><input type="radio" name="friend" value="'+esc(p.uid)+'" '+(i===0?'checked':'')+'><span><strong data-elara-ugc dir="auto">'+esc(p.name||p.username||tx('دوست','Friend'))+'</strong><small>'+esc(p.username?'@'+p.username:'')+'</small></span></label>').join('');
+ const ok=await window.ElaraDialog.open({title,content:box,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ادامه','Continue'),value:true,kind:'primary'}]});if(ok!==true)return null;return box.querySelector('[name=friend]:checked')?.value||null
+}
+async function invite(spaceId,friendUid){
+ const uid=requireUser(),friend=String(friendUid||'');if(!friend||friend===uid)throw Error(tx('دوست معتبر انتخاب نشده.','Choose a valid friend.'));
+ const spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()};
+ const inviteId=space.id+'__'+friend;
+ await setDoc(doc(db,'collabInvites',inviteId),{spaceId:space.id,from:uid,to:friend,kind:space.kind,title:String(space.title||kindLabel(space.kind)).slice(0,120),status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ window.ElaraNotify?.push?.({type:'social',title:tx('دعوت مشترک ارسال شد','Shared invite sent'),message:space.title||kindLabel(space.kind),dedupeKey:'collab-out:'+inviteId});return inviteId
+}
+async function shareEntity(kind,entity,friendUid=null){
+ const spaceId=await createSpace(kind,entity),target=friendUid||await pickFriend(kind==='language-class'?tx('انتخاب همکلاسی','Choose classmate'):tx('این مورد با کدام دوست مشترک باشد؟','Share with which friend?'));if(!target)return spaceId;
+ await invite(spaceId,target);return spaceId
+}
+async function acceptInvite(inviteId){
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())throw Error(tx('دعوت پیدا نشد.','Invite not found.'));const d=snap.data();if(d.to!==uid||d.status!=='pending')throw Error(tx('این دعوت دیگر فعال نیست.','This invite is no longer active.'));
+ const batch=writeBatch(db),memberRef=doc(db,'collabSpaces',d.spaceId,'members',uid);batch.update(ref,{status:'accepted',updatedAt:serverTimestamp()});batch.set(memberRef,{uid,role:'member',localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});await batch.commit();
+ const spaceSnap=await getDoc(doc(db,'collabSpaces',d.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک حذف شده است.','The shared space was removed.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
+ await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});
+ await refreshInvites();window.dispatchEvent(new Event('elara:collab-updated'));return localEntityId
+}
+async function declineInvite(inviteId){
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});await refreshInvites();return true
+}
+function randomToken(){return (crypto.randomUUID?.()||id()).replace(/-/g,'')+Math.random().toString(36).slice(2,10)}
+async function createShareLink(spaceId){
+ const uid=requireUser(),spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('فقط سازنده می‌تواند لینک عضویت بسازد.','Only the owner can create a join link.'));
+ const token=randomToken().slice(0,72),space=spaceSnap.data();await setDoc(doc(db,'collabLinks',token),{spaceId:String(spaceId),ownerUid:uid,kind:space.kind,title:String(space.title||'').slice(0,120),active:true,createdAt:serverTimestamp()});
+ const url=new URL(location.href);url.searchParams.set('elaraJoin',token);url.hash=space.kind==='language-class'?'#language-courses':'#home';return url.toString()
+}
+async function copyShareLink(spaceId){
+ const url=await createShareLink(spaceId);try{await navigator.clipboard.writeText(url);window.ElaraNotify?.push?.({type:'social',title:tx('لینک کپی شد','Link copied'),message:tx('هرکس لینک را باز کند می‌تواند عضو شود.','Anyone opening the link can join.'),dedupeKey:'collab-link:'+spaceId+':'+Date.now()})}catch{const box=document.createElement('div');box.className='collab-link-box';box.innerHTML='<input readonly dir="ltr" value="'+esc(url)+'">';await window.ElaraDialog.open({title:tx('لینک اشتراک','Share link'),content:box,actions:[{label:tx('بستن','Close'),value:false}]})}return url
+}
+async function joinLink(token){
+ const uid=requireUser(),linkSnap=await getDoc(doc(db,'collabLinks',String(token)));if(!linkSnap.exists()||linkSnap.data().active!==true)throw Error(tx('این لینک معتبر نیست یا غیرفعال شده.','This join link is invalid or inactive.'));const link=linkSnap.data(),memberRef=doc(db,'collabSpaces',link.spaceId,'members',uid),existing=await getDoc(memberRef);
+ if(!existing.exists())await setDoc(memberRef,{uid,role:'member',joinToken:String(token),localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ const spaceSnap=await getDoc(doc(db,'collabSpaces',link.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
+ await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});return localEntityId
+}
+async function memberRows(spaceId){
+ const uid=requireUser(),snaps=await getDocs(collection(db,'collabSpaces',String(spaceId),'members')),rows=[];
+ for(const item of snaps.docs){const d=item.data(),memberUid=item.id;let person=memberUid===uid?window.ElaraSocial?.me:friends().find(x=>x.uid===memberUid);if(!person){try{const p=await getDoc(doc(db,'profiles',memberUid));if(p.exists())person={uid:memberUid,...p.data()}}catch{}}
+  rows.push({uid:memberUid,role:d.role||'member',name:person?.name||person?.username||tx('همکلاسی','Classmate'),username:person?.username||'',percent:clamp(d.progressPercent||0,0,100),completed:Math.max(0,Number(d.progressCompleted)||0),total:Math.max(1,Number(d.progressTotal)||1)})
+ }return rows.sort((a,b)=>b.percent-a.percent)
+}
+async function openSpace(spaceId){
+ const spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()},rows=await memberRows(space.id),owner=space.ownerUid===me();
+ const box=document.createElement('section');box.className='collab-space-dialog';box.innerHTML='<header><small>'+esc(kindLabel(space.kind))+'</small><h3 data-elara-ugc dir="auto">'+esc(space.title||kindLabel(space.kind))+'</h3><p>'+tx('این همکاری تاریخ انقضا ندارد و تا وقتی اعضا بخواهند فعال می‌ماند.','This collaboration has no timer and stays active until members leave.')+'</p></header><div class="collab-member-list">'+rows.map(r=>'<article><div><strong data-elara-ugc dir="auto">'+esc(r.name)+'</strong><small>'+esc(r.username?'@'+r.username:(r.role==='owner'?tx('سازنده','Owner'):tx('عضو','Member')))+'</small></div><div class="collab-progress"><span><i style="width:'+r.percent+'%"></i></span><b>'+r.percent.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'٪</b></div></article>').join('')+'</div>'+(owner?'<footer><button type="button" class="quiet-button" data-collab-invite-more>'+tx('دعوت دوست','Invite friend')+'</button><button type="button" class="primary-button" data-collab-copy-link>'+tx('لینک همکلاسی/عضویت','Join link')+'</button></footer>':'');
+ box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))await copyShareLink(space.id)});
+ await window.ElaraDialog.open({title:tx('فضای مشترک','Shared space'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});return rows
+}
+let inbox=[];
+async function refreshInvites(){
+ const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];mountInbox();return[]}
+ try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid))),next=snaps.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.status==='pending').sort((a,b)=>String(b.id).localeCompare(String(a.id)));inbox=next;for(const row of next)window.ElaraNotify?.push?.({type:'social',title:row.kind==='language-class'?tx('دعوت همکلاسی 📚','Classmate invite 📚'):tx('درخواست مشترک 🤝','Shared request 🤝'),message:row.title||kindLabel(row.kind),dedupeKey:'collab-in:'+row.id});mountInbox();window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:next.length}}));return next}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
+}
+async function openInbox(){
+ await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span>'+tx('بدون تایمر؛ با قبول درخواست مورد مشترک به فضای تو اضافه می‌شود.','No timer; accepting adds the shared item to your space.')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
+ box.addEventListener('click',async e=>{const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');try{if(accept){accept.disabled=true;await acceptInvite(accept.dataset.collabAccept);box.querySelector('[data-collab-invite-row="'+CSS.escape(accept.dataset.collabAccept)+'"]')?.remove()}else if(decline){decline.disabled=true;await declineInvite(decline.dataset.collabDecline);box.querySelector('[data-collab-invite-row="'+CSS.escape(decline.dataset.collabDecline)+'"]')?.remove()}}catch(error){await window.ElaraDialog.alert(error.message||String(error))}});
+ await window.ElaraDialog.open({title:tx('درخواست‌های مشترک','Shared requests'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]})
+}
+function mountInbox(){
+ const root=document.querySelector('#elara-social-page,#panel-social');if(!root)return;let host=root.querySelector('[data-collab-inbox-launcher]');if(!inbox.length){host?.remove();return}if(!host){host=document.createElement('button');host.type='button';host.className='collab-inbox-launcher';host.dataset.collabInboxLauncher='';root.prepend(host)}host.innerHTML='<span>🤝</span><strong>'+tx('درخواست‌های مشترک','Shared requests')+'</strong><b>'+inbox.length.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</b>'
+}
+let syncTimer=null,progressCache=new Map();
+async function syncProgress(){
+ const uid=me();if(!uid||!auth.currentUser?.emailVerified)return;const s=readLocal(),sets=[['task',s.tasks],['habit',s.habits],['language-class',s.languageClasses],['leitner-word',s.words]];
+ for(const [kind,rows] of sets)for(const row of rows){if(!row?.collabSpaceId)continue;const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;if(progressCache.get(row.collabSpaceId)===key)continue;try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}}
+}
+function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncProgress(),700)}
+async function handleJoinFromUrl(){
+ const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
+ try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-collab-inbox-launcher]'))void openInbox()});
+for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
+for(const ev of ['elara:account-ready','elara:social-updated'])window.addEventListener(ev,()=>{setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();scheduleSync()},200)});
+const observer=new MutationObserver(()=>mountInbox());observer.observe(document.documentElement,{childList:true,subtree:true});
+setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();scheduleSync()},800);
+
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
