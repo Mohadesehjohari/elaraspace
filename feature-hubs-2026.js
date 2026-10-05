@@ -144,7 +144,7 @@ function openRoute(route){if(route==='words')window.ElaraOpen?.('words');else wi
 function bind(){
  document.addEventListener('click',e=>{
   const add=e.target.closest('[data-section-task-add]');if(add){e.preventDefault();window.ElaraTasks?.reset?.();window.ElaraTasks?.openComposer?.({date:window.ElaraSchedule?.today?.(),sourceGroup:add.dataset.sectionTaskAdd});return}
-  const detail=e.target.closest('[data-section-task-detail]');if(detail){e.preventDefault();void window.ElaraTasks?.taskAction?.('edit-task',detail.dataset.sectionTaskDetail);return}
+  const detail=e.target.closest('[data-section-task-detail]');if(detail){e.preventDefault();void window.ElaraTasks?.taskAction?.('view-task',detail.dataset.sectionTaskDetail);return}
   const actions=e.target.closest('[data-section-task-actions]');if(actions){e.preventDefault();e.stopPropagation();void window.ElaraCoreTaskHold?.openActions?.(actions.dataset.sectionTaskActions);return}
   const toggle=e.target.closest('[data-section-task-toggle]');if(toggle){e.preventDefault();void window.ElaraTasks?.taskAction?.('toggle-task',toggle.dataset.sectionTaskToggle);return}
   const go=e.target.closest('[data-feature-route]');if(go){e.preventDefault();openRoute(go.dataset.featureRoute);return}
