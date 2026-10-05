@@ -98,6 +98,9 @@ try{
  await assertSucceeds(getDoc(ref(bob,collabInvite)));
  await assertFails(getDoc(ref(eve,collabInvite)));
  await assertFails(setDoc(ref(eve,'collabInvites/collab_class_1__eve'),{spaceId:'collab_class_1',from:'eve',to:'bob',kind:'language-class',title:'spoof',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,collabInvite),{status:'declined',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(eve,collabInvite),{status:'pending',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(alice,collabInvite),{status:'pending',updatedAt:serverTimestamp()}));
  const acceptBatch=writeBatch(bob);
  acceptBatch.update(ref(bob,collabInvite),{status:'accepted',updatedAt:serverTimestamp()});
  acceptBatch.set(ref(bob,collab+'/members/bob'),{uid:'bob',role:'member',localEntityId:'class-local-b',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
