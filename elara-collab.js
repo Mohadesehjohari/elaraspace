@@ -155,13 +155,6 @@ async function handleJoinFromUrl(){
 document.addEventListener('click',e=>{if(e.target.closest('[data-collab-inbox-launcher]'))void openInbox()});
 for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
 for(const ev of ['elara:account-ready','elara:social-updated'])window.addEventListener(ev,()=>{setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},200)});
-let observerQueued=false;
-const observer=new MutationObserver(()=>{
- if(observerQueued)return;
- observerQueued=true;
- setTimeout(()=>{try{mountInbox();mountWordShareControl()}finally{observerQueued=false}},0)
-});
-observer.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
 window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
