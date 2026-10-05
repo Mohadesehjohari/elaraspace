@@ -17,6 +17,7 @@ const featureHubs = readFileSync(new URL('feature-hubs-2026.js',root),'utf8');
 const taskGoalFinal = readFileSync(new URL('task-goal-final-2026.css',root),'utf8');
 const rpg = readFileSync(new URL('rpg.js',root),'utf8');
 const linkedTasks = readFileSync(new URL('linked-tasks.js',root),'utf8');
+const taskChecklist = readFileSync(new URL('task-checklist.js',root),'utf8');
 const referenceHome = readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
@@ -134,6 +135,11 @@ assert.ok(app.includes('task-checklist-preview')&&app.includes('const canonical=
 assert.ok(phase2.includes('selectTaskByHold')&&phase2.includes('window.ElaraTaskBulk')&&!phase2.includes('navigator.vibrate?.(16);void openTaskQuickActions(id)'), 'Long press must enter bulk selection instead of opening the single-task action sheet');
 assert.ok(referenceHome.includes('ref-task-subitems')&&referenceHome.includes('data-task-source')&&referenceHome.includes("sourceClass=t=>"),'Home Today tasks must preserve source identity and nested checklist previews');
 for(const token of ['Telegram-style task selection + brighter task hierarchy','#task-bulk-toolbar','.is-selected::after','.ref-task-subitems','source-goal','source-language','source-exercise'])assert.ok(taskGoalFinal.includes(token),'Telegram selection/home source color CSS missing '+token);
+assert.ok(taskChecklist.includes('function toggleItem(')&&taskChecklist.includes('[data-task-check-toggle][data-task-id][data-check-id]'),'Nested checklist items must be directly toggleable from task surfaces');
+assert.ok(phase2.includes('task-checklist-preview-item')&&phase2.includes('data-task-check-toggle')&&app.includes('task-checklist-preview-item'),'Canonical and fallback task renderers must expose full nested task rows');
+assert.ok(referenceHome.includes('data-task-check-toggle')&&referenceHome.includes('data-check-id'),'Home Today nested task items must be checkable');
+for(const token of ['v14: clean selection, full nested task rows, softer source cards','left:8px!important','.task-checklist-preview-item','border-radius:16px!important','#task-bulk-toolbar .task-delete-scope'])assert.ok(taskGoalFinal.includes(token),'Task v14 selection/subtask polish missing '+token);
+
 
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
