@@ -15,7 +15,7 @@ try{
   "const loader=new GLTFLoader();loader.register(parser=>new VRMLoaderPlugin(parser));let current=null;"+
   "window.loadVrm=async(url,label)=>{if(current)scene.remove(current.scene);const gltf=await loader.loadAsync(url);const vrm=gltf.userData.vrm;current=vrm;try{VRMUtils.rotateVRM0(vrm)}catch{}try{VRMUtils.removeUnnecessaryVertices(vrm.scene)}catch{}vrm.scene.traverse(o=>{o.frustumCulled=false;const mats=Array.isArray(o.material)?o.material:[o.material].filter(Boolean);for(const m of mats){if(/hair/i.test((m.name||'')+' '+(o.name||''))&&m.color)m.color.lerp(new THREE.Color('#b66d74'),.6)}});scene.add(vrm.scene);const box=new THREE.Box3().setFromObject(vrm.scene),size=box.getSize(new THREE.Vector3());const targetH=5.9,scale=targetH/size.y;vrm.scene.scale.setScalar(scale);const box2=new THREE.Box3().setFromObject(vrm.scene),center2=box2.getCenter(new THREE.Vector3());vrm.scene.position.x-=center2.x;vrm.scene.position.y-=box2.min.y;vrm.scene.position.z-=center2.z;camera.position.set(0,3.15,11.3);camera.lookAt(0,3.05,0);document.querySelector('#label').textContent=label;window.__vrmReady=label};"+
   "function tick(){requestAnimationFrame(tick);current?.update?.(1/60);renderer.render(scene,camera)}tick();"+
-  '<\\/script></body></html>';
+  '</scr'+'ipt></body></html>';
   await page.setContent(html,{waitUntil:'load'});
   await page.waitForFunction(()=>typeof window.loadVrm==='function',{timeout:30000});
   for(const [name,url] of [
