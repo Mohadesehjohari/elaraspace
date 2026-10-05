@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261005-collab-loop-fix-v5 -->
+<!-- deploy-refresh: 20261005-startup-isolation-v6 -->
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -53,7 +53,7 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261005-profile-gallery-v2"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261005-collab-loop-fix-v5"></script>
+  <script defer src="boot.js?v=20261005-startup-isolation-v6"></script>
   <script>
   (() => {
     const root=document.documentElement;
@@ -96,7 +96,7 @@ html[data-elara-booting] #elara-boot-screen span{
     }
   </style>
 </head>
-<body class="dark cloud-ready cloud-offline">
+<body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
   <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>
   <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری" hidden><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
   <div class="shell">
