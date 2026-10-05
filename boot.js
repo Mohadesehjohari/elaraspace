@@ -1,11 +1,11 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261005-startup-recovery-v7';
+  const BUILD='20261005-task-detail-v15';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
-  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css'];
-  /* Load legacy artwork/functional layers first; canonical Home/Tasks owners follow, then the Elara Midnight presentation layer applies color/layout only. */
+  const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css'];
+  /* Load legacy artwork/functional layers first; canonical Home geometry and Tasks visual owner load last so stale !important rules cannot displace their DOM owners. */
   for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);styleReady.push(new Promise(resolve=>{css.onload=()=>resolve({name,ok:true});css.onerror=()=>{console.error('Elara stylesheet unavailable:',name);resolve({name,ok:false})}}));document.head.append(css)}
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
@@ -51,18 +51,6 @@
     }catch(error){console.error('Elara final shell could not start:',error);ready=true;release();const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بخشی از رابط بارگذاری نشد؛ هستهٔ برنامه در حالت ایمن در دسترس است.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow);clearTimeout(hardWatchdog)}
   })();
-  let collabPromise=null;
-  const loadCollab=async()=>{
-    if(window.ElaraCollab&&!window.ElaraCollab.__lazyProxy)return window.ElaraCollab;
-    if(!collabPromise)collabPromise=import(assetUrl('./elara-collab.js')).then(()=>window.ElaraCollab).catch(error=>{collabPromise=null;console.error('Elara collaboration lazy startup:',error);throw error});
-    return collabPromise;
-  };
-  const lazyCollab={__lazyProxy:true};
-  for(const name of ['shareEntity','createSpace','invite','acceptInvite','declineInvite','openInbox','refreshInvites','openSpace','memberRows','createShareLink','copyShareLink','joinLink']){
-    lazyCollab[name]=(...args)=>loadCollab().then(api=>api?.[name]?.(...args));
-  }
-  window.ElaraCollab=window.ElaraCollab||lazyCollab;
-  window.ElaraLoadCollab=loadCollab;
   const launch=async()=>{
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
     let accountSettled=false,accountWatchdog=null;
@@ -73,7 +61,6 @@
     accountWatchdog=setTimeout(()=>{
       if(document.body.classList.contains('cloud-ready')||document.querySelector('[data-elara-account-gate-ready]')){settleAccount();return}
       console.error('Elara account watchdog: Firebase/account startup exceeded 8 seconds; falling back to device-local mode.');
-      window.__elaraLocalFallbackActive=true;
       document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready','cloud-offline');
       const layer=document.getElementById('cloud-layer');if(layer)layer.hidden=true;
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:'account-startup-timeout'}}));
@@ -89,26 +76,13 @@
           if(retry)retry.hidden=false;
         }
       },15000);
-      await Promise.race([
-        import(assetUrl('./cloud.js')),
-        new Promise((_,reject)=>setTimeout(()=>reject(new Error('Firebase startup timeout')),6500))
-      ]);
-      const optionalCloudModules=[
-        ['./elara-social.js','Elara social startup:'],
-        ['./elara-page.js','Elara page startup:'],
-        ['./social-engagement.js','Elara engagement startup:']
-      ];
-      // Optional cloud features must never hold the shell or one another hostage.
-      for(const [name,label] of optionalCloudModules){
-        import(assetUrl(name)).catch(error=>{
-          console.error(label,error);
-          if(name==='./elara-social.js'){const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
-        });
-      }
+      await import(assetUrl('./cloud.js'));
+      try{await import(assetUrl('./elara-social.js'))}catch(error){console.error('Elara social startup:',error);const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
+      try{await import(assetUrl('./elara-page.js'))}catch(error){console.error('Elara page startup:',error)}
+      try{await import(assetUrl('./social-engagement.js'))}catch(error){console.error('Elara engagement startup:',error)}
     }catch(error){
       settleAccount();
       console.error('Elara cloud startup:',error);
-      window.__elaraLocalFallbackActive=true;
       // Cloud/account startup must never make the local application unusable.
       // Keep existing device-local state available and surface the cloud outage non-blockingly.
       document.body.classList.remove('cloud-locked');
@@ -118,7 +92,6 @@
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:String(error?.message||error)}}));
     }
   };
-  const startCloud=()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());setTimeout(()=>void launch(),350)};
-  if(document.readyState==='complete')startCloud();else window.addEventListener('load',startCloud,{once:true});
+  document.addEventListener('DOMContentLoaded',()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());void launch()},{once:true});
 })();
 

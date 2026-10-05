@@ -1,16 +1,16 @@
 /* Canonical navigation owns routes, initial artwork and image state. */
 (()=>{'use strict';
 const MAIN=Object.freeze([
- {route:'exercise',label:'ورزش و سلامتی',icon:'workout'},
+ {route:'exercise',label:'ورزش',icon:'workout'},
  {route:'language',label:'زبان',icon:'course'},
- {route:'tasks',label:'کارها',icon:'tasks'},
+ {route:'tasks',label:'تسک‌ها',icon:'tasks'},
  {route:'home',label:'خانه',icon:'home'},
- {route:'ranking',label:'رتبه‌بندی',icon:'ranking'},
+ {route:'ranking',label:'رنکینگ',icon:'ranking'},
  {route:'books',label:'کتابخانه',icon:'book'},
  {route:'freedom',label:'آزادی',icon:'freedom'}
 ]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
-const PAGE=Object.freeze({route:'page',label:'صفحه من',icon:'user'});
+const PAGE=Object.freeze({route:'page',label:'پیج',icon:'user'});
 const BLOG=Object.freeze({route:'blog',label:'وبلاگ',icon:'book'});
 const STORE=Object.freeze({route:'store',label:'فروشگاه',icon:'spark'});
 const MOBILE=Object.freeze([BLOG,MAIN[5],FRIEND,MAIN[3],MAIN[2],MAIN[6],PAGE]);

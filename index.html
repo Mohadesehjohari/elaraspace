@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- deploy-refresh: 20261005-startup-recovery-v8 -->
-<html lang="fa" dir="rtl">
+<!-- deploy-refresh: 20261005-task-detail-v15 -->
+<html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#06111F">
+  <meta name="theme-color" content="#09090b">
   <meta name="description" content="Elara Space: tasks, habits, goals and focus in one personal workspace.">
   <title>Elara Space · فضای شخصی من</title>
   <style>
@@ -43,51 +43,18 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="i18n.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="reading.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="notifications.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="app.js?v=20261005-collab-loop-fix-v5"></script>
+  <script defer src="app.js?v=20261005-task-detail-v15"></script>
   <script defer src="library-enhancements.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="linked-tasks.js?v=20261005-goal-task-v10"></script>
-  <script defer src="phase2.js?v=20261005-collab-loop-fix-v5"></script>
+  <script defer src="phase2.js?v=20261005-task-detail-v15"></script>
   <script defer src="task-board-view.js?v=20261005-goal-task-v10"></script>
   <script defer src="elara-levels.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="collection-level.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
-  <script defer src="approved-profile-system.js?v=20261005-profile-gallery-v2"></script>
+  <script defer src="approved-profile-system.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261005-startup-recovery-v7"></script>
-  <script>
-  (() => {
-    const root=document.documentElement;
-    const revealShell=()=>root.removeAttribute('data-elara-booting');
-    const applyLocalMode=()=>{
-      const body=document.body;
-      if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
-      const layer=document.getElementById('cloud-layer');
-      if(layer){layer.hidden=true;layer.inert=true;layer.style.pointerEvents='none';layer.setAttribute('aria-hidden','true')}
-    };
-    const forceLocal=reason=>{
-      window.__elaraLocalFallbackActive=true;
-      applyLocalMode();
-      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyLocalMode,{once:true});
-      window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:reason,source:'index-failsafe'}}));
-    };
-    const cloudStuck=()=>{
-      const body=document.body;
-      return !document.querySelector('[data-elara-account-gate-ready]')&&(!body||!body.classList.contains('cloud-ready'));
-    };
-    window.setTimeout(()=>{
-      const bootStuck=root.hasAttribute('data-elara-booting'),blocked=cloudStuck();
-      if(!bootStuck&&!blocked)return;
-      console.error('Elara HTML failsafe released a stalled startup.');
-      if(bootStuck)revealShell();
-      if(blocked)forceLocal('html-startup-timeout');
-    },7000);
-    window.addEventListener('error',event=>{
-      const src=event.target?.src||'';
-      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src))window.setTimeout(()=>{revealShell();forceLocal('boot-script-load-error')},0);
-    },true);
-  })();
-  </script>
-  <script defer src="drawer.js?v=20261005-profile-gallery-v2"></script>
+  <script defer src="boot.js?v=20261005-task-detail-v15"></script>
+  <script defer src="drawer.js?v=20261005-profile-settings-v2"></script>
   <script defer src="avatar-3d.js?v=20261005-avatar-v2"></script>
   <style id="elara-p0-friends-strip">
     @media (max-width:700px){
@@ -96,9 +63,9 @@ html[data-elara-booting] #elara-boot-screen span{
     }
   </style>
 </head>
-<body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
+<body class="dark">
   <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>
-  <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری" hidden><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
+  <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری"><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
   <div class="shell">
     <aside class="sidebar" aria-label="منوی اصلی">
       <a class="identity" href="#home" aria-label="Elara Space"><span class="brand-mark" data-elara-icon="spark"></span><span>ELARA <b>SPACE</b><small>YOUR PERSONAL COSMOS</small></span></a>
