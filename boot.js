@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261005-collab-loop-fix-v5';
+  const BUILD='20261005-startup-isolation-v6';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -51,6 +51,18 @@
     }catch(error){console.error('Elara final shell could not start:',error);ready=true;release();const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بخشی از رابط بارگذاری نشد؛ هستهٔ برنامه در حالت ایمن در دسترس است.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow);clearTimeout(hardWatchdog)}
   })();
+  let collabPromise=null;
+  const loadCollab=async()=>{
+    if(window.ElaraCollab&&!window.ElaraCollab.__lazyProxy)return window.ElaraCollab;
+    if(!collabPromise)collabPromise=import(assetUrl('./elara-collab.js')).then(()=>window.ElaraCollab).catch(error=>{collabPromise=null;console.error('Elara collaboration lazy startup:',error);throw error});
+    return collabPromise;
+  };
+  const lazyCollab={__lazyProxy:true};
+  for(const name of ['shareEntity','createSpace','invite','acceptInvite','declineInvite','openInbox','refreshInvites','openSpace','memberRows','createShareLink','copyShareLink','joinLink']){
+    lazyCollab[name]=(...args)=>loadCollab().then(api=>api?.[name]?.(...args));
+  }
+  window.ElaraCollab=window.ElaraCollab||lazyCollab;
+  window.ElaraLoadCollab=loadCollab;
   const launch=async()=>{
     const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
     let accountSettled=false,accountWatchdog=null;
@@ -77,17 +89,22 @@
           if(retry)retry.hidden=false;
         }
       },15000);
-      await import(assetUrl('./cloud.js'));
+      await Promise.race([
+        import(assetUrl('./cloud.js')),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error('Firebase startup timeout')),6500))
+      ]);
       const optionalCloudModules=[
         ['./elara-social.js','Elara social startup:'],
-        ['./elara-collab.js','Elara collaboration startup:'],
         ['./elara-page.js','Elara page startup:'],
         ['./social-engagement.js','Elara engagement startup:']
       ];
-      await Promise.allSettled(optionalCloudModules.map(async([name,label])=>{
-        try{await import(assetUrl(name))}
-        catch(error){console.error(label,error);if(name==='./elara-social.js'){const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}throw error}
-      }));
+      // Optional cloud features must never hold the shell or one another hostage.
+      for(const [name,label] of optionalCloudModules){
+        import(assetUrl(name)).catch(error=>{
+          console.error(label,error);
+          if(name==='./elara-social.js'){const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
+        });
+      }
     }catch(error){
       settleAccount();
       console.error('Elara cloud startup:',error);
@@ -101,6 +118,7 @@
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:String(error?.message||error)}}));
     }
   };
-  document.addEventListener('DOMContentLoaded',()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());void launch()},{once:true});
+  const startCloud=()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());setTimeout(()=>void launch(),350)};
+  if(document.readyState==='complete')startCloud();else window.addEventListener('load',startCloud,{once:true});
 })();
 
