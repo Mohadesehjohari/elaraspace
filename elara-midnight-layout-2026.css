@@ -1,0 +1,452 @@
+/* Elara Midnight visual system — Home + Tasks layout/color pass
+   2026-10-05. Presentation-only: no task/account/storage behavior is changed. */
+
+:root{
+  --elara-midnight-bg:#06111f;
+  --elara-midnight-bg-2:#0a1630;
+  --elara-midnight-header:#08182a;
+  --elara-midnight-surface:#0c2036;
+  --elara-midnight-surface-2:#102a46;
+  --elara-midnight-border:#24405f;
+  --elara-midnight-border-hover:#3e628b;
+  --elara-midnight-text:#f5f8ff;
+  --elara-midnight-muted:#a8b7cc;
+  --elara-midnight-blue:#4f8cff;
+  --elara-midnight-cyan:#2dd4d7;
+  --elara-midnight-purple:#8b5cf6;
+  --elara-midnight-gold:#f5c45b;
+  --elara-midnight-success:#38d39f;
+  --elara-midnight-warning:#f6a84b;
+  --elara-midnight-danger:#f0627d;
+}
+body.dark{
+  --bg:var(--elara-midnight-bg);
+  --surface:var(--elara-midnight-surface);
+  --surface2:var(--elara-midnight-surface-2);
+  --border:var(--elara-midnight-border);
+  --text:var(--elara-midnight-text);
+  --muted:var(--elara-midnight-muted);
+  --accent:var(--elara-midnight-blue);
+  --accent2:var(--elara-midnight-cyan);
+  --input:#081a30;
+  --shadow:0 16px 42px #0004;
+  --elara-accent:var(--elara-midnight-blue);
+  background:
+    radial-gradient(circle at 74% 0%,rgba(79,140,255,.09),transparent 30%),
+    radial-gradient(circle at 12% 72%,rgba(45,212,215,.045),transparent 28%),
+    linear-gradient(180deg,var(--elara-midnight-bg) 0%,var(--elara-midnight-bg-2) 100%)!important;
+  background-attachment:fixed!important;
+}
+body.dark .shell{max-width:none!important}
+body.dark .workspace{background:transparent!important}
+body.dark .sidebar{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(79,140,255,.08),transparent 26%),
+    linear-gradient(180deg,#07192c 0%,#061321 58%,#050f1c 100%)!important;
+  border-color:#1c3854!important;
+  box-shadow:8px 0 34px #0002!important;
+}
+body.dark .topbar{
+  background:color-mix(in srgb,#08182a 92%,transparent)!important;
+  border-color:#1e3a59!important;
+  backdrop-filter:blur(14px);
+}
+body.dark :where(.elara-card,.surface,.stat-card){
+  border-color:var(--elara-midnight-border);
+  background:linear-gradient(145deg,#0b2139,#091a2e);
+}
+body.dark :where(input,select,textarea){
+  background:#081a30;
+  border-color:#284563;
+}
+body.dark :where(input,select,textarea):focus{border-color:#4f8cff!important}
+body.dark :where(button,a,input,select,textarea):focus-visible{
+  outline-color:#69cfe5!important;
+}
+body.dark .primary-button{
+  background:linear-gradient(115deg,#2bbfc7 0%,#4f8cff 64%,#6e73ff 100%)!important;
+  border-color:#63b8e5!important;
+  box-shadow:0 9px 22px rgba(38,135,215,.24)!important;
+}
+body.dark .quiet-button,
+body.dark .file-button{
+  background:#0b223c!important;
+  border-color:#2b4968!important;
+}
+body.dark .quiet-button:hover,
+body.dark .file-button:hover{border-color:#4f8cff!important}
+
+/* Sidebar — identity stays cosmic; state is communicated with contrast, not purple flooding. */
+body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav){
+  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease,transform .2s ease!important;
+}
+body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav):hover{
+  color:#edf8ff!important;
+  background:linear-gradient(90deg,rgba(45,212,215,.07),rgba(79,140,255,.09))!important;
+  border-color:#2d5878!important;
+}
+body.dark .sidebar :where(a[data-elara-tab][aria-current="page"],.nav-item.active,.elara-extension-nav.active){
+  color:#f6fbff!important;
+  background:linear-gradient(90deg,rgba(45,212,215,.15),rgba(79,140,255,.18))!important;
+  border-color:#4389b6!important;
+  box-shadow:inset 3px 0 0 #2dd4d7,0 8px 20px #0002,0 0 16px rgba(79,140,255,.10)!important;
+}
+[dir="rtl"] body.dark .sidebar :where(a[data-elara-tab][aria-current="page"],.nav-item.active,.elara-extension-nav.active){
+  box-shadow:inset -3px 0 0 #2dd4d7,0 8px 20px #0002,0 0 16px rgba(79,140,255,.10)!important;
+}
+body.dark .sidebar .elara-nav-art{filter:saturate(.86) brightness(.94)!important}
+body.dark .sidebar :where([aria-current="page"],.active) .elara-nav-art{
+  filter:saturate(1.08) brightness(1.06) drop-shadow(0 0 7px rgba(78,171,255,.32))!important;
+}
+
+/* ---------------- HOME ---------------- */
+body.dark #panel-home.ref-home{
+  --home-blue:#5ba8ff;
+  --home-cyan:#36d6e7;
+  --home-green:#38d39f;
+  --home-wellness:#20c9a6;
+  --home-gold:#f5c45b;
+  --home-orange:#f6a84b;
+  --home-coral:#ff7d88;
+}
+body.dark #panel-home.ref-home .ref-hero{
+  min-height:228px!important;
+  border:1px solid #315d82!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(90deg,rgba(4,17,37,.92) 0%,rgba(5,23,48,.65) 31%,rgba(4,17,37,.18) 58%,rgba(5,20,43,.78) 100%),
+    url("assets/ui/hero-landscape.webp") center 52%/cover no-repeat!important;
+  box-shadow:0 18px 46px #0004!important;
+}
+body.dark #panel-home.ref-home .ref-hero::after{
+  content:"";position:absolute;inset:auto 0 0;height:48%;
+  pointer-events:none;background:linear-gradient(180deg,transparent,rgba(6,17,31,.24));
+}
+body.dark #panel-home.ref-home .ref-hero-quote{
+  border-color:#315a79!important;
+  background:rgba(6,22,43,.80)!important;
+  box-shadow:0 12px 30px #0005!important;
+  backdrop-filter:blur(12px);
+}
+body.dark #panel-home.ref-home .ref-hero-quote strong{color:#f7fbff!important}
+body.dark #panel-home.ref-home .ref-hero-quote span{color:#a8c8de!important}
+
+/* Streak is the one intentionally warm anchor on Home. */
+body.dark #panel-home.ref-home #ref-streak-card{
+  margin:14px 0!important;
+  min-height:122px!important;
+  border:1px solid #8b4d32!important;
+  border-radius:20px!important;
+  background:
+    radial-gradient(circle at 13% 38%,rgba(255,155,74,.24),transparent 28%),
+    linear-gradient(112deg,#201925 0%,#10233a 47%,#0b1d33 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,184,92,.045),0 16px 34px #0003!important;
+}
+body.dark #ref-streak-card .ref-streak-flame{
+  filter:drop-shadow(0 0 12px rgba(255,132,56,.38)) saturate(1.02)!important;
+}
+body.dark #ref-streak-card .ref-streak-summary>strong{color:#ffd27a!important}
+body.dark #ref-streak-card .ref-streak-summary small{color:#ebc8a5!important}
+body.dark #ref-streak-card .ref-streak-day{
+  background:#0a1d34!important;border-color:#31516c!important;color:#c8d5e5!important;
+}
+body.dark #ref-streak-card .ref-streak-day.done{
+  border-color:#ad713c!important;background:#2a211f!important;color:#ffe0a3!important;
+}
+body.dark #ref-streak-card .ref-streak-day.today{
+  border-color:#f6a84b!important;
+  box-shadow:0 0 0 2px rgba(246,168,75,.11),0 0 15px rgba(246,168,75,.13)!important;
+}
+body.dark #ref-streak-card .ref-day-tools button{
+  background:#0a2038!important;border-color:#31516d!important;color:#dce8f4!important;
+}
+
+/* Home composition: preserve every feature, re-balance visual hierarchy only. */
+@media(min-width:1181px){
+  body.dark #panel-home.ref-home .ref-home-grid{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:14px!important;
+    align-items:stretch!important;
+    grid-template-columns:none!important;
+    grid-template-areas:none!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-tasks,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-habits,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-goals{
+    order:1!important;
+    flex:1 1 calc(25% - 11px)!important;
+    width:auto!important;min-width:238px!important;
+    height:224px!important;min-height:224px!important;max-height:224px!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-missions,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-ranks,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-activity{
+    order:2!important;
+    flex:1 1 calc(33.333% - 10px)!important;
+    width:auto!important;min-width:280px!important;
+    height:192px!important;min-height:192px!important;max-height:192px!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-theme-strip{
+    order:3!important;flex:1 1 100%!important;width:100%!important;
+  }
+}
+@media(min-width:701px) and (max-width:1180px){
+  body.dark #panel-home.ref-home .ref-home-grid{
+    display:flex!important;flex-wrap:wrap!important;gap:12px!important;
+    grid-template-columns:none!important;grid-template-areas:none!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-tasks,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-habits,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-wellness-card,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-goals{
+    order:1!important;flex:1 1 calc(50% - 6px)!important;width:auto!important;min-width:300px!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-missions,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-ranks,
+  body.dark #panel-home.ref-home .ref-home-grid>.ref-activity{
+    order:2!important;flex:1 1 calc(50% - 6px)!important;width:auto!important;min-width:300px!important;
+  }
+}
+body.dark #panel-home.ref-home .ref-theme-strip{display:none!important}
+
+/* Domain accents are restrained to borders, headers and tiny glows. */
+body.dark #panel-home.ref-home .ref-card{
+  --card-accent:#4f8cff;
+  position:relative!important;
+  border-color:color-mix(in srgb,var(--card-accent) 34%,#24405f)!important;
+  background:
+    radial-gradient(circle at 92% 0%,color-mix(in srgb,var(--card-accent) 9%,transparent),transparent 34%),
+    linear-gradient(145deg,#0b2139,#091a2e)!important;
+  box-shadow:inset 0 2px 0 color-mix(in srgb,var(--card-accent) 38%,transparent),0 13px 30px #0002!important;
+}
+body.dark #panel-home.ref-home .ref-tasks{--card-accent:#5ba8ff}
+body.dark #panel-home.ref-home .ref-habits{--card-accent:#38d39f}
+body.dark #panel-home.ref-home .ref-wellness-card{--card-accent:#20c9a6}
+body.dark #panel-home.ref-home .ref-goals{--card-accent:#f2c052}
+body.dark #panel-home.ref-home .ref-missions{--card-accent:#f6a84b}
+body.dark #panel-home.ref-home .ref-ranks{--card-accent:#f5c45b}
+body.dark #panel-home.ref-home .ref-activity{--card-accent:#53a8ff}
+body.dark #panel-home.ref-home .ref-card>header{
+  border-bottom-color:color-mix(in srgb,var(--card-accent) 18%,#24405f)!important;
+}
+body.dark #panel-home.ref-home .ref-card>header h2{color:#f4f8ff!important}
+body.dark #panel-home.ref-home .ref-card-count{color:color-mix(in srgb,var(--card-accent) 72%,#d9e8f8)!important}
+body.dark #panel-home.ref-home .elara-track{background:#0a1b30!important}
+body.dark #panel-home.ref-home .elara-track>i{
+  background:linear-gradient(90deg,color-mix(in srgb,var(--card-accent) 76%,#fff 24%),var(--card-accent))!important;
+}
+
+/* Home task controls: rounded square, not orb/circle. */
+body.dark #panel-home.ref-home :where(.ref-task-check,.ref-habit-mark,.ref-goal-step){
+  border-radius:9px!important;
+  border:1px solid #416482!important;
+  background:#081b31!important;
+  box-shadow:none!important;
+}
+body.dark #panel-home.ref-home :where(.ref-task-check,.ref-goal-step)[aria-pressed="true"],
+body.dark #panel-home.ref-home .ref-habit-mark.done{
+  background:linear-gradient(145deg,#24bfc1,#4f8cff)!important;
+  border-color:#70dce1!important;
+}
+body.dark #panel-home.ref-home :where(.ref-task-check-art,.ref-goal-check-art,.ref-habit-mark .ref-task-check-art){
+  border-radius:7px!important;
+  filter:none!important;
+}
+
+/* Wellness retains green; Goals gets gold. */
+body.dark #panel-home.ref-home .ref-wellness-cell{
+  background:#092438!important;border-color:#245c5d!important;
+}
+body.dark #panel-home.ref-home .ref-wellness-cell:hover{border-color:#20c9a6!important}
+body.dark #panel-home.ref-home .ref-goal-row{border-color:#4b4a3b!important}
+body.dark #panel-home.ref-home .ref-goal-row b{color:#f5c45b!important}
+body.dark #panel-home.ref-home .ref-mission-reward{color:#ffd16d!important}
+
+/* ---------------- TASKS ---------------- */
+body.dark #panel-tasks{
+  --task-default:#4f8cff;
+  --task-personal:#4f8cff;
+  --task-habit:#f6a84b;
+  --task-language:#36d6e7;
+  --task-exercise:#20c9a6;
+  --task-book:#5b6fe8;
+  --task-goal:#f2c052;
+  --task-focus:#ff9b4a;
+  color:var(--text)!important;
+}
+body.dark #panel-tasks .astra-task-hero{
+  border-color:#315b7e!important;
+  background:
+    linear-gradient(90deg,rgba(4,16,35,.93) 0%,rgba(5,23,48,.66) 34%,rgba(5,20,42,.18) 62%,rgba(5,20,43,.80) 100%),
+    url("assets/ui/hero-tasks-astra-v2.webp") 58% 51%/cover no-repeat!important;
+  box-shadow:0 18px 42px #0004!important;
+}
+body.dark #panel-tasks .astra-task-hero p{color:#75c8dc!important}
+body.dark #panel-tasks .astra-task-hero>div>span{color:#d9e7f3!important}
+body.dark #panel-tasks .astra-task-hero blockquote{
+  border-color:#315a79!important;background:rgba(6,22,43,.82)!important;color:#eff7ff!important;
+  box-shadow:0 10px 28px #0004!important;backdrop-filter:blur(10px);
+}
+body.dark #panel-tasks .astra-task-hero blockquote small{color:#91b9cf!important}
+
+body.dark #panel-tasks .astra-task-toolbar{
+  border-color:#294866!important;
+  background:linear-gradient(145deg,#0a2038,#08192d)!important;
+  box-shadow:0 10px 26px #0002!important;
+}
+body.dark #panel-tasks .astra-task-chips button{
+  border-color:#31516e!important;background:#091c32!important;color:#c4d3e5!important;
+}
+body.dark #panel-tasks .astra-task-chips button:hover{border-color:#4d7898!important;color:#f5fbff!important}
+body.dark #panel-tasks .astra-task-chips [aria-pressed="true"]{
+  border-color:#65c8de!important;
+  background:linear-gradient(115deg,#22aeb9,#3f82e7)!important;
+  color:#fff!important;
+  box-shadow:0 0 0 2px rgba(45,212,215,.07),0 8px 18px rgba(32,133,190,.22)!important;
+}
+body.dark #panel-tasks .astra-task-view-controls button{
+  border-color:#31516f!important;background:#0a2039!important;color:#c9d8e9!important;
+}
+body.dark #panel-tasks .astra-task-view-controls button[aria-pressed="true"]{
+  border-color:#4fbad0!important;background:#123d62!important;color:#fff!important;box-shadow:none!important;
+}
+body.dark #panel-tasks #elara-task-add-main{
+  min-height:48px!important;
+  border-color:#68d5df!important;
+  background:linear-gradient(115deg,#25bcc4 0%,#4289ee 68%,#6275f4 100%)!important;
+  background-image:linear-gradient(115deg,#25bcc4 0%,#4289ee 68%,#6275f4 100%)!important;
+  box-shadow:0 10px 24px rgba(50,136,211,.28)!important;
+}
+body.dark #panel-tasks #elara-task-add-main:hover{filter:brightness(1.07)!important}
+
+body.dark #panel-tasks .list-toolbar,
+body.dark #panel-tasks .astra-task-filters>summary{
+  border-color:#284765!important;background:#081c32!important;
+}
+body.dark #panel-tasks #elara-task-tools-menu{
+  border-color:#315777!important;background:#081b30!important;box-shadow:0 24px 60px #0008!important;
+}
+
+/* Category color system: tint, never full-card saturation. */
+body.dark #panel-tasks #task-list>.astra-task-row{
+  --task-accent:var(--task-default);
+  position:relative!important;
+  min-height:76px!important;
+  border:1px solid color-mix(in srgb,var(--task-accent) 34%,#274562)!important;
+  border-inline-start:4px solid var(--task-accent)!important;
+  border-radius:15px!important;
+  background:
+    linear-gradient(100deg,color-mix(in srgb,var(--task-accent) 8%,#0b2138) 0%,#091b30 42%,#08192c 100%)!important;
+  box-shadow:0 8px 20px #0001!important;
+}
+body.dark #panel-tasks #task-list>.astra-task-row:hover{
+  border-color:color-mix(in srgb,var(--task-accent) 62%,#31516e)!important;
+  background:
+    linear-gradient(100deg,color-mix(in srgb,var(--task-accent) 12%,#0b2138) 0%,#0a1e34 44%,#091a2e 100%)!important;
+  box-shadow:0 12px 26px #0002!important;
+}
+body.dark #panel-tasks #task-list>.astra-task-row.source-habit{--task-accent:var(--task-habit)}
+body.dark #panel-tasks #task-list>.astra-task-row.source-language{--task-accent:var(--task-language)}
+body.dark #panel-tasks #task-list>.astra-task-row.source-exercise,
+body.dark #panel-tasks #task-list>.astra-task-row.source-wellness{--task-accent:var(--task-exercise)}
+body.dark #panel-tasks #task-list>.astra-task-row.source-book,
+body.dark #panel-tasks #task-list>.astra-task-row.source-reading{--task-accent:var(--task-book)}
+body.dark #panel-tasks #task-list>.astra-task-row.source-goal{--task-accent:var(--task-goal)}
+body.dark #panel-tasks #task-list>.astra-task-row.source-focus{--task-accent:var(--task-focus)}
+body.dark #panel-tasks #task-list>.astra-task-row.done{
+  opacity:.76!important;
+  --task-accent:#5d8594;
+  background:linear-gradient(100deg,#102531,#091b2c)!important;
+}
+body.dark #panel-tasks #task-list>.astra-task-row.is-selected{
+  background:linear-gradient(100deg,rgba(45,212,215,.14),#0b2138)!important;
+  border-color:#55c7d2!important;
+}
+
+/* Small semantic chips inherit the category color without repainting the card. */
+body.dark #panel-tasks #task-list>.astra-task-row :where(.source-badge,.astra-source-chip,.task-source-chip){
+  color:color-mix(in srgb,var(--task-accent) 78%,#fff)!important;
+  border-color:color-mix(in srgb,var(--task-accent) 42%,#2b4966)!important;
+  background:color-mix(in srgb,var(--task-accent) 11%,#0a2037)!important;
+}
+body.dark #panel-tasks .astra-task-xp{
+  color:#88dbe8!important;
+  border-color:#2e6a79!important;
+  background:#0b2a3a!important;
+}
+
+/* Task checkboxes: crisp rounded square matching the actual control hole. */
+body.dark #panel-tasks #task-list .check-button{
+  width:34px!important;height:34px!important;min-width:34px!important;
+  border:2px solid color-mix(in srgb,var(--task-accent) 58%,#557086)!important;
+  border-radius:10px!important;
+  background:#071a2e!important;
+  color:#fff!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)!important;
+  position:relative!important;overflow:hidden!important;
+}
+body.dark #panel-tasks #task-list .check-button .elara-check-art{display:none!important}
+body.dark #panel-tasks #task-list .check-button::after{
+  content:"";width:13px;height:7px;border-inline-start:3px solid #fff;border-bottom:3px solid #fff;
+  transform:rotate(-45deg) scale(.35);opacity:0;transition:opacity .16s ease,transform .16s ease;
+}
+body.dark #panel-tasks #task-list .check-button[aria-pressed="true"]{
+  border-color:color-mix(in srgb,var(--task-accent) 68%,#fff)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--task-accent) 82%,#31d5cd),var(--task-accent))!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--task-accent) 8%,transparent)!important;
+}
+body.dark #panel-tasks #task-list .check-button[aria-pressed="true"]::after{
+  opacity:1;transform:rotate(-45deg) scale(1);
+}
+
+/* Secondary task surfaces use calm blue, not purple. */
+body.dark #panel-tasks :where(.astra-task-progress,.astra-task-streak,.task-archive-card,#task-checked-archive){
+  border-color:#294968!important;
+  background:linear-gradient(145deg,#0a2038,#08192d)!important;
+}
+body.dark #panel-tasks :where(.counter,.date-chip){color:#80d8e4!important}
+body.dark #panel-tasks .progress-track{background:#08182a!important}
+body.dark #panel-tasks .progress-track>div{
+  background:linear-gradient(90deg,#2dd4d7,#4f8cff)!important;
+}
+
+/* Keep menus legible above the new surfaces. */
+body.dark #panel-tasks .astra-task-more .item-actions{
+  background:#0a2037!important;border-color:#31506e!important;box-shadow:0 18px 44px #0008!important;
+}
+
+/* Mobile keeps all actions and routes, only reduces decorative intensity. */
+@media(max-width:700px){
+  body.dark #panel-home.ref-home .ref-hero{min-height:156px!important;border-radius:17px!important}
+  body.dark #panel-home.ref-home #ref-streak-card{min-height:0!important;border-radius:16px!important}
+  body.dark #panel-home.ref-home .ref-home-grid{
+    display:flex!important;flex-direction:column!important;gap:10px!important;
+    grid-template-columns:none!important;grid-template-areas:none!important;
+  }
+  body.dark #panel-home.ref-home .ref-home-grid>*{
+    flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+  }
+  body.dark #panel-home.ref-home .ref-tasks,
+  body.dark #panel-home.ref-home .ref-habits,
+  body.dark #panel-home.ref-home .ref-wellness-card,
+  body.dark #panel-home.ref-home .ref-goals{order:1!important}
+  body.dark #panel-home.ref-home .ref-missions,
+  body.dark #panel-home.ref-home .ref-ranks,
+  body.dark #panel-home.ref-home .ref-activity{order:2!important}
+  body.dark #panel-tasks .astra-task-hero{border-radius:17px!important}
+  body.dark #panel-tasks #task-list>.astra-task-row{
+    min-height:92px!important;
+    border-inline-start-width:3px!important;
+  }
+  body.dark #panel-tasks #task-list .check-button{
+    width:32px!important;height:32px!important;min-width:32px!important;border-radius:9px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.dark .sidebar :where(a[data-elara-tab],.nav-item,.elara-extension-nav),
+  body.dark #panel-tasks #task-list .check-button::after{transition:none!important}
+}
