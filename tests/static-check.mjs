@@ -20,6 +20,7 @@ const linkedTasks = readFileSync(new URL('linked-tasks.js',root),'utf8');
 const taskChecklist = readFileSync(new URL('task-checklist.js',root),'utf8');
 const referenceHome = readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
+const profileGalleryCss = readFileSync(new URL('profile-gallery-2026.css',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
 assert.ok(ids.size > 50,'Application markup seems incomplete');
 for (const [_,id] of js.matchAll(/\$\('([\w-]+)'\)/g)) {
@@ -42,6 +43,9 @@ for (const token of ['recurrenceRule','occurrenceDone','focusSessions','data-foc
 for (const token of ['openSelfProfile','saveProfileValues','runTransaction','profilePublic','removeFriend']) assert.ok(social.includes(token),`Profile phase missing ${token}`);
 assert.ok(html.includes('approved-profile-system.js'),'Shared profile system must load before account UI');
 assert.ok(profileSystem.includes('window.ElaraProfileSystem=')&&profileSystem.includes('window.ElaraDialog.open')&&profileSystem.includes('saveProfileValues'),'Central profile editor/source of truth missing');
+for(const token of ['profile-avatar-gallery','data-profile-avatar-choice','galleryOpen=false','عکس از گالری دستگاه','photoMode=\'elara\''])assert.ok(profileSystem.includes(token),'Profile avatar gallery contract missing '+token);
+assert.ok(drawer.includes('data-profile-avatar-gallery')&&drawer.includes('openEditor?.({galleryOpen:true})'),'Settings Profile must expose the avatar gallery directly');
+for(const token of ['.profile-avatar-gallery-grid','.profile-avatar-gallery-item.is-active','.profile-device-photo-button'])assert.ok(profileGalleryCss.includes(token),'Profile gallery responsive CSS missing '+token);
 assert.ok(drawer.includes('function renderAccount()')&&!drawer.includes('id="drawer-account-form"'),'Drawer Account must be view-only with central edit dialog');
 for (const token of ["['profile'",'data-elara-profile-self']) assert.ok(design.includes(token),`Profile navigation missing ${token}`);
 assert.ok(drawer.includes('data-drawer-nav="help"'),'Help must live in the account/settings drawer');
