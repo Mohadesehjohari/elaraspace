@@ -55,7 +55,37 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="boot.js?v=20261005-instant-shell-v3"></script>
   <script>
-  (()=>{const release=()=>{document.documentElement.removeAttribute('data-elara-booting');const body=document.body;if(body&&!body.classList.contains('cloud-ready'))body.classList.add('cloud-ready','cloud-offline');const layer=document.getElementById('cloud-layer');if(layer&&!document.querySelector('[data-elara-account-gate-ready]'))layer.hidden=true};window.setTimeout(()=>{if(document.documentElement.hasAttribute('data-elara-booting'))console.error('Elara HTML failsafe released a stalled boot.');if(!document.querySelector('[data-elara-account-gate-ready]'))release()},6500);window.addEventListener('error',e=>{const src=e.target?.src||'';if(e.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src))window.setTimeout(release,0)},true)})();
+  (() => {
+    const root=document.documentElement;
+    const revealShell=()=>root.removeAttribute('data-elara-booting');
+    const applyLocalMode=()=>{
+      const body=document.body;
+      if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
+      const layer=document.getElementById('cloud-layer');
+      if(layer){layer.hidden=true;layer.inert=true;layer.style.pointerEvents='none';layer.setAttribute('aria-hidden','true')}
+    };
+    const forceLocal=reason=>{
+      window.__elaraLocalFallbackActive=true;
+      applyLocalMode();
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyLocalMode,{once:true});
+      window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:reason,source:'index-failsafe'}}));
+    };
+    const cloudStuck=()=>{
+      const body=document.body;
+      return !document.querySelector('[data-elara-account-gate-ready]')&&(!body||!body.classList.contains('cloud-ready'));
+    };
+    window.setTimeout(()=>{
+      const bootStuck=root.hasAttribute('data-elara-booting'),blocked=cloudStuck();
+      if(!bootStuck&&!blocked)return;
+      console.error('Elara HTML failsafe released a stalled startup.');
+      if(bootStuck)revealShell();
+      if(blocked)forceLocal('html-startup-timeout');
+    },9000);
+    window.addEventListener('error',event=>{
+      const src=event.target?.src||'';
+      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src))window.setTimeout(()=>{revealShell();forceLocal('boot-script-load-error')},0);
+    },true);
+  })();
   </script>
   <script defer src="drawer.js?v=20261005-profile-gallery-v2"></script>
   <script defer src="avatar-3d.js?v=20261005-avatar-v2"></script>
