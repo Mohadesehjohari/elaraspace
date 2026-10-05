@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261005-instant-shell-v3';
+  const BUILD='20261005-startup-failsafe-v3';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styleReady=[];
@@ -61,6 +61,7 @@
     accountWatchdog=setTimeout(()=>{
       if(document.body.classList.contains('cloud-ready')||document.querySelector('[data-elara-account-gate-ready]')){settleAccount();return}
       console.error('Elara account watchdog: Firebase/account startup exceeded 8 seconds; falling back to device-local mode.');
+      window.__elaraLocalFallbackActive=true;
       document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready','cloud-offline');
       const layer=document.getElementById('cloud-layer');if(layer)layer.hidden=true;
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:'account-startup-timeout'}}));
@@ -90,6 +91,7 @@
     }catch(error){
       settleAccount();
       console.error('Elara cloud startup:',error);
+      window.__elaraLocalFallbackActive=true;
       // Cloud/account startup must never make the local application unusable.
       // Keep existing device-local state available and surface the cloud outage non-blockingly.
       document.body.classList.remove('cloud-locked');
