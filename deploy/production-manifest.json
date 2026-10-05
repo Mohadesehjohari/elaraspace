@@ -207,7 +207,8 @@
     "assets/ui/47-friend-activity-icon..webp",
     "assets/ui/48-friend-requests-icon.webp",
     "avatar-3d.js",
-    "avatar-3d.css"
+    "avatar-3d.css",
+    "elara-midnight-layout-2026.css"
   ],
   "files": [
     ".htaccess",
@@ -512,6 +513,7 @@
     "assets/ui/45-groups-icon.webp",
     "assets/ui/46-clubs-icon..webp",
     "assets/ui/47-friend-activity-icon..webp",
-    "assets/ui/48-friend-requests-icon.webp"
+    "assets/ui/48-friend-requests-icon.webp",
+    "elara-midnight-layout-2026.css"
   ]
 }
