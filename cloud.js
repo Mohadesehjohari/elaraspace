@@ -34,8 +34,21 @@ function actionError(e){
     'unavailable':'اتصال به Cloud Firestore برقرار نشد. اگر با تلاش دوباره رفع نشد، دسترسی مرورگر به firestore.googleapis.com و تنظیمات VPN، Proxy و افزونه‌های مسدودکننده را بررسی کن.'
   })[e.code] || (e.code ? e.code+': '+(e.message||'خطا') : (e.message||'خطایی رخ داد.'));
 }
-function locked(){loaded=false;document.body.classList.add('cloud-locked');document.body.classList.remove('cloud-ready');layer.hidden=false;}
-function unlocked(){document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');layer.hidden=true;}
+function locked(){
+  loaded=false;
+  if(window.__elaraLocalFallbackActive===true){
+    document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready','cloud-offline');
+    if(layer){layer.hidden=true;layer.inert=true;layer.style.pointerEvents='none';layer.setAttribute('aria-hidden','true')}
+    return;
+  }
+  document.body.classList.add('cloud-locked');document.body.classList.remove('cloud-ready','cloud-offline');
+  if(layer){layer.hidden=false;layer.inert=false;layer.style.pointerEvents='';layer.removeAttribute('aria-hidden')}
+}
+function unlocked(){
+  window.__elaraLocalFallbackActive=false;
+  document.body.classList.remove('cloud-locked','cloud-offline');document.body.classList.add('cloud-ready');
+  if(layer){layer.hidden=true;layer.inert=true;layer.style.pointerEvents='';layer.removeAttribute('aria-hidden')}
+}
 function clearAccount(){
   locked(); user=null;profile=null;lastPayload='';dirty=false;
   localStorage.removeItem('elara_space_v1');
