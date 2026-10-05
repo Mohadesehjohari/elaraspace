@@ -466,15 +466,17 @@
   function taskHoldPointerDown(event){
     if(taskHold||(event.pointerType==='mouse'&&event.button!==0)||taskHoldProtected(event.target))return;
     const card=event.target.closest(taskSurfaceSelector);if(!card)return;const id=taskSurfaceId(card);if(!id)return;if(event.pointerType==='mouse')event.preventDefault();document.getSelection?.()?.removeAllRanges?.();
-    const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,startedAt:performance.now(),timer:null,mode:'hold'};taskHold=hold;card.classList.add('is-core-task-holding');
+    const hold={card,id,pointerId:event.pointerId,pointerType:event.pointerType,startX:event.clientX,startY:event.clientY,lastY:event.clientY,startedAt:performance.now(),timer:null,mode:'hold'};taskHold=hold;card.classList.add('is-core-task-holding');
     hold.timer=setTimeout(()=>{if(taskHold!==hold||hold.mode==='reorder')return;taskHoldSuppressId=id;taskHoldSuppressUntil=Date.now()+900;clearTaskHold({keepSuppress:true});navigator.vibrate?.(16);void openTaskQuickActions(id)},event.pointerType==='touch'?430:380)
   }
   function taskHoldPointerMove(event){
     const hold=taskHold;if(!hold||event.pointerId!==hold.pointerId)return;const distance=Math.hypot(event.clientX-hold.startX,event.clientY-hold.startY);
+    if(hold.mode==='scroll'){event.preventDefault();window.scrollBy(0,hold.lastY-event.clientY);hold.lastY=event.clientY;return}
     if(hold.mode==='reorder'){moveTaskCardReorder(hold,event);return}
     if(distance<=9)return;
     const elapsed=performance.now()-hold.startedAt;
-    if(hold.card.matches('#task-list .astra-task-row[data-key]')&&(hold.pointerType!=='touch'||elapsed>=140)){if(beginTaskCardReorder(hold,event))moveTaskCardReorder(hold,event);return}
+    if(hold.pointerType==='touch'&&elapsed<140){clearTimeout(hold.timer);hold.mode='scroll';hold.card.classList.remove('is-core-task-holding');event.preventDefault();hold.lastY=event.clientY;return}
+    if(hold.card.matches('#task-list .astra-task-row[data-key]')){if(beginTaskCardReorder(hold,event))moveTaskCardReorder(hold,event);return}
     clearTaskHold()
   }
   function taskHoldPointerUp(event){
