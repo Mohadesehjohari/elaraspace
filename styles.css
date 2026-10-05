@@ -143,3 +143,16 @@ body.task-core-dragging{user-select:none!important;overscroll-behavior:none}
 .task-quick-move label{display:grid;gap:6px;font-size:.7rem;font-weight:800}
 .task-quick-move select{min-height:42px}
 @media(max-width:520px){.task-quick-move{grid-template-columns:1fr;min-width:min(300px,76vw)}}
+
+
+/* 2026-10-05 repeat-per-day belongs to task settings, never task cards */
+.task-daily-quick,[data-task-daily-quick]{display:none!important}
+.task-daily-target-field{display:grid;gap:6px;min-width:0}
+.task-daily-target-inline{display:flex;align-items:center;gap:7px;min-width:0}
+.task-daily-target-inline input{width:76px;min-width:76px}
+.task-daily-target-inline span{font-size:.61rem;color:var(--muted);white-space:nowrap}
+.task-detail-daily-target{display:grid;gap:6px}
+.task-detail-daily-target input{width:100%;max-width:none}
+.task-detail-daily-target small{font-size:.56rem;color:var(--muted)}
+.task-detail-recurrence{grid-column:1/-1}
+@media(max-width:520px){.task-daily-target-inline{align-items:stretch;flex-direction:column}.task-daily-target-inline input{width:100%}}
