@@ -218,13 +218,14 @@
     if(!$('task-recurrence')){
       const taskForm=$('task-form'),grid=taskForm?.querySelector('.form-grid');
       const folder=$('task-folder'),tag=$('task-tag');
+      if(grid&&!$('task-daily-target'))grid.insertAdjacentHTML('beforeend','<div class="task-daily-target-field"><label for="task-daily-target">تکرار در روز</label><div class="task-daily-target-inline"><input id="task-daily-target" type="number" min="1" max="24" step="1" value="1" inputmode="numeric"><span>بار در همان روز</span></div></div>');
       if(grid&&!$('task-list-name'))grid.insertAdjacentHTML('beforeend','<div class="task-list-field"><label for="task-list-name">لیست</label><select id="task-list-name"></select><button type="button" class="mini-create" data-phase2-create="list" data-phase2-target="task-list-name">+ جدید</button></div>');
       if(folder&&!folder.nextElementSibling?.matches('[data-phase2-create]'))folder.insertAdjacentHTML('afterend','<button type="button" class="mini-create" data-phase2-create="folder" data-phase2-target="task-folder">+ جدید</button>');
       if(tag&&!tag.nextElementSibling?.matches('[data-phase2-create]'))tag.insertAdjacentHTML('afterend','<button type="button" class="mini-create" data-phase2-create="tag" data-phase2-target="task-tag">+ جدید</button>');
       const dueLabel=document.querySelector('label[for="task-due"]');if(dueLabel)dueLabel.textContent='تاریخ شروع / انجام';
       grid?.insertAdjacentHTML('afterend','<div class="task-description-fields"><label for="task-short-description">توضیح کوتاه<textarea id="task-short-description" maxlength="280" rows="2" placeholder="یک خلاصهٔ کوتاه برای لیست تسک…"></textarea></label><label for="task-description">توضیحات کامل<textarea id="task-description" maxlength="4000" rows="5" placeholder="جزئیات کامل، نکته‌ها، مراحل یا هر چیزی که برای این تسک لازم داری…"></textarea></label></div>');
       if(taskForm?.querySelector('.task-description-fields')){const more=document.createElement('details');more.className='task-more-settings';more.innerHTML='<summary>تنظیمات بیشتر و توضیحات</summary>';const fields=taskForm.querySelector('.task-description-fields');fields.before(more);more.append(fields)}
-      taskForm?.querySelector('.task-more-settings')?.insertAdjacentHTML('afterend','<div class="task-repeat-settings-row"><div class="task-daily-target-setting"><label for="task-daily-target">تکرار در روز</label><div><input id="task-daily-target" type="number" min="1" max="24" step="1" value="1" inputmode="numeric"><span>بار در همان روز</span></div><small>مثلاً ۲ یعنی ۱/۲ و بعد ۲/۲.</small></div>'+recurrenceMarkup('task')+'</div>');
+      taskForm?.querySelector('.task-more-settings')?.insertAdjacentHTML('afterend',recurrenceMarkup('task'));
       const filters=taskForm?.parentElement?.querySelector('.filters');
       if(filters&&!$('task-list-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-list-filter">فیلتر لیست</label><select id="task-list-filter"><option value="">همهٔ لیست‌ها</option></select>');
       if(filters&&!$('task-priority-filter'))filters.insertAdjacentHTML('beforeend','<label class="sr-only" for="task-priority-filter">فیلتر اولویت</label><select id="task-priority-filter"><option value="">همهٔ اولویت‌ها</option><option value="1">فوری · P1</option><option value="2">بالا · P2</option><option value="3">متوسط · P3</option><option value="4">عادی · P4</option></select>');
@@ -328,7 +329,7 @@
   }
   async function openTaskDetails(task){
     const state=ensureState(readState()),wrap=document.createElement('form');wrap.className='task-detail-form';wrap.dataset.taskId=task.id;const rule=safeRule(task.recurrenceRule,task.date||today()),weekdays=rule?.weekdays||[];
-    wrap.innerHTML=`<label class="wide">عنوان<input data-detail="text" maxlength="180" required value="${esc(task.text||'')}"></label><label class="wide">توضیح کوتاه<textarea data-detail="shortDescription" maxlength="280" rows="2">${esc(task.shortDescription||'')}</textarea></label><label class="wide">توضیحات کامل<textarea data-detail="description" maxlength="4000" rows="6">${esc(task.description||'')}</textarea></label><label>تاریخ شروع / انجام<input data-detail="date" type="date" value="${esc(task.date||'')}"></label><label>ساعت<input data-detail="time" type="time" value="${esc(task.time||'')}"></label><label>اولویت<select data-detail="priority"><option value="1">فوری · P1</option><option value="2">بالا · P2</option><option value="3">متوسط · P3</option><option value="4">عادی · P4</option></select></label><label>لیست<select data-detail="list"><option value="">بدون لیست</option>${state.taskLists.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>پوشه<select data-detail="folder"><option value="">بدون پوشه</option>${state.folders.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>برچسب<select data-detail="tag"><option value="">بدون برچسب</option>${state.tags.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><div class="task-detail-repeat-row"><label class="task-detail-daily-target">تکرار در روز<input data-detail="dailyTarget" type="number" min="1" max="24" step="1" inputmode="numeric" value="${taskDailyTarget(task)}"><small>بار در همان روز</small></label><div class="task-detail-recurrence"><label class="recurrence-toggle"><input data-detail="recurrence" type="checkbox" ${rule?'checked':''}> تکرار زمان‌بندی‌شده</label><div class="weekday-picks">${weekOrder.map(d=>`<label><input data-detail-weekday type="checkbox" value="${d}" ${weekdays.includes(d)?'checked':''}><span>${weekNames[d]}</span></label>`).join('')}</div><div class="recurrence-actions"><label>پایان <input data-detail="endDate" type="date" value="${esc(rule?.endDate||'')}" ${rule&&!rule.endDate?'disabled':''}></label><label class="no-end"><input data-detail="noEnd" type="checkbox" ${rule&&!rule.endDate?'checked':''}> بدون تاریخ پایان</label></div></div></div>`;
+    wrap.innerHTML=`<label class="wide">عنوان<input data-detail="text" maxlength="180" required value="${esc(task.text||'')}"></label><label class="wide">توضیح کوتاه<textarea data-detail="shortDescription" maxlength="280" rows="2">${esc(task.shortDescription||'')}</textarea></label><label class="wide">توضیحات کامل<textarea data-detail="description" maxlength="4000" rows="6">${esc(task.description||'')}</textarea></label><label>تاریخ شروع / انجام<input data-detail="date" type="date" value="${esc(task.date||'')}"></label><label>ساعت<input data-detail="time" type="time" value="${esc(task.time||'')}"></label><label>اولویت<select data-detail="priority"><option value="1">فوری · P1</option><option value="2">بالا · P2</option><option value="3">متوسط · P3</option><option value="4">عادی · P4</option></select></label><label>لیست<select data-detail="list"><option value="">بدون لیست</option>${state.taskLists.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>پوشه<select data-detail="folder"><option value="">بدون پوشه</option>${state.folders.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>برچسب<select data-detail="tag"><option value="">بدون برچسب</option>${state.tags.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label class="task-detail-daily-target">تکرار در روز<input data-detail="dailyTarget" type="number" min="1" max="24" step="1" inputmode="numeric" value="${taskDailyTarget(task)}"><small>بار در همان روز</small></label><div class="task-detail-recurrence"><label class="recurrence-toggle"><input data-detail="recurrence" type="checkbox" ${rule?'checked':''}> تکرار زمان‌بندی‌شده</label><div class="weekday-picks">${weekOrder.map(d=>`<label><input data-detail-weekday type="checkbox" value="${d}" ${weekdays.includes(d)?'checked':''}><span>${weekNames[d]}</span></label>`).join('')}</div><div class="recurrence-actions"><label>پایان <input data-detail="endDate" type="date" value="${esc(rule?.endDate||'')}" ${rule&&!rule.endDate?'disabled':''}></label><label class="no-end"><input data-detail="noEnd" type="checkbox" ${rule&&!rule.endDate?'checked':''}> بدون تاریخ پایان</label></div></div>`;
     wrap.querySelector('[data-detail="priority"]').value=String(task.priority||'4');wrap.querySelector('[data-detail="list"]').value=task.list||'';wrap.querySelector('[data-detail="folder"]').value=task.folder||'';wrap.querySelector('[data-detail="tag"]').value=task.tag||'';window.ElaraTaskChecklist?.mount?.(wrap,task.id);
     const recurrence=wrap.querySelector('[data-detail="recurrence"]'),end=wrap.querySelector('[data-detail="endDate"]'),noEnd=wrap.querySelector('[data-detail="noEnd"]');noEnd.addEventListener('change',()=>{end.disabled=noEnd.checked;if(noEnd.checked)end.value=''});
     const save=await window.ElaraDialog.open({title:'جزئیات و ویرایش تسک',content:wrap,wide:true,actions:[{label:'بستن',value:false},{label:'حذف تسک',value:'delete',kind:'danger'},{label:'ذخیره تغییرات',value:true,kind:'primary'}]});if(save==='delete'){await taskAction('delete-task',task.id);return}if(save!==true)return;
@@ -392,12 +393,7 @@
     document.querySelectorAll(taskSurfaceSelector).forEach(card=>{
       const id=taskSurfaceId(card),task=map.get(id);if(!task)return;
       card.querySelector(':scope > [data-core-task-drag]')?.remove();
-      let button=card.querySelector(':scope > [data-task-daily-quick]');
-      if(!button){button=document.createElement('button');button.type='button';button.className='task-daily-quick';button.dataset.taskDailyQuick=id;card.append(button)}
-      const n=taskDailyTarget(task),label=document.documentElement.lang==='en'?'↻ '+n+'/day':'↻ '+fa(n)+'/روز';
-      if(button.textContent!==label)button.textContent=label;
-      if(button.dataset.taskDailyQuick!==id)button.dataset.taskDailyQuick=id;button.classList.toggle('is-multi',n>1);const title=surfaceTx('تکرار در روز','Repeat per day');if(button.title!==title)button.title=title;
-      const aria=surfaceTx('تکرار در روز: '+fa(n)+' بار؛ برای تغییر بزن','Repeat per day: '+n+'; tap to change');if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
+      card.querySelector(':scope > [data-task-daily-quick]')?.remove();
     })
   }
   function scheduleTaskSurfaceDecorate(){if(taskSurfaceQueued)return;taskSurfaceQueued=true;requestAnimationFrame(decorateTaskSurfaces)}
@@ -433,20 +429,18 @@
       {label:surfaceTx('ویرایش','Edit'),value:'edit',kind:'primary'},
       {label:surfaceTx('انتقال','Move'),value:'move'},
       {label:surfaceTx('کپی','Duplicate'),value:'duplicate'},
-      {label:surfaceTx('تکرار در روز','Repeat per day'),value:'daily'},
       {label:surfaceTx('حذف','Delete'),value:'delete',kind:'danger'}
     ]});
     if(choice==='edit'){await taskAction('edit-task',id);return}
     if(choice==='move'){await quickMoveTask(id);return}
     if(choice==='duplicate'){await quickDuplicateTask(id);return}
-    if(choice==='daily'){await editTaskDailyTarget(id);return}
     if(choice==='delete'){await taskAction('delete-task',id)}
   }
   function clearTaskHold(){
     if(!taskHold)return;clearTimeout(taskHold.timer);taskHold.card?.classList.remove('is-core-task-holding');taskHold=null
   }
   function taskHoldProtected(target){
-    if(target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],[data-task-daily-quick],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
+    if(target.closest('.check-button,.feature-section-task-check,.task-board-check,[data-ref-task],.astra-task-more,.item-actions,.mini-button,input,select,textarea,a'))return true;
     const button=target.closest('button');if(!button)return false;
     return !button.matches('.task-summary-button,[data-board-open],[data-section-task-detail]')
   }
@@ -583,7 +577,6 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     },true);
     document.addEventListener('click',async event=>{
       handleTaskKebabClick(event);
-      const dailyQuick=event.target.closest('[data-task-daily-quick]');if(dailyQuick){event.preventDefault();event.stopImmediatePropagation();await editTaskDailyTarget(dailyQuick.dataset.taskDailyQuick);return}
       if(Date.now()<taskHoldSuppressUntil){const card=event.target.closest(taskSurfaceSelector);if(card&&taskSurfaceId(card)===taskHoldSuppressId){event.preventDefault();event.stopImmediatePropagation();taskHoldSuppressUntil=0;taskHoldSuppressId='';return}}
       const addMain=event.target.closest('#elara-task-add-main');if(addMain){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
       const toolsToggle=event.target.closest('#elara-task-tools-toggle');if(toolsToggle){event.preventDefault();event.stopImmediatePropagation();toggleTaskTools();return}
