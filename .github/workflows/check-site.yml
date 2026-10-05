@@ -1,8 +1,7 @@
 name: Validate Elara site
+# Heavy QA is intentionally manual so production Pages deploys are not queued behind browser/emulator jobs.
 on:
-  push:
-    branches: [main]
-    paths: ['*.html', '*.css', '*.js', '*.php', '.htaccess', '.cpanel.yml', 'firestore.rules', 'firebase.json', 'assets/**', 'admin/**', 'deploy/**', 'tests/**']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

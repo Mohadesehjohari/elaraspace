@@ -1,7 +1,6 @@
 name: Reference restoration acceptance
+# Heavy QA is intentionally manual so production Pages deploys are not queued behind browser/emulator jobs.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
