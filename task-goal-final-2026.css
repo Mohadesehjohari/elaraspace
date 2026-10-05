@@ -201,3 +201,113 @@ body.task-card-reordering{user-select:none!important;-webkit-user-select:none!im
   #panel-tasks[data-task-reorder="true"] #task-list>.astra-task-row{touch-action:none!important}
   #task-reorder-toggle{width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important}
 }
+
+
+/* 2026-10-05 task hierarchy + stronger source identity */
+#panel-tasks #task-list>.astra-task-row.source-goal,
+.task-board-card.source-goal,
+.feature-section-task-row.source-goal{
+ background:linear-gradient(90deg,color-mix(in srgb,#f2c94c 24%,var(--surface)),color-mix(in srgb,#f2c94c 8%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#f2c94c 68%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#f2c94c 86%,transparent),0 0 20px #f2c94c12!important
+}
+#panel-tasks #task-list>.astra-task-row.source-exercise,
+.task-board-card.source-exercise,
+.feature-section-task-row.source-exercise{
+ background:linear-gradient(90deg,color-mix(in srgb,#36e0ac 24%,var(--surface)),color-mix(in srgb,#36e0ac 8%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#36e0ac 66%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#36e0ac 86%,transparent),0 0 20px #36e0ac12!important
+}
+#panel-tasks #task-list>.astra-task-row.source-language,
+.task-board-card.source-language,
+.feature-section-task-row.source-language{
+ background:linear-gradient(90deg,color-mix(in srgb,#9874ff 28%,var(--surface)),color-mix(in srgb,#9874ff 9%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#9874ff 72%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#9874ff 90%,transparent),0 0 22px #9874ff16!important
+}
+#panel-tasks #task-list>.astra-task-row.source-book,
+.task-board-card.source-book,
+.feature-section-task-row.source-book{
+ background:linear-gradient(90deg,color-mix(in srgb,#58b7ff 24%,var(--surface)),color-mix(in srgb,#58b7ff 8%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#58b7ff 68%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#58b7ff 88%,transparent),0 0 20px #58b7ff12!important
+}
+#panel-tasks #task-list>.astra-task-row.source-focus,
+.task-board-card.source-focus,
+.feature-section-task-row.source-focus{
+ background:linear-gradient(90deg,color-mix(in srgb,#dd74ff 25%,var(--surface)),color-mix(in srgb,#dd74ff 8%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#dd74ff 68%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#dd74ff 88%,transparent),0 0 20px #dd74ff12!important
+}
+#panel-tasks #task-list>.astra-task-row.source-habit,
+.task-board-card.source-habit,
+.feature-section-task-row.source-habit{
+ background:linear-gradient(90deg,color-mix(in srgb,#ff77ad 22%,var(--surface)),color-mix(in srgb,#ff77ad 7%,var(--surface)) 70%)!important;
+ border-color:color-mix(in srgb,#ff77ad 64%,var(--border))!important;
+ box-shadow:inset 4px 0 0 color-mix(in srgb,#ff77ad 86%,transparent),0 0 20px #ff77ad12!important
+}
+
+/* Checklist items are visually nested under their parent task. */
+#panel-tasks .task-checklist-preview{
+ display:grid!important;gap:4px!important;
+ margin-top:6px!important;margin-inline-start:24px!important;
+ padding:5px 9px 5px 11px!important;
+ border-inline-start:2px solid color-mix(in srgb,var(--accent) 46%,var(--border))!important;
+ border-radius:8px!important;
+ background:color-mix(in srgb,var(--surface2) 56%,transparent)!important;
+ width:min(100%,620px)!important;max-width:100%!important
+}
+#panel-tasks .task-checklist-preview>span{
+ display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;
+ color:var(--text)!important;font-size:.58rem!important;line-height:1.35!important
+}
+#panel-tasks .task-checklist-preview>span i{
+ flex:0 0 auto!important;font-style:normal!important;color:var(--accent)!important;font-weight:900!important
+}
+#panel-tasks .task-checklist-preview>span b{
+ min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-weight:650!important
+}
+#panel-tasks .task-checklist-preview>span.done b{opacity:.62!important;text-decoration:line-through!important}
+#panel-tasks .task-checklist-preview>small{font-size:.52rem!important;color:var(--muted)!important}
+
+/* Task cards and task-like rows must never start browser text-selection gestures. */
+:where(#task-list .astra-task-row,.feature-section-task-row,.task-board-card,.ref-task-row,.task-archive-row),
+:where(#task-list .astra-task-row,.feature-section-task-row,.task-board-card,.ref-task-row,.task-archive-row) *{
+ user-select:none!important;-webkit-user-select:none!important
+}
+
+/* Section task rows use the same action language as canonical Tasks. */
+.feature-section-task-row{
+ grid-template-columns:38px minmax(0,1fr) auto 34px!important;
+ position:relative!important;min-height:68px!important
+}
+.feature-section-task-row .task-summary-button{
+ width:100%!important;text-align:start!important;cursor:pointer!important
+}
+.feature-section-task-more{
+ display:grid!important;place-items:center!important;
+ width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+ padding:0!important;border:1px solid color-mix(in srgb,var(--border) 78%,var(--accent) 22%)!important;
+ border-radius:9px!important;background:color-mix(in srgb,var(--surface2) 86%,transparent)!important;
+ color:var(--text)!important;font-size:1.18rem!important;line-height:1!important
+}
+.feature-section-task-more:hover,.feature-section-task-more:focus-visible{
+ border-color:color-mix(in srgb,var(--accent) 68%,var(--border))!important;
+ box-shadow:0 0 12px color-mix(in srgb,var(--accent) 22%,transparent)!important
+}
+
+/* Back buttons stay visible on Language and dedicated sub-routes such as Leitner. */
+.feature-parent-back,.feature-subpage-head .feature-back{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:max-content!important;min-height:36px!important;padding:7px 11px!important;
+ margin:0 0 10px!important;border:1px solid color-mix(in srgb,var(--accent) 48%,var(--border))!important;
+ border-radius:10px!important;background:color-mix(in srgb,var(--accent) 10%,var(--surface2))!important;
+ color:var(--text)!important;font-size:.66rem!important;font-weight:850!important
+}
+
+@media(max-width:700px){
+ #panel-tasks .task-checklist-preview{margin-inline-start:15px!important;padding:5px 7px 5px 9px!important}
+ #panel-tasks .task-checklist-preview>span{font-size:.54rem!important}
+ .feature-section-task-row{grid-template-columns:34px minmax(0,1fr) auto 32px!important}
+ .feature-section-task-more{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important}
+}
