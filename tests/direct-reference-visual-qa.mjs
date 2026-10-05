@@ -105,8 +105,8 @@ assert.equal(await visible('#task-form'),true,'add form did not open');
 await page.locator('#task-title').fill('QA reference add');
 await page.locator('#task-submit').click();
 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(t=>t.text==='QA reference add'));
-const first=page.locator('#task-list>.astra-task-row').first().locator('.check-button:not([disabled])');
-if(await first.count()){const before=await first.getAttribute('aria-pressed');await first.click();await page.waitForTimeout(80);assert.notEqual(await first.getAttribute('aria-pressed'),before,'task completion did not toggle')}
+const normalCheck=page.locator('#task-list>.astra-task-row[data-key="t1"] .check-button:not([disabled])');
+assert.equal(await normalCheck.count(),1,'normal task completion control missing');const beforeDone=await page.evaluate(()=>!!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='t1')?.completed);await normalCheck.click();await page.waitForFunction(before=>!!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='t1')?.completed!==before,beforeDone,{timeout:3000});
 await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));await page.waitForTimeout(120);
 await page.locator('#ref-header-account').click();await page.waitForTimeout(80);assert.ok(await page.locator('.elara-private-drawer:not(.hidden)').count(),'profile drawer did not open');
 await page.keyboard.press('Escape');await page.waitForTimeout(60);
