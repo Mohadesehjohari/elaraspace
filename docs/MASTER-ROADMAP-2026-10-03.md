@@ -4,6 +4,12 @@
 > این فایل از این تاریخ مرجع اصلی تصمیم محصول، اولویت اجرا و وضعیت قابلیت‌هاست.  
 > فایل‌های قدیمی `ROADMAP.md`، `PRODUCT-ROADMAP.md`، `V2-COMPLETE-FEATURE-ROADMAP.md` و Addendumها به‌عنوان تاریخچه/جزئیات تخصصی نگه داشته می‌شوند. در هر تعارض، این Master جدیدتر مقدم است.
 
+## Visual Design / Theme canonical references
+- Color/theme/icon/banner decisions: [DESIGN-COLOR-ROADMAP.md](DESIGN-COLOR-ROADMAP.md)
+- Default theme tokens/spec: [design/DEFAULT-THEME-SPEC.md](design/DEFAULT-THEME-SPEC.md)
+- Asset production checklist: [design/THEME-ASSET-MANIFEST.md](design/THEME-ASSET-MANIFEST.md)
+- Product behavior and engineering priority remain governed by this Master Roadmap; visual-system conflicts are governed by the Design & Color Roadmap.
+
 ---
 
 ## 0) قرارداد وضعیت و قانون Done
