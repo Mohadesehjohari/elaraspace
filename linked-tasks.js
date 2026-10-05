@@ -42,15 +42,18 @@ function upsert(state,spec){
  if(state.linkedTaskDismissals.includes(wanted))return {task:null,changed:false,dismissed:true};
  let task=state.tasks.find(t=>t?.linkedTask&&taskKey(t)===wanted),changed=false;
  if(!task){task={id:makeId(),text:safe(spec.title)||meta.label,shortDescription:'',description:'',date:'',time:'',priority:meta.priority,list:'',folder:'',tag:'',completed:false,doneAt:null,xpAwarded:true,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},dailyTarget:1,dailyProgress:{},linkedTask:true,sourceType:spec.sourceType,sourceId,sourceParentId,sourceGroup:meta.group,sourceLabel:meta.label,sourceManaged:true,sourceCompletionLocked:!!meta.locked,sourceOwner:safe(spec.sourceOwner,128)};state.tasks.unshift(task);changed=true}
- const set=(k,v)=>{if(v!==undefined&&task[k]!==v){task[k]=v;changed=true}};
+ const set=(k,v)=>{if(v!==undefined&&task[k]!==v){task[k]=v;changed=true}},setJson=(k,v)=>{if(v===undefined)return;const next=v??null;if(JSON.stringify(task[k]??null)!==JSON.stringify(next)){task[k]=next;changed=true}};
  set('linkedTask',true);set('sourceType',spec.sourceType);set('sourceId',sourceId);set('sourceParentId',sourceParentId);set('sourceGroup',meta.group);set('sourceLabel',meta.label);set('sourceManaged',true);set('sourceCompletionLocked',!!meta.locked);set('xpAwarded',true);
  if(spec.sourceOwner!==undefined)set('sourceOwner',safe(spec.sourceOwner,128));
  if(!task.sourceUserEdited){
   if(spec.title!==undefined)set('text',safe(spec.title)||meta.label);
   if(spec.shortDescription!==undefined)set('shortDescription',safe(spec.shortDescription,280));
   if(spec.date!==undefined)set('date',validDate(spec.date)?spec.date:'');
-  if(spec.priority!==undefined)set('priority',String(spec.priority));
+  if(spec.time!==undefined)set('time',/^([01]\d|2[0-3]):[0-5]\d$/.test(String(spec.time||''))?String(spec.time):'');
+  if(spec.priority!==undefined)set('priority',['1','2','3','4'].includes(String(spec.priority))?String(spec.priority):meta.priority);
+  if(spec.list!==undefined)set('list',safe(spec.list,60));if(spec.folder!==undefined)set('folder',safe(spec.folder,60));if(spec.tag!==undefined)set('tag',safe(spec.tag,60));
   if(spec.dailyTarget!==undefined)set('dailyTarget',Math.max(1,Math.min(24,Math.round(Number(spec.dailyTarget)||1))));
+  if(spec.recurrenceRule!==undefined)setJson('recurrenceRule',globalThis.ElaraSchedule?.normalize?.(spec.recurrenceRule,spec.date||today())||null);
  }
  if(spec.completed!==undefined)changed=setCompleted(state,task,!!spec.completed,spec.completedDate||spec.date||'')||changed;
  return {task,changed};
@@ -62,7 +65,18 @@ function syncSourcesFromTasks(state){
   if(!task?.linkedTask)continue;
   if(task.sourceType==='goal-step'){
    const goal=state.goals.find(g=>String(g?.id)===String(task.sourceParentId)),step=goal?.steps?.find(s=>String(s?.id)===String(task.sourceId));
-   if(step&&!!step.done!==!!task.completed){step.done=!!task.completed;changed=true}
+   if(step){
+    const day=today();step.dailyProgress=step.dailyProgress&&typeof step.dailyProgress==='object'?step.dailyProgress:{};task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
+    if(JSON.stringify(step.dailyProgress)!==JSON.stringify(task.dailyProgress)){step.dailyProgress={...task.dailyProgress};changed=true}
+    if(task.recurrenceRule){
+      step.occurrenceDone=Array.isArray(step.occurrenceDone)?step.occurrenceDone:[];const done=Array.isArray(task.occurrenceDone)&&task.occurrenceDone.includes(day),has=step.occurrenceDone.includes(day);
+      if(done&&!has){step.occurrenceDone.push(day);changed=true}else if(!done&&has){step.occurrenceDone=step.occurrenceDone.filter(x=>x!==day);changed=true}
+    }else if(!!step.done!==!!task.completed){step.done=!!task.completed;changed=true}
+    if(task.sourceUserEdited){
+      for(const [k,v] of [['text',task.text],['date',task.date],['time',task.time],['priority',task.priority],['list',task.list],['folder',task.folder],['tag',task.tag],['dailyTarget',task.dailyTarget]])if(v!==undefined&&step[k]!==v){step[k]=v;changed=true}
+      const rule=task.recurrenceRule||null;if(JSON.stringify(step.recurrenceRule||null)!==JSON.stringify(rule)){step.recurrenceRule=rule;changed=true}
+    }
+   }
   }else if(task.sourceType==='habit'){
    const habit=state.habits.find(h=>String(h?.id)===String(task.sourceId));if(habit){
     const day=validDate(task.doneAt)?task.doneAt:(validDate(task.date)?task.date:today());
@@ -90,8 +104,8 @@ function syncCoreState(input){
  }
  for(const goal of state.goals){
   for(const step of Array.isArray(goal?.steps)?goal.steps:[]){
-   if(!step?.id)continue;goalKeys.add(keyOf('goal-step',step.id,goal.id));
-   changed=upsert(state,{sourceType:'goal-step',sourceId:step.id,sourceParentId:goal.id,title:step.text||'قدم هدف',shortDescription:`قدم از هدف «${goal.title||'هدف'}»`,completed:!!step.done}).changed||changed;
+   if(!step?.id)continue;goalKeys.add(keyOf('goal-step',step.id,goal.id));const recurring=!!step.recurrenceRule,completed=recurring?(Array.isArray(step.occurrenceDone)&&step.occurrenceDone.includes(day)):!!step.done;
+   changed=upsert(state,{sourceType:'goal-step',sourceId:step.id,sourceParentId:goal.id,title:step.text||'قدم هدف',shortDescription:`قدم از هدف «${goal.title||'هدف'}»`,date:step.date||'',time:step.time||'',priority:step.priority||'3',list:step.list||'',folder:step.folder||'',tag:step.tag||'',dailyTarget:step.dailyTarget||1,recurrenceRule:step.recurrenceRule||null,completed,completedDate:completed?day:''}).changed||changed;
   }
  }
  for(const book of state.books){
