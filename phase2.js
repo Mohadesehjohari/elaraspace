@@ -643,6 +643,7 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     taskSurfaceObserver=new MutationObserver(scheduleTaskSurfaceDecorate);taskSurfaceObserver.observe(document.body,{childList:true,subtree:true});scheduleTaskSurfaceDecorate();
     window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
+    window.addEventListener('elara:linked-state',()=>setTimeout(()=>{renderTasks();scheduleTaskSurfaceDecorate()},0));
     window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
     window.addEventListener('elara:data-changed',()=>{renderTasks();scheduleTaskSurfaceDecorate();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
   }
