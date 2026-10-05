@@ -1,0 +1,54 @@
+/* Elara desktop 3D avatar stage. Mobile placement is intentionally deferred. */
+@media(min-width:701px){
+  .elara-private-drawer-panel[data-mobile-section="home"]>[data-drawer-section="home"]{
+    display:block!important;position:relative!important;overflow:hidden!important;padding:0!important;
+  }
+  .elara-avatar-stage{
+    position:relative;width:100%;height:100%;min-height:510px;overflow:hidden;isolation:isolate;
+    border:1px solid color-mix(in srgb,var(--border) 60%,var(--elara-accent) 40%);border-radius:22px;
+    background:
+      radial-gradient(circle at 50% 80%,color-mix(in srgb,var(--elara-accent) 16%,transparent),transparent 33%),
+      radial-gradient(circle at 52% 42%,#8bcfff0c,transparent 38%),
+      linear-gradient(180deg,color-mix(in srgb,#07162d 74%,transparent),color-mix(in srgb,#030a18 84%,transparent));
+    box-shadow:inset 0 1px #ffffff0c,inset 0 -40px 90px #0002,0 18px 44px #0002;
+    cursor:grab;touch-action:none;user-select:none;
+  }
+  .elara-avatar-stage:before{
+    content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.48;
+    background-image:radial-gradient(circle,#8fa9d025 1px,transparent 1.2px);background-size:34px 34px;
+    mask-image:linear-gradient(to bottom,transparent 5%,#000 40%,#000 88%,transparent);
+  }
+  .elara-avatar-stage:after{
+    content:'';position:absolute;left:50%;bottom:7%;width:55%;height:9%;z-index:0;transform:translateX(-50%);pointer-events:none;
+    background:radial-gradient(ellipse,color-mix(in srgb,var(--elara-accent) 25%,#68ccff 18%),transparent 70%);filter:blur(14px);opacity:.62;
+  }
+  .elara-avatar-stage.is-dragging{cursor:grabbing}
+  .elara-avatar-viewport{position:absolute;inset:0;z-index:2;overflow:hidden}
+  .elara-avatar-canvas{display:block;width:100%!important;height:100%!important;outline:0;touch-action:none}
+  .elara-avatar-badge{
+    position:absolute;z-index:4;inset-block-start:14px;inset-inline-start:14px;padding:6px 9px;border:1px solid #9b8cff44;border-radius:999px;
+    background:#07142bb8;backdrop-filter:blur(8px);color:#d9d2ff;font:800 .58rem/1.1 Vazirmatn,Tahoma,sans-serif;letter-spacing:.08em;pointer-events:none;
+  }
+  .elara-avatar-help{
+    position:absolute;z-index:4;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 28px);
+    padding:7px 10px;border:1px solid #8f9cb52b;border-radius:999px;background:#071329b3;backdrop-filter:blur(10px);color:#aebdd4;
+    font:650 .60rem/1.2 Vazirmatn,Tahoma,sans-serif;white-space:nowrap;pointer-events:none;
+  }
+  .elara-avatar-help i{width:5px;height:5px;border-radius:50%;background:var(--elara-accent);box-shadow:0 0 9px var(--elara-accent)}
+  .elara-avatar-status{
+    position:absolute;z-index:4;inset-block-start:14px;inset-inline-end:14px;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    padding:6px 9px;border-radius:999px;background:#07142b9e;color:#a9bbd4;font:700 .56rem/1.15 Vazirmatn,Tahoma,sans-serif;pointer-events:none;
+  }
+  .elara-avatar-status[data-state="error"]{color:#ffb3c0;background:#3b1320c9}
+  .elara-avatar-edit{
+    position:absolute;z-index:5;right:14px;bottom:14px;display:none;min-height:34px;padding:6px 10px;border:1px solid #806cff55;border-radius:11px;
+    background:#221b48c2;color:#e9e5ff;font:800 .62rem Vazirmatn,Tahoma,sans-serif;cursor:pointer
+  }
+  body.light .elara-avatar-stage{
+    background:radial-gradient(circle at 50% 80%,#7556ff18,transparent 34%),linear-gradient(180deg,#edf3ffde,#e1ebf7f1)
+  }
+  body.light .elara-avatar-help,body.light .elara-avatar-status,body.light .elara-avatar-badge{background:#f7f9ffd6;color:#51617b}
+  body.dark.amoled .elara-avatar-stage{background:radial-gradient(circle at 50% 80%,#6d55ff20,transparent 34%),#020204}
+}
+@media(max-width:700px){.elara-avatar-stage{display:none!important}}
+@media(prefers-reduced-motion:reduce){.elara-avatar-stage:after{filter:blur(10px);opacity:.35}}
