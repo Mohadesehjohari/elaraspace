@@ -14,6 +14,9 @@ const dialog = readFileSync(new URL('dialog.js',root),'utf8');
 const pass2 = readFileSync(new URL('visual-fidelity-pass2.js',root),'utf8');
 const navigation = readFileSync(new URL('approved-navigation-extension.js',root),'utf8');
 const featureHubs = readFileSync(new URL('feature-hubs-2026.js',root),'utf8');
+const taskGoalFinal = readFileSync(new URL('task-goal-final-2026.css',root),'utf8');
+const rpg = readFileSync(new URL('rpg.js',root),'utf8');
+const linkedTasks = readFileSync(new URL('linked-tasks.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
 assert.ok(ids.size > 50,'Application markup seems incomplete');
@@ -116,6 +119,12 @@ assert.ok(phase2.includes("['book','language','exercise','focus'].includes"),'Ta
 assert.ok(phase2.includes("['task','habit'].includes(prefix)")&&phase2.includes('habitDailyProgress')&&phase2.includes("syncDailyTargetVisibility('habit')"),'Habits must share the repeat-per-day toggle and counted daily progress');
 assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-target-options'),'Goals must expose repeat-per-day controls in their form');
 assert.ok(app.includes('goalDailyProgress')&&app.includes("toggle-goal-daily")&&app.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
+for(const token of ['goal-date','goal-time','goal-priority','goal-list-name','goal-folder','goal-tag','goal-recurrence'])assert.ok(html.includes('id="'+token+'"'),'Goal task-like setting missing #'+token);
+for(const token of ['editGoalStep','goalStepDailyProgress','goalStepDone','edit-step','step-dialog-weekday','recurrenceRule:safeRule(step.recurrenceRule'])assert.ok(app.includes(token),'Rich goal substep behavior missing '+token);
+for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recurrenceRule!==undefined","sourceType:'goal-step'"])assert.ok(linkedTasks.includes(token),'Linked goal-step metadata projection missing '+token);
+assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
+for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
+assert.ok(phase2.includes('astra-time-chip')&&phase2.includes("document.getSelection?.()?.removeAllRanges?.()"),'Task cards must expose time metadata and suppress text selection during reorder');
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
