@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import {initializeTestEnvironment,assertSucceeds,assertFails} from '@firebase/rules-unit-testing';
-import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from 'firebase/firestore';
+import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
 
 const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
@@ -88,6 +88,32 @@ try{
  await assertSucceeds(setDoc(ref(alice,'clubs/alice_reading_club'),{owner:'alice',title:'Moon Readers',kind:'reading',visibility:'public',assistant1:'',assistant2:'',restDay:5,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'clubs/eve_reading_club'),{owner:'eve',title:'Too Early',kind:'reading',visibility:'public',assistant1:'',assistant2:'',restDay:5,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
 
+ // Persistent collaboration: owner creates a private shared class, friend joins only after explicit acceptance.
+ const collab='collabSpaces/collab_class_1',collabInvite='collabInvites/collab_class_1__bob';
+ await assertSucceeds(setDoc(ref(alice,collab),{ownerUid:'alice',kind:'language-class',title:'English C1',payloadJson:JSON.stringify({title:'English C1',type:'online',terms:3,sessionsPerTerm:12,durationMin:60,weekdays:[0,2,4],studyTime:'18:00',studyHoursPerDay:2,linkUrl:''}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,collab+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'class-local-a',progressCompleted:4,progressTotal:36,progressPercent:11,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,collab)));
+ await assertFails(getDoc(ref(bob,collab)));
+ await assertSucceeds(setDoc(ref(alice,collabInvite),{spaceId:'collab_class_1',from:'alice',to:'bob',kind:'language-class',title:'English C1',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,collabInvite)));
+ await assertFails(getDoc(ref(eve,collabInvite)));
+ await assertFails(setDoc(ref(eve,'collabInvites/collab_class_1__eve'),{spaceId:'collab_class_1',from:'eve',to:'bob',kind:'language-class',title:'spoof',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ const acceptBatch=writeBatch(bob);
+ acceptBatch.update(ref(bob,collabInvite),{status:'accepted',updatedAt:serverTimestamp()});
+ acceptBatch.set(ref(bob,collab+'/members/bob'),{uid:'bob',role:'member',localEntityId:'class-local-b',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ await assertSucceeds(acceptBatch.commit());
+ await assertSucceeds(getDoc(ref(bob,collab)));
+ await assertSucceeds(updateDoc(ref(bob,collab+'/members/bob'),{localEntityId:'class-local-b',progressCompleted:9,progressTotal:36,progressPercent:25,updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(bob,collab),{title:'hijack',updatedAt:serverTimestamp()}));
+
+ // Owner-created join link is persistent; any signed user with the token can explicitly join.
+ const joinToken='joinTokenCollabClass1234567890';
+ await assertSucceeds(setDoc(ref(alice,'collabLinks/'+joinToken),{spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'English C1',active:true,createdAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,'collabLinks/'+joinToken)));
+ await assertSucceeds(setDoc(ref(eve,collab+'/members/eve'),{uid:'eve',role:'member',joinToken,localEntityId:'class-local-e',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,collab)));
+ await assertFails(setDoc(ref(eve,collab+'/members/dave'),{uid:'dave',role:'member',joinToken,localEntityId:'spoof',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+
  // Direct challenge only between accepted friends; only recipient can accept.
  const challenge='challenges/alice_bob_challenge';
  await assertSucceeds(setDoc(ref(alice,challenge),{from:'alice',to:'bob',status:'pending',targetKind:'reading',targetText:'۵۰ صفحه بخون',targetValue:50,createdAt:serverTimestamp(),expiresAt:nowPlus(30000)}));
@@ -138,7 +164,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club challenge page engagement reports block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club collab challenge page engagement reports block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }
