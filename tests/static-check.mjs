@@ -107,6 +107,11 @@ const universalTaskSource=readFileSync(new URL('task-universal-interactions.js',
 for(const token of ['feature-section-task-row','task-board-card','#panel-home .ref-task-row','task-archive-row','task-daily-target-chip','task-trash-drop',"taskAction?.('delete-task'"])assert.ok(universalTaskSource.includes(token),'Universal task interaction missing '+token);
 for(const token of ['#task-trash-drop','#task-universal-drag-ghost','.task-daily-target-chip','is-universal-task-dragging'])assert.ok(universalTaskCss.includes(token),'Universal task interaction CSS missing '+token);
 assert.ok(phase2.includes('تکرار در روز')&&phase2.includes('task-daily-target'),'All task composers/details must expose repeat-per-day');
+assert.ok(phase2.includes("if(action==='edit-task'){await openTaskDetails(task);return;}"),'Task edit must open the reliable detail editor');
+for(const token of ['beginTaskCardReorder','moveTaskCardReorder','task-card-reordering','persistDomOrder'])assert.ok(phase2.includes(token),'Whole-card task reorder missing '+token);
+for(const token of ["source-goal","source-exercise","source-language","source-book","source-focus","astra-task-status","astra-task-core-meta"])assert.ok(phase2.includes(token)||css.includes(token),'Task source/status treatment missing '+token);
+assert.ok(featureHubs.includes("sectionTasks(lp,'language','language')")&&featureHubs.includes("sectionTasks(parent,'focus','focus')"),'Leitner and Focus must expose the shared task composer');
+assert.ok(phase2.includes("['book','language','exercise','focus'].includes"),'Task composer must preserve Focus/Book/Language/Exercise source groups');
 assert.ok(phase2.includes("['task','habit'].includes(prefix)")&&phase2.includes('habitDailyProgress')&&phase2.includes("syncDailyTargetVisibility('habit')"),'Habits must share the repeat-per-day toggle and counted daily progress');
 assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-target-options'),'Goals must expose repeat-per-day controls in their form');
 assert.ok(app.includes('goalDailyProgress')&&app.includes("toggle-goal-daily")&&app.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
