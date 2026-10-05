@@ -44,6 +44,7 @@
         if(v.list!=null)out[date].list=asText(v.list,60);
         if(v.folder!=null)out[date].folder=asText(v.folder,60);
         if(v.tag!=null)out[date].tag=asText(v.tag,60);
+        if(v.dailyTarget!=null&&Number.isFinite(Number(v.dailyTarget)))out[date].dailyTarget=Math.max(1,Math.min(24,Math.round(Number(v.dailyTarget)||1)));
       }
       return out;
     };
