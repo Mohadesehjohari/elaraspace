@@ -1,12 +1,18 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261006-ui-restore-v8';
+  const BUILD='20261006-fast-start-v9';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
-  const styleReady=[];
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css'];
-  /* Load legacy artwork/functional layers first; canonical Home/Tasks owners follow, then the Elara Midnight presentation layer applies color/layout only. */
-  for(const name of styles){const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);styleReady.push(new Promise(resolve=>{css.onload=()=>resolve({name,ok:true});css.onerror=()=>{console.error('Elara stylesheet unavailable:',name);resolve({name,ok:false})}}));document.head.append(css)}
+  const criticalStyles=new Set(['reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-exact-pass-2026.css','elara-midnight-layout-2026.css']);
+  const criticalStyleReady=[];
+  /* Request every stylesheet immediately, but only block the first Home render on the visual owners that define the current shell. */
+  for(const name of styles){
+    const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);
+    const ready=new Promise(resolve=>{css.onload=()=>resolve({name,ok:true});css.onerror=()=>{console.error('Elara stylesheet unavailable:',name);resolve({name,ok:false})}});
+    if(criticalStyles.has(name))criticalStyleReady.push(ready);
+    document.head.append(css)
+  }
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
   const essentialImages=location.hash==='#home'?[
@@ -18,7 +24,8 @@
   for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
   const essentialArtworkReady=Promise.all(essentialImages.map(decodeImage));
   const release=()=>document.documentElement.removeAttribute('data-elara-booting');
-  const scripts=['approved-navigation-extension.js','feature-hubs-shell.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-focus-dialog.js','approved-wellness.js','approved-home-return.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js','mobile-ia-2026-10-05.js'];
+  const criticalScripts=['approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','mobile-ia-2026-10-05.js'];
+  const deferredScripts=['feature-hubs-shell.js','approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js'];
   const optionalFailures=[];
   const loadScriptsInOrder=async names=>{
     const pending=names.map(name=>new Promise(resolve=>{
@@ -37,8 +44,8 @@
   const hardWatchdog=setTimeout(()=>{if(ready)return;console.error('Elara boot watchdog released the shell after a secondary startup stall.');ready=true;release();window.dispatchEvent(new Event('elara:boot-watchdog'))},6500);
   void(async()=>{
     try{
-      /* Dynamic scripts fetch in parallel but execute in insertion order (async=false). */
-      await Promise.all([loadScriptsInOrder(scripts),Promise.all(styleReady)]);
+      /* First paint only waits for the Home/navigation owners, not every secondary feature. */
+      await Promise.all([loadScriptsInOrder(criticalScripts),Promise.all(criticalStyleReady)]);
       window.ElaraNavigation?.render?.();window.ElaraReferenceHome?.render?.();
       /* Decode the actual rendered first-frame controls, not only preload clones. This prevents
          the shell from revealing while visible nav/Moon/Bell <img> nodes are still blank. */
@@ -48,6 +55,9 @@
       /* Only first-viewport artwork blocks reveal; secondary icons load normally after release. */
       await Promise.race([Promise.all([essentialArtworkReady,renderedArtworkReady]),new Promise(resolve=>setTimeout(resolve,1800))]);
       ready=true;release();
+      const loadDeferred=()=>loadScriptsInOrder(deferredScripts).catch(error=>console.error('Elara deferred UI startup:',error));
+      if('requestIdleCallback' in window)requestIdleCallback(()=>void loadDeferred(),{timeout:1400});
+      else setTimeout(()=>void loadDeferred(),250);
     }catch(error){console.error('Elara final shell could not start:',error);ready=true;release();const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بخشی از رابط بارگذاری نشد؛ هستهٔ برنامه در حالت ایمن در دسترس است.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow);clearTimeout(hardWatchdog)}
   })();
@@ -118,7 +128,12 @@
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:String(error?.message||error)}}));
     }
   };
-  const startCloud=()=>{document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());setTimeout(()=>void launch(),900)};
+  const startCloud=()=>{
+    document.getElementById('cloud-retry')?.addEventListener('click',()=>location.reload());
+    const run=()=>void launch();
+    if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:2600});
+    else setTimeout(run,1800)
+  };
   if(document.readyState==='complete')startCloud();else window.addEventListener('load',startCloud,{once:true});
 })();
 
