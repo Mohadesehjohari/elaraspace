@@ -55,6 +55,7 @@ function activate(g){
  navigator.vibrate?.(18)
 }
 function pointerDown(e){
+ if(window.ElaraCoreTaskHold)return;
  if(gesture||e.pointerType==='mouse'&&e.button!==0||protectedTarget(e.target))return;
  const card=cardFrom(e.target);if(!card)return;const id=cardId(card);if(!id)return;
  const g={card,id,pointerId:e.pointerId,pointerType:e.pointerType,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false,moved:false,overTrash:false,ghost:null,timer:null};
