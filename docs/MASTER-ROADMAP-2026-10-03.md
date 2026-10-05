@@ -2,6 +2,7 @@
 **Canonical roadmap — 2026-10-03**
 
 > این فایل از این تاریخ مرجع اصلی تصمیم محصول، اولویت اجرا و وضعیت قابلیت‌هاست.  
+> برای Avatar System، سند تخصصی [AVATAR-SYSTEM-ROADMAP.md](AVATAR-SYSTEM-ROADMAP.md) مرجع canonical جزئیات art/Blender/rig/runtime است؛ مدل procedural فعلی فقط prototype فنی است.  
 > فایل‌های قدیمی `ROADMAP.md`، `PRODUCT-ROADMAP.md`، `V2-COMPLETE-FEATURE-ROADMAP.md` و Addendumها به‌عنوان تاریخچه/جزئیات تخصصی نگه داشته می‌شوند. در هر تعارض، این Master جدیدتر مقدم است.
 
 ## Visual Design / Theme canonical references
