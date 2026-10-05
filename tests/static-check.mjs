@@ -17,6 +17,7 @@ const featureHubs = readFileSync(new URL('feature-hubs-2026.js',root),'utf8');
 const taskGoalFinal = readFileSync(new URL('task-goal-final-2026.css',root),'utf8');
 const rpg = readFileSync(new URL('rpg.js',root),'utf8');
 const linkedTasks = readFileSync(new URL('linked-tasks.js',root),'utf8');
+const referenceHome = readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
 const profileSystem = readFileSync(new URL('approved-profile-system.js',root),'utf8');
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
 assert.ok(ids.size > 50,'Application markup seems incomplete');
@@ -130,6 +131,10 @@ assert.ok(phase2.includes('elapsed<170')&&phase2.includes("hold.pointerType==='t
 for(const token of ['feature-section-task-more','data-section-task-actions',"taskAction?.('edit-task'","parentBack(parent,'home')"])assert.ok(featureHubs.includes(token),'Section task/back contract missing '+token);
 for(const token of ['task hierarchy + stronger source identity','.task-checklist-preview','.feature-section-task-more','.feature-parent-back','feature-section-task-row.source-exercise','user-select:none!important'])assert.ok(taskGoalFinal.includes(token),'Task hierarchy/source/back CSS missing '+token);
 assert.ok(app.includes('task-checklist-preview')&&app.includes('const canonical=window.ElaraTasks?.render'),'Fallback renderer must preserve checklist hierarchy and defer to canonical Tasks');
+assert.ok(phase2.includes('selectTaskByHold')&&phase2.includes('window.ElaraTaskBulk')&&!phase2.includes('navigator.vibrate?.(16);void openTaskQuickActions(id)'), 'Long press must enter bulk selection instead of opening the single-task action sheet');
+assert.ok(referenceHome.includes('ref-task-subitems')&&referenceHome.includes('data-task-source')&&referenceHome.includes("sourceClass=t=>"),'Home Today tasks must preserve source identity and nested checklist previews');
+for(const token of ['Telegram-style task selection + brighter task hierarchy','#task-bulk-toolbar','.is-selected::after','.ref-task-subitems','source-goal','source-language','source-exercise'])assert.ok(taskGoalFinal.includes(token),'Telegram selection/home source color CSS missing '+token);
+
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
