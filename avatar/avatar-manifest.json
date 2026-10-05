@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "skeletonVersion": "unfrozen",
+  "productionReady": false,
+  "artDirection": "2026-10-05-approved-turnaround",
+  "bases": {
+    "female-v1": {
+      "status": "modeling",
+      "src": "assets/avatar/bases/elara-female-v1.vrm",
+      "fallback": "prototype"
+    },
+    "male-v1": {
+      "status": "modeling",
+      "src": "assets/avatar/bases/elara-male-v1.vrm",
+      "fallback": "prototype"
+    }
+  },
+  "animations": {
+    "idle-neutral": "assets/avatar/animations/idle-neutral.glb",
+    "idle-soft": "assets/avatar/animations/idle-soft.glb",
+    "dance-01": "assets/avatar/animations/dance-01.glb"
+  },
+  "notes": "Do not set productionReady=true until the gates in docs/AVATAR-SYSTEM-ROADMAP.md are satisfied."
+}
