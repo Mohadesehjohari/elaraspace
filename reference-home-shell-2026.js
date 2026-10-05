@@ -83,8 +83,11 @@ function ensureQuickAccess(panel,grid){
  if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><span class="ref-quick-icon">'+ic+'</span><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
  return q
 }
-function ensureAchievements(grid){
- let a=$('ref-achievements');if(!a){a=element('section','elara-card ref-card ref-achievements','ref-achievements');a.innerHTML='<header><h2>★ آخرین دستاوردها</h2><button type="button" class="elara-link" data-elara-tab="missions">مشاهده همه ←</button></header><div id="ref-achievements-list"></div>';grid?.append(a)}return a
+function ensureBottomGrid(panel,grid){
+ let b=$('ref-bottom-grid');if(!b){b=element('div','ref-bottom-grid','ref-bottom-grid');const q=ensureQuickAccess(panel,grid);q?.insertAdjacentElement('afterend',b)}return b
+}
+function ensureAchievements(host){
+ let a=$('ref-achievements');if(!a){a=element('section','elara-card ref-card ref-achievements','ref-achievements');a.innerHTML='<header><h2>★ آخرین دستاوردها</h2><button type="button" class="elara-link" data-elara-tab="missions">مشاهده همه ←</button></header><div id="ref-achievements-list"></div>';host?.append(a)}return a
 }
 function renderAchievements(){
  const host=$('ref-achievements-list');if(!host)return;
@@ -111,16 +114,15 @@ function homeStructure(){
  let theme=$('ref-theme-strip');if(!theme){theme=element('section','elara-card ref-theme-strip','ref-theme-strip');theme.innerHTML=`<header><h2>${icon('spark')} جهان‌های تم</h2><button type="button" class="elara-link" data-drawer-appearance>مشاهده همه ←</button></header><div class="ref-theme-options">${['violet','blue','pink','green','orange','black'].map((c,i)=>`<button type="button" class="ref-theme-option" data-ref-theme="${c}" aria-label="انتخاب تم ${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}"><img class="ref-theme-option-art" src="${THEME_ART[c]}" alt="" loading="lazy" decoding="async"><small>${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}</small></button>`).join('')}</div>`}
  const streakCard=$('ref-streak-card')||element('section','ref-streak-card ref-card','ref-streak-card');
  if(!streakCard.isConnected){const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
- const achievements=ensureAchievements(grid);
- for(const c of [streakCard,tasks,wellness,goals,habits,ranks,achievements])if(c){c.hidden=false;if(c.parentElement!==grid)grid.append(c)}
+ const quick=ensureQuickAccess(panel,grid),bottom=ensureBottomGrid(panel,grid),achievements=ensureAchievements(bottom);
+ for(const cardNode of [streakCard,tasks,wellness,goals])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==grid)grid.append(cardNode)}
+ for(const cardNode of [ranks,habits,achievements])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==bottom)bottom.append(cardNode)}
  // Reference dashboard intentionally consolidates secondary Home cards: Missions remain reachable
  // through Achievements, Friends through Quick Access/sidebar, and all routes/state stay canonical.
- for(const c of [missions,activity,social,theme])if(c)c.hidden=true;
+ for(const cardNode of [missions,activity,social,theme])if(cardNode)cardNode.hidden=true;
  side?.remove();
- ensureQuickAccess(panel,grid);
  const namedAreas=[[streakCard,'streak'],[tasks,'tasks'],[wellness,'wellness'],[goals,'goals'],[ranks,'ranks'],[habits,'habits'],[achievements,'achievements']];
  for(const [cardNode,area] of namedAreas)if(cardNode){
-   if(cardNode.parentElement!==grid)grid.append(cardNode);
    cardNode.style.setProperty('grid-area',area,'important');
    cardNode.style.setProperty('position','relative','important');
    cardNode.style.setProperty('inset','auto','important');
