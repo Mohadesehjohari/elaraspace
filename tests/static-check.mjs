@@ -124,9 +124,9 @@ assert.ok(featureHubs.includes("sectionTasks(lp,'language','language')")&&featur
 assert.ok(phase2.includes("['book','language','exercise','focus'].includes"),'Task composer must preserve Focus/Book/Language/Exercise source groups');
 assert.ok(phase2.includes("['task','habit'].includes(prefix)")&&phase2.includes('habitDailyProgress')&&phase2.includes("syncDailyTargetVisibility('habit')"),'Habits must share the repeat-per-day toggle and counted daily progress');
 assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-target-options'),'Goals must expose repeat-per-day controls in their form');
-assert.ok(app.includes('goalDailyProgress')&&app.includes("toggle-goal-daily")&&app.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
+assert.ok(js.includes('goalDailyProgress')&&js.includes("toggle-goal-daily")&&js.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
 for(const token of ['goal-date','goal-time','goal-priority','goal-list-name','goal-folder','goal-tag','goal-recurrence'])assert.ok(html.includes('id="'+token+'"'),'Goal task-like setting missing #'+token);
-for(const token of ['editGoalStep','goalStepDailyProgress','goalStepDone','edit-step','step-dialog-weekday','recurrenceRule:safeRule(step.recurrenceRule'])assert.ok(app.includes(token),'Rich goal substep behavior missing '+token);
+for(const token of ['editGoalStep','goalStepDailyProgress','goalStepDone','edit-step','step-dialog-weekday','recurrenceRule:safeRule(step.recurrenceRule'])assert.ok(js.includes(token),'Rich goal substep behavior missing '+token);
 for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recurrenceRule!==undefined","sourceType:'goal-step'"])assert.ok(linkedTasks.includes(token),'Linked goal-step metadata projection missing '+token);
 assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
 for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
