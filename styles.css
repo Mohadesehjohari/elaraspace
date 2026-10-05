@@ -329,3 +329,13 @@ body.task-card-reordering #task-list .astra-task-row:not(.is-core-task-reorderin
  #task-list .astra-task-core-meta{justify-content:flex-start!important;gap:4px!important}
  #task-list .astra-task-status{min-width:74px!important;max-width:104px!important;font-size:.53rem!important;padding-inline:6px!important}
 }
+
+
+/* 2026-10-05 source tint also applies to compact task-board cards */
+.task-board-card.source-goal{background:linear-gradient(90deg,color-mix(in srgb,#f2c94c 10%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#f2c94c 38%,var(--border))!important}
+.task-board-card.source-exercise{background:linear-gradient(90deg,color-mix(in srgb,#46d7a7 10%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#46d7a7 36%,var(--border))!important}
+.task-board-card.source-language{background:linear-gradient(90deg,color-mix(in srgb,#8d72ff 13%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#9a82ff 42%,var(--border))!important}
+.task-board-card.source-book{background:linear-gradient(90deg,color-mix(in srgb,#5eb8ff 11%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#5eb8ff 38%,var(--border))!important}
+.task-board-card.source-focus{background:linear-gradient(90deg,color-mix(in srgb,#e18bff 11%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#e18bff 38%,var(--border))!important}
+.task-board-card.source-habit{background:linear-gradient(90deg,color-mix(in srgb,#ff8fb8 9%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#ff8fb8 34%,var(--border))!important}
+.task-board-status{display:inline-flex;margin-top:4px;font-style:normal;font-size:.54rem;font-weight:800;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 6px;width:max-content;max-width:100%}
