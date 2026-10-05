@@ -33,10 +33,12 @@ function groups(tasks,current){
  return ["1","2","3","4"].filter(k=>map.has(k)).map(k=>[priorityLabel[k],map.get(k)]);
 }
 function card(t){
- const meta=[t.folder?"پوشه: "+esc(t.folder):"",t.tag?"#"+esc(t.tag):"",t.date?esc(t.date):""].filter(Boolean).join(" · ");
- return '<article class="task-board-card priority-'+esc(t.priority||4)+(t.completed?" is-done":"")+'" data-task-board-id="'+esc(t.id)+'">'+
+ const source=String(t.sourceGroup||'personal'),sourceClass=['goal','exercise','language','book','focus','habit'].includes(source)?' source-'+source:'';
+ const meta=[t.folder?"پوشه: "+esc(t.folder):"",t.tag?"#"+esc(t.tag):"",priorityLabel[String(t.priority||4)]].filter(Boolean).join(" · ");
+ const status=t.completed?"انجام شد":Number(t.dailyTarget)>1?"در حال انجام":"در انتظار";
+ return '<article class="task-board-card priority-'+esc(t.priority||4)+sourceClass+(t.completed?" is-done":"")+'" data-task-source="'+esc(source)+'" data-task-board-id="'+esc(t.id)+'">'+
  '<button type="button" class="task-board-check" data-board-toggle="'+esc(t.id)+'" aria-label="'+(t.completed?"بازگرداندن ":"تکمیل ")+esc(t.text||t.title||"تسک")+'">'+(t.completed?"✓":"")+"</button>"+
- '<button type="button" class="task-board-open" data-board-open="'+esc(t.id)+'"><strong>'+esc(t.text||t.title||"بدون عنوان")+"</strong><small>"+(meta||priorityLabel[String(t.priority||4)])+"</small></button></article>";
+ '<button type="button" class="task-board-open" data-board-open="'+esc(t.id)+'"><strong>'+esc(t.text||t.title||"بدون عنوان")+"</strong><small>"+meta+"</small><em class=\"task-board-status\">"+status+"</em></button></article>";
 }
 function render(){
  const list=document.getElementById("task-list"),panel=document.getElementById("panel-tasks");if(!list||!panel)return;
