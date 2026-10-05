@@ -1,0 +1,30 @@
+/* Collaboration UI is intentionally component-scoped so visual redesigns can reskin it safely. */
+.collab-friend-picker{display:grid;gap:8px;min-width:min(520px,76vw)}
+.collab-friend-picker>label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--border) 82%,var(--accent) 18%);border-radius:12px;background:color-mix(in srgb,var(--surface2) 88%,transparent);cursor:pointer}
+.collab-friend-picker input{width:18px;height:18px;accent-color:var(--accent)}
+.collab-friend-picker span{display:grid;gap:2px;min-width:0}.collab-friend-picker strong{color:var(--text)}.collab-friend-picker small{color:var(--muted)}
+.collab-inbox-launcher{display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;margin:10px 0;padding:8px 11px;border:1px solid #58ded26b;border-radius:12px;background:linear-gradient(135deg,#123f46cc,#13253dcc);color:var(--text);box-shadow:0 8px 22px #0003}
+.collab-inbox-launcher span{font-size:1rem}.collab-inbox-launcher strong{font-size:.68rem}.collab-inbox-launcher b{display:grid;place-items:center;min-width:24px;height:24px;padding:0 5px;border-radius:999px;background:#58ded2;color:#062c31;font-size:.62rem}
+.collab-inbox-dialog{display:grid;gap:9px;min-width:min(720px,78vw)}
+.collab-inbox-dialog>article{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface2)}
+.collab-inbox-dialog>article>div{display:grid;gap:3px;min-width:0}.collab-inbox-dialog small{color:#58ded2;font-weight:850}.collab-inbox-dialog strong{font-size:.78rem}.collab-inbox-dialog span{color:var(--muted);font-size:.6rem}.collab-inbox-dialog footer{display:flex;gap:6px}
+.collab-space-dialog{display:grid;gap:14px;min-width:min(780px,80vw)}
+.collab-space-dialog>header{display:grid;gap:4px}.collab-space-dialog>header small{color:#58ded2;font-weight:900;letter-spacing:.05em}.collab-space-dialog>header h3{margin:0}.collab-space-dialog>header p{margin:0;color:var(--muted);line-height:1.7}
+.collab-member-list{display:grid;gap:8px}.collab-member-list>article{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.75fr);gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:13px;background:color-mix(in srgb,var(--surface2) 88%,transparent)}
+.collab-member-list>article>div:first-child{display:grid;gap:2px}.collab-member-list small{color:var(--muted)}
+.collab-progress{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.collab-progress>span{height:7px;border-radius:999px;background:#07172b;overflow:hidden}.collab-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#58ded2,#8b7fff)}.collab-progress b{font-size:.65rem;color:var(--text)}
+.collab-space-dialog>footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.collab-link-box input{width:min(680px,78vw);padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text)}
+.astra-shared-chip,.entity-shared-chip,.word-shared-chip,.language-class-shared-chip{display:inline-flex!important;align-items:center!important;gap:4px!important;width:max-content!important;padding:3px 7px!important;border:1px solid #58ded26b!important;border-radius:999px!important;background:#123e4585!important;color:#9ff5ed!important;font-size:.54rem!important;font-weight:850!important;white-space:nowrap!important}
+.language-class-collab-actions{display:flex;gap:7px;flex-wrap:wrap}
+.language-class-editor .language-class-share-field{display:grid;gap:8px;padding:11px;border:1px solid #58ded24d;border-radius:13px;background:#12333c45}
+.language-class-editor .language-class-share-toggle{display:flex;align-items:center;gap:8px;font-weight:800}.language-class-editor .language-class-share-toggle input{width:18px;height:18px;accent-color:#58ded2}
+.language-class-editor [data-class-friend-field]{display:grid;gap:6px}.language-class-editor [data-class-friend-field][hidden]{display:none!important}
+.language-class-editor [data-class-friend-field] select{width:100%}
+#word-list .word-collab-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+@media(max-width:700px){
+ .collab-friend-picker,.collab-inbox-dialog,.collab-space-dialog{min-width:0;width:100%}
+ .collab-inbox-dialog>article{grid-template-columns:1fr}.collab-inbox-dialog footer{justify-content:flex-end}
+ .collab-member-list>article{grid-template-columns:1fr;gap:7px}
+ .collab-space-dialog>footer>*{flex:1;min-width:120px}
+}
