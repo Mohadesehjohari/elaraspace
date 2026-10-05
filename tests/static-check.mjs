@@ -107,6 +107,9 @@ const universalTaskSource=readFileSync(new URL('task-universal-interactions.js',
 for(const token of ['feature-section-task-row','task-board-card','#panel-home .ref-task-row','task-archive-row','task-daily-target-chip','task-trash-drop',"taskAction?.('delete-task'"])assert.ok(universalTaskSource.includes(token),'Universal task interaction missing '+token);
 for(const token of ['#task-trash-drop','#task-universal-drag-ghost','.task-daily-target-chip','is-universal-task-dragging'])assert.ok(universalTaskCss.includes(token),'Universal task interaction CSS missing '+token);
 assert.ok(phase2.includes('تکرار در روز')&&phase2.includes('task-daily-target'),'All task composers/details must expose repeat-per-day');
+assert.ok(phase2.includes("['task','habit'].includes(prefix)")&&phase2.includes('habitDailyProgress')&&phase2.includes("syncDailyTargetVisibility('habit')"),'Habits must share the repeat-per-day toggle and counted daily progress');
+assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-target-options'),'Goals must expose repeat-per-day controls in their form');
+assert.ok(app.includes('goalDailyProgress')&&app.includes("toggle-goal-daily")&&app.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
