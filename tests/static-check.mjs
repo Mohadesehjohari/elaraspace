@@ -64,7 +64,7 @@ assert.ok(js.includes('manualOrder:t.manualOrder!=null')&&phase2.includes('manua
 for(const token of ['ensureCompletionHistory','recordCompletion','removeCompletion','completedTodayCount']) assert.ok(phase2.includes(token),`Phase 2 task history missing ${token}`);
 for(const token of ['lockViewport','unlockViewport',"position:'fixed'","root.hidden=true"]) assert.ok(dialog.includes(token),`Dialog viewport guard missing ${token}`);
 for (const token of ['captureTaskDraft','restoreTaskDraft','task-short-description','task-description','openTaskDetails']) assert.ok(phase2.includes(token),`Task description/draft flow missing ${token}`);
-const rpg=readFileSync(new URL('rpg.js',root),'utf8'),cloud=readFileSync(new URL('cloud.js',root),'utf8');
+const cloud=readFileSync(new URL('cloud.js',root),'utf8');
 for (const token of ['rewardXp','mission-reward']) assert.ok(phase2.includes(token)||design.includes(token)||rpg.includes(token),`Mission reward UI missing ${token}`);
 assert.ok(css.includes('Vazirmatn'),'Vazirmatn font must be the Persian UI default');
 assert.ok(design.includes('elara-home-missions')&&design.includes('مأموریت‌های امروز'),'Missions must be visible on Home');
