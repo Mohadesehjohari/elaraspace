@@ -125,6 +125,11 @@ for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recu
 assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
 for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
 assert.ok(phase2.includes('astra-time-chip')&&phase2.includes("document.getSelection?.()?.removeAllRanges?.()"),'Task cards must expose time metadata and suppress text selection during reorder');
+assert.ok(phase2.includes('task-checklist-preview')&&phase2.includes('data-phase2-action="edit-task"'),'Task title click must open edit and render nested checklist preview');
+assert.ok(phase2.includes('elapsed<170')&&phase2.includes("hold.pointerType==='touch'"),'Mobile normal-mode task reorder must distinguish quick scroll from hold-drag');
+for(const token of ['feature-section-task-more','data-section-task-actions',"taskAction?.('edit-task'","parentBack(parent,'home')"])assert.ok(featureHubs.includes(token),'Section task/back contract missing '+token);
+for(const token of ['task hierarchy + stronger source identity','.task-checklist-preview','.feature-section-task-more','.feature-parent-back','feature-section-task-row.source-exercise','user-select:none!important'])assert.ok(taskGoalFinal.includes(token),'Task hierarchy/source/back CSS missing '+token);
+assert.ok(app.includes('task-checklist-preview')&&app.includes('const canonical=window.ElaraTasks?.render'),'Fallback renderer must preserve checklist hierarchy and defer to canonical Tasks');
 
 assert.ok(rules.includes('match /socialStats/{uid}')&&rules.includes("request.resource.data.streak <= 36500"),'Social streak stats must have privacy-aware Firestore rules');
 assert.ok(social.includes("doc(db,'socialStats',uid)")&&social.includes('visibleSocialStats')&&social.includes("activityVisibility(uid,'streak')"),'Social service must sync and read privacy-aware streak stats');
