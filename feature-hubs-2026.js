@@ -37,7 +37,7 @@ function sectionTasks(host,group,kind){
  if(!host)return null;const day=window.ElaraSchedule?.today?.()||new Date().toISOString().slice(0,10),state=readState(),all=Array.isArray(state.tasks)?state.tasks:[],target=t=>window.ElaraTasks.taskDailyTarget(t),progress=t=>window.ElaraTasks.taskDailyProgress(t,day);
  const rows=all.filter(t=>String(t?.sourceGroup||'')===group&&window.ElaraSchedule?.taskDue?.(t,day)!==false).sort((a,b)=>Number(window.ElaraTasks?.taskDone?.(a,day))-Number(window.ElaraTasks?.taskDone?.(b,day))||(Number(a.priority)||4)-(Number(b.priority)||4)).slice(0,6);
  let shelf=host.querySelector(':scope > .feature-section-tasks[data-section-task-shelf="'+group+'"]');if(!shelf){shelf=document.createElement('section');shelf.className='elara-card feature-section-tasks';shelf.dataset.sectionTaskShelf=group;const launchers=host.querySelector(':scope > .feature-hub-launchers[data-hub-kind="'+kind+'"]');if(launchers)launchers.insertAdjacentElement('afterend',shelf);else host.append(shelf)}
- const labels={book:[tx('تسک‌های کتابخانه','Library tasks'),tx('مطالعه و کارهای مربوط به کتاب‌ها','Reading and library work')],language:[tx('تسک‌های زبان','Language tasks'),tx('مرور، مطالعه و تمرین زبان','Review, reading and language practice')],exercise:[tx('تسک‌های ورزش','Wellness tasks'),tx('تمرین‌ها و کارهای این بخش','Workouts and tasks for this section')]},label=labels[group]||[tx('تسک‌های بخش','Section tasks'),''];
+ const labels={book:[tx('تسک‌های کتابخانه','Library tasks'),tx('مطالعه و کارهای مربوط به کتاب‌ها','Reading and library work')],language:[tx('تسک‌های زبان','Language tasks'),tx('مرور، مطالعه و تمرین زبان','Review, reading and language practice')],exercise:[tx('تسک‌های ورزش','Wellness tasks'),tx('تمرین‌ها و کارهای این بخش','Workouts and tasks for this section')],focus:[tx('تسک‌های تمرکز','Focus tasks'),tx('جلسه‌ها و کارهای تمرکز عمیق','Focus sessions and deep-work tasks')]},label=labels[group]||[tx('تسک‌های بخش','Section tasks'),''];
  shelf.innerHTML='<header><div><small>ELARA · TASKS</small><h2>'+label[0]+'</h2><p>'+label[1]+'</p></div><button type="button" class="primary-button feature-section-task-add" data-section-task-add="'+group+'">+ '+tx('افزودن تسک','Add task')+'</button></header><div class="feature-section-task-list">'+(rows.length?rows.map(t=>{const done=!!window.ElaraTasks?.taskDone?.(t,day),n=target(t),count=n>1?progress(t):(done?1:0),pct=n>1?Math.round(count/n*100):(done?100:0);return '<article class="feature-section-task-row '+(done?'done':'')+'" data-section-task-id="'+esc(t.id)+'"><button type="button" class="feature-section-task-check" data-section-task-toggle="'+esc(t.id)+'" aria-pressed="'+done+'" '+(t.sourceCompletionLocked?'disabled':'')+' aria-label="'+esc(done?tx('بازگرداندن تسک','Undo task'):n>1?tx('ثبت نوبت بعدی','Record next session'):tx('تکمیل تسک','Complete task'))+'">'+(done?'<img src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':'')+'</button><div><button type="button" class="task-summary-button" data-section-task-detail="'+esc(t.id)+'"><strong data-elara-ugc dir="auto">'+esc(t.text||tx('تسک','Task'))+'</strong></button><span><i style="width:'+pct+'%"></i></span><small>'+(n>1?tx('نوبت ','Session ')+count+' / '+n:(t.sourceLabel?esc(t.sourceLabel):tx('تسک این بخش','Section task')))+'</small></div><b>P'+esc(t.priority||'4')+'</b></article>'}).join(''):'<p class="feature-section-task-empty">'+tx('برای امروز تسکی در این بخش نداری.','No tasks for this section today.')+'</p>')+'</div>';
  return shelf
 }
@@ -77,7 +77,7 @@ function setupLanguage(){
    card('language-books','assets/ui/23-language-books-icon.webp','کتاب‌های زبان','Language Books','کتاب و گزارش مطالعه','Books and reading logs')+
    card('language-courses','assets/ui/24-language-classes-icon.webp','کلاس‌ها','Classes','کلاس سفارشی آنلاین/آفلاین، برنامه و ETA','Custom online/offline classes, schedule and ETA')+
    card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Study Report','مرور، واژه و مطالعه','Reviews, vocabulary and reading'),'language'
- );sectionTasks(parent,'language','language');
+ );sectionTasks(parent,'language','language');if(lp)sectionTasks(lp,'language','language');
 }
 function splitWeight(water,weightPanel){
  const settings=water?.querySelector('.wellness-water-settings');if(!settings)return;
@@ -117,7 +117,7 @@ function setupFocus(){
   card('focus-room','assets/ui/03-focus-room-icon.webp','اتاق تمرکز','Focus Room','تمرکز مشترک با دوستان','Shared focus with friends',{gated:true})+
   card('focus-ambience','assets/ui/04-study-music-ambience-icon.webp','موسیقی و فضا','Music / Ambience','صدای محیطی و منظرهٔ تمرکز','Soundscape and focus scene')+
   card('focus-deep-work','assets/ui/10-deep-work-icon.webp','کار عمیق','Deep Work','جلسهٔ جدی با مدت و Tag','A focused session with duration and tag'),'focus'
- );
+ );sectionTasks(parent,'focus','focus');
 }
 function setupReports(){
  const parent=$('panel-reports'),prod=$('panel-reports-productivity');if(!parent||!prod)return;parent.classList.add('feature-hub-parent','reports-feature-hub');
