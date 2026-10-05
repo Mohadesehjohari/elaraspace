@@ -474,8 +474,8 @@
     if(hold.mode==='scroll'){event.preventDefault();window.scrollBy(0,hold.lastY-event.clientY);hold.lastY=event.clientY;return}
     if(hold.mode==='reorder'){moveTaskCardReorder(hold,event);return}
     if(distance<=9)return;
-    const elapsed=performance.now()-hold.startedAt,reorderMode=document.getElementById('panel-tasks')?.dataset.taskReorder==='true';
-    if(hold.pointerType==='touch'&&elapsed<140&&!reorderMode){clearTimeout(hold.timer);hold.mode='scroll';hold.card.classList.remove('is-core-task-holding');event.preventDefault();hold.lastY=event.clientY;return}
+    const reorderMode=document.getElementById('panel-tasks')?.dataset.taskReorder==='true';
+    if(hold.pointerType==='touch'&&!reorderMode){clearTimeout(hold.timer);hold.mode='scroll';hold.card.classList.remove('is-core-task-holding');event.preventDefault();hold.lastY=event.clientY;return}
     if(hold.card.matches('#task-list .astra-task-row[data-key]')){if(beginTaskCardReorder(hold,event))moveTaskCardReorder(hold,event);return}
     clearTaskHold()
   }
