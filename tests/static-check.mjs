@@ -127,9 +127,9 @@ for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recu
 assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
 for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
 assert.ok(phase2.includes('astra-time-chip')&&phase2.includes("document.getSelection?.()?.removeAllRanges?.()"),'Task cards must expose time metadata and suppress text selection during reorder');
-assert.ok(phase2.includes('task-checklist-preview')&&phase2.includes('data-phase2-action="edit-task"'),'Task title click must open edit and render nested checklist preview');
+assert.ok(phase2.includes('task-checklist-preview')&&phase2.includes('data-phase2-action="view-task"')&&phase2.includes("openTaskDetails(task,{collapsed:true})"),'Task title click must open compact details and render nested checklist preview');
 assert.ok(phase2.includes('elapsed<170')&&phase2.includes("hold.pointerType==='touch'"),'Mobile normal-mode task reorder must distinguish quick scroll from hold-drag');
-for(const token of ['feature-section-task-more','data-section-task-actions',"taskAction?.('edit-task'","parentBack(parent,'home')"])assert.ok(featureHubs.includes(token),'Section task/back contract missing '+token);
+for(const token of ['feature-section-task-more','data-section-task-actions',"taskAction?.('view-task'","parentBack(parent,'home')"])assert.ok(featureHubs.includes(token),'Section task/back contract missing '+token);
 for(const token of ['task hierarchy + stronger source identity','.task-checklist-preview','.feature-section-task-more','.feature-parent-back','feature-section-task-row.source-exercise','user-select:none!important'])assert.ok(taskGoalFinal.includes(token),'Task hierarchy/source/back CSS missing '+token);
 assert.ok(app.includes('task-checklist-preview')&&app.includes('const canonical=window.ElaraTasks?.render'),'Fallback renderer must preserve checklist hierarchy and defer to canonical Tasks');
 assert.ok(phase2.includes('selectTaskByHold')&&phase2.includes('window.ElaraTaskBulk')&&!phase2.includes('navigator.vibrate?.(16);void openTaskQuickActions(id)'), 'Long press must enter bulk selection instead of opening the single-task action sheet');
@@ -139,6 +139,11 @@ assert.ok(taskChecklist.includes('function toggleItem(')&&taskChecklist.includes
 assert.ok(phase2.includes('task-checklist-preview-item')&&phase2.includes('data-task-check-toggle')&&app.includes('task-checklist-preview-item'),'Canonical and fallback task renderers must expose full nested task rows');
 assert.ok(referenceHome.includes('data-task-check-toggle')&&referenceHome.includes('data-check-id'),'Home Today nested task items must be checkable');
 for(const token of ['v14: clean selection, full nested task rows, softer source cards','left:8px!important','.task-checklist-preview-item','border-radius:16px!important','#task-bulk-toolbar .task-delete-scope'])assert.ok(taskGoalFinal.includes(token),'Task v14 selection/subtask polish missing '+token);
+assert.ok(taskChecklist.includes('description:String(x.description||\'\')')&&taskChecklist.includes('data-check-description')&&taskChecklist.includes('async function editItem')&&taskChecklist.includes('data-task-check-edit'),'Subtasks must persist descriptions and expose independent editing');
+assert.ok(app.includes('description:asText(x.description,1600)'),'App hydration must preserve subtask descriptions');
+assert.ok(phase2.includes('task-detail-settings')&&phase2.includes("openTaskDetails(task,{collapsed:false})"),'Task details must support collapsed title-open and fully expanded kebab edit modes');
+for(const token of ['v15: teal selection, compact detail disclosure, editable subtasks','#58ded2','.task-detail-settings','.task-checklist-preview-edit','.ref-task-subitem-check'])assert.ok(taskGoalFinal.includes(token),'Task v15 polish missing '+token);
+
 
 
 
