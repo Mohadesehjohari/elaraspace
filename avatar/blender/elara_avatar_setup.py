@@ -28,7 +28,7 @@ scene["elara_art_direction"] = "2026-10-05-approved-turnaround"
 scene["elara_export_target"] = "VRM1/GLB"
 
 # Helpful neutral viewport defaults.
-scene.render.engine = 'BLENDER_EEVEE_NEXT'
+scene.render.engine = 'BLENDER_EEVEE'
 scene.render.resolution_x = 1200
 scene.render.resolution_y = 1600
 scene.render.resolution_percentage = 100
