@@ -68,7 +68,7 @@ service cloud.firestore {
     function collabLinkPath(token) { return /databases/$(database)/documents/collabLinks/$(token); }
     function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
     function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
-    function validCollabKind(kind) { return kind in ['task','habit','language-class','leitner-word']; }
+    function validCollabKind(kind) { return kind in ['task','habit','goal','language-class','leitner-word']; }
     function isClubManager(id) {
       return signed() && exists(clubPath(id)) && (
         get(clubPath(id)).data.owner == request.auth.uid ||
