@@ -144,7 +144,7 @@ async function enrichInvites(rows){
 async function applyInboxRows(rows,sourceUid=me()){
  if(!sourceUid||sourceUid!==me()||auth.currentUser?.uid!==sourceUid)return[];
  const pending=(await enrichInvites(rows.filter(x=>x.status==='pending'))).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
- inbox=pending;
+ inbox=pending;const pendingIds=new Set(pending.map(row=>row.id));for(const seen of [...inviteSeen])if(!pendingIds.has(seen))inviteSeen.delete(seen);
  for(const row of pending){
   if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);
   const who=String(row.sender?.name||row.sender?.username||tx('دوست','Friend')),username=row.sender?.username?' · @'+row.sender.username:'';
