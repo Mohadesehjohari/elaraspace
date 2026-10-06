@@ -62,7 +62,11 @@ async function run(width,height){
  await page.route('**/elara-collab.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:collabStub}));
  await page.goto(base+'/?p0-social-mobile='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraNotify&&window.ElaraCollab&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
- await page.evaluate(()=>{window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView.render()});
+ await page.evaluate(()=>{
+  const row={id:'ci-1',from:'f1',to:'me',status:'pending',kind:'language-class',title:'کلاس مکالمه',sender:{uid:'f1',name:'مهسا',username:'mahsa'}};
+  window.ElaraCollab={...(window.ElaraCollab||{}),kinds:['task','habit','goal','language-class','leitner-word'],pendingInvites:()=>[row],acceptInvite:async()=>true,declineInvite:async()=>true,openSpace:async()=>[],shareEntity:async()=>''};
+  window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView.render()
+ });
  await page.waitForSelector('#elara-social-page .social-requests-standalone');
 
  assert.equal(await page.locator('#elara-social-page [data-social-view="requests"]').count(),0,width+': redundant Requests tab returned');
