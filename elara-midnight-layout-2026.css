@@ -766,3 +766,10 @@ body.dark .sidebar .navigation .nav-item[aria-current="page"]{
  body.dark #panel-home.ref-home .ref-bottom-grid>.ref-home-quote{display:block!important}
  body.dark #panel-home.ref-home .ref-home-quote{min-height:155px!important;height:auto!important}
 }
+
+
+/* 2026-10-06 Home cleanup: no habits card, no settings button. */
+body.dark #panel-home.ref-home .ref-habits,
+body.dark #panel-home.ref-home [data-home-section="habits"],
+body.dark #panel-home.ref-home #elara-home-habits{display:none!important}
+body.dark .ref-topbar #ref-header-settings{display:none!important}
