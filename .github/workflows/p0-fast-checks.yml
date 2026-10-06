@@ -1,0 +1,43 @@
+name: P0 fast regression
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/p0-fast-checks.yml'
+      - 'index.html'
+      - 'app.js'
+      - 'phase2.js'
+      - 'reference-home-shell-2026.js'
+      - 'elara-social.js'
+      - 'elara-collab.js'
+      - 'tests/home-first-startup.test.mjs'
+      - 'tests/collab-invite-regression.test.mjs'
+      - 'tests/social-test.cjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p0-fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check app.js
+          node --check phase2.js
+          node --check reference-home-shell-2026.js
+          node --input-type=module --check < elara-social.js
+          node --input-type=module --check < elara-collab.js
+      - name: Startup and collaboration contracts
+        run: |
+          node tests/home-first-startup.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - name: Social lifecycle regression
+        run: |
+          npm install --prefix tests --no-package-lock
+          node tests/social-test.cjs
