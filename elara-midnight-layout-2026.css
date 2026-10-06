@@ -640,3 +640,129 @@ body.dark #panel-home.ref-home .ref-hero>[data-home-reports]{display:none!import
   top:calc(50% + 24px)!important;
  }
 }
+
+
+/* 2026-10-06 Home reference visual pass: homebanner1 + reference cards. */
+body.dark #panel-home.ref-home .ref-hero{
+ background:
+  linear-gradient(90deg,rgba(2,15,35,.18) 0%,rgba(2,15,35,.08) 47%,rgba(2,15,35,.60) 100%),
+  url('assets/ui/homebanner1.webp') center 50%/cover no-repeat!important;
+ border-color:rgba(77,156,231,.46)!important;
+ box-shadow:0 10px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.03)!important;
+}
+body.dark #panel-home.ref-home .ref-hero::before{opacity:.10!important}
+body.dark #panel-home.ref-home .ref-card{
+ background:linear-gradient(145deg,rgba(7,29,58,.96),rgba(4,20,42,.98))!important;
+ border-color:rgba(72,145,211,.34)!important;
+}
+body.dark #panel-home.ref-home .ref-card>header{
+ border-bottom-color:rgba(75,170,255,.13)!important;
+}
+body.dark #panel-home.ref-home .ref-card>header h2{color:#f8fbff!important}
+body.dark #panel-home.ref-home .ref-card>header .elara-link{color:#bdd7ef!important}
+body.dark #panel-home.ref-home .ref-tasks{border-color:rgba(47,202,239,.48)!important}
+body.dark #panel-home.ref-home .ref-wellness-card{border-color:rgba(29,216,177,.52)!important}
+body.dark #panel-home.ref-home .ref-goals{border-color:rgba(245,196,81,.48)!important}
+body.dark #panel-home.ref-home #ref-streak-card{
+ border-color:rgba(255,126,65,.82)!important;
+ background:
+  radial-gradient(circle at 28% 18%,rgba(255,139,55,.36),transparent 27%),
+  linear-gradient(180deg,rgba(72,26,24,.42),rgba(11,24,46,.78)),
+  url('assets/ui/background-moonlit-mountains.webp') center/cover no-repeat!important;
+}
+body.dark #panel-home.ref-home .ref-quick-access{
+ background:linear-gradient(145deg,rgba(5,28,58,.97),rgba(3,18,39,.98))!important;
+ border-color:rgba(70,146,210,.34)!important;
+}
+body.dark #panel-home.ref-home .ref-quick-card{
+ background-size:cover!important;background-position:center!important;
+ border-color:rgba(100,173,235,.34)!important;
+}
+body.dark #panel-home.ref-home .ref-quick-card::before{
+ background:linear-gradient(180deg,rgba(2,15,35,.10),rgba(2,15,35,.72))!important;
+}
+body.dark #panel-home.ref-home .ref-quick-tasks{
+ background-image:linear-gradient(180deg,rgba(109,35,32,.18),rgba(40,15,30,.70)),url('assets/ui/hero-tasks-astra-v2.webp')!important
+}
+body.dark #panel-home.ref-home .ref-quick-language{
+ background-image:linear-gradient(180deg,rgba(0,71,111,.12),rgba(4,30,61,.72)),url('assets/ui/34-language-hero-banner.webp')!important
+}
+body.dark #panel-home.ref-home .ref-quick-books{
+ background-image:linear-gradient(180deg,rgba(50,34,108,.10),rgba(21,20,68,.72)),url('assets/ui/31-library-hero-banner.webp')!important
+}
+body.dark #panel-home.ref-home .ref-quick-exercise{
+ background-image:linear-gradient(180deg,rgba(0,82,70,.10),rgba(4,48,44,.72)),url('assets/ui/35-wellness-hero-banner.webp')!important
+}
+body.dark #panel-home.ref-home .ref-quick-social{
+ background-image:linear-gradient(180deg,rgba(0,79,118,.10),rgba(4,35,67,.72)),url('assets/ui/36-friends-hero-banner.webp')!important
+}
+body.dark #panel-home.ref-home .ref-quick-freedom{
+ background-image:linear-gradient(180deg,rgba(73,37,138,.08),rgba(37,23,89,.72)),url('assets/ui/41-freedom-hero-banner.webp')!important
+}
+body.dark #panel-home.ref-home .ref-ranks{
+ background:linear-gradient(180deg,rgba(4,22,49,.38),rgba(4,22,49,.76)),url('assets/ui/ranking_banner.webp') center/cover no-repeat!important;
+ border-color:rgba(245,196,81,.34)!important;
+}
+body.dark #panel-home.ref-home .ref-home-quote{
+ position:relative!important;
+ border-color:rgba(104,122,255,.36)!important;
+ background:linear-gradient(90deg,rgba(28,29,89,.56),rgba(32,26,88,.26)),url('assets/ui/quote-card.webp') center/cover no-repeat!important;
+}
+body.dark #panel-home.ref-home .ref-home-quote>header{position:relative;z-index:2!important}
+body.dark #panel-home.ref-home .ref-home-quote-copy{
+ position:relative;z-index:2;display:grid;gap:5px;align-content:center;height:calc(100% - 45px);padding:8px 14px;text-align:right
+}
+body.dark #panel-home.ref-home .ref-home-quote-copy strong{font-size:.88rem;color:#fff}
+body.dark #panel-home.ref-home .ref-home-quote-copy span{font-size:.74rem;line-height:1.9;color:#f0eaff}
+body.dark #panel-home.ref-home .ref-home-quote-copy small{font-size:.58rem;color:#cfc5ff}
+body.dark #panel-home.ref-home .ref-achievements{
+ background:linear-gradient(145deg,#08294e,#061a36)!important;
+ border-color:rgba(76,184,231,.34)!important;
+}
+body.dark .ref-topbar #ref-header-settings{
+ display:grid!important;place-items:center!important;order:0!important;
+ width:42px!important;height:42px!important;border-radius:11px!important;
+ border:1px solid rgba(76,184,231,.28)!important;background:#08213f!important;color:#e7f5ff!important;
+ font-size:1rem!important
+}
+body.dark .ref-topbar #ref-header-settings:hover{border-color:#20d7ff!important;box-shadow:0 0 15px rgba(32,215,255,.14)!important}
+body.dark .shell>.sidebar{
+ background:linear-gradient(180deg,#031327 0%,#04172d 55%,#031326 100%)!important;
+}
+body.dark .sidebar .navigation .nav-item.active,
+body.dark .sidebar .navigation .nav-item[aria-current="page"]{
+ border-color:#19d9ff!important;
+ background:linear-gradient(90deg,rgba(20,210,255,.28),rgba(27,104,201,.48))!important;
+ box-shadow:inset 3px 0 0 #21e3ff,0 0 18px rgba(26,201,255,.18)!important;
+}
+@media(min-width:701px){
+ body.dark #panel-home.ref-home .ref-home-grid{
+  grid-template-columns:1.14fr 1.08fr 1fr 1.04fr!important;
+  gap:12px!important;
+ }
+ body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
+  height:252px!important;min-height:252px!important;max-height:252px!important
+ }
+ body.dark #panel-home.ref-home .ref-quick-access{margin-top:12px!important}
+ body.dark #panel-home.ref-home .ref-quick-access-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:10px!important}
+ body.dark #panel-home.ref-home .ref-quick-card{height:116px!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid{
+  grid-template-columns:1.05fr 1.34fr .82fr!important;
+  grid-template-areas:"ranks quote achievements"!important;
+  gap:12px!important
+ }
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-ranks{grid-area:ranks!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-home-quote{grid-area:quote!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-achievements{grid-area:achievements!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>*{height:190px!important;min-height:190px!important;max-height:190px!important}
+ body.dark .ref-topbar #ref-header-search{width:min(390px,32vw)!important}
+}
+@media(max-width:700px){
+ body.dark #panel-home.ref-home .ref-hero{
+  background:
+   linear-gradient(90deg,rgba(2,15,35,.15),rgba(2,15,35,.44)),
+   url('assets/ui/homebanner1.webp') center/cover no-repeat!important;
+ }
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-home-quote{display:block!important}
+ body.dark #panel-home.ref-home .ref-home-quote{min-height:155px!important;height:auto!important}
+}
