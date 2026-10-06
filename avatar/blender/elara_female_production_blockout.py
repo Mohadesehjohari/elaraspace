@@ -1,5 +1,5 @@
 # Elara Female Production Blockout v1
-# Blender 4.x
+# Blender 4.x / 5.x
 #
 # Purpose:
 #   Generate a structured, smooth anime/semi-real FEMALE production blockout
@@ -517,12 +517,12 @@ scene.unit_settings.system='METRIC'
 scene.unit_settings.scale_length=1.0
 scene["elara_avatar_pipeline"]="production-v1"
 scene["elara_model"]="female"
-scene["elara_blockout_version"]="1.0"
+scene["elara_blockout_version"]="1.1"
 scene["elara_art_direction"]="2026-10-05-approved-turnaround"
 scene["elara_note"]="Blockout only. Final production requires sculpt + retopo + final hair + weights + morph sculpt."
 
 # Viewport/render
-scene.render.engine='BLENDER_EEVEE_NEXT'
+scene.render.engine='BLENDER_EEVEE'
 scene.render.resolution_x=1200
 scene.render.resolution_y=1600
 scene.render.resolution_percentage=70
