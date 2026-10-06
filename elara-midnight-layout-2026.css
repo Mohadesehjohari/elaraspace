@@ -588,3 +588,18 @@ body.dark #panel-home.ref-home .ref-hero-reports:hover{filter:brightness(1.1)!im
  }
 }
 body.dark #panel-home.ref-home .ref-hero>[data-home-reports]{display:none!important}
+
+
+/* 2026-10-06 Home topbar flush hard-fix. */
+@media(min-width:701px){
+ body.dark .workspace main:has(> #panel-home.ref-home:not(.hidden)),
+ body.dark #main:has(> #panel-home.ref-home:not(.hidden)){
+  padding-top:0!important;
+ }
+ body.dark #panel-home.ref-home{
+  margin-top:0!important;
+ }
+ body.dark #panel-home.ref-home .ref-hero{
+  margin-top:0!important;
+ }
+}
