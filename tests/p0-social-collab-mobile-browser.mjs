@@ -64,7 +64,13 @@ async function run(width,height){
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraNotify&&window.ElaraCollab&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.evaluate(()=>{
   const row={id:'ci-1',from:'f1',to:'me',status:'pending',kind:'language-class',title:'کلاس مکالمه',sender:{uid:'f1',name:'مهسا',username:'mahsa'}};
-  window.ElaraCollab={...(window.ElaraCollab||{}),kinds:['task','habit','goal','language-class','leitner-word'],pendingInvites:()=>[row],acceptInvite:async()=>true,declineInvite:async()=>true,openSpace:async()=>[],shareEntity:async()=>''};
+  window.__qaOps=[];window.__qaCollabRows=[row];
+  const socialDecide=window.ElaraSocial.decide.bind(window.ElaraSocial);
+  window.ElaraSocial.decide=async(req,status)=>{window.__qaOps.push({kind:'friend',id:req.id,status});return socialDecide(req,status)};
+  window.ElaraCollab={...(window.ElaraCollab||{}),kinds:['task','habit','goal','language-class','leitner-word'],pendingInvites:()=>window.__qaCollabRows.slice(),
+   acceptInvite:async id=>{window.__qaOps.push({kind:'collab',id,status:'accepted'});window.__qaCollabRows=window.__qaCollabRows.filter(x=>x.id!==id);window.dispatchEvent(new Event('elara:collab-updated'));return true},
+   declineInvite:async id=>{window.__qaOps.push({kind:'collab',id,status:'declined'});window.__qaCollabRows=window.__qaCollabRows.filter(x=>x.id!==id);window.dispatchEvent(new Event('elara:collab-updated'));return true},
+   openSpace:async()=>[],shareEntity:async()=>''};
   window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView.render()
  });
  await page.waitForSelector('#elara-social-page .social-requests-standalone');
@@ -75,6 +81,7 @@ async function run(width,height){
  assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/مهسا|mahsa/);
  assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/کیان|kian/);
  assert.match(await page.locator('#elara-social-page .social-collab-requests').innerText(),/کلاس مکالمه/);
+ if(width<=430){const textStyle=await page.locator('#elara-social-page .collab-request-copy strong').evaluate(el=>({whiteSpace:getComputedStyle(el).whiteSpace,overflow:getComputedStyle(el).overflow}));assert.notEqual(textStyle.whiteSpace,'nowrap',width+': Persian collab title must wrap instead of clip')}
  await touchTargets(page.locator('#elara-social-page .social-request-actions button'),width+': friend request actions');
  await touchTargets(page.locator('#elara-social-page .social-collab-requests [data-collab-accept],#elara-social-page .social-collab-requests [data-collab-decline]'),width+': collab request actions');
  const socialOverflow=await noOverflow(page,width+': social');
@@ -107,6 +114,12 @@ async function run(width,height){
  assert.equal(await page.locator('[data-notification-collab-accept]').count(),1,width+': collab notification Accept missing');
  assert.equal(await page.locator('[data-notification-collab-decline]').count(),1,width+': collab notification Decline missing');
  await touchTargets(page.locator('.elara-notification-inline-actions button'),width+': notification actions');
+ await page.locator('[data-notification-friend-accept]').click();await page.waitForTimeout(80);
+ await page.locator('[data-notification-collab-decline]').click();await page.waitForTimeout(80);
+ const ops=await page.evaluate(()=>window.__qaOps.slice());
+ assert.ok(ops.some(x=>x.kind==='friend'&&x.id==='r-in'&&x.status==='accepted'),width+': friend notification did not call canonical decide');
+ assert.ok(ops.some(x=>x.kind==='collab'&&x.id==='ci-1'&&x.status==='declined'),width+': collab notification did not call canonical decline');
+ assert.ok(await page.locator('.elara-notification-row.is-resolved').count()>=2,width+': resolved notifications were not marked resolved/read');
  await noOverflow(page,width+': notification');
  await page.screenshot({path:'browser-artifacts/p0-notifications-'+width+'.png',fullPage:true});
 
