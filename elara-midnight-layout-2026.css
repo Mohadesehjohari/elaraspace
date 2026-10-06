@@ -557,3 +557,34 @@ body.dark #panel-home.ref-home .ref-hero-reports:hover{filter:brightness(1.1)!im
  body.dark #panel-home.ref-home .ref-hero-actions{gap:6px!important;margin-top:6px!important}
  body.dark #panel-home.ref-home .ref-hero-actions :where(.ref-hero-continue,.ref-hero-reports){min-width:0!important;height:34px!important;padding:5px 11px!important;font-size:.68rem!important}
 }
+
+
+/* 2026-10-06 Home reference alignment: flush hero, artwork, first-row rhythm, reports CTA. */
+@media(min-width:701px){
+ body.dark #panel-home.ref-home{margin-top:-12px!important}
+ body.dark #panel-home.ref-home .ref-hero{
+  background:
+   linear-gradient(90deg,rgba(2,15,35,.18) 0%,rgba(2,15,35,.08) 48%,rgba(2,15,35,.68) 100%),
+   url('assets/ui/hero-landscape.webp') center 48%/cover no-repeat!important;
+ }
+ body.dark #panel-home.ref-home .ref-hero::before{opacity:.14!important}
+ body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){margin:0!important}
+ body.dark #panel-home.ref-home .ref-hero-actions{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;flex-wrap:wrap!important;
+  margin-top:10px!important;
+ }
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-continue,
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{
+  position:static!important;inset:auto!important;transform:none!important;margin:0!important;
+ }
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+  min-width:112px!important;height:38px!important;padding:7px 15px!important;border:1px solid rgba(145,224,255,.72)!important;
+  border-radius:999px!important;background:linear-gradient(120deg,#4e8bff,#38d0dd)!important;color:#fff!important;
+  font-size:.68rem!important;font-weight:900!important;box-shadow:0 0 18px rgba(56,208,221,.22)!important;backdrop-filter:none!important;
+ }
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports:hover{
+  filter:brightness(1.06)!important;box-shadow:0 0 22px rgba(78,139,255,.30)!important;
+ }
+}
+body.dark #panel-home.ref-home .ref-hero>[data-home-reports]{display:none!important}
