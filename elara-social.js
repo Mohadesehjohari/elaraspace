@@ -6,7 +6,7 @@ const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElement
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
 const state={me:null,friends:[],requests:[],activities:[],blocked:[],error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
-let uid=null,baseline=null,busy=false,rerun=false,generation=0,lastSocialStats='';
+let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 function avatar(name){return `<span class="elara-social-avatar" aria-hidden="true">${esc((name||'E').trim().slice(0,1).toUpperCase())}</span>`}
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
@@ -33,7 +33,7 @@ async function visibleSocialStats(other){
  try{const snap=await getDoc(doc(db,'socialStats',String(other)));if(!snap.exists())return null;const d=snap.data()||{},n=Number(d.streak);return Number.isInteger(n)&&n>=0&&n<=36500?{streak:n,visibility:d.visibility||'private'}:null}catch(error){if(error?.code!=='permission-denied')console.warn('Social stats unavailable:',other,error.code||error.message);return null}
 }
 async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
-async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;busy=true;const mine=uid,gen=++generation;try{
+async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
  const [incoming,outgoing,blockedSnaps]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
   getDocs(query(collection(db,'friendRequests'),where('from','==',mine))),
@@ -49,7 +49,13 @@ async function refresh(){if(busy){rerun=true;return}if(!(await obtain()))return;
  state.friends=await Promise.all(state.friends.map(async person=>{const stats=await visibleSocialStats(person.uid);return stats?{...person,...stats}:person}));
  const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
  if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';if(gen===generation)render();
- }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}finally{busy=false;if(rerun){rerun=false;void refresh()}}}
+ }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}}
+async function refresh(){
+ const run=()=>refreshPass();
+ const pending=refreshChain.then(run,run);
+ refreshChain=pending.catch(()=>{});
+ return pending
+}
 window.ElaraSocial.refresh=refresh;
 
 const dmId=other=>[String(uid||''),String(other||'')].sort().join('__');

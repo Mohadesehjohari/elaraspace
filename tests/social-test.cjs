@@ -10,7 +10,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   ['C',{username:'cyrus',name:'Cyrus',bio:'',xp:80,profilePublic:true}]
  ]);
  const usernames=new Map([...profiles].map(([uid,p])=>[p.username,{uid}]));
- const requests=new Map(),reads={friendRequests:0};
+ const requests=new Map(),reads={friendRequests:0};let friendReadGate=null;
  const mockAuth={currentUser:{uid:'A',emailVerified:true}};
  const ref=(kind,id)=>({kind,id,path:kind+'/'+id});
  const snap=(id,data)=>({id,exists:()=>data!==undefined,data:()=>data,ref:ref('friendRequests',id)});
@@ -28,6 +28,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   getDocs:async q=>{
    if(q.name==='activities')return {docs:[]};
    if(q.name!=='friendRequests')return {docs:[]};
+   if(friendReadGate)await friendReadGate;
    const rows=[...requests].filter(([,data])=>q.clauses.every(c=>data[c.field]===c.value));
    return {docs:rows.map(([id,data])=>snap(id,data))};
   },
@@ -55,6 +56,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   w.document.querySelector('[data-social-route="ranking"][data-social-view="friends"]').click();
   assert.equal(w.document.querySelector('[data-social-route="ranking"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  }
+
+ // A refresh already in flight must be awaited before a new friendship mutation checks state.
+ // This prevents a stale client from attempting a crossed A->C request while C->A already exists.
+ requests.set('C_A',{from:'C',to:'A',status:'pending'});
+ w.document.querySelector('[data-social-route="social"][data-social-view="friends"]').click();w.__socialTest({uid:'A',...profiles.get('A')});
+ let releaseFriendReads;friendReadGate=new Promise(resolve=>{releaseFriendReads=resolve});
+ const backgroundRefresh=w.__socialOps.refresh();await new Promise(resolve=>setTimeout(resolve,0));
+ const crossedGuard=w.__socialOps.addFriend('cyrus');await new Promise(resolve=>setTimeout(resolve,0));
+ releaseFriendReads();friendReadGate=null;await backgroundRefresh;
+ await assert.rejects(()=>crossedGuard,/درخواست ورودی|درخواست فرستاده/,'queued refresh must complete before crossed-request guard');
+ assert.equal(requests.has('A_C'),false,'serialized refresh must prevent a crossed write attempt');
+ requests.delete('C_A');await w.__socialOps.refresh();
 
  // A sends first request to B. This is the regression: no getDoc() of the missing request path is allowed.
  w.document.querySelector('[data-social-route="social"][data-social-view="friends"]').click();w.__socialTest({uid:'A',...profiles.get('A')});

@@ -611,7 +611,8 @@ async function resetFocus(){
     if(!confirmed)return;
     clearInterval(focusInterval);focusInterval=null;state.activeFocus=null;state.focusPlanProgress=null;writeState(state);notify(focusT('زمان‌سنج برای چرخهٔ جدید آماده شد.','Timer is ready for a new cycle.'));updateFocusDisplay();
   }
-function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHistory();updateFocusDisplay()}
+function routeActive(name){return location.hash==='#'+name||!$('panel-'+name)?.classList.contains('hidden')}
+function refreshAll(){syncSelectors();if(routeActive('tasks'))renderTasks();if(routeActive('habits'))renderHabits();renderFocusHistory();updateFocusDisplay()}
 
   function bind(){
     injectUI();resetTaskForm();resetHabitForm();refreshAll();restoreFocus();
@@ -655,11 +656,11 @@ function refreshAll(){syncSelectors();renderTasks();renderHabits();renderFocusHi
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     taskSurfaceObserver=new MutationObserver(scheduleTaskSurfaceDecorate);taskSurfaceObserver.observe(document.body,{childList:true,subtree:true});scheduleTaskSurfaceDecorate();
     window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
-    window.addEventListener('elara:linked-state',()=>setTimeout(()=>{renderTasks();scheduleTaskSurfaceDecorate()},0));
+    window.addEventListener('elara:linked-state',()=>setTimeout(()=>{if(routeActive('tasks'))renderTasks();scheduleTaskSurfaceDecorate()},0));
     window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
-    window.addEventListener('elara:data-changed',()=>{renderTasks();scheduleTaskSurfaceDecorate();if(!document.getElementById('panel-habits')?.classList.contains('hidden'))renderHabits()});
+    window.addEventListener('elara:data-changed',()=>{if(routeActive('tasks'))renderTasks();scheduleTaskSurfaceDecorate();if(routeActive('habits'))renderHabits()});
   }
   window.ElaraCoreTaskHold={decorate:decorateTaskSurfaces,editDailyTarget:editTaskDailyTarget,openActions:openTaskQuickActions};
-  window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,taskDailyTarget,taskDailyProgress,habitScheduled,openComposer:openTaskComposer,render:renderTasks,reset:resetTaskForm};
+  window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,taskDailyTarget,taskDailyProgress,habitScheduled,openComposer:openTaskComposer,render:renderTasks,renderHabits,reset:resetTaskForm};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
