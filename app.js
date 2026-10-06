@@ -301,7 +301,7 @@
   function toggleTimer(){if(endAt){remaining=updateTimer();endAt=0;clearInterval(interval);interval=null;$('timer-start').textContent='ادامه';$('focus-status').textContent='مکث';}else{endAt=Date.now()+remaining*1000;interval=setInterval(updateTimer,250);$('timer-start').textContent='مکث';$('focus-status').textContent='در حال تمرکز';updateTimer();}}
   function resetTimer(){endAt=0;remaining=25*60;clearInterval(interval);interval=null;$('timer-start').textContent='شروع';$('focus-status').textContent='آمادهٔ تمرکز';updateTimer();}
   function applyTheme(){document.body.classList.toggle('light',state.theme==='light');document.body.classList.toggle('dark',state.theme!=='light');}
-  function renderAll({tasks=true}={}){syncSelectors();syncGoalSelectors();renderHeader();if(tasks)renderTasks();renderHabits();renderGoals();renderBooks();renderWords();renderSettings();applyTheme();}
+  function renderAll({tasks=true,habits=true}={}){syncSelectors();syncGoalSelectors();renderHeader();if(tasks)renderTasks();if(habits)renderHabits();renderGoals();renderBooks();renderWords();renderSettings();applyTheme();}
   function bindForm(form,callback){$(form).addEventListener('submit',event=>{event.preventDefault();callback(event);});}
   $('task-form').addEventListener('submit',handleTaskSubmit);$('task-cancel').addEventListener('click',resetTaskForm);$('task-list').addEventListener('click',handleTaskClick);
   for(const id of ['task-search','task-filter','task-folder-filter','task-tag-filter'])$(id).addEventListener(id==='task-search'?'input':'change',renderTasks);
@@ -330,11 +330,12 @@
   window.addEventListener('elara:linked-state',acceptCommittedState);
   window.addEventListener('elara:hydrate',event=>{state=normalize(event.detail);editingTask=null;activeWordId=null;resetTaskForm();renderAll();window.dispatchEvent(new Event('storage'));});
   const initialRoute=(location.hash||'').replace(/^#/,'')||'home';
-  renderAll({tasks:initialRoute==='tasks'});
+  renderAll({tasks:initialRoute==='tasks',habits:initialRoute==='habits'});
   if(Object.hasOwn(tabNames,initialRoute))setTab(initialRoute);
   window.addEventListener('elara:open',event=>{
     const tab=event?.detail?.tab||'';
     currentTab=tab||currentTab;
     if(tab==='tasks')renderTasks();
+    else if(tab==='habits'){const canonical=window.ElaraTasks?.renderHabits;if(typeof canonical==='function')canonical();else renderHabits()}
   });
 })();
