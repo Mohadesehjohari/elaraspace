@@ -123,9 +123,9 @@ function homeStructure(){
  let theme=$('ref-theme-strip');if(!theme){theme=element('section','elara-card ref-theme-strip','ref-theme-strip');theme.innerHTML=`<header><h2>${icon('spark')} جهان‌های تم</h2><button type="button" class="elara-link" data-drawer-appearance>مشاهده همه ←</button></header><div class="ref-theme-options">${['violet','blue','pink','green','orange','black'].map((c,i)=>`<button type="button" class="ref-theme-option" data-ref-theme="${c}" aria-label="انتخاب تم ${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}"><img class="ref-theme-option-art" src="${THEME_ART[c]}" alt="" loading="lazy" decoding="async"><small>${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}</small></button>`).join('')}</div>`}
  const streakCard=$('ref-streak-card')||element('section','ref-streak-card ref-card','ref-streak-card');
  if(!streakCard.isConnected){const hero=panel.querySelector('.elara-hero');hero?.insertAdjacentElement('afterend',streakCard)}
- const quick=ensureQuickAccess(panel,grid),bottom=ensureBottomGrid(panel,grid),achievements=ensureAchievements(bottom);
+ const quick=ensureQuickAccess(panel,grid),bottom=ensureBottomGrid(panel,grid),quote=ensureQuoteCard(bottom),achievements=ensureAchievements(bottom);
  for(const cardNode of [streakCard,tasks,wellness,goals])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==grid)grid.append(cardNode)}
- for(const cardNode of [ranks,habits,achievements])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==bottom)bottom.append(cardNode)}
+ for(const cardNode of [ranks,quote,achievements])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==bottom)bottom.append(cardNode)}
  // Reference dashboard intentionally consolidates secondary Home cards: Missions remain reachable
  // through Achievements, Friends through Quick Access/sidebar, and all routes/state stay canonical.
  for(const cardNode of [missions,activity,social,theme,habits])if(cardNode)cardNode.hidden=true;
