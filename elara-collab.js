@@ -1,4 +1,4 @@
-/* Persistent collaboration for Tasks, Habits, Language Classes and Leitner words.
+/* Persistent collaboration for Tasks, Habits, Goals, Language Classes and Leitner words.
    Firestore owns consent/membership; local entities remain usable offline. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
