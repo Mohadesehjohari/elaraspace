@@ -1,0 +1,50 @@
+name: P0 live source verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/p0-live-source-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch deployed Pages source and compare to merged main
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://mohadesehjohari.github.io/elaraspace'
+          SHA='bbdf120857ae9f488c027bc3f03d082e22e713c2'
+          curl -fsSL --retry 5 --retry-delay 2 "$BASE/elara-social.js" -o live-social.js
+          curl -fsSL --retry 5 --retry-delay 2 "$BASE/elara-collab.js" -o live-collab.js
+          curl -fsSL --retry 5 --retry-delay 2 "https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/$SHA/elara-social.js" -o main-social.js
+          curl -fsSL --retry 5 --retry-delay 2 "https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/$SHA/elara-collab.js" -o main-collab.js
+
+          cmp -s live-social.js main-social.js
+          cmp -s live-collab.js main-collab.js
+
+          node <<'NODE'
+          const fs=require('fs'),crypto=require('crypto'),assert=require('assert/strict');
+          const social=fs.readFileSync('live-social.js','utf8');
+          const collab=fs.readFileSync('live-collab.js','utf8');
+          assert.ok(social.includes('refreshChain=Promise.resolve()'),'live social missing refreshChain');
+          const start=collab.indexOf('async function invite(spaceId,friendUid){');
+          const end=collab.indexOf('async function shareEntity',start);
+          assert.ok(start>=0&&end>start,'live collab invite function missing');
+          const invite=collab.slice(start,end);
+          const setAt=invite.indexOf('await setDoc(inviteRef,payload)');
+          const getAt=invite.indexOf('getDoc(inviteRef)');
+          assert.ok(setAt>=0&&getAt>setAt,'live collab does not write before get');
+          const sha=x=>crypto.createHash('sha256').update(x).digest('hex');
+          console.log(JSON.stringify({
+            pages_build_sha:'bbdf120857ae9f488c027bc3f03d082e22e713c2',
+            live_social_sha256:sha(Buffer.from(social)),
+            live_collab_sha256:sha(Buffer.from(collab)),
+            refreshChain:true,
+            collab_write_first:true,
+            live_matches_merged_main:true
+          },null,2));
+          NODE
