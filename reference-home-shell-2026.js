@@ -86,6 +86,15 @@ function ensureQuickAccess(panel,grid){
 function ensureBottomGrid(panel,grid){
  let b=$('ref-bottom-grid');if(!b){b=element('div','ref-bottom-grid','ref-bottom-grid');const q=ensureQuickAccess(panel,grid);q?.insertAdjacentElement('afterend',b)}return b
 }
+function ensureQuoteCard(host){
+ let q=$('ref-home-quote-card');
+ if(!q){
+  q=element('section','elara-card ref-card ref-home-quote','ref-home-quote-card');
+  q.innerHTML='<header><h2>✦ نقل قول امروز</h2></header><div class="ref-home-quote-copy"><strong>«هر قدم کوچک امروز</strong><span>تو را به نسخه‌ی شگفت‌انگیز فردا نزدیک‌تر می‌کند.»</span><small>— Elara Space</small></div>';
+  host?.append(q)
+ }
+ return q
+}
 function ensureAchievements(host){
  let a=$('ref-achievements');if(!a){a=element('section','elara-card ref-card ref-achievements','ref-achievements');a.innerHTML='<header><h2>★ آخرین دستاوردها</h2><button type="button" class="elara-link" data-elara-tab="missions">مشاهده همه ←</button></header><div id="ref-achievements-list"></div>';host?.append(a)}return a
 }
@@ -119,7 +128,7 @@ function homeStructure(){
  for(const cardNode of [ranks,habits,achievements])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==bottom)bottom.append(cardNode)}
  // Reference dashboard intentionally consolidates secondary Home cards: Missions remain reachable
  // through Achievements, Friends through Quick Access/sidebar, and all routes/state stay canonical.
- for(const cardNode of [missions,activity,social,theme])if(cardNode)cardNode.hidden=true;
+ for(const cardNode of [missions,activity,social,theme,habits])if(cardNode)cardNode.hidden=true;
  side?.remove();
  const namedAreas=[[streakCard,'streak'],[tasks,'tasks'],[wellness,'wellness'],[goals,'goals'],[ranks,'ranks'],[habits,'habits'],[achievements,'achievements']];
  for(const [cardNode,area] of namedAreas)if(cardNode){
@@ -188,7 +197,7 @@ function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar
  let search=$('ref-header-search');if(!search){search=element('div','ref-header-search','ref-header-search');search.innerHTML=`<label for="ref-search-input" class="sr-only">جستجو در Elara</label><input id="ref-search-input" type="search" autocomplete="off" placeholder="جستجو در Elara…"><div class="ref-search-results" id="ref-search-results" hidden></div>`;bar.insertBefore(search,actions);const input=$('ref-search-input'),results=$('ref-search-results');input.addEventListener('input',()=>{const q=input.value.trim(),rows=localSearch(q);results.hidden=!q;results.innerHTML=q?(rows.length?rows.map(r=>`<button type="button" data-ref-search-route="${esc(r.route)}"><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></button>`).join(''):'<p class="muted">اینجا چیزی پیدا نکردم 👀 یه عبارت دیگه امتحان کن.</p>'):''});input.addEventListener('keydown',e=>{if(e.key==='Escape'){results.hidden=true;input.blur()}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click()}});results.addEventListener('click',e=>{const b=e.target.closest('[data-ref-search-route]');if(!b)return;const q=input.value.trim();results.hidden=true;window.ElaraOpen?.(b.dataset.refSearchRoute);if(b.dataset.refSearchRoute==='tasks')setTimeout(()=>{const field=$('task-search');if(field){field.value=q;field.dispatchEvent(new Event('input',{bubbles:true}))}},0)});document.addEventListener('click',e=>{if(!search.contains(e.target))results.hidden=true})}
  const sidebar=document.querySelector('.sidebar');let sideBanner=$('ref-sidebar-banner');if(sidebar&&!sideBanner){sideBanner=element('aside','ref-sidebar-banner','ref-sidebar-banner');sideBanner.innerHTML='<img src="assets/ui/icon-reward-star.webp" alt=""><strong>هر روز<br>نسخه‌ای بهتر از تو</strong><span>— Elara</span>';sideBanner.style.backgroundImage='linear-gradient(180deg,#05142b22,#05142bdd),url("assets/ui/background-moonlit-mountains.webp")';sidebar.append(sideBanner)}
  const theme=$('theme-toggle');if(theme){theme.classList.add('ref-theme-art-control');syncThemeArtwork(theme)}
- document.getElementById('ref-header-settings')?.remove();
+ let settings=$('ref-header-settings');if(!settings){settings=element('button','icon-button ref-header-settings','ref-header-settings');settings.type='button';settings.setAttribute('aria-label','تنظیمات');settings.innerHTML='<span aria-hidden="true">⚙</span>';settings.addEventListener('click',()=>window.ElaraPrivateDrawer?.open?.('settings'));actions.prepend(settings)}
  let notify=$('ref-header-notifications');if(!notify){notify=element('button','icon-button ref-header-notifications','ref-header-notifications');notify.type='button';notify.setAttribute('aria-label','اعلان‌ها');actions.append(notify)}const unread=Number(window.ElaraNotify?.unreadCount?.()??unreadNotifications())||0;notify.dataset.unreadCount=String(unread);window.ElaraDOM.patch(notify,art(unread>0?UI_ASSETS.notificationUnread:UI_ASSETS.notificationRead,'ref-header-art ref-notification-art',''));
  document.getElementById('ref-header-edit')?.remove();
 }
