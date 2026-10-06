@@ -10,7 +10,7 @@
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
-  const initial = () => ({version:1, tasks:[], habits:[], goals:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, focusPlanProgress:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
+  const initial = () => ({version:1, tasks:[], habits:[], goals:[], languageClasses:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, focusPlanProgress:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
   const uniqueNames = values => Array.isArray(values) ? [...new Set(values.map(v => asText(v,60)).filter(Boolean))].slice(0,250) : [];
   const normalize = raw => {
@@ -23,7 +23,7 @@
     data.tags = uniqueNames(raw.tags);
     data.bookShelves = uniqueNames(raw.bookShelves);
     data.linkedTaskDismissals = [...new Set((Array.isArray(raw.linkedTaskDismissals)?raw.linkedTaskDismissals:[]).map(v=>asText(v,360)).filter(Boolean))].slice(-10000);
-    for (const key of ['tasks','habits','goals','books','bookClips','words']) {
+    for (const key of ['tasks','habits','goals','languageClasses','books','bookClips','words']) {
       if (raw[key] != null && !Array.isArray(raw[key])) throw new Error(`فهرست ${key} معتبر نیست.`);
     }
     const ids = new Set();
@@ -71,6 +71,15 @@
     data.goals = (raw.goals || []).slice(0,2000).filter(Boolean).map(g => {
       const dailyTarget=safeDailyTarget(g.dailyTarget);
       return {id:safeId(g.id),title:asText(g.title,180),description:asText(g.description,1200),manualOrder:Number.isFinite(Number(g.manualOrder))?Number(g.manualOrder):null,horizon:['short','medium','long'].includes(g.horizon)?g.horizon:'short',date:validDate(g.date)?g.date:'',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(g.time??'')?g.time:'',priority:['1','2','3','4'].includes(String(g.priority))?String(g.priority):'4',list:asText(g.list,60),folder:asText(g.folder,60),tag:asText(g.tag,60),dailyTarget,dailyProgress:safeDailyProgress(g.dailyProgress,dailyTarget),recurrenceRule:safeRule(g.recurrenceRule,g.date),skippedDates:safeDates(g.skippedDates),steps:(Array.isArray(g.steps)?g.steps:[]).slice(0,1000).filter(Boolean).map(step=>{const stepTarget=safeDailyTarget(step.dailyTarget);return {id:safeId(step.id),text:asText(step.text??step.title,180),done:!!(step.done||step.completed),date:validDate(step.date)?step.date:'',time:/^([01]\d|2[0-3]):[0-5]\d$/.test(step.time??'')?step.time:'',priority:['1','2','3','4'].includes(String(step.priority))?String(step.priority):'4',list:asText(step.list,60),folder:asText(step.folder,60),tag:asText(step.tag,60),dailyTarget:stepTarget,dailyProgress:safeDailyProgress(step.dailyProgress,stepTarget),recurrenceRule:safeRule(step.recurrenceRule,step.date),occurrenceDone:safeDates(step.occurrenceDone),skippedDates:safeDates(step.skippedDates)}}).filter(step=>step.text),collabSpaceId:asText(g.collabSpaceId,120),collabRole:['owner','member'].includes(g.collabRole)?g.collabRole:'',collabOwnerUid:asText(g.collabOwnerUid,128),shared:!!g.shared}}).filter(g => g.title);
+    data.languageClasses = (raw.languageClasses || []).slice(0,1000).filter(x=>x&&typeof x==='object').map(x=>({
+      id:safeId(x.id),ownerUid:asText(x.ownerUid,128),title:asText(x.title,120),type:['offline','online','linked'].includes(x.type)?x.type:'offline',
+      terms:Math.max(1,Math.min(40,Math.round(Number(x.terms)||1))),sessionsPerTerm:Math.max(1,Math.min(100,Math.round(Number(x.sessionsPerTerm)||1))),
+      durationMin:Math.max(10,Math.min(480,Math.round(Number(x.durationMin)||60))),weekdays:[...new Set((Array.isArray(x.weekdays)?x.weekdays:[]).map(Number).filter(n=>n>=0&&n<=6))],
+      studyTime:/^([01]\d|2[0-3]):[0-5]\d$/.test(x.studyTime??'')?x.studyTime:'',studyHoursPerDay:Math.max(.25,Math.min(16,Number(x.studyHoursPerDay)||1)),
+      linkUrl:asText(x.linkUrl,1000),createdAt:Number(x.createdAt)||Date.now(),updatedAt:Number(x.updatedAt)||Date.now(),
+      sessionLogs:(Array.isArray(x.sessionLogs)?x.sessionLogs:[]).slice(-5000).filter(v=>v&&typeof v==='object').map(v=>({id:asText(v.id,100)||makeId(),at:Number(v.at)||Date.now()})),
+      collabSpaceId:asText(x.collabSpaceId,120),collabRole:['owner','member'].includes(x.collabRole)?x.collabRole:'',collabOwnerUid:asText(x.collabOwnerUid,128),shared:!!x.shared
+    })).filter(x=>x.title);
     data.books = (raw.books || []).slice(0,3000).filter(Boolean).map(b => window.ElaraReading.normalize({...b,id:safeId(b.id),title:asText(b.title,180),shelf:['want','reading','finished'].includes(b.shelf) ? b.shelf : 'want'})).filter(b => b.title);
     const safeClipImage=value=>{const v=String(value||'');return /^data:image\/(?:webp|png|jpeg);base64,/i.test(v)&&v.length<=360000?v:''};
     data.bookClips = (raw.bookClips || []).slice(0,1000).filter(c=>c&&typeof c==='object').map(c=>({id:safeId(c.id),bookId:asText(c.bookId,100),text:asText(c.text,2000),page:Math.max(0,Math.min(1000000,Math.floor(Number(c.page)||0))),visibility:['private','friends','public'].includes(c.visibility)?c.visibility:'private',imageData:safeClipImage(c.imageData),createdAt:Number(c.createdAt)||Date.now()})).filter(c=>c.text||c.imageData);
