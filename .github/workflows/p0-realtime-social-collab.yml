@@ -1,0 +1,74 @@
+name: P0 realtime social and collaboration browser
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/p0-realtime-social-collab.yml'
+      - 'elara-social.js'
+      - 'social-view.js'
+      - 'notifications.js'
+      - 'elara-collab.js'
+      - 'language-custom-classes.js'
+      - 'app.js'
+      - 'collab-2026.css'
+      - 'firestore.rules'
+      - 'tests/p0-social-collab-mobile-browser.mjs'
+      - 'tests/firestore-rules-emulator.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check notifications.js
+          node --check social-view.js
+          node --check language-custom-classes.js
+          node --check app.js
+          node --input-type=module --check < elara-social.js
+          node --input-type=module --check < elara-collab.js
+          node --check tests/p0-social-collab-mobile-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local branch site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-p0-social-http.log 2>&1 &
+          sleep 2
+      - name: Browser acceptance 320 375 390 430
+        run: timeout 180s node tests/p0-social-collab-mobile-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p0-social-collab-mobile-${{ github.sha }}
+          path: browser-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install rules test dependencies
+        run: npm install --prefix tests --no-package-lock
+      - name: Multi-UID Firestore rules emulator
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
