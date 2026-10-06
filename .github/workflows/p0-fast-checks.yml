@@ -11,9 +11,16 @@ on:
       - 'reference-home-shell-2026.js'
       - 'elara-social.js'
       - 'elara-collab.js'
+      - 'notifications.js'
+      - 'social-view.js'
+      - 'language-custom-classes.js'
+      - 'collab-2026.css'
+      - 'firestore.rules'
       - 'tests/home-first-startup.test.mjs'
       - 'tests/collab-invite-regression.test.mjs'
       - 'tests/social-test.cjs'
+      - 'tests/realtime-social-collab-contract.test.mjs'
+      - 'tests/static-check.mjs'
   workflow_dispatch:
 
 permissions:
@@ -34,10 +41,16 @@ jobs:
           node --check reference-home-shell-2026.js
           node --input-type=module --check < elara-social.js
           node --input-type=module --check < elara-collab.js
+          node --check notifications.js
+          node --check social-view.js
+          node --check language-custom-classes.js
+          node --check tests/realtime-social-collab-contract.test.mjs
       - name: Startup and collaboration contracts
         run: |
           node tests/home-first-startup.test.mjs
           node tests/collab-invite-regression.test.mjs
+          node tests/realtime-social-collab-contract.test.mjs
+          node tests/static-check.mjs
       - name: Social lifecycle regression
         run: |
           npm install --prefix tests --no-package-lock
