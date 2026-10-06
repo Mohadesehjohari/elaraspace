@@ -1,6 +1,7 @@
 /* Elara approved wellness: account-scoped local data, compact water UI, line sleep chart, no public health sharing. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const today=()=>iso(new Date()),uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const storageKey=()=>`elara_private_wellness_v1_${uid()}`;
