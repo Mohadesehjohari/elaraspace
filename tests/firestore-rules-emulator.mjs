@@ -109,6 +109,18 @@ try{
  await assertSucceeds(updateDoc(ref(bob,collab+'/members/bob'),{localEntityId:'class-local-b',progressCompleted:9,progressTotal:36,progressPercent:25,updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(bob,collab),{title:'hijack',updatedAt:serverTimestamp()}));
 
+ // Shared Goal is a first-class collaboration kind and follows the same consent contract.
+ const goalSpace='collabSpaces/collab_goal_1',goalInvite='collabInvites/collab_goal_1__bob';
+ await assertSucceeds(setDoc(ref(alice,goalSpace),{ownerUid:'alice',kind:'goal',title:'Ship P0',payloadJson:JSON.stringify({title:'Ship P0',description:'Canonical goal',horizon:'short',date:'',time:'',priority:'2',list:'',folder:'',tag:'',dailyTarget:1,recurrenceRule:null,steps:[{id:'step-1',text:'Realtime acceptance',date:'',time:'',priority:'2',list:'',folder:'',tag:'',dailyTarget:1,recurrenceRule:null}]}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,goalSpace+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'goal-local-a',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,goalInvite),{spaceId:'collab_goal_1',from:'alice',to:'bob',kind:'goal',title:'Ship P0',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ const goalAccept=writeBatch(bob);
+ goalAccept.update(ref(bob,goalInvite),{status:'accepted',updatedAt:serverTimestamp()});
+ goalAccept.set(ref(bob,goalSpace+'/members/bob'),{uid:'bob',role:'member',localEntityId:'goal-local-b',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ await assertSucceeds(goalAccept.commit());
+ await assertSucceeds(getDoc(ref(bob,goalSpace)));
+ await assertFails(setDoc(ref(alice,'collabSpaces/bad_kind'),{ownerUid:'alice',kind:'fake-goal',title:'Nope',payloadJson:'{}',visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+
  // Owner-created join link is persistent; any signed user with the token can explicitly join.
  const joinToken='joinTokenCollabClass1234567890';
  await assertSucceeds(setDoc(ref(alice,'collabLinks/'+joinToken),{spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'English C1',active:true,createdAt:serverTimestamp()}));
@@ -167,7 +179,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club collab challenge page engagement reports block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club collab-goal challenge page engagement reports block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }
