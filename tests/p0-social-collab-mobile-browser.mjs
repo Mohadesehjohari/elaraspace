@@ -85,6 +85,10 @@ async function run(width,height){
  await touchTargets(page.locator('#elara-social-page .social-request-actions button'),width+': friend request actions');
  await touchTargets(page.locator('#elara-social-page .social-collab-requests [data-collab-accept],#elara-social-page .social-collab-requests [data-collab-decline]'),width+': collab request actions');
  const socialOverflow=await noOverflow(page,width+': social');
+ await page.locator('#elara-social-page .social-requests-standalone').scrollIntoViewIfNeeded();await page.waitForTimeout(60);
+ const requestVsNav=await page.evaluate(()=>{const card=document.querySelector('#elara-social-page .social-requests-standalone'),nav=document.querySelector('.bottom-nav');if(!card||!nav)return null;const a=card.getBoundingClientRect(),b=nav.getBoundingClientRect();return{cardTop:a.top,cardBottom:a.bottom,navTop:b.top,navBottom:b.bottom,overlap:Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))}});
+ assert.ok(requestVsNav&&requestVsNav.overlap===0,width+': Friend Requests card overlaps fixed bottom nav '+JSON.stringify(requestVsNav));
+ await page.screenshot({path:'browser-artifacts/p0-social-requests-viewport-'+width+'.png',fullPage:false});
  await page.screenshot({path:'browser-artifacts/p0-social-requests-'+width+'.png',fullPage:true});
 
  await page.evaluate(()=>window.ElaraOpen('language-courses',{history:'replace'}));await page.waitForTimeout(150);
@@ -114,6 +118,7 @@ async function run(width,height){
  assert.equal(await page.locator('[data-notification-collab-accept]').count(),1,width+': collab notification Accept missing');
  assert.equal(await page.locator('[data-notification-collab-decline]').count(),1,width+': collab notification Decline missing');
  await touchTargets(page.locator('.elara-notification-inline-actions button'),width+': notification actions');
+ await page.screenshot({path:'browser-artifacts/p0-notifications-actions-'+width+'.png',fullPage:false});
  await page.locator('[data-notification-friend-accept]').click();await page.waitForTimeout(80);
  await page.locator('[data-notification-collab-decline]').click();await page.waitForTimeout(80);
  const ops=await page.evaluate(()=>window.__qaOps.slice());
@@ -123,7 +128,7 @@ async function run(width,height){
  await noOverflow(page,width+': notification');
  await page.screenshot({path:'browser-artifacts/p0-notifications-'+width+'.png',fullPage:true});
 
- console.log(JSON.stringify({width,socialOverflow,friendRequests:true,sharedRequests:true,sharedClass:true,sharedTask:true,sharedGoal:true,notificationActions:true}));
+ console.log(JSON.stringify({width,socialOverflow,requestVsNav,friendRequests:true,sharedRequests:true,sharedClass:true,sharedTask:true,sharedGoal:true,notificationActions:true}));
  await page.close();
 }
 
