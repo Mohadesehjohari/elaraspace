@@ -1,11 +1,11 @@
 /* Persistent collaboration for Tasks, Habits, Language Classes and Leitner words.
    Firestore owns consent/membership; local entities remain usable offline. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,onSnapshot,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
-const KINDS=new Set(['task','habit','language-class','leitner-word']);
+const KINDS=new Set(['task','habit','goal','language-class','leitner-word']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const id=()=>crypto.randomUUID?.()||('collab-'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
@@ -13,24 +13,26 @@ const me=()=>auth.currentUser?.uid||window.ElaraAccount?.user?.uid||window.Elara
 const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,Math.round(Number(n)||0)));
-const kindLabel=kind=>kind==='task'?tx('تسک مشترک','Shared task'):kind==='habit'?tx('عادت مشترک','Shared habit'):kind==='language-class'?tx('کلاس مشترک','Shared class'):tx('واژهٔ مشترک لایتنر','Shared Leitner word');
+const kindLabel=kind=>kind==='task'?tx('تسک مشترک','Shared task'):kind==='habit'?tx('عادت مشترک','Shared habit'):kind==='goal'?tx('هدف مشترک','Shared goal'):kind==='language-class'?tx('کلاس مشترک','Shared class'):tx('واژهٔ مشترک لایتنر','Shared Leitner word');
 
-function readLocal(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}')||{};for(const k of ['tasks','habits','languageClasses','words'])if(!Array.isArray(s[k]))s[k]=[];return s}catch{return{tasks:[],habits:[],languageClasses:[],words:[]}}}
+function readLocal(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}')||{};for(const k of ['tasks','habits','goals','languageClasses','words'])if(!Array.isArray(s[k]))s[k]=[];return s}catch{return{tasks:[],habits:[],goals:[],languageClasses:[],words:[]}}}
 function writeLocal(s){localStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:collab-local-changed'))}
 function cleanRule(r){if(!r||typeof r!=='object')return null;return{frequency:['daily','weekly','monthly'].includes(r.frequency)?r.frequency:'weekly',interval:clamp(r.interval||1,1,365),weekdays:Array.isArray(r.weekdays)?r.weekdays.map(Number).filter(x=>x>=0&&x<=6).slice(0,7):[],startDate:String(r.startDate||'').slice(0,10),endDate:r.endDate?String(r.endDate).slice(0,10):null,timezone:String(r.timezone||'').slice(0,80)}}
 function payloadFor(kind,e={}){
  if(kind==='task')return{text:String(e.text||e.title||'').slice(0,180),shortDescription:String(e.shortDescription||'').slice(0,280),description:String(e.description||'').slice(0,1800),date:String(e.date||'').slice(0,10),time:String(e.time||'').slice(0,5),priority:String(e.priority||'4').slice(0,1),list:String(e.list||'').slice(0,80),folder:String(e.folder||'').slice(0,80),tag:String(e.tag||'').slice(0,80),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule),sourceGroup:String(e.sourceGroup||'personal').slice(0,32),checklist:(Array.isArray(e.checklist)?e.checklist:[]).slice(0,30).map((x,i)=>({id:String(x.id||i).slice(0,100),text:String(x.text||x.title||'').slice(0,240),description:String(x.description||'').slice(0,600),done:false,order:i})).filter(x=>x.text)};
  if(kind==='habit')return{title:String(e.title||'').slice(0,120),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule)};
+ if(kind==='goal')return{title:String(e.title||'').slice(0,180),description:String(e.description||'').slice(0,1200),horizon:['short','medium','long'].includes(e.horizon)?e.horizon:'short',date:String(e.date||'').slice(0,10),time:String(e.time||'').slice(0,5),priority:['1','2','3','4'].includes(String(e.priority))?String(e.priority):'4',list:String(e.list||'').slice(0,60),folder:String(e.folder||'').slice(0,60),tag:String(e.tag||'').slice(0,60),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule),steps:(Array.isArray(e.steps)?e.steps:[]).slice(0,120).map((s,i)=>({id:String(s.id||i).slice(0,100),text:String(s.text||s.title||'').slice(0,180),date:String(s.date||'').slice(0,10),time:String(s.time||'').slice(0,5),priority:['1','2','3','4'].includes(String(s.priority))?String(s.priority):'4',list:String(s.list||'').slice(0,60),folder:String(s.folder||'').slice(0,60),tag:String(s.tag||'').slice(0,60),dailyTarget:clamp(s.dailyTarget||1,1,24),recurrenceRule:cleanRule(s.recurrenceRule)})).filter(s=>s.text)};
  if(kind==='language-class')return{title:String(e.title||'').slice(0,120),type:['offline','online','linked'].includes(e.type)?e.type:'offline',terms:clamp(e.terms||1,1,40),sessionsPerTerm:clamp(e.sessionsPerTerm||1,1,100),durationMin:clamp(e.durationMin||60,10,480),weekdays:(Array.isArray(e.weekdays)?e.weekdays:[]).map(Number).filter(x=>x>=0&&x<=6).slice(0,7),studyTime:String(e.studyTime||'').slice(0,5),studyHoursPerDay:Math.max(.25,Math.min(16,Number(e.studyHoursPerDay)||1)),linkUrl:String(e.linkUrl||'').slice(0,1000)};
  return{front:String(e.front||'').slice(0,120),back:String(e.back||'').slice(0,240)}
 }
-function entityTitle(kind,e){return String(kind==='task'?(e.text||e.title):kind==='habit'?e.title:kind==='language-class'?e.title:e.front||'').trim().slice(0,120)||kindLabel(kind)}
-function localArray(s,kind){return kind==='task'?s.tasks:kind==='habit'?s.habits:kind==='language-class'?s.languageClasses:s.words}
+function entityTitle(kind,e){return String(kind==='task'?(e.text||e.title):kind==='habit'?e.title:kind==='goal'?e.title:kind==='language-class'?e.title:e.front||'').trim().slice(0,120)||kindLabel(kind)}
+function localArray(s,kind){return kind==='task'?s.tasks:kind==='habit'?s.habits:kind==='goal'?s.goals:kind==='language-class'?s.languageClasses:s.words}
 function findLocal(kind,entityId){const s=readLocal();return localArray(s,kind).find(x=>String(x.id)===String(entityId))||null}
 function progressFor(kind,e={}){
  const day=today();
  if(kind==='task'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed){if(e.recurrenceRule&&Array.isArray(e.occurrenceDone)&&e.occurrenceDone.includes(day))completed=total;else if(!e.recurrenceRule&&e.completed)completed=total}return{completed,total,percent:Math.round(completed/total*100)}}
  if(kind==='habit'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed&&Array.isArray(e.days)&&e.days.includes(day))completed=total;return{completed,total,percent:Math.round(completed/total*100)}}
+ if(kind==='goal'){const steps=Array.isArray(e.steps)?e.steps:[],total=Math.max(1,steps.length),completed=steps.filter(step=>{if(step?.recurrenceRule)return Array.isArray(step.occurrenceDone)&&step.occurrenceDone.includes(day);if(clamp(step?.dailyTarget||1,1,24)>1)return Number(step?.dailyProgress?.[day]||0)>=clamp(step.dailyTarget,1,24);return !!step?.done}).length;return{completed,total,percent:Math.round(completed/total*100)}}
  if(kind==='language-class'){const total=Math.max(1,clamp(e.terms||1,1,40)*clamp(e.sessionsPerTerm||1,1,100)),completed=Math.min(total,Array.isArray(e.sessionLogs)?e.sessionLogs.length:clamp(e.completedSessions||0,0,total));return{completed,total,percent:Math.round(completed/total*100)}}
  const total=5,completed=clamp(e.box||1,1,5);return{completed,total,percent:Math.round(completed/total*100)}
 }
