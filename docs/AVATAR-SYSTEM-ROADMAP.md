@@ -297,6 +297,11 @@ Lighting in Profile:
 - selection by stored profile sex
 - animation hook
 
+## ART-PIPELINE-01 — ACTIVE
+- Procedural Blender blockout rejected after visual review on 2026-10-06.
+- `avatar/blender/elara_female_reference_workspace.py` is now the active Blender starting point.
+- The active workflow is reference-driven sculpt/retopo; no procedural hair/body output may be promoted to Production.
+
 ## AVATAR-RUNTIME-02 — NEXT
 Replace procedural visual mesh with file-based VRM loader while preserving the same Profile contract.
 
