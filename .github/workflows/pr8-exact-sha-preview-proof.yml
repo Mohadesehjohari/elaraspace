@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     env:
       TARGET_SHA: a4b2d8e4cde96b26604a31dbe75333e049aa1544
-      PREVIEW_BASE: https://raw.githack.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
+      PREVIEW_BASE: https://rawcdn.githack.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
       RAW_BASE: https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
     steps:
       - uses: actions/checkout@v4
@@ -64,6 +64,7 @@ jobs:
           assert.equal(response.status(),200,'preview index HTTP status');
           const contentType=response.headers()['content-type']||'';
           assert.match(contentType,/text\/html/i,'preview index must be HTML');
+          assert.doesNotMatch(await page.title(),/External Content Notice/i,'preview must not stop on an interstitial');
 
           const result=await page.evaluate(async target=>{
             const read=async name=>{
