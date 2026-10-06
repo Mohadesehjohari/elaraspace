@@ -96,10 +96,10 @@ async function acceptInvite(inviteId){
  const batch=writeBatch(db),memberRef=doc(db,'collabSpaces',d.spaceId,'members',uid);batch.update(ref,{status:'accepted',updatedAt:serverTimestamp()});batch.set(memberRef,{uid,role:'member',localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});await batch.commit();
  const spaceSnap=await getDoc(doc(db,'collabSpaces',d.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک حذف شده است.','The shared space was removed.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
  await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});
- await refreshInvites();window.dispatchEvent(new Event('elara:collab-updated'));return localEntityId
+ inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return localEntityId
 }
 async function declineInvite(inviteId){
- const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});await refreshInvites();return true
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return true
 }
 function randomToken(){return (crypto.randomUUID?.()||id()).replace(/-/g,'')+Math.random().toString(36).slice(2,10)}
 async function createShareLink(spaceId){
@@ -195,9 +195,19 @@ async function handleJoinFromUrl(){
  const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
  try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
 }
-document.addEventListener('click',e=>{if(e.target.closest('[data-collab-inbox-launcher]'))void openInbox()});
+document.addEventListener('click',async e=>{
+ if(e.target.closest('[data-collab-inbox-launcher]')){void openInbox();return}
+ const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');if(!accept&&!decline)return;
+ const button=accept||decline;button.disabled=true;
+ try{if(accept)await acceptInvite(accept.dataset.collabAccept);else await declineInvite(decline.dataset.collabDecline)}
+ catch(error){console.error('Elara collab action:',error);await window.ElaraDialog?.alert?.(error.message||String(error))}
+ finally{button.disabled=false}
+});
 for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
-for(const ev of ['elara:account-ready','elara:social-updated'])window.addEventListener(ev,()=>{setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},200)});
-setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
+onAuthStateChanged(auth,user=>{stopInviteRealtime();if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
+window.addEventListener('elara:logout',stopInviteRealtime);
+setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
-window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
