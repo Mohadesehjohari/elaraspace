@@ -768,10 +768,7 @@ body.dark .sidebar .navigation .nav-item[aria-current="page"]{
 }
 
 
-/* 2026-10-06 Home cleanup: no habits card, no settings button. */
-body.dark #panel-home.ref-home .ref-habits,
-body.dark #panel-home.ref-home [data-home-section="habits"],
-body.dark #panel-home.ref-home #elara-home-habits{display:none!important}
+/* 2026-10-06 Home cleanup: Settings stays out of the header; Habits now owns the open lower-row slot. */
 body.dark .ref-topbar #ref-header-settings{display:none!important}
 
 
@@ -837,6 +834,12 @@ body.dark #panel-home.ref-home .ref-quick-card:hover{
 }
 
 /* Lower row: Ranking gold, Habits violet, Achievements cyan. */
+/* Keep the Habits card itself visible; hiding only its inner host leaves an empty grid slot. */
+body.dark #panel-home.ref-home .ref-bottom-grid>.ref-habits{
+ display:flex!important;
+ grid-area:habits!important
+}
+
 body.dark #panel-home.ref-home #elara-home-ranks{
  border:1px solid #eabf53!important;
  box-shadow:0 0 18px rgba(234,191,83,.14),inset 0 0 22px rgba(234,191,83,.05)!important
