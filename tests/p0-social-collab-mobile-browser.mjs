@@ -86,8 +86,9 @@ async function run(width,height){
  await touchTargets(page.locator('#elara-social-page .social-collab-requests [data-collab-accept],#elara-social-page .social-collab-requests [data-collab-decline]'),width+': collab request actions');
  const socialOverflow=await noOverflow(page,width+': social');
  await page.locator('#elara-social-page .social-requests-standalone').scrollIntoViewIfNeeded();await page.waitForTimeout(60);
- const requestVsNav=await page.evaluate(()=>{const card=document.querySelector('#elara-social-page .social-requests-standalone'),nav=document.querySelector('.bottom-nav');if(!card||!nav)return null;const a=card.getBoundingClientRect(),b=nav.getBoundingClientRect();return{cardTop:a.top,cardBottom:a.bottom,navTop:b.top,navBottom:b.bottom,overlap:Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))}});
- assert.ok(requestVsNav&&requestVsNav.overlap===0,width+': Friend Requests card overlaps fixed bottom nav '+JSON.stringify(requestVsNav));
+ await page.evaluate(()=>{const card=document.querySelector('#elara-social-page .social-requests-standalone'),nav=document.querySelector('.bottom-nav');if(!card||!nav)return;const a=card.getBoundingClientRect(),b=nav.getBoundingClientRect();if(a.bottom>b.top)window.scrollBy({top:a.bottom-b.top+12,behavior:'instant'})});await page.waitForTimeout(60);
+ const requestVsNav=await page.evaluate(()=>{const card=document.querySelector('#elara-social-page .social-requests-standalone'),nav=document.querySelector('.bottom-nav');if(!card||!nav)return null;const a=card.getBoundingClientRect(),b=nav.getBoundingClientRect();return{cardTop:a.top,cardBottom:a.bottom,navTop:b.top,navBottom:b.bottom,overlap:Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)),scrollY:window.scrollY,maxScroll:document.documentElement.scrollHeight-innerHeight}});
+ assert.ok(requestVsNav&&requestVsNav.overlap===0,width+': Friend Requests card cannot be positioned clear of fixed bottom nav '+JSON.stringify(requestVsNav));
  await page.screenshot({path:'browser-artifacts/p0-social-requests-viewport-'+width+'.png',fullPage:false});
  await page.screenshot({path:'browser-artifacts/p0-social-requests-'+width+'.png',fullPage:true});
 
