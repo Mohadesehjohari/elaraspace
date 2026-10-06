@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+const social=readFileSync(new URL('elara-social.js',root),'utf8');
+const view=readFileSync(new URL('social-view.js',root),'utf8');
+const collab=readFileSync(new URL('elara-collab.js',root),'utf8');
+const notifications=readFileSync(new URL('notifications.js',root),'utf8');
+const classes=readFileSync(new URL('language-custom-classes.js',root),'utf8');
+const app=readFileSync(new URL('app.js',root),'utf8');
+const rules=readFileSync(new URL('firestore.rules',root),'utf8');
+const css=readFileSync(new URL('collab-2026.css',root),'utf8');
+
+for(const token of ["onSnapshot(query(collection(db,'friendRequests')","bind('incoming','to')","bind('outgoing','from')","refreshChain.catch","stopFriendRequestRealtime","friendRealtime.uid===mine&&friendRealtime.unsubs.length===2","window.ElaraSocial.decide=decide","درخواست دوستی جدید"])assert.ok(social.includes(token),'missing friend realtime contract: '+token);
+assert.equal(view.includes("['requests','درخواست‌ها'"),false,'Requests must not remain a Social tab');
+for(const token of ['social-requests-standalone','social-collab-requests','data-friend-action="accept"','data-profile-friend-action="cancel"','pendingInvites'])assert.ok(view.includes(token),'missing standalone request UI: '+token);
+for(const token of ['data-notification-friend-accept','data-notification-friend-decline','data-notification-collab-accept','data-notification-collab-decline','ElaraSocial?.decide?.','ElaraCollab?.acceptInvite?.','ElaraCollab?.declineInvite?.','resolveByMeta'])assert.ok(notifications.includes(token),'missing actionable notification contract: '+token);
+for(const token of ["onSnapshot(query(collection(db,'collabInvites')","startInviteRealtime","stopInviteRealtime","pendingInvites:()=>inbox.slice()","resolveByMeta?.('collab-invite'","['task','habit','goal','language-class','leitner-word']","kind==='goal'","s.goals"])assert.ok(collab.includes(token),'missing collaboration realtime/goal contract: '+token);
+assert.ok(classes.includes('data-shared-classes'),'accepted Shared Classes section missing');
+assert.ok(classes.includes('rows.filter(x=>x.collabSpaceId)'),'Shared Classes must derive from accepted/materialized classes');
+for(const token of ['collabSpaceId:asText(g.collabSpaceId','share-goal','shared-goal',"shareEntity?.('goal',goal)"])assert.ok(app.includes(token),'canonical Goal collaboration surface missing: '+token);
+assert.ok(rules.includes("['task','habit','goal','language-class','leitner-word']"),'Firestore rules must authorize goal collaboration');
+for(const token of ['social-request-actions','language-shared-classes','elara-notification-inline-actions','@media(max-width:430px)','@media(max-width:340px)'])assert.ok(css.includes(token),'responsive collaboration CSS missing '+token);
+console.log('P0_REALTIME_SOCIAL_COLLAB_CONTRACT_PASS');
