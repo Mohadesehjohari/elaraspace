@@ -7,7 +7,7 @@ const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-
 const state={me:null,friends:[],requests:[],activities:[],blocked:[],error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
 let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
-let friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set()},friendRealtimeChain=Promise.resolve();
+let friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()},friendRealtimeChain=Promise.resolve();
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
 function avatar(name){return `<span class="elara-social-avatar" aria-hidden="true">${esc((name||'E').trim().slice(0,1).toUpperCase())}</span>`}
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
@@ -61,7 +61,7 @@ window.ElaraSocial.refresh=refresh;
 
 function stopFriendRequestRealtime(){
  for(const off of friendRealtime.unsubs)try{off?.()}catch{}
- friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set()}
+ friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()}
 }
 async function applyFriendRequestRealtime(mine){
  if(!mine||friendRealtime.uid!==mine||uid!==mine||auth.currentUser?.uid!==mine)return;
@@ -96,7 +96,7 @@ function startFriendRequestRealtime(mine=auth.currentUser?.uid){
  stopFriendRequestRealtime();friendRealtime.uid=mine;
  const bind=(key,field)=>onSnapshot(query(collection(db,'friendRequests'),where(field,'==',mine)),snap=>{
   if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
-  friendRealtime[key]=new Map(snap.docs.map(item=>[item.id,{id:item.id,...item.data()}]));void queueFriendRequestRealtime(mine)
+  friendRealtime[key]=new Map(snap.docs.map(item=>[item.id,{id:item.id,...item.data()}]));friendRealtime.ready.add(key);if(friendRealtime.ready.size===2)void queueFriendRequestRealtime(mine)
  },error=>{if(friendRealtime.uid===mine){console.error('Elara friend request realtime:',error);inform(socialError('friend-request-realtime',error))}});
  friendRealtime.unsubs=[bind('incoming','to'),bind('outgoing','from')]
 }
