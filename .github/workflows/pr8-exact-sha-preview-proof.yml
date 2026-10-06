@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     env:
       TARGET_SHA: a4b2d8e4cde96b26604a31dbe75333e049aa1544
-      PREVIEW_BASE: https://rawcdn.githack.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
+      PREVIEW_BASE: https://cdn.statically.io/gh/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
       RAW_BASE: https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
     steps:
       - uses: actions/checkout@v4
