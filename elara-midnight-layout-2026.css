@@ -890,3 +890,28 @@ body.dark #panel-home.ref-home .ref-achievements>header h2{color:#cdeaff!importa
 @media(max-width:700px){
  body.dark #panel-home.ref-home #elara-home-habits{display:block!important;min-height:170px!important}
 }
+
+
+/* 2026-10-06 reference alignment v19: desktop order + spacing */
+/* Match the supplied desktop reference while intentionally keeping Quote and Settings gear out. */
+#panel-home.ref-home #ref-home-quote-card{display:none!important}
+.ref-topbar #ref-header-settings{display:none!important}
+
+@media(min-width:701px){
+  /* The fire/tasks/wellness/goals row sits a touch lower beneath the hero, like the reference. */
+  #panel-home.ref-home .ref-home-grid{margin-top:6px!important}
+
+  /* Reference quick-access reading order is left-to-right:
+     Tasks, Language, Library, Wellness, Friends, Freedom.
+     Each card keeps RTL Persian internals. */
+  #panel-home.ref-home .ref-quick-access-grid{direction:ltr!important}
+  #panel-home.ref-home .ref-quick-access-grid>.ref-quick-card{direction:rtl!important}
+
+  /* Header, from the right edge inward: name -> avatar -> bell -> dark mode.
+     The account node is avatar-first in DOM, so LTR flex puts the avatar to the left
+     of the right-aligned Persian identity copy. */
+  .ref-topbar #ref-header-account{direction:ltr!important}
+  .ref-topbar #ref-header-account .ref-account-copy{direction:rtl!important;text-align:right!important}
+  .ref-topbar .topbar-actions #ref-header-notifications{order:0!important}
+  .ref-topbar .topbar-actions #theme-toggle{order:1!important}
+}
