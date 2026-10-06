@@ -7,6 +7,8 @@ const js = readFileSync(new URL('app.js',root),'utf8');
 const css = readFileSync(new URL('styles.css',root),'utf8');
 const phase2 = readFileSync(new URL('phase2.js',root),'utf8');
 const social = readFileSync(new URL('elara-social.js',root),'utf8');
+const socialView = readFileSync(new URL('social-view.js',root),'utf8');
+const notifications = readFileSync(new URL('notifications.js',root),'utf8');
 const design = readFileSync(new URL('elara-design.js',root),'utf8');
 const rules = readFileSync(new URL('firestore.rules',root),'utf8');
 const drawer = readFileSync(new URL('drawer.js',root),'utf8');
@@ -58,6 +60,10 @@ for(const token of ['match /collabSpaces/{spaceId}','match /collabInvites/{invit
 for(const token of ['studyHoursPerDay','sessionsPerDay','data-class-add-type="offline"','data-class-add-type="online"','data-class-add-type="linked"','data-class-share','data-class-classmates','data-class-share-link','language-shared-classes','data-shared-classes','collabRole===\'member\''])assert.ok(languageClasses.includes(token),'Custom class collaboration/pacing missing '+token);
 for(const token of ['share-task','shared-task','share-habit','shared-habit','astra-shared-chip','entity-shared-chip'])assert.ok(phase2.includes(token),'Task/Habit collaboration surface missing '+token);
 for(const token of ['word-share-friend','share-word','shared-word','leitner-word'])assert.ok(js.includes(token)||collab.includes(token),'Leitner collaboration surface missing '+token);
+for(const token of ["friendRequests","startFriendRequestRealtime","stopFriendRequestRealtime","friendRealtimeChain","ElaraSocial.decide=decide"])assert.ok(social.includes(token),'Friend realtime contract missing '+token);
+for(const token of ["social-requests-standalone","social-collab-requests","pendingInvites","data-collab-accept","data-collab-decline"])assert.ok(socialView.includes(token),'Standalone request UI missing '+token);
+for(const token of ["friend-request","collab-invite","data-notification-friend-accept","data-notification-friend-decline","data-notification-collab-accept","data-notification-collab-decline","resolveByMeta"])assert.ok(notifications.includes(token),'Actionable notification contract missing '+token);
+for(const token of ["kind==='goal'","s.goals","share-goal","shared-goal"])assert.ok(collab.includes(token)||js.includes(token),'Shared Goal product contract missing '+token);
 for(const token of ['.collab-inbox-dialog','.collab-member-list','.language-class-type-adders','.word-share-on-add','.astra-shared-chip'])assert.ok(collabCss.includes(token),'Collaboration responsive CSS missing '+token);
 
 assert.ok(drawer.includes('function renderAccount()')&&!drawer.includes('id="drawer-account-form"'),'Drawer Account must be view-only with central edit dialog');
