@@ -773,3 +773,117 @@ body.dark #panel-home.ref-home .ref-habits,
 body.dark #panel-home.ref-home [data-home-section="habits"],
 body.dark #panel-home.ref-home #elara-home-habits{display:none!important}
 body.dark .ref-topbar #ref-header-settings{display:none!important}
+
+
+/* 2026-10-06 Home chroma pass v18: luminous borders + habits restore. */
+/* The reference uses the accent on the card edge/glow, not only inside the artwork. */
+body.dark #panel-home.ref-home .ref-card,
+body.dark #panel-home.ref-home .ref-quick-card{
+ transition:border-color .18s ease,box-shadow .18s ease,filter .18s ease!important;
+}
+body.dark #panel-home.ref-home #ref-streak-card{
+ border:1.5px solid #ff7b37!important;
+ box-shadow:
+  0 0 0 1px rgba(255,126,58,.14),
+  0 0 22px rgba(255,95,31,.25),
+  inset 0 0 28px rgba(255,101,34,.11),
+  inset 0 1px 0 rgba(255,225,177,.14)!important;
+}
+body.dark #panel-home.ref-home #ref-streak-card::after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ box-shadow:inset 4px 0 0 rgba(255,180,57,.72),inset 0 -1px 0 rgba(255,90,25,.32)
+}
+body.dark #panel-home.ref-home .ref-tasks{
+ border:1px solid #28cfff!important;
+ box-shadow:0 0 18px rgba(30,194,255,.16),inset 0 0 22px rgba(34,204,255,.055)!important
+}
+body.dark #panel-home.ref-home .ref-wellness-card{
+ border:1px solid #22ddb0!important;
+ box-shadow:0 0 18px rgba(22,218,171,.16),inset 0 0 22px rgba(23,224,177,.055)!important
+}
+body.dark #panel-home.ref-home .ref-goals{
+ border:1px solid #f1bf4a!important;
+ box-shadow:0 0 18px rgba(241,191,74,.14),inset 0 0 22px rgba(255,201,67,.05)!important
+}
+
+/* Quick-access cards: each section owns a separate colored frame/glow in addition to its image. */
+body.dark #panel-home.ref-home .ref-quick-tasks{
+ border-color:#ff7658!important;
+ box-shadow:0 0 15px rgba(255,102,70,.18),inset 0 0 18px rgba(255,101,65,.08)!important
+}
+body.dark #panel-home.ref-home .ref-quick-language{
+ border-color:#23cfff!important;
+ box-shadow:0 0 15px rgba(35,207,255,.17),inset 0 0 18px rgba(35,207,255,.07)!important
+}
+body.dark #panel-home.ref-home .ref-quick-books{
+ border-color:#8d73ff!important;
+ box-shadow:0 0 15px rgba(126,94,255,.18),inset 0 0 18px rgba(126,94,255,.075)!important
+}
+body.dark #panel-home.ref-home .ref-quick-exercise{
+ border-color:#29dba9!important;
+ box-shadow:0 0 15px rgba(41,219,169,.17),inset 0 0 18px rgba(41,219,169,.07)!important
+}
+body.dark #panel-home.ref-home .ref-quick-social{
+ border-color:#36c8f5!important;
+ box-shadow:0 0 15px rgba(54,200,245,.16),inset 0 0 18px rgba(54,200,245,.07)!important
+}
+body.dark #panel-home.ref-home .ref-quick-freedom{
+ border-color:#a26dff!important;
+ box-shadow:0 0 17px rgba(162,109,255,.20),inset 0 0 18px rgba(162,109,255,.08)!important
+}
+body.dark #panel-home.ref-home .ref-quick-card:hover{
+ filter:brightness(1.08)!important;
+ box-shadow:0 0 24px color-mix(in srgb,currentColor 30%,transparent),inset 0 0 24px rgba(255,255,255,.04)!important
+}
+
+/* Lower row: Ranking gold, Habits violet, Achievements cyan. */
+body.dark #panel-home.ref-home #elara-home-ranks{
+ border:1px solid #eabf53!important;
+ box-shadow:0 0 18px rgba(234,191,83,.14),inset 0 0 22px rgba(234,191,83,.05)!important
+}
+body.dark #panel-home.ref-home #elara-home-habits{
+ display:block!important;
+ border:1px solid #846cff!important;
+ background:
+  radial-gradient(circle at 75% 16%,rgba(132,108,255,.16),transparent 31%),
+  linear-gradient(145deg,rgba(20,35,85,.96),rgba(6,25,56,.98))!important;
+ box-shadow:0 0 20px rgba(127,94,255,.18),inset 0 0 24px rgba(127,94,255,.07)!important
+}
+body.dark #panel-home.ref-home #elara-home-habits>header{
+ border-bottom-color:rgba(141,113,255,.20)!important
+}
+body.dark #panel-home.ref-home #elara-home-habits .ref-habit-row{
+ border-color:rgba(129,105,255,.22)!important;
+ background:rgba(8,29,61,.70)!important
+}
+body.dark #panel-home.ref-home .ref-achievements{
+ border:1px solid #3aaeff!important;
+ box-shadow:0 0 18px rgba(58,174,255,.15),inset 0 0 22px rgba(58,174,255,.055)!important
+}
+body.dark #panel-home.ref-home #ref-home-quote-card{display:none!important}
+
+/* Header accents stay subtle so the cards carry the reference color hierarchy. */
+body.dark #panel-home.ref-home .ref-tasks>header h2{color:#bdefff!important}
+body.dark #panel-home.ref-home .ref-wellness-card>header h2{color:#b8ffe8!important}
+body.dark #panel-home.ref-home .ref-goals>header h2{color:#ffe5a2!important}
+body.dark #panel-home.ref-home #elara-home-ranks>header h2{color:#fff0b8!important}
+body.dark #panel-home.ref-home #elara-home-habits>header h2{color:#ded6ff!important}
+body.dark #panel-home.ref-home .ref-achievements>header h2{color:#cdeaff!important}
+
+@media(min-width:701px){
+ body.dark #panel-home.ref-home .ref-bottom-grid{
+  grid-template-columns:1.05fr 1.34fr .82fr!important;
+  grid-template-areas:"ranks habits achievements"!important
+ }
+ body.dark #panel-home.ref-home .ref-bottom-grid>#elara-home-ranks{grid-area:ranks!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>#elara-home-habits{grid-area:habits!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-achievements{grid-area:achievements!important}
+ body.dark #panel-home.ref-home .ref-bottom-grid>#elara-home-habits,
+ body.dark #panel-home.ref-home .ref-bottom-grid>#elara-home-ranks,
+ body.dark #panel-home.ref-home .ref-bottom-grid>.ref-achievements{
+  height:190px!important;min-height:190px!important;max-height:190px!important;overflow:hidden!important
+ }
+}
+@media(max-width:700px){
+ body.dark #panel-home.ref-home #elara-home-habits{display:block!important;min-height:170px!important}
+}
