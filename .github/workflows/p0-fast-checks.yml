@@ -1,3 +1,4 @@
+# Lightweight checks only; heavy browser/emulator QA remains manual.
 name: P0 fast regression
 
 on:
