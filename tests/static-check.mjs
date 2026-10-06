@@ -179,4 +179,4 @@ const storageRules=readFileSync(new URL('storage.rules',root),'utf8');for(const 
 
 for(const token of ["'mediaPath','mediaType'","/post/' + postId","/story/' + storyId","mediaType in ['image/jpeg','image/png','image/webp']"])assert.ok(rules.includes(token),'Page media Firestore metadata contract missing '+token);
 
-const notifications=readFileSync(new URL('notifications.js',root),'utf8');for(const token of ["const tt=","Friend request","Mark all read","No new notifications","elara:locale-changed","focus:'🧠'"])assert.ok(notifications.includes(token),'Notification i18n/focus contract missing '+token);
+const notifications=readFileSync(new URL('notifications.js',root),'utf8');for(const token of ["const tt=","data-notification-friend-accept","Mark all read","No new notifications","elara:locale-changed","focus:'🧠'"])assert.ok(notifications.includes(token),'Notification i18n/focus/action contract missing '+token);
