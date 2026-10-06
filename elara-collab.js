@@ -131,24 +131,50 @@ async function openSpace(spaceId){
  box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))await copyShareLink(space.id,e)});
  await window.ElaraDialog.open({title:tx('فضای مشترک','Shared space'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});return rows
 }
-let inbox=[];
+let inbox=[],inviteRealtimeUid='',inviteRealtimeUnsub=null,inviteSeen=new Set(),inviteRealtimeChain=Promise.resolve();
+async function enrichInvites(rows){
+ const result=[];
+ for(const row of rows){
+  let sender=friends().find(x=>x.uid===row.from)||null;
+  if(!sender&&row.from)try{const p=await getDoc(doc(db,'profiles',String(row.from)));if(p.exists())sender={uid:row.from,...p.data()}}catch(error){console.warn('Collab sender profile unavailable:',row.from,error.code||error.message)}
+  result.push({...row,sender:sender||{uid:row.from,name:tx('دوست','Friend'),username:''}})
+ }
+ return result
+}
+async function applyInboxRows(rows,sourceUid=me()){
+ if(!sourceUid||sourceUid!==me()||auth.currentUser?.uid!==sourceUid)return[];
+ const pending=(await enrichInvites(rows.filter(x=>x.status==='pending'))).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
+ inbox=pending;
+ for(const row of pending){
+  if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);
+  const who=String(row.sender?.name||row.sender?.username||tx('دوست','Friend')),username=row.sender?.username?' · @'+row.sender.username:'';
+  window.ElaraNotify?.push?.({type:'social',title:tx('درخواست مشترک جدید','New shared request'),message:who+username+' · '+kindLabel(row.kind)+' · '+String(row.title||kindLabel(row.kind)),dedupeKey:'collab-in:'+row.id,reopen:true,meta:{kind:'collab-invite',inviteId:row.id,collabKind:row.kind,from:row.from,to:row.to}})
+ }
+ window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:pending.length,rows:pending.map(x=>({id:x.id,kind:x.kind,title:x.title,from:x.from,to:x.to,status:x.status}))}}));
+ window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return pending
+}
+function queueInviteRows(rows,sourceUid){
+ const run=()=>applyInboxRows(rows,sourceUid),pending=inviteRealtimeChain.then(run,run);inviteRealtimeChain=pending.catch(()=>{});return pending
+}
+function stopInviteRealtime(){try{inviteRealtimeUnsub?.()}catch{}inviteRealtimeUnsub=null;inviteRealtimeUid='';inviteSeen=new Set();inbox=[];window.dispatchEvent(new Event('elara:collab-updated'))}
+function startInviteRealtime(sourceUid=me()){
+ if(!sourceUid||!auth.currentUser?.emailVerified)return;
+ if(inviteRealtimeUid===sourceUid&&inviteRealtimeUnsub)return;
+ stopInviteRealtime();inviteRealtimeUid=sourceUid;
+ inviteRealtimeUnsub=onSnapshot(query(collection(db,'collabInvites'),where('to','==',sourceUid)),snap=>{
+  if(inviteRealtimeUid!==sourceUid||auth.currentUser?.uid!==sourceUid)return;
+  void queueInviteRows(snap.docs.map(x=>({id:x.id,...x.data()})),sourceUid)
+ },error=>{if(inviteRealtimeUid===sourceUid)console.error('Elara collab invite realtime:',error)});
+}
 async function refreshInvites(){
- const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];mountInbox();return[]}
- try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid))),next=snaps.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.status==='pending').sort((a,b)=>String(b.id).localeCompare(String(a.id)));inbox=next;for(const row of next)window.ElaraNotify?.push?.({type:'social',title:row.kind==='language-class'?tx('دعوت همکلاسی 📚','Classmate invite 📚'):tx('درخواست مشترک 🤝','Shared request 🤝'),message:row.title||kindLabel(row.kind),dedupeKey:'collab-in:'+row.id});mountInbox();window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:next.length}}));return next}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
+ const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];window.dispatchEvent(new Event('elara:collab-updated'));return[]}
+ try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid)));return await applyInboxRows(snaps.docs.map(x=>({id:x.id,...x.data()})),uid)}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
 }
 async function openInbox(){
- await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span>'+tx('بدون تایمر؛ با قبول درخواست مورد مشترک به فضای تو اضافه می‌شود.','No timer; accepting adds the shared item to your space.')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
- box.addEventListener('click',async e=>{const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');try{if(accept){accept.disabled=true;await acceptInvite(accept.dataset.collabAccept);box.querySelector('[data-collab-invite-row="'+CSS.escape(accept.dataset.collabAccept)+'"]')?.remove()}else if(decline){decline.disabled=true;await declineInvite(decline.dataset.collabDecline);box.querySelector('[data-collab-invite-row="'+CSS.escape(decline.dataset.collabDecline)+'"]')?.remove()}}catch(error){await window.ElaraDialog.alert(error.message||String(error))}});
+ await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span data-elara-ugc dir="auto">'+esc(row.sender?.name||row.sender?.username||tx('دوست','Friend'))+(row.sender?.username?' · @'+esc(row.sender.username):'')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
  await window.ElaraDialog.open({title:tx('درخواست‌های مشترک','Shared requests'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]})
 }
-function mountInbox(){
- const root=document.querySelector('#elara-social-page,#panel-social');if(!root)return;let host=root.querySelector('[data-collab-inbox-launcher]');if(!inbox.length){host?.remove();return}
- if(!host){host=document.createElement('button');host.type='button';host.className='collab-inbox-launcher';host.dataset.collabInboxLauncher='';root.prepend(host)}
- const locale=document.documentElement.lang==='en'?'en':'fa',renderKey=locale+'|'+inbox.length;
- if(host.dataset.collabRenderKey===renderKey)return;
- host.dataset.collabRenderKey=renderKey;
- host.innerHTML='<span>🤝</span><strong>'+tx('درخواست‌های مشترک','Shared requests')+'</strong><b>'+inbox.length.toLocaleString(locale==='en'?'en-US':'fa-IR')+'</b>'
-}
+function mountInbox(){window.ElaraSocialView?.render?.()}
 function mountWordShareControl(){
  const form=document.getElementById('word-form');if(!form)return;let host=form.querySelector('[data-collab-word-add]');
  if(!host){host=document.createElement('label');host.className='word-share-on-add';host.dataset.collabWordAdd='';host.innerHTML='<span>🤝 '+tx('افزودن به لایتنر','Add to Leitner')+'</span><select id="word-share-friend" aria-label="'+tx('لایتنر مقصد','Target Leitner')+'"></select>';form.append(host)}
