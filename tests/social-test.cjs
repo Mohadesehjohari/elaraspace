@@ -10,7 +10,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   ['C',{username:'cyrus',name:'Cyrus',bio:'',xp:80,profilePublic:true}]
  ]);
  const usernames=new Map([...profiles].map(([uid,p])=>[p.username,{uid}]));
- const requests=new Map(),reads={friendRequests:0};let friendReadGate=null;
+ const requests=new Map(),reads={friendRequests:0};let friendReadGate=null,realtimeListeners=[];
  const mockAuth={currentUser:{uid:'A',emailVerified:true}};
  const ref=(kind,id)=>({kind,id,path:kind+'/'+id});
  const snap=(id,data)=>({id,exists:()=>data!==undefined,data:()=>data,ref:ref('friendRequests',id)});
@@ -41,10 +41,22 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
    requests.set(r.id,{...data});
   },
   updateDoc:async(r,patch)=>{const current=requests.get(r.id);if(!current)throw Error('missing request '+r.id);requests.set(r.id,{...current,...patch})},
-  deleteDoc:async r=>{requests.delete(r.id)}
+  deleteDoc:async r=>{requests.delete(r.id)},
+  onSnapshot:(q,next,error)=>{
+   const row={q,next,error,active:true};realtimeListeners.push(row);
+   return()=>{row.active=false}
+  }
+ };
+ const emitRealtime=async()=>{
+  for(const listener of realtimeListeners.filter(x=>x.active)){
+   const q=listener.q;if(q.name!=='friendRequests')continue;
+   const rows=[...requests].filter(([,data])=>q.clauses.every(clause=>data[clause.field]===clause.value));
+   listener.next({docs:rows.map(([id,data])=>snap(id,data))})
+  }
+  await new Promise(resolve=>setTimeout(resolve,0));await new Promise(resolve=>setTimeout(resolve,0))
  };
  w.__mockAuth=mockAuth;w.__fs=fsMock;
- w.eval(`(()=>{const getApp=()=>({}),getAuth=()=>window.__mockAuth,getFirestore=()=>({}),onAuthStateChanged=()=>{},updateProfile=async()=>{},serverTimestamp=()=>({}),runTransaction=async()=>{};const {doc,collection,where,query,getDoc,getDocs,setDoc,updateDoc,deleteDoc}=window.__fs;${source}\nwindow.__socialTest=(me,friends=[],reqs=[])=>{window.__mockAuth.currentUser=me?{uid:me.uid,emailVerified:true}:null;uid=me?.uid||null;state.me=me;state.friends=friends;state.requests=reqs;state.activities=[];state.error='';render()};window.__socialOps={addFriend,decide,refresh,cancelRequest,removeFriend};})()`);
+ w.eval(`(()=>{const getApp=()=>({}),getAuth=()=>window.__mockAuth,getFirestore=()=>({}),onAuthStateChanged=()=>{},updateProfile=async()=>{},serverTimestamp=()=>({}),runTransaction=async()=>{};const {doc,collection,where,query,getDoc,getDocs,setDoc,updateDoc,deleteDoc,onSnapshot}=window.__fs;${source}\nwindow.__socialTest=(me,friends=[],reqs=[])=>{window.__mockAuth.currentUser=me?{uid:me.uid,emailVerified:true}:null;uid=me?.uid||null;state.me=me;state.friends=friends;state.requests=reqs;state.activities=[];state.error='';render()};window.__socialOps={addFriend,decide,refresh,cancelRequest,removeFriend,startFriendRequestRealtime,stopFriendRequestRealtime};})()`);
 
  // Existing presentation contracts.
  for(let count=0;count<=4;count++){
@@ -76,15 +88,19 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.equal(reads.friendRequests,0,'first-time send must not pre-read a missing friendRequests document');
  assert.deepEqual(requests.get('A_B'),{from:'A',to:'B',status:'pending'});
  assert.ok(w.ElaraSocial.requests.some(x=>x.id==='A_B'&&x.status==='pending'),'sender state must show pending request');
- w.document.querySelector('[data-social-route="social"][data-social-view="requests"]').click();
- assert.match(w.document.getElementById('elara-social-page').textContent,/در انتظار/,'sender UI must show pending state in Requests tab');
+ assert.equal(w.document.querySelectorAll('#elara-social-page .social-requests-standalone').length,1,'Friend Requests must be a permanent standalone card');
+ assert.match(w.document.querySelector('#elara-social-page .social-requests-standalone').textContent,/در انتظار/,'standalone Requests card must show outgoing pending state');
+ assert.equal(w.document.querySelector('[data-social-route="social"][data-social-view="requests"]'),null,'redundant Requests tab must be removed');
 
- // Refresh/persistence: receiver sees incoming request.
- w.__socialTest({uid:'B',...profiles.get('B')});
- await w.__socialOps.refresh();
+ // Realtime receiver: B subscribes once and receives A_B without calling refresh after the write.
+ w.__socialTest({uid:'B',...profiles.get('B')});realtimeListeners=[];
+ w.__socialOps.startFriendRequestRealtime('B');
+ assert.equal(realtimeListeners.filter(x=>x.active).length,2,'receiver must own exactly two participant-scoped friend request listeners');
+ await emitRealtime();
  const incoming=w.ElaraSocial.requests.find(x=>x.id==='A_B');
  assert.ok(incoming&&incoming.to==='B'&&incoming.status==='pending','receiver must see persisted incoming request');
  assert.equal(w.document.querySelectorAll('[data-friend-action="accept"][data-request="A_B"]').length>=1,true);
+ assert.ok(w.document.querySelector('#elara-social-page .social-requests-standalone')?.textContent.includes('Aren'),'realtime incoming request must render in standalone card without manual refresh');
  await assert.rejects(()=>w.__socialOps.addFriend('aren'),/درخواست ورودی|درخواست فرستاده/,'incoming request must replace Send Request, never create a crossed duplicate');
  assert.equal(requests.has('B_A'),false,'incoming request guard must prevent reverse duplicate');
 
@@ -105,6 +121,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const decline=w.ElaraSocial.requests.find(x=>x.id==='C_B');await w.__socialOps.decide(decline,'declined');
  assert.equal(requests.has('C_B'),false,'decline must delete the request');
 
+ // Listener lifecycle: restarting for the same UID must not duplicate subscriptions; account change must unsubscribe B.
+ const activeBefore=realtimeListeners.filter(x=>x.active).length;w.__socialOps.startFriendRequestRealtime('B');
+ assert.equal(realtimeListeners.filter(x=>x.active).length,activeBefore,'account-ready/rerender must not duplicate friend listeners');
+ w.__socialTest({uid:'A',...profiles.get('A')});w.__socialOps.startFriendRequestRealtime('A');
+ assert.equal(realtimeListeners.filter(x=>x.active&&x.q.clauses.some(clause=>clause.value==='B')).length,0,'previous UID listeners must unsubscribe on account change');
+ assert.equal(realtimeListeners.filter(x=>x.active).length,2,'new UID must get exactly two realtime listeners');
+ w.__socialOps.stopFriendRequestRealtime();assert.equal(realtimeListeners.filter(x=>x.active).length,0,'logout must unsubscribe all friend request listeners');
+
  // Self request is rejected before Firestore write.
  w.__socialTest({uid:'A',...profiles.get('A')});await assert.rejects(()=>w.__socialOps.addFriend('aren'),/خودت/);
 
@@ -112,7 +136,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.match(rules,/!exists\(requestPath\(request\.resource\.data\.to, request\.resource\.data\.from\)\)/);
  assert.match(rules,/resource\.data\.to == request\.auth\.uid[\s\S]*resource\.data\.status == 'pending'/);
  assert.deepEqual(errors,[]);
- console.log('PASS: Firestore-backed friend send/persist/receiver/accept/decline/no-duplicate/self-guard lifecycle (network mocked; multi-account Firebase browser not verified)');
+ console.log('PASS: Firestore-backed friend lifecycle + participant-scoped realtime receive/unsubscribe/standalone Requests contract (network mocked; real two-session Firebase browser still required)');
  dom.window.close();
 })().catch(e=>{console.error(e);process.exit(1)});
 
