@@ -1,0 +1,110 @@
+name: PR8 exact-SHA preview proof
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pr8-exact-sha-preview-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET_SHA: a4b2d8e4cde96b26604a31dbe75333e049aa1544
+      PREVIEW_BASE: https://cdn.jsdelivr.net/gh/Mohadesehjohari/elaraspace@a4b2d8e4cde96b26604a31dbe75333e049aa1544
+      RAW_BASE: https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/a4b2d8e4cde96b26604a31dbe75333e049aa1544
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch exact preview and compare byte-for-byte to target SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/preview /tmp/raw
+          for f in index.html elara-social.js elara-collab.js social-view.js cloud.js; do
+            curl -fsSL --retry 5 --retry-delay 2 "$PREVIEW_BASE/$f" -o "/tmp/preview/$f"
+            curl -fsSL --retry 5 --retry-delay 2 "$RAW_BASE/$f" -o "/tmp/raw/$f"
+            cmp -s "/tmp/preview/$f" "/tmp/raw/$f"
+          done
+
+          grep -F "startFriendRequestRealtime" /tmp/preview/elara-social.js
+          grep -F "onSnapshot(query(collection(db,'friendRequests')" /tmp/preview/elara-social.js
+
+          grep -F "startInviteRealtime" /tmp/preview/elara-collab.js
+          grep -F "onSnapshot(query(collection(db,'collabInvites')" /tmp/preview/elara-collab.js
+          grep -F "['task','habit','goal','language-class','leitner-word']" /tmp/preview/elara-collab.js
+
+          grep -F "social-requests-standalone" /tmp/preview/social-view.js
+          grep -F "social-collab-requests" /tmp/preview/social-view.js
+
+          echo "PREVIEW_EXACT_SHA_PASS=$TARGET_SHA"
+          sha256sum /tmp/preview/index.html /tmp/preview/elara-social.js /tmp/preview/elara-collab.js /tmp/preview/social-view.js
+
+      - name: Check preview MIME and browser boot
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          cat > /tmp/verify-preview.mjs <<'NODE'
+          import assert from 'node:assert/strict';
+          import {chromium} from 'playwright';
+
+          const base=process.env.PREVIEW_BASE;
+          const target=process.env.TARGET_SHA;
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:390,height:844}});
+          const consoleErrors=[];
+          page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text())});
+          const response=await page.goto(base+'/index.html?sha='+target,{waitUntil:'domcontentloaded',timeout:60000});
+          assert.ok(response,'preview navigation returned no response');
+          assert.equal(response.status(),200,'preview index HTTP status');
+          const contentType=response.headers()['content-type']||'';
+          assert.match(contentType,/text\/html/i,'preview index must be HTML');
+
+          const result=await page.evaluate(async target=>{
+            const read=async name=>{
+              const r=await fetch('./'+name,{cache:'no-store'});
+              return {status:r.status,type:r.headers.get('content-type')||'',text:await r.text()};
+            };
+            const [social,collab,view,cloud]=await Promise.all([
+              read('elara-social.js'),read('elara-collab.js'),read('social-view.js'),read('cloud.js')
+            ]);
+            const apiKey=(cloud.text.match(/apiKey:'([^']+)'/)||[])[1]||'';
+            let authProbe={ok:false,status:0,body:''};
+            if(apiKey){
+              try{
+                const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(apiKey),{
+                  method:'POST',
+                  headers:{'content-type':'application/json'},
+                  body:JSON.stringify({email:'preview-origin-probe@example.invalid',password:'definitely-not-a-real-password',returnSecureToken:true})
+                });
+                authProbe={ok:true,status:r.status,body:(await r.text()).slice(0,600)};
+              }catch(error){authProbe={ok:false,status:0,body:String(error)}}
+            }
+            return {
+              href:location.href,
+              title:document.title,
+              social:{status:social.status,type:social.type,friendRealtime:social.text.includes('startFriendRequestRealtime')&&social.text.includes("onSnapshot(query(collection(db,'friendRequests')")},
+              collab:{status:collab.status,type:collab.type,realtime:collab.text.includes('startInviteRealtime')&&collab.text.includes("onSnapshot(query(collection(db,'collabInvites')"),goal:collab.text.includes("['task','habit','goal','language-class','leitner-word']")},
+              view:{status:view.status,type:view.type,friendCard:view.text.includes('social-requests-standalone'),sharedCard:view.text.includes('social-collab-requests')},
+              authProbe
+            };
+          },target);
+
+          assert.equal(result.social.status,200);
+          assert.equal(result.collab.status,200);
+          assert.equal(result.view.status,200);
+          assert.ok(result.social.friendRealtime,'friend realtime source missing');
+          assert.ok(result.collab.realtime&&result.collab.goal,'collab realtime/goal source missing');
+          assert.ok(result.view.friendCard&&result.view.sharedCard,'standalone request cards missing');
+          assert.ok(result.authProbe.ok,'Firebase Auth endpoint fetch failed at preview origin: '+result.authProbe.body);
+          assert.notEqual(result.authProbe.status,403,'preview origin rejected by Firebase/Auth API');
+          assert.doesNotMatch(result.authProbe.body,/API_KEY_HTTP_REFERRER_BLOCKED|unauthorized-domain/i,'preview origin rejected by Firebase config');
+          console.log(JSON.stringify({targetSha:target,preview:base+'/index.html',result,consoleErrors},null,2));
+          await browser.close();
+          NODE
+          node /tmp/verify-preview.mjs
