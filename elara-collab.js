@@ -68,9 +68,20 @@ async function pickFriend(title=tx('انتخاب دوست','Choose a friend')){
 async function invite(spaceId,friendUid){
  const uid=requireUser(),friend=String(friendUid||'');if(!friend||friend===uid)throw Error(tx('دوست معتبر انتخاب نشده.','Choose a valid friend.'));
  const spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()};
- const inviteId=space.id+'__'+friend,inviteRef=doc(db,'collabInvites',inviteId),existing=await getDoc(inviteRef);
- if(existing.exists()){const d=existing.data();if(d.status==='accepted'){window.ElaraNotify?.push?.({type:'social',title:tx('قبلاً عضو شده','Already joined'),message:space.title||kindLabel(space.kind),dedupeKey:'collab-already:'+inviteId});return inviteId}if(d.status==='pending')return inviteId;await updateDoc(inviteRef,{status:'pending',updatedAt:serverTimestamp()})}
- else await setDoc(inviteRef,{spaceId:space.id,from:uid,to:friend,kind:space.kind,title:String(space.title||kindLabel(space.kind)).slice(0,120),status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ const inviteId=space.id+'__'+friend,inviteRef=doc(db,'collabInvites',inviteId),payload={spaceId:space.id,from:uid,to:friend,kind:space.kind,title:String(space.title||kindLabel(space.kind)).slice(0,120),status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ try{
+  // First-time collab invites must not pre-read a missing participant-scoped document.
+  // Firestore cannot authorize resource.data on a document that does not exist yet.
+  await setDoc(inviteRef,payload);
+ }catch(error){
+  if(error?.code!=='permission-denied')throw error;
+  let existing=null;
+  try{const snap=await getDoc(inviteRef);if(snap.exists())existing=snap.data()}catch{}
+  if(!existing)throw error;
+  if(existing.status==='accepted'){window.ElaraNotify?.push?.({type:'social',title:tx('قبلاً عضو شده','Already joined'),message:space.title||kindLabel(space.kind),dedupeKey:'collab-already:'+inviteId});return inviteId}
+  if(existing.status==='pending')return inviteId;
+  if(existing.status==='declined')await updateDoc(inviteRef,{status:'pending',updatedAt:serverTimestamp()});else throw error
+ }
  window.ElaraNotify?.push?.({type:'social',title:tx('دعوت مشترک ارسال شد','Shared invite sent'),message:space.title||kindLabel(space.kind),dedupeKey:'collab-out:'+inviteId+':'+Date.now()});return inviteId
 }
 async function shareEntity(kind,entity,friendUid=null){
