@@ -49,7 +49,7 @@ jobs:
           set -euo pipefail
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
-          cat > /tmp/verify-preview.mjs <<'NODE'
+          cat > verify-preview.mjs <<'NODE'
           import assert from 'node:assert/strict';
           import {chromium} from 'playwright';
 
@@ -107,4 +107,4 @@ jobs:
           console.log(JSON.stringify({targetSha:target,preview:base+'/index.html',result,consoleErrors},null,2));
           await browser.close();
           NODE
-          node /tmp/verify-preview.mjs
+          node ./verify-preview.mjs
