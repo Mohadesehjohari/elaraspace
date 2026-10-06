@@ -67,7 +67,7 @@ function trapNotificationKey(e){
  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus({preventScroll:true})}
  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus({preventScroll:true})}
 }
-document.addEventListener('click',e=>{
+document.addEventListener('click',async e=>{
  const bell=e.target.closest('#ref-header-notifications,[data-notification-bell]');if(bell){e.preventDefault();e.stopImmediatePropagation();window.ElaraPrivateDrawer?.close?.();open(bell);return}
  if(e.target.closest('[data-notification-close],[data-notification-back]')){close();return}
  if(e.target.closest('[data-notification-mark-all]')){markAll();render();return}
