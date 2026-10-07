@@ -110,6 +110,22 @@ async function photoVariants(file){
  const make=circle=>{const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');g.clearRect(0,0,size,size);if(circle){g.save();g.beginPath();g.arc(size/2,size/2,size/2-2,0,Math.PI*2);g.clip()}g.drawImage(img,sx,sy,side,side,0,0,size,size);if(circle)g.restore();return c.toDataURL('image/webp',.82)};
  return {photoCircle:make(true),photoSquare:make(false)}
 }
+async function canonicalProfileService({retry=false}={}){
+ if(window.ElaraSocial&&typeof window.ElaraSocial.saveProfileValues==='function')return window.ElaraSocial;
+ if(typeof window.ElaraLoadSocial!=='function')throw Error('بارگذار سرویس پروفایل در boot.js آماده نشده است.');
+ try{
+   const api=await window.ElaraLoadSocial({retry});
+   if(!api||typeof api.saveProfileValues!=='function')throw Error('ماژول Social بارگذاری شد اما سرویس canonical ذخیرهٔ پروفایل در دسترس نیست.');
+   return api
+ }catch(error){
+   console.error('Elara profile persistence readiness:',error);
+   throw error
+ }
+}
+function profileServiceError(error){
+ const message=String(error?.message||error||'خطای نامشخص').replace(/\s+/g,' ').slice(0,220);
+ return 'بارگذاری سرویس پروفایل ناموفق بود: '+message+' برای تلاش دوباره «ذخیره تغییرات» را بزن.'
+}
 async function openEditor({galleryOpen=false}={}){
  const person=window.ElaraSocial?.me||window.ElaraAccount?.profile||{};if(!window.ElaraDialog?.open)throw Error('پنجرهٔ ویرایش پروفایل آماده نیست.');
  const form=document.createElement('form');form.className='pass4-profile-edit-form';form.id='elara-central-profile-form';
@@ -119,7 +135,16 @@ async function openEditor({galleryOpen=false}={}){
  '<div class="profile-avatar-source-actions"><details class="profile-avatar-gallery" '+(galleryOpen?'open':'')+'><summary><span>گالری پروفایل</span><small>انتخاب آواتار آمادهٔ Elara</small></summary><div class="profile-avatar-gallery-body" data-profile-avatar-gallery-content></div></details><label class="profile-device-photo-button"><span>عکس از گالری دستگاه</span><small>PNG · JPG · WEBP</small><input name="photo" type="file" accept="image/png,image/jpeg,image/webp"></label></div>'+
  '<div class="profile-photo-controls sr-only" aria-hidden="true"><div class="profile-photo-mode"><label><input type="radio" name="photoMode" value="elara" '+(wardrobe.photoMode!=='upload'?'checked':'')+'> آواتار Elara</label><label><input type="radio" name="photoMode" value="upload" '+(wardrobe.photoMode==='upload'?'checked':'')+'> عکس آپلودی</label></div></div>'+
  '<label>نام نمایشی<input name="name" maxlength="60" required value="'+esc(person.name||'')+'"></label><label>نام کاربری<input name="username" maxlength="20" pattern="[a-z][a-z0-9_]{2,19}" required value="'+esc(person.username||'')+'"></label><label class="pass4-bio-field"><span><img class="pass4-bio-art" src="assets/ui/icon_bio_feather.webp" alt="" decoding="async">Bio</span><textarea name="bio" maxlength="300" rows="4" placeholder="دربارهٔ خودت…">'+esc(person.bio||'')+'</textarea></label><div class="profile-appearance-controls"><label>شکل تصویر<select name="shape"><option value="circle" '+(wardrobe.shape==='circle'?'selected':'')+'>Circle</option><option value="square" '+(wardrobe.shape==='square'?'selected':'')+'>Square</option></select></label><label>فونت نام<select name="nameFont">'+Object.entries(NAME_FONTS).map(([k])=>'<option value="'+k+'" '+(wardrobe.nameFont===k?'selected':'')+'>'+({default:'پیش‌فرض',vazir:'خوانا',classic:'Classic',clean:'Clean',soft:'Soft'}[k])+'</option>').join('')+'</select></label><label>اطلاعات پروفایل<select name="sex"><option value="" '+(!privateProfile.sex?'selected':'')+'>تکمیل نشده</option><option value="female" '+(privateProfile.sex==='female'?'selected':'')+'>زن</option><option value="male" '+(privateProfile.sex==='male'?'selected':'')+'>مرد</option><option value="other" '+(privateProfile.sex==='other'?'selected':'')+'>سایر / ترجیح می‌دهم نگویم</option></select></label></div><label class="pass4-profile-public"><input name="profilePublic" type="checkbox" '+(person.profilePublic!==false?'checked':'')+'> پروفایل عمومی من برای کاربران واردشده قابل مشاهده باشد</label><p class="muted" role="status" data-profile-edit-status></p>';
- const status=()=>form.querySelector('[data-profile-edit-status]'),galleryHost=()=>form.querySelector('[data-profile-avatar-gallery-content]');
+ const status=()=>form.querySelector('[data-profile-edit-status]'),galleryHost=()=>form.querySelector('[data-profile-avatar-gallery-content]'),saveButton=()=>form.querySelector('[type=submit]');
+ let profileBusy=0,serviceFailed=false;
+ const setBusy=delta=>{profileBusy=Math.max(0,profileBusy+delta);const button=saveButton();if(button)button.disabled=profileBusy>0};
+ const prepareService=async({retry=false,quiet=false}={})=>{
+   if(window.ElaraSocial&&typeof window.ElaraSocial.saveProfileValues==='function'){serviceFailed=false;return window.ElaraSocial}
+   setBusy(1);if(!quiet)status().textContent='در حال آماده‌سازی سرویس پروفایل…';
+   try{const api=await canonicalProfileService({retry});serviceFailed=false;if(!quiet&&status().textContent==='در حال آماده‌سازی سرویس پروفایل…')status().textContent='';return api}
+   catch(error){serviceFailed=true;status().textContent=profileServiceError(error);throw error}
+   finally{setBusy(-1)}
+ };
  const galleryChoice=()=>pendingAvatar||((wardrobe.photoMode!=='upload'&&wardrobe.avatarGroup&&wardrobe.avatarLevel)?{group:wardrobe.avatarGroup,level:wardrobe.avatarLevel}:null);
  const setPreviewShape=shape=>{
    const root=form.querySelector('.elara-profile-composition'),shell=form.querySelector('[data-avatar-shell]');if(root){root.classList.toggle('profile-shape-circle',shape==='circle');root.classList.toggle('profile-shape-square',shape==='square');root.dataset.profileShape=shape}if(shell)shell.dataset.profileShape=shape;
@@ -143,11 +168,27 @@ async function openEditor({galleryOpen=false}={}){
  });
  form.elements.photo.addEventListener('change',async()=>{try{pendingPhotos=await photoVariants(form.elements.photo.files?.[0]);pendingAvatar=null;form.elements.photoMode.value='upload';status().textContent='پیش‌نمایش عکس آماده شد؛ ذخیره را بزن.';setPreviewAvatar(form.elements.shape.value==='square'?pendingPhotos.photoSquare:pendingPhotos.photoCircle);renderGallery()}catch(error){pendingPhotos=null;status().textContent=error.message;form.elements.photo.value=''}});
  form.elements.shape.addEventListener('change',()=>{const shape=form.elements.shape.value;setPreviewShape(shape);if(pendingPhotos)setPreviewAvatar(shape==='square'?pendingPhotos.photoSquare:pendingPhotos.photoCircle);else{const choice=galleryChoice();if(choice)setPreviewAvatar(avatarPath(choice.group,choice.level,shape))}renderGallery()});
- form.addEventListener('submit',async e=>{e.preventDefault();const button=form.querySelector('[type=submit]');if(typeof window.ElaraSocial?.saveProfileValues!=='function'){status().textContent='سرویس پروفایل هنوز آماده نیست.';return}button.disabled=true;status().textContent='در حال ذخیره…';try{const result=await window.ElaraSocial.saveProfileValues({name:form.elements.name.value,username:form.elements.username.value,bio:form.elements.bio.value,profilePublic:form.elements.profilePublic.checked});writeWardrobe({shape:form.elements.shape.value,nameFont:form.elements.nameFont.value,photoMode:form.elements.photoMode.value,...(pendingPhotos||{}),...(pendingAvatar?{avatarGroup:pendingAvatar.group,avatarLevel:pendingAvatar.level}:{})});writePrivate({sex:form.elements.sex.value});if(result?.warnings?.length){status().textContent=result.warnings.join(' ');return}status().textContent='پروفایل ذخیره شد.';window.dispatchEvent(new Event('elara:profile-saved'));window.ElaraDialog.close()}catch(err){status().textContent=err?.code==='permission-denied'?'Firestore اجازهٔ این تغییر را نداد؛ Rules واقعی باید جداگانه منتشر و آزمون شوند.':(err?.message||String(err))}finally{button.disabled=false}});
- return window.ElaraDialog.open({title:'ویرایش پروفایل',content:form,wide:false,actions:[{label:'انصراف',value:false}]});
+ form.addEventListener('submit',async e=>{
+   e.preventDefault();setBusy(1);
+   try{
+     const social=await prepareService({retry:serviceFailed});
+     status().textContent='در حال ذخیره…';
+     const result=await social.saveProfileValues({name:form.elements.name.value,username:form.elements.username.value,bio:form.elements.bio.value,profilePublic:form.elements.profilePublic.checked});
+     writeWardrobe({shape:form.elements.shape.value,nameFont:form.elements.nameFont.value,photoMode:form.elements.photoMode.value,...(pendingPhotos||{}),...(pendingAvatar?{avatarGroup:pendingAvatar.group,avatarLevel:pendingAvatar.level}:{})});
+     writePrivate({sex:form.elements.sex.value});
+     if(result?.warnings?.length){status().textContent=result.warnings.join(' ');return}
+     status().textContent='پروفایل ذخیره شد.';window.dispatchEvent(new Event('elara:profile-saved'));window.ElaraDialog.close()
+   }catch(err){
+     if(serviceFailed)return;
+     status().textContent=err?.code==='permission-denied'?'Firestore اجازهٔ این تغییر را نداد؛ Rules واقعی باید جداگانه منتشر و آزمون شوند.':(err?.message||String(err))
+   }finally{setBusy(-1)}
+ });
+ const dialogPromise=window.ElaraDialog.open({title:'ویرایش پروفایل',content:form,wide:false,actions:[{label:'انصراف',value:false}]});
+ void prepareService().catch(()=>{});
+ return dialogPromise;
 }
 document.addEventListener('error',e=>{const img=e.target;if(img?.matches?.('img[data-profile-asset]'))img.hidden=true},true);
 async function openAvatarViewer(trigger){const compositionRoot=trigger?.closest?.('.elara-profile-composition'),img=compositionRoot?.querySelector?.('.elara-profile-avatar-img');if(!img?.src||img.hidden)return false;const name=compositionRoot.querySelector('.elara-display-name')?.textContent?.trim()||'Elara',figure=document.createElement('figure');figure.className='profile-fullscreen-viewer';figure.innerHTML='<img src="'+esc(img.src)+'" alt="'+esc(name)+'"><figcaption data-elara-ugc dir="auto">'+esc(name)+'</figcaption>';await window.ElaraDialog?.open?.({title:document.documentElement.lang==='en'?'Profile photo':'عکس پروفایل',content:figure,wide:true,actions:[{label:document.documentElement.lang==='en'?'Close':'بستن',value:false}]});return true}
 document.addEventListener('click',async e=>{const bubble=e.target.closest?.('[data-profile-status-link]');if(bubble){e.preventDefault();window.ElaraOpen?.('page',{history:'push'});return}const avatarButton=e.target.closest?.('[data-profile-avatar-view]');if(avatarButton){e.preventDefault();await openAvatarViewer(avatarButton);return}const pageButton=e.target.closest?.('[data-profile-page-link]');if(pageButton){e.preventDefault();const target=pageButton.dataset.profilePageLink,name=pageButton.dataset.profilePageName||'';if(!target||typeof window.ElaraPage?.viewUser!=='function')return;await window.ElaraPage.viewUser(target,{uid:target,name});window.ElaraDialog?.close?.();window.ElaraOpen?.('page',{history:'push'});}});
-window.ElaraProfileSystem={PREFIX,PRIVATE_PREFIX,TITLES,FRAMES,BANNERS,PROFILE_THEMES,SHAPES,NAME_FONTS,currentUid,key,privateKey,readPrivate,writePrivate,readWardrobe,writeWardrobe,normalizeWardrobe,avatarPath,frameVariantPath,frameBy,bannerBy,profileThemeBy,frameForLevel,canEquipAvatar,canEquipFrame,canEquipBanner,publicWardrobe,viewModel,avatarShell,composition,openEditor,openAvatarViewer,photoVariants,titleForLevel,levelFromXp,activeStatus,statusLabel};
+window.ElaraProfileSystem={PREFIX,PRIVATE_PREFIX,TITLES,FRAMES,BANNERS,PROFILE_THEMES,SHAPES,NAME_FONTS,currentUid,key,privateKey,readPrivate,writePrivate,readWardrobe,writeWardrobe,normalizeWardrobe,avatarPath,frameVariantPath,frameBy,bannerBy,profileThemeBy,frameForLevel,canEquipAvatar,canEquipFrame,canEquipBanner,publicWardrobe,viewModel,avatarShell,composition,openEditor,openAvatarViewer,photoVariants,titleForLevel,levelFromXp,activeStatus,statusLabel,canonicalProfileService};
 })();

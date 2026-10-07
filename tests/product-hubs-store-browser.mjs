@@ -67,7 +67,7 @@ async function run(width,height){
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await socialTiles.count(),6,width+': Friends hub tab count');
+ assert.equal(await socialTiles.count(),5,width+': Friends hub navigation tab count; requests are standalone');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect(),s=getComputedStyle(x);return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y,border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}));
  assert.equal(socialBoxes.every(x=>x.h>=(isMobile?79.5:89.5)&&x.h<=(isMobile?94.5:106.5)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
 

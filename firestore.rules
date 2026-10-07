@@ -68,7 +68,7 @@ service cloud.firestore {
     function collabLinkPath(token) { return /databases/$(database)/documents/collabLinks/$(token); }
     function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
     function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
-    function validCollabKind(kind) { return kind in ['task','habit','language-class','leitner-word']; }
+    function validCollabKind(kind) { return kind in ['task','habit','goal','language-class','leitner-word']; }
     function isClubManager(id) {
       return signed() && exists(clubPath(id)) && (
         get(clubPath(id)).data.owner == request.auth.uid ||
@@ -236,7 +236,12 @@ service cloud.firestore {
       allow create: if signed() && username.matches('^[a-z][a-z0-9_]{2,19}$')
         && request.resource.data.keys().hasOnly(['uid'])
         && request.resource.data.uid == request.auth.uid
-        && getAfter(p(request.auth.uid)).data.username == username;
+        && existsAfter(p(request.auth.uid))
+        && getAfter(p(request.auth.uid)).data.username == username
+        && (
+          !exists(p(request.auth.uid)) ||
+          get(p(request.auth.uid)).data.username != username
+        );
       allow update: if false;
       allow delete: if signed()
         && resource.data.uid == request.auth.uid
@@ -280,11 +285,13 @@ service cloud.firestore {
       allow update: if mine(uid)
         && validProfile(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp','name','bio','username','profilePublic'])
+        && existsAfter(n(request.resource.data.username))
+        && getAfter(n(request.resource.data.username)).data.uid == uid
         && (
           request.resource.data.username == resource.data.username ||
           (
-            existsAfter(n(request.resource.data.username)) &&
-            getAfter(n(request.resource.data.username)).data.uid == uid &&
+            !exists(n(resource.data.username)) ||
+            get(n(resource.data.username)).data.uid != uid ||
             !existsAfter(n(resource.data.username))
           )
         );

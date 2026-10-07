@@ -7,6 +7,8 @@ const js = readFileSync(new URL('app.js',root),'utf8');
 const css = readFileSync(new URL('styles.css',root),'utf8');
 const phase2 = readFileSync(new URL('phase2.js',root),'utf8');
 const social = readFileSync(new URL('elara-social.js',root),'utf8');
+const realtimeSocialView = readFileSync(new URL('social-view.js',root),'utf8');
+const realtimeNotifications = readFileSync(new URL('notifications.js',root),'utf8');
 const design = readFileSync(new URL('elara-design.js',root),'utf8');
 const rules = readFileSync(new URL('firestore.rules',root),'utf8');
 const drawer = readFileSync(new URL('drawer.js',root),'utf8');
@@ -53,11 +55,15 @@ for(const token of ['profile-avatar-gallery','data-profile-avatar-choice','galle
 assert.ok(drawer.includes('data-profile-avatar-gallery')&&drawer.includes('openEditor?.({galleryOpen:true})'),'Settings Profile must expose the avatar gallery directly');
 for(const token of ['.profile-avatar-gallery-grid','.profile-avatar-gallery-item.is-active','.profile-device-photo-button'])assert.ok(profileGalleryCss.includes(token),'Profile gallery responsive CSS missing '+token);
 assert.ok(bootSource.includes("./elara-collab.js")&&bootSource.includes("'collab-2026.css'"),'Collaboration runtime/CSS must load from boot');
-for(const token of ['collabSpaces','collabInvites','collabLinks','shareEntity','acceptInvite','joinLink','memberRows',"['task','habit','language-class','leitner-word']"])assert.ok(collab.includes(token),'Collaboration service missing '+token);
-for(const token of ['match /collabSpaces/{spaceId}','match /collabInvites/{inviteId}','match /collabLinks/{token}','isCollabMember','isCollabOwner',"validCollabKind"])assert.ok(rules.includes(token),'Firestore collaboration contract missing '+token);
-for(const token of ['studyHoursPerDay','sessionsPerDay','data-class-add-type="offline"','data-class-add-type="online"','data-class-add-type="linked"','data-class-share','data-class-classmates','data-class-share-link','collabRole===\'member\''])assert.ok(languageClasses.includes(token),'Custom class collaboration/pacing missing '+token);
+for(const token of ['collabSpaces','collabInvites','collabLinks','shareEntity','acceptInvite','declineInvite','joinLink','memberRows','startInviteRealtime','stopInviteRealtime','pendingInvites',"['task','habit','goal','language-class','leitner-word']"])assert.ok(collab.includes(token),'Collaboration service missing '+token);
+for(const token of ['match /collabSpaces/{spaceId}','match /collabInvites/{inviteId}','match /collabLinks/{token}','isCollabMember','isCollabOwner',"validCollabKind","['task','habit','goal','language-class','leitner-word']"])assert.ok(rules.includes(token),'Firestore collaboration contract missing '+token);
+for(const token of ['studyHoursPerDay','sessionsPerDay','data-class-add-type="offline"','data-class-add-type="online"','data-class-add-type="linked"','data-class-share','data-class-classmates','data-class-share-link','language-shared-classes','data-shared-classes','collabRole===\'member\''])assert.ok(languageClasses.includes(token),'Custom class collaboration/pacing missing '+token);
 for(const token of ['share-task','shared-task','share-habit','shared-habit','astra-shared-chip','entity-shared-chip'])assert.ok(phase2.includes(token),'Task/Habit collaboration surface missing '+token);
 for(const token of ['word-share-friend','share-word','shared-word','leitner-word'])assert.ok(js.includes(token)||collab.includes(token),'Leitner collaboration surface missing '+token);
+for(const token of ["friendRequests","startFriendRequestRealtime","stopFriendRequestRealtime","friendRealtimeChain","ElaraSocial.decide=decide"])assert.ok(social.includes(token),'Friend realtime contract missing '+token);
+for(const token of ["social-requests-standalone","social-collab-requests","pendingInvites","data-collab-accept","data-collab-decline"])assert.ok(realtimeSocialView.includes(token),'Standalone request UI missing '+token);
+for(const token of ["friend-request","collab-invite","data-notification-friend-accept","data-notification-friend-decline","data-notification-collab-accept","data-notification-collab-decline","resolveByMeta"])assert.ok(realtimeNotifications.includes(token),'Actionable notification contract missing '+token);
+for(const token of ["kind==='goal'","s.goals","share-goal","shared-goal"])assert.ok(collab.includes(token)||js.includes(token),'Shared Goal product contract missing '+token);
 for(const token of ['.collab-inbox-dialog','.collab-member-list','.language-class-type-adders','.word-share-on-add','.astra-shared-chip'])assert.ok(collabCss.includes(token),'Collaboration responsive CSS missing '+token);
 
 assert.ok(drawer.includes('function renderAccount()')&&!drawer.includes('id="drawer-account-form"'),'Drawer Account must be view-only with central edit dialog');
@@ -173,4 +179,4 @@ const storageRules=readFileSync(new URL('storage.rules',root),'utf8');for(const 
 
 for(const token of ["'mediaPath','mediaType'","/post/' + postId","/story/' + storyId","mediaType in ['image/jpeg','image/png','image/webp']"])assert.ok(rules.includes(token),'Page media Firestore metadata contract missing '+token);
 
-const notifications=readFileSync(new URL('notifications.js',root),'utf8');for(const token of ["const tt=","Friend request","Mark all read","No new notifications","elara:locale-changed","focus:'🧠'"])assert.ok(notifications.includes(token),'Notification i18n/focus contract missing '+token);
+const notifications=readFileSync(new URL('notifications.js',root),'utf8');for(const token of ["const tt=","data-notification-friend-accept","Mark all read","No new notifications","elara:locale-changed","focus:'🧠'"])assert.ok(notifications.includes(token),'Notification i18n/focus/action contract missing '+token);

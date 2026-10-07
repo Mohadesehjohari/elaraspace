@@ -8,7 +8,7 @@ const rules=await fs.readFile(new URL('../firestore.rules',import.meta.url),'utf
 const env=await initializeTestEnvironment({projectId,firestore:{host,port:Number(portRaw||8080),rules}});
 console.log('FIRESTORE_RULES_E2E_START '+host+':'+String(portRaw||8080)+' project='+projectId);
 const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test'}).firestore();
-const alice=db('alice'),bob=db('bob'),eve=db('eve'),dave=db('dave');
+const alice=db('alice'),bob=db('bob'),eve=db('eve'),dave=db('dave'),regA=db('regA'),regB=db('regB'),legacyA=db('legacyA'),legacyB=db('legacyB');
 const ref=(database,path)=>doc(database,path);
 const nowPlus=ms=>Timestamp.fromMillis(Date.now()+ms);
 
@@ -22,7 +22,7 @@ try{
    ['eve',{username:'eve',name:'Eve',bio:'',xp:100,profilePublic:true}],
    ['dave',{username:'dave',name:'Dave',bio:'',xp:20,profilePublic:false}]
   ];
-  for(const [uid,data] of profiles)await setDoc(ref(admin,'profiles/'+uid),data);
+  for(const [uid,data] of profiles){await setDoc(ref(admin,'profiles/'+uid),data);await setDoc(ref(admin,'usernames/'+data.username),{uid})}
   await setDoc(ref(admin,'friendRequests/alice_bob'),{from:'alice',to:'bob',status:'accepted'});
   await setDoc(ref(admin,'activities/alice_private_001'),{uid:'alice',type:'task',eventKey:'alice_private_001',visibility:'private',category:'task',createdAt:Timestamp.now()});
   await setDoc(ref(admin,'activities/alice_friends_001'),{uid:'alice',type:'task',eventKey:'alice_friends_001',visibility:'friends',category:'task',createdAt:Timestamp.now()});
@@ -37,6 +37,56 @@ try{
  await assertSucceeds(getDoc(ref(alice,'profiles/alice')));
  await assertSucceeds(getDoc(ref(bob,'profiles/alice')));
  await assertFails(getDoc(ref(eve,'profiles/dave')));
+
+ // Username identity invariant: profile + claim are one atomic ownership record.
+ const regABatch=writeBatch(regA);
+ regABatch.set(ref(regA,'usernames/nova'),{uid:'regA'});
+ regABatch.set(ref(regA,'profiles/regA'),{username:'nova',name:'Reg A',bio:'',xp:0,profilePublic:true});
+ await assertSucceeds(regABatch.commit());
+
+ // CASE A — duplicate registration: a second UID cannot take the same claim/profile username.
+ const regBBatch=writeBatch(regB);
+ regBBatch.set(ref(regB,'usernames/nova'),{uid:'regB'});
+ regBBatch.set(ref(regB,'profiles/regB'),{username:'nova',name:'Reg B',bio:'',xp:0,profilePublic:true});
+ await assertFails(regBBatch.commit());
+ const regBProfile=await assertSucceeds(getDoc(ref(regB,'profiles/regB')));
+ if(regBProfile.exists())throw new Error('duplicate registration unexpectedly created profiles/regB');
+ const novaClaim=await assertSucceeds(getDoc(ref(regA,'usernames/nova')));
+ if(novaClaim.data()?.uid!=='regA')throw new Error('usernames/nova ownership changed unexpectedly');
+
+ // CASE D — username change requires new claim + profile update + owned old-claim delete in one batch.
+ const renameBatch=writeBatch(regA);
+ renameBatch.set(ref(regA,'usernames/nova2'),{uid:'regA'});
+ renameBatch.update(ref(regA,'profiles/regA'),{username:'nova2'});
+ renameBatch.delete(ref(regA,'usernames/nova'));
+ await assertSucceeds(renameBatch.commit());
+ const renamedProfile=await assertSucceeds(getDoc(ref(regA,'profiles/regA')));
+ const renamedClaim=await assertSucceeds(getDoc(ref(regA,'usernames/nova2')));
+ if(renamedProfile.data()?.username!=='nova2'||renamedClaim.data()?.uid!=='regA')throw new Error('atomic rename invariant failed');
+ const oldNova=await assertSucceeds(getDoc(ref(regA,'usernames/nova')));
+ if(oldNova.exists())throw new Error('owned old username claim remained after rename');
+
+ // Missing-claim legacy profiles cannot self-repair blindly or write profile fields until audited.
+ await env.withSecurityRulesDisabled(async ctx=>{
+   const admin=ctx.firestore();
+   await setDoc(ref(admin,'profiles/legacyA'),{username:'legacy_missing',name:'Legacy A',bio:'',xp:0,profilePublic:true});
+   await setDoc(ref(admin,'profiles/legacyB'),{username:'legacy_conflict',name:'Legacy B',bio:'',xp:0,profilePublic:true});
+   await setDoc(ref(admin,'usernames/legacy_conflict'),{uid:'legacyA'});
+ });
+ await assertFails(setDoc(ref(legacyA,'usernames/legacy_missing'),{uid:'legacyA'}));
+ await assertFails(updateDoc(ref(legacyA,'profiles/legacyA'),{name:'Should stay blocked'}));
+
+ // CASE C — claim owned by another UID cannot be stolen. B may rename away safely, but the foreign old claim remains.
+ await assertFails(setDoc(ref(legacyB,'usernames/legacy_conflict'),{uid:'legacyB'}));
+ const legacyRename=writeBatch(legacyB);
+ legacyRename.set(ref(legacyB,'usernames/legacy_b_clean'),{uid:'legacyB'});
+ legacyRename.update(ref(legacyB,'profiles/legacyB'),{username:'legacy_b_clean'});
+ await assertSucceeds(legacyRename.commit());
+ const foreignClaim=await assertSucceeds(getDoc(ref(legacyA,'usernames/legacy_conflict')));
+ if(foreignClaim.data()?.uid!=='legacyA')throw new Error('rename stole/deleted another UID claim');
+
+ // Non-username profile writes require a valid matching claim, preventing silent persistence of broken identity state.
+ await assertSucceeds(updateDoc(ref(regA,'profiles/regA'),{name:'Reg A Renamed'}));
 
  // Activity visibility: owner sees private, friend sees friends, outsider sees only public.
  await assertSucceeds(getDoc(ref(alice,'activities/alice_private_001')));
@@ -109,6 +159,18 @@ try{
  await assertSucceeds(updateDoc(ref(bob,collab+'/members/bob'),{localEntityId:'class-local-b',progressCompleted:9,progressTotal:36,progressPercent:25,updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(bob,collab),{title:'hijack',updatedAt:serverTimestamp()}));
 
+ // Shared Goal is a first-class collaboration kind and follows the same consent contract.
+ const goalSpace='collabSpaces/collab_goal_1',goalInvite='collabInvites/collab_goal_1__bob';
+ await assertSucceeds(setDoc(ref(alice,goalSpace),{ownerUid:'alice',kind:'goal',title:'Ship P0',payloadJson:JSON.stringify({title:'Ship P0',description:'Canonical goal',horizon:'short',date:'',time:'',priority:'2',list:'',folder:'',tag:'',dailyTarget:1,recurrenceRule:null,steps:[{id:'step-1',text:'Realtime acceptance',date:'',time:'',priority:'2',list:'',folder:'',tag:'',dailyTarget:1,recurrenceRule:null}]}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,goalSpace+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'goal-local-a',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,goalInvite),{spaceId:'collab_goal_1',from:'alice',to:'bob',kind:'goal',title:'Ship P0',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ const goalAccept=writeBatch(bob);
+ goalAccept.update(ref(bob,goalInvite),{status:'accepted',updatedAt:serverTimestamp()});
+ goalAccept.set(ref(bob,goalSpace+'/members/bob'),{uid:'bob',role:'member',localEntityId:'goal-local-b',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ await assertSucceeds(goalAccept.commit());
+ await assertSucceeds(getDoc(ref(bob,goalSpace)));
+ await assertFails(setDoc(ref(alice,'collabSpaces/bad_kind'),{ownerUid:'alice',kind:'fake-goal',title:'Nope',payloadJson:'{}',visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+
  // Owner-created join link is persistent; any signed user with the token can explicitly join.
  const joinToken='joinTokenCollabClass1234567890';
  await assertSucceeds(setDoc(ref(alice,'collabLinks/'+joinToken),{spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'English C1',active:true,createdAt:serverTimestamp()}));
@@ -167,7 +229,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS profile social-stats activity friend-request dm group club collab challenge page engagement reports block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS username-identity profile social-stats activity friend-request dm group club collab-goal challenge page engagement reports block-unblock alice/bob/eve');
 }finally{
  await env.cleanup();
 }

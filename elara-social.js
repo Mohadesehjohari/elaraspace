@@ -7,7 +7,25 @@ const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-
 const state={me:null,friends:[],requests:[],activities:[],blocked:[],error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
 let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
-const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
+let friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()},friendRealtimeChain=Promise.resolve();
+const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s),normalizeUsername=value=>String(value||'').trim().replace(/^@/,'').toLowerCase();
+function identityIntegrityError(code,message){const error=new Error(message);error.name='ElaraIdentityIntegrityError';error.identityCode=code;return error}
+async function assertProfileUsernameClaim(ownerUid,profileData){
+ const username=normalizeUsername(profileData?.username);if(!usernameValid(username))throw identityIntegrityError('profile-username-invalid','نام کاربری پروفایل نامعتبر است.');
+ const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw identityIntegrityError('profile-claim-missing','شاخص @'+username+' وجود ندارد؛ نتیجهٔ هویتی قابل اعتماد نیست.');
+ if(String(claim.data()?.uid||'')!==String(ownerUid))throw identityIntegrityError('profile-claim-owner-mismatch','شاخص @'+username+' به حساب دیگری اشاره می‌کند؛ عملیات هویتی متوقف شد.');
+ return username
+}
+async function resolveUsernameIdentity(value){
+ const username=normalizeUsername(value);if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');
+ const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
+ const claimedUid=String(claim.data()?.uid||'');if(!claimedUid)throw identityIntegrityError('claim-uid-missing','شاخص نام کاربری شناسهٔ مالک معتبر ندارد.');
+ let profileSnap;try{profileSnap=await getDoc(doc(db,'profiles',claimedUid))}catch(error){if(error?.code==='permission-denied')throw identityIntegrityError('profile-verification-denied','برای امنیت، مالک این نام کاربری قابل تأیید نبود.');throw error}
+ if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','این شاخص به پروفایل موجودی اشاره نمی‌کند.');
+ const profileData=profileSnap.data(),canonical=normalizeUsername(profileData?.username);
+ if(canonical!==username)throw identityIntegrityError('claim-profile-mismatch','شاخص @'+username+' با نام کاربری canonical پروفایل مقصد همخوان نیست؛ پروفایل باز نشد.');
+ return {uid:claimedUid,username,profile:profileData,self:claimedUid===uid}
+}
 function avatar(name){return `<span class="elara-social-avatar" aria-hidden="true">${esc((name||'E').trim().slice(0,1).toUpperCase())}</span>`}
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
 function inform(value){state.error=value;window.dispatchEvent(new Event('elara:social-updated'))}
@@ -32,7 +50,7 @@ async function syncSocialStats(){
 async function visibleSocialStats(other){
  try{const snap=await getDoc(doc(db,'socialStats',String(other)));if(!snap.exists())return null;const d=snap.data()||{},n=Number(d.streak);return Number.isInteger(n)&&n>=0&&n<=36500?{streak:n,visibility:d.visibility||'private'}:null}catch(error){if(error?.code!=='permission-denied')console.warn('Social stats unavailable:',other,error.code||error.message);return null}
 }
-async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
+async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
  const [incoming,outgoing,blockedSnaps]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
@@ -57,6 +75,50 @@ async function refresh(){
  return pending
 }
 window.ElaraSocial.refresh=refresh;
+
+function stopFriendRequestRealtime(){
+ for(const off of friendRealtime.unsubs)try{off?.()}catch{}
+ friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()}
+}
+async function applyFriendRequestRealtime(mine){
+ if(!mine||friendRealtime.uid!==mine||uid!==mine||auth.currentUser?.uid!==mine)return;
+ const blockedIds=new Set(state.blocked.map(x=>x.target)),entries=new Map([...friendRealtime.incoming,...friendRealtime.outgoing]),known=new Map();
+ for(const row of [...state.requests,...state.friends.map(person=>({other:person.uid,person}))])if(row?.person?.uid)known.set(row.person.uid,row.person);
+ const enriched=[];
+ for(const request of entries.values()){
+  const other=request.from===mine?request.to:request.from;if(!other||blockedIds.has(other))continue;
+  let person=known.get(other)||null;
+  if(!person)try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}catch(error){console.warn('Realtime profile unavailable:',other,error.code||error.message)}
+  if(person)enriched.push({...request,other,person})
+ }
+ if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
+ state.requests=enriched;
+ state.friends=enriched.filter(r=>r.status==='accepted').map(r=>r.person).filter((p,i,a)=>a.findIndex(v=>v.uid===p.uid)===i);
+ const pendingIncoming=enriched.filter(r=>r.to===mine&&r.status==='pending'),pendingIds=new Set(pendingIncoming.map(r=>r.id));for(const seen of [...friendRealtime.seenIncoming])if(!pendingIds.has(seen))friendRealtime.seenIncoming.delete(seen);
+ for(const request of pendingIncoming){
+  if(friendRealtime.seenIncoming.has(request.id))continue;
+  friendRealtime.seenIncoming.add(request.id);
+  const name=String(request.person?.name||request.person?.username||'کاربر'),username=request.person?.username?' · @'+request.person.username:'';
+  window.ElaraNotify?.push?.({type:'friend',title:document.documentElement.lang==='en'?'New friend request':'درخواست دوستی جدید',message:name+username,dedupeKey:'friend-request:'+request.id,reopen:true,meta:{kind:'friend-request',requestId:request.id,from:request.from,to:request.to}})
+ }
+ render()
+}
+function queueFriendRequestRealtime(mine){
+ const run=async()=>{await refreshChain.catch(()=>{});return applyFriendRequestRealtime(mine)};
+ const pending=friendRealtimeChain.then(run,run);friendRealtimeChain=pending.catch(()=>{});return pending
+}
+function startFriendRequestRealtime(mine=auth.currentUser?.uid){
+ if(!mine||!auth.currentUser?.emailVerified)return;
+ if(friendRealtime.uid===mine&&friendRealtime.unsubs.length===2)return;
+ stopFriendRequestRealtime();friendRealtime.uid=mine;
+ const bind=(key,field)=>onSnapshot(query(collection(db,'friendRequests'),where(field,'==',mine)),snap=>{
+  if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
+  friendRealtime[key]=new Map(snap.docs.map(item=>[item.id,{id:item.id,...item.data()}]));friendRealtime.ready.add(key);if(friendRealtime.ready.size===2)void queueFriendRequestRealtime(mine)
+ },error=>{if(friendRealtime.uid===mine){console.error('Elara friend request realtime:',error);inform(socialError('friend-request-realtime',error))}});
+ friendRealtime.unsubs=[bind('incoming','to'),bind('outgoing','from')]
+}
+window.ElaraSocial.startFriendRequestRealtime=startFriendRequestRealtime;
+window.ElaraSocial.stopFriendRequestRealtime=stopFriendRequestRealtime;
 
 const dmId=other=>[String(uid||''),String(other||'')].sort().join('__');
 function blockedByMe(other){return !!uid&&state.blocked.some(x=>x.target===other)}
@@ -258,16 +320,41 @@ window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],quick:[...CHALLENGE_QU
 
 
 
+async function changeCanonicalUsername(value){
+ const nextUsername=normalizeUsername(value);if(!usernameValid(nextUsername))throw Error('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی و با حرف شروع شود.');
+ const profileRef=doc(db,'profiles',uid);let oldUsername='';
+ await runTransaction(db,async tx=>{
+   const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');
+   oldUsername=normalizeUsername(own.data()?.username);if(!usernameValid(oldUsername))throw identityIntegrityError('old-profile-username-invalid','نام کاربری قبلی پروفایل نامعتبر است.');
+   if(oldUsername===nextUsername){
+     const sameClaim=await tx.get(doc(db,'usernames',nextUsername));
+     if(!sameClaim.exists()||String(sameClaim.data()?.uid||'')!==uid)throw identityIntegrityError('same-username-claim-invalid','شاخص نام کاربری فعلی با حساب همخوان نیست.');
+     return;
+   }
+   const newClaimRef=doc(db,'usernames',nextUsername),oldClaimRef=doc(db,'usernames',oldUsername);
+   const newClaim=await tx.get(newClaimRef),oldClaim=await tx.get(oldClaimRef);
+   if(newClaim.exists()&&String(newClaim.data()?.uid||'')!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');
+   if(!newClaim.exists())tx.set(newClaimRef,{uid});
+   tx.update(profileRef,{username:nextUsername});
+   if(oldClaim.exists()&&String(oldClaim.data()?.uid||'')===uid)tx.delete(oldClaimRef);
+ });
+ const [profileAfter,newClaimAfter,oldClaimAfter]=await Promise.all([
+   getDoc(profileRef),getDoc(doc(db,'usernames',nextUsername)),oldUsername&&oldUsername!==nextUsername?getDoc(doc(db,'usernames',oldUsername)):Promise.resolve(null)
+ ]);
+ if(!profileAfter.exists()||normalizeUsername(profileAfter.data()?.username)!==nextUsername)throw identityIntegrityError('rename-profile-verify-failed','تغییر نام کاربری در پروفایل تأیید نشد.');
+ if(!newClaimAfter.exists()||String(newClaimAfter.data()?.uid||'')!==uid)throw identityIntegrityError('rename-claim-verify-failed','شاخص نام کاربری جدید بعد از تغییر قابل تأیید نیست.');
+ if(oldClaimAfter?.exists?.()&&String(oldClaimAfter.data()?.uid||'')===uid)throw identityIntegrityError('rename-old-claim-stale','شاخص نام کاربری قبلی هنوز به این حساب متصل است.');
+ return nextUsername
+}
+
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}
- const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری انگلیسی معتبر وارد کن.');
- const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
- const to=claim.data().uid;if(!to)throw Error('شناسهٔ حساب مقصد معتبر نیست.');if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
+ const identity=await resolveUsernameIdentity(value),username=identity.username,to=identity.uid;if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
  // Refresh the two participant-scoped queries before the guard so stale cached social
  // state cannot create a crossed request when an incoming request already exists.
  await refresh();
  const active=state.requests.find(r=>r.other===to&&r.status!=='declined');if(active)throw Error(active.status==='accepted'?'قبلاً دوست شده‌اید.':active.to===uid?'این کاربر برایت درخواست فرستاده؛ همان درخواست را قبول یا رد کن.':'درخواست قبلی هنوز در انتظار است.');
- const request={id:uid+'_'+to,from:uid,to,status:'pending',other:to,person:{uid:to,username,name:username}};
+ const request={id:uid+'_'+to,from:uid,to,status:'pending',other:to,person:{uid:to,...identity.profile}};
  try{
    // Do not pre-read a possibly missing friendRequests document. The participant-only
    // Firestore get rule cannot authorize a missing resource; direct setDoc lets create
@@ -306,9 +393,23 @@ async function unblockUser(target){
  await deleteDoc(doc(db,'blocks',uid+'__'+target));await refresh();return true
 }
 window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;
-async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}}else if(status==='accepted'){await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});window.ElaraNotify?.push?.({type:'friend',title:'دوستی تأیید شد',message:'حالا می‌توانید پیشرفت‌های مجاز را با هم ببینید.',dedupeKey:'friend-accepted:'+request.id})}else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
+async function decide(request,status){
+ if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');
+ if(status==='declined'){
+  try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}
+  state.requests=state.requests.filter(x=>x.id!==request.id);render();window.ElaraNotify?.resolveByMeta?.('friend-request',request.id)
+ }else if(status==='accepted'){
+  await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});
+  state.requests=state.requests.map(x=>x.id===request.id?{...x,status:'accepted'}:x);
+  if(request.person&&!state.friends.some(x=>x.uid===request.person.uid))state.friends=[...state.friends,request.person];
+  render();window.ElaraNotify?.resolveByMeta?.('friend-request',request.id);
+  window.ElaraNotify?.push?.({type:'friend',title:'دوستی تأیید شد',message:'حالا می‌توانید پیشرفت‌های مجاز را با هم ببینید.',dedupeKey:'friend-accepted:'+request.id})
+ }else throw Error('وضعیت درخواست نامعتبر است.');
+ await refresh()
+}
+window.ElaraSocial.decide=decide;
 
-async function profileUidFromUsername(value){const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');return claim.data().uid}
+async function profileUidFromUsername(value){return (await resolveUsernameIdentity(value)).uid}
 function profileSummary(person){
  const system=window.ElaraProfileSystem,view=system?.viewModel?.(person,{self:person?.uid===uid});
  if(view&&system?.composition)return '<div class="pass4-public-profile-summary">'+system.composition(view,{profilePage:person?.uid!==uid})+'</div>';
@@ -348,10 +449,16 @@ async function openProfile(targetUid){
  const person={uid:targetUid,...snap.data()};await presentProfile(person);return person;
 }
 async function openSelfProfile(){if(!(await obtain()))throw Error('پروفایل حساب بارگذاری نشده.');window.ElaraPrivateDrawer?.open?.('account');return state.me}
-async function openProfileByUsername(value){return openProfile(await profileUidFromUsername(value))}
+async function openProfileByUsername(value){
+ const identity=await resolveUsernameIdentity(value);
+ if(identity.self){await openSelfProfile();return state.me}
+ return openProfile(identity.uid)
+}
 window.ElaraSocial.openProfile=openProfile;
 window.ElaraSocial.openSelfProfile=()=>openSelfProfile().catch(e=>inform(e.message||String(e)));
 window.ElaraSocial.openProfileByUsername=openProfileByUsername;
+window.ElaraSocial.profileUidFromUsername=profileUidFromUsername;
+window.ElaraSocial.changeCanonicalUsername=changeCanonicalUsername;
 
 async function saveProfileValues(values={}){
  if(!uid||!auth.currentUser)throw Error('ابتدا وارد حساب شو.');
@@ -362,14 +469,17 @@ async function saveProfileValues(values={}){
  if(!name)throw Error('نام نمایشی نمی‌تواند خالی باشد.');
  if(!usernameValid(username))throw Error('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی و با حرف شروع شود.');
  const profileRef=doc(db,'profiles',uid),before=state.me||{},warnings=[],applied={};
+ const storedBefore=await getDoc(profileRef);if(!storedBefore.exists())throw Error('پروفایل پیدا نشد.');
+ const storedUsername=normalizeUsername(storedBefore.data()?.username);
+ if(username===storedUsername)await assertProfileUsernameClaim(uid,storedBefore.data());
+ if(username!==storedUsername){
+   try{applied.username=await changeCanonicalUsername(username)}
+   catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
+ }
  try{await updateDoc(profileRef,{name});await updateProfile(auth.currentUser,{displayName:name});applied.name=name}
  catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ نام نمایشی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
  try{await updateDoc(profileRef,{bio});applied.bio=bio}
  catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ بیوگرافی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
- if(username!==before.username){
-   try{await runTransaction(db,async tx=>{const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');const oldUsername=own.data().username,newClaim=doc(db,'usernames',username),claim=await tx.get(newClaim);if(claim.exists()&&claim.data().uid!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');tx.set(newClaim,{uid});tx.update(profileRef,{username});if(oldUsername&&oldUsername!==username)tx.delete(doc(db,'usernames',oldUsername));});applied.username=username}
-   catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
- }
  if(profilePublic!==(before.profilePublic!==false)){
    try{await updateDoc(profileRef,{profilePublic});applied.profilePublic=profilePublic}
    catch(error){if(error.code==='permission-denied')warnings.push('تنظیم حریم خصوصی بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
@@ -437,5 +547,10 @@ document.addEventListener('submit',async e=>{
  if(e.target.id!=='elara-add-friend')return;e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;try{await addFriend($('elara-add-friend-name').value);e.target.reset();$('elara-social-message').textContent='درخواست فرستاده شد.'}catch(error){$('elara-social-message').textContent=socialError('friend-form',error)}finally{button.disabled=false}
 });
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-friend-action],[data-social-refresh]');if(!b)return;if(b.hasAttribute('data-social-refresh')){void refresh();return}const req=state.requests.find(r=>r.id===b.dataset.request);if(!req)return;b.disabled=true;try{await decide(req,b.dataset.friendAction==='accept'?'accepted':'declined')}catch(error){inform(socialError('friend-action',error))}finally{b.disabled=false}});
-onAuthStateChanged(auth,async user=>{uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.profileView=null;baseline=null;if(!user){render();return}if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh()}}catch(error){console.error('Social auth:',error)}}});
-window.addEventListener('elara:account-ready',()=>{if(auth.currentUser?.emailVerified)refresh().catch(error=>inform(socialError('account-ready-refresh',error)))})
+onAuthStateChanged(auth,async user=>{
+ stopFriendRequestRealtime();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.profileView=null;baseline=null;
+ if(!user){render();return}
+ if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid)}}catch(error){console.error('Social auth:',error)}}
+});
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>startFriendRequestRealtime(user.uid)).catch(error=>inform(socialError('account-ready-refresh',error)))});
+window.addEventListener('elara:logout',stopFriendRequestRealtime);
