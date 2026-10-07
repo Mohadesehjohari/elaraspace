@@ -233,7 +233,21 @@ service cloud.firestore {
     match /usernames/{username} {
       allow get: if signed();
       allow list: if false;
-      allow create: if signed() && username.matches('^[a-z][a-z0-9_]{2,19}
+      allow create: if signed() && username.matches('^[a-z][a-z0-9_]{2,19}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && existsAfter(p(request.auth.uid))
+        && getAfter(p(request.auth.uid)).data.username == username
+        && (
+          !exists(p(request.auth.uid)) ||
+          get(p(request.auth.uid)).data.username != username
+        );
+      allow update: if false;
+      allow delete: if signed()
+        && resource.data.uid == request.auth.uid
+        && existsAfter(p(request.auth.uid))
+        && getAfter(p(request.auth.uid)).data.username != username;
+    }
 
     match /socialStats/{uid} {
       allow get: if mine(uid) || isAdmin() || (
