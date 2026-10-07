@@ -47,7 +47,7 @@ export function analyzeIdentityRecords(profileRows=[],claimRows=[]){
   duplicateProfiles,missingClaims,mismatchedClaims,claimProfileMissing,claimProfileUsernameMismatch,multipleClaimsForUid,
   invalidProfileUsernames,invalidClaimUsernames,
   safeCreateClaims,safeDeleteClaims,
-  hasConflicts:!!(duplicateProfiles.length||mismatchedClaims.length||claimProfileMissing.length||invalidProfileUsernames.length||invalidClaimUsernames.length)
+  hasConflicts:!!(duplicateProfiles.length||missingClaims.length||mismatchedClaims.length||claimProfileMissing.length||claimProfileUsernameMismatch.length||multipleClaimsForUid.length||invalidProfileUsernames.length||invalidClaimUsernames.length)
  };
 }
 
