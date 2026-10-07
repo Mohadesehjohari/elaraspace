@@ -320,6 +320,33 @@ window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],quick:[...CHALLENGE_QU
 
 
 
+async function changeCanonicalUsername(value){
+ const nextUsername=normalizeUsername(value);if(!usernameValid(nextUsername))throw Error('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی و با حرف شروع شود.');
+ const profileRef=doc(db,'profiles',uid);let oldUsername='';
+ await runTransaction(db,async tx=>{
+   const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');
+   oldUsername=normalizeUsername(own.data()?.username);if(!usernameValid(oldUsername))throw identityIntegrityError('old-profile-username-invalid','نام کاربری قبلی پروفایل نامعتبر است.');
+   if(oldUsername===nextUsername){
+     const sameClaim=await tx.get(doc(db,'usernames',nextUsername));
+     if(!sameClaim.exists()||String(sameClaim.data()?.uid||'')!==uid)throw identityIntegrityError('same-username-claim-invalid','شاخص نام کاربری فعلی با حساب همخوان نیست.');
+     return;
+   }
+   const newClaimRef=doc(db,'usernames',nextUsername),oldClaimRef=doc(db,'usernames',oldUsername);
+   const newClaim=await tx.get(newClaimRef),oldClaim=await tx.get(oldClaimRef);
+   if(newClaim.exists()&&String(newClaim.data()?.uid||'')!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');
+   tx.set(newClaimRef,{uid});
+   tx.update(profileRef,{username:nextUsername});
+   if(oldClaim.exists()&&String(oldClaim.data()?.uid||'')===uid)tx.delete(oldClaimRef);
+ });
+ const [profileAfter,newClaimAfter,oldClaimAfter]=await Promise.all([
+   getDoc(profileRef),getDoc(doc(db,'usernames',nextUsername)),oldUsername&&oldUsername!==nextUsername?getDoc(doc(db,'usernames',oldUsername)):Promise.resolve(null)
+ ]);
+ if(!profileAfter.exists()||normalizeUsername(profileAfter.data()?.username)!==nextUsername)throw identityIntegrityError('rename-profile-verify-failed','تغییر نام کاربری در پروفایل تأیید نشد.');
+ if(!newClaimAfter.exists()||String(newClaimAfter.data()?.uid||'')!==uid)throw identityIntegrityError('rename-claim-verify-failed','شاخص نام کاربری جدید بعد از تغییر قابل تأیید نیست.');
+ if(oldClaimAfter?.exists?.()&&String(oldClaimAfter.data()?.uid||'')===uid)throw identityIntegrityError('rename-old-claim-stale','شاخص نام کاربری قبلی هنوز به این حساب متصل است.');
+ return nextUsername
+}
+
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}
  const identity=await resolveUsernameIdentity(value),username=identity.username,to=identity.uid;if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
@@ -431,6 +458,7 @@ window.ElaraSocial.openProfile=openProfile;
 window.ElaraSocial.openSelfProfile=()=>openSelfProfile().catch(e=>inform(e.message||String(e)));
 window.ElaraSocial.openProfileByUsername=openProfileByUsername;
 window.ElaraSocial.profileUidFromUsername=profileUidFromUsername;
+window.ElaraSocial.changeCanonicalUsername=changeCanonicalUsername;
 
 async function saveProfileValues(values={}){
  if(!uid||!auth.currentUser)throw Error('ابتدا وارد حساب شو.');
@@ -445,26 +473,8 @@ async function saveProfileValues(values={}){
  const storedUsername=normalizeUsername(storedBefore.data()?.username);
  if(username===storedUsername)await assertProfileUsernameClaim(uid,storedBefore.data());
  if(username!==storedUsername){
-   try{
-     let oldUsername='';
-     await runTransaction(db,async tx=>{
-       const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');
-       oldUsername=normalizeUsername(own.data()?.username);if(!usernameValid(oldUsername))throw identityIntegrityError('old-profile-username-invalid','نام کاربری قبلی پروفایل نامعتبر است.');
-       const newClaimRef=doc(db,'usernames',username),oldClaimRef=doc(db,'usernames',oldUsername);
-       const newClaim=await tx.get(newClaimRef),oldClaim=oldUsername===username?newClaim:await tx.get(oldClaimRef);
-       if(newClaim.exists()&&String(newClaim.data()?.uid||'')!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');
-       tx.set(newClaimRef,{uid});
-       tx.update(profileRef,{username});
-       if(oldUsername!==username&&oldClaim.exists()&&String(oldClaim.data()?.uid||'')===uid)tx.delete(oldClaimRef);
-     });
-     const [profileAfter,newClaimAfter,oldClaimAfter]=await Promise.all([
-       getDoc(profileRef),getDoc(doc(db,'usernames',username)),oldUsername&&oldUsername!==username?getDoc(doc(db,'usernames',oldUsername)):Promise.resolve(null)
-     ]);
-     if(!profileAfter.exists()||normalizeUsername(profileAfter.data()?.username)!==username)throw identityIntegrityError('rename-profile-verify-failed','تغییر نام کاربری در پروفایل تأیید نشد.');
-     if(!newClaimAfter.exists()||String(newClaimAfter.data()?.uid||'')!==uid)throw identityIntegrityError('rename-claim-verify-failed','شاخص نام کاربری جدید بعد از تغییر قابل تأیید نیست.');
-     if(oldClaimAfter?.exists?.()&&String(oldClaimAfter.data()?.uid||'')===uid)throw identityIntegrityError('rename-old-claim-stale','شاخص نام کاربری قبلی هنوز به این حساب متصل است.');
-     applied.username=username;
-   }catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
+   try{applied.username=await changeCanonicalUsername(username)}
+   catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
  }
  try{await updateDoc(profileRef,{name});await updateProfile(auth.currentUser,{displayName:name});applied.name=name}
  catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ نام نمایشی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
