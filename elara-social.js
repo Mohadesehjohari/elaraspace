@@ -612,9 +612,9 @@ document.addEventListener('submit',async e=>{
 });
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-friend-action],[data-social-refresh]');if(!b)return;if(b.hasAttribute('data-social-refresh')){void refresh();return}const req=state.requests.find(r=>r.id===b.dataset.request);if(!req)return;b.disabled=true;try{await decide(req,b.dataset.friendAction==='accept'?'accepted':'declined')}catch(error){inform(socialError('friend-action',error))}finally{b.disabled=false}});
 onAuthStateChanged(auth,async user=>{
- stopFriendRequestRealtime();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.profileView=null;baseline=null;
+ stopFriendRequestRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.presence={};state.profileView=null;baseline=null;
  if(!user){render();return}
- if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid)}}catch(error){console.error('Social auth:',error)}}
+ if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
 });
-window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>startFriendRequestRealtime(user.uid)).catch(error=>inform(socialError('account-ready-refresh',error)))});
-window.addEventListener('elara:logout',stopFriendRequestRealtime);
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>{startFriendRequestRealtime(user.uid);startPresence(user.uid)}).catch(error=>inform(socialError('account-ready-refresh',error)))});
+window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopPresence()});
