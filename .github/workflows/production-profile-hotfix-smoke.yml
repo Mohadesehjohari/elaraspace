@@ -73,14 +73,15 @@ jobs:
           assert.equal(shell.shell,true);
           assert.equal(shell.loadSocialType,'function');
           assert.ok(shell.assets.length>0,'Home assets list empty');
-          await page.waitForFunction(()=>document.querySelector('#cloud-form')||document.querySelector('[data-elara-account-gate-ready]')||document.body.classList.contains('cloud-offline'),{timeout:30000});
+          await page.waitForFunction(()=>window.ElaraAccount&&(document.querySelector('#cloud-form')||document.querySelector('[data-elara-account-gate-ready]')),{timeout:30000});
           const accountUi=await page.evaluate(()=>({
             form:!!document.querySelector('#cloud-form'),
             gate:document.querySelector('[data-elara-account-gate-ready]')?.getAttribute('data-elara-account-gate-ready')||null,
             offline:document.body.classList.contains('cloud-offline'),
             accountApi:!!window.ElaraAccount
           }));
-          assert.ok(accountUi.form||accountUi.gate||accountUi.offline,'account UI did not settle');
+          assert.equal(accountUi.accountApi,true,'ElaraAccount API did not initialize on production');
+          assert.ok(accountUi.form||accountUi.gate,'login/account UI did not render on production');
           await page.evaluate(()=>{void window.ElaraProfileSystem.openEditor()});
           await page.waitForSelector('#elara-central-profile-form',{timeout:10000});
           await page.waitForFunction(()=>typeof window.ElaraSocial?.saveProfileValues==='function',{timeout:30000});
