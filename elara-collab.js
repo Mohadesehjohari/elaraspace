@@ -94,14 +94,22 @@ async function shareEntity(kind,entity,friendUid=null){
  await invite(spaceId,target);return spaceId
 }
 async function acceptInvite(inviteId){
- const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())throw Error(tx('دعوت پیدا نشد.','Invite not found.'));const d=snap.data();if(d.to!==uid||d.status!=='pending')throw Error(tx('این دعوت دیگر فعال نیست.','This invite is no longer active.'));
- const batch=writeBatch(db),memberRef=doc(db,'collabSpaces',d.spaceId,'members',uid);batch.update(ref,{status:'accepted',updatedAt:serverTimestamp()});batch.set(memberRef,{uid,role:'member',localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});await batch.commit();
- const spaceSnap=await getDoc(doc(db,'collabSpaces',d.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک حذف شده است.','The shared space was removed.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())throw Error(tx('دعوت پیدا نشد.','Invite not found.'));const d=snap.data();if(d.to!==uid)throw Error(tx('این دعوت برای حساب دیگری است.','This invite belongs to another account.'));
+ const memberRef=doc(db,'collabSpaces',d.spaceId,'members',uid);
+ if(d.status==='declined')throw Error(tx('این دعوت رد شده و باید فرستنده دوباره آن را ارسال کند.','This invite was declined; the sender must retry it.'));
+ if(d.status==='pending'){
+  const memberBefore=await getDoc(memberRef);
+  if(!memberBefore.exists()){
+   const batch=writeBatch(db);batch.update(ref,{status:'accepted',updatedAt:serverTimestamp()});batch.set(memberRef,{uid,role:'member',localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});await batch.commit()
+  }else await updateDoc(ref,{status:'accepted',updatedAt:serverTimestamp()})
+ }else if(d.status!=='accepted')throw Error(tx('وضعیت این دعوت معتبر نیست.','This invite state is invalid.'));
+ const spaceSnap=await getDoc(doc(db,'collabSpaces',d.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک حذف شده است.','The shared space was removed.'));const space={id:spaceSnap.id,...spaceSnap.data()},existing=localArray(readLocal(),space.kind).find(x=>x.collabSpaceId===space.id),localEntityId=existing?.id||materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
+ const memberAfter=await getDoc(memberRef);if(!memberAfter.exists())throw Error(tx('عضویت مشترک ثبت نشده است.','Collaboration membership was not created.'));
  await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});
  inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return localEntityId
 }
 async function declineInvite(inviteId){
- const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return true
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid)return false;if(d.status==='declined')return true;if(d.status==='accepted')return false;if(d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return true
 }
 function randomToken(){return (crypto.randomUUID?.()||id()).replace(/-/g,'')+Math.random().toString(36).slice(2,10)}
 async function createShareLink(spaceId){
