@@ -12,7 +12,7 @@ assert.ok(friendRealtime.includes("onSnapshot(query(collection(db,'friendRequest
 assert.ok(friendRealtime.includes("bind('incoming','to')"),'recipient-scoped Friend incoming listener missing');
 assert.ok(friendRealtime.includes("bind('outgoing','from')"),'sender-scoped Friend outgoing listener missing');
 assert.match(social,/meta:\{kind:'friend-request',requestId:/,'friend realtime notification must carry canonical request id');
-assert.match(social,/dedupeKey:'friend-in:'\+row\.id/,'friend notification dedupe key missing');
+assert.match(social,/dedupeKey:'friend-request:'\+request\.id/,'friend notification dedupe key missing');
 
 // The permanent Friends UI owns requests independently of temporary tabs.
 assert.match(view,/social-requests-standalone/);
