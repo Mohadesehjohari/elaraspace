@@ -69,6 +69,14 @@ service firebase.storage {
         && firestore.exists(clubDoc(clubId))
         && firestore.get(clubDoc(clubId)).data.owner == request.auth.uid
         && fileName.matches('^[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)
+      allow delete: if owner(uid)
+        && firestore.exists(clubDoc(clubId))
+        && firestore.get(clubDoc(clubId)).data.owner == request.auth.uid;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
   }
 }
 )
