@@ -111,14 +111,41 @@ function verify(){
   const out=btn('خروج',()=>signOut(auth),'quiet-button');wrap.append(h,p,check,resend,out,status,retry);wrap.dataset.elaraAccountGateReady='verify';layer.append(wrap);message('');window.dispatchEvent(new Event('elara:account-gate-ready'));
 }
 function btn(label,fn,klass='primary-button'){const b=document.createElement('button');b.type='button';b.className=klass;b.textContent=label;b.addEventListener('click',async()=>{b.disabled=true;try{await fn();}catch(e){notify(actionError(e));}finally{b.disabled=false;}});return b;}
+const normalizeUsername=value=>safe(value).replace(/^@/,'').toLowerCase();
+function identityIntegrityError(code,message){const error=new Error(message);error.name='ElaraIdentityIntegrityError';error.identityCode=code;return error}
+async function validateOwnUsernameInvariant(current,profileSnap){
+  if(!current?.uid||!profileSnap?.exists?.())throw identityIntegrityError('profile-missing','پروفایل حساب پیدا نشد.');
+  const canonical=normalizeUsername(profileSnap.data()?.username);
+  if(!usernameValid(canonical))throw identityIntegrityError('profile-username-invalid','نام کاربری ذخیره‌شدهٔ این حساب نامعتبر است و نیاز به بررسی مالک دارد.');
+  const claimSnap=await getDoc(doc(db,'usernames',canonical));
+  if(!claimSnap.exists())throw identityIntegrityError('claim-missing','شاخص نام کاربری این حساب ناقص است. برای جلوگیری از تصاحب اشتباه، ابتدا ممیزی هویت انجام شود.');
+  if(String(claimSnap.data()?.uid||'')!==current.uid)throw identityIntegrityError('claim-owner-mismatch','مالک شاخص نام کاربری با این حساب یکسان نیست. تغییر خودکار انجام نشد.');
+  return canonical;
+}
+async function resolveCanonicalUsername(value){
+  const username=normalizeUsername(value);if(!usernameValid(username))throw new Error('نام کاربری معتبر نیست.');
+  const claimSnap=await getDoc(doc(db,'usernames',username));if(!claimSnap.exists())throw new Error('چنین نام کاربری‌ای پیدا نشد.');
+  const claimedUid=String(claimSnap.data()?.uid||'');if(!claimedUid)throw identityIntegrityError('claim-uid-missing','شاخص نام کاربری خراب است و شناسهٔ مالک ندارد.');
+  const profileSnap=await getDoc(doc(db,'profiles',claimedUid));if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','شاخص نام کاربری به پروفایل موجودی اشاره نمی‌کند.');
+  if(normalizeUsername(profileSnap.data()?.username)!==username)throw identityIntegrityError('claim-profile-mismatch','شاخص نام کاربری با پروفایل مقصد همخوان نیست؛ برای امنیت، این نتیجه استفاده نشد.');
+  return {uid:claimedUid,username,profile:profileSnap.data()};
+}
 async function reserveUsername(username,name){
+  username=normalizeUsername(username);if(!usernameValid(username))throw new Error('نام کاربری معتبر نیست.');
   const claim=doc(db,'usernames',username),p=doc(db,'profiles',user.uid);
   await runTransaction(db,async tx=>{
-    const c=await tx.get(claim), old=await tx.get(p);
-    if(old.exists())return;
-    if(c.exists())throw new Error('این نام کاربری قبلاً انتخاب شده. نام دیگری وارد کن.');
-    tx.set(claim,{uid:user.uid});
-    tx.set(p,{username,name:name.slice(0,60),bio:'',xp:0});
+    const c=await tx.get(claim),old=await tx.get(p);
+    if(!old.exists()){
+      if(c.exists()&&String(c.data()?.uid||'')!==user.uid)throw new Error('این نام کاربری قبلاً انتخاب شده. نام دیگری وارد کن.');
+      if(!c.exists())tx.set(claim,{uid:user.uid});
+      tx.set(p,{username,name:name.slice(0,60),bio:'',xp:0});
+      return;
+    }
+    const existing=normalizeUsername(old.data()?.username);
+    if(!usernameValid(existing))throw identityIntegrityError('existing-profile-invalid','پروفایل موجود نام کاربری معتبر ندارد و نیاز به بررسی مالک دارد.');
+    if(existing!==username)throw identityIntegrityError('existing-profile-different-username','این حساب قبلاً نام کاربری @'+existing+' دارد؛ ساخت پروفایل دوم متوقف شد.');
+    if(!c.exists())throw identityIntegrityError('existing-profile-claim-missing','پروفایل موجود است اما شاخص @'+existing+' وجود ندارد. ترمیم خودکار انجام نشد تا ابتدا duplicateهای قدیمی ممیزی شوند.');
+    if(String(c.data()?.uid||'')!==user.uid)throw identityIntegrityError('existing-profile-claim-conflict','پروفایل موجود و شاخص @'+existing+' مالک‌های متفاوت دارند. هیچ claimی بازنویسی نشد.');
   });
   sessionStorage.removeItem('elara_pending_profile');
 }
@@ -138,6 +165,7 @@ async function readyUser(current){
   message('در حال دریافت پروفایل حساب…');
   const p=await getDoc(doc(db,'profiles',user.uid));
   if(!p.exists()){chooseUsername();return;}
+  await validateOwnUsernameInvariant(current,p);
   profile=p.data();
   message('در حال دریافت اطلاعات شخصی از Firestore…');
   const remote=await getDoc(doc(db,'private',user.uid,'app','main'));
@@ -206,9 +234,7 @@ async function refreshFriends(){
 }
 async function decide(req,status){if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',req.id))}catch(error){console.error('Elara cloud decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',req.id),{status:'declined'})}}else await updateDoc(doc(db,'friendRequests',req.id),{status:'accepted'});await refreshFriends();}
 async function addFriend(username){
-  const v=safe(username).replace(/^@/,'').toLowerCase();if(!usernameValid(v))throw new Error('نام کاربری معتبر نیست.');
-  const claim=await getDoc(doc(db,'usernames',v));if(!claim.exists())throw new Error('چنین نام کاربری‌ای پیدا نشد.');
-  const to=claim.data().uid;if(to===user.uid)throw new Error('این نام کاربری خودته.');
+  const identity=await resolveCanonicalUsername(username),to=identity.uid;if(to===user.uid)throw new Error('این نام کاربری خودته.');
   const id=`${user.uid}_${to}`,ref=doc(db,'friendRequests',id);
   try{await setDoc(ref,{from:user.uid,to,status:'pending'});await refreshFriends()}
   catch(error){console.error('Elara cloud friend request:',error);await refreshFriends().catch(()=>{});throw error}
