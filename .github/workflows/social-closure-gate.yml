@@ -20,6 +20,8 @@ on:
       - 'collab-2026.css'
       - 'tests/social-test.cjs'
       - 'tests/collab-invite-regression.test.mjs'
+      - 'tests/collab-five-kind-contract.test.mjs'
+      - 'tests/social-realtime-notification-contract.test.mjs'
       - 'tests/firestore-rules-emulator.mjs'
       - 'tests/storage-rules-emulator.mjs'
       - 'tests/friends-hub-browser.mjs'
@@ -58,11 +60,15 @@ jobs:
           node --check language-custom-classes.js
           node --check tests/social-test.cjs
           node --check tests/collab-invite-regression.test.mjs
+          node --check tests/collab-five-kind-contract.test.mjs
+          node --check tests/social-realtime-notification-contract.test.mjs
       - name: Identity collaboration and friend lifecycle contracts
         run: |
           node tests/username-runtime-regression.test.mjs
           node tests/username-integrity-audit.test.mjs
           node tests/collab-invite-regression.test.mjs
+          node tests/collab-five-kind-contract.test.mjs
+          node tests/social-realtime-notification-contract.test.mjs
           npm install --prefix tests --no-package-lock
           node tests/social-test.cjs
 
