@@ -58,6 +58,14 @@ function socialApi(store,uid){
   assert.deepEqual(s.usernames.get('nova'),{uid:'A'});
 }
 
+// Legacy orphan claim for the same UID is also ambiguous: do not synthesize a profile silently.
+{
+  const s=makeStore();s.usernames.set('nova',{uid:'A'});
+  const a=cloudApi(s,{uid:'A'}),error=await rejected(a.reserveUsername('nova','A'));
+  assert.equal(error.identityCode,'claim-without-profile');
+  assert.equal(s.profiles.has('A'),false);
+}
+
 // CASE B — existing profile + missing claim: runtime refuses an ambiguous auto-repair.
 // The audit classifier separately proves a safe repair only when the profile username is globally unique.
 {
