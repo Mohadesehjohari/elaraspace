@@ -170,7 +170,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('online',()=>{if(presenceRuntime.uid===uid)void heartbeatPresence()});
 window.ElaraSocial.presence={state:presenceState,start:startPresence,stop:stopPresence,heartbeat:heartbeatPresence,setVisibility:setPresenceVisibility,ttlMs:PRESENCE_TTL_MS};
 
-const dmId=other=>[String(uid||''),String(other||'')].sort().join('__');
+const dmId=other=>[String(uid||''),String(other||'')].sort().join('__'),dmLastSend=new Map();
 function blockedByMe(other){return !!uid&&state.blocked.some(x=>x.target===other)}
 function acceptedFriend(other){return !!uid&&!blockedByMe(other)&&state.friends.some(p=>p.uid===other)}
 async function ensureDm(other){
@@ -187,7 +187,8 @@ async function listDms(){
  if(!uid)return[];
  const snaps=await getDocs(query(collection(db,'conversations'),where('members','array-contains',uid)));
  const rows=[];for(const item of snaps.docs){const data=item.data();if(data.kind!=='dm'||!Array.isArray(data.members))continue;const other=data.members.find(x=>x!==uid);if(!other||blockedByMe(other))continue;let person=state.friends.find(p=>p.uid===other);if(!person){try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}catch{}}
-  rows.push({id:item.id,other,person:person||{uid:other,name:'دوست'},lastText:String(data.lastText||''),lastSender:String(data.lastSender||''),updatedAt:data.updatedAt?.toMillis?.()||0})
+  const updatedAt=data.updatedAt?.toMillis?.()||0;let lastReadAt=0;try{const read=await getDoc(doc(db,'conversations',item.id,'reads',uid));lastReadAt=read.exists()?(read.data()?.lastReadAt?.toMillis?.()||0):0}catch{}
+  rows.push({id:item.id,other,person:person||{uid:other,name:'دوست'},lastText:String(data.lastText||''),lastSender:String(data.lastSender||''),updatedAt,lastReadAt,unread:data.lastSender!==uid&&updatedAt>lastReadAt})
  }
  return rows.sort((a,b)=>b.updatedAt-a.updatedAt);
 }
@@ -200,15 +201,20 @@ function listenDm(other,callback,errorCallback){
  const cid=dmId(other),q=query(collection(db,'conversations',cid,'messages'),orderBy('createdAt','desc'),limit(100));
  return onSnapshot(q,snap=>callback(snap.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()),error=>{console.error('Elara DM listener:',error);errorCallback?.(error)});
 }
+async function markDmRead(other){
+ if(!uid)return false;const cid=dmId(other),ref=doc(db,'conversations',cid),snap=await getDoc(ref);if(!snap.exists())return false;const data=snap.data()||{};if(!Array.isArray(data.members)||!data.members.includes(uid))return false;
+ await setDoc(doc(ref,'reads',uid),{uid,lastReadAt:serverTimestamp()});window.dispatchEvent(new Event('elara:dm-read'));return true
+}
 async function sendDm(other,value){
  const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
- const cid=await ensureDm(other),messages=collection(db,'conversations',cid,'messages');
+ const cid=await ensureDm(other),now=Date.now(),previous=dmLastSend.get(cid)||0;if(now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
+ const messages=collection(db,'conversations',cid,'messages');
  await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
- await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});dmLastSend.set(cid,Date.now());
  window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+Date.now()});
  return cid;
 }
-window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm};
+window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm,markRead:markDmRead};
 
 const groupFriendIds=()=>new Set(state.friends.map(p=>p.uid));
 async function createGroup(title,members=[]){
