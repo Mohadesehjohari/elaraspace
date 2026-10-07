@@ -80,7 +80,7 @@ jobs:
             cloudOffline:document.body.classList.contains('cloud-offline'),
             booting:document.documentElement.hasAttribute('data-elara-booting')
           }));
-          await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+          await page.evaluate(()=>{void window.ElaraProfileSystem.openEditor()});
           await page.waitForSelector('#elara-central-profile-form',{timeout:10000});
           const editorState=await page.evaluate(()=>({
             saveType:typeof window.ElaraSocial?.saveProfileValues,
