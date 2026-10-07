@@ -346,6 +346,20 @@ service cloud.firestore {
       allow delete: if signed() && resource.data.owner == request.auth.uid;
     }
 
+    match /socialContextMutes/{muteId} {
+      allow get, list: if signed() && resource.data.owner == request.auth.uid;
+      allow create: if signed()
+        && muteId == request.auth.uid + '__' + request.resource.data.context + '__' + request.resource.data.contextId
+        && request.resource.data.keys().hasOnly(['owner','context','contextId','createdAt'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.context in ['group','club']
+        && request.resource.data.contextId is string
+        && request.resource.data.contextId.size() > 0 && request.resource.data.contextId.size() <= 160
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if signed() && resource.data.owner == request.auth.uid;
+    }
+
     match /socialReports/{reportId} {
       allow get: if signed() && (resource.data.reporter == request.auth.uid || isAdmin());
       allow list: if isAdmin();
