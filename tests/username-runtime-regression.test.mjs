@@ -114,7 +114,7 @@ function socialApi(store,uid){
 {
   const s=makeStore();s.profiles.set('A',{username:'nova2',name:'A'});s.usernames.set('nova',{uid:'A'});
   const api=socialApi(s,'A');
-  const error=await assert.rejects(()=>api.resolveUsernameIdentity('nova'));
+  const error=await rejected(api.resolveUsernameIdentity('nova'));
   assert.equal(error.identityCode,'claim-profile-mismatch');
 }
 
