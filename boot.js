@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261006-reference-order-v2';
+  const BUILD='20261007-social-ready-v1';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css'];
@@ -27,17 +27,29 @@
   const criticalScripts=['approved-navigation-extension.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','mobile-ia-2026-10-05.js'];
   const deferredScripts=['feature-hubs-shell.js','approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js'];
   const optionalFailures=[];
+  const syncOptionalFailures=()=>{window.__elaraOptionalFailures=optionalFailures.slice()};
+  const rememberOptionalFailure=(name,error)=>{
+    if(!optionalFailures.includes(name))optionalFailures.push(name);
+    syncOptionalFailures();
+    window.__elaraOptionalFailureDetails={...(window.__elaraOptionalFailureDetails||{}),[name]:String(error?.message||error||'load failed')}
+  };
+  const clearOptionalFailure=name=>{
+    const index=optionalFailures.indexOf(name);if(index>=0)optionalFailures.splice(index,1);
+    syncOptionalFailures();
+    if(window.__elaraOptionalFailureDetails)delete window.__elaraOptionalFailureDetails[name]
+  };
+  syncOptionalFailures();
   const loadScriptsInOrder=async names=>{
     const pending=names.map(name=>new Promise(resolve=>{
       const script=document.createElement('script');
       script.async=false;
       script.src=assetUrl(name);
       script.onload=()=>resolve();
-      script.onerror=()=>{optionalFailures.push(name);console.error('Elara module unavailable:',name);resolve()};
+      script.onerror=()=>{rememberOptionalFailure(name,new Error('script load failed'));console.error('Elara module unavailable:',name);resolve()};
       document.head.append(script);
     }));
     await Promise.all(pending);
-    window.__elaraOptionalFailures=optionalFailures.slice();
+    syncOptionalFailures();
   };
   let ready=false;
   const slow=setTimeout(()=>{if(!ready)console.warn('Elara shell startup exceeded 5 seconds; watchdog will reveal the usable shell.')},5000);
@@ -61,6 +73,49 @@
     }catch(error){console.error('Elara final shell could not start:',error);ready=true;release();const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');if(status)status.textContent='بخشی از رابط بارگذاری نشد؛ هستهٔ برنامه در حالت ایمن در دسترس است.';if(retry)retry.hidden=false}
     finally{clearTimeout(slow);clearTimeout(hardWatchdog)}
   })();
+  let cloudPromise=null,socialPromise=null,socialFailure=null,socialAttempt=0,socialStartedAt=0;
+  const loadCloud=()=>{
+    if(window.ElaraAccount)return Promise.resolve(window.ElaraAccount);
+    if(!cloudPromise){
+      cloudPromise=import(assetUrl('./cloud.js')).then(()=>{
+        if(!window.ElaraAccount)throw new Error('Firebase account module loaded without ElaraAccount API.');
+        return window.ElaraAccount
+      }).catch(error=>{console.error('Elara cloud module load:',error);throw error});
+    }
+    return cloudPromise
+  };
+  const loadSocial=(options={})=>{
+    if(window.ElaraSocial&&typeof window.ElaraSocial.saveProfileValues==='function')return Promise.resolve(window.ElaraSocial);
+    const retry=options===true||options?.retry===true;
+    if(retry&&socialFailure){
+      socialAttempt+=1;socialFailure=null;socialPromise=null;clearOptionalFailure('elara-social.js')
+    }
+    if(socialPromise)return socialPromise;
+    if(socialFailure)return Promise.reject(socialFailure);
+    socialStartedAt=performance.now();
+    const url=assetUrl('./elara-social.js')+(socialAttempt?'&retry='+socialAttempt:'');
+    socialPromise=(async()=>{
+      await loadCloud();
+      if(!window.ElaraAccount)throw new Error('Firebase account initialization is not ready for Social.');
+      await import(url);
+      const api=window.ElaraSocial;
+      if(!api||typeof api.saveProfileValues!=='function')throw new Error('Social module loaded but canonical profile persistence API is missing.');
+      socialFailure=null;clearOptionalFailure('elara-social.js');delete window.__elaraSocialLoadError;
+      const elapsed=Math.max(0,performance.now()-socialStartedAt);
+      window.dispatchEvent(new CustomEvent('elara:social-ready',{detail:{elapsedMs:elapsed,attempt:socialAttempt+1}}));
+      return api
+    })().catch(error=>{
+      socialFailure=error;window.__elaraSocialLoadError=error;rememberOptionalFailure('elara-social.js',error);
+      console.error('Elara social startup:',error);
+      window.dispatchEvent(new CustomEvent('elara:social-failed',{detail:{message:String(error?.message||error),attempt:socialAttempt+1}}));
+      throw error
+    });
+    window.ElaraSocialReady=socialPromise;
+    return socialPromise
+  };
+  window.ElaraLoadSocial=loadSocial;
+  window.ElaraSocialReady=null;
+
   let collabPromise=null;
   const loadCollab=async()=>{
     if(window.ElaraCollab&&!window.ElaraCollab.__lazyProxy)return window.ElaraCollab;
@@ -100,20 +155,21 @@
         }
       },15000);
       await Promise.race([
-        import(assetUrl('./cloud.js')),
+        loadCloud(),
         new Promise((_,reject)=>setTimeout(()=>reject(new Error('Firebase startup timeout')),6500))
       ]);
+      // Social has one canonical loader shared by background preload and dependent features.
+      // It stays non-blocking for Home, while Profile/Friends can await the same promise.
+      void loadSocial().catch(error=>{
+        const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد: '+String(error?.message||error)
+      });
       const optionalCloudModules=[
-        ['./elara-social.js','Elara social startup:'],
         ['./elara-page.js','Elara page startup:'],
         ['./social-engagement.js','Elara engagement startup:']
       ];
       // Optional cloud features must never hold the shell or one another hostage.
       for(const [name,label] of optionalCloudModules){
-        import(assetUrl(name)).catch(error=>{
-          console.error(label,error);
-          if(name==='./elara-social.js'){const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد. اتصال اینترنت و فایل‌ها را بررسی کن.'}
-        });
+        import(assetUrl(name)).catch(error=>{rememberOptionalFailure(name.replace(/^\.\//,''),error);console.error(label,error)});
       }
     }catch(error){
       settleAccount();

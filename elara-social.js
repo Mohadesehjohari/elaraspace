@@ -7,7 +7,24 @@ const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-
 const state={me:null,friends:[],requests:[],activities:[],blocked:[],error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
 let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
-const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s);
+const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s),normalizeUsername=value=>String(value||'').trim().replace(/^@/,'').toLowerCase();
+function identityIntegrityError(code,message){const error=new Error(message);error.name='ElaraIdentityIntegrityError';error.identityCode=code;return error}
+async function assertProfileUsernameClaim(ownerUid,profileData){
+ const username=normalizeUsername(profileData?.username);if(!usernameValid(username))throw identityIntegrityError('profile-username-invalid','نام کاربری پروفایل نامعتبر است.');
+ const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw identityIntegrityError('profile-claim-missing','شاخص @'+username+' وجود ندارد؛ نتیجهٔ هویتی قابل اعتماد نیست.');
+ if(String(claim.data()?.uid||'')!==String(ownerUid))throw identityIntegrityError('profile-claim-owner-mismatch','شاخص @'+username+' به حساب دیگری اشاره می‌کند؛ عملیات هویتی متوقف شد.');
+ return username
+}
+async function resolveUsernameIdentity(value){
+ const username=normalizeUsername(value);if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');
+ const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
+ const claimedUid=String(claim.data()?.uid||'');if(!claimedUid)throw identityIntegrityError('claim-uid-missing','شاخص نام کاربری شناسهٔ مالک معتبر ندارد.');
+ let profileSnap;try{profileSnap=await getDoc(doc(db,'profiles',claimedUid))}catch(error){if(error?.code==='permission-denied')throw identityIntegrityError('profile-verification-denied','برای امنیت، مالک این نام کاربری قابل تأیید نبود.');throw error}
+ if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','این شاخص به پروفایل موجودی اشاره نمی‌کند.');
+ const profileData=profileSnap.data(),canonical=normalizeUsername(profileData?.username);
+ if(canonical!==username)throw identityIntegrityError('claim-profile-mismatch','شاخص @'+username+' با نام کاربری canonical پروفایل مقصد همخوان نیست؛ پروفایل باز نشد.');
+ return {uid:claimedUid,username,profile:profileData,self:claimedUid===uid}
+}
 function avatar(name){return `<span class="elara-social-avatar" aria-hidden="true">${esc((name||'E').trim().slice(0,1).toUpperCase())}</span>`}
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
 function inform(value){state.error=value;window.dispatchEvent(new Event('elara:social-updated'))}
@@ -32,7 +49,7 @@ async function syncSocialStats(){
 async function visibleSocialStats(other){
  try{const snap=await getDoc(doc(db,'socialStats',String(other)));if(!snap.exists())return null;const d=snap.data()||{},n=Number(d.streak);return Number.isInteger(n)&&n>=0&&n<=36500?{streak:n,visibility:d.visibility||'private'}:null}catch(error){if(error?.code!=='permission-denied')console.warn('Social stats unavailable:',other,error.code||error.message);return null}
 }
-async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
+async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
  const [incoming,outgoing,blockedSnaps]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
@@ -258,11 +275,36 @@ window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],quick:[...CHALLENGE_QU
 
 
 
+async function changeCanonicalUsername(value){
+ const nextUsername=normalizeUsername(value);if(!usernameValid(nextUsername))throw Error('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی و با حرف شروع شود.');
+ const profileRef=doc(db,'profiles',uid);let oldUsername='';
+ await runTransaction(db,async tx=>{
+   const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');
+   oldUsername=normalizeUsername(own.data()?.username);if(!usernameValid(oldUsername))throw identityIntegrityError('old-profile-username-invalid','نام کاربری قبلی پروفایل نامعتبر است.');
+   if(oldUsername===nextUsername){
+     const sameClaim=await tx.get(doc(db,'usernames',nextUsername));
+     if(!sameClaim.exists()||String(sameClaim.data()?.uid||'')!==uid)throw identityIntegrityError('same-username-claim-invalid','شاخص نام کاربری فعلی با حساب همخوان نیست.');
+     return;
+   }
+   const newClaimRef=doc(db,'usernames',nextUsername),oldClaimRef=doc(db,'usernames',oldUsername);
+   const newClaim=await tx.get(newClaimRef),oldClaim=await tx.get(oldClaimRef);
+   if(newClaim.exists()&&String(newClaim.data()?.uid||'')!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');
+   if(!newClaim.exists())tx.set(newClaimRef,{uid});
+   tx.update(profileRef,{username:nextUsername});
+   if(oldClaim.exists()&&String(oldClaim.data()?.uid||'')===uid)tx.delete(oldClaimRef);
+ });
+ const [profileAfter,newClaimAfter,oldClaimAfter]=await Promise.all([
+   getDoc(profileRef),getDoc(doc(db,'usernames',nextUsername)),oldUsername&&oldUsername!==nextUsername?getDoc(doc(db,'usernames',oldUsername)):Promise.resolve(null)
+ ]);
+ if(!profileAfter.exists()||normalizeUsername(profileAfter.data()?.username)!==nextUsername)throw identityIntegrityError('rename-profile-verify-failed','تغییر نام کاربری در پروفایل تأیید نشد.');
+ if(!newClaimAfter.exists()||String(newClaimAfter.data()?.uid||'')!==uid)throw identityIntegrityError('rename-claim-verify-failed','شاخص نام کاربری جدید بعد از تغییر قابل تأیید نیست.');
+ if(oldClaimAfter?.exists?.()&&String(oldClaimAfter.data()?.uid||'')===uid)throw identityIntegrityError('rename-old-claim-stale','شاخص نام کاربری قبلی هنوز به این حساب متصل است.');
+ return nextUsername
+}
+
 async function addFriend(value){
  if(!state.me||uid!==auth.currentUser?.uid){if(!(await obtain()))throw Error('ابتدا وارد حساب تأییدشده شو.')}
- const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری انگلیسی معتبر وارد کن.');
- const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
- const to=claim.data().uid;if(!to)throw Error('شناسهٔ حساب مقصد معتبر نیست.');if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
+ const identity=await resolveUsernameIdentity(value),username=identity.username,to=identity.uid;if(to===uid)throw Error('نمی‌توانی برای خودت درخواست دوستی بفرستی.');
  // Refresh the two participant-scoped queries before the guard so stale cached social
  // state cannot create a crossed request when an incoming request already exists.
  await refresh();
@@ -308,7 +350,7 @@ async function unblockUser(target){
 window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;
 async function decide(request,status){if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');if(status==='declined'){try{await deleteDoc(doc(db,'friendRequests',request.id))}catch(error){console.error('Elara social decline-delete:',error);if(error?.code!=='permission-denied')throw error;await updateDoc(doc(db,'friendRequests',request.id),{status:'declined'})}}else if(status==='accepted'){await updateDoc(doc(db,'friendRequests',request.id),{status:'accepted'});window.ElaraNotify?.push?.({type:'friend',title:'دوستی تأیید شد',message:'حالا می‌توانید پیشرفت‌های مجاز را با هم ببینید.',dedupeKey:'friend-accepted:'+request.id})}else throw Error('وضعیت درخواست نامعتبر است.');await refresh()}
 
-async function profileUidFromUsername(value){const username=String(value||'').trim().replace(/^@/,'').toLowerCase();if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');return claim.data().uid}
+async function profileUidFromUsername(value){return (await resolveUsernameIdentity(value)).uid}
 function profileSummary(person){
  const system=window.ElaraProfileSystem,view=system?.viewModel?.(person,{self:person?.uid===uid});
  if(view&&system?.composition)return '<div class="pass4-public-profile-summary">'+system.composition(view,{profilePage:person?.uid!==uid})+'</div>';
@@ -348,10 +390,16 @@ async function openProfile(targetUid){
  const person={uid:targetUid,...snap.data()};await presentProfile(person);return person;
 }
 async function openSelfProfile(){if(!(await obtain()))throw Error('پروفایل حساب بارگذاری نشده.');window.ElaraPrivateDrawer?.open?.('account');return state.me}
-async function openProfileByUsername(value){return openProfile(await profileUidFromUsername(value))}
+async function openProfileByUsername(value){
+ const identity=await resolveUsernameIdentity(value);
+ if(identity.self){await openSelfProfile();return state.me}
+ return openProfile(identity.uid)
+}
 window.ElaraSocial.openProfile=openProfile;
 window.ElaraSocial.openSelfProfile=()=>openSelfProfile().catch(e=>inform(e.message||String(e)));
 window.ElaraSocial.openProfileByUsername=openProfileByUsername;
+window.ElaraSocial.profileUidFromUsername=profileUidFromUsername;
+window.ElaraSocial.changeCanonicalUsername=changeCanonicalUsername;
 
 async function saveProfileValues(values={}){
  if(!uid||!auth.currentUser)throw Error('ابتدا وارد حساب شو.');
@@ -362,14 +410,17 @@ async function saveProfileValues(values={}){
  if(!name)throw Error('نام نمایشی نمی‌تواند خالی باشد.');
  if(!usernameValid(username))throw Error('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی و با حرف شروع شود.');
  const profileRef=doc(db,'profiles',uid),before=state.me||{},warnings=[],applied={};
+ const storedBefore=await getDoc(profileRef);if(!storedBefore.exists())throw Error('پروفایل پیدا نشد.');
+ const storedUsername=normalizeUsername(storedBefore.data()?.username);
+ if(username===storedUsername)await assertProfileUsernameClaim(uid,storedBefore.data());
+ if(username!==storedUsername){
+   try{applied.username=await changeCanonicalUsername(username)}
+   catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
+ }
  try{await updateDoc(profileRef,{name});await updateProfile(auth.currentUser,{displayName:name});applied.name=name}
  catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ نام نمایشی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
  try{await updateDoc(profileRef,{bio});applied.bio=bio}
  catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ بیوگرافی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
- if(username!==before.username){
-   try{await runTransaction(db,async tx=>{const own=await tx.get(profileRef);if(!own.exists())throw Error('پروفایل پیدا نشد.');const oldUsername=own.data().username,newClaim=doc(db,'usernames',username),claim=await tx.get(newClaim);if(claim.exists()&&claim.data().uid!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');tx.set(newClaim,{uid});tx.update(profileRef,{username});if(oldUsername&&oldUsername!==username)tx.delete(doc(db,'usernames',oldUsername));});applied.username=username}
-   catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
- }
  if(profilePublic!==(before.profilePublic!==false)){
    try{await updateDoc(profileRef,{profilePublic});applied.profilePublic=profilePublic}
    catch(error){if(error.code==='permission-denied')warnings.push('تنظیم حریم خصوصی بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
