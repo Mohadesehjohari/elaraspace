@@ -9,6 +9,7 @@ on:
       - 'app.js'
       - 'phase2.js'
       - 'reference-home-shell-2026.js'
+      - 'cloud.js'
       - 'elara-social.js'
       - 'elara-collab.js'
       - 'notifications.js'
@@ -21,6 +22,10 @@ on:
       - 'tests/social-test.cjs'
       - 'tests/realtime-social-collab-contract.test.mjs'
       - 'tests/static-check.mjs'
+      - 'tests/username-runtime-regression.test.mjs'
+      - 'tests/username-integrity-audit.test.mjs'
+      - 'tools/username-integrity-core.mjs'
+      - 'tools/username-integrity-audit.mjs'
   workflow_dispatch:
 
 permissions:
@@ -39,18 +44,25 @@ jobs:
           node --check app.js
           node --check phase2.js
           node --check reference-home-shell-2026.js
+          node --input-type=module --check < cloud.js
           node --input-type=module --check < elara-social.js
           node --input-type=module --check < elara-collab.js
           node --check notifications.js
           node --check social-view.js
           node --check language-custom-classes.js
           node --check tests/realtime-social-collab-contract.test.mjs
+          node --check tests/username-runtime-regression.test.mjs
+          node --check tests/username-integrity-audit.test.mjs
+          node --check tools/username-integrity-core.mjs
+          node --check tools/username-integrity-audit.mjs
       - name: Startup and collaboration contracts
         run: |
           node tests/home-first-startup.test.mjs
           node tests/collab-invite-regression.test.mjs
           node tests/realtime-social-collab-contract.test.mjs
           node tests/static-check.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
       - name: Social lifecycle regression
         run: |
           npm install --prefix tests --no-package-lock
