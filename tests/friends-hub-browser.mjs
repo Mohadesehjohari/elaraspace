@@ -12,7 +12,7 @@ const req={id:'r1',from:'f1',to:'me',status:'pending',person:friend};
 window.ElaraSocial={me,friends:[friend],requests:[req],activities:[{id:'a1',uid:'f1',person:friend,type:'focus',durationMin:25,tag:'study',visibility:'friends',ms:Date.now()}],error:'',refresh:async()=>{},addFriend:async()=>{},decide:async()=>{},cancelRequest:async()=>{},removeFriend:async()=>{},openProfile(){},openSelfProfile(){}};
 window.ElaraSocial.dm={list:async()=>[{id:'f1__me',other:'f1',person:friend,lastText:'سلام 👊',updatedAt:Date.now()}],messages:async()=>[],listen:()=>()=>{},send:async()=>true};
 window.ElaraSocial.groups={list:async()=>[{id:'g1',title:'گروه تست',role:'owner',lastText:'بزن بریم',updatedAt:Date.now()}],members:async()=>[],messages:async()=>[],listen:()=>()=>{},create:async()=>'',send:async()=>true,leave:async()=>true};
-window.ElaraSocial.clubs={list:async()=>[{id:'c1',title:'کلاب تست',kind:'focus',visibility:'private',role:'member',restDay:5}],invites:async()=>[],members:async()=>[],posts:async()=>[]};
+window.ElaraSocial.clubs={list:async()=>[{id:'c1',title:'کلاب تست',kind:'focus',visibility:'private',membershipMode:'invite',role:'member',restDay:5,status:'active'}],invites:async()=>[],discover:async()=>[],members:async()=>[],posts:async()=>[],contribution:async()=>({}),dailyReport:async()=>({}),joinRequests:async()=>[]};
 window.dispatchEvent(new Event('elara:social-updated'));
 `;
 async function run(width,height){
