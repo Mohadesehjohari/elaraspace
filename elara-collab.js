@@ -1,11 +1,11 @@
-/* Persistent collaboration for Tasks, Habits, Language Classes and Leitner words.
+/* Persistent collaboration for Tasks, Habits, Goals, Language Classes and Leitner words.
    Firestore owns consent/membership; local entities remain usable offline. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,onSnapshot,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
-const KINDS=new Set(['task','habit','language-class','leitner-word']);
+const KINDS=new Set(['task','habit','goal','language-class','leitner-word']);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const id=()=>crypto.randomUUID?.()||('collab-'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
@@ -13,24 +13,28 @@ const me=()=>auth.currentUser?.uid||window.ElaraAccount?.user?.uid||window.Elara
 const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,Math.round(Number(n)||0)));
-const kindLabel=kind=>kind==='task'?tx('تسک مشترک','Shared task'):kind==='habit'?tx('عادت مشترک','Shared habit'):kind==='language-class'?tx('کلاس مشترک','Shared class'):tx('واژهٔ مشترک لایتنر','Shared Leitner word');
+const kindLabel=kind=>kind==='task'?tx('تسک مشترک','Shared task'):kind==='habit'?tx('عادت مشترک','Shared habit'):kind==='goal'?tx('هدف مشترک','Shared goal'):kind==='language-class'?tx('کلاس مشترک','Shared class'):tx('واژهٔ مشترک لایتنر','Shared Leitner word');
 
-function readLocal(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}')||{};for(const k of ['tasks','habits','languageClasses','words'])if(!Array.isArray(s[k]))s[k]=[];return s}catch{return{tasks:[],habits:[],languageClasses:[],words:[]}}}
+function readLocal(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}')||{};for(const k of ['tasks','habits','goals','languageClasses','words'])if(!Array.isArray(s[k]))s[k]=[];return s}catch{return{tasks:[],habits:[],goals:[],languageClasses:[],words:[]}}}
 function writeLocal(s){localStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:collab-local-changed'))}
 function cleanRule(r){if(!r||typeof r!=='object')return null;return{frequency:['daily','weekly','monthly'].includes(r.frequency)?r.frequency:'weekly',interval:clamp(r.interval||1,1,365),weekdays:Array.isArray(r.weekdays)?r.weekdays.map(Number).filter(x=>x>=0&&x<=6).slice(0,7):[],startDate:String(r.startDate||'').slice(0,10),endDate:r.endDate?String(r.endDate).slice(0,10):null,timezone:String(r.timezone||'').slice(0,80)}}
+const cleanDates=v=>[...new Set((Array.isArray(v)?v:[]).map(x=>String(x||'')).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)))].slice(-366);
+function cleanDailyProgress(value){const out={};if(!value||typeof value!=='object')return out;for(const [date,count] of Object.entries(value).slice(-366)){if(/^\d{4}-\d{2}-\d{2}$/.test(date))out[date]=clamp(count,0,24)}return out}
 function payloadFor(kind,e={}){
  if(kind==='task')return{text:String(e.text||e.title||'').slice(0,180),shortDescription:String(e.shortDescription||'').slice(0,280),description:String(e.description||'').slice(0,1800),date:String(e.date||'').slice(0,10),time:String(e.time||'').slice(0,5),priority:String(e.priority||'4').slice(0,1),list:String(e.list||'').slice(0,80),folder:String(e.folder||'').slice(0,80),tag:String(e.tag||'').slice(0,80),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule),sourceGroup:String(e.sourceGroup||'personal').slice(0,32),checklist:(Array.isArray(e.checklist)?e.checklist:[]).slice(0,30).map((x,i)=>({id:String(x.id||i).slice(0,100),text:String(x.text||x.title||'').slice(0,240),description:String(x.description||'').slice(0,600),done:false,order:i})).filter(x=>x.text)};
  if(kind==='habit')return{title:String(e.title||'').slice(0,120),dailyTarget:clamp(e.dailyTarget||1,1,24),recurrenceRule:cleanRule(e.recurrenceRule)};
+ if(kind==='goal')return{title:String(e.title||'').slice(0,180),description:String(e.description||'').slice(0,1200),horizon:['short','medium','long'].includes(e.horizon)?e.horizon:'short',date:String(e.date||'').slice(0,10),time:String(e.time||'').slice(0,5),priority:['1','2','3','4'].includes(String(e.priority))?String(e.priority):'4',list:String(e.list||'').slice(0,60),folder:String(e.folder||'').slice(0,60),tag:String(e.tag||'').slice(0,60),dailyTarget:clamp(e.dailyTarget||1,1,24),dailyProgress:cleanDailyProgress(e.dailyProgress),recurrenceRule:cleanRule(e.recurrenceRule),skippedDates:cleanDates(e.skippedDates),steps:(Array.isArray(e.steps)?e.steps:[]).slice(0,120).map((s,i)=>({id:String(s.id||i).slice(0,100),text:String(s.text||s.title||'').slice(0,180),done:!!s.done,date:String(s.date||'').slice(0,10),time:String(s.time||'').slice(0,5),priority:['1','2','3','4'].includes(String(s.priority))?String(s.priority):'4',list:String(s.list||'').slice(0,60),folder:String(s.folder||'').slice(0,60),tag:String(s.tag||'').slice(0,60),dailyTarget:clamp(s.dailyTarget||1,1,24),dailyProgress:cleanDailyProgress(s.dailyProgress),recurrenceRule:cleanRule(s.recurrenceRule),occurrenceDone:cleanDates(s.occurrenceDone),skippedDates:cleanDates(s.skippedDates)})).filter(s=>s.text)};
  if(kind==='language-class')return{title:String(e.title||'').slice(0,120),type:['offline','online','linked'].includes(e.type)?e.type:'offline',terms:clamp(e.terms||1,1,40),sessionsPerTerm:clamp(e.sessionsPerTerm||1,1,100),durationMin:clamp(e.durationMin||60,10,480),weekdays:(Array.isArray(e.weekdays)?e.weekdays:[]).map(Number).filter(x=>x>=0&&x<=6).slice(0,7),studyTime:String(e.studyTime||'').slice(0,5),studyHoursPerDay:Math.max(.25,Math.min(16,Number(e.studyHoursPerDay)||1)),linkUrl:String(e.linkUrl||'').slice(0,1000)};
  return{front:String(e.front||'').slice(0,120),back:String(e.back||'').slice(0,240)}
 }
-function entityTitle(kind,e){return String(kind==='task'?(e.text||e.title):kind==='habit'?e.title:kind==='language-class'?e.title:e.front||'').trim().slice(0,120)||kindLabel(kind)}
-function localArray(s,kind){return kind==='task'?s.tasks:kind==='habit'?s.habits:kind==='language-class'?s.languageClasses:s.words}
+function entityTitle(kind,e){return String(kind==='task'?(e.text||e.title):kind==='habit'?e.title:kind==='goal'?e.title:kind==='language-class'?e.title:e.front||'').trim().slice(0,120)||kindLabel(kind)}
+function localArray(s,kind){return kind==='task'?s.tasks:kind==='habit'?s.habits:kind==='goal'?s.goals:kind==='language-class'?s.languageClasses:s.words}
 function findLocal(kind,entityId){const s=readLocal();return localArray(s,kind).find(x=>String(x.id)===String(entityId))||null}
 function progressFor(kind,e={}){
  const day=today();
  if(kind==='task'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed){if(e.recurrenceRule&&Array.isArray(e.occurrenceDone)&&e.occurrenceDone.includes(day))completed=total;else if(!e.recurrenceRule&&e.completed)completed=total}return{completed,total,percent:Math.round(completed/total*100)}}
  if(kind==='habit'){const total=clamp(e.dailyTarget||1,1,24),explicit=Number(e.dailyProgress?.[day]);let completed=Number.isFinite(explicit)?clamp(explicit,0,total):0;if(!completed&&Array.isArray(e.days)&&e.days.includes(day))completed=total;return{completed,total,percent:Math.round(completed/total*100)}}
+ if(kind==='goal'){const steps=Array.isArray(e.steps)?e.steps:[],total=Math.max(1,steps.length),completed=steps.filter(step=>{if(step?.recurrenceRule)return Array.isArray(step.occurrenceDone)&&step.occurrenceDone.includes(day);if(clamp(step?.dailyTarget||1,1,24)>1)return Number(step?.dailyProgress?.[day]||0)>=clamp(step.dailyTarget,1,24);return !!step?.done}).length;return{completed,total,percent:Math.round(completed/total*100)}}
  if(kind==='language-class'){const total=Math.max(1,clamp(e.terms||1,1,40)*clamp(e.sessionsPerTerm||1,1,100)),completed=Math.min(total,Array.isArray(e.sessionLogs)?e.sessionLogs.length:clamp(e.completedSessions||0,0,total));return{completed,total,percent:Math.round(completed/total*100)}}
  const total=5,completed=clamp(e.box||1,1,5);return{completed,total,percent:Math.round(completed/total*100)}
 }
@@ -46,9 +50,10 @@ function materialize(space){
  let row;
  if(kind==='task')row={...common,text:String(payload.text||space.title||'تسک مشترک'),shortDescription:payload.shortDescription||'',description:payload.description||'',date:payload.date||'',time:payload.time||'',priority:payload.priority||'4',list:payload.list||'',folder:payload.folder||'',tag:payload.tag||'',dailyTarget:clamp(payload.dailyTarget||1,1,24),dailyProgress:{},recurrenceRule:cleanRule(payload.recurrenceRule),sourceGroup:payload.sourceGroup||'personal',checklist:Array.isArray(payload.checklist)?payload.checklist:[],completed:false,doneAt:null,xpAwarded:false,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{},createdAt:Date.now()};
  else if(kind==='habit')row={...common,title:String(payload.title||space.title||'عادت مشترک'),dailyTarget:clamp(payload.dailyTarget||1,1,24),dailyProgress:{},recurrenceRule:cleanRule(payload.recurrenceRule),days:[],rewardDays:[],skippedDates:[],occurrenceOverrides:{}};
+ else if(kind==='goal')row={...common,title:String(payload.title||space.title||'هدف مشترک'),description:String(payload.description||''),horizon:['short','medium','long'].includes(payload.horizon)?payload.horizon:'short',date:String(payload.date||''),time:String(payload.time||''),priority:['1','2','3','4'].includes(String(payload.priority))?String(payload.priority):'4',list:String(payload.list||''),folder:String(payload.folder||''),tag:String(payload.tag||''),dailyTarget:clamp(payload.dailyTarget||1,1,24),dailyProgress:cleanDailyProgress(payload.dailyProgress),recurrenceRule:cleanRule(payload.recurrenceRule),skippedDates:cleanDates(payload.skippedDates),steps:(Array.isArray(payload.steps)?payload.steps:[]).map((step,index)=>({id:String(step.id||('shared-step-'+index)),text:String(step.text||''),done:!!step.done,date:String(step.date||''),time:String(step.time||''),priority:['1','2','3','4'].includes(String(step.priority))?String(step.priority):'4',list:String(step.list||''),folder:String(step.folder||''),tag:String(step.tag||''),dailyTarget:clamp(step.dailyTarget||1,1,24),dailyProgress:cleanDailyProgress(step.dailyProgress),recurrenceRule:cleanRule(step.recurrenceRule),occurrenceDone:cleanDates(step.occurrenceDone),skippedDates:cleanDates(step.skippedDates)})).filter(step=>step.text)};
  else if(kind==='language-class')row={...common,title:String(payload.title||space.title||'کلاس مشترک'),type:['offline','online','linked'].includes(payload.type)?payload.type:'offline',terms:clamp(payload.terms||1,1,40),sessionsPerTerm:clamp(payload.sessionsPerTerm||1,1,100),durationMin:clamp(payload.durationMin||60,10,480),weekdays:Array.isArray(payload.weekdays)?payload.weekdays:[],studyTime:String(payload.studyTime||''),studyHoursPerDay:Math.max(.25,Math.min(16,Number(payload.studyHoursPerDay)||1)),linkUrl:String(payload.linkUrl||''),createdAt:Date.now(),updatedAt:Date.now(),sessionLogs:[]};
  else row={...common,front:String(payload.front||space.title||'واژه'),back:String(payload.back||''),box:1,due:today()};
- arr.unshift(row);writeLocal(s);window.ElaraLanguageClasses?.render?.();window.ElaraTasks?.render?.();return row.id
+ arr.unshift(row);writeLocal(s);window.ElaraLinkedTasks?.syncAll?.();window.ElaraLanguageClasses?.render?.();window.ElaraTasks?.render?.();return row.id
 }
 function requireUser(){const uid=me();if(!uid||!auth.currentUser?.emailVerified)throw Error(tx('برای اشتراک، حساب تأییدشده لازم است.','A verified account is required for sharing.'));return uid}
 async function createSpace(kind,entity){
@@ -93,10 +98,10 @@ async function acceptInvite(inviteId){
  const batch=writeBatch(db),memberRef=doc(db,'collabSpaces',d.spaceId,'members',uid);batch.update(ref,{status:'accepted',updatedAt:serverTimestamp()});batch.set(memberRef,{uid,role:'member',localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});await batch.commit();
  const spaceSnap=await getDoc(doc(db,'collabSpaces',d.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک حذف شده است.','The shared space was removed.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
  await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});
- await refreshInvites();window.dispatchEvent(new Event('elara:collab-updated'));return localEntityId
+ inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return localEntityId
 }
 async function declineInvite(inviteId){
- const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});await refreshInvites();return true
+ const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid||d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return true
 }
 function randomToken(){return (crypto.randomUUID?.()||id()).replace(/-/g,'')+Math.random().toString(36).slice(2,10)}
 async function createShareLink(spaceId){
@@ -128,24 +133,50 @@ async function openSpace(spaceId){
  box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))await copyShareLink(space.id,e)});
  await window.ElaraDialog.open({title:tx('فضای مشترک','Shared space'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});return rows
 }
-let inbox=[];
+let inbox=[],inviteRealtimeUid='',inviteRealtimeUnsub=null,inviteSeen=new Set(),inviteRealtimeChain=Promise.resolve();
+async function enrichInvites(rows){
+ const result=[];
+ for(const row of rows){
+  let sender=friends().find(x=>x.uid===row.from)||null;
+  if(!sender&&row.from)try{const p=await getDoc(doc(db,'profiles',String(row.from)));if(p.exists())sender={uid:row.from,...p.data()}}catch(error){console.warn('Collab sender profile unavailable:',row.from,error.code||error.message)}
+  result.push({...row,sender:sender||{uid:row.from,name:tx('دوست','Friend'),username:''}})
+ }
+ return result
+}
+async function applyInboxRows(rows,sourceUid=me()){
+ if(!sourceUid||sourceUid!==me()||auth.currentUser?.uid!==sourceUid)return[];
+ const pending=(await enrichInvites(rows.filter(x=>x.status==='pending'))).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
+ inbox=pending;const pendingIds=new Set(pending.map(row=>row.id));for(const seen of [...inviteSeen])if(!pendingIds.has(seen))inviteSeen.delete(seen);
+ for(const row of pending){
+  if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);
+  const who=String(row.sender?.name||row.sender?.username||tx('دوست','Friend')),username=row.sender?.username?' · @'+row.sender.username:'';
+  window.ElaraNotify?.push?.({type:'social',title:tx('درخواست مشترک جدید','New shared request'),message:who+username+' · '+kindLabel(row.kind)+' · '+String(row.title||kindLabel(row.kind)),dedupeKey:'collab-in:'+row.id,reopen:true,meta:{kind:'collab-invite',inviteId:row.id,collabKind:row.kind,from:row.from,to:row.to}})
+ }
+ window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:pending.length,rows:pending.map(x=>({id:x.id,kind:x.kind,title:x.title,from:x.from,to:x.to,status:x.status}))}}));
+ window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return pending
+}
+function queueInviteRows(rows,sourceUid){
+ const run=()=>applyInboxRows(rows,sourceUid),pending=inviteRealtimeChain.then(run,run);inviteRealtimeChain=pending.catch(()=>{});return pending
+}
+function stopInviteRealtime(){try{inviteRealtimeUnsub?.()}catch{}inviteRealtimeUnsub=null;inviteRealtimeUid='';inviteSeen=new Set();inbox=[];window.dispatchEvent(new Event('elara:collab-updated'))}
+function startInviteRealtime(sourceUid=me()){
+ if(!sourceUid||!auth.currentUser?.emailVerified)return;
+ if(inviteRealtimeUid===sourceUid&&inviteRealtimeUnsub)return;
+ stopInviteRealtime();inviteRealtimeUid=sourceUid;
+ inviteRealtimeUnsub=onSnapshot(query(collection(db,'collabInvites'),where('to','==',sourceUid)),snap=>{
+  if(inviteRealtimeUid!==sourceUid||auth.currentUser?.uid!==sourceUid)return;
+  void queueInviteRows(snap.docs.map(x=>({id:x.id,...x.data()})),sourceUid)
+ },error=>{if(inviteRealtimeUid===sourceUid)console.error('Elara collab invite realtime:',error)});
+}
 async function refreshInvites(){
- const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];mountInbox();return[]}
- try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid))),next=snaps.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.status==='pending').sort((a,b)=>String(b.id).localeCompare(String(a.id)));inbox=next;for(const row of next)window.ElaraNotify?.push?.({type:'social',title:row.kind==='language-class'?tx('دعوت همکلاسی 📚','Classmate invite 📚'):tx('درخواست مشترک 🤝','Shared request 🤝'),message:row.title||kindLabel(row.kind),dedupeKey:'collab-in:'+row.id});mountInbox();window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:next.length}}));return next}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
+ const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];window.dispatchEvent(new Event('elara:collab-updated'));return[]}
+ try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid)));return await applyInboxRows(snaps.docs.map(x=>({id:x.id,...x.data()})),uid)}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
 }
 async function openInbox(){
- await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span>'+tx('بدون تایمر؛ با قبول درخواست مورد مشترک به فضای تو اضافه می‌شود.','No timer; accepting adds the shared item to your space.')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
- box.addEventListener('click',async e=>{const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');try{if(accept){accept.disabled=true;await acceptInvite(accept.dataset.collabAccept);box.querySelector('[data-collab-invite-row="'+CSS.escape(accept.dataset.collabAccept)+'"]')?.remove()}else if(decline){decline.disabled=true;await declineInvite(decline.dataset.collabDecline);box.querySelector('[data-collab-invite-row="'+CSS.escape(decline.dataset.collabDecline)+'"]')?.remove()}}catch(error){await window.ElaraDialog.alert(error.message||String(error))}});
+ await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span data-elara-ugc dir="auto">'+esc(row.sender?.name||row.sender?.username||tx('دوست','Friend'))+(row.sender?.username?' · @'+esc(row.sender.username):'')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
  await window.ElaraDialog.open({title:tx('درخواست‌های مشترک','Shared requests'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]})
 }
-function mountInbox(){
- const root=document.querySelector('#elara-social-page,#panel-social');if(!root)return;let host=root.querySelector('[data-collab-inbox-launcher]');if(!inbox.length){host?.remove();return}
- if(!host){host=document.createElement('button');host.type='button';host.className='collab-inbox-launcher';host.dataset.collabInboxLauncher='';root.prepend(host)}
- const locale=document.documentElement.lang==='en'?'en':'fa',renderKey=locale+'|'+inbox.length;
- if(host.dataset.collabRenderKey===renderKey)return;
- host.dataset.collabRenderKey=renderKey;
- host.innerHTML='<span>🤝</span><strong>'+tx('درخواست‌های مشترک','Shared requests')+'</strong><b>'+inbox.length.toLocaleString(locale==='en'?'en-US':'fa-IR')+'</b>'
-}
+function mountInbox(){window.ElaraSocialView?.render?.()}
 function mountWordShareControl(){
  const form=document.getElementById('word-form');if(!form)return;let host=form.querySelector('[data-collab-word-add]');
  if(!host){host=document.createElement('label');host.className='word-share-on-add';host.dataset.collabWordAdd='';host.innerHTML='<span>🤝 '+tx('افزودن به لایتنر','Add to Leitner')+'</span><select id="word-share-friend" aria-label="'+tx('لایتنر مقصد','Target Leitner')+'"></select>';form.append(host)}
@@ -158,7 +189,7 @@ function mountWordShareControl(){
 }
 let syncTimer=null,progressCache=new Map();
 async function syncProgress(){
- const uid=me();if(!uid||!auth.currentUser?.emailVerified)return;const s=readLocal(),sets=[['task',s.tasks],['habit',s.habits],['language-class',s.languageClasses],['leitner-word',s.words]];
+ const uid=me();if(!uid||!auth.currentUser?.emailVerified)return;const s=readLocal(),sets=[['task',s.tasks],['habit',s.habits],['goal',s.goals],['language-class',s.languageClasses],['leitner-word',s.words]];
  for(const [kind,rows] of sets)for(const row of rows){if(!row?.collabSpaceId)continue;const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;if(progressCache.get(row.collabSpaceId)===key)continue;try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}}
 }
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncProgress(),700)}
@@ -166,9 +197,19 @@ async function handleJoinFromUrl(){
  const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
  try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
 }
-document.addEventListener('click',e=>{if(e.target.closest('[data-collab-inbox-launcher]'))void openInbox()});
+document.addEventListener('click',async e=>{
+ if(e.target.closest('[data-collab-inbox-launcher]')){void openInbox();return}
+ const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');if(!accept&&!decline)return;
+ const button=accept||decline;button.disabled=true;
+ try{if(accept)await acceptInvite(accept.dataset.collabAccept);else await declineInvite(decline.dataset.collabDecline)}
+ catch(error){console.error('Elara collab action:',error);await window.ElaraDialog?.alert?.(error.message||String(error))}
+ finally{button.disabled=false}
+});
 for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
-for(const ev of ['elara:account-ready','elara:social-updated'])window.addEventListener(ev,()=>{setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},200)});
-setTimeout(()=>{void refreshInvites();void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
+onAuthStateChanged(auth,user=>{stopInviteRealtime();if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
+window.addEventListener('elara:logout',stopInviteRealtime);
+setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
-window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
