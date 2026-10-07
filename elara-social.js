@@ -123,6 +123,27 @@ function startFriendRequestRealtime(mine=auth.currentUser?.uid){
 window.ElaraSocial.startFriendRequestRealtime=startFriendRequestRealtime;
 window.ElaraSocial.stopFriendRequestRealtime=stopFriendRequestRealtime;
 
+let membershipInviteRealtime={uid:'',unsubs:[],seen:new Set()};
+function stopMembershipInviteRealtime(){for(const off of membershipInviteRealtime.unsubs)try{off?.()}catch{}membershipInviteRealtime={uid:'',unsubs:[],seen:new Set()}}
+async function membershipInviteNotification(kind,row,parentId){
+ if(!row||row.status!=='pending'||membershipInviteRealtime.seen.has(kind+':'+parentId))return;membershipInviteRealtime.seen.add(kind+':'+parentId);if(mutedByMe(row.from))return;
+ let sender=null;try{const p=await getDoc(doc(db,'profiles',String(row.from||'')));if(p.exists())sender=p.data()}catch{}
+ const label=kind==='club'?('دعوت باشگاه'+(sender?.name?' از '+sender.name:'')):('دعوت گروه'+(sender?.name?' از '+sender.name:''));
+ window.ElaraNotify?.push?.({type:'social',title:label,message:String(row.title||sender?.username||''),dedupeKey:kind+'-invite:'+parentId,reopen:true,meta:{kind:kind+'-invite',targetId:parentId,from:row.from,to:row.to}})
+}
+function startMembershipInviteRealtime(mine=auth.currentUser?.uid){
+ if(!mine||!auth.currentUser?.emailVerified)return;if(membershipInviteRealtime.uid===mine&&membershipInviteRealtime.unsubs.length===2)return;stopMembershipInviteRealtime();membershipInviteRealtime.uid=mine;
+ const bind=(kind,name)=>onSnapshot(query(collectionGroup(db,name),where('to','==',mine)),snap=>{
+  if(membershipInviteRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;const active=new Set();
+  for(const item of snap.docs){const row=item.data()||{},parent=item.ref.parent.parent;if(!parent)continue;const key=kind+':'+parent.id;if(row.status==='pending'){active.add(key);void membershipInviteNotification(kind,row,parent.id)}}
+  for(const seen of [...membershipInviteRealtime.seen])if(seen.startsWith(kind+':')&&!active.has(seen))membershipInviteRealtime.seen.delete(seen);
+  window.dispatchEvent(new Event('elara:social-updated'))
+ },error=>{if(membershipInviteRealtime.uid===mine)console.error('Elara '+kind+' invite realtime:',error)});
+ membershipInviteRealtime.unsubs=[bind('group','groupInvites'),bind('club','clubInvites')]
+}
+window.ElaraSocial.startMembershipInviteRealtime=startMembershipInviteRealtime;
+window.ElaraSocial.stopMembershipInviteRealtime=stopMembershipInviteRealtime;
+
 const PRESENCE_TTL_MS=90000,PRESENCE_HEARTBEAT_MS=45000;
 const mutedByMe=other=>!!uid&&state.muted.some(x=>x.target===String(other));
 function presenceVisibility(){const value=localStorage.getItem('elara_presence_visibility_'+uid);return ['private','friends','public'].includes(value)?value:'friends'}
@@ -737,9 +758,9 @@ document.addEventListener('submit',async e=>{
 });
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-friend-action],[data-social-refresh]');if(!b)return;if(b.hasAttribute('data-social-refresh')){void refresh();return}const req=state.requests.find(r=>r.id===b.dataset.request);if(!req)return;b.disabled=true;try{await decide(req,b.dataset.friendAction==='accept'?'accepted':'declined')}catch(error){inform(socialError('friend-action',error))}finally{b.disabled=false}});
 onAuthStateChanged(auth,async user=>{
- stopFriendRequestRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
+ stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
  if(!user){render();return}
- if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
+ if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
 });
 window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>{startFriendRequestRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}).catch(error=>inform(socialError('account-ready-refresh',error)))});
-window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopChallengeRealtime();stopPresence()});
+window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence()});
