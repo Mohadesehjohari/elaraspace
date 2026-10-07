@@ -136,8 +136,11 @@ async function reserveUsername(username,name){
   await runTransaction(db,async tx=>{
     const c=await tx.get(claim),old=await tx.get(p);
     if(!old.exists()){
-      if(c.exists()&&String(c.data()?.uid||'')!==user.uid)throw new Error('این نام کاربری قبلاً انتخاب شده. نام دیگری وارد کن.');
-      if(!c.exists())tx.set(claim,{uid:user.uid});
+      if(c.exists()){
+        if(String(c.data()?.uid||'')!==user.uid)throw new Error('این نام کاربری قبلاً انتخاب شده. نام دیگری وارد کن.');
+        throw identityIntegrityError('claim-without-profile','شاخص @'+username+' از قبل به این حساب اشاره می‌کند اما پروفایل وجود ندارد. برای جلوگیری از duplicate legacy، ساخت خودکار متوقف شد.');
+      }
+      tx.set(claim,{uid:user.uid});
       tx.set(p,{username,name:name.slice(0,60),bio:'',xp:0});
       return;
     }
