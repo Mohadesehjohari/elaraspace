@@ -223,7 +223,7 @@ async function createGroup(title,members=[]){
  const accepted=groupFriendIds(),chosen=[...new Set((Array.isArray(members)?members:[]).map(String).filter(x=>x&&accepted.has(x)&&x!==uid))].slice(0,24);
  if(!chosen.length)throw Error('برای ساخت گروه حداقل یک دوست انتخاب کن.');
  const ref=doc(collection(db,'groups')),batch=writeBatch(db),stamp=serverTimestamp();
- batch.set(ref,{owner:uid,title:clean,createdAt:stamp,updatedAt:stamp,lastText:'',lastSender:''});
+ batch.set(ref,{owner:uid,title:clean,status:'active',createdAt:stamp,updatedAt:stamp,lastText:'',lastSender:''});
  batch.set(doc(ref,'groupMembers',uid),{uid,role:'owner',joinedAt:stamp});
  for(const member of chosen)batch.set(doc(ref,'groupMembers',member),{uid:member,role:'member',joinedAt:stamp});
  await batch.commit();return ref.id;
@@ -233,7 +233,7 @@ async function listGroups(){
  const memberships=await getDocs(query(collectionGroup(db,'groupMembers'),where('uid','==',uid))),rows=[];
  for(const membership of memberships.docs){
   const ref=membership.ref.parent.parent;if(!ref)continue;
-  try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,title:String(d.title||'گروه'),owner:String(d.owner||''),lastText:String(d.lastText||''),lastSender:String(d.lastSender||''),updatedAt:d.updatedAt?.toMillis?.()||0,role:membership.data()?.role||'member'})}catch(error){console.warn('Elara group unavailable:',ref.id,error)}
+  try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{},updatedAt=d.updatedAt?.toMillis?.()||0;let lastReadAt=0;try{const read=await getDoc(doc(ref,'reads',uid));lastReadAt=read.exists()?(read.data()?.lastReadAt?.toMillis?.()||0):0}catch{}rows.push({id:ref.id,title:String(d.title||'گروه'),owner:String(d.owner||''),status:String(d.status||'active'),lastText:String(d.lastText||''),lastSender:String(d.lastSender||''),updatedAt,lastReadAt,unread:d.lastSender!==uid&&updatedAt>lastReadAt,role:membership.data()?.role||'member'})}catch(error){console.warn('Elara group unavailable:',ref.id,error)}
  }
  return rows.sort((a,b)=>b.updatedAt-a.updatedAt);
 }
@@ -252,19 +252,56 @@ function listenGroup(groupId,callback,errorCallback){
  const q=query(collection(db,'groups',String(groupId),'messages'),orderBy('createdAt','desc'),limit(100));
  return onSnapshot(q,snap=>callback(snap.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()),error=>{console.error('Elara group listener:',error);errorCallback?.(error)});
 }
+const groupLastSend=new Map();
+async function markGroupRead(groupId){
+ if(!uid)return false;const gid=String(groupId),ref=doc(db,'groups',gid),snap=await getDoc(ref);if(!snap.exists())return false;
+ await setDoc(doc(ref,'reads',uid),{uid,lastReadAt:serverTimestamp()});window.dispatchEvent(new Event('elara:group-read'));return true
+}
 async function sendGroup(groupId,value){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('حساب تأییدشده لازم است.');
  const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
- const gid=String(groupId),messages=collection(db,'groups',gid,'messages');await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
- await updateDoc(doc(db,'groups',gid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ const gid=String(groupId),groupRef=doc(db,'groups',gid),group=await getDoc(groupRef);if(!group.exists())throw Error('گروه پیدا نشد.');if((group.data()?.status||'active')!=='active')throw Error('این گروه بسته شده است.');
+ const now=Date.now(),previous=groupLastSend.get(gid)||0;if(now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
+ const messages=collection(groupRef,'messages');await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
+ await updateDoc(groupRef,{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});groupLastSend.set(gid,Date.now());
  window.ElaraNotify?.push?.({type:'social',title:'پیام گروه ارسال شد',message:'رفت تو گروه 🚀',dedupeKey:'group-sent:'+gid+':'+Date.now()});return gid;
+}
+async function inviteGroup(groupId,target){
+ if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(groupId),to=String(target||''),groupRef=doc(db,'groups',gid),group=await getDoc(groupRef);if(!group.exists()||group.data()?.owner!==uid)throw Error('فقط صاحب گروه می‌تواند دعوت بفرستد.');if((group.data()?.status||'active')!=='active')throw Error('گروه بسته شده است.');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت فقط برای دوست تأییدشده است.');
+ const member=await getDoc(doc(groupRef,'groupMembers',to));if(member.exists())throw Error('این دوست همین حالا عضو گروه است.');
+ const ref=doc(groupRef,'groupInvites',to),snap=await getDoc(ref);
+ if(snap.exists()){const d=snap.data()||{};if(d.status==='pending')return to;if(d.status==='accepted')throw Error('این دعوت قبلاً پذیرفته شده است.');if(d.status==='declined'){await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});return to}}
+ await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return to
+}
+async function listGroupInvites(){
+ if(!uid)return[];const snaps=await getDocs(query(collectionGroup(db,'groupInvites'),where('to','==',uid))),rows=[];
+ for(const row of snaps.docs){const d=row.data()||{};if(d.status!=='pending')continue;const groupRef=row.ref.parent.parent;if(!groupRef)continue;try{const group=await getDoc(groupRef);if(group.exists())rows.push({id:row.id,groupId:groupRef.id,...d,group:{id:groupRef.id,...group.data()}})}catch{}}
+ return rows
+}
+async function decideGroupInvite(invite,status){
+ if(!uid||invite?.to!==uid||!['accepted','declined'].includes(status))throw Error('دعوت گروه معتبر نیست.');const gid=String(invite.groupId),ref=doc(db,'groups',gid,'groupInvites',uid),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data()||{};
+ if(d.status===status)return true;if(d.status!=='pending')return false;
+ if(status==='declined'){await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});return true}
+ const batch=writeBatch(db),stamp=serverTimestamp();batch.update(ref,{status:'accepted',updatedAt:stamp});batch.set(doc(db,'groups',gid,'groupMembers',uid),{uid,role:'member',joinedAt:stamp});await batch.commit();return true
+}
+async function removeGroupMember(groupId,target){
+ const gid=String(groupId),memberUid=String(target||''),group=await getDoc(doc(db,'groups',gid));if(!group.exists()||group.data()?.owner!==uid)throw Error('فقط صاحب گروه می‌تواند عضو را حذف کند.');if(memberUid===uid)throw Error('صاحب گروه باید گروه را ببندد؛ حذف خودکار مالک مجاز نیست.');
+ await deleteDoc(doc(db,'groups',gid,'groupMembers',memberUid));return true
+}
+async function renameGroup(groupId,title){
+ const gid=String(groupId),clean=String(title||'').trim().slice(0,80);if(clean.length<2)throw Error('اسم گروه حداقل ۲ نویسه باشد.');
+ await updateDoc(doc(db,'groups',gid),{title:clean,updatedAt:serverTimestamp()});return clean
+}
+async function closeGroup(groupId){
+ const gid=String(groupId),group=await getDoc(doc(db,'groups',gid));if(!group.exists()||group.data()?.owner!==uid)throw Error('فقط صاحب گروه می‌تواند گروه را ببندد.');
+ await updateDoc(doc(db,'groups',gid),{status:'closed',updatedAt:serverTimestamp()});return true
 }
 async function leaveGroup(groupId){
  if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(groupId),group=await getDoc(doc(db,'groups',gid));if(!group.exists())throw Error('گروه پیدا نشد.');
- if(group.data()?.owner===uid)throw Error('سازندهٔ گروه فعلاً باید مالکیت را نگه دارد.');
+ if(group.data()?.owner===uid)throw Error('صاحب گروه نمی‌تواند Leave کند؛ گروه را ببند یا ابتدا مدیریت را تعیین کن.');
  await deleteDoc(doc(db,'groups',gid,'groupMembers',uid));return true;
 }
-window.ElaraSocial.groups={create:createGroup,list:listGroups,members:getGroupMembers,messages:getGroupMessages,listen:listenGroup,send:sendGroup,leave:leaveGroup};
+window.ElaraSocial.groups={create:createGroup,list:listGroups,members:getGroupMembers,messages:getGroupMessages,listen:listenGroup,send:sendGroup,markRead:markGroupRead,invite:inviteGroup,invites:listGroupInvites,decideInvite:decideGroupInvite,removeMember:removeGroupMember,rename:renameGroup,close:closeGroup,leave:leaveGroup};
 
 const CLUB_KINDS=new Set(['reading','fitness','focus','general']);
 const clubMemberships=async()=>{
