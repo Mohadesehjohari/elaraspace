@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 
 const cloud=readFileSync(new URL('../cloud.js',import.meta.url),'utf8');
 const social=readFileSync(new URL('../elara-social.js',import.meta.url),'utf8');
+assert.ok(cloud.includes("elaraAccountGateReady='identity-repair'"),'legacy identity conflicts need an explicit repair gate');
 
 const snap=data=>({exists:()=>data!==undefined,data:()=>data});
 async function rejected(promise){try{await promise;assert.fail('expected rejection')}catch(error){return error}}
