@@ -168,9 +168,12 @@ try{
 
  // Direct challenge only between accepted friends; only recipient can accept.
  const challenge='challenges/alice_bob_challenge';
- await assertSucceeds(setDoc(ref(alice,challenge),{from:'alice',to:'bob',status:'pending',targetKind:'reading',targetText:'۵۰ صفحه بخون',targetValue:50,createdAt:serverTimestamp(),expiresAt:nowPlus(30000)}));
- await assertFails(updateDoc(ref(alice,challenge),{status:'accepted',respondedAt:serverTimestamp()}));
- await assertSucceeds(updateDoc(ref(bob,challenge),{status:'accepted',respondedAt:serverTimestamp()}));
+ const challengeBatch=writeBatch(alice);
+ challengeBatch.set(ref(alice,'challengeRateLimits/alice'),{uid:'alice',lastAt:serverTimestamp()});
+ challengeBatch.set(ref(alice,challenge),{from:'alice',to:'bob',status:'pending',targetKind:'reading',targetText:'۵۰ صفحه بخون',targetValue:50,mode:'now',attempt:1,originId:'alice_bob_challenge',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),expiresAt:nowPlus(30000)});
+ await assertSucceeds(challengeBatch.commit());
+ await assertFails(updateDoc(ref(alice,challenge),{status:'accepted',respondedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,challenge),{status:'accepted',respondedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,challenge+'/quickMessages/q1'),{uid:'alice',text:'بزن بریم 🔥',createdAt:serverTimestamp()}));
  await assertFails(getDoc(ref(eve,challenge)));
 
