@@ -4,7 +4,7 @@ import {getAuth,onAuthStateChanged,updateProfile} from 'https://www.gstatic.com/
 import {getFirestore,doc,getDoc,collection,collectionGroup,getDocs,query,where,orderBy,limit,onSnapshot,addDoc,updateDoc,setDoc,deleteDoc,serverTimestamp,runTransaction,writeBatch,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const auth=getAuth(getApp()),db=getFirestore(getApp()),$=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ico=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
-const state={me:null,friends:[],requests:[],activities:[],blocked:[],muted:[],presence:{},error:'',profileView:null};window.ElaraSocial=state;
+const state={me:null,friends:[],requests:[],activities:[],blocked:[],muted:[],contextMutes:[],presence:{},error:'',profileView:null};window.ElaraSocial=state;
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
 let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
 let friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()},friendRealtimeChain=Promise.resolve();
@@ -53,14 +53,15 @@ async function visibleSocialStats(other){
 }
 async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
- const [incoming,outgoing,blockedSnaps,mutedSnaps]=await Promise.all([
+ const [incoming,outgoing,blockedSnaps,mutedSnaps,contextMuteSnaps]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
   getDocs(query(collection(db,'friendRequests'),where('from','==',mine))),
   getDocs(query(collection(db,'blocks'),where('owner','==',mine))),
-  getDocs(query(collection(db,'socialMutes'),where('owner','==',mine)))
+  getDocs(query(collection(db,'socialMutes'),where('owner','==',mine))),
+  getDocs(query(collection(db,'socialContextMutes'),where('owner','==',mine)))
  ]);
  if(auth.currentUser?.uid!==mine)return;
- state.blocked=blockedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.muted=mutedSnaps.docs.map(s=>({id:s.id,...s.data()}));const blockedIds=new Set(state.blocked.map(x=>x.target));
+ state.blocked=blockedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.muted=mutedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.contextMutes=contextMuteSnaps.docs.map(s=>({id:s.id,...s.data()}));const blockedIds=new Set(state.blocked.map(x=>x.target));
  const entries=new Map([...incoming.docs,...outgoing.docs].map(s=>[s.id,{id:s.id,...s.data()}]));
  const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;if(blockedIds.has(other))continue;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
  if(auth.currentUser?.uid!==mine)return;
@@ -564,13 +565,21 @@ async function unmuteUser(target){
  if(!uid)return false;target=String(target||'');if(!target)return false;
  await deleteDoc(doc(db,'socialMutes',uid+'__'+target));await refresh();return true
 }
+async function muteContext(context,contextId){
+ if(!uid)throw Error('ابتدا وارد حساب شو.');context=String(context||'');contextId=String(contextId||'');if(!['group','club'].includes(context)||!contextId)throw Error('Mute context معتبر نیست.');
+ const id=[uid,context,contextId].join('__');await setDoc(doc(db,'socialContextMutes',id),{owner:uid,context,contextId,createdAt:serverTimestamp()});await refresh();return true
+}
+async function unmuteContext(context,contextId){
+ if(!uid)return false;const id=[uid,String(context||''),String(contextId||'')].join('__');await deleteDoc(doc(db,'socialContextMutes',id));await refresh();return true
+}
+function isContextMuted(context,contextId){return state.contextMutes.some(x=>x.context===String(context)&&x.contextId===String(contextId))}
 async function reportUser(target,context='profile',contextId='',reason='other'){
  if(!uid)throw Error('ابتدا وارد حساب شو.');target=String(target||'');if(!target||target===uid)throw Error('گزارش این حساب معتبر نیست.');
  const contexts=new Set(['profile','friend-request','dm','group','challenge','club','page','activity']),reasons=new Set(['spam','harassment','hate','sexual','violence','privacy','other']);
  if(!contexts.has(context))throw Error('نوع گزارش معتبر نیست.');if(!reasons.has(reason))reason='other';
  const ref=doc(collection(db,'socialReports'));await setDoc(ref,{reporter:uid,target,context,contextId:String(contextId||'').slice(0,160),reason,createdAt:serverTimestamp()});return ref.id
 }
-window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;window.ElaraSocial.muteUser=muteUser;window.ElaraSocial.unmuteUser=unmuteUser;window.ElaraSocial.reportUser=reportUser;window.ElaraSocial.isMuted=mutedByMe;
+window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;window.ElaraSocial.muteUser=muteUser;window.ElaraSocial.unmuteUser=unmuteUser;window.ElaraSocial.muteContext=muteContext;window.ElaraSocial.unmuteContext=unmuteContext;window.ElaraSocial.isContextMuted=isContextMuted;window.ElaraSocial.reportUser=reportUser;window.ElaraSocial.isMuted=mutedByMe;
 async function decide(request,status){
  if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');
  if(status==='declined'){
@@ -728,7 +737,7 @@ document.addEventListener('submit',async e=>{
 });
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-friend-action],[data-social-refresh]');if(!b)return;if(b.hasAttribute('data-social-refresh')){void refresh();return}const req=state.requests.find(r=>r.id===b.dataset.request);if(!req)return;b.disabled=true;try{await decide(req,b.dataset.friendAction==='accept'?'accepted':'declined')}catch(error){inform(socialError('friend-action',error))}finally{b.disabled=false}});
 onAuthStateChanged(auth,async user=>{
- stopFriendRequestRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.presence={};state.profileView=null;baseline=null;
+ stopFriendRequestRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
  if(!user){render();return}
  if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
 });
