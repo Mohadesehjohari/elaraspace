@@ -334,7 +334,7 @@ async function changeCanonicalUsername(value){
    const newClaimRef=doc(db,'usernames',nextUsername),oldClaimRef=doc(db,'usernames',oldUsername);
    const newClaim=await tx.get(newClaimRef),oldClaim=await tx.get(oldClaimRef);
    if(newClaim.exists()&&String(newClaim.data()?.uid||'')!==uid)throw Error('این نام کاربری قبلاً انتخاب شده است.');
-   tx.set(newClaimRef,{uid});
+   if(!newClaim.exists())tx.set(newClaimRef,{uid});
    tx.update(profileRef,{username:nextUsername});
    if(oldClaim.exists()&&String(oldClaim.data()?.uid||'')===uid)tx.delete(oldClaimRef);
  });
