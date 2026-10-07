@@ -453,10 +453,28 @@ service cloud.firestore {
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 2000
-          && request.resource.data.createdAt == request.time;
+          && request.resource.data.createdAt == request.time
+          && (
+            get(/databases/$(database)/documents/conversations/$(conversationId)).data.lastText == '' ||
+            request.time >= get(/databases/$(database)/documents/conversations/$(conversationId)).data.updatedAt + duration.value(500, 'ms')
+          );
         allow update: if false;
         allow delete: if signed()
           && resource.data.sender == request.auth.uid;
+      }
+
+      match /reads/{readerUid} {
+        allow get: if signed()
+          && readerUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.members;
+        allow list: if false;
+        allow create, update: if signed()
+          && readerUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.members
+          && request.resource.data.keys().hasOnly(['uid','lastReadAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.lastReadAt == request.time;
+        allow delete: if signed() && readerUid == request.auth.uid;
       }
     }
 
