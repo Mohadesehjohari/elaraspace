@@ -64,6 +64,8 @@ service cloud.firestore {
     function clubPath(id) { return /databases/$(database)/documents/clubs/$(id); }
     function clubMemberPath(id, memberId) { return /databases/$(database)/documents/clubs/$(id)/clubMembers/$(memberId); }
     function clubInvitePath(id, memberId) { return /databases/$(database)/documents/clubs/$(id)/clubInvites/$(memberId); }
+    function clubJoinRequestPath(id, memberId) { return /databases/$(database)/documents/clubs/$(id)/clubJoinRequests/$(memberId); }
+    function clubBanPath(id, memberId) { return /databases/$(database)/documents/clubs/$(id)/clubBans/$(memberId); }
     function isClubMember(id) { return signed() && exists(clubMemberPath(id, request.auth.uid)); }
     function isClubOwner(id) { return signed() && exists(clubPath(id)) && get(clubPath(id)).data.owner == request.auth.uid; }
     function collabPath(id) { return /databases/$(database)/documents/collabSpaces/$(id); }
@@ -635,34 +637,135 @@ service cloud.firestore {
       allow get: if signed() && (resource.data.visibility == 'public' || isClubMember(clubId));
       allow list: if signed() && resource.data.visibility == 'public';
       allow create: if canCreateClub()
-        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','assistant1','assistant2','restDay','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','membershipMode','assistant1','assistant2','restDay','bio','rulesText','language','avatarPath','bannerPath','memberLimit','memberCount','lastMembershipUid','lastMembershipAction','currentBookTitle','status','createdAt','updatedAt'])
         && request.resource.data.owner == request.auth.uid
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
-        && request.resource.data.kind in ['reading','fitness','focus','general']
+        && request.resource.data.kind in ['reading','fitness','language','focus','habits','meditation','general']
         && request.resource.data.visibility in ['private','public']
+        && request.resource.data.membershipMode in ['public','request','invite']
         && request.resource.data.assistant1 == ''
         && request.resource.data.assistant2 == ''
         && request.resource.data.restDay is int
         && request.resource.data.restDay >= 0 && request.resource.data.restDay <= 6
+        && request.resource.data.bio is string && request.resource.data.bio.size() <= 600
+        && request.resource.data.rulesText is string && request.resource.data.rulesText.size() <= 1200
+        && request.resource.data.language is string && request.resource.data.language.size() <= 16
+        && request.resource.data.avatarPath == ''
+        && request.resource.data.bannerPath == ''
+        && request.resource.data.memberLimit is int && request.resource.data.memberLimit >= 2 && request.resource.data.memberLimit <= 200
+        && request.resource.data.memberCount == 1
+        && request.resource.data.lastMembershipUid == request.auth.uid
+        && request.resource.data.lastMembershipAction == 'create'
+        && request.resource.data.currentBookTitle == ''
+        && request.resource.data.status == 'active'
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
-      allow update: if isClubOwner(clubId)
-        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','assistant1','assistant2','restDay','createdAt','updatedAt'])
-        && request.resource.data.owner == resource.data.owner
+      allow update: if signed()
+        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','membershipMode','assistant1','assistant2','restDay','bio','rulesText','language','avatarPath','bannerPath','memberLimit','memberCount','lastMembershipUid','lastMembershipAction','currentBookTitle','status','createdAt','updatedAt'])
         && request.resource.data.kind == resource.data.kind
         && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.title is string
-        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
         && request.resource.data.visibility in ['private','public']
-        && request.resource.data.assistant1 is string
-        && request.resource.data.assistant2 is string
-        && request.resource.data.assistant1 != request.auth.uid
-        && request.resource.data.assistant2 != request.auth.uid
-        && (request.resource.data.assistant1 == '' || request.resource.data.assistant2 == '' || request.resource.data.assistant1 != request.resource.data.assistant2)
-        && request.resource.data.restDay is int
-        && request.resource.data.restDay >= 0 && request.resource.data.restDay <= 6
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.membershipMode in ['public','request','invite']
+        && request.resource.data.restDay is int && request.resource.data.restDay >= 0 && request.resource.data.restDay <= 6
+        && request.resource.data.bio is string && request.resource.data.bio.size() <= 600
+        && request.resource.data.rulesText is string && request.resource.data.rulesText.size() <= 1200
+        && request.resource.data.language is string && request.resource.data.language.size() <= 16
+        && request.resource.data.avatarPath is string && request.resource.data.avatarPath.size() <= 300
+        && request.resource.data.bannerPath is string && request.resource.data.bannerPath.size() <= 300
+        && request.resource.data.memberLimit is int && request.resource.data.memberLimit >= request.resource.data.memberCount && request.resource.data.memberLimit <= 200
+        && request.resource.data.memberCount is int && request.resource.data.memberCount >= 1 && request.resource.data.memberCount <= request.resource.data.memberLimit
+        && request.resource.data.currentBookTitle is string && request.resource.data.currentBookTitle.size() <= 120
+        && request.resource.data.status in ['active','closed']
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            isClubOwner(clubId)
+            && request.resource.data.owner == resource.data.owner
+            && request.resource.data.memberCount == resource.data.memberCount
+            && request.resource.data.lastMembershipUid == resource.data.lastMembershipUid
+            && request.resource.data.lastMembershipAction == resource.data.lastMembershipAction
+            && request.resource.data.assistant1 == resource.data.assistant1
+            && request.resource.data.assistant2 == resource.data.assistant2
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title','visibility','membershipMode','restDay','bio','rulesText','language','avatarPath','bannerPath','memberLimit','currentBookTitle','status','updatedAt'])
+            && !(resource.data.status == 'closed' && request.resource.data.status == 'active')
+          ) ||
+          (
+            isClubOwner(clubId)
+            && request.resource.data.owner == resource.data.owner
+            && request.resource.data.memberCount == resource.data.memberCount
+            && request.resource.data.lastMembershipUid == resource.data.lastMembershipUid
+            && request.resource.data.lastMembershipAction == resource.data.lastMembershipAction
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['assistant1','assistant2','updatedAt'])
+            && request.resource.data.assistant1 is string
+            && request.resource.data.assistant2 is string
+            && request.resource.data.assistant1 != request.auth.uid
+            && request.resource.data.assistant2 != request.auth.uid
+            && (request.resource.data.assistant1 == '' || request.resource.data.assistant2 == '' || request.resource.data.assistant1 != request.resource.data.assistant2)
+            && (request.resource.data.assistant1 == '' || (existsAfter(clubMemberPath(clubId, request.resource.data.assistant1)) && getAfter(clubMemberPath(clubId, request.resource.data.assistant1)).data.role == 'assistant'))
+            && (request.resource.data.assistant2 == '' || (existsAfter(clubMemberPath(clubId, request.resource.data.assistant2)) && getAfter(clubMemberPath(clubId, request.resource.data.assistant2)).data.role == 'assistant'))
+          ) ||
+          (
+            request.resource.data.owner == resource.data.owner
+            && request.resource.data.memberCount == resource.data.memberCount + 1
+            && request.resource.data.lastMembershipAction == 'join'
+            && request.resource.data.lastMembershipUid is string
+            && !exists(clubMemberPath(clubId, request.resource.data.lastMembershipUid))
+            && existsAfter(clubMemberPath(clubId, request.resource.data.lastMembershipUid))
+            && getAfter(clubMemberPath(clubId, request.resource.data.lastMembershipUid)).data.role == 'member'
+            && request.resource.data.assistant1 == resource.data.assistant1
+            && request.resource.data.assistant2 == resource.data.assistant2
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount','lastMembershipUid','lastMembershipAction','updatedAt'])
+            && (
+              (
+                request.resource.data.lastMembershipUid == request.auth.uid
+                && (
+                  resource.data.membershipMode == 'public' ||
+                  (existsAfter(clubInvitePath(clubId, request.auth.uid)) && getAfter(clubInvitePath(clubId, request.auth.uid)).data.status == 'accepted') ||
+                  (existsAfter(clubJoinRequestPath(clubId, request.auth.uid)) && getAfter(clubJoinRequestPath(clubId, request.auth.uid)).data.status == 'accepted')
+                )
+              ) ||
+              (
+                isClubManager(clubId)
+                && existsAfter(clubJoinRequestPath(clubId, request.resource.data.lastMembershipUid))
+                && getAfter(clubJoinRequestPath(clubId, request.resource.data.lastMembershipUid)).data.status == 'accepted'
+              )
+            )
+            && !exists(clubBanPath(clubId, request.resource.data.lastMembershipUid))
+          ) ||
+          (
+            request.resource.data.owner == resource.data.owner
+            && request.resource.data.memberCount == resource.data.memberCount - 1
+            && request.resource.data.lastMembershipUid is string
+            && request.resource.data.lastMembershipAction in ['leave','kick','ban']
+            && exists(clubMemberPath(clubId, request.resource.data.lastMembershipUid))
+            && !existsAfter(clubMemberPath(clubId, request.resource.data.lastMembershipUid))
+            && request.resource.data.lastMembershipUid != resource.data.owner
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount','lastMembershipUid','lastMembershipAction','assistant1','assistant2','updatedAt'])
+            && request.resource.data.assistant1 != request.resource.data.lastMembershipUid
+            && request.resource.data.assistant2 != request.resource.data.lastMembershipUid
+            && (
+              (request.resource.data.lastMembershipAction == 'leave' && request.resource.data.lastMembershipUid == request.auth.uid) ||
+              (request.resource.data.lastMembershipAction in ['kick','ban'] && isClubOwner(clubId))
+            )
+          ) ||
+          (
+            isClubOwner(clubId)
+            && request.resource.data.owner != resource.data.owner
+            && request.resource.data.owner is string
+            && request.resource.data.memberCount == resource.data.memberCount
+            && request.resource.data.lastMembershipUid == resource.data.lastMembershipUid
+            && request.resource.data.lastMembershipAction == resource.data.lastMembershipAction
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['owner','assistant1','assistant2','updatedAt'])
+            && existsAfter(clubMemberPath(clubId, request.resource.data.owner))
+            && getAfter(clubMemberPath(clubId, request.resource.data.owner)).data.role == 'owner'
+            && existsAfter(clubMemberPath(clubId, resource.data.owner))
+            && getAfter(clubMemberPath(clubId, resource.data.owner)).data.role == 'member'
+            && request.resource.data.assistant1 != request.resource.data.owner
+            && request.resource.data.assistant2 != request.resource.data.owner
+          )
+        );
       allow delete: if false;
 
       match /clubMembers/{memberId} {
@@ -671,80 +774,183 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
           && request.resource.data.uid == memberId
           && request.resource.data.joinedAt == request.time
+          && !exists(clubBanPath(clubId, memberId))
           && (
             (
               memberId == request.auth.uid
               && request.resource.data.role == 'owner'
               && getAfter(clubPath(clubId)).data.owner == request.auth.uid
-            ) ||
-            (
-              memberId == request.auth.uid
-              && request.resource.data.role == 'member'
-              && existsAfter(clubInvitePath(clubId, memberId))
-              && getAfter(clubInvitePath(clubId, memberId)).data.to == request.auth.uid
-              && getAfter(clubInvitePath(clubId, memberId)).data.status == 'accepted'
-            )
-          );
-        allow update: if isClubOwner(clubId)
-          && request.resource.data.uid == resource.data.uid
-          && request.resource.data.joinedAt == resource.data.joinedAt
-          && request.resource.data.role in ['member','assistant']
-          && (
-            (
-              request.resource.data.role == 'assistant'
-              && (getAfter(clubPath(clubId)).data.assistant1 == memberId || getAfter(clubPath(clubId)).data.assistant2 == memberId)
+              && getAfter(clubPath(clubId)).data.memberCount == 1
             ) ||
             (
               request.resource.data.role == 'member'
-              && getAfter(clubPath(clubId)).data.assistant1 != memberId
-              && getAfter(clubPath(clubId)).data.assistant2 != memberId
+              && getAfter(clubPath(clubId)).data.lastMembershipUid == memberId
+              && getAfter(clubPath(clubId)).data.lastMembershipAction == 'join'
+              && getAfter(clubPath(clubId)).data.memberCount == get(clubPath(clubId)).data.memberCount + 1
+              && (
+                (
+                  memberId == request.auth.uid
+                  && (
+                    get(clubPath(clubId)).data.membershipMode == 'public' ||
+                    (existsAfter(clubInvitePath(clubId, memberId)) && getAfter(clubInvitePath(clubId, memberId)).data.status == 'accepted') ||
+                    (existsAfter(clubJoinRequestPath(clubId, memberId)) && getAfter(clubJoinRequestPath(clubId, memberId)).data.status == 'accepted')
+                  )
+                ) ||
+                (
+                  isClubManager(clubId)
+                  && existsAfter(clubJoinRequestPath(clubId, memberId))
+                  && getAfter(clubJoinRequestPath(clubId, memberId)).data.status == 'accepted'
+                )
+              )
             )
           );
-        allow delete: if signed() && (
-          (memberId == request.auth.uid && resource.data.role != 'owner') ||
-          (isClubOwner(clubId) && memberId != request.auth.uid)
-        );
+        allow update: if signed()
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.joinedAt == resource.data.joinedAt
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+          && (
+            (
+              isClubOwner(clubId)
+              && resource.data.role in ['member','assistant']
+              && request.resource.data.role in ['member','assistant']
+              && (
+                (request.resource.data.role == 'assistant' && (getAfter(clubPath(clubId)).data.assistant1 == memberId || getAfter(clubPath(clubId)).data.assistant2 == memberId)) ||
+                (request.resource.data.role == 'member' && getAfter(clubPath(clubId)).data.assistant1 != memberId && getAfter(clubPath(clubId)).data.assistant2 != memberId)
+              )
+            ) ||
+            (
+              isClubOwner(clubId)
+              && request.resource.data.role == 'owner'
+              && getAfter(clubPath(clubId)).data.owner == memberId
+            ) ||
+            (
+              memberId == request.auth.uid
+              && resource.data.role == 'owner'
+              && request.resource.data.role == 'member'
+              && getAfter(clubPath(clubId)).data.owner != request.auth.uid
+            )
+          );
+        allow delete: if signed()
+          && getAfter(clubPath(clubId)).data.memberCount == get(clubPath(clubId)).data.memberCount - 1
+          && getAfter(clubPath(clubId)).data.lastMembershipUid == memberId
+          && (
+            (memberId == request.auth.uid && resource.data.role != 'owner' && getAfter(clubPath(clubId)).data.lastMembershipAction == 'leave') ||
+            (isClubOwner(clubId) && memberId != request.auth.uid && getAfter(clubPath(clubId)).data.lastMembershipAction in ['kick','ban'])
+          );
       }
 
       match /clubInvites/{inviteId} {
         allow get, list: if signed() && (resource.data.to == request.auth.uid || isClubManager(clubId));
         allow create: if isClubManager(clubId)
+          && get(clubPath(clubId)).data.status == 'active'
           && inviteId == request.resource.data.to
-          && request.resource.data.keys().hasOnly(['from','to','status','createdAt'])
+          && request.resource.data.keys().hasOnly(['from','to','status','createdAt','updatedAt'])
           && request.resource.data.from == request.auth.uid
           && request.resource.data.to is string
           && request.resource.data.to != request.auth.uid
           && request.resource.data.status == 'pending'
           && request.resource.data.createdAt == request.time
-          && friendOf(request.resource.data.to);
+          && request.resource.data.updatedAt == request.time
+          && friendOf(request.resource.data.to)
+          && !exists(clubBanPath(clubId, request.resource.data.to));
         allow update: if signed()
-          && resource.data.to == request.auth.uid
-          && resource.data.status == 'pending'
           && request.resource.data.from == resource.data.from
           && request.resource.data.to == resource.data.to
           && request.resource.data.createdAt == resource.data.createdAt
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
-          && request.resource.data.status in ['accepted','declined'];
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+          && request.resource.data.updatedAt == request.time
+          && (
+            (
+              resource.data.to == request.auth.uid
+              && resource.data.status == 'pending'
+              && request.resource.data.status in ['accepted','declined']
+              && (
+                request.resource.data.status == 'declined' ||
+                (
+                  existsAfter(clubMemberPath(clubId, request.auth.uid))
+                  && getAfter(clubPath(clubId)).data.memberCount == get(clubPath(clubId)).data.memberCount + 1
+                )
+              )
+            ) ||
+            (
+              isClubManager(clubId)
+              && resource.data.status == 'declined'
+              && request.resource.data.status == 'pending'
+            )
+          );
         allow delete: if signed() && (resource.data.to == request.auth.uid || isClubManager(clubId));
+      }
+
+      match /clubJoinRequests/{requesterUid} {
+        allow get, list: if signed() && (requesterUid == request.auth.uid || isClubManager(clubId));
+        allow create: if signed()
+          && requesterUid == request.auth.uid
+          && get(clubPath(clubId)).data.status == 'active'
+          && get(clubPath(clubId)).data.membershipMode == 'request'
+          && !exists(clubBanPath(clubId, requesterUid))
+          && request.resource.data.keys().hasOnly(['uid','status','createdAt','updatedAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if signed()
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+          && request.resource.data.updatedAt == request.time
+          && (
+            (
+              isClubManager(clubId)
+              && resource.data.status == 'pending'
+              && request.resource.data.status in ['accepted','declined']
+              && (
+                request.resource.data.status == 'declined' ||
+                (
+                  existsAfter(clubMemberPath(clubId, requesterUid))
+                  && getAfter(clubPath(clubId)).data.memberCount == get(clubPath(clubId)).data.memberCount + 1
+                )
+              )
+            ) ||
+            (
+              requesterUid == request.auth.uid
+              && resource.data.status == 'declined'
+              && request.resource.data.status == 'pending'
+            )
+          );
+        allow delete: if signed() && (requesterUid == request.auth.uid || isClubManager(clubId));
+      }
+
+      match /clubBans/{memberId} {
+        allow get, list: if isClubOwner(clubId);
+        allow create: if isClubOwner(clubId)
+          && memberId != request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','by','createdAt'])
+          && request.resource.data.uid == memberId
+          && request.resource.data.by == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && exists(clubMemberPath(clubId, memberId))
+          && !existsAfter(clubMemberPath(clubId, memberId))
+          && getAfter(clubPath(clubId)).data.lastMembershipUid == memberId
+          && getAfter(clubPath(clubId)).data.lastMembershipAction == 'ban';
+        allow update: if false;
+        allow delete: if isClubOwner(clubId);
       }
 
       match /clubPosts/{postId} {
         allow get, list: if isClubMember(clubId);
         allow create: if isClubManager(clubId)
+          && get(clubPath(clubId)).data.status == 'active'
           && request.resource.data.keys().hasOnly(['uid','kind','domain','title','body','cadence','options','createdAt'])
           && request.resource.data.uid == request.auth.uid
-          && request.resource.data.kind in ['mission','poll']
+          && request.resource.data.kind in ['mission','challenge','poll','reminder','result','congratulations','notice']
           && request.resource.data.domain == get(clubPath(clubId)).data.kind
-          && request.resource.data.title is string
-          && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 120
-          && request.resource.data.body is string
-          && request.resource.data.body.size() <= 1200
+          && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 120
+          && request.resource.data.body is string && request.resource.data.body.size() <= 1200
           && request.resource.data.cadence in ['none','daily','weekly','monthly']
-          && request.resource.data.options is list
-          && request.resource.data.options.size() <= 6
+          && request.resource.data.options is list && request.resource.data.options.size() <= 6
           && (
-            (request.resource.data.kind == 'mission' && request.resource.data.options.size() == 0) ||
-            (request.resource.data.kind == 'poll' && request.resource.data.options.size() >= 2)
+            (request.resource.data.kind == 'poll' && request.resource.data.options.size() >= 2) ||
+            (request.resource.data.kind != 'poll' && request.resource.data.options.size() == 0)
           )
           && request.resource.data.createdAt == request.time;
         allow update: if false;
@@ -770,12 +976,17 @@ service cloud.firestore {
       }
     }
 
+
     match /{path=**}/clubMembers/{memberId} {
       allow get, list: if signed() && resource.data.uid == request.auth.uid;
     }
 
     match /{path=**}/clubInvites/{inviteId} {
       allow get, list: if signed() && resource.data.to == request.auth.uid;
+    }
+
+    match /{path=**}/clubJoinRequests/{requesterUid} {
+      allow get, list: if signed() && resource.data.uid == request.auth.uid;
     }
 
 
