@@ -18,15 +18,23 @@ window.ElaraSocial={me:{uid:'A',name:'آرین',username:'aren',xp:820},friends:
 window.ElaraSocial.clubs={
  kinds:['reading','fitness','focus','general'],
  list:async()=>clubState.clubs.map(x=>({...x})),
+ discover:async()=>[],
+ contribution:async()=>({completed:0,total:0,percent:0}),
+ dailyReport:async()=>({rows:[],date:''}),
+ joinRequests:async()=>[],
+ settings:async()=>true,
+ requestJoin:async()=>true,
  members:async id=>(clubState.members[id]||[]).map(x=>({...x,person:{...x.person}})),
  posts:async id=>(clubState.posts[id]||[]).map(x=>({...x,options:[...(x.options||[])]})),
  invites:async()=>clubState.invites.map(x=>({...x,club:{...x.club}})),
  create:async spec=>{const id='c'+(clubState.clubs.length+1);clubState.clubs.push({id,owner:'A',assistant1:'',assistant2:'',role:'owner',updatedAt:Date.now(),...spec});clubState.members[id]=[{uid:'A',role:'owner',person:{uid:'A',name:'آرین'}}];clubState.posts[id]=[];return id},
  invite:async(id,to)=>{clubState.sent.push({id,to});return to},
+ decideJoin:async()=>true,
  decideInvite:async(inv,status)=>{clubState.invites=clubState.invites.filter(x=>x.clubId!==inv.clubId);if(status==='accepted'){clubState.clubs.push({...inv.club,owner:'Z',role:'member',assistant1:'',assistant2:'',restDay:0,updatedAt:Date.now()});clubState.members[inv.clubId]=[{uid:'A',role:'member',person:{uid:'A',name:'آرین'}}];clubState.posts[inv.clubId]=[]}return true},
  setAssistant:async(id,uid,on)=>{const m=clubState.members[id].find(x=>x.uid===uid);m.role=on?'assistant':'member';const c=clubState.clubs.find(x=>x.id===id);c.assistant1=on?uid:'';return true},
  createPost:async(id,spec)=>{const post={id:'p'+(clubState.posts[id].length+1),uid:'A',domain:clubState.clubs.find(x=>x.id===id).kind,ms:Date.now(),...spec};clubState.posts[id].unshift(post);return post.id},
- vote:async(id,pid,option)=>{clubState.votes.push({id,pid,option});return true}
+ vote:async(id,pid,option)=>{clubState.votes.push({id,pid,option});return true},
+ transfer:async()=>true,kick:async()=>true,ban:async()=>true,confirmBook:async()=>true,leave:async()=>true,close:async()=>true
 };
 window.dispatchEvent(new Event('elara:social-updated'));
 `;
