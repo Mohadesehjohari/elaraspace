@@ -12,6 +12,9 @@ service cloud.firestore {
     function blockPath(owner, target) {
       return /databases/$(database)/documents/blocks/$(owner + '__' + target);
     }
+    function mutePath(owner, target) {
+      return /databases/$(database)/documents/socialMutes/$(owner + '__' + target);
+    }
     function blockedBetween(a, b) {
       return signed() && a != b && (
         exists(blockPath(a, b)) ||
@@ -304,6 +307,52 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['payload','updatedAt'])
         && request.resource.data.payload is map;
       allow delete: if false;
+    }
+
+    match /presence/{uid} {
+      allow get: if mine(uid) || (
+        signed() && !blockedBetween(request.auth.uid, uid) && (
+          resource.data.visibility == 'public' ||
+          (resource.data.visibility == 'friends' && friendOf(uid))
+        )
+      );
+      allow list: if false;
+      allow create, update: if mine(uid)
+        && request.resource.data.keys().hasOnly(['uid','visibility','updatedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.visibility in ['private','friends','public']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if mine(uid);
+    }
+
+    match /socialMutes/{muteId} {
+      allow get, list: if signed() && resource.data.owner == request.auth.uid;
+      allow create: if signed()
+        && muteId == request.auth.uid + '__' + request.resource.data.target
+        && request.resource.data.keys().hasOnly(['owner','target','createdAt'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.target is string
+        && request.resource.data.target != request.auth.uid
+        && exists(p(request.resource.data.target))
+        && request.resource.data.createdAt == request.time;
+      allow update: if false;
+      allow delete: if signed() && resource.data.owner == request.auth.uid;
+    }
+
+    match /socialReports/{reportId} {
+      allow get: if signed() && (resource.data.reporter == request.auth.uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['reporter','target','context','contextId','reason','createdAt'])
+        && request.resource.data.reporter == request.auth.uid
+        && request.resource.data.target is string
+        && request.resource.data.target != request.auth.uid
+        && request.resource.data.context in ['profile','friend-request','dm','group','challenge','club','page','activity']
+        && request.resource.data.contextId is string
+        && request.resource.data.contextId.size() <= 160
+        && request.resource.data.reason in ['spam','harassment','hate','sexual','violence','privacy','other']
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
     }
 
     match /blocks/{blockId} {
