@@ -100,7 +100,7 @@ async function applyFriendRequestRealtime(mine){
  const pendingIncoming=enriched.filter(r=>r.to===mine&&r.status==='pending'),pendingIds=new Set(pendingIncoming.map(r=>r.id));for(const seen of [...friendRealtime.seenIncoming])if(!pendingIds.has(seen))friendRealtime.seenIncoming.delete(seen);
  for(const request of pendingIncoming){
   if(friendRealtime.seenIncoming.has(request.id))continue;
-  friendRealtime.seenIncoming.add(request.id);
+  friendRealtime.seenIncoming.add(request.id);if(mutedByMe(request.from))continue;
   const name=String(request.person?.name||request.person?.username||'کاربر'),username=request.person?.username?' · @'+request.person.username:'';
   window.ElaraNotify?.push?.({type:'friend',title:document.documentElement.lang==='en'?'New friend request':'درخواست دوستی جدید',message:name+username,dedupeKey:'friend-request:'+request.id,reopen:true,meta:{kind:'friend-request',requestId:request.id,from:request.from,to:request.to}})
  }
