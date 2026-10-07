@@ -68,7 +68,7 @@ async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++ge
  await syncSocialStats();
  state.friends=await Promise.all(state.friends.map(async person=>{const stats=await visibleSocialStats(person.uid);return stats?{...person,...stats}:person}));
  const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
- if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';if(gen===generation)render();
+ if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';syncPresenceListeners();if(gen===generation)render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}}
 async function refresh(){
  const run=()=>refreshPass();
@@ -442,7 +442,21 @@ async function unblockUser(target){
  if(!uid)throw Error('ابتدا وارد حساب شو.');target=String(target||'');if(!target)return false;
  await deleteDoc(doc(db,'blocks',uid+'__'+target));await refresh();return true
 }
-window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;
+async function muteUser(target){
+ if(!uid)throw Error('ابتدا وارد حساب شو.');target=String(target||'');if(!target||target===uid)throw Error('این حساب قابل بی‌صداکردن نیست.');
+ await setDoc(doc(db,'socialMutes',uid+'__'+target),{owner:uid,target,createdAt:serverTimestamp()});await refresh();return true
+}
+async function unmuteUser(target){
+ if(!uid)return false;target=String(target||'');if(!target)return false;
+ await deleteDoc(doc(db,'socialMutes',uid+'__'+target));await refresh();return true
+}
+async function reportUser(target,context='profile',contextId='',reason='other'){
+ if(!uid)throw Error('ابتدا وارد حساب شو.');target=String(target||'');if(!target||target===uid)throw Error('گزارش این حساب معتبر نیست.');
+ const contexts=new Set(['profile','friend-request','dm','group','challenge','club','page','activity']),reasons=new Set(['spam','harassment','hate','sexual','violence','privacy','other']);
+ if(!contexts.has(context))throw Error('نوع گزارش معتبر نیست.');if(!reasons.has(reason))reason='other';
+ const ref=doc(collection(db,'socialReports'));await setDoc(ref,{reporter:uid,target,context,contextId:String(contextId||'').slice(0,160),reason,createdAt:serverTimestamp()});return ref.id
+}
+window.ElaraSocial.blockUser=blockUser;window.ElaraSocial.unblockUser=unblockUser;window.ElaraSocial.muteUser=muteUser;window.ElaraSocial.unmuteUser=unmuteUser;window.ElaraSocial.reportUser=reportUser;window.ElaraSocial.isMuted=mutedByMe;
 async function decide(request,status){
  if(request.to!==uid||request.status!=='pending')throw Error('درخواست معتبر نیست.');
  if(status==='declined'){
