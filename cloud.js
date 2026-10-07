@@ -152,6 +152,16 @@ async function reserveUsername(username,name){
   });
   sessionStorage.removeItem('elara_pending_profile');
 }
+function showIdentityRepair(error){
+  locked();layer.replaceChildren();const wrap=document.createElement('div');wrap.className='cloud-card identity-repair-card';wrap.dataset.elaraAccountGateReady='identity-repair';
+  const h=document.createElement('h2');h.textContent='نیاز به بررسی هویت حساب';
+  const p=document.createElement('p');p.textContent=error?.message||'نام کاربری و شاخص مالکیت حساب با هم سازگار نیستند.';
+  const note=document.createElement('p');note.className='muted';note.textContent='برای جلوگیری از تصاحب یا بازشدن پروفایل اشتباه، هیچ claim یا پروفایلی خودکار بازنویسی نشد.';
+  const code=document.createElement('small');code.className='muted';code.textContent='Identity check: '+String(error?.identityCode||'integrity-error');
+  const actions=document.createElement('div');actions.className='timer-actions';
+  actions.append(btn('بررسی دوباره',async()=>{if(auth.currentUser)await readyUser(auth.currentUser)}),btn('خروج',()=>signOut(auth),'quiet-button'));
+  wrap.append(h,p,note,code,actions);layer.append(wrap);message('');window.dispatchEvent(new Event('elara:account-gate-ready'));
+}
 function chooseUsername(){
   locked();layer.replaceChildren();const wrap=document.createElement('div');wrap.className='cloud-card';
   const h=document.createElement('h2');h.textContent='پروفایلت رو بساز';
@@ -289,5 +299,8 @@ onAuthStateChanged(auth,async current=>{
     user=current;
     if(!current.emailVerified){verify();return;}
     await readyUser(current);
-  }catch(e){locked();message('اتصال به حساب برقرار نشد: '+actionError(e));if(retry)retry.hidden=false;}
+  }catch(e){
+    if(e?.name==='ElaraIdentityIntegrityError'){showIdentityRepair(e);return}
+    locked();message('اتصال به حساب برقرار نشد: '+actionError(e));if(retry)retry.hidden=false;
+  }
 });
