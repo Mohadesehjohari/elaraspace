@@ -1,0 +1,38 @@
+name: PR8 identity exact-SHA preview proof
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pr8-identity-preview-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TARGET_SHA: aab22fff0e43afba9503f68f93d70795e1186d6a
+      PREVIEW_BASE: https://raw.githack.com/Mohadesehjohari/elaraspace/aab22fff0e43afba9503f68f93d70795e1186d6a
+      RAW_BASE: https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/aab22fff0e43afba9503f68f93d70795e1186d6a
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove immutable exact-SHA preview sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/preview /tmp/raw
+          for f in index.html cloud.js elara-social.js firestore.rules; do
+            curl -fsSL --retry 5 --retry-delay 2 "$PREVIEW_BASE/$f" -o "/tmp/preview/$f"
+            curl -fsSL --retry 5 --retry-delay 2 "$RAW_BASE/$f" -o "/tmp/raw/$f"
+            cmp -s "/tmp/preview/$f" "/tmp/raw/$f"
+          done
+          grep -F "existing-profile-claim-missing" /tmp/preview/cloud.js
+          grep -F "identity-repair" /tmp/preview/cloud.js
+          grep -F "resolveUsernameIdentity" /tmp/preview/elara-social.js
+          grep -F "claim-profile-mismatch" /tmp/preview/elara-social.js
+          grep -F "changeCanonicalUsername" /tmp/preview/elara-social.js
+          grep -F "existsAfter(n(request.resource.data.username))" /tmp/preview/firestore.rules
+          echo "IDENTITY_PREVIEW_EXACT_SHA_PASS=$TARGET_SHA"
+          sha256sum /tmp/preview/index.html /tmp/preview/cloud.js /tmp/preview/elara-social.js /tmp/preview/firestore.rules
