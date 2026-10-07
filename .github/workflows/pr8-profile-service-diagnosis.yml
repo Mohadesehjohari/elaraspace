@@ -17,6 +17,8 @@ jobs:
       PREVIEW_URL: http://127.0.0.1:4173/index.html
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
