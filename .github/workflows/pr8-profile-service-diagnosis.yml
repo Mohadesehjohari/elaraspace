@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     env:
       TARGET_SHA: aab22fff0e43afba9503f68f93d70795e1186d6a
-      PREVIEW_URL: https://raw.githack.com/Mohadesehjohari/elaraspace/aab22fff0e43afba9503f68f93d70795e1186d6a/index.html
+      PREVIEW_URL: http://127.0.0.1:4173/index.html
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +24,15 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Serve exact target SHA
+        run: |
+          mkdir -p /tmp/elara-exact
+          git archive "$TARGET_SHA" | tar -x -C /tmp/elara-exact
+          (cd /tmp/elara-exact && python3 -m http.server 4173 >/tmp/elara-profile-diag-http.log 2>&1 &)
+          sleep 2
+          cmp -s /tmp/elara-exact/boot.js <(git show "$TARGET_SHA:boot.js")
+          cmp -s /tmp/elara-exact/approved-profile-system.js <(git show "$TARGET_SHA:approved-profile-system.js")
+          cmp -s /tmp/elara-exact/elara-social.js <(git show "$TARGET_SHA:elara-social.js")
       - name: Diagnose exact preview with real modules
         run: |
           cat > verify-profile-service.mjs <<'NODE'
@@ -53,12 +62,7 @@ jobs:
             },25);
           });
 
-          let response=await page.goto(url+'?diag='+Date.now(),{waitUntil:'domcontentloaded',timeout:60000});
-          if((await page.title()).includes('External Content Notice')){
-            const link=page.getByRole('link',{name:/open the page/i});
-            if(await link.count()){await link.click();await page.waitForLoadState('domcontentloaded');response=await page.waitForResponse(r=>r.url().includes('/index.html')).catch(()=>response)}
-          }
-
+          const response=await page.goto(url+'?diag='+Date.now(),{waitUntil:'domcontentloaded',timeout:60000});
           await page.waitForFunction(()=>window.ElaraProfileSystem&&window.ElaraDialog,{timeout:30000});
           const editorOpenedAt=Date.now()-started;
           const before=await page.evaluate(()=>({
