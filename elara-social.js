@@ -369,15 +369,20 @@ async function voteClubPoll(clubId,postId,option){
 window.ElaraSocial.clubs={kinds:[...CLUB_KINDS],create:createClub,list:clubMemberships,members:clubMembers,invite:inviteClub,invites:listClubInvites,decideInvite:decideClubInvite,setAssistant:setClubAssistant,createPost:createClubPost,posts:listClubPosts,vote:voteClubPoll};
 
 const CHALLENGE_KINDS=new Set(['task','habit','reading','exercise','focus','general']);
+const CHALLENGE_MODES=new Set(['now','online','inbox']);
 const CHALLENGE_QUICK=Object.freeze(['بزن بریم 🔥','حواسم بهت هست 👀','ریز می‌بینمت 😎','کم نیار 👊','تا آخرش هستم 🤝','امروز مال ماست ⚡']);
+let challengeRealtimeUid='',challengeRealtimeUnsub=null,challengeSeen=new Set();
 function challengePerson(other){return state.friends.find(p=>p.uid===other)||{uid:other,name:'دوست'}}
+function challengeExpired(c,now=Date.now()){const ms=c?.expiresAt?.toMillis?.()||Number(c?.expiresAtMs)||0;return !!ms&&ms<=now}
 async function createChallenge(other,spec={}){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
- const to=String(other||'');if(!acceptedFriend(to))throw Error('چالش فقط بین دوستان تأییدشده فعال است.');
- const targetKind=CHALLENGE_KINDS.has(spec.targetKind)?spec.targetKind:'general',targetText=String(spec.targetText||'').trim().slice(0,120),targetValue=Math.max(1,Math.min(1000000,Math.floor(Number(spec.targetValue)||1)));
+ const to=String(other||'');if(!acceptedFriend(to))throw Error('چالش فقط بین دوستان تأییدشده فعال است.');if(mutedByMe(to))throw Error('این دوست را بی‌صدا کرده‌ای؛ برای چالش ابتدا بی‌صدا را بردار.');
+ const targetKind=CHALLENGE_KINDS.has(spec.targetKind)?spec.targetKind:'general',targetText=String(spec.targetText||'').trim().slice(0,120),targetValue=Math.max(1,Math.min(1000000,Math.floor(Number(spec.targetValue)||1))),mode=CHALLENGE_MODES.has(spec.mode)?spec.mode:'now';
  if(targetText.length<2)throw Error('هدف چالش را واضح بنویس.');
- const ref=await addDoc(collection(db,'challenges'),{from:uid,to,status:'pending',targetKind,targetText,targetValue,createdAt:serverTimestamp(),expiresAt:Timestamp.fromMillis(Date.now()+30000)});
- return ref.id
+ const rateRef=doc(db,'challengeRateLimits',uid),rate=await getDoc(rateRef),last=rate.exists()?(rate.data()?.lastAt?.toMillis?.()||0):0;if(last&&Date.now()-last<10000)throw Error('بین درخواست‌های چالش حداقل ۱۰ ثانیه فاصله لازم است.');
+ const ref=doc(collection(db,'challenges')),attempt=Math.max(1,Math.min(99,Math.floor(Number(spec.attempt)||1))),originId=String(spec.originId||ref.id).slice(0,160),now=Date.now(),expiresAt=mode==='now'?Timestamp.fromMillis(now+30000):mode==='online'?Timestamp.fromMillis(now+86400000):null,batch=writeBatch(db),stamp=serverTimestamp();
+ batch.set(ref,{from:uid,to,status:'pending',targetKind,targetText,targetValue,mode,attempt,originId,createdAt:stamp,updatedAt:stamp,expiresAt});
+ batch.set(rateRef,{uid,lastAt:stamp});await batch.commit();return ref.id
 }
 async function listChallenges(){
  if(!uid)return[];
@@ -386,17 +391,22 @@ async function listChallenges(){
   getDocs(query(collection(db,'challenges'),where('from','==',uid)))
  ]);
  const map=new Map([...incoming.docs,...outgoing.docs].map(x=>[x.id,{id:x.id,...x.data()}])),now=Date.now();
- return [...map.values()].map(c=>{const other=c.from===uid?c.to:c.from;return {...c,other,person:challengePerson(other),expired:c.status==='pending'&&((c.expiresAt?.toMillis?.()||0)<=now),ms:c.createdAt?.toMillis?.()||0}}).sort((a,b)=>b.ms-a.ms)
+ return [...map.values()].map(c=>{const other=c.from===uid?c.to:c.from;return {...c,mode:CHALLENGE_MODES.has(c.mode)?c.mode:'now',other,person:challengePerson(other),expired:c.status==='pending'&&challengeExpired(c,now),ms:c.createdAt?.toMillis?.()||0}}).sort((a,b)=>b.ms-a.ms)
 }
 async function respondChallenge(challenge,status){
  if(!['accepted','declined'].includes(status))throw Error('پاسخ چالش معتبر نیست.');
  if(!challenge||challenge.to!==uid||challenge.status!=='pending')throw Error('این درخواست قابل پاسخ نیست.');
- const expires=challenge.expiresAt?.toMillis?.()||0;if(expires&&Date.now()>=expires)throw Error('زمان این درخواست چالش تمام شده.');
- await updateDoc(doc(db,'challenges',String(challenge.id)),{status,respondedAt:serverTimestamp()});return true
+ if(challengeExpired(challenge))throw Error('زمان این درخواست چالش تمام شده.');
+ await updateDoc(doc(db,'challenges',String(challenge.id)),{status,respondedAt:serverTimestamp(),updatedAt:serverTimestamp()});return true
 }
 async function cancelChallenge(challenge){
  if(!challenge||challenge.from!==uid||challenge.status!=='pending')throw Error('این درخواست قابل لغو نیست.');
- await deleteDoc(doc(db,'challenges',String(challenge.id)));return true
+ await updateDoc(doc(db,'challenges',String(challenge.id)),{status:'cancelled',respondedAt:serverTimestamp(),updatedAt:serverTimestamp()});return true
+}
+async function resendChallenge(challenge,override={}){
+ if(!challenge||challenge.from!==uid)throw Error('فقط فرستنده می‌تواند دوباره چالش را بفرستد.');
+ if(challenge.status==='pending'&&!challengeExpired(challenge))throw Error('این درخواست هنوز فعال است.');
+ return createChallenge(challenge.to,{targetKind:override.targetKind||challenge.targetKind,targetText:override.targetText??challenge.targetText,targetValue:override.targetValue??challenge.targetValue,mode:override.mode||challenge.mode,attempt:(Number(challenge.attempt)||1)+1,originId:challenge.originId||challenge.id})
 }
 async function challengeQuick(challengeId,value){
  const text=String(value||'').trim();if(!CHALLENGE_QUICK.includes(text))throw Error('فقط پیام‌های سریع آماده مجازند.');
@@ -408,9 +418,17 @@ async function listChallengeQuick(challengeId){
  const snaps=await getDocs(query(collection(db,'challenges',String(challengeId),'quickMessages'),orderBy('createdAt','desc'),limit(40)));
  return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0})).reverse()
 }
-window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],quick:[...CHALLENGE_QUICK],create:createChallenge,list:listChallenges,respond:respondChallenge,cancel:cancelChallenge,sendQuick:challengeQuick,quickMessages:listChallengeQuick};
-
-
+function stopChallengeRealtime(){try{challengeRealtimeUnsub?.()}catch{}challengeRealtimeUnsub=null;challengeRealtimeUid='';challengeSeen=new Set()}
+function startChallengeRealtime(mine=auth.currentUser?.uid){
+ if(!mine||!auth.currentUser?.emailVerified)return;if(challengeRealtimeUid===mine&&challengeRealtimeUnsub)return;stopChallengeRealtime();challengeRealtimeUid=mine;
+ challengeRealtimeUnsub=onSnapshot(query(collection(db,'challenges'),where('to','==',mine)),snap=>{
+  if(challengeRealtimeUid!==mine||auth.currentUser?.uid!==mine)return;const pending=snap.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.status==='pending'&&!challengeExpired(x));
+  const ids=new Set(pending.map(x=>x.id));for(const seen of [...challengeSeen])if(!ids.has(seen))challengeSeen.delete(seen);
+  for(const row of pending){if(challengeSeen.has(row.id)||mutedByMe(row.from))continue;challengeSeen.add(row.id);const person=challengePerson(row.from);window.ElaraNotify?.push?.({type:'social',title:'چالش جدید ⚡',message:String(person.name||person.username||'دوست')+' · '+String(row.targetText||''),dedupeKey:'challenge-in:'+row.id,reopen:true,meta:{kind:'challenge',challengeId:row.id,from:row.from,to:row.to}})}
+  window.dispatchEvent(new Event('elara:challenge-updated'));window.ElaraSocialChallengesUI?.mount?.()
+ },error=>{if(challengeRealtimeUid===mine)console.error('Elara challenge realtime:',error)})
+}
+window.ElaraSocial.challenges={kinds:[...CHALLENGE_KINDS],modes:[...CHALLENGE_MODES],quick:[...CHALLENGE_QUICK],create:createChallenge,list:listChallenges,respond:respondChallenge,cancel:cancelChallenge,resend:resendChallenge,sendQuick:challengeQuick,quickMessages:listChallengeQuick,startRealtime:startChallengeRealtime,stopRealtime:stopChallengeRealtime};
 
 
 async function changeCanonicalUsername(value){
