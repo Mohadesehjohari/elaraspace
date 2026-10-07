@@ -58,6 +58,7 @@ service cloud.firestore {
     }
     function groupPath(id) { return /databases/$(database)/documents/groups/$(id); }
     function groupMemberPath(id, memberId) { return /databases/$(database)/documents/groups/$(id)/groupMembers/$(memberId); }
+    function groupInvitePath(id, memberId) { return /databases/$(database)/documents/groups/$(id)/groupInvites/$(memberId); }
     function isGroupMember(id) { return signed() && exists(groupMemberPath(id, request.auth.uid)); }
     function isGroupOwner(id) { return signed() && exists(groupPath(id)) && get(groupPath(id)).data.owner == request.auth.uid; }
     function clubPath(id) { return /databases/$(database)/documents/clubs/$(id); }
@@ -482,23 +483,42 @@ service cloud.firestore {
       allow get: if isGroupMember(groupId);
       allow list: if false;
       allow create: if signed()
-        && request.resource.data.keys().hasOnly(['owner','title','createdAt','updatedAt','lastText','lastSender'])
+        && request.resource.data.keys().hasOnly(['owner','title','status','createdAt','updatedAt','lastText','lastSender'])
         && request.resource.data.owner == request.auth.uid
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.status == 'active'
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
         && request.resource.data.lastText == ''
         && request.resource.data.lastSender == '';
-      allow update: if isGroupMember(groupId)
+      allow update: if signed()
         && request.resource.data.owner == resource.data.owner
-        && request.resource.data.title == resource.data.title
         && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastText','lastSender','updatedAt'])
-        && request.resource.data.lastSender == request.auth.uid
-        && request.resource.data.lastText is string
-        && request.resource.data.lastText.size() <= 280
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.keys().hasOnly(['owner','title','status','createdAt','updatedAt','lastText','lastSender'])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.status in ['active','closed']
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            isGroupMember(groupId)
+            && resource.data.status == 'active'
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.title == resource.data.title
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastText','lastSender','updatedAt'])
+            && request.resource.data.lastSender == request.auth.uid
+            && request.resource.data.lastText is string
+            && request.resource.data.lastText.size() <= 280
+          ) ||
+          (
+            isGroupOwner(groupId)
+            && request.resource.data.lastText == resource.data.lastText
+            && request.resource.data.lastSender == resource.data.lastSender
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title','status','updatedAt'])
+            && !(resource.data.status == 'closed' && request.resource.data.status == 'active')
+          )
+        );
       allow delete: if false;
 
       match /groupMembers/{memberId} {
@@ -515,8 +535,16 @@ service cloud.firestore {
             ) ||
             (
               getAfter(groupPath(groupId)).data.owner == request.auth.uid
+              && getAfter(groupPath(groupId)).data.status == 'active'
               && request.resource.data.role == 'member'
               && friendOf(memberId)
+            ) ||
+            (
+              memberId == request.auth.uid
+              && request.resource.data.role == 'member'
+              && existsAfter(groupInvitePath(groupId, memberId))
+              && getAfter(groupInvitePath(groupId, memberId)).data.to == request.auth.uid
+              && getAfter(groupInvitePath(groupId, memberId)).data.status == 'accepted'
             )
           );
         allow update: if false;
@@ -526,15 +554,66 @@ service cloud.firestore {
         );
       }
 
+      match /groupInvites/{inviteId} {
+        allow get, list: if signed() && (resource.data.to == request.auth.uid || isGroupOwner(groupId));
+        allow create: if isGroupOwner(groupId)
+          && get(groupPath(groupId)).data.status == 'active'
+          && inviteId == request.resource.data.to
+          && request.resource.data.keys().hasOnly(['from','to','status','createdAt','updatedAt'])
+          && request.resource.data.from == request.auth.uid
+          && request.resource.data.to is string
+          && request.resource.data.to != request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && friendOf(request.resource.data.to);
+        allow update: if signed()
+          && request.resource.data.from == resource.data.from
+          && request.resource.data.to == resource.data.to
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+          && request.resource.data.updatedAt == request.time
+          && (
+            (
+              resource.data.to == request.auth.uid
+              && resource.data.status == 'pending'
+              && request.resource.data.status in ['accepted','declined']
+            ) ||
+            (
+              isGroupOwner(groupId)
+              && resource.data.status == 'declined'
+              && request.resource.data.status == 'pending'
+            )
+          );
+        allow delete: if signed() && (resource.data.to == request.auth.uid || isGroupOwner(groupId));
+      }
+
+      match /reads/{readerUid} {
+        allow get: if signed() && readerUid == request.auth.uid && isGroupMember(groupId);
+        allow list: if false;
+        allow create, update: if signed()
+          && readerUid == request.auth.uid
+          && isGroupMember(groupId)
+          && request.resource.data.keys().hasOnly(['uid','lastReadAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.lastReadAt == request.time;
+        allow delete: if signed() && readerUid == request.auth.uid;
+      }
+
       match /messages/{messageId} {
         allow get, list: if isGroupMember(groupId);
         allow create: if isGroupMember(groupId)
+          && get(groupPath(groupId)).data.status == 'active'
           && request.resource.data.keys().hasOnly(['sender','text','createdAt'])
           && request.resource.data.sender == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 2000
-          && request.resource.data.createdAt == request.time;
+          && request.resource.data.createdAt == request.time
+          && (
+            get(groupPath(groupId)).data.lastText == '' ||
+            request.time >= get(groupPath(groupId)).data.updatedAt + duration.value(500, 'ms')
+          );
         allow update: if false;
         allow delete: if signed() && (
           resource.data.sender == request.auth.uid || isGroupOwner(groupId)
@@ -544,6 +623,10 @@ service cloud.firestore {
 
     match /{path=**}/groupMembers/{memberId} {
       allow get, list: if signed() && resource.data.uid == request.auth.uid;
+    }
+
+    match /{path=**}/groupInvites/{inviteId} {
+      allow get, list: if signed() && resource.data.to == request.auth.uid;
     }
 
 
