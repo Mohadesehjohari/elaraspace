@@ -1,0 +1,39 @@
+name: PR8 profile-ready exact-SHA proof
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pr8-profile-ready-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TARGET_SHA: 652cf5ab3e64131a7a0c9599caa832324e7d1a25
+      PREVIEW_BASE: https://raw.githack.com/Mohadesehjohari/elaraspace/652cf5ab3e64131a7a0c9599caa832324e7d1a25
+      RAW_BASE: https://raw.githubusercontent.com/Mohadesehjohari/elaraspace/652cf5ab3e64131a7a0c9599caa832324e7d1a25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove exact preview files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/preview /tmp/raw
+          for f in index.html boot.js approved-profile-system.js elara-social.js cloud.js firestore.rules; do
+            curl -fsSL --retry 5 --retry-delay 2 "$PREVIEW_BASE/$f" -o "/tmp/preview/$f"
+            curl -fsSL --retry 5 --retry-delay 2 "$RAW_BASE/$f" -o "/tmp/raw/$f"
+            cmp -s "/tmp/preview/$f" "/tmp/raw/$f"
+          done
+          grep -F "ElaraLoadSocial" /tmp/preview/boot.js
+          grep -F "elara:social-ready" /tmp/preview/boot.js
+          grep -F "canonicalProfileService" /tmp/preview/approved-profile-system.js
+          grep -F "در حال آماده‌سازی سرویس پروفایل" /tmp/preview/approved-profile-system.js
+          grep -F "changeCanonicalUsername" /tmp/preview/elara-social.js
+          grep -F "existing-profile-claim-missing" /tmp/preview/cloud.js
+          grep -F "existsAfter(n(request.resource.data.username))" /tmp/preview/firestore.rules
+          echo "PROFILE_READY_PREVIEW_EXACT_SHA_PASS=$TARGET_SHA"
+          sha256sum /tmp/preview/index.html /tmp/preview/boot.js /tmp/preview/approved-profile-system.js /tmp/preview/elara-social.js /tmp/preview/cloud.js /tmp/preview/firestore.rules
