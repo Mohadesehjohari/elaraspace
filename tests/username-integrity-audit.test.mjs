@@ -6,6 +6,7 @@ import {analyzeIdentityRecords,redactAnalysis} from '../tools/username-integrity
   const a=analyzeIdentityRecords([{uid:'UID_A_123456',username:'nova'}],[]);
   assert.deepEqual(a.missingClaims,[{uid:'UID_A_123456',username:'nova'}]);
   assert.deepEqual(a.safeCreateClaims,[{uid:'UID_A_123456',username:'nova'}]);
+  assert.equal(a.hasConflicts,true,'missing claim must keep release gate blocked until repaired');
 }
 
 // Duplicate legacy profiles are ambiguous: no automatic winner and no safe create claim.
