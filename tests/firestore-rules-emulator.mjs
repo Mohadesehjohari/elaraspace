@@ -178,6 +178,20 @@ try{
  await assertSucceeds(setDoc(ref(eve,'clubs/role_test_club/clubPosts/assistant_poll/votes/eve'),{uid:'eve',option:'Book A',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(dave,'clubs/role_test_club/clubPosts/assistant_poll/votes/dave'),{uid:'dave',option:'Book A',createdAt:serverTimestamp()}));
 
+ // All five canonical collaboration kinds must be accepted through the same participant-scoped Rules.
+ for(const [kind,suffix] of [['task','task'],['habit','habit'],['goal','goal'],['leitner-word','leitner']]){
+   const sid='collab_'+suffix+'_rules',spacePath='collabSpaces/'+sid,invitePath='collabInvites/'+sid+'__bob';
+   await assertSucceeds(setDoc(ref(alice,spacePath),{ownerUid:'alice',kind,title:'Shared '+suffix,payloadJson:JSON.stringify({title:'Shared '+suffix,front:'Shared '+suffix}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(setDoc(ref(alice,spacePath+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'owner-'+suffix,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(setDoc(ref(alice,invitePath),{spaceId:sid,from:'alice',to:'bob',kind,title:'Shared '+suffix,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(getDoc(ref(bob,invitePath)));
+   const batch=writeBatch(bob);
+   batch.update(ref(bob,invitePath),{status:'accepted',updatedAt:serverTimestamp()});
+   batch.set(ref(bob,spacePath+'/members/bob'),{uid:'bob',role:'member',localEntityId:'member-'+suffix,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+   await assertSucceeds(batch.commit());
+   await assertSucceeds(getDoc(ref(bob,spacePath)));
+ }
+ 
  // Persistent collaboration: owner creates a private shared class, friend joins only after explicit acceptance.
  const collab='collabSpaces/collab_class_1',collabInvite='collabInvites/collab_class_1__bob';
  await assertSucceeds(setDoc(ref(alice,collab),{ownerUid:'alice',kind:'language-class',title:'English C1',payloadJson:JSON.stringify({title:'English C1',type:'online',terms:3,sessionsPerTerm:12,durationMin:60,weekdays:[0,2,4],studyTime:'18:00',studyHoursPerDay:2,linkUrl:''}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
@@ -260,7 +274,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS username-identity profile presence mute social-report social-stats activity friend-request dm group club-role collab challenge page engagement reports block-unblock alice/bob/eve/dave');
+ console.log('FIRESTORE_RULES_E2E_PASS username-identity profile presence mute social-report social-stats activity friend-request dm group club-role collab-five-kind challenge page engagement reports block-unblock alice/bob/eve/dave');
 }finally{
  await env.cleanup();
 }
