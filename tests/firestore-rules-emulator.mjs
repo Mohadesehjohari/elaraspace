@@ -125,7 +125,7 @@ try{
 
  // Group owner can add an accepted friend; outsider cannot read or send.
  const group='groups/night_owls';
- await assertSucceeds(setDoc(ref(alice,group),{owner:'alice',title:'Night Owls',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
+ await assertSucceeds(setDoc(ref(alice,group),{owner:'alice',title:'Night Owls',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
  await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(bob,group)));
