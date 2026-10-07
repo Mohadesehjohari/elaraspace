@@ -95,6 +95,14 @@ function socialApi(store,uid){
   assert.equal(s.usernames.has('nova'),false);
 }
 {
+  const s=makeStore();s.profiles.set('A',{username:'nova',name:'A'});s.usernames.set('nova',{uid:'A'});s.usernames.set('nova2',{uid:'A'});
+  const a=socialApi(s,'A');
+  assert.equal(await a.changeCanonicalUsername('nova2'),'nova2');
+  assert.equal(s.profiles.get('A').username,'nova2');
+  assert.deepEqual(s.usernames.get('nova2'),{uid:'A'});
+  assert.equal(s.usernames.has('nova'),false);
+}
+{
   const s=makeStore();s.profiles.set('A',{username:'legacy',name:'A'});s.usernames.set('legacy',{uid:'B'});
   const a=socialApi(s,'A');
   await a.changeCanonicalUsername('clean_a');
