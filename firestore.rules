@@ -84,7 +84,10 @@ service cloud.firestore {
       );
     }
     function canCreateClub() {
-      return signed() && exists(p(request.auth.uid)) && get(p(request.auth.uid)).data.xp >= 350;
+      return signed() && (
+        isOwner() ||
+        (exists(p(request.auth.uid)) && get(p(request.auth.uid)).data.xp >= 350)
+      );
     }
     function activityPath(id) { return /databases/$(database)/documents/activities/$(id); }
     function postPath(id) { return /databases/$(database)/documents/socialPosts/$(id); }
