@@ -156,7 +156,7 @@ async function applyInboxRows(rows,sourceUid=me()){
  const pending=(await enrichInvites(rows.filter(x=>x.status==='pending'))).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
  inbox=pending;const pendingIds=new Set(pending.map(row=>row.id));for(const seen of [...inviteSeen])if(!pendingIds.has(seen))inviteSeen.delete(seen);
  for(const row of pending){
-  if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);
+  if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);if(window.ElaraSocial?.isMuted?.(row.from))continue;
   const who=String(row.sender?.name||row.sender?.username||tx('دوست','Friend')),username=row.sender?.username?' · @'+row.sender.username:'';
   window.ElaraNotify?.push?.({type:'social',title:tx('درخواست مشترک جدید','New shared request'),message:who+username+' · '+kindLabel(row.kind)+' · '+String(row.title||kindLabel(row.kind)),dedupeKey:'collab-in:'+row.id,reopen:true,meta:{kind:'collab-invite',inviteId:row.id,collabKind:row.kind,from:row.from,to:row.to}})
  }
