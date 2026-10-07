@@ -236,7 +236,12 @@ service cloud.firestore {
       allow create: if signed() && username.matches('^[a-z][a-z0-9_]{2,19}$')
         && request.resource.data.keys().hasOnly(['uid'])
         && request.resource.data.uid == request.auth.uid
-        && getAfter(p(request.auth.uid)).data.username == username;
+        && existsAfter(p(request.auth.uid))
+        && getAfter(p(request.auth.uid)).data.username == username
+        && (
+          !exists(p(request.auth.uid)) ||
+          get(p(request.auth.uid)).data.username != username
+        );
       allow update: if false;
       allow delete: if signed()
         && resource.data.uid == request.auth.uid
@@ -280,11 +285,13 @@ service cloud.firestore {
       allow update: if mine(uid)
         && validProfile(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp','name','bio','username','profilePublic'])
+        && existsAfter(n(request.resource.data.username))
+        && getAfter(n(request.resource.data.username)).data.uid == uid
         && (
           request.resource.data.username == resource.data.username ||
           (
-            existsAfter(n(request.resource.data.username)) &&
-            getAfter(n(request.resource.data.username)).data.uid == uid &&
+            !exists(n(resource.data.username)) ||
+            get(n(resource.data.username)).data.uid != uid ||
             !existsAfter(n(resource.data.username))
           )
         );
