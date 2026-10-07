@@ -1,0 +1,104 @@
+name: Production profile hotfix smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/production-profile-hotfix-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET_SHA: 57914b90966e929e760a71a48ec25dd5d5e6c329
+      LIVE_BASE: https://mohadesehjohari.github.io/elaraspace
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prove live files are exact main
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/live /tmp/git
+          for f in index.html boot.js approved-profile-system.js elara-social.js cloud.js; do
+            curl -fsSL --retry 6 --retry-delay 3 "$LIVE_BASE/$f?verify=$TARGET_SHA" -o "/tmp/live/$f"
+            git show "$TARGET_SHA:$f" > "/tmp/git/$f"
+            cmp -s "/tmp/live/$f" "/tmp/git/$f"
+          done
+          grep -F "20261007-social-ready-v1" /tmp/live/index.html
+          grep -F "ElaraLoadSocial" /tmp/live/boot.js
+          grep -F "canonicalProfileService" /tmp/live/approved-profile-system.js
+          grep -F "resolveUsernameIdentity" /tmp/live/elara-social.js
+          grep -F "existing-profile-claim-missing" /tmp/live/cloud.js
+          echo "LIVE_MAIN_EXACT_SHA_PASS=$TARGET_SHA"
+          sha256sum /tmp/live/index.html /tmp/live/boot.js /tmp/live/approved-profile-system.js /tmp/live/elara-social.js /tmp/live/cloud.js
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Real GitHub Pages browser smoke
+        run: |
+          cat > production-smoke.mjs <<'NODE'
+          import assert from 'node:assert/strict';
+          import {chromium} from 'playwright';
+
+          const base=process.env.LIVE_BASE,sha=process.env.TARGET_SHA;
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:390,height:844}});
+          const pageErrors=[],consoleErrors=[],socialResponses=[];
+          page.on('pageerror',e=>pageErrors.push(e.message));
+          page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
+          page.on('response',r=>{if(r.url().includes('elara-social.js'))socialResponses.push({url:r.url(),status:r.status(),type:r.headers()['content-type']||''})});
+          await page.goto(base+'/?production-smoke='+sha+'#home',{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&window.ElaraProfileSystem&&window.ElaraDialog&&typeof window.ElaraLoadSocial==='function',{timeout:30000});
+          const shell=await page.evaluate(()=>({
+            hash:location.hash,
+            bodyClass:document.body.className,
+            shell:!!document.querySelector('.shell'),
+            home:!!document.querySelector('.pass3-home,.ref-home-grid,#panel-home'),
+            accountApi:!!window.ElaraAccount,
+            loadSocialType:typeof window.ElaraLoadSocial,
+            socialSaveType:typeof window.ElaraSocial?.saveProfileValues,
+            optionalFailures:window.__elaraOptionalFailures||[],
+            assets:[...document.images].filter(i=>/assets\//.test(i.getAttribute('src')||'')).slice(0,12).map(i=>({src:i.getAttribute('src'),complete:i.complete,naturalWidth:i.naturalWidth}))
+          }));
+          assert.equal(shell.hash,'#home');
+          assert.equal(shell.shell,true);
+          assert.equal(shell.loadSocialType,'function');
+          assert.ok(shell.assets.length>0,'Home assets list empty');
+          await page.waitForFunction(()=>document.querySelector('#cloud-form')||document.querySelector('[data-elara-account-gate-ready]')||document.body.classList.contains('cloud-offline'),{timeout:30000});
+          const accountUi=await page.evaluate(()=>({
+            form:!!document.querySelector('#cloud-form'),
+            gate:document.querySelector('[data-elara-account-gate-ready]')?.getAttribute('data-elara-account-gate-ready')||null,
+            offline:document.body.classList.contains('cloud-offline'),
+            accountApi:!!window.ElaraAccount
+          }));
+          assert.ok(accountUi.form||accountUi.gate||accountUi.offline,'account UI did not settle');
+          await page.evaluate(()=>{void window.ElaraProfileSystem.openEditor()});
+          await page.waitForSelector('#elara-central-profile-form',{timeout:10000});
+          await page.waitForFunction(()=>typeof window.ElaraSocial?.saveProfileValues==='function',{timeout:30000});
+          const editor=await page.evaluate(()=>({
+            saveType:typeof window.ElaraSocial?.saveProfileValues,
+            status:document.querySelector('[data-profile-edit-status]')?.textContent||'',
+            saveDisabled:!!document.querySelector('#elara-central-profile-form [type=submit]')?.disabled,
+            hasCanonical:typeof window.ElaraProfileSystem?.canonicalProfileService==='function'
+          }));
+          assert.equal(editor.saveType,'function');
+          assert.equal(editor.hasCanonical,true);
+          assert.doesNotMatch(editor.status,/سرویس پروفایل هنوز آماده نیست/);
+          assert.ok(socialResponses.some(x=>x.status===200),'live elara-social.js did not return 200');
+          assert.ok(socialResponses.every(x=>/javascript|ecmascript/i.test(x.type)),'unexpected Social MIME '+JSON.stringify(socialResponses));
+          assert.equal(pageErrors.length,0,'uncaught page errors: '+pageErrors.join(' | '));
+          const criticalConsole=consoleErrors.filter(x=>/Elara social startup|SyntaxError|ReferenceError|TypeError|Failed to fetch dynamically imported module/i.test(x));
+          assert.equal(criticalConsole.length,0,'critical startup console errors: '+criticalConsole.join(' | '));
+          console.log('PRODUCTION_BROWSER_SMOKE_PASS '+JSON.stringify({shell,accountUi,editor,socialResponses,criticalConsole}));
+          await browser.close();
+          NODE
+          node production-smoke.mjs
