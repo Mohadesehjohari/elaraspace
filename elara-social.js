@@ -303,22 +303,29 @@ async function leaveGroup(groupId){
 }
 window.ElaraSocial.groups={create:createGroup,list:listGroups,members:getGroupMembers,messages:getGroupMessages,listen:listenGroup,send:sendGroup,markRead:markGroupRead,invite:inviteGroup,invites:listGroupInvites,decideInvite:decideGroupInvite,removeMember:removeGroupMember,rename:renameGroup,close:closeGroup,leave:leaveGroup};
 
-const CLUB_KINDS=new Set(['reading','fitness','focus','general']);
+const CLUB_KINDS=new Set(['reading','fitness','language','focus','habits','meditation','general']);
+const CLUB_MEMBERSHIP_MODES=new Set(['public','request','invite']);
+const CLUB_POST_KINDS=new Set(['mission','challenge','poll','reminder','result','congratulations','notice']);
+const clubDefaults=d=>({...d,kind:CLUB_KINDS.has(d?.kind)?d.kind:'general',visibility:d?.visibility==='private'?'private':'public',membershipMode:CLUB_MEMBERSHIP_MODES.has(d?.membershipMode)?d.membershipMode:'invite',restDay:Math.max(0,Math.min(6,Math.floor(Number(d?.restDay)||0))),bio:String(d?.bio||''),rulesText:String(d?.rulesText||''),language:String(d?.language||'fa'),avatarPath:String(d?.avatarPath||''),bannerPath:String(d?.bannerPath||''),memberLimit:Math.max(2,Math.min(200,Math.floor(Number(d?.memberLimit)||50))),memberCount:Math.max(1,Math.floor(Number(d?.memberCount)||1)),currentBookTitle:String(d?.currentBookTitle||''),status:d?.status==='closed'?'closed':'active'});
 const clubMemberships=async()=>{
  if(!uid)return[];
  const snaps=await getDocs(query(collectionGroup(db,'clubMembers'),where('uid','==',uid))),rows=[];
- for(const membership of snaps.docs){const ref=membership.ref.parent.parent;if(!ref)continue;try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=snap.data()||{};rows.push({id:ref.id,...d,role:membership.data()?.role||'member',updatedAt:d.updatedAt?.toMillis?.()||0})}catch(error){console.warn('Elara club unavailable:',ref.id,error)}}
+ for(const membership of snaps.docs){const ref=membership.ref.parent.parent;if(!ref)continue;try{const snap=await getDoc(ref);if(!snap.exists())continue;const d=clubDefaults(snap.data()||{});rows.push({id:ref.id,...d,role:membership.data()?.role||'member',updatedAt:d.updatedAt?.toMillis?.()||0})}catch(error){console.warn('Elara club unavailable:',ref.id,error)}}
  return rows.sort((a,b)=>b.updatedAt-a.updatedAt)
 };
+async function discoverClubs(){
+ if(!uid)return[];const snaps=await getDocs(query(collection(db,'clubs'),where('visibility','==','public'))),rows=[];
+ for(const item of snaps.docs){const d=clubDefaults(item.data()||{});if(d.status==='active')rows.push({id:item.id,...d})}
+ return rows.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')))
+}
 async function createClub(spec={}){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
  const userLevel=window.ElaraLevels?.level?.(Number(state.me?.xp)||0)||1;if(userLevel<6)throw Error('ساخت باشگاه از Level 6 فعال می‌شود.');
- const title=String(spec.title||'').trim().slice(0,80),kind=CLUB_KINDS.has(spec.kind)?spec.kind:'general',visibility=spec.visibility==='public'?'public':'private',restDay=Math.max(0,Math.min(6,Math.floor(Number(spec.restDay)||0)));
+ const title=String(spec.title||'').trim().slice(0,80),kind=CLUB_KINDS.has(spec.kind)?spec.kind:'general',visibility=spec.visibility==='private'?'private':'public',membershipMode=CLUB_MEMBERSHIP_MODES.has(spec.membershipMode)?spec.membershipMode:'invite',restDay=Math.max(0,Math.min(6,Math.floor(Number(spec.restDay)||0))),memberLimit=Math.max(2,Math.min(200,Math.floor(Number(spec.memberLimit)||50)));
  if(title.length<2)throw Error('اسم باشگاه حداقل ۲ نویسه باشد.');
  const ref=doc(collection(db,'clubs')),batch=writeBatch(db),stamp=serverTimestamp();
- batch.set(ref,{owner:uid,title,kind,visibility,assistant1:'',assistant2:'',restDay,createdAt:stamp,updatedAt:stamp});
- batch.set(doc(ref,'clubMembers',uid),{uid,role:'owner',joinedAt:stamp});
- await batch.commit();return ref.id
+ batch.set(ref,{owner:uid,title,kind,visibility,membershipMode,assistant1:'',assistant2:'',restDay,bio:String(spec.bio||'').trim().slice(0,600),rulesText:String(spec.rulesText||'').trim().slice(0,1200),language:String(spec.language||'fa').slice(0,16),avatarPath:'',bannerPath:'',memberLimit,memberCount:1,currentBookTitle:'',status:'active',createdAt:stamp,updatedAt:stamp});
+ batch.set(doc(ref,'clubMembers',uid),{uid,role:'owner',joinedAt:stamp});await batch.commit();return ref.id
 }
 async function clubMembers(clubId){
  const snaps=await getDocs(collection(db,'clubs',String(clubId),'clubMembers')),rows=[];
@@ -327,46 +334,92 @@ async function clubMembers(clubId){
  }
  return rows
 }
+async function updateClubSettings(clubId,patch={}){
+ const gid=String(clubId),ref=doc(db,'clubs',gid),snap=await getDoc(ref);if(!snap.exists())throw Error('باشگاه پیدا نشد.');const d=clubDefaults(snap.data()||{});if(d.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند تنظیمات اصلی را تغییر دهد.');
+ const next={title:String(patch.title??d.title).trim().slice(0,80),visibility:patch.visibility==='private'?'private':'public',membershipMode:CLUB_MEMBERSHIP_MODES.has(patch.membershipMode)?patch.membershipMode:d.membershipMode,restDay:Math.max(0,Math.min(6,Math.floor(Number(patch.restDay??d.restDay)))),bio:String(patch.bio??d.bio).trim().slice(0,600),rulesText:String(patch.rulesText??d.rulesText).trim().slice(0,1200),language:String(patch.language??d.language).slice(0,16),avatarPath:String(patch.avatarPath??d.avatarPath).slice(0,300),bannerPath:String(patch.bannerPath??d.bannerPath).slice(0,300),memberLimit:Math.max(d.memberCount,Math.min(200,Math.floor(Number(patch.memberLimit??d.memberLimit)||50))),updatedAt:serverTimestamp()};
+ if(next.title.length<2)throw Error('اسم باشگاه حداقل ۲ نویسه باشد.');await updateDoc(ref,next);return next
+}
 async function inviteClub(clubId,other){
- if(!uid)throw Error('حساب در دسترس نیست.');const to=String(other||'');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت باشگاه فقط برای دوست تأییدشده است.');
- const ref=doc(db,'clubs',String(clubId),'clubInvites',to),existing=await getDoc(ref);if(existing.exists())throw Error('برای این دوست قبلاً دعوت ثبت شده است.');
- await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp()});return to
+ if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(clubId),to=String(other||''),clubRef=doc(db,'clubs',gid),clubSnap=await getDoc(clubRef);if(!clubSnap.exists())throw Error('باشگاه پیدا نشد.');const club=clubDefaults(clubSnap.data()||{}),manager=club.owner===uid||club.assistant1===uid||club.assistant2===uid;if(!manager)throw Error('اجازهٔ دعوت عضو را نداری.');if(club.status!=='active')throw Error('باشگاه بسته شده است.');if(club.memberCount>=club.memberLimit)throw Error('ظرفیت باشگاه تکمیل است.');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت باشگاه فقط برای دوست تأییدشده است.');
+ const ban=await getDoc(doc(clubRef,'clubBans',to));if(ban.exists())throw Error('این حساب از باشگاه منع شده است.');const member=await getDoc(doc(clubRef,'clubMembers',to));if(member.exists())throw Error('این دوست عضو باشگاه است.');
+ const ref=doc(clubRef,'clubInvites',to),existing=await getDoc(ref);if(existing.exists()){const d=existing.data()||{};if(d.status==='pending')return to;if(d.status==='accepted')throw Error('دعوت قبلاً پذیرفته شده است.');if(d.status==='declined'){await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});return to}}
+ await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return to
 }
 async function listClubInvites(){
  if(!uid)return[];const snaps=await getDocs(query(collectionGroup(db,'clubInvites'),where('to','==',uid))),rows=[];
- for(const row of snaps.docs){const d=row.data()||{};if(d.status!=='pending')continue;const clubRef=row.ref.parent.parent;if(!clubRef)continue;try{const club=await getDoc(clubRef);if(club.exists())rows.push({id:row.id,clubId:clubRef.id,...d,club:{id:clubRef.id,...club.data()}})}catch{}}
+ for(const row of snaps.docs){const d=row.data()||{};if(d.status!=='pending')continue;const clubRef=row.ref.parent.parent;if(!clubRef)continue;try{const club=await getDoc(clubRef);if(club.exists())rows.push({id:row.id,clubId:clubRef.id,...d,club:{id:clubRef.id,...clubDefaults(club.data())}})}catch{}}
  return rows
 }
+async function addClubMemberTransaction(clubId,memberUid,sourceRef,statusField=true){
+ const gid=String(clubId),target=String(memberUid);await runTransaction(db,async tx=>{
+  const clubRef=doc(db,'clubs',gid),memberRef=doc(clubRef,'clubMembers',target),clubSnap=await tx.get(clubRef),memberSnap=await tx.get(memberRef);if(!clubSnap.exists())throw Error('باشگاه پیدا نشد.');const club=clubDefaults(clubSnap.data()||{});if(club.status!=='active')throw Error('باشگاه بسته است.');if(memberSnap.exists())return;if(club.memberCount>=club.memberLimit)throw Error('ظرفیت باشگاه تکمیل است.');const ban=await tx.get(doc(clubRef,'clubBans',target));if(ban.exists())throw Error('این حساب از باشگاه منع شده است.');
+  if(sourceRef){const source=await tx.get(sourceRef);if(!source.exists())throw Error('درخواست عضویت پیدا نشد.');if(statusField&&source.data()?.status!=='pending')throw Error('این درخواست دیگر فعال نیست.');if(statusField)tx.update(sourceRef,{status:'accepted',updatedAt:serverTimestamp()})}
+  tx.set(memberRef,{uid:target,role:'member',joinedAt:serverTimestamp()});tx.update(clubRef,{memberCount:club.memberCount+1,updatedAt:serverTimestamp()})
+ });return true
+}
 async function decideClubInvite(invite,status){
- if(!uid||invite?.to!==uid||!['accepted','declined'].includes(status))throw Error('دعوت باشگاه معتبر نیست.');
- const inviteRef=doc(db,'clubs',String(invite.clubId),'clubInvites',uid);
- if(status==='declined'){await updateDoc(inviteRef,{status});return true}
- const batch=writeBatch(db),stamp=serverTimestamp();batch.update(inviteRef,{status:'accepted'});batch.set(doc(db,'clubs',String(invite.clubId),'clubMembers',uid),{uid,role:'member',joinedAt:stamp});await batch.commit();return true
+ if(!uid||invite?.to!==uid||!['accepted','declined'].includes(status))throw Error('دعوت باشگاه معتبر نیست.');const ref=doc(db,'clubs',String(invite.clubId),'clubInvites',uid),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data()||{};if(d.status===status)return true;if(d.status!=='pending')return false;
+ if(status==='declined'){await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});return true}return addClubMemberTransaction(invite.clubId,uid,ref,true)
+}
+async function requestClubJoin(clubId){
+ if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(clubId),clubRef=doc(db,'clubs',gid),snap=await getDoc(clubRef);if(!snap.exists())throw Error('باشگاه پیدا نشد.');const club=clubDefaults(snap.data()||{});if(club.status!=='active')throw Error('باشگاه بسته است.');if(club.memberCount>=club.memberLimit)throw Error('ظرفیت باشگاه تکمیل است.');if((await getDoc(doc(clubRef,'clubBans',uid))).exists())throw Error('امکان عضویت در این باشگاه را نداری.');
+ if(club.membershipMode==='invite')throw Error('این باشگاه فقط با دعوت عضو می‌پذیرد.');if(club.membershipMode==='public')return addClubMemberTransaction(gid,uid,null,false);
+ const ref=doc(clubRef,'clubJoinRequests',uid),old=await getDoc(ref);if(old.exists()){if(old.data()?.status==='pending')return true;if(old.data()?.status==='declined')return updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()})}
+ await setDoc(ref,{uid,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return true
+}
+async function listClubJoinRequests(clubId){
+ const gid=String(clubId),snaps=await getDocs(collection(db,'clubs',gid,'clubJoinRequests'));return snaps.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.status==='pending')
+}
+async function decideClubJoinRequest(clubId,memberUid,status){
+ if(!['accepted','declined'].includes(status))throw Error('پاسخ درخواست معتبر نیست.');const gid=String(clubId),target=String(memberUid),ref=doc(db,'clubs',gid,'clubJoinRequests',target),snap=await getDoc(ref);if(!snap.exists())return false;if(snap.data()?.status===status)return true;if(snap.data()?.status!=='pending')return false;if(status==='declined'){await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});return true}return addClubMemberTransaction(gid,target,ref,true)
 }
 async function setClubAssistant(clubId,memberUid,enabled=true){
- const gid=String(clubId),target=String(memberUid),clubRef=doc(db,'clubs',gid),snap=await getDoc(clubRef);if(!snap.exists())throw Error('باشگاه پیدا نشد.');const data=snap.data()||{};if(data.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند دستیار تعیین کند.');if(target===uid)throw Error('صاحب باشگاه از قبل مدیر است.');
- const memberRef=doc(db,'clubs',gid,'clubMembers',target),member=await getDoc(memberRef);if(!member.exists())throw Error('این کاربر عضو باشگاه نیست.');
- let a1=String(data.assistant1||''),a2=String(data.assistant2||'');
- if(enabled){if(a1===target||a2===target)return true;if(!a1)a1=target;else if(!a2)a2=target;else throw Error('حداکثر دو دستیار مجاز است.')}
- else{if(a1===target)a1='';if(a2===target)a2=''}
+ const gid=String(clubId),target=String(memberUid),clubRef=doc(db,'clubs',gid),snap=await getDoc(clubRef);if(!snap.exists())throw Error('باشگاه پیدا نشد.');const data=clubDefaults(snap.data()||{});if(data.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند دستیار تعیین کند.');if(target===uid)throw Error('صاحب باشگاه از قبل مدیر است.');
+ const memberRef=doc(clubRef,'clubMembers',target),member=await getDoc(memberRef);if(!member.exists())throw Error('این کاربر عضو باشگاه نیست.');
+ let a1=String(data.assistant1||''),a2=String(data.assistant2||'');if(enabled){if(a1===target||a2===target)return true;if(!a1)a1=target;else if(!a2)a2=target;else throw Error('حداکثر دو دستیار مجاز است.')}else{if(a1===target)a1='';if(a2===target)a2=''}
  const batch=writeBatch(db),stamp=serverTimestamp();batch.update(clubRef,{assistant1:a1,assistant2:a2,updatedAt:stamp});batch.update(memberRef,{role:enabled?'assistant':'member'});await batch.commit();return true
 }
+async function leaveClub(clubId){
+ const gid=String(clubId),clubRef=doc(db,'clubs',gid),memberRef=doc(clubRef,'clubMembers',uid);await runTransaction(db,async tx=>{const clubSnap=await tx.get(clubRef),memberSnap=await tx.get(memberRef);if(!clubSnap.exists()||!memberSnap.exists())return;const club=clubDefaults(clubSnap.data()||{});if(club.owner===uid||memberSnap.data()?.role==='owner')throw Error('صاحب باشگاه باید مالکیت را منتقل کند یا باشگاه را ببندد.');const patch={memberCount:Math.max(1,club.memberCount-1),updatedAt:serverTimestamp()};if(club.assistant1===uid)patch.assistant1='';if(club.assistant2===uid)patch.assistant2='';tx.update(clubRef,patch);tx.delete(memberRef)});return true
+}
+async function kickClubMember(clubId,target,{ban=false}={}){
+ const gid=String(clubId),memberUid=String(target||''),clubRef=doc(db,'clubs',gid);await runTransaction(db,async tx=>{const clubSnap=await tx.get(clubRef),memberRef=doc(clubRef,'clubMembers',memberUid),memberSnap=await tx.get(memberRef);if(!clubSnap.exists())throw Error('باشگاه پیدا نشد.');const club=clubDefaults(clubSnap.data()||{});if(club.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند عضو را حذف یا منع کند.');if(memberUid===uid)throw Error('صاحب باشگاه قابل حذف نیست.');if(!memberSnap.exists())return;const patch={memberCount:Math.max(1,club.memberCount-1),updatedAt:serverTimestamp()};if(club.assistant1===memberUid)patch.assistant1='';if(club.assistant2===memberUid)patch.assistant2='';tx.update(clubRef,patch);tx.delete(memberRef);if(ban)tx.set(doc(clubRef,'clubBans',memberUid),{uid:memberUid,by:uid,createdAt:serverTimestamp()})});return true
+}
+async function unbanClubMember(clubId,target){const gid=String(clubId),club=await getDoc(doc(db,'clubs',gid));if(!club.exists()||club.data()?.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند منع را بردارد.');await deleteDoc(doc(db,'clubs',gid,'clubBans',String(target)));return true}
+async function transferClubOwnership(clubId,target){
+ const gid=String(clubId),next=String(target||''),clubRef=doc(db,'clubs',gid),oldMember=doc(clubRef,'clubMembers',uid),newMember=doc(clubRef,'clubMembers',next);await runTransaction(db,async tx=>{const [clubSnap,oldSnap,newSnap]=await Promise.all([tx.get(clubRef),tx.get(oldMember),tx.get(newMember)]);if(!clubSnap.exists()||clubSnap.data()?.owner!==uid)throw Error('فقط صاحب فعلی می‌تواند مالکیت را منتقل کند.');if(!newSnap.exists()||next===uid)throw Error('مالک جدید باید عضو دیگری از باشگاه باشد.');const d=clubDefaults(clubSnap.data()||{}),patch={owner:next,assistant1:d.assistant1===next?'':d.assistant1,assistant2:d.assistant2===next?'':d.assistant2,updatedAt:serverTimestamp()};tx.update(clubRef,patch);tx.update(newMember,{role:'owner'});if(oldSnap.exists())tx.update(oldMember,{role:'member'})});return true
+}
+async function closeClub(clubId){const gid=String(clubId),snap=await getDoc(doc(db,'clubs',gid));if(!snap.exists()||snap.data()?.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند آن را ببندد.');await updateDoc(doc(db,'clubs',gid),{status:'closed',updatedAt:serverTimestamp()});return true}
 async function createClubPost(clubId,spec={}){
- const kind=spec.kind==='poll'?'poll':'mission',title=String(spec.title||'').trim().slice(0,120),body=String(spec.body||'').trim().slice(0,1200),cadence=['none','daily','weekly','monthly'].includes(spec.cadence)?spec.cadence:'none',options=kind==='poll'?[...new Set((Array.isArray(spec.options)?spec.options:[]).map(x=>String(x||'').trim().slice(0,100)).filter(Boolean))].slice(0,6):[];
+ const kind=CLUB_POST_KINDS.has(spec.kind)?spec.kind:'notice',title=String(spec.title||'').trim().slice(0,120),body=String(spec.body||'').trim().slice(0,1200),cadence=['none','daily','weekly','monthly'].includes(spec.cadence)?spec.cadence:'none',options=kind==='poll'?[...new Set((Array.isArray(spec.options)?spec.options:[]).map(x=>String(x||'').trim().slice(0,100)).filter(Boolean))].slice(0,6):[];
  if(title.length<2)throw Error('عنوان حداقل ۲ نویسه باشد.');if(kind==='poll'&&options.length<2)throw Error('نظرسنجی حداقل دو گزینه لازم دارد.');
  const gid=String(clubId),club=await getDoc(doc(db,'clubs',gid));if(!club.exists())throw Error('باشگاه پیدا نشد.');const domain=String(club.data()?.kind||'general');
  const ref=await addDoc(collection(db,'clubs',gid,'clubPosts'),{uid,kind,domain,title,body,cadence,options,createdAt:serverTimestamp()});return ref.id
 }
 async function listClubPosts(clubId){
- const snaps=await getDocs(query(collection(db,'clubs',String(clubId),'clubPosts'),orderBy('createdAt','desc'),limit(60)));
+ const snaps=await getDocs(query(collection(db,'clubs',String(clubId),'clubPosts'),orderBy('createdAt','desc'),limit(100)));
  return snaps.docs.map(x=>({id:x.id,...x.data(),ms:x.data().createdAt?.toMillis?.()||0}))
 }
 async function voteClubPoll(clubId,postId,option){
  const gid=String(clubId),pid=String(postId),voteRef=doc(db,'clubs',gid,'clubPosts',pid,'votes',uid),snap=await getDoc(voteRef);
  if(snap.exists())await updateDoc(voteRef,{option:String(option||'')});else await setDoc(voteRef,{uid,option:String(option||''),createdAt:serverTimestamp()});return true
 }
+async function confirmClubBook(clubId,postId,option){
+ const gid=String(clubId),clubRef=doc(db,'clubs',gid),clubSnap=await getDoc(clubRef);if(!clubSnap.exists()||clubSnap.data()?.owner!==uid)throw Error('فقط صاحب باشگاه می‌تواند کتاب برنده را تأیید کند.');if(clubSnap.data()?.kind!=='reading')throw Error('کتاب جاری فقط برای باشگاه کتاب‌خوانی است.');
+ const post=await getDoc(doc(clubRef,'clubPosts',String(postId)));if(!post.exists()||post.data()?.kind!=='poll'||!(post.data()?.options||[]).includes(option))throw Error('گزینهٔ نظرسنجی معتبر نیست.');await updateDoc(clubRef,{currentBookTitle:String(option).slice(0,120),updatedAt:serverTimestamp()});return option
+}
+async function clubContribution(clubId){
+ const gid=String(clubId),members=await clubMembers(gid),score=new Map(members.map(m=>[m.uid,{uid:m.uid,person:m.person,events:0,posts:0,votes:0}])),posts=await listClubPosts(gid);
+ for(const post of posts){if(score.has(post.uid)){score.get(post.uid).posts++;score.get(post.uid).events++}if(post.kind==='poll'){try{const votes=await getDocs(collection(db,'clubs',gid,'clubPosts',post.id,'votes'));for(const vote of votes.docs){const voter=String(vote.data()?.uid||vote.id);if(score.has(voter)){score.get(voter).votes++;score.get(voter).events++}}}catch{}}
+ }
+ return [...score.values()].sort((a,b)=>b.events-a.events||b.posts-a.posts)
+}
+async function clubDailyReport(clubId){
+ const start=new Date();start.setHours(0,0,0,0);const since=start.getTime(),posts=await listClubPosts(clubId),todayPosts=posts.filter(x=>x.ms>=since),contribution=await clubContribution(clubId),club=(await clubMemberships()).find(x=>x.id===String(clubId))||clubDefaults((await getDoc(doc(db,'clubs',String(clubId)))).data()||{});
+ return{date:start.toISOString().slice(0,10),restDay:new Date().getDay()===club.restDay,posts:todayPosts.length,contribution:contribution.map(x=>({uid:x.uid,name:x.person?.name||x.person?.username||'عضو',events:x.events,posts:x.posts,votes:x.votes}))}
+}
 
-window.ElaraSocial.clubs={kinds:[...CLUB_KINDS],create:createClub,list:clubMemberships,members:clubMembers,invite:inviteClub,invites:listClubInvites,decideInvite:decideClubInvite,setAssistant:setClubAssistant,createPost:createClubPost,posts:listClubPosts,vote:voteClubPoll};
+window.ElaraSocial.clubs={kinds:[...CLUB_KINDS],membershipModes:[...CLUB_MEMBERSHIP_MODES],postKinds:[...CLUB_POST_KINDS],create:createClub,list:clubMemberships,discover:discoverClubs,members:clubMembers,settings:updateClubSettings,invite:inviteClub,invites:listClubInvites,decideInvite:decideClubInvite,requestJoin:requestClubJoin,joinRequests:listClubJoinRequests,decideJoin:decideClubJoinRequest,setAssistant:setClubAssistant,leave:leaveClub,kick:kickClubMember,ban:(id,target)=>kickClubMember(id,target,{ban:true}),unban:unbanClubMember,transfer:transferClubOwnership,close:closeClub,createPost:createClubPost,posts:listClubPosts,vote:voteClubPoll,confirmBook:confirmClubBook,contribution:clubContribution,dailyReport:clubDailyReport};
 
 const CHALLENGE_KINDS=new Set(['task','habit','reading','exercise','focus','general']);
 const CHALLENGE_MODES=new Set(['now','online','inbox']);
