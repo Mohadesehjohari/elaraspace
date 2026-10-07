@@ -5,6 +5,7 @@ const cloud=readFileSync(new URL('../cloud.js',import.meta.url),'utf8');
 const social=readFileSync(new URL('../elara-social.js',import.meta.url),'utf8');
 
 const snap=data=>({exists:()=>data!==undefined,data:()=>data});
+async function rejected(promise){try{await promise;assert.fail('expected rejection')}catch(error){return error}}
 function makeStore(){
   const profiles=new Map(),usernames=new Map();
   const refData=(ref,p=profiles,u=usernames)=>ref.kind==='profiles'?p.get(ref.id):ref.kind==='usernames'?u.get(ref.id):undefined;
@@ -62,7 +63,7 @@ function socialApi(store,uid){
 {
   const s=makeStore();s.profiles.set('A',{username:'nova',name:'A'});
   const a=cloudApi(s,{uid:'A'});
-  const error=await assert.rejects(()=>a.reserveUsername('nova','A'));
+  const error=await rejected(a.reserveUsername('nova','A'));
   assert.equal(error.identityCode,'existing-profile-claim-missing');
   assert.equal(s.usernames.has('nova'),false);
 }
@@ -71,7 +72,7 @@ function socialApi(store,uid){
 {
   const s=makeStore();s.profiles.set('B',{username:'nova',name:'B'});s.usernames.set('nova',{uid:'A'});
   const b=cloudApi(s,{uid:'B'});
-  const error=await assert.rejects(()=>b.reserveUsername('nova','B'));
+  const error=await rejected(b.reserveUsername('nova','B'));
   assert.equal(error.identityCode,'existing-profile-claim-conflict');
   assert.deepEqual(s.usernames.get('nova'),{uid:'A'});
 }
@@ -98,7 +99,7 @@ function socialApi(store,uid){
 {
   const s=makeStore();s.profiles.set('A',{username:'nova2',name:'A'});s.usernames.set('nova',{uid:'A'});s.usernames.set('nova2',{uid:'A'});
   const api=socialApi(s,'B');
-  const error=await assert.rejects(()=>api.resolveUsernameIdentity('nova'));
+  const error=await rejected(api.resolveUsernameIdentity('nova'));
   assert.equal(error.identityCode,'claim-profile-mismatch');
 }
 
