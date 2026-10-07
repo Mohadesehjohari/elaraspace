@@ -61,7 +61,7 @@ async function run(width,height){
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.route('**/elara-collab.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:collabStub}));
  await page.goto(base+'/?p0-social-mobile='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraNotify&&window.ElaraCollab&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraNotify&&window.ElaraCollab&&window.ElaraSocial?.decide&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.evaluate(()=>{
   const row={id:'ci-1',from:'f1',to:'me',status:'pending',kind:'language-class',title:'کلاس مکالمه',sender:{uid:'f1',name:'مهسا',username:'mahsa'}};
   window.__qaOps=[];window.__qaCollabRows=[row];
