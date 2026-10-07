@@ -70,6 +70,7 @@ service cloud.firestore {
     function collabMemberPath(id, memberId) { return /databases/$(database)/documents/collabSpaces/$(id)/members/$(memberId); }
     function collabInvitePath(id, memberId) { return /databases/$(database)/documents/collabInvites/$(id + '__' + memberId); }
     function collabLinkPath(token) { return /databases/$(database)/documents/collabLinks/$(token); }
+    function challengeRatePath(uid) { return /databases/$(database)/documents/challengeRateLimits/$(uid); }
     function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
     function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
     function validCollabKind(kind) { return kind in ['task','habit','goal','language-class','leitner-word']; }
@@ -950,49 +951,111 @@ service cloud.firestore {
       allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
     }
 
+    match /challengeRateLimits/{uid} {
+      allow get: if mine(uid);
+      allow list: if false;
+      allow create: if mine(uid)
+        && request.resource.data.keys().hasOnly(['uid','lastAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.lastAt == request.time;
+      allow update: if mine(uid)
+        && request.resource.data.keys().hasOnly(['uid','lastAt'])
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.lastAt == request.time
+        && request.time >= resource.data.lastAt + duration.value(10, 's');
+      allow delete: if false;
+    }
+
     match /challenges/{challengeId} {
       allow get, list: if signed() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
       allow create: if signed()
-        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt'])
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','mode','attempt','originId','createdAt','updatedAt','expiresAt'])
         && request.resource.data.from == request.auth.uid
         && request.resource.data.to is string
         && request.resource.data.to != request.auth.uid
         && friendOf(request.resource.data.to)
+        && !exists(mutePath(request.resource.data.to, request.auth.uid))
         && request.resource.data.status == 'pending'
         && request.resource.data.targetKind in ['task','habit','reading','exercise','focus','general']
         && request.resource.data.targetText is string
         && request.resource.data.targetText.size() >= 2 && request.resource.data.targetText.size() <= 120
         && request.resource.data.targetValue is int
         && request.resource.data.targetValue >= 1 && request.resource.data.targetValue <= 1000000
+        && request.resource.data.mode in ['now','online','inbox']
+        && request.resource.data.attempt is int
+        && request.resource.data.attempt >= 1 && request.resource.data.attempt <= 99
+        && request.resource.data.originId is string
+        && request.resource.data.originId.size() > 0 && request.resource.data.originId.size() <= 160
         && request.resource.data.createdAt == request.time
-        && request.resource.data.expiresAt > request.time + duration.value(25, 's')
-        && request.resource.data.expiresAt <= request.time + duration.value(35, 's');
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            request.resource.data.mode == 'now'
+            && request.resource.data.expiresAt > request.time + duration.value(25, 's')
+            && request.resource.data.expiresAt <= request.time + duration.value(35, 's')
+          ) ||
+          (
+            request.resource.data.mode == 'online'
+            && request.resource.data.expiresAt > request.time + duration.value(23, 'h')
+            && request.resource.data.expiresAt <= request.time + duration.value(25, 'h')
+          ) ||
+          (
+            request.resource.data.mode == 'inbox'
+            && request.resource.data.expiresAt == null
+          )
+        )
+        && existsAfter(challengeRatePath(request.auth.uid))
+        && getAfter(challengeRatePath(request.auth.uid)).data.uid == request.auth.uid
+        && getAfter(challengeRatePath(request.auth.uid)).data.lastAt == request.time
+        && (
+          !exists(challengeRatePath(request.auth.uid)) ||
+          request.time >= get(challengeRatePath(request.auth.uid)).data.lastAt + duration.value(10, 's')
+        );
       allow update: if signed()
-        && resource.data.to == request.auth.uid
-        && resource.data.status == 'pending'
-        && request.time < resource.data.expiresAt
         && request.resource.data.from == resource.data.from
         && request.resource.data.to == resource.data.to
         && request.resource.data.targetKind == resource.data.targetKind
         && request.resource.data.targetText == resource.data.targetText
         && request.resource.data.targetValue == resource.data.targetValue
+        && request.resource.data.mode == resource.data.mode
+        && request.resource.data.attempt == resource.data.attempt
+        && request.resource.data.originId == resource.data.originId
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.expiresAt == resource.data.expiresAt
-        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt','respondedAt'])
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt'])
-        && request.resource.data.status in ['accepted','declined']
-        && request.resource.data.respondedAt == request.time;
-      allow delete: if signed()
-        && resource.data.from == request.auth.uid
-        && resource.data.status == 'pending';
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','mode','attempt','originId','createdAt','updatedAt','expiresAt','respondedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt','updatedAt'])
+        && request.resource.data.respondedAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && resource.data.status == 'pending'
+        && (
+          (
+            resource.data.to == request.auth.uid
+            && !blockedBetween(resource.data.from, resource.data.to)
+            && (resource.data.expiresAt == null || request.time < resource.data.expiresAt)
+            && request.resource.data.status in ['accepted','declined']
+          ) ||
+          (
+            resource.data.from == request.auth.uid
+            && request.resource.data.status == 'cancelled'
+          )
+        );
+      allow delete: if false;
 
       match /quickMessages/{messageId} {
         allow get, list: if signed()
           && request.auth.uid in [get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,get(/databases/$(database)/documents/challenges/$(challengeId)).data.to]
-          && get(/databases/$(database)/documents/challenges/$(challengeId)).data.status == 'accepted';
+          && get(/databases/$(database)/documents/challenges/$(challengeId)).data.status == 'accepted'
+          && !blockedBetween(
+            get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,
+            get(/databases/$(database)/documents/challenges/$(challengeId)).data.to
+          );
         allow create: if signed()
           && request.auth.uid in [get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,get(/databases/$(database)/documents/challenges/$(challengeId)).data.to]
           && get(/databases/$(database)/documents/challenges/$(challengeId)).data.status == 'accepted'
+          && !blockedBetween(
+            get(/databases/$(database)/documents/challenges/$(challengeId)).data.from,
+            get(/databases/$(database)/documents/challenges/$(challengeId)).data.to
+          )
           && request.resource.data.keys().hasOnly(['uid','text','createdAt'])
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.text in ['بزن بریم 🔥','حواسم بهت هست 👀','ریز می‌بینمت 😎','کم نیار 👊','تا آخرش هستم 🤝','امروز مال ماست ⚡']
