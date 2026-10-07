@@ -8,7 +8,9 @@ const view=readFileSync(new URL('../social-view.js',import.meta.url),'utf8');
 
 // Friend realtime must be a recipient-scoped listener, not a refresh-only poll.
 const friendRealtime=social.slice(social.indexOf('function startFriendRequestRealtime'),social.indexOf('window.ElaraSocial.startFriendRequestRealtime'));
-assert.ok(friendRealtime.includes("onSnapshot(query(collection(db,'friendRequests'),where('to','==',mine))"),'recipient-scoped Friend realtime listener missing');
+assert.ok(friendRealtime.includes("onSnapshot(query(collection(db,'friendRequests'),where(field,'==',mine))"),'Friend realtime query listener missing');
+assert.ok(friendRealtime.includes("bind('incoming','to')"),'recipient-scoped Friend incoming listener missing');
+assert.ok(friendRealtime.includes("bind('outgoing','from')"),'sender-scoped Friend outgoing listener missing');
 assert.match(social,/meta:\{kind:'friend-request',requestId:/,'friend realtime notification must carry canonical request id');
 assert.match(social,/dedupeKey:'friend-in:'\+row\.id/,'friend notification dedupe key missing');
 
