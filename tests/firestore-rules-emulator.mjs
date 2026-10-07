@@ -161,6 +161,9 @@ try{
  await assertFails(getDoc(ref(eve,group)));
  await assertSucceeds(setDoc(ref(bob,group+'/messages/b1'),{sender:'bob',text:'کتاب امشب؟ 📚',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,group+'/messages/e1'),{sender:'eve',text:'outsider',createdAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,group+'/groupMembers/bob')));
+ await assertFails(getDoc(ref(bob,group)));
+ await assertFails(getDoc(ref(bob,group+'/messages/b1')));
 
  // Club creation is server-rule gated by profile XP (level gate input), not by UI.
  await assertSucceeds(setDoc(ref(alice,'clubs/alice_reading_club'),{owner:'alice',title:'Moon Readers',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
@@ -265,6 +268,7 @@ try{
  await assertFails(getDoc(ref(bob,'blocks/alice__bob')));
  await assertFails(getDoc(ref(bob,'profiles/alice')));
  await assertFails(getDoc(ref(bob,'socialStats/alice')));
+ await assertFails(getDoc(ref(bob,'presence/alice')));
  await assertFails(getDoc(ref(bob,'activities/alice_public_001')));
  await assertFails(getDoc(ref(bob,'socialPosts/alice_public_post')));
  await assertFails(setDoc(ref(bob,convo+'/messages/blocked_message'),{sender:'bob',text:'blocked DM',createdAt:serverTimestamp()}));
