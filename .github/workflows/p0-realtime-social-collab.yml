@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/p0-realtime-social-collab.yml'
+      - 'boot.js'
+      - 'approved-profile-system.js'
       - 'elara-social.js'
       - 'social-view.js'
       - 'notifications.js'
@@ -13,6 +15,7 @@ on:
       - 'collab-2026.css'
       - 'firestore.rules'
       - 'tests/p0-social-collab-mobile-browser.mjs'
+      - 'tests/profile-social-readiness-browser.mjs'
       - 'tests/firestore-rules-emulator.mjs'
   workflow_dispatch:
 
@@ -34,9 +37,12 @@ jobs:
           node --check social-view.js
           node --check language-custom-classes.js
           node --check app.js
+          node --check boot.js
+          node --check approved-profile-system.js
           node --input-type=module --check < elara-social.js
           node --input-type=module --check < elara-collab.js
           node --check tests/p0-social-collab-mobile-browser.mjs
+          node --check tests/profile-social-readiness-browser.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -47,6 +53,8 @@ jobs:
           sleep 2
       - name: Browser acceptance 320 375 390 430
         run: timeout 180s node tests/p0-social-collab-mobile-browser.mjs
+      - name: Profile waits for canonical Social readiness
+        run: timeout 120s node tests/profile-social-readiness-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
