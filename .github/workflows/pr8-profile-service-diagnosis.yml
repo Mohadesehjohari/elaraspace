@@ -25,7 +25,7 @@ jobs:
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Serve exact target SHA
         run: |
           mkdir -p /tmp/elara-exact
