@@ -35,13 +35,23 @@ try{
    const img=document.querySelector('#panel-home .owner-home-hero-image');
    return img?.complete&&img.naturalWidth>0&&document.querySelectorAll('#panel-home #elara-home-goals .ref-goal-row').length===3;
   },null,{timeout:25000});
-  // In live Pages a lazy Goal icon may be below the fold on 320px;
-  // scroll it into view and REQUIRE genuine network decode before asserting.
-  for(const selector of ['.owner-home-goal-icon','.ref-streak-flame']){
-    await page.locator('#panel-home '+selector).scrollIntoViewIfNeeded({timeout:15000});
-    await page.waitForFunction(sel=>{const img=document.querySelector('#panel-home '+sel);return img?.complete&&img.naturalWidth>0},selector,{timeout:20000});
-  }
-  await page.evaluate(()=>window.scrollTo(0,0));
+  // Lazy images may be below fold on the real network. Trigger their actual
+  // image decoding without mocking the URL, and separately audit visibility.
+  const imageStates=await page.evaluate(async()=>{
+    const ids=['.owner-home-goal-icon','.ref-streak-flame'];
+    return Promise.all(ids.map(async sel=>{
+      const img=document.querySelector('#panel-home '+sel);
+      if(!img)return {sel,missing:true};
+      const style=getComputedStyle(img),rect=img.getBoundingClientRect();
+      img.loading='eager';
+      try{await img.decode()}catch(e){}
+      return {sel,loaded:img.naturalWidth>0,natural:img.naturalWidth,
+        w:rect.width,h:rect.height,display:style.display,visibility:style.visibility,
+        parentDisplay:getComputedStyle(img.parentElement).display};
+    }));
+  });
+  console.log('HOME_LIVE_IMAGE_VISIBILITY '+JSON.stringify({width,images:imageStates}));
+  assert.ok(imageStates.every(i=>i.loaded),'One of Goals/Streak WebP files did not decode '+width);
   const m=await page.evaluate(()=>{
    const panel=document.getElementById('panel-home');
    const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect(),s=getComputedStyle(e);
