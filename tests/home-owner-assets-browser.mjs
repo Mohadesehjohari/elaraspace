@@ -57,7 +57,7 @@ try{
    const quickRects=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>rect(e));
    const heroImg=q('.owner-home-hero-image');
    const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
-     icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0};
+     icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0,flameGeometry:rect(q('.ref-streak-flame'))};
    const clicked=[...panel.querySelectorAll('button')].filter(e=>e.offsetParent!==null&&getComputedStyle(e).visibility!=='hidden')
      .filter(e=>{const r=e.getBoundingClientRect();return r.width<5||r.height<5}).map(e=>e.outerHTML.slice(0,100));
    const quotes=!!q('#ref-home-quote-card');
@@ -94,6 +94,8 @@ try{
   }
   assert.equal(m.computedImages.hero.src,'assets/ui/'+assets.hero);
   assert.ok(m.computedImages.hero.naturalWidth>0&&m.computedImages.icon>0&&m.computedImages.flame>0,'Hero/Goals/Streak asset not decoded '+width);
+  assert.ok(m.computedImages.flameGeometry?.display!=='none'&&m.computedImages.flameGeometry?.w>=30&&m.computedImages.flameGeometry?.h>=30,'Real streak flame must be visible/prominent on Home '+width);
+
   assert.equal(m.computedImages.hero.fit,'cover','Hero distorted');
   assert.deepEqual(m.goalRows.map(x=>x.title),goals,'Goals card did not use exactly 3 real Goal records');
   for(const h of habits)assert.ok(!m.goalRows.some(g=>g.title?.includes(h)),'Habit leaked into Goals');
