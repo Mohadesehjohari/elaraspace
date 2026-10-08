@@ -1,0 +1,84 @@
+name: Owner Home Artwork Browser Gate
+on:
+  push:
+    branches:
+      - ui/home-owner-assets-20261008
+  pull_request:
+    paths:
+      - '.github/workflows/home-owner-assets-gate.yml'
+      - 'home-owner-art-2026.js'
+      - 'home-owner-art-2026.css'
+      - 'boot.js'
+      - 'tests/home-owner-assets-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  home-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and existing Home contracts
+        run: |
+          node --check boot.js
+          node --check home-owner-art-2026.js
+          node --check tests/home-owner-assets-browser.mjs
+          node tests/home-first-startup.test.mjs
+          node tests/p0-home-contract.test.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve actual branch Home
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-owner-home-http.log 2>&1 &
+          sleep 2
+      - name: Owner WebP mounted on real Home at six widths with real data
+        run: timeout 230s node tests/home-owner-assets-browser.mjs
+      - name: Social Closure startup smoke remains intact
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 120s node tests/social-live-core-browser.mjs
+      - name: Home mobile smoke 320 375 390 430
+        run: timeout 120s node tests/hotfix-mobile-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: home-owner-real-webp-${{ github.sha }}
+          path: browser-artifacts/home-owner-art-*.png
+          if-no-files-found: warn
+          retention-days: 14
+  p0-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: P0 fast syntax startup collab
+        run: |
+          node --check app.js
+          node --check reference-home-shell-2026.js
+          node --input-type=module --check < elara-social.js
+          node tests/home-first-startup.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - name: Profile Username runtime and audit
+        run: |
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+      - name: P0 Social lifecycle tests
+        run: |
+          npm install --prefix tests --no-package-lock
+          node tests/social-test.cjs
+      - name: Profile Username strict Firestore emulator
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
