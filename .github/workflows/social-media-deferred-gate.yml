@@ -13,6 +13,7 @@ on:
       - 'social-clubs-ui.js'
       - 'elara-social.js'
       - 'tests/media-deferred-browser.mjs'
+      - 'tests/social-live-core-browser.mjs'
       - 'tests/static-check.mjs'
   workflow_dispatch:
 
@@ -47,3 +48,7 @@ jobs:
           python3 -m http.server 4173 >/tmp/elara-media-deferred-http.log 2>&1 &
           sleep 2
           timeout 120s node tests/hotfix-mobile-smoke.mjs
+      - name: Local actual Social client startup without Storage
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 120s node tests/social-live-core-browser.mjs
