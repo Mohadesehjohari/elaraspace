@@ -360,7 +360,7 @@ body.dark #panel-tasks .astra-task-hero blockquote small{font-size:.57rem!import
 /* toolbar */
 body.dark #panel-tasks .astra-task-toolbar{
  width:100%!important;min-height:60px!important;margin:0 0 10px!important;padding:7px 8px!important;border:0!important;border-radius:0!important;
- display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;direction:rtl!important;background:transparent!important;box-shadow:none!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;direction:ltr!important;background:transparent!important;box-shadow:none!important;
 }
 body.dark #panel-tasks .astra-task-chips{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important;min-width:0!important;overflow-x:auto!important;scrollbar-width:none!important}
 body.dark #panel-tasks .astra-task-chips::-webkit-scrollbar{display:none}
@@ -373,7 +373,7 @@ body.dark #panel-tasks .astra-task-chips [aria-pressed="true"]{
  border-color:#67eaff!important;background:linear-gradient(110deg,#20d7ff,#338fef)!important;color:#03213b!important;
  box-shadow:0 0 17px rgba(32,215,255,.22)!important;font-weight:900!important;
 }
-body.dark #panel-tasks .elara-task-page-actions{display:flex!important;align-items:center!important;gap:7px!important;flex:0 0 auto!important;direction:ltr!important}
+body.dark #panel-tasks .elara-task-page-actions{display:flex!important;align-items:center!important;gap:7px!important;flex:0 0 auto!important;direction:rtl!important}
 body.dark #panel-tasks .astra-task-view-controls{display:flex!important;gap:6px!important}
 body.dark #panel-tasks :where(.astra-task-view-controls button,#task-reorder-toggle,#elara-task-tools-toggle){
  width:42px!important;height:42px!important;min-width:42px!important;padding:0!important;border-radius:11px!important;
