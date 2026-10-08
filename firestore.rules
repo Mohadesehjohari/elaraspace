@@ -592,7 +592,7 @@ service cloud.firestore {
           (isGroupOwner(groupId) && memberId != request.auth.uid)
         );
         // Legacy nested operations only on a legacy parent document.
-                allow create: if (!get(groupPath(groupId)).data.keys().hasAny(['status'])) && signed()
+                allow create: if (existsAfter(groupPath(groupId)) && !getAfter(groupPath(groupId)).data.keys().hasAny(['status'])) && signed()
           && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
           && request.resource.data.uid == memberId
           && request.resource.data.joinedAt == request.time
@@ -936,7 +936,7 @@ service cloud.firestore {
             (isClubOwner(clubId) && memberId != request.auth.uid && getAfter(clubPath(clubId)).data.lastMembershipAction in ['kick','ban'])
           );
         // Legacy nested operations only on a legacy parent document.
-                allow create: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed()
+                allow create: if (existsAfter(clubPath(clubId)) && !getAfter(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed()
           && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
           && request.resource.data.uid == memberId
           && request.resource.data.joinedAt == request.time
