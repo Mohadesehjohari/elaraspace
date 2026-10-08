@@ -1,0 +1,54 @@
+name: Social cutover guard gate
+
+on:
+  push:
+    branches:
+      - social-cutover/guard-20261008
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/social-cutover-guard.yml'
+      - 'elara-social.js'
+      - 'social-groups-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
+      - 'tests/social-cutover-guard-browser.mjs'
+      - 'tests/hotfix-mobile-smoke.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guard-and-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax / identity contracts
+        run: |
+          node --input-type=module --check < elara-social.js
+          node --check social-groups-ui.js
+          node --check social-clubs-ui.js
+          node --check social-challenges-ui.js
+          node --check tests/social-cutover-guard-browser.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+      - name: Install browser dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-cutover-http.log 2>&1 &
+          sleep 2
+      - name: Browser guard blocked writes and maintenance UX
+        run: timeout 120s node tests/social-cutover-guard-browser.mjs
+      - name: Home mobile unchanged 320 375 390 430
+        run: timeout 120s node tests/hotfix-mobile-smoke.mjs
+      - name: Profile social hotfix browser regression
+        run: timeout 120s node tests/profile-social-readiness-browser.mjs
