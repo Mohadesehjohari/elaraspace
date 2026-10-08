@@ -226,3 +226,13 @@ html body #panel-home.ref-home.owner-art-home .ref-goal-row>.ref-goal-step{
 html body #panel-home.ref-home.owner-art-home .ref-goal-row>b{
  grid-column:3!important;justify-self:center!important;white-space:nowrap!important
 }
+
+/* Persian titles can occupy as many lines as needed; never truncate real user data. */
+html body #panel-home.ref-home.owner-art-home .ref-task-row strong,
+html body #panel-home.ref-home.owner-art-home .ref-habit-row strong,
+html body #panel-home.ref-home.owner-art-home .ref-goal-main strong,
+html body #panel-home.ref-home.owner-art-home .ref-habit-copy strong{
+ display:block!important;white-space:normal!important;text-overflow:clip!important;
+ overflow:visible!important;overflow-wrap:anywhere!important;word-break:normal!important;
+ max-height:none!important;line-height:1.7!important
+}
