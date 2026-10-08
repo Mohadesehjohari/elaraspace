@@ -116,7 +116,12 @@ jobs:
       - name: Chromium dependency for real Pages URL
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ELARA_CHROMIUM_EXECUTABLE=$(command -v google-chrome)" >> "$GITHUB_ENV"
+            google-chrome --version
+          else
+            npx playwright install --with-deps chromium
+          fi
       - name: Capture Home and Tasks from actual production URL at 8 desktop/mobile widths
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
