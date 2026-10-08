@@ -95,6 +95,7 @@ try{
   assert.equal(metrics.quoteVisible,false,'Home Quote must not be visible');
   assert.equal(metrics.settingsGear,false,'Home top header Settings gear forbidden');
   assert.ok(metrics.width+2>=metrics.documentWidth,'document horizontal overflow '+width+' '+JSON.stringify(metrics));
+  if(metrics.bodyWidth>metrics.width+2)console.log('HOME_OVERFLOW_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&(r.left < -5||r.right>innerWidth+5||r.width>innerWidth+5)}).slice(0,35).map(el=>{const r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,cl:String(el.className).slice(0,90),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:getComputedStyle(el).position}}))));
   assert.ok(metrics.width+2>=metrics.bodyWidth,'body horizontal overflow '+width);
   assert.equal(metrics.overflowCards,false,'card geometry exceeds viewport at '+width);
   assert.equal(metrics.tooNarrow,false,'collapsed card at '+width);
