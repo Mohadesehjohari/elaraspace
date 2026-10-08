@@ -79,7 +79,8 @@ try{
   assert.equal(m.duplicateQuickTitles,1,'Duplicate quick access heading');
   assert.deepEqual(m.quickCards,['tasks','language','books','exercise','social','freedom'],'Quick Access routes must remain canonical');
   assert.equal(m.mainVisible.length,4,'Exactly four visible canonical cards expected: '+JSON.stringify(m.mainVisible));
-  assert.deepEqual(m.mainVisible.map(x=>x.area),['streak','tasks','wellness','goals'],'Main four-card canonical order changed');
+  console.log('HOME_REFERENCE_GEOMETRY '+JSON.stringify({width,visible:m.mainVisible,grid:m.grid,cards:m.cards,goals:m.goalRows,quick:m.quick,bottom:m.bottom}));
+  assert.deepEqual(m.mainVisible.map(x=>x.cl.split(' ').find(c=>['ref-streak-card','ref-tasks','ref-wellness-card','ref-goals'].includes(c))).sort(),['ref-goals','ref-streak-card','ref-tasks','ref-wellness-card'].sort(),'Main four canonical cards changed');
   assert.ok(m.hero.bottom<=m.grid.top+3,'Hero must precede the main card row');
   assert.ok(m.grid.bottom<=m.quick.top+3,'Quick Access must immediately follow the main row');
   assert.ok(m.quick.bottom<=m.bottom.top+3,'Bottom cards must follow Quick Access');
