@@ -1,0 +1,12 @@
+{
+  "name": "elara-social-cutover-admin",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "firebase-admin": "13.5.0"
+  },
+  "scripts": {
+    "audit": "node social-cutover-audit.mjs --project elara-ab1aa",
+    "plan": "node social-cutover-migrate.mjs --project elara-ab1aa"
+  }
+}
