@@ -42,6 +42,21 @@ function setDecorativeBackground(node,name,direction='180deg',from='#071329c7',t
  node.style.setProperty('background-position','center','important');
  node.style.setProperty('background-repeat','no-repeat','important');
 }
+function correctLegacyMobileRails(panel){
+ const compact=matchMedia('(max-width:700px)').matches;
+ const root=panel.querySelector('.elara-dashboard-grid.ref-home-grid');
+ const bottom=$('ref-bottom-grid');
+ const quick=panel.querySelector('.ref-quick-access-grid');
+ const apply=(node,rules)=>{
+  if(!node)return;
+  if(!compact){if(node.dataset.ownerArtMobile==='1'){for(const prop of Object.keys(rules))node.style.removeProperty(prop);delete node.dataset.ownerArtMobile}return}
+  node.dataset.ownerArtMobile='1';
+  for(const [prop,value] of Object.entries(rules))if(node.style.getPropertyValue(prop)!==value)node.style.setProperty(prop,value,'important');
+ };
+ apply(root,{'display':'grid','grid-template-columns':'minmax(0,1fr)','grid-template-areas':"'streak' 'tasks' 'wellness' 'goals'",'grid-auto-rows':'max-content','width':'100%','min-width':'0','max-width':'100%'});
+ apply(bottom,{'display':'grid','grid-template-columns':'minmax(0,1fr)','grid-auto-rows':'max-content','width':'100%','min-width':'0','max-width':'100%'});
+ apply(quick,{'display':'grid','grid-template-columns':'repeat(2,minmax(0,1fr))','width':'100%','min-width':'0','max-width':'100%'});
+}
 function decorate(){
  const panel=$('panel-home');if(!panel)return;
  panel.classList.add('owner-art-home');
@@ -57,6 +72,7 @@ function decorate(){
  setDecorativeBackground(panel.querySelector('.owner-home-daily'),'daily-banner-bg','90deg','#07102bd6','#07102b65');
  for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
  makeSummary();
+ correctLegacyMobileRails(panel);
  for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
  refreshData();
  document.getElementById('ref-home-quote-card')?.remove();
