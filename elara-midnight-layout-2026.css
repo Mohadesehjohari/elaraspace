@@ -980,7 +980,7 @@ body.dark #panel-home.ref-home .ref-achievements>header h2{color:#cdeaff!importa
  }
  body.dark #panel-tasks #task-list{gap:9px!important}
  body.dark #panel-tasks #task-list>.astra-task-row{
-  min-height:78px!important;padding:10px 13px!important;
+  min-height:84px!important;padding:10px 13px!important;
   border-radius:15px!important;
   background:linear-gradient(90deg,#06142dec 0%,#061b37c6 48%,#06162fe9 100%),
    var(--task-scene) center/cover no-repeat!important;
