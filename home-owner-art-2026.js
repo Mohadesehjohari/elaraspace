@@ -73,6 +73,9 @@ function decorate(){
  for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
  makeSummary();
  correctLegacyMobileRails(panel);
+ // Preserve the reference Home's intentional hidden surfaces. Legacy
+ // !important display rules otherwise create implicit Grid columns on mobile.
+ for(const node of panel.querySelectorAll('.ref-home-grid > [hidden], #ref-bottom-grid > [hidden]'))node.style.setProperty('display','none','important');
  for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
  refreshData();
  document.getElementById('ref-home-quote-card')?.remove();
