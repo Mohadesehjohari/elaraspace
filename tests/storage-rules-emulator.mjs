@@ -60,6 +60,9 @@ try{
  const clubPublic=ref(a,'clubMedia/public_club/avatar/alice/clubavatar01.png'),clubPrivate=ref(a,'clubMedia/private_club/banner/alice/clubbanner01.png');
  await assertSucceeds(uploadBytes(clubPublic,image,meta));
  await assertSucceeds(uploadBytes(clubPrivate,image,meta));
+ await assertFails(uploadBytes(ref(a,'clubMedia/public_club/avatar/alice/clubavatar02.png'),image,{contentType:'application/pdf'}));
+ await assertFails(uploadBytes(ref(a,'clubMedia/public_club/banner/alice/clubbanner02.png'),new Uint8Array(5*1024*1024),meta));
+ await assertFails(uploadBytes(ref(a,'unrelated/social/file012345.png'),image,meta));
  await assertFails(uploadBytes(ref(b,'clubMedia/public_club/avatar/bob/memberfile01.png'),image,meta));
  await assertSucceeds(getBytes(ref(e,'clubMedia/public_club/avatar/alice/clubavatar01.png')));
  await assertSucceeds(getBytes(ref(b,'clubMedia/private_club/banner/alice/clubbanner01.png')));
