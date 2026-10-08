@@ -105,6 +105,7 @@ try{
    return {panel:snap(panel),grid:snap(grid),task:snap(task),wellness:snap(w),children:[...grid.children].filter(e=>getComputedStyle(e).display!=='none').map(e=>({id:e.id,cl:e.className,w:e.getBoundingClientRect().width,area:getComputedStyle(e).gridArea,cols:getComputedStyle(e).gridColumn}))};
   })));
   assert.equal(metrics.tooNarrow,false,'collapsed card at '+width);
+  if(metrics.hiddenButtons)console.log('HOME_BUTTON_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('#panel-home button')].filter(el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.display!=='none'&&cs.visibility!=='hidden'&&el.offsetParent!==null&&(r.width<5||r.height<5)}).map(el=>{const r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,cl:String(el.className),title:el.textContent.slice(0,60),parent:String(el.parentElement?.className||'').slice(0,90),w:r.width,h:r.height,hidden:el.hidden}}))));
   assert.equal(metrics.hiddenButtons,0,'visible Home buttons with zero hitbox at '+width);
   assert.deepEqual(errors,[],'Critical page errors '+width);
   assert.deepEqual(failures,[],'Broken WebP requests '+width);
