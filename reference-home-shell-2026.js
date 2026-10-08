@@ -20,9 +20,9 @@ function syncThemeArtwork(theme=$('theme-toggle')){
  theme.dataset.elaraThemeArtwork=active?'active':'default';
 }
 function syncViewAllHitTargets(){
- const mobile=matchMedia('(max-width:700px)').matches,w=mobile?'88px':'92px',h=mobile?'44px':'42px',artW=mobile?'158px':'168px';
+ const w='auto',h='30px',artW='0px';
  document.querySelectorAll('#panel-home .ref-view-all-button').forEach(button=>{
-  for(const [name,value] of [['width',w],['min-width',w],['max-width',w],['height',h],['min-height',h],['max-height',h],['padding','0px'],['overflow','hidden']])button.style.setProperty(name,value,'important');
+  for(const [name,value] of [['width',w],['min-width','0px'],['max-width','100%'],['height',h],['min-height',h],['max-height',h],['padding','3px 6px'],['overflow','visible']])button.style.setProperty(name,value,'important');
   const img=button.querySelector('.ref-view-all-art');if(img){img.style.setProperty('width',artW,'important');img.style.setProperty('min-width',artW,'important');img.style.setProperty('max-width','none','important');img.style.setProperty('height','auto','important');img.style.setProperty('max-height','none','important')}
  });
 }
@@ -40,7 +40,7 @@ function installViewAllArtwork(){
   let button=[...header.querySelectorAll('button')].find(b=>b.classList.contains('ref-view-all-button')||b.matches('[data-drawer-appearance]')||/(همه|مشاهده)/.test((b.getAttribute('aria-label')||b.textContent||'').trim()));
   if(!button){button=document.createElement('button');button.type='button';header.append(button);if(route==='appearance')button.dataset.drawerAppearance='1';else button.dataset.elaraTab=route}
   button.setAttribute('aria-label',button.getAttribute('aria-label')||label);button.classList.add('ref-view-all-button');button.dataset.viewAllArtwork='uploaded';
-  if(!button.querySelector('.ref-view-all-art'))button.innerHTML=art(UI_ASSETS.viewAll,'ref-view-all-art','');
+  if(button.dataset.ownerTextViewAll!=='1'){button.replaceChildren(document.createTextNode('← دیدن همه'));button.dataset.ownerTextViewAll='1'}
  }
  syncViewAllHitTargets();
 }
