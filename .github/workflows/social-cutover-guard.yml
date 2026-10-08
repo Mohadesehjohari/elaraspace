@@ -15,6 +15,8 @@ on:
       - 'social-challenges-ui.js'
       - 'tests/social-cutover-guard-browser.mjs'
       - 'tests/hotfix-mobile-smoke.mjs'
+      - 'tools/social-cutover-*.mjs'
+      - 'tests/social-cutover-migration.test.mjs'
   workflow_dispatch:
 
 permissions:
@@ -39,7 +41,12 @@ jobs:
           node tests/username-runtime-regression.test.mjs
           node tests/username-integrity-audit.test.mjs
       - name: Migration plan unit tests
-        run: node tests/social-cutover-migration.test.mjs
+        run: |
+          node tests/social-cutover-migration.test.mjs
+          node --check tools/social-cutover-core.mjs
+          node --check tools/social-cutover-scan.mjs
+          node --check tools/social-cutover-audit.mjs
+          node --check tools/social-cutover-migrate.mjs
       - name: Install browser dependencies
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
