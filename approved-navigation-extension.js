@@ -20,12 +20,12 @@ const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'
 /* Navigation artwork is sourced only from files verified on the current main branch. */
 const ASSETS=Object.freeze({
  home:['nav-home-default.webp','nav-home-active.webp'],
- tasks:['11-tasks-nav-default.webp','12-tasks-nav-active.webp'],
- language:['07-language-nav-default.webp','08-language-nav-active.webp'],
- books:['01-library-nav-default.webp','02-library-nav-active..webp'],
+ tasks:['nav-tasks-default.webp','nav-tasks-active.webp'],
+ language:['nav-language-default.webp','nav-language-active.webp'],
+ books:['nav-library-default.webp','nav-library-active.webp'],
  ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],
- exercise:['03-wellness-nav-default.webp','04-wellness-nav-active.webp'],
- social:['09-friends-nav-default.webp','10-friends-nav-active.webp'],
+ exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],
+ social:['friends_normal.webp','friend_active.webp'],
  freedom:['13-freedom-nav-default.webp','14-freedom-nav-active.webp'],
  reports:['05-reports-nav-default.webp','06-reports-nav-active.webp'],
  store:['15-store-nav-default.webp','16-store-nav-active.webp']
