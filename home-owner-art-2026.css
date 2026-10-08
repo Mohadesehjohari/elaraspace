@@ -136,6 +136,26 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
  flex:1 1 auto!important;min-height:0!important;max-height:100%!important;
  overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin!important
 }
+/* The overview is computed from actual canonical goal steps, not Habits. */
+#panel-home.ref-home.owner-art-home .ref-home-goal-overview{
+ position:relative;z-index:2;display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto;align-items:center;
+ gap:5px 8px;width:70%;margin:0 0 7px auto;
+ padding:4px 6px;border-radius:9px;
+ background:linear-gradient(90deg,#0a1c3855,#0b1b3555);
+ color:#fff;font-size:.64rem;font-weight:750
+}
+#panel-home.ref-home.owner-art-home .ref-home-goal-overview b{color:#ffd067;font-size:.72rem}
+#panel-home.ref-home.owner-art-home .ref-home-goal-overview>.elara-track{
+ grid-column:1/-1;width:100%;height:6px;margin:0;
+ background:#20415c!important;border-radius:999px
+}
+#panel-home.ref-home.owner-art-home .ref-home-goal-overview>.elara-track>i{
+ display:block;height:100%;background:linear-gradient(90deg,#ff984e,#ffe18b)!important;border-radius:inherit
+}
+@media(max-width:700px){
+ #panel-home.ref-home.owner-art-home .ref-home-goal-overview{width:76%}
+}
 #panel-home.ref-home.owner-art-home .ref-goal-row{
  display:grid!important;grid-template-columns:25px minmax(0,1fr) 36px!important;
  align-items:center!important;gap:6px!important;min-width:0!important;
