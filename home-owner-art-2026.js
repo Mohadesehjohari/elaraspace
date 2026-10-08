@@ -82,7 +82,7 @@ function decorate(){
 }
 let pending=false;
 function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;decorate()})}
-for(const event of ['elara:open','elara:hydrate','elara:data-changed','elara:social-updated','elara:account-ready','elara:profile-saved','elara:locale-changed'])addEventListener(event,schedule);
+for(const event of ['elara:open','elara:hydrate','elara:data-changed','elara:social-updated','elara:account-ready','elara:profile-saved','elara:locale-changed','resize'])addEventListener(event,schedule);
 const start=()=>{schedule();const root=$('panel-home');if(root){const observer=new MutationObserver(records=>{if(records.some(m=>m.addedNodes.length||m.removedNodes.length))schedule()});observer.observe(root,{childList:true,subtree:true})}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 window.ElaraOwnerHomeArtwork={refresh:schedule,assets:Object.freeze({hero:asset('homebanner1'),tasks:asset('tasks-card-background'),goals:asset('goals-target-background'),daily:asset('daily-banner-bg'),streak:asset('daily-streak-background'),wellness:asset('health-fitness-card-background'),language:asset('language-learning-background'),library:asset('library-card-background'),friends:asset('friends-card-bg'),ranking:asset('friends-ranking-bg'),focus:asset('pomodoro-icon')})};
