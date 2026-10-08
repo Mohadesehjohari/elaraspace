@@ -1,0 +1,47 @@
+name: Production Home Owner Asset Verification
+on:
+  push:
+    branches: [qa/live-home-owner-final-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify QA branch descends from deployed merge SHA
+        run: |
+          git merge-base --is-ancestor cdba95e40201d22598de395dd6342667a82ac37e HEAD
+          git rev-parse cdba95e40201d22598de395dd6342667a82ac37e
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exact live file bytes and live Home Chromium 320 375 390 430 768 1440
+        run: timeout 600s node tests/live-home-owner-production-verification.mjs
+      - name: Retest pre-merge Home data fixture on actual production site
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 400s node tests/home-owner-assets-browser.mjs
+      - name: Live owner name avatar bell theme order matrix
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 220s node tests/home-owner-header-order-browser.mjs
+      - name: Live Social Core startup
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 180s node tests/social-live-core-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-home-owner-final-cdba95e4
+          path: browser-artifacts/*png
+          if-no-files-found: warn
+          retention-days: 14
