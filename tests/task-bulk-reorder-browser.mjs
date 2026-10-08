@@ -87,10 +87,10 @@ async function open(width,height,touch=false){const context=await browser.newCon
  const touchHandle=page.locator('#task-list>.astra-task-row[data-key="t1"]'),touchBox=await touchHandle.boundingBox();assert.ok(touchBox,'mobile drag handle missing');const touchId=77;
   // Mobile long-press is the supported selection gesture, followed by bulk Delete.
   const touchTitle=page.locator('#task-list>.astra-task-row[data-key="t1"] .task-summary-button');
-  const touchBox=await touchTitle.boundingBox();assert.ok(touchBox,'mobile touch target missing');
-  await touchTitle.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchBox.x+20,clientY:touchBox.y+15});
+  const touchDeleteBox=await touchTitle.boundingBox();assert.ok(touchDeleteBox,'mobile touch target missing');
+  await touchTitle.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchDeleteBox.x+20,clientY:touchDeleteBox.y+15});
   await page.waitForTimeout(650);
-  await touchTitle.dispatchEvent('pointerup',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchBox.x+20,clientY:touchBox.y+15});
+  await touchTitle.dispatchEvent('pointerup',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchDeleteBox.x+20,clientY:touchDeleteBox.y+15});
   await page.waitForFunction(()=>document.getElementById('panel-tasks')?.classList.contains('task-selection-mode'));
   await page.locator('[data-task-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');
   await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();
