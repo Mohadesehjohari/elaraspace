@@ -54,6 +54,7 @@ try{
    }));
    const habitRows=[...q('#elara-home-habits').querySelectorAll('.ref-habit-row')].map(e=>e.textContent);
    const quickCards=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
+   const quickRects=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>rect(e));
    const heroImg=q('.owner-home-hero-image');
    const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
      icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0};
@@ -63,7 +64,7 @@ try{
    const text=panel.textContent||'';
    return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
       order:[...panel.children].map(e=>e.id||e.className),
-      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,goalRows,habitRows,computedImages,
+      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,goalRows,habitRows,computedImages,
       summary:!!q('#owner-home-summaries'),daily:!!q('.owner-home-daily'),phrase:text.includes('نگاهی به جهان تو'),
       quote:quotes,settings:!!document.getElementById('ref-header-settings'),quickCount:panel.querySelectorAll('#ref-quick-access').length,
       duplicateQuickTitles:[...panel.querySelectorAll('h2')].filter(x=>x.textContent.includes('ورود سریع به بخش‌ها')).length,
@@ -78,6 +79,9 @@ try{
   assert.equal(m.quickCount,1,'One canonical Quick Access only');
   assert.equal(m.duplicateQuickTitles,1,'Duplicate quick access heading');
   assert.deepEqual(m.quickCards,['tasks','language','books','exercise','social','freedom'],'Quick Access routes must remain canonical');
+  assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
+    'Some canonical Quick Access destination is offscreen or too small at '+width+': '+JSON.stringify(m.quickRects));
+
   assert.equal(m.mainVisible.length,4,'Exactly four visible canonical cards expected: '+JSON.stringify(m.mainVisible));
   console.log('HOME_REFERENCE_GEOMETRY '+JSON.stringify({width,visible:m.mainVisible,grid:m.grid,cards:m.cards,goals:m.goalRows,quick:m.quick,bottom:m.bottom}));
   assert.deepEqual(m.mainVisible.map(x=>x.cl.split(' ').find(c=>['ref-streak-card','ref-tasks','ref-wellness-card','ref-goals'].includes(c))).sort(),['ref-goals','ref-streak-card','ref-tasks','ref-wellness-card'].sort(),'Main four canonical cards changed');
