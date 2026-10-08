@@ -305,3 +305,11 @@ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar .topba
   margin-inline-start:auto!important
  }
 }
+
+/* On the 320px Home header the legacy 84px wordmark would force RTL overflow.
+   Keep the account, bell and theme usable; brand stays available in navigation. */
+@media(max-width:700px){
+ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar .topbar-leading{
+  display:none!important;visibility:hidden!important
+ }
+}
