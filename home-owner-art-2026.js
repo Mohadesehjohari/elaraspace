@@ -34,19 +34,31 @@ function refreshData(){
  };
  for(const [key,value] of Object.entries(counts)){const node=wrap.querySelector('[data-owner-summary="'+key+'"]');if(node&&node.textContent!==value)node.textContent=value}
 }
+function setDecorativeBackground(node,name,direction='180deg',from='#071329c7',to='#061025e6'){
+ if(!node)return;
+ const value='linear-gradient('+direction+','+from+','+to+'),url("'+asset(name)+'")';
+ if(node.style.getPropertyValue('background-image')!==value)node.style.setProperty('background-image',value,'important');
+ node.style.setProperty('background-size','cover','important');
+ node.style.setProperty('background-position','center','important');
+ node.style.setProperty('background-repeat','no-repeat','important');
+}
 function decorate(){
  const panel=$('panel-home');if(!panel)return;
  panel.classList.add('owner-art-home');
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('owner-home-hero');image(hero,'owner-home-hero-image','homebanner1',1600,900)}
- const streak=$('ref-streak-card');if(streak)streak.classList.add('owner-home-streak');
- const rank=$('elara-home-ranks')?.closest('.ref-ranks');if(rank)rank.classList.add('owner-home-ranking');
- const tasks=$('elara-home-tasks')?.closest('.elara-card');if(tasks)tasks.classList.add('owner-home-tasks');
- const goals=$('elara-home-goals')?.closest('.elara-card');if(goals){goals.classList.add('owner-home-goals');const title=goals.querySelector(':scope > header h2');if(title&&!title.querySelector('.owner-home-goal-icon')){const icon=document.createElement('img');icon.className='owner-home-goal-icon';icon.src=asset('my-goals-icon');icon.width=36;icon.height=36;icon.loading='lazy';icon.alt='';title.prepend(icon)}}
- const wellness=$('ref-wellness-card');if(wellness)wellness.classList.add('owner-home-wellness');
+ const streak=$('ref-streak-card');if(streak){streak.classList.add('owner-home-streak');setDecorativeBackground(streak,'daily-streak-background','90deg','#050c20d8','#0b1a3dd9')}
+ const rank=$('elara-home-ranks')?.closest('.ref-ranks');if(rank){rank.classList.add('owner-home-ranking');setDecorativeBackground(rank,'friends-ranking-bg')}
+ const tasks=$('elara-home-tasks')?.closest('.elara-card');if(tasks){tasks.classList.add('owner-home-tasks');setDecorativeBackground(tasks,'tasks-card-background')}
+ const goals=$('elara-home-goals')?.closest('.elara-card');if(goals){goals.classList.add('owner-home-goals');setDecorativeBackground(goals,'goals-target-background');const title=goals.querySelector(':scope > header h2');if(title&&!title.querySelector('.owner-home-goal-icon')){const icon=document.createElement('img');icon.className='owner-home-goal-icon';icon.src=asset('my-goals-icon');icon.width=36;icon.height=36;icon.loading='lazy';icon.alt='';title.prepend(icon)}}
+ const wellness=$('ref-wellness-card');if(wellness){wellness.classList.add('owner-home-wellness');setDecorativeBackground(wellness,'health-fitness-card-background')}
  const daily=panel.querySelector('.owner-home-daily');if(!daily){
   const node=document.createElement('aside');node.className='owner-home-daily';node.innerHTML='<span>امروز، یک قدم رو به جلو</span><strong>با برنامهٔ واقعی خودت پیش برو</strong>';const grid=panel.querySelector('.ref-home-grid');if(grid)grid.insertAdjacentElement('afterend',node);
  }
- makeSummary();refreshData();
+ setDecorativeBackground(panel.querySelector('.owner-home-daily'),'daily-banner-bg','90deg','#07102bd6','#07102b65');
+ for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
+ makeSummary();
+ for(const [key,name] of [['language','language-learning-background'],['library','library-card-background'],['friends','friends-card-bg']])setDecorativeBackground(panel.querySelector('.owner-home-'+key),name,'180deg','#040b1d33','#050b21d1');
+ refreshData();
  document.getElementById('ref-home-quote-card')?.remove();
 }
 let pending=false;
