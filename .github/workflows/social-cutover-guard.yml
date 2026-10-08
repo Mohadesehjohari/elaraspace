@@ -38,6 +38,8 @@ jobs:
           node --check tests/social-cutover-guard-browser.mjs
           node tests/username-runtime-regression.test.mjs
           node tests/username-integrity-audit.test.mjs
+      - name: Migration plan unit tests
+        run: node tests/social-cutover-migration.test.mjs
       - name: Install browser dependencies
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
