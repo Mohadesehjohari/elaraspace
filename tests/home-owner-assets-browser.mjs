@@ -27,9 +27,9 @@ try{
   await page.addInitScript(()=>{
    const now=new Date(),d=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
    localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:420,
-    tasks:[{id:'owner-art-task-a',text:'مهم: مطالعه و مرور واقعی پروژه',date:d,priority:'2',completed:false,createdAt:Date.now()}],
-    habits:[{id:'owner-art-habit-a',title:'تمرین روزانه',days:[],rewardDays:[]}],
-    goals:[{id:'owner-art-goal-a',title:'هدف واقعی: پیشرفت زبان',horizon:'short',steps:[{id:'owner-step-a',text:'مرور ۲۰ واژه',done:false}]}],
+    tasks:[{id:'owner-art-task-a',text:'مهم: مطالعه و مرور واقعی پروژه و هماهنگ‌سازی کارها با برنامهٔ امروز؛ هر قدم باید به‌صورت کامل روی کارت Home دیده شود',date:d,priority:'2',completed:false,createdAt:Date.now()}],
+    habits:[{id:'owner-art-habit-a',title:'تمرین روزانه و مراقبت از سلامت جسمی و ذهنی با ثبت منظم عادت‌ها',days:[],rewardDays:[]}],
+    goals:[{id:'owner-art-goal-a',title:'هدف واقعی: پیشرفت زبان با مطالعهٔ پیوسته، مرور واژه‌ها و ارزیابی منظم نتیجهٔ تمام قدم‌های کوچک',horizon:'short',steps:[{id:'owner-step-a',text:'مرور ۲۰ واژه',done:false}]}],
     books:[{id:'owner-book-a',title:'کتاب واقعی آزمون',shelf:'reading',totalPages:250,currentPage:44}],
     words:[{id:'word-a',front:'hello',back:'سلام'},{id:'word-b',front:'world',back:'دنیا'}]
    }));
@@ -59,6 +59,7 @@ try{
    const existing=[...panel.querySelectorAll('.ref-task-row,.ref-habit-row,.ref-goal-row')].map(x=>x.textContent||'').join(' | ');
    const title=panel.querySelector('.hero-copy h1');
    const dynamicData=Object.fromEntries([...panel.querySelectorAll('[data-owner-summary]')].map(x=>[x.dataset.ownerSummary,x.textContent]));
+   const clippedText=[...panel.querySelectorAll('.ref-task-row strong,.ref-habit-row strong,.ref-goal-main strong')].filter(x=>{const v=getComputedStyle(x),r=x.getBoundingClientRect();return r.width>4&&x.offsetParent!==null&&(v.whiteSpace==='nowrap'||x.scrollWidth>x.clientWidth+3)}).map(x=>({text:x.textContent,whiteSpace:getComputedStyle(x).whiteSpace,client:x.clientWidth,scroll:x.scrollWidth}));
    const quote=document.querySelector('#ref-home-quote-card');
    return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
     images:{hero:{src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
@@ -66,7 +67,7 @@ try{
      goal:{src:icon?.getAttribute('src'),naturalWidth:icon?.naturalWidth},
      focus:{src:focusIcon?.getAttribute('src'),naturalWidth:focusIcon?.naturalWidth}},
     checks,existing,dynamicData,title:title?.textContent,
-    quoteVisible:!!quote&&getComputedStyle(quote).display!=='none',
+    quoteVisible:!!quote&&getComputedStyle(quote).display!=='none',clippedText,
     settingsGear:!!document.querySelector('#ref-header-settings'),
     tooNarrow:all.some(x=>x.w<80),
     overflowCards:all.some(x=>x.right>innerWidth+4||x.left< -4),
@@ -92,6 +93,7 @@ try{
   assert.ok(metrics.dynamicData.language.includes('۲'),'Word counter must reflect two seeded words');
   assert.ok(metrics.dynamicData.library.includes('کتاب واقعی آزمون'),'Real reading book must render');
   assert.ok(metrics.existing.includes('مطالعه')&&metrics.existing.includes('تمرین')&&metrics.existing.includes('هدف واقعی'),'Real task/habit/goal rows lost: '+metrics.existing);
+  assert.deepEqual(metrics.clippedText,[],'Real Persian Task/Habit/Goal text is clipped at '+width);
   assert.equal(metrics.quoteVisible,false,'Home Quote must not be visible');
   assert.equal(metrics.settingsGear,false,'Home top header Settings gear forbidden');
   assert.ok(metrics.width+2>=metrics.documentWidth,'document horizontal overflow '+width+' '+JSON.stringify(metrics));
