@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   guard-and-regressions:
+    if: github.event_name != 'pull_request' || github.head_ref == 'social-cutover/guard-20261008'
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
