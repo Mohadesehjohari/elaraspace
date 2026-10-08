@@ -3,11 +3,11 @@
 const MAIN=Object.freeze([
  {route:'exercise',label:'ورزش و سلامتی',icon:'workout'},
  {route:'language',label:'زبان',icon:'course'},
- {route:'tasks',label:'کارها',icon:'tasks'},
+ {route:'tasks',label:'تسک‌ها',icon:'tasks'},
  {route:'home',label:'خانه',icon:'home'},
  {route:'ranking',label:'رتبه‌بندی',icon:'ranking'},
  {route:'books',label:'کتابخانه',icon:'book'},
- {route:'freedom',label:'آزادی',icon:'freedom'}
+ {route:'freedom',label:'آزادی',icon:'spark'}
 ]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
 const PAGE=Object.freeze({route:'page',label:'صفحه من',icon:'user'});
@@ -20,12 +20,12 @@ const SECONDARY=Object.freeze([{route:'reports',label:'گزارش‌ها',icon:'
 /* Navigation artwork is sourced only from files verified on the current main branch. */
 const ASSETS=Object.freeze({
  home:['nav-home-default.webp','nav-home-active.webp'],
- tasks:['11-tasks-nav-default.webp','12-tasks-nav-active.webp'],
- language:['07-language-nav-default.webp','08-language-nav-active.webp'],
- books:['01-library-nav-default.webp','02-library-nav-active..webp'],
+ tasks:['nav-tasks-default.webp','nav-tasks-active.webp'],
+ language:['nav-language-default.webp','nav-language-active.webp'],
+ books:['nav-library-default.webp','nav-library-active.webp'],
  ranking:['nav-ranking-default.webp','nav-ranking-active.webp'],
- exercise:['03-wellness-nav-default.webp','04-wellness-nav-active.webp'],
- social:['09-friends-nav-default.webp','10-friends-nav-active.webp'],
+ exercise:['nav-exercise-default.webp','nav-exercise-active.webp'],
+ social:['friends_normal.webp','friend_active.webp'],
  freedom:['13-freedom-nav-default.webp','14-freedom-nav-active.webp'],
  reports:['05-reports-nav-default.webp','06-reports-nav-active.webp'],
  store:['15-store-nav-default.webp','16-store-nav-active.webp']
@@ -47,7 +47,8 @@ function button(def,kind='main',existing=null){
  b.className=side?'nav-item elara-nav elara-canonical-sidebar':'elara-extension-nav elara-canonical-main';
  if(kind==='secondary')b.classList.add('elara-sidebar-secondary-item');
  b.dataset.elaraTab=def.route;b.dataset.elaraNavKind=kind;b.setAttribute('aria-label',def.label);
- const pair=ASSETS[def.route],isSelected=def.route===current;
+ /* The flat vector set already shipped with Elara is the closest match to the owner's clean cyan/white desktop sidebar. Keep WebP artwork for main/mobile navigation. */
+  const pair=side?null:ASSETS[def.route],isSelected=def.route===current;
  const image=pair?`<img class="elara-art-img elara-nav-art" src="${root+pair[isSelected?1:0]}" data-file="${pair[isSelected?1:0]}" alt="" aria-hidden="true" width="40" height="40" decoding="async" loading="eager">`:'';
  b.innerHTML=`${image}${fallback(def.icon)}<small>${def.label}</small>`;
  if(pair){b.classList.add('elara-nav-has-art');const img=b.querySelector('.elara-nav-art');img.onload=()=>{img.hidden=false;b.classList.add('elara-nav-has-art')};img.onerror=()=>{img.hidden=true;b.classList.remove('elara-nav-has-art')};for(const name of ['pointerenter','pointerleave','focusin','focusout'])b['on'+name]=()=>artworkState(b)}

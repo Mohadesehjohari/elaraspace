@@ -20,9 +20,9 @@ function syncThemeArtwork(theme=$('theme-toggle')){
  theme.dataset.elaraThemeArtwork=active?'active':'default';
 }
 function syncViewAllHitTargets(){
- const mobile=matchMedia('(max-width:700px)').matches,w=mobile?'88px':'92px',h=mobile?'44px':'42px',artW=mobile?'158px':'168px';
+ const w='auto',h='30px',artW='0px';
  document.querySelectorAll('#panel-home .ref-view-all-button').forEach(button=>{
-  for(const [name,value] of [['width',w],['min-width',w],['max-width',w],['height',h],['min-height',h],['max-height',h],['padding','0px'],['overflow','hidden']])button.style.setProperty(name,value,'important');
+  for(const [name,value] of [['width',w],['min-width','0px'],['max-width','100%'],['height',h],['min-height',h],['max-height',h],['padding','3px 6px'],['overflow','visible']])button.style.setProperty(name,value,'important');
   const img=button.querySelector('.ref-view-all-art');if(img){img.style.setProperty('width',artW,'important');img.style.setProperty('min-width',artW,'important');img.style.setProperty('max-width','none','important');img.style.setProperty('height','auto','important');img.style.setProperty('max-height','none','important')}
  });
 }
@@ -40,7 +40,7 @@ function installViewAllArtwork(){
   let button=[...header.querySelectorAll('button')].find(b=>b.classList.contains('ref-view-all-button')||b.matches('[data-drawer-appearance]')||/(همه|مشاهده)/.test((b.getAttribute('aria-label')||b.textContent||'').trim()));
   if(!button){button=document.createElement('button');button.type='button';header.append(button);if(route==='appearance')button.dataset.drawerAppearance='1';else button.dataset.elaraTab=route}
   button.setAttribute('aria-label',button.getAttribute('aria-label')||label);button.classList.add('ref-view-all-button');button.dataset.viewAllArtwork='uploaded';
-  if(!button.querySelector('.ref-view-all-art'))button.innerHTML=art(UI_ASSETS.viewAll,'ref-view-all-art','');
+  if(button.dataset.ownerTextViewAll!=='1'){button.replaceChildren(document.createTextNode('← دیدن همه'));button.dataset.ownerTextViewAll='1'}
  }
  syncViewAllHitTargets();
 }
@@ -73,14 +73,14 @@ function ensureQuickAccess(panel,grid){
  let q=$('ref-quick-access');if(!q){q=element('section','ref-quick-access','ref-quick-access');q.innerHTML='<header><h2>ورود سریع به بخش‌ها</h2></header><div class="ref-quick-access-grid"></div>';grid?.insertAdjacentElement('afterend',q)}
  const host=q.querySelector('.ref-quick-access-grid');
  const cards=[
-  ['tasks','کارها','برنامه‌ریزی روزانه','✓'],
-  ['language','یادگیری زبان','مسیر رشد فردی','文'],
-  ['books','کتابخانه','دانش بی‌مرز','▤'],
-  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','♥'],
-  ['social','دوستان','با هم، دورتر','♟'],
-  ['freedom','آزادی','زندگی دلخواه تو','✦']
+  ['tasks','کارها','برنامه‌ریزی روزانه','nav-tasks-active.webp'],
+  ['language','یادگیری زبان','مسیر رشد فردی','nav-language-default.webp'],
+  ['books','کتابخانه','دانش بی‌مرز','nav-library-default.webp'],
+  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','icon-wellness-heartbeat.webp'],
+  ['social','دوستان','با هم، دورتر','friends_normal.webp'],
+  ['freedom','آزادی','زندگی دلخواه تو','13-freedom-nav-default.webp']
  ];
- if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><span class="ref-quick-icon">'+ic+'</span><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
+ if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><img class="ref-quick-icon" src="assets/ui/'+ic+'" alt="" aria-hidden="true" width="42" height="42" loading="lazy" decoding="async"><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
  return q
 }
 function ensureBottomGrid(panel,grid){
@@ -142,7 +142,7 @@ function homeStructure(){
  grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')
  const extra=card('elara-home-books');if(extra){extra.hidden=true;if(extra.parentElement!==grid)grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
- ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
+ ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} تسک‌های امروز`);
  ownHeading(habits,'habits',`${art(UI_ASSETS.habits,'elara-card-art ref-habits-heading-art','')} عادت‌ها`);
  ownHeading(wellness,'wellness',`${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامتی و انرژی`);
  ownHeading(missions,'missions',`${art(UI_ASSETS.mission,'ref-art-icon ref-missions-art','')} مأموریت‌های امروز`);
@@ -169,6 +169,15 @@ function renderHabits(){const host=$('elara-home-habits');if(!host)return;const 
 function renderGoals(){
  const host=$('elara-home-goals');if(!host)return;const goals=arr(read().goals);
  if(!goals.length){host.innerHTML='<p class="ref-empty">هنوز هدفی نذاشتی 🎯 یه چیز هیجان‌انگیز انتخاب کن که دنبالش کنی.</p>';return}
+ // The canonical Goals data source, not Habits. Show real aggregate step
+ // completion above the existing goal rows; no invented progress value.
+ const goalSteps=goals.flatMap(g=>arr(g.steps));
+ const actualDone=goalSteps.filter(step=>step.done).length;
+ const actualPct=goalSteps.length?Math.round(actualDone/goalSteps.length*100):0;
+ const overview='<div class="ref-home-goal-overview" aria-label="خلاصهٔ هدف‌ها">'
+  +'<span>'+fa(goals.length)+' هدف فعال</span>'
+  +'<b>'+fa(actualPct)+'٪</b>'
+  +'<i class="elara-track" aria-hidden="true"><i style="width:'+actualPct+'%"></i></i></div>';
  const wrap=element('div','ref-goals-scroll');
  for(const g of goals){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
@@ -178,7 +187,7 @@ function renderGoals(){
   const main=element('button','ref-goal-main');main.type='button';main.dataset.elaraTab='goals';main.innerHTML='<strong>'+esc(g.title||g.name||'هدف')+'</strong><i class="elara-track"><i style="width:'+p+'%"></i></i>';
   const pct=element('b','');pct.textContent=fa(p)+'٪';row.append(check,main,pct);wrap.append(row);
  }
- window.ElaraDOM.patch(host,wrap.outerHTML)
+ window.ElaraDOM.patch(host,overview+wrap.outerHTML)
 }
 function renderMissions(){const host=$('elara-home-missions');if(!host)return;const compact=isMobile(),ms=arr(window.ElaraMissions?.snapshot?.()).slice(0,3);window.ElaraDOM.patch(host,ms.length?ms.map(m=>`<div class="ref-mission-row"><span class="ref-mission-check" aria-hidden="true">${m.completed?art(UI_ASSETS.taskCheck,'ref-mission-check-art','انجام‌شده'):'<i></i>'}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${compact?'':esc(m.detail||'')+(m.detail?' · ':'')}${fa(m.amount)} / ${fa(m.target)}</small></div><b class="ref-mission-reward">${art(UI_ASSETS.achievement,'ref-reward-star','')}+${fa(m.rewardXp)} XP</b></div>`).join(''):'<p class="ref-empty">فعلاً مأموریتی نداری 🫡 یه کم جلو برو؛ مأموریت بعدی خودش پیداش می‌شه.</p>')}
 function wellness(){const target=$('ref-wellness-data');if(!target)return;const u=uid();let s={};if(u)try{s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+u)||'{}')||{}}catch{}

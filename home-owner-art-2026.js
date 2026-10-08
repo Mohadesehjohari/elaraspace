@@ -24,12 +24,12 @@ function decorate(){
  const hero=panel.querySelector('.elara-hero');
  if(hero){hero.classList.add('owner-home-hero');heroImage(hero)}
  const streak=$('ref-streak-card');
- if(streak){streak.classList.add('owner-home-streak');art(streak,'daily-streak-background','#07122591','#0a1123ba')}
+ if(streak){streak.classList.add('owner-home-streak');art(streak,'daily-streak-background','#100b1c40','#11112372')}
  const tasks=$('elara-home-tasks')?.closest('.elara-card');
- if(tasks){tasks.classList.add('owner-home-tasks');art(tasks,'tasks-card-background')}
+ if(tasks){tasks.classList.add('owner-home-tasks');art(tasks,'tasks-card-background','#041a36c9','#061228df')}
  const goals=$('elara-home-goals')?.closest('.elara-card');
  if(goals){
-  goals.classList.add('owner-home-goals');art(goals,'goals-target-background');
+  goals.classList.add('owner-home-goals');art(goals,'goals-target-background','#06102735','#0610238b');
   const title=goals.querySelector(':scope > header h2');
   if(title&&!title.querySelector('.owner-home-goal-icon')){
    const img=document.createElement('img');img.className='owner-home-goal-icon';
@@ -37,11 +37,11 @@ function decorate(){
   }
  }
  const wellness=$('ref-wellness-card');
- if(wellness){wellness.classList.add('owner-home-wellness');art(wellness,'health-fitness-card-background','#05202ec1','#051b29e8')}
+ if(wellness){wellness.classList.add('owner-home-wellness');art(wellness,'health-fitness-card-background','#05202e9c','#051b29b5')}
  const ranking=$('elara-home-ranks')?.closest('.ref-ranks');
  if(ranking){ranking.classList.add('owner-home-ranking');art(ranking,'friends-ranking-bg')}
- for(const [route,name] of [['language','language-learning-background'],['books','library-card-background'],['social','friends-card-bg']])
-  art(panel.querySelector('.ref-quick-'+route),name,'#070b1f6a','#071029c6');
+ for(const [route,name] of [['tasks','tasks-card-background'],['language','language-learning-background'],['books','library-card-background'],['exercise','health-fitness-card-background'],['social','friends-card-bg'],['freedom','freedom-card-bg']])
+  art(panel.querySelector('.ref-quick-'+route),name,'#070b1f28','#071029a2');
  // Honor the canonical Home's intentionally hidden cards. CSS elsewhere uses
  // !important display rules which otherwise create phantom grid tracks.
  for(const node of panel.querySelectorAll('.ref-home-grid > [hidden], #ref-bottom-grid > [hidden]'))
