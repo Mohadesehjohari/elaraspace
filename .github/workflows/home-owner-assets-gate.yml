@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - ui/home-owner-assets-20261008
+      - hotfix/home-reference-layout-20261008
   pull_request:
     paths:
       - '.github/workflows/home-owner-assets-gate.yml'
@@ -38,7 +39,7 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-owner-home-http.log 2>&1 &
           sleep 2
-      - name: Owner WebP mounted on real Home at six widths with real data
+      - name: Reference Home structure plus real Goals isolation in six Chromium widths
         run: timeout 230s node tests/home-owner-assets-browser.mjs
       - name: Owner-approved visible header order 320 375 390 430 768 1440
         run: timeout 120s node tests/home-owner-header-order-browser.mjs
@@ -51,8 +52,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: home-owner-real-webp-${{ github.sha }}
-          path: browser-artifacts/home-owner-art-*.png
+          name: home-reference-layout-${{ github.sha }}
+          path: browser-artifacts/home-reference-*.png
           if-no-files-found: warn
           retention-days: 14
   p0-identity:
