@@ -1,0 +1,68 @@
+name: Live Home Reference Structure Verification
+on:
+  push:
+    branches: [qa/live-home-reference-final-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Pin real production merge
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 714a7658a812f046b00f33304293e16af550abfb HEAD
+          echo "EXPECTED_PRODUCTION_SHA=714a7658a812f046b00f33304293e16af550abfb"
+      - name: Wait for exact Pages owner-art source bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=https://mohadesehjohari.github.io/elaraspace
+          for iteration in $(seq 1 45); do
+            correct=true
+            for path in index.html boot.js home-owner-art-2026.js home-owner-art-2026.css reference-home-shell-2026.js; do
+              if ! curl --silent --show-error --location --fail --retry 2 --max-time 20 "$base/$path?expected=714a7658a812f046b00f33304293e16af550abfb&attempt=$iteration" -o "/tmp/live-$(basename "$path")"; then correct=false; break; fi
+              if ! cmp -s "$path" "/tmp/live-$(basename "$path")"; then correct=false; break; fi
+            done
+            if [ "$correct" = true ]; then break; fi
+            sleep 8
+          done
+          test "$correct" = true || { echo "::error::Pages not serving exact final Home merge";exit 1;}
+          for asset in homebanner1 daily-streak-background streak-flame tasks-card-background goals-target-background my-goals-icon health-fitness-card-background language-learning-background library-card-background friends-card-bg friends-ranking-bg pomodoro-icon; do
+            path="assets/ui/$asset.webp"
+            curl --fail --silent --show-error --location --retry 2 --max-time 20 "$base/$path?exact_sha=714a7658a812f046b00f33304293e16af550abfb" -o "/tmp/live-$asset.webp"
+            cmp "$path" "/tmp/live-$asset.webp"
+            echo "LIVE_HOME_ASSET_EXACT_PASS $path"
+          done
+          echo "LIVE_HOME_EXACT_MERGE_SHA_PASS 714a7658a812f046b00f33304293e16af550abfb"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Live reference DOM structure and 2 Habits 3 Goals on all six widths
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 400s node tests/home-owner-assets-browser.mjs
+      - name: Live approved Home header order all six widths
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 160s node tests/home-owner-header-order-browser.mjs
+      - name: Live Social startup no Storage dependency
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 130s node tests/social-live-core-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-home-reference-final-714a7658
+          path: browser-artifacts/home-reference-*.png
+          if-no-files-found: warn
+          retention-days: 14
