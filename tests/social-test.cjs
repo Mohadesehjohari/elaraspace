@@ -76,8 +76,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.equal(reads.friendRequests,0,'first-time send must not pre-read a missing friendRequests document');
  assert.deepEqual(requests.get('A_B'),{from:'A',to:'B',status:'pending'});
  assert.ok(w.ElaraSocial.requests.some(x=>x.id==='A_B'&&x.status==='pending'),'sender state must show pending request');
- w.document.querySelector('[data-social-route="social"][data-social-view="requests"]').click();
- assert.match(w.document.getElementById('elara-social-page').textContent,/در انتظار/,'sender UI must show pending state in Requests tab');
+ const requestCard=w.document.querySelector('#elara-social-page .social-requests-standalone');
+ assert.ok(requestCard,'Friend Requests must remain a standalone visible card');
+ assert.match(requestCard.textContent,/در انتظار/,'sender UI must show pending state in standalone Friend Requests card');
 
  // Refresh/persistence: receiver sees incoming request.
  w.__socialTest({uid:'B',...profiles.get('B')});

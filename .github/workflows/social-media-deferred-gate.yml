@@ -1,0 +1,54 @@
+name: Social Core Media Deferred Safety
+
+on:
+  push:
+    branches:
+      - social-closure/20261008
+  pull_request:
+    paths:
+      - '.github/workflows/social-media-deferred-gate.yml'
+      - 'elara-page.js'
+      - 'page-view.js'
+      - 'elara-club-media.js'
+      - 'social-clubs-ui.js'
+      - 'elara-social.js'
+      - 'tests/media-deferred-browser.mjs'
+      - 'tests/social-live-core-browser.mjs'
+      - 'tests/static-check.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  media-off-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and deferred Storage contract
+        run: |
+          node --input-type=module --check < elara-page.js
+          node --check page-view.js
+          node --check social-clubs-ui.js
+          node --input-type=module --check < elara-club-media.js
+          node --check tests/media-deferred-browser.mjs
+          node --check tests/static-check.mjs
+      - name: Browser dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Media backend ABSENT; Page text and Club Core still function
+        run: timeout 120s node tests/media-deferred-browser.mjs
+      - name: Site boot + mobile 320/375/390/430
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-media-deferred-http.log 2>&1 &
+          sleep 2
+          timeout 120s node tests/hotfix-mobile-smoke.mjs
+      - name: Local actual Social client startup without Storage
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 120s node tests/social-live-core-browser.mjs

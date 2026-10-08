@@ -31,6 +31,10 @@ try{
   await setDoc(ref(admin,'socialPosts/alice_friends_post'),{uid:'alice',text:'friends',visibility:'friends',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
   await setDoc(ref(admin,'socialPosts/alice_public_post'),{uid:'alice',text:'public',visibility:'public',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
   await setDoc(ref(admin,'socialStories/alice_friends_story'),{uid:'alice',text:'story',visibility:'friends',createdAt:Timestamp.now(),expiresAt:nowPlus(3600000)});
+  await setDoc(ref(admin,'clubs/role_test_club'),{owner:'alice',title:'Role Test Club',kind:'reading',visibility:'private',membershipMode:'invite',assistant1:'bob',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:3,lastMembershipUid:'eve',lastMembershipAction:'join',currentBookTitle:'',status:'active',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
+  await setDoc(ref(admin,'clubs/role_test_club/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:Timestamp.now()});
+  await setDoc(ref(admin,'clubs/role_test_club/clubMembers/bob'),{uid:'bob',role:'assistant',joinedAt:Timestamp.now()});
+  await setDoc(ref(admin,'clubs/role_test_club/clubMembers/eve'),{uid:'eve',role:'member',joinedAt:Timestamp.now()});
  });
 
  // Profile privacy: owner/friend/public paths are readable, unrelated private profile is not.
@@ -109,6 +113,31 @@ try{
  await assertFails(setDoc(ref(eve,'socialStats/alice'),{streak:999,visibility:'public',updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(alice,'socialStats/alice'),{streak:40000,updatedAt:serverTimestamp()}));
 
+ // Presence is real, privacy-aware and friend-scoped.
+ await assertSucceeds(setDoc(ref(alice,'presence/alice'),{uid:'alice',visibility:'private',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,'presence/alice')));
+ await assertFails(getDoc(ref(bob,'presence/alice')));
+ await assertSucceeds(updateDoc(ref(alice,'presence/alice'),{visibility:'friends',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,'presence/alice')));
+ await assertFails(getDoc(ref(eve,'presence/alice')));
+ await assertSucceeds(updateDoc(ref(alice,'presence/alice'),{visibility:'public',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,'presence/alice')));
+
+ // Mute records are private to the owner and immutable by the muted target.
+ await assertSucceeds(setDoc(ref(alice,'socialMutes/alice__bob'),{owner:'alice',target:'bob',createdAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,'socialMutes/alice__bob')));
+ await assertFails(getDoc(ref(bob,'socialMutes/alice__bob')));
+ await assertFails(updateDoc(ref(alice,'socialMutes/alice__bob'),{target:'eve'}));
+ await assertSucceeds(setDoc(ref(alice,'socialContextMutes/alice__group__night_owls'),{owner:'alice',context:'group',contextId:'night_owls',createdAt:serverTimestamp()}));
+ await assertFails(getDoc(ref(bob,'socialContextMutes/alice__group__night_owls')));
+
+ // Social reports are backend-backed, private and non-editable.
+ await assertSucceeds(setDoc(ref(bob,'socialReports/report_bob_alice_profile'),{reporter:'bob',target:'alice',context:'profile',contextId:'',reason:'spam',createdAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,'socialReports/report_bob_alice_profile')));
+ await assertFails(getDoc(ref(alice,'socialReports/report_bob_alice_profile')));
+ await assertFails(updateDoc(ref(bob,'socialReports/report_bob_alice_profile'),{reason:'other'}));
+ await assertFails(deleteDoc(ref(bob,'socialReports/report_bob_alice_profile')));
+
  // Friend request: sender can create pending, only recipient can accept.
  await assertSucceeds(setDoc(ref(eve,'friendRequests/eve_dave'),{from:'eve',to:'dave',status:'pending'}));
  await assertFails(updateDoc(ref(eve,'friendRequests/eve_dave'),{status:'accepted'}));
@@ -125,18 +154,87 @@ try{
 
  // Group owner can add an accepted friend; outsider cannot read or send.
  const group='groups/night_owls';
- await assertSucceeds(setDoc(ref(alice,group),{owner:'alice',title:'Night Owls',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
+ await assertSucceeds(setDoc(ref(alice,group),{owner:'alice',title:'Night Owls',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
  await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(bob,group)));
  await assertFails(getDoc(ref(eve,group)));
  await assertSucceeds(setDoc(ref(bob,group+'/messages/b1'),{sender:'bob',text:'کتاب امشب؟ 📚',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,group+'/messages/e1'),{sender:'eve',text:'outsider',createdAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,group+'/groupMembers/bob')));
+ await assertFails(getDoc(ref(bob,group)));
+ await assertFails(getDoc(ref(bob,group+'/messages/b1')));
 
  // Club creation is server-rule gated by profile XP (level gate input), not by UI.
- await assertSucceeds(setDoc(ref(alice,'clubs/alice_reading_club'),{owner:'alice',title:'Moon Readers',kind:'reading',visibility:'public',assistant1:'',assistant2:'',restDay:5,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
- await assertFails(setDoc(ref(eve,'clubs/eve_reading_club'),{owner:'eve',title:'Too Early',kind:'reading',visibility:'public',assistant1:'',assistant2:'',restDay:5,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,'clubs/alice_reading_club'),{owner:'alice',title:'Moon Readers',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(eve,'clubs/eve_reading_club'),{owner:'eve',title:'Too Early',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'eve',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
 
+ // Club role matrix: owner/assistant/member/outsider permissions are server-enforced.
+ await assertSucceeds(getDoc(ref(alice,'clubs/role_test_club')));
+ await assertSucceeds(getDoc(ref(bob,'clubs/role_test_club')));
+ await assertSucceeds(getDoc(ref(eve,'clubs/role_test_club')));
+ await assertFails(getDoc(ref(dave,'clubs/role_test_club')));
+ await assertSucceeds(setDoc(ref(bob,'clubs/role_test_club/clubPosts/assistant_notice'),{uid:'bob',kind:'notice',domain:'reading',title:'Assistant notice',body:'QA',cadence:'none',options:[],createdAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(eve,'clubs/role_test_club/clubPosts/member_notice'),{uid:'eve',kind:'notice',domain:'reading',title:'Member notice',body:'No',cadence:'none',options:[],createdAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(dave,'clubs/role_test_club/clubPosts/outsider_notice'),{uid:'dave',kind:'notice',domain:'reading',title:'Outsider notice',body:'No',cadence:'none',options:[],createdAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(bob,'clubs/role_test_club/clubPosts/assistant_poll'),{uid:'bob',kind:'poll',domain:'reading',title:'Pick a book',body:'',cadence:'none',options:['Book A','Book B'],createdAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(eve,'clubs/role_test_club/clubPosts/assistant_poll/votes/eve'),{uid:'eve',option:'Book A',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(dave,'clubs/role_test_club/clubPosts/assistant_poll/votes/dave'),{uid:'dave',option:'Book A',createdAt:serverTimestamp()}));
+
+ // Club invite lifecycle: manager invites an accepted friend; recipient accepts in one membership transaction.
+ const inviteClub='clubs/invite_rules_club';
+ await assertSucceeds(setDoc(ref(alice,inviteClub),{owner:'alice',title:'Invite Rules Club',kind:'reading',visibility:'private',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,inviteClub+'/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
+ const inviteRef=inviteClub+'/clubInvites/bob';
+ await assertSucceeds(setDoc(ref(alice,inviteRef),{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,inviteRef)));
+ await assertFails(updateDoc(ref(alice,inviteRef),{status:'accepted',updatedAt:serverTimestamp()}));
+ const inviteAccept=writeBatch(bob);
+ inviteAccept.update(ref(bob,inviteRef),{status:'accepted',updatedAt:serverTimestamp()});
+ inviteAccept.set(ref(bob,inviteClub+'/clubMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()});
+ inviteAccept.update(ref(bob,inviteClub),{memberCount:2,lastMembershipUid:'bob',lastMembershipAction:'join',updatedAt:serverTimestamp()});
+ await assertSucceeds(inviteAccept.commit());
+ await assertSucceeds(getDoc(ref(bob,inviteClub)));
+
+ // Request-to-join lifecycle: outsider may request, but only a manager can accept and materialize membership.
+ const requestClub='clubs/request_rules_club';
+ await assertSucceeds(setDoc(ref(alice,requestClub),{owner:'alice',title:'Request Rules Club',kind:'focus',visibility:'public',membershipMode:'request',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,requestClub+'/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
+ const joinReq=requestClub+'/clubJoinRequests/dave';
+ await assertSucceeds(setDoc(ref(dave,joinReq),{uid:'dave',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(dave,joinReq),{status:'accepted',updatedAt:serverTimestamp()}));
+ const joinAccept=writeBatch(alice);
+ joinAccept.update(ref(alice,joinReq),{status:'accepted',updatedAt:serverTimestamp()});
+ joinAccept.set(ref(alice,requestClub+'/clubMembers/dave'),{uid:'dave',role:'member',joinedAt:serverTimestamp()});
+ joinAccept.update(ref(alice,requestClub),{memberCount:2,lastMembershipUid:'dave',lastMembershipAction:'join',updatedAt:serverTimestamp()});
+ await assertSucceeds(joinAccept.commit());
+ await assertSucceeds(getDoc(ref(dave,requestClub)));
+
+ // Club ban is owner-only and atomically removes membership; banned identity cannot create a join request while ban exists.
+ const banBatch=writeBatch(alice);
+ banBatch.update(ref(alice,'clubs/role_test_club'),{memberCount:2,lastMembershipUid:'eve',lastMembershipAction:'ban',updatedAt:serverTimestamp()});
+ banBatch.delete(ref(alice,'clubs/role_test_club/clubMembers/eve'));
+ banBatch.set(ref(alice,'clubs/role_test_club/clubBans/eve'),{uid:'eve',by:'alice',createdAt:serverTimestamp()});
+ await assertSucceeds(banBatch.commit());
+ await assertFails(getDoc(ref(eve,'clubs/role_test_club')));
+ await assertFails(setDoc(ref(eve,'clubs/role_test_club/clubJoinRequests/eve'),{uid:'eve',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(deleteDoc(ref(bob,'clubs/role_test_club/clubBans/eve')));
+ await assertSucceeds(deleteDoc(ref(alice,'clubs/role_test_club/clubBans/eve')));
+
+ // All five canonical collaboration kinds must be accepted through the same participant-scoped Rules.
+ for(const [kind,suffix] of [['task','task'],['habit','habit'],['goal','goal'],['leitner-word','leitner']]){
+   const sid='collab_'+suffix+'_rules',spacePath='collabSpaces/'+sid,invitePath='collabInvites/'+sid+'__bob';
+   await assertSucceeds(setDoc(ref(alice,spacePath),{ownerUid:'alice',kind,title:'Shared '+suffix,payloadJson:JSON.stringify({title:'Shared '+suffix,front:'Shared '+suffix}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(setDoc(ref(alice,spacePath+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'owner-'+suffix,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(setDoc(ref(alice,invitePath),{spaceId:sid,from:'alice',to:'bob',kind,title:'Shared '+suffix,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+   await assertSucceeds(getDoc(ref(bob,invitePath)));
+   const batch=writeBatch(bob);
+   batch.update(ref(bob,invitePath),{status:'accepted',updatedAt:serverTimestamp()});
+   batch.set(ref(bob,spacePath+'/members/bob'),{uid:'bob',role:'member',localEntityId:'member-'+suffix,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+   await assertSucceeds(batch.commit());
+   await assertSucceeds(getDoc(ref(bob,spacePath)));
+ }
+ 
  // Persistent collaboration: owner creates a private shared class, friend joins only after explicit acceptance.
  const collab='collabSpaces/collab_class_1',collabInvite='collabInvites/collab_class_1__bob';
  await assertSucceeds(setDoc(ref(alice,collab),{ownerUid:'alice',kind:'language-class',title:'English C1',payloadJson:JSON.stringify({title:'English C1',type:'online',terms:3,sessionsPerTerm:12,durationMin:60,weekdays:[0,2,4],studyTime:'18:00',studyHoursPerDay:2,linkUrl:''}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
@@ -168,9 +266,12 @@ try{
 
  // Direct challenge only between accepted friends; only recipient can accept.
  const challenge='challenges/alice_bob_challenge';
- await assertSucceeds(setDoc(ref(alice,challenge),{from:'alice',to:'bob',status:'pending',targetKind:'reading',targetText:'۵۰ صفحه بخون',targetValue:50,createdAt:serverTimestamp(),expiresAt:nowPlus(30000)}));
- await assertFails(updateDoc(ref(alice,challenge),{status:'accepted',respondedAt:serverTimestamp()}));
- await assertSucceeds(updateDoc(ref(bob,challenge),{status:'accepted',respondedAt:serverTimestamp()}));
+ const challengeBatch=writeBatch(alice);
+ challengeBatch.set(ref(alice,'challengeRateLimits/alice'),{uid:'alice',lastAt:serverTimestamp()});
+ challengeBatch.set(ref(alice,challenge),{from:'alice',to:'bob',status:'pending',targetKind:'reading',targetText:'۵۰ صفحه بخون',targetValue:50,mode:'now',attempt:1,originId:'alice_bob_challenge',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),expiresAt:nowPlus(30000)});
+ await assertSucceeds(challengeBatch.commit());
+ await assertFails(updateDoc(ref(alice,challenge),{status:'accepted',respondedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,challenge),{status:'accepted',respondedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,challenge+'/quickMessages/q1'),{uid:'alice',text:'بزن بریم 🔥',createdAt:serverTimestamp()}));
  await assertFails(getDoc(ref(eve,challenge)));
 
@@ -207,6 +308,7 @@ try{
  await assertFails(getDoc(ref(bob,'blocks/alice__bob')));
  await assertFails(getDoc(ref(bob,'profiles/alice')));
  await assertFails(getDoc(ref(bob,'socialStats/alice')));
+ await assertFails(getDoc(ref(bob,'presence/alice')));
  await assertFails(getDoc(ref(bob,'activities/alice_public_001')));
  await assertFails(getDoc(ref(bob,'socialPosts/alice_public_post')));
  await assertFails(setDoc(ref(bob,convo+'/messages/blocked_message'),{sender:'bob',text:'blocked DM',createdAt:serverTimestamp()}));
@@ -216,7 +318,7 @@ try{
  await assertSucceeds(getDoc(ref(bob,'activities/alice_public_001')));
  await assertSucceeds(getDoc(ref(bob,'socialPosts/alice_public_post')));
 
- console.log('FIRESTORE_RULES_E2E_PASS username-identity profile social-stats activity friend-request dm group club collab challenge page engagement reports block-unblock alice/bob/eve');
+ console.log('FIRESTORE_RULES_E2E_PASS username-identity profile presence mute social-report social-stats activity friend-request dm group club-role collab-five-kind challenge page engagement reports block-unblock alice/bob/eve/dave');
 }finally{
  await env.cleanup();
 }

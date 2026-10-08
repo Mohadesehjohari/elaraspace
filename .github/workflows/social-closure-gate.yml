@@ -1,0 +1,135 @@
+name: Social Closure core gate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/social-closure-gate.yml'
+      - 'elara-social.js'
+      - 'elara-collab.js'
+      - 'social-view.js'
+      - 'social-messaging-ui.js'
+      - 'social-groups-ui.js'
+      - 'social-challenges-ui.js'
+      - 'social-clubs-ui.js'
+      - 'notifications.js'
+      - 'firestore.rules'
+      - 'storage.rules'
+      - 'elara-club-media.js'
+      - 'app.js'
+      - 'language-custom-classes.js'
+      - 'collab-2026.css'
+      - 'tests/social-test.cjs'
+      - 'tests/collab-invite-regression.test.mjs'
+      - 'tests/collab-five-kind-contract.test.mjs'
+      - 'tests/social-realtime-notification-contract.test.mjs'
+      - 'tests/presence-contract.test.mjs'
+      - 'tests/challenge-core-contract.test.mjs'
+      - 'tests/firestore-rules-emulator.mjs'
+      - 'tests/storage-rules-emulator.mjs'
+      - 'tests/friends-hub-browser.mjs'
+      - 'tests/friends-dm-ui-browser.mjs'
+      - 'tests/friends-groups-ui-browser.mjs'
+      - 'tests/challenges-stage12-browser.mjs'
+      - 'tests/clubs-stage11-browser.mjs'
+      - 'tests/social-layout-browser.mjs'
+      - 'tests/hotfix-mobile-smoke.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --input-type=module --check < elara-social.js
+          node --input-type=module --check < elara-collab.js
+          node --check social-view.js
+          node --check social-messaging-ui.js
+          node --check social-groups-ui.js
+          node --check social-challenges-ui.js
+          node --check social-clubs-ui.js
+          node --check notifications.js
+          node --check elara-club-media.js
+          node --check app.js
+          node --check language-custom-classes.js
+          node --check tests/social-test.cjs
+          node --check tests/collab-invite-regression.test.mjs
+          node --check tests/collab-five-kind-contract.test.mjs
+          node --check tests/social-realtime-notification-contract.test.mjs
+          node --check tests/presence-contract.test.mjs
+          node --check tests/challenge-core-contract.test.mjs
+      - name: Identity collaboration and friend lifecycle contracts
+        run: |
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+          node tests/collab-five-kind-contract.test.mjs
+          node tests/social-realtime-notification-contract.test.mjs
+          node tests/presence-contract.test.mjs
+          node tests/challenge-core-contract.test.mjs
+          npm install --prefix tests --no-package-lock
+          node tests/social-test.cjs
+
+  browser-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start branch site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-social-closure-http.log 2>&1 &
+          sleep 2
+      - name: Friends hub
+        run: timeout 90s node tests/friends-hub-browser.mjs
+      - name: DM
+        run: timeout 90s node tests/friends-dm-ui-browser.mjs
+      - name: Groups
+        run: timeout 90s node tests/friends-groups-ui-browser.mjs
+      - name: Challenges
+        run: timeout 90s node tests/challenges-stage12-browser.mjs
+      - name: Clubs
+        run: timeout 90s node tests/clubs-stage11-browser.mjs
+      - name: Social layout
+        run: timeout 90s node tests/social-layout-browser.mjs
+      - name: Mobile 320 375 390 430
+        run: timeout 120s node tests/hotfix-mobile-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: social-closure-browser-${{ github.sha }}
+          path: browser-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+  firebase-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install rules test dependencies
+        run: npm install --prefix tests --no-package-lock
+      - name: Firestore and Storage multi-UID emulator
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs && node tests/storage-rules-emulator.mjs"

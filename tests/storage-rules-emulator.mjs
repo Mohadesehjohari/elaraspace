@@ -31,6 +31,12 @@ try{
   await setDoc(doc(admin,'socialPosts/post_private'),{uid:'alice',text:'private',visibility:'private',createdAt:now,updatedAt:now});
   await setDoc(doc(admin,'socialStories/story_friends'),{uid:'alice',text:'story',visibility:'friends',createdAt:now,expiresAt:Timestamp.fromMillis(Date.now()+3600000)});
   await setDoc(doc(admin,'socialStories/story_expired'),{uid:'alice',text:'old',visibility:'public',createdAt:now,expiresAt:Timestamp.fromMillis(Date.now()-1000)});
+  await setDoc(doc(admin,'clubs/public_club'),{owner:'alice',title:'Public Club',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:2,lastMembershipUid:'bob',lastMembershipAction:'join',currentBookTitle:'',status:'active',createdAt:now,updatedAt:now});
+  await setDoc(doc(admin,'clubs/public_club/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:now});
+  await setDoc(doc(admin,'clubs/public_club/clubMembers/bob'),{uid:'bob',role:'member',joinedAt:now});
+  await setDoc(doc(admin,'clubs/private_club'),{owner:'alice',title:'Private Club',kind:'reading',visibility:'private',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:2,lastMembershipUid:'bob',lastMembershipAction:'join',currentBookTitle:'',status:'active',createdAt:now,updatedAt:now});
+  await setDoc(doc(admin,'clubs/private_club/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:now});
+  await setDoc(doc(admin,'clubs/private_club/clubMembers/bob'),{uid:'bob',role:'member',joinedAt:now});
  });
  const a=store('alice'),b=store('bob'),e=store('eve');
  const pub=ref(a,'pageMedia/alice/post/post_public/abcdefgh.png'),friends=ref(a,'pageMedia/alice/post/post_friends/abcdefgh.png'),priv=ref(a,'pageMedia/alice/post/post_private/abcdefgh.png'),story=ref(a,'pageMedia/alice/story/story_friends/abcdefgh.png'),expired=ref(a,'pageMedia/alice/story/story_expired/abcdefgh.png');
@@ -51,5 +57,17 @@ try{
  await assertFails(getBytes(ref(b,'pageMedia/alice/post/post_public/abcdefgh.png')));
  await assertSucceeds(deleteObject(ref(a,'pageMedia/alice/post/post_public/abcdefgh.png')));
  await assertFails(deleteObject(ref(b,'pageMedia/alice/post/post_friends/abcdefgh.png')));
- console.log('STORAGE_RULES_E2E_PASS owner-write visibility friend-public private expiry block delete');
+ const clubPublic=ref(a,'clubMedia/public_club/avatar/alice/clubavatar01.png'),clubPrivate=ref(a,'clubMedia/private_club/banner/alice/clubbanner01.png');
+ await assertSucceeds(uploadBytes(clubPublic,image,meta));
+ await assertSucceeds(uploadBytes(clubPrivate,image,meta));
+ await assertFails(uploadBytes(ref(a,'clubMedia/public_club/avatar/alice/clubavatar02.png'),image,{contentType:'application/pdf'}));
+ await assertFails(uploadBytes(ref(a,'clubMedia/public_club/banner/alice/clubbanner02.png'),new Uint8Array(5*1024*1024),meta));
+ await assertFails(uploadBytes(ref(a,'unrelated/social/file012345.png'),image,meta));
+ await assertFails(uploadBytes(ref(b,'clubMedia/public_club/avatar/bob/memberfile01.png'),image,meta));
+ await assertSucceeds(getBytes(ref(e,'clubMedia/public_club/avatar/alice/clubavatar01.png')));
+ await assertSucceeds(getBytes(ref(b,'clubMedia/private_club/banner/alice/clubbanner01.png')));
+ await assertFails(getBytes(ref(e,'clubMedia/private_club/banner/alice/clubbanner01.png')));
+ await assertSucceeds(deleteObject(ref(a,'clubMedia/public_club/avatar/alice/clubavatar01.png')));
+ await assertFails(deleteObject(ref(b,'clubMedia/private_club/banner/alice/clubbanner01.png')));
+ console.log('STORAGE_RULES_E2E_PASS page-media club-media owner-write public-member-private block delete');
 }finally{await env.cleanup()}

@@ -5,6 +5,8 @@ service firebase.storage {
     function owner(uid) { return signed() && request.auth.uid == uid; }
     function postDoc(id) { return /databases/(default)/documents/socialPosts/$(id); }
     function storyDoc(id) { return /databases/(default)/documents/socialStories/$(id); }
+    function clubDoc(id) { return /databases/(default)/documents/clubs/$(id); }
+    function clubMemberDoc(id,uid) { return /databases/(default)/documents/clubs/$(id)/clubMembers/$(uid); }
     function requestDoc(a,b) { return /databases/(default)/documents/friendRequests/$(a + '_' + b); }
     function blockDoc(a,b) { return /databases/(default)/documents/blocks/$(a + '__' + b); }
     function blocked(a,b) {
@@ -53,6 +55,24 @@ service firebase.storage {
         && fileName.matches('^[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)$')
         && validImage();
       allow delete: if owner(uid);
+    }
+
+    match /clubMedia/{clubId}/{kind}/{uid}/{fileName} {
+      allow read: if signed()
+        && firestore.exists(clubDoc(clubId))
+        && (
+          firestore.get(clubDoc(clubId)).data.visibility == 'public' ||
+          firestore.exists(clubMemberDoc(clubId,request.auth.uid))
+        );
+      allow create, update: if owner(uid)
+        && kind in ['avatar','banner']
+        && firestore.exists(clubDoc(clubId))
+        && firestore.get(clubDoc(clubId)).data.owner == request.auth.uid
+        && fileName.matches('^[A-Za-z0-9_-]{8,100}[.](jpg|jpeg|png|webp)$')
+        && validImage();
+      allow delete: if owner(uid)
+        && firestore.exists(clubDoc(clubId))
+        && firestore.get(clubDoc(clubId)).data.owner == request.auth.uid;
     }
 
     match /{allPaths=**} {
