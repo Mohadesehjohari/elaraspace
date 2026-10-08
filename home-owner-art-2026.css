@@ -153,3 +153,52 @@
 @media(min-width:1000px){
  #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-card{min-height:260px!important}
 }
+
+/* Mobile reference rails: the legacy 375px 3-column quick-access/Wellness rules
+   forced genuine cards offscreen. Keep the approved cards, let them grow down. */
+@media(max-width:700px){
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:'streak' 'tasks' 'wellness' 'goals'!important;
+  grid-auto-rows:max-content!important;gap:11px!important;width:100%!important;
+  min-width:0!important;max-width:100%!important;align-items:stretch!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-bottom-grid{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-auto-rows:max-content!important;gap:11px!important;width:100%!important;
+  min-width:0!important;max-width:100%!important
+ }
+ html body #panel-home.ref-home.owner-art-home #ref-quick-access{
+  display:block!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;overflow:visible!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;max-width:100%!important;width:100%!important;
+  min-width:0!important;direction:rtl!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
+  display:flex!important;align-items:center!important;min-width:0!important;
+  width:100%!important;max-width:100%!important;flex:none!important;
+  height:auto!important;min-height:76px!important;margin:0!important;
+  padding:10px!important;transform:none!important;inset:auto!important;
+  position:relative!important;overflow:hidden!important
+ }
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-card,
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-card{
+  grid-column:1/-1!important;width:100%!important;min-width:0!important;
+  max-width:100%!important;height:auto!important;min-height:225px!important;
+  max-height:none!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  min-width:0!important;width:100%!important;max-width:100%!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-health-main{
+  display:flex!important;flex-wrap:wrap!important;width:100%!important;
+  min-width:0!important;max-width:100%!important;gap:10px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{
+  min-width:0!important;width:100%!important
+ }
+}
