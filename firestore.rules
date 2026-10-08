@@ -591,6 +591,27 @@ service cloud.firestore {
           (memberId == request.auth.uid && resource.data.role == 'member') ||
           (isGroupOwner(groupId) && memberId != request.auth.uid)
         );
+        // Legacy nested operations only on a legacy parent document.
+                allow create: if (!get(groupPath(groupId)).data.keys().hasAny(['status'])) && signed()
+          && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
+          && request.resource.data.uid == memberId
+          && request.resource.data.joinedAt == request.time
+          && (
+            (
+              memberId == request.auth.uid
+              && request.resource.data.role == 'owner'
+              && getAfter(groupPath(groupId)).data.owner == request.auth.uid
+            ) ||
+            (
+              getAfter(groupPath(groupId)).data.owner == request.auth.uid
+              && request.resource.data.role == 'member'
+              && friendOf(memberId)
+            )
+          );
+        allow delete: if (!get(groupPath(groupId)).data.keys().hasAny(['status'])) && signed() && (
+          (memberId == request.auth.uid && resource.data.role == 'member') ||
+          (isGroupOwner(groupId) && memberId != request.auth.uid)
+        );
       }
 
       match /groupInvites/{inviteId} {
@@ -655,6 +676,17 @@ service cloud.firestore {
           );
         allow update: if false;
         allow delete: if signed() && (
+          resource.data.sender == request.auth.uid || isGroupOwner(groupId)
+        );
+        // Legacy nested operations only on a legacy parent document.
+                allow create: if (!get(groupPath(groupId)).data.keys().hasAny(['status'])) && isGroupMember(groupId)
+          && request.resource.data.keys().hasOnly(['sender','text','createdAt'])
+          && request.resource.data.sender == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.createdAt == request.time;
+        allow delete: if (!get(groupPath(groupId)).data.keys().hasAny(['status'])) && signed() && (
           resource.data.sender == request.auth.uid || isGroupOwner(groupId)
         );
       }
@@ -903,6 +935,44 @@ service cloud.firestore {
             (memberId == request.auth.uid && resource.data.role != 'owner' && getAfter(clubPath(clubId)).data.lastMembershipAction == 'leave') ||
             (isClubOwner(clubId) && memberId != request.auth.uid && getAfter(clubPath(clubId)).data.lastMembershipAction in ['kick','ban'])
           );
+        // Legacy nested operations only on a legacy parent document.
+                allow create: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed()
+          && request.resource.data.keys().hasOnly(['uid','role','joinedAt'])
+          && request.resource.data.uid == memberId
+          && request.resource.data.joinedAt == request.time
+          && (
+            (
+              memberId == request.auth.uid
+              && request.resource.data.role == 'owner'
+              && getAfter(clubPath(clubId)).data.owner == request.auth.uid
+            ) ||
+            (
+              memberId == request.auth.uid
+              && request.resource.data.role == 'member'
+              && existsAfter(clubInvitePath(clubId, memberId))
+              && getAfter(clubInvitePath(clubId, memberId)).data.to == request.auth.uid
+              && getAfter(clubInvitePath(clubId, memberId)).data.status == 'accepted'
+            )
+          );
+        allow update: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubOwner(clubId)
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.joinedAt == resource.data.joinedAt
+          && request.resource.data.role in ['member','assistant']
+          && (
+            (
+              request.resource.data.role == 'assistant'
+              && (getAfter(clubPath(clubId)).data.assistant1 == memberId || getAfter(clubPath(clubId)).data.assistant2 == memberId)
+            ) ||
+            (
+              request.resource.data.role == 'member'
+              && getAfter(clubPath(clubId)).data.assistant1 != memberId
+              && getAfter(clubPath(clubId)).data.assistant2 != memberId
+            )
+          );
+        allow delete: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed() && (
+          (memberId == request.auth.uid && resource.data.role != 'owner') ||
+          (isClubOwner(clubId) && memberId != request.auth.uid)
+        );
       }
 
       match /clubInvites/{inviteId} {
@@ -945,6 +1015,25 @@ service cloud.firestore {
             )
           );
         allow delete: if signed() && (resource.data.to == request.auth.uid || isClubManager(clubId));
+        // Legacy nested operations only on a legacy parent document.
+                allow create: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubManager(clubId)
+          && inviteId == request.resource.data.to
+          && request.resource.data.keys().hasOnly(['from','to','status','createdAt'])
+          && request.resource.data.from == request.auth.uid
+          && request.resource.data.to is string
+          && request.resource.data.to != request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && friendOf(request.resource.data.to);
+        allow update: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed()
+          && resource.data.to == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.from == resource.data.from
+          && request.resource.data.to == resource.data.to
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status in ['accepted','declined'];
+        allow delete: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed() && (resource.data.to == request.auth.uid || isClubManager(clubId));
       }
 
       match /clubJoinRequests/{requesterUid} {
@@ -1039,6 +1128,39 @@ service cloud.firestore {
             && request.resource.data.option in get(/databases/$(database)/documents/clubs/$(clubId)/clubPosts/$(postId)).data.options;
           allow delete: if signed() && resource.data.uid == request.auth.uid;
         }
+        // Legacy nested operations only on a legacy parent document.
+                allow create: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubManager(clubId)
+          && request.resource.data.keys().hasOnly(['uid','kind','domain','title','body','cadence','options','createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.kind in ['mission','poll']
+          && request.resource.data.domain == get(clubPath(clubId)).data.kind
+          && request.resource.data.title is string
+          && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 120
+          && request.resource.data.body is string
+          && request.resource.data.body.size() <= 1200
+          && request.resource.data.cadence in ['none','daily','weekly','monthly']
+          && request.resource.data.options is list
+          && request.resource.data.options.size() <= 6
+          && (
+            (request.resource.data.kind == 'mission' && request.resource.data.options.size() == 0) ||
+            (request.resource.data.kind == 'poll' && request.resource.data.options.size() >= 2)
+          )
+          && request.resource.data.createdAt == request.time;
+        allow delete: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubManager(clubId);
+        allow create: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubMember(clubId)
+            && voteId == request.auth.uid
+            && request.resource.data.keys().hasOnly(['uid','option','createdAt'])
+            && request.resource.data.uid == request.auth.uid
+            && get(/databases/$(database)/documents/clubs/$(clubId)/clubPosts/$(postId)).data.kind == 'poll'
+            && request.resource.data.option in get(/databases/$(database)/documents/clubs/$(clubId)/clubPosts/$(postId)).data.options
+            && request.resource.data.createdAt == request.time;
+        allow update: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && isClubMember(clubId)
+            && resource.data.uid == request.auth.uid
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.createdAt == resource.data.createdAt
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['option'])
+            && request.resource.data.option in get(/databases/$(database)/documents/clubs/$(clubId)/clubPosts/$(postId)).data.options;
+        allow delete: if (!get(clubPath(clubId)).data.keys().hasAny(['membershipMode','status'])) && signed() && resource.data.uid == request.auth.uid;
       }
     }
 
@@ -1347,6 +1469,9 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt'])
         && request.resource.data.status in ['accepted','declined']
         && request.resource.data.respondedAt == request.time;
+      allow delete: if (!resource.data.keys().hasAny(['mode','attempt','originId','updatedAt']) && !blockedBetween(resource.data.from, resource.data.to)) && signed()
+        && resource.data.from == request.auth.uid
+        && resource.data.status == 'pending';
       allow delete: if false;
 
       match /quickMessages/{messageId} {
