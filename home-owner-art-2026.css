@@ -186,15 +186,39 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
  }
 }
 html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
- position:relative!important;display:flex!important;flex-direction:column!important;
- align-items:flex-start!important;justify-content:flex-end!important;
+ position:relative!important;display:grid!important;
+ grid-template-columns:minmax(0,1fr) 34px!important;
+ grid-template-rows:42px minmax(0,1fr)!important;
+ align-items:end!important;justify-items:start!important;
  width:100%!important;max-width:100%!important;min-width:0!important;
- min-height:106px!important;height:auto!important;overflow:hidden!important;
- padding:10px!important;gap:5px!important;direction:rtl!important;
+ min-height:122px!important;height:auto!important;overflow:hidden!important;
+ padding:10px 12px!important;gap:4px!important;direction:ltr!important;
  border-radius:13px!important;color:#fff!important
 }
-#panel-home.ref-home.owner-art-home .ref-quick-card :is(strong,small){color:#fff!important;text-shadow:0 1px 8px #01091ae0}
-#panel-home.ref-home.owner-art-home .ref-quick-card .ref-quick-copy{min-width:0!important}
+html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
+ grid-column:1!important;grid-row:1!important;align-self:start!important;justify-self:start!important;
+ display:block!important;width:42px!important;height:42px!important;max-width:42px!important;
+ object-fit:contain!important;opacity:1!important;filter:drop-shadow(0 0 5px #9cbdff77)!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-copy{
+ grid-column:1!important;grid-row:2!important;align-self:end!important;
+ display:grid!important;gap:2px!important;min-width:0!important;
+ direction:rtl!important;text-align:left!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>i{
+ grid-column:2!important;grid-row:2!important;align-self:end!important;justify-self:end!important
+}
+#panel-home.ref-home.owner-art-home .ref-quick-card :is(strong,small){
+ color:#fff!important;text-shadow:0 1px 8px #01091ae0;white-space:normal!important
+}
+@media(max-width:700px){
+ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
+  grid-template-rows:36px minmax(0,1fr)!important;min-height:114px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
+  width:36px!important;height:36px!important
+ }
+}
 #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-card{
  height:190px!important;min-height:190px!important;max-height:210px!important
 }
