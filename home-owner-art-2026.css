@@ -117,9 +117,14 @@
 
 html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-flame{
  display:block!important;visibility:visible!important;opacity:1!important;
- width:clamp(46px,5vw,80px)!important;height:clamp(46px,5vw,80px)!important;
- min-width:46px!important;min-height:46px!important;
+ width:clamp(88px,8vw,118px)!important;height:clamp(88px,8vw,118px)!important;
+ min-width:0!important;min-height:0!important;
  flex:none!important;object-fit:contain!important
+}
+@media(max-width:700px){
+ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-flame{
+  width:clamp(46px,15vw,66px)!important;height:clamp(46px,15vw,66px)!important;
+ }
 }
 #panel-home.ref-home.owner-art-home .owner-home-tasks,
 #panel-home.ref-home.owner-art-home .owner-home-goals,
