@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - social-closure/bridge-rules-20261008
+  pull_request:
+    branches:
+      - social-closure/20261008
   workflow_dispatch:
 
 permissions:
