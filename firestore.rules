@@ -539,6 +539,25 @@ service cloud.firestore {
             && !(resource.data.status == 'closed' && request.resource.data.status == 'active')
           )
         );
+      // Temporary explicit legacy validation from production main.
+      allow create: if (!request.resource.data.keys().hasAny(['status'])) && signed()
+        && request.resource.data.keys().hasOnly(['owner','title','createdAt','updatedAt','lastText','lastSender'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.lastText == ''
+        && request.resource.data.lastSender == '';
+      allow update: if (!resource.data.keys().hasAny(['status']) && !request.resource.data.keys().hasAny(['status'])) && isGroupMember(groupId)
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastText','lastSender','updatedAt'])
+        && request.resource.data.lastSender == request.auth.uid
+        && request.resource.data.lastText is string
+        && request.resource.data.lastText.size() <= 280
+        && request.resource.data.updatedAt == request.time;
       allow delete: if false;
 
       match /groupMembers/{memberId} {
@@ -783,6 +802,36 @@ service cloud.firestore {
             && request.resource.data.assistant2 != request.resource.data.owner
           )
         );
+      // Temporary explicit legacy validation from production main.
+      allow create: if (!request.resource.data.keys().hasAny(['membershipMode','bio','rulesText','language','avatarPath','bannerPath','memberLimit','memberCount','lastMembershipUid','lastMembershipAction','currentBookTitle','status'])) && canCreateClub()
+        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','assistant1','assistant2','restDay','createdAt','updatedAt'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.kind in ['reading','fitness','focus','general']
+        && request.resource.data.visibility in ['private','public']
+        && request.resource.data.assistant1 == ''
+        && request.resource.data.assistant2 == ''
+        && request.resource.data.restDay is int
+        && request.resource.data.restDay >= 0 && request.resource.data.restDay <= 6
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if (!resource.data.keys().hasAny(['membershipMode','status']) && !request.resource.data.keys().hasAny(['membershipMode','status'])) && isClubOwner(clubId)
+        && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','assistant1','assistant2','restDay','createdAt','updatedAt'])
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 80
+        && request.resource.data.visibility in ['private','public']
+        && request.resource.data.assistant1 is string
+        && request.resource.data.assistant2 is string
+        && request.resource.data.assistant1 != request.auth.uid
+        && request.resource.data.assistant2 != request.auth.uid
+        && (request.resource.data.assistant1 == '' || request.resource.data.assistant2 == '' || request.resource.data.assistant1 != request.resource.data.assistant2)
+        && request.resource.data.restDay is int
+        && request.resource.data.restDay >= 0 && request.resource.data.restDay <= 6
+        && request.resource.data.updatedAt == request.time;
       allow delete: if false;
 
       match /clubMembers/{memberId} {
@@ -1267,6 +1316,37 @@ service cloud.firestore {
             && request.resource.data.status == 'cancelled'
           )
         );
+      // Temporary explicit legacy validation from production main.
+      allow create: if (!request.resource.data.keys().hasAny(['mode','attempt','originId','updatedAt']) && !exists(mutePath(request.resource.data.to, request.auth.uid)) && !blockedBetween(request.auth.uid, request.resource.data.to)) && signed()
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid
+        && friendOf(request.resource.data.to)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.targetKind in ['task','habit','reading','exercise','focus','general']
+        && request.resource.data.targetText is string
+        && request.resource.data.targetText.size() >= 2 && request.resource.data.targetText.size() <= 120
+        && request.resource.data.targetValue is int
+        && request.resource.data.targetValue >= 1 && request.resource.data.targetValue <= 1000000
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.expiresAt > request.time + duration.value(25, 's')
+        && request.resource.data.expiresAt <= request.time + duration.value(35, 's');
+      allow update: if (!resource.data.keys().hasAny(['mode','attempt','originId','updatedAt']) && !request.resource.data.keys().hasAny(['mode','attempt','originId','updatedAt'])) && signed()
+        && resource.data.to == request.auth.uid
+        && resource.data.status == 'pending'
+        && request.time < resource.data.expiresAt
+        && request.resource.data.from == resource.data.from
+        && request.resource.data.to == resource.data.to
+        && request.resource.data.targetKind == resource.data.targetKind
+        && request.resource.data.targetText == resource.data.targetText
+        && request.resource.data.targetValue == resource.data.targetValue
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.expiresAt == resource.data.expiresAt
+        && request.resource.data.keys().hasOnly(['from','to','status','targetKind','targetText','targetValue','createdAt','expiresAt','respondedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','respondedAt'])
+        && request.resource.data.status in ['accepted','declined']
+        && request.resource.data.respondedAt == request.time;
       allow delete: if false;
 
       match /quickMessages/{messageId} {
