@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {execFileSync} from 'node:child_process';
+const guardedSha=process.env.ELARA_GUARDED_MAIN_SHA||'';
+const sourceAt=path=>guardedSha?execFileSync('git',['show',guardedSha+':'+path],{encoding:'utf8'}):null;
 
 // Run the actual guarded production service source in Chromium with a fail-closed
 // Firestore transport spy. No network write is permitted by any gated entrypoint.
-const source=(await fs.readFile(new URL('../elara-social.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'');
+const source=(sourceAt('elara-social.js')||await fs.readFile(new URL('../elara-social.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'');
 const prelude=`
 window.__cutoverWrites=0;
 const getApp=()=>({}),getAuth=()=>({currentUser:{uid:'a',emailVerified:true}}),onAuthStateChanged=()=>{},updateProfile=async()=>{};
@@ -59,7 +62,7 @@ try{
  await ui.setContent('<main id="elara-social-page"><button data-social-view="groups" aria-selected="true"></button><button data-social-view="friends" aria-selected="true"></button><button data-social-view="clubs" aria-selected="true"></button><div class="social-reference-grid"></div></main><div id="toast" class="toast hidden"></div>');
  await ui.evaluate(()=>{const msg='بخش اجتماعی در حال ارتقاست؛ چند دقیقه دیگر دوباره امتحان کن.';window.ElaraSocial={me:{uid:'a',xp:820},friends:[{uid:'b',name:'Bob'}],socialCutover:{active:true,message:msg},groups:{list:async()=>[],members:async()=>[],messages:async()=>[],listen:()=>()=>{}},clubs:{list:async()=>[],invites:async()=>[],members:async()=>[],posts:async()=>[]},challenges:{list:async()=>[],kinds:['task'],quick:[]}};window.ElaraLevels={level:()=>8};window.ElaraDialog={open:async()=>false};window.ElaraProfileSystem={viewModel:()=>({})};});
  for(const script of ['social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js']){
-  await ui.addScriptTag({content:await fs.readFile(new URL('../'+script,import.meta.url),'utf8')});
+  await ui.addScriptTag({content:sourceAt(script)||await fs.readFile(new URL('../'+script,import.meta.url),'utf8')});
  }
  await ui.evaluate(()=>Promise.all([window.ElaraSocialGroupsUI.mount(),window.ElaraSocialClubsUI.mount(),window.ElaraSocialChallengesUI.mount()]));
  const result=await ui.evaluate(()=>({
