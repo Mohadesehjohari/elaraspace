@@ -57,7 +57,14 @@ async function open(width,height,touch=false){const context=await browser.newCon
  const handle=page.locator('#task-list>.astra-task-row[data-key="t1"]');await handle.focus();await page.keyboard.down('Alt');await page.keyboard.press('ArrowUp');await page.keyboard.up('Alt');await page.waitForTimeout(100);order=await ids();assert.ok(order.indexOf('t1')<order.indexOf('t3'),'keyboard reorder did not move t1 upward: '+order.join(','));
  assert.equal(await page.locator('#task-selection-toggle,[data-task-select],.task-select-control').count(),0,'manual task selection controls must not be rendered');
  const trashHandle=page.locator('#task-list>.astra-task-row[data-key="t3"]'),trashStart=await trashHandle.boundingBox();assert.ok(trashStart,'desktop trash drag handle missing');
- await page.mouse.move(trashStart.x+trashStart.width/2,trashStart.y+trashStart.height/2);await page.mouse.down();await page.waitForSelector('#task-trash-drop:not([hidden])');const trashBox=await page.locator('#task-trash-drop').boundingBox();assert.ok(trashBox,'desktop trash drop target missing');await page.mouse.move(trashBox.x+trashBox.width/2,trashBox.y+trashBox.height/2,{steps:8});assert.equal(await page.locator('#task-trash-drop').evaluate(el=>el.classList.contains('is-over')),true,'desktop drag never entered trash target');await page.mouse.up();await page.waitForSelector('.elara-dialog-layer');await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.id==='t3'));assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t3"]').count(),0,'desktop trash drop did not delete t3');
+  // The canonical whole-card gesture supports pointer reorder. Deletion is
+  // triggered through the real selection toolbar; there is no drag-to-trash UI.
+  await page.locator('#task-list>.astra-task-row[data-key="t3"] .item-content').dispatchEvent('contextmenu',{button:2});
+  await page.waitForFunction(()=>document.getElementById('panel-tasks')?.classList.contains('task-selection-mode'));
+  await page.locator('[data-task-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');
+  await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();
+  await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.id==='t3'));
+  assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t3"]').count(),0,'desktop bulk delete failed');
 
  const hold1=page.locator('#task-list>.astra-task-row[data-key="t1"] .task-summary-button'),holdBox=await hold1.boundingBox();assert.ok(holdBox);
  await hold1.dispatchEvent('pointerdown',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});await page.waitForTimeout(620);await hold1.dispatchEvent('pointerup',{pointerType:'mouse',pointerId:81,isPrimary:true,button:0,clientX:holdBox.x+20,clientY:holdBox.y+15});
@@ -78,7 +85,17 @@ async function open(width,height,touch=false){const context=await browser.newCon
  await page.locator('[data-task-bulk="all"]').click();assert.equal(await page.evaluate(()=>window.ElaraTaskBulk.selected.size)>=4,true,'mobile select all failed');
  await page.keyboard.press('Escape');assert.equal(await page.locator('#task-bulk-toolbar').isHidden(),true,'Escape did not cancel selection');
  const touchHandle=page.locator('#task-list>.astra-task-row[data-key="t1"]'),touchBox=await touchHandle.boundingBox();assert.ok(touchBox,'mobile drag handle missing');const touchId=77;
- await touchHandle.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:touchId,isPrimary:true,button:0,clientX:touchBox.x+touchBox.width/2,clientY:touchBox.y+touchBox.height/2});await page.waitForTimeout(230);await page.waitForSelector('#task-trash-drop:not([hidden])');const touchTrash=await page.locator('#task-trash-drop').boundingBox();assert.ok(touchTrash,'mobile trash target missing');await touchHandle.dispatchEvent('pointermove',{pointerType:'touch',pointerId:touchId,isPrimary:true,buttons:1,clientX:touchTrash.x+touchTrash.width/2,clientY:touchTrash.y+touchTrash.height/2});assert.equal(await page.locator('#task-trash-drop').evaluate(el=>el.classList.contains('is-over')),true,'touch drag never entered trash target');await touchHandle.dispatchEvent('pointerup',{pointerType:'touch',pointerId:touchId,isPrimary:true,button:0,clientX:touchTrash.x+touchTrash.width/2,clientY:touchTrash.y+touchTrash.height/2});await page.waitForSelector('.elara-dialog-layer');await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.id==='t1'));assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t1"]').count(),0,'touch trash drop did not delete t1');
+  // Mobile long-press is the supported selection gesture, followed by bulk Delete.
+  const touchTitle=page.locator('#task-list>.astra-task-row[data-key="t1"] .task-summary-button');
+  const touchBox=await touchTitle.boundingBox();assert.ok(touchBox,'mobile touch target missing');
+  await touchTitle.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchBox.x+20,clientY:touchBox.y+15});
+  await page.waitForTimeout(650);
+  await touchTitle.dispatchEvent('pointerup',{pointerType:'touch',pointerId:77,isPrimary:true,clientX:touchBox.x+20,clientY:touchBox.y+15});
+  await page.waitForFunction(()=>document.getElementById('panel-tasks')?.classList.contains('task-selection-mode'));
+  await page.locator('[data-task-bulk="delete"]').click();await page.waitForSelector('.elara-dialog-layer');
+  await page.locator('.elara-dialog-layer:last-child .elara-dialog-actions .elara-dialog-danger').click();
+  await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(x=>x.id==='t1'));
+  assert.equal(await page.locator('#task-list>.astra-task-row[data-key="t1"]').count(),0,'mobile bulk delete failed');
 
  const m=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(m.sw<=m.w+1,'mobile task bulk overflow '+JSON.stringify(m));await page.screenshot({path:'browser-artifacts/task-bulk-390.png',fullPage:true});await context.close();
 }
