@@ -7,10 +7,10 @@ const browser=await chromium.launch({headless:true});
 const cloudStub=`window.ElaraAccount={user:null,profile:{name:'Club QA',username:'club_qa',bio:'',xp:820,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));`;
 const socialStub=`
 const clubState={
- clubs:[{id:'c1',owner:'A',title:'کتاب‌بازهای شب',kind:'reading',visibility:'private',assistant1:'',assistant2:'',restDay:5,role:'owner',updatedAt:1}],
+ clubs:[{id:'c1',owner:'A',title:'کتاب‌بازهای شب',kind:'reading',visibility:'private',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',memberLimit:50,memberCount:2,status:'active',role:'owner',updatedAt:1}],
  members:{c1:[{uid:'A',role:'owner',person:{uid:'A',name:'آرین'}},{uid:'B',role:'member',person:{uid:'B',name:'کیان'}}]},
  posts:{c1:[]},
- invites:[{clubId:'c9',to:'A',status:'pending',club:{id:'c9',title:'باشگاه تمرکز',kind:'focus',visibility:'private'}}],
+ invites:[{clubId:'c9',to:'A',status:'pending',club:{id:'c9',title:'باشگاه تمرکز',kind:'focus',visibility:'private',membershipMode:'invite',memberLimit:50,memberCount:1,status:'active'}}],
  sent:[],votes:[]
 };
 window.__clubState=clubState;
@@ -27,10 +27,10 @@ window.ElaraSocial.clubs={
  members:async id=>(clubState.members[id]||[]).map(x=>({...x,person:{...x.person}})),
  posts:async id=>(clubState.posts[id]||[]).map(x=>({...x,options:[...(x.options||[])]})),
  invites:async()=>clubState.invites.map(x=>({...x,club:{...x.club}})),
- create:async spec=>{const id='c'+(clubState.clubs.length+1);clubState.clubs.push({id,owner:'A',assistant1:'',assistant2:'',role:'owner',updatedAt:Date.now(),...spec});clubState.members[id]=[{uid:'A',role:'owner',person:{uid:'A',name:'آرین'}}];clubState.posts[id]=[];return id},
+ create:async spec=>{const id='c'+(clubState.clubs.length+1);clubState.clubs.push({id,owner:'A',assistant1:'',assistant2:'',role:'owner',membershipMode:'invite',memberLimit:50,memberCount:1,status:'active',updatedAt:Date.now(),...spec});clubState.members[id]=[{uid:'A',role:'owner',person:{uid:'A',name:'آرین'}}];clubState.posts[id]=[];return id},
  invite:async(id,to)=>{clubState.sent.push({id,to});return to},
  decideJoin:async()=>true,
- decideInvite:async(inv,status)=>{clubState.invites=clubState.invites.filter(x=>x.clubId!==inv.clubId);if(status==='accepted'){clubState.clubs.push({...inv.club,owner:'Z',role:'member',assistant1:'',assistant2:'',restDay:0,updatedAt:Date.now()});clubState.members[inv.clubId]=[{uid:'A',role:'member',person:{uid:'A',name:'آرین'}}];clubState.posts[inv.clubId]=[]}return true},
+ decideInvite:async(inv,status)=>{clubState.invites=clubState.invites.filter(x=>x.clubId!==inv.clubId);if(status==='accepted'){clubState.clubs.push({...inv.club,owner:'Z',role:'member',assistant1:'',assistant2:'',restDay:0,memberLimit:inv.club.memberLimit||50,memberCount:inv.club.memberCount||1,status:'active',updatedAt:Date.now()});clubState.members[inv.clubId]=[{uid:'A',role:'member',person:{uid:'A',name:'آرین'}}];clubState.posts[inv.clubId]=[]}return true},
  setAssistant:async(id,uid,on)=>{const m=clubState.members[id].find(x=>x.uid===uid);m.role=on?'assistant':'member';const c=clubState.clubs.find(x=>x.id===id);c.assistant1=on?uid:'';return true},
  createPost:async(id,spec)=>{const post={id:'p'+(clubState.posts[id].length+1),uid:'A',domain:clubState.clubs.find(x=>x.id===id).kind,ms:Date.now(),...spec};clubState.posts[id].unshift(post);return post.id},
  vote:async(id,pid,option)=>{clubState.votes.push({id,pid,option});return true},
@@ -52,7 +52,7 @@ assert.match(await page.locator('.social-club-invites').innerText(),/باشگا�
 
 await page.locator('[data-club-open="c1"]').click();
 await page.waitForSelector('.social-club-dashboard');
-assert.match(await page.locator('.social-club-dashboard').innerText(),/مدیریت صاحب باشگاه/);
+assert.match(await page.locator('.social-club-dashboard').innerText(),/تنظیمات صاحب باشگاه/);
 await page.locator('[data-club-assistant="B"]').click();
 await page.waitForFunction(()=>window.__clubState.members.c1.find(x=>x.uid==='B').role==='assistant');
 assert.equal(await page.locator('[data-club-assistant="B"]').getAttribute('data-enabled'),'0');
