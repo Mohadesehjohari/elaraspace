@@ -10,6 +10,7 @@ on:
       - 'home-owner-art-2026.css'
       - 'boot.js'
       - 'tests/home-owner-assets-browser.mjs'
+      - 'tests/home-owner-header-order-browser.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,6 +40,8 @@ jobs:
           sleep 2
       - name: Owner WebP mounted on real Home at six widths with real data
         run: timeout 230s node tests/home-owner-assets-browser.mjs
+      - name: Owner-approved visible header order 320 375 390 430 768 1440
+        run: timeout 120s node tests/home-owner-header-order-browser.mjs
       - name: Social Closure startup smoke remains intact
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
