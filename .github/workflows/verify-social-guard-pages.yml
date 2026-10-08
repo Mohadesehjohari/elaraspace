@@ -1,0 +1,48 @@
+name: Verify live production social guard
+
+on:
+  push:
+    branches: [main]
+    paths: ['elara-social.js', '.github/workflows/verify-social-guard-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for GitHub Pages to serve exact committed guarded JS bytes
+        id: pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "MAIN_SHA=$(git rev-parse HEAD)"
+          url="https://mohadesehjohari.github.io/elaraspace/elara-social.js"
+          live=false
+          for attempt in $(seq 1 100); do
+            if curl --fail --silent --show-error --location --max-time 15 "${url}?guard_sha=${GITHUB_SHA}&attempt=${attempt}" --output /tmp/elara-live-social.js && cmp -s elara-social.js /tmp/elara-live-social.js; then
+              live=true
+              break
+            fi
+            sleep 8
+          done
+          test "$live" = true || { echo "::error::GitHub Pages did not serve the guarded main SHA within the cutover window"; exit 1; }
+          echo "LIVE_GUARD_SHA_VERIFIED=${GITHUB_SHA}"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Publish evidence in guard PR (no deployment)
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pages_runs=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&per_page=50" --jq '.workflow_runs[] | select(.name | test("pages";"i")) | (.id|tostring)+" ("+(.conclusion//.status)+")"' 2>/dev/null | head -5 || true)
+          if [ -z "$pages_runs" ]; then pages_runs="Not exposed yet; live byte-for-byte proof succeeded"; fi
+          printf 'LIVE GUARD VERIFIED\n\nProduction main SHA: %s\nLive guarded elara-social.js byte-equal: YES\nPages run(s): %s\nVerifier Actions run: %s\nNo Firebase Rules or data mutation performed by this workflow.\n' "$GITHUB_SHA" "$pages_runs" "$GITHUB_RUN_ID" >/tmp/elara-guard-evidence.txt
+          gh pr comment 17 --body-file /tmp/elara-guard-evidence.txt

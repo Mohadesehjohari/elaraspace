@@ -39,8 +39,11 @@ async function mount(){
  try{lastRows=await service.list()}catch(error){if(mine===token)section.querySelector('[data-challenge-list]').innerHTML='<p class="ref-empty">'+esc(error?.message||error)+'</p>';return}
  if(mine!==token||!section.isConnected)return;
  const visible=lastRows.filter(c=>c.status!=='declined').slice(0,12);section.querySelector('[data-challenge-list]').innerHTML=visible.map(card).join('')||'<p class="ref-empty">'+t('فعلاً چالشی نداری. یکی رو به مبارزه دعوت کن 👀','No challenges yet. Call out a friend 👀')+'</p>'
+ section.insertAdjacentHTML('afterbegin','<p class="social-cutover-notice" role="status">بخش اجتماعی در حال ارتقاست؛ چند دقیقه دیگر دوباره امتحان کن.</p>');
+ section.querySelectorAll('[data-challenge-create],[data-challenge-action],[data-challenge-cancel],[data-challenge-quick]').forEach(button=>{button.disabled=true;button.title='در حال ارتقا';});
 }
 async function compose(target=''){
+ if(window.ElaraSocial?.socialCutover?.active){toast(window.ElaraSocial.socialCutover.message);return}
  const service=api();if(!service||!friends().length)return;
  const wrap=document.createElement('div');wrap.className='social-challenge-create';wrap.dataset.elaraI18n='off';
  wrap.innerHTML='<label>'+t('دوست','Friend')+'<select name="friend">'+friends().map(f=>'<option value="'+esc(f.uid)+'" '+(f.uid===target?'selected':'')+'>'+esc(f.name||f.username||f.uid)+'</option>').join('')+'</select></label><label>'+t('نوع هدف','Target type')+'<select name="kind"><option value="task">'+t('تسک','Task')+'</option><option value="habit">'+t('عادت','Habit')+'</option><option value="reading">'+t('مطالعه','Reading')+'</option><option value="exercise">'+t('ورزش','Exercise')+'</option><option value="focus">'+t('تمرکز','Focus')+'</option><option value="general">'+t('آزاد','Open')+'</option></select></label><label class="wide">'+t('هدف چالش','Challenge goal')+'<input name="text" maxlength="120" required placeholder="'+t('مثلاً امروز ۳۰ صفحه کتاب بخونیم 🔥','e.g. Read 30 pages today 🔥')+'"></label><label>'+t('مقدار هدف','Target amount')+'<input name="value" type="number" min="1" max="1000000" value="1"></label><p class="muted wide">'+t('نتیجه و برد هنوز خودکار ثبت نمی‌شود تا progress سمت سرور قابل‌اعتماد شود.','Wins are not auto-recorded yet until progress is server-verifiable.')+'</p>';
