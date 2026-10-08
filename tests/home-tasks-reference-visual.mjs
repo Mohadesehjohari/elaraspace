@@ -9,6 +9,10 @@ try{
  for(const [route,width,height] of [['home',1672,941],['tasks',1672,941],['home',1440,900],['tasks',1440,900],['tasks',390,844]]){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  // Isolate the public page's login overlay in a browser-only fixture.
+  // The actual local Tasks/Home renderer, styling and persisted model remain real.
+  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraAccount={user:null,profile:{name:'مرجع الارا',username:'fixture_owner',xp:420,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));"}));
+  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraSocial={me:null,friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true};window.dispatchEvent(new Event('elara:social-updated'));"}));
   await page.addInitScript(day=>{
    const make=(id,text,sourceGroup,priority,completed)=>({id,text,sourceGroup,priority:String(priority),completed,date:day,createdAt:Date.now(),list:'کارهای شخصی'});
    const d={version:1,xp:420,theme:'dark',taskLists:['کارهای شخصی'],folders:['درس'],tags:['زبان'],
@@ -18,7 +22,7 @@ try{
      habits:[{id:'h1',title:'عادت تمرین صبحگاهی',days:[]}],
      goals:[{id:'g1',title:'هدف زبان در سه ماه',steps:[{id:'s1',text:'مرور واژه',done:true},{id:'s2',text:'تمرین',done:false}]},
        {id:'g2',title:'هدف مطالعه',steps:[{id:'s3',text:'شروع',done:false}]}],books:[],words:[]};
-   localStorage.setItem('elara_space_v1',JSON.stringify(d));
+   localStorage.setItem('elara_space_v1',JSON.stringify(d));localStorage.setItem('elara_locale_v1','fa');
   },date());
   await page.goto(base+'/?visual_inventory='+route+'-'+width+'#'+route,{waitUntil:'domcontentloaded',timeout:40000});
   await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&!!window.ElaraReferenceHome,null,{timeout:30000});
