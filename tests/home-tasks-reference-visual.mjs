@@ -30,6 +30,11 @@ try{
   await page.waitForTimeout(450);
   const selectors=route==='home'?['.topbar','.sidebar','.ref-home-grid','#ref-streak-card','.ref-quick-access-grid','.owner-home-hero']:['.topbar','.sidebar','#panel-tasks','.astra-task-row','#astra-task-toolbar','#astra-task-streak','#tasks-heading','.section-heading','.astra-task-insights'];
   const metrics=await page.evaluate((selectors)=>{const m={width:innerWidth,scrollWidth:document.documentElement.scrollWidth};for(const s of selectors){const el=document.querySelector(s);if(!el){m[s]=null;continue}const a=el.getBoundingClientRect(),cs=getComputedStyle(el);m[s]={x:Math.round(a.x),y:Math.round(a.y),width:Math.round(a.width),height:Math.round(a.height),display:cs.display,background:cs.backgroundImage?.slice(0,300)}}return m},selectors);
+  if(route==='home')console.log('HOME_HERO_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>{
+ const p=document.querySelector('#panel-home'),h=p?.querySelector('.owner-home-hero'),b=document.querySelector('.topbar');
+ const props=e=>{if(!e)return null;const s=getComputedStyle(e),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,height:s.height,marginTop:s.marginTop,paddingTop:s.paddingTop,top:s.top,transform:s.transform,position:s.position,display:s.display}};
+ return {panel:props(p),hero:props(h),topbar:props(b),main:props(document.querySelector('#main')),loaded:[...document.styleSheets].map(x=>x.href||'inline').filter(x=>/home-owner-art|reference|midnight/.test(x))};
+})));
   console.log('VISUAL_INVENTORY '+JSON.stringify({route,width,metrics,errors}));
   assert.ok(metrics.scrollWidth<=width+5,'viewport overflows '+route+width);
   await page.screenshot({path:'browser-artifacts/fidelity-baseline-'+route+'-'+width+'.png',fullPage:true,animations:'disabled'});
