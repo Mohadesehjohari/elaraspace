@@ -72,8 +72,10 @@
  border:1px solid #f7935b80!important;background-color:#160d1a!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-summary{min-width:0!important}
-#panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-flame{
+html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-flame{
+ display:block!important;visibility:visible!important;opacity:1!important;
  width:clamp(46px,5vw,80px)!important;height:clamp(46px,5vw,80px)!important;
+ min-width:46px!important;min-height:46px!important;
  flex:none!important;object-fit:contain!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-tasks,
