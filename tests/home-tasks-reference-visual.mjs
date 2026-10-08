@@ -6,7 +6,10 @@ await mkdir('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const date=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 try{
- for(const [route,width,height] of [['home',1672,941],['tasks',1672,941],['home',1440,900],['tasks',1440,900],['tasks',390,844]]){
+ for(const [route,width,height] of [
+ ['home',1672,941],['tasks',1672,941],
+ ...[320,375,390,430,768,1440].flatMap(w=>[['home',w,w<701?850:900],['tasks',w,w<701?850:900]])
+]){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   // Isolate the public page's login overlay in a browser-only fixture.
@@ -28,14 +31,70 @@ try{
   await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&!!window.ElaraReferenceHome,null,{timeout:30000});
   await page.evaluate((route)=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');if(route==='home')window.ElaraReferenceHome?.render();window.ElaraOpen?.(route)},route);
   await page.waitForTimeout(450);
-  const selectors=route==='home'?['.topbar','.sidebar','.ref-home-grid','#ref-streak-card','.ref-quick-access-grid','.owner-home-hero']:['.topbar','.sidebar','#panel-tasks','.astra-task-row','#astra-task-toolbar','#astra-task-streak','#tasks-heading','.section-heading','.astra-task-insights'];
+  const selectors=route==='home'?['.topbar','.sidebar','.ref-home-grid','#ref-streak-card','.ref-quick-access-grid','.owner-home-hero','.owner-home-streak','.owner-home-goals','#ref-bottom-grid']:['.topbar','.sidebar','#panel-tasks','.astra-task-row','#astra-task-toolbar','.astra-task-hero','#astra-task-streak','#tasks-heading','.section-heading','.astra-task-insights'];
   const metrics=await page.evaluate((selectors)=>{const m={width:innerWidth,scrollWidth:document.documentElement.scrollWidth};for(const s of selectors){const el=document.querySelector(s);if(!el){m[s]=null;continue}const a=el.getBoundingClientRect(),cs=getComputedStyle(el);m[s]={x:Math.round(a.x),y:Math.round(a.y),width:Math.round(a.width),height:Math.round(a.height),display:cs.display,background:cs.backgroundImage?.slice(0,300)}}return m},selectors);
   if(route==='home')console.log('HOME_HERO_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>{
  const p=document.querySelector('#panel-home'),h=p?.querySelector('.owner-home-hero'),b=document.querySelector('.topbar');
  const props=e=>{if(!e)return null;const s=getComputedStyle(e),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,height:s.height,marginTop:s.marginTop,paddingTop:s.paddingTop,top:s.top,transform:s.transform,position:s.position,display:s.display}};
  return {panel:props(p),hero:props(h),topbar:props(b),main:props(document.querySelector('#main')),loaded:[...document.styleSheets].map(x=>x.href||'inline').filter(x=>/home-owner-art|reference|midnight/.test(x))};
 })));
-  console.log('VISUAL_INVENTORY '+JSON.stringify({route,width,metrics,errors}));
+  const fidelity=await page.evaluate(route=>{
+    const p=document.querySelector(route==='home'?'#panel-home':'#panel-tasks'),visible=x=>!!x&&getComputedStyle(x).display!=='none';
+    const rect=e=>e?e.getBoundingClientRect():null;
+    if(route==='home'){
+     const header=rect(document.querySelector('.topbar')),hero=rect(p.querySelector('.owner-home-hero'));
+     const cards=['.owner-home-streak','.owner-home-tasks','.owner-home-wellness','.owner-home-goals'].map(x=>rect(p.querySelector(x)));
+     const quick=[...p.querySelectorAll('#ref-quick-access .ref-quick-card')];
+     return {headerBottom:header?.bottom,heroTop:hero?.top,heroHeight:hero?.height,main:cards.map(x=>x?{x:x.x,y:x.y,w:x.width,h:x.height}:null),
+      quick:quick.length,quote:!!p.querySelector('#ref-home-quote-card'),
+      doubleSummary:!!p.querySelector('#owner-home-summaries,.owner-home-daily'),
+      gear:visible(document.querySelector('#ref-header-settings')),
+      goals:[...p.querySelectorAll('#elara-home-goals .ref-goal-row')].map(x=>x.textContent),
+      homeBackgrounds:['.owner-home-streak','.owner-home-tasks','.owner-home-wellness','.owner-home-goals','.ref-quick-language','.ref-quick-books','.ref-quick-social'].map(x=>getComputedStyle(p.querySelector(x)).backgroundImage),
+      img:{hero:p.querySelector('.owner-home-hero-image')?.naturalWidth,flame:p.querySelector('.ref-streak-flame')?.naturalWidth}};
+    }
+    const rows=[...p.querySelectorAll('#task-list>.astra-task-row')];
+    return {headerBottom:rect(document.querySelector('.topbar'))?.bottom,heroTop:rect(p.querySelector('.astra-task-hero'))?.top,
+     heroHeight:rect(p.querySelector('.astra-task-hero'))?.height,
+     heroBackground:getComputedStyle(p.querySelector('.astra-task-hero')).backgroundImage,
+     toolbar:rect(p.querySelector('#astra-task-toolbar'))?.height,rows:rows.length,
+     rowSamples:rows.slice(0,8).map(x=>({src:x.dataset.taskSource,background:getComputedStyle(x).backgroundImage,
+       checked:x.querySelector('.check-button')?.getAttribute('aria-pressed'),
+       checkArt:x.querySelector('.check-button')?getComputedStyle(x.querySelector('.check-button')).backgroundImage:'',
+       status:getComputedStyle(x.querySelector('.astra-task-status')).display,
+       title:x.querySelector('.item-title')?.textContent,
+       titleWhiteSpace:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).whiteSpace:'',
+       w:rect(x)?.width,h:rect(x)?.height
+     })),toolbarActions:!!p.querySelector('#elara-task-add-main'),
+     navTasks:!!document.querySelector('.sidebar [data-elara-tab="tasks"].active,.bottom-nav [data-elara-tab="tasks"].active'),
+     richRows:rows.some(x=>x.classList.contains('source-language'))&&rows.some(x=>x.classList.contains('source-exercise'))};
+  },route);
+  console.log('FIDELITY_METRIC '+JSON.stringify({route,width,fidelity}));
+  if(route==='home'){
+    assert.equal(fidelity.quick,6,'Home must contain six canonical quick links');
+    assert.equal(fidelity.quote,false,'Quote forbidden');
+    assert.equal(fidelity.doubleSummary,false,'Extra Home summaries forbidden');
+    assert.equal(fidelity.gear,false,'Settings gear forbidden');
+    assert.equal(fidelity.main.length,4,'Exactly four primary cards');
+    assert.ok(fidelity.homeBackgrounds.every(x=>x.includes('assets/ui/')),'Some Home uploaded artwork missing');
+    assert.ok(fidelity.img.hero>0&&fidelity.img.flame>0,'Home hero/flame did not decode');
+    if(width>=1001){
+      assert.ok(fidelity.heroTop>=fidelity.headerBottom-3,'Home hero overlaps Header at '+width);
+      assert.ok(fidelity.heroHeight>=160&&fidelity.heroHeight<=210,'Home hero proportions incorrect at '+width);
+      assert.ok(Math.max(...fidelity.main.map(x=>x.y))-Math.min(...fidelity.main.map(x=>x.y))<4,'Four Home cards not in same row at '+width);
+    }
+  }else{
+    assert.ok(fidelity.heroBackground.includes('task-header-banner-bg.webp'),'Tasks panoramic owner art missing');
+    assert.ok(fidelity.heroTop>=fidelity.headerBottom-4,'Tasks header overlaps toolbar');
+    assert.ok(fidelity.rows>=5,'Tasks fixture missing canonical items');
+    assert.equal(fidelity.toolbarActions,true,'Add Task button absent');
+    assert.equal(fidelity.richRows,true,'source-specific real tasks lost');
+    assert.ok(fidelity.rowSamples.some(x=>x.background.includes('task-mountain-bg.webp')),'Task mountain art not used');
+    assert.ok(fidelity.rowSamples.every(x=>x.status!=='none'),'Task state badges hidden');
+    assert.ok(fidelity.rowSamples.every(x=>x.titleWhiteSpace!=='nowrap'),'Task title clipping regression');
+    assert.equal(fidelity.navTasks,true,'Tasks navigation not active');
+  }
+    console.log('VISUAL_INVENTORY '+JSON.stringify({route,width,metrics,errors}));
   assert.ok(metrics.scrollWidth<=width+5,'viewport overflows '+route+width);
   await page.screenshot({path:'browser-artifacts/fidelity-baseline-'+route+'-'+width+'.png',fullPage:true,animations:'disabled'});
   await page.close();
