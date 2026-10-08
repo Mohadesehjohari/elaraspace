@@ -202,3 +202,27 @@
   min-width:0!important;width:100%!important
  }
 }
+
+/* Tablet Goal controls keep their actual click target and progress line.
+   Legacy intermediate-width geometry could collapse ref-goal-main to 0px. */
+html body #panel-home.ref-home.owner-art-home #elara-home-goals,
+html body #panel-home.ref-home.owner-art-home .ref-goals-scroll{
+ display:block!important;width:100%!important;max-width:100%!important;min-width:0!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-goal-row{
+ display:grid!important;grid-template-columns:25px minmax(0,1fr) 42px!important;
+ align-items:center!important;gap:8px!important;width:100%!important;
+ max-width:100%!important;min-width:0!important;height:auto!important;
+ min-height:50px!important;overflow:visible!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-goal-row>.ref-goal-main{
+ display:grid!important;grid-column:2!important;min-width:0!important;width:100%!important;
+ max-width:100%!important;min-height:38px!important;height:auto!important;
+ padding:5px!important;box-sizing:border-box!important;justify-self:stretch!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-goal-row>.ref-goal-step{
+ grid-column:1!important;justify-self:center!important;align-self:center!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-goal-row>b{
+ grid-column:3!important;justify-self:center!important;white-space:nowrap!important
+}
