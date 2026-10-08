@@ -73,14 +73,14 @@ function ensureQuickAccess(panel,grid){
  let q=$('ref-quick-access');if(!q){q=element('section','ref-quick-access','ref-quick-access');q.innerHTML='<header><h2>ورود سریع به بخش‌ها</h2></header><div class="ref-quick-access-grid"></div>';grid?.insertAdjacentElement('afterend',q)}
  const host=q.querySelector('.ref-quick-access-grid');
  const cards=[
-  ['tasks','کارها','برنامه‌ریزی روزانه','✓'],
-  ['language','یادگیری زبان','مسیر رشد فردی','文'],
-  ['books','کتابخانه','دانش بی‌مرز','▤'],
-  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','♥'],
-  ['social','دوستان','با هم، دورتر','♟'],
-  ['freedom','آزادی','زندگی دلخواه تو','✦']
+  ['tasks','کارها','برنامه‌ریزی روزانه','nav-tasks-active.webp'],
+  ['language','یادگیری زبان','مسیر رشد فردی','nav-language-default.webp'],
+  ['books','کتابخانه','دانش بی‌مرز','nav-library-default.webp'],
+  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','icon-wellness-heartbeat.webp'],
+  ['social','دوستان','با هم، دورتر','friends_normal.webp'],
+  ['freedom','آزادی','زندگی دلخواه تو','13-freedom-nav-default.webp']
  ];
- if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><span class="ref-quick-icon">'+ic+'</span><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
+ if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><img class="ref-quick-icon" src="assets/ui/'+ic+'" alt="" aria-hidden="true" width="42" height="42" loading="lazy" decoding="async"><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
  return q
 }
 function ensureBottomGrid(panel,grid){
