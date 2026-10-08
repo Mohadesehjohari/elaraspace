@@ -3,11 +3,13 @@ on:
   push:
     branches:
       - ui/home-tasks-reference-fidelity-20261008
+      - main
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   screenshots:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -53,6 +55,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
   regression:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -78,3 +81,50 @@ jobs:
           node tests/social-test.cjs
       - name: Strict Firestore identity rules emulator
         run: npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
+
+  live-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for actual GitHub Pages to serve exact merged bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(index.html home-owner-art-2026.css elara-midnight-layout-2026.css reference-home-shell-2026.js approved-navigation-extension.js home-owner-art-2026.js phase2.js)
+          ok=false
+          for attempt in $(seq 1 90); do
+            ok=true
+            for file in "${files[@]}"; do
+              target="/tmp/elara-pages-${file//\//_}"
+              if ! curl --fail --silent --show-error --location --max-time 15 "https://mohadesehjohari.github.io/elaraspace/${file}?merged_sha=${GITHUB_SHA}&attempt=${attempt}" -o "${target}" || ! cmp -s "${file}" "${target}"; then
+                ok=false
+                break
+              fi
+            done
+            if [ "${ok}" = true ]; then
+              echo "LIVE_BYTES_PASS sha=${GITHUB_SHA}"
+              break
+            fi
+            sleep 8
+          done
+          test "${ok}" = true || { echo "::error::GitHub Pages did not serve exact merged bytes"; exit 1; }
+      - name: Chromium dependency for real Pages URL
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Capture Home and Tasks from actual production URL at 8 desktop/mobile widths
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 300s node tests/home-tasks-reference-visual.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-home-tasks-pages-${{ github.sha }}
+          path: browser-artifacts/fidelity-baseline-*.png
+          retention-days: 14
+          if-no-files-found: warn
