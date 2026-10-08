@@ -35,6 +35,13 @@ try{
    const img=document.querySelector('#panel-home .owner-home-hero-image');
    return img?.complete&&img.naturalWidth>0&&document.querySelectorAll('#panel-home #elara-home-goals .ref-goal-row').length===3;
   },null,{timeout:25000});
+  // In live Pages a lazy Goal icon may be below the fold on 320px;
+  // scroll it into view and REQUIRE genuine network decode before asserting.
+  for(const selector of ['.owner-home-goal-icon','.ref-streak-flame']){
+    await page.locator('#panel-home '+selector).scrollIntoViewIfNeeded({timeout:15000});
+    await page.waitForFunction(sel=>{const img=document.querySelector('#panel-home '+sel);return img?.complete&&img.naturalWidth>0},selector,{timeout:20000});
+  }
+  await page.evaluate(()=>window.scrollTo(0,0));
   const m=await page.evaluate(()=>{
    const panel=document.getElementById('panel-home');
    const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect(),s=getComputedStyle(e);
