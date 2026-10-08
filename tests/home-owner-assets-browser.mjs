@@ -2,118 +2,122 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {mkdir} from 'node:fs/promises';
 const base=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
-const sizes=[320,375,390,430,768,1440];
-const required={
- hero:'homebanner1.webp',
- tasks:'tasks-card-background.webp',
- goals:'goals-target-background.webp',
- daily:'daily-banner-bg.webp',
- streak:'daily-streak-background.webp',
- wellness:'health-fitness-card-background.webp',
- language:'language-learning-background.webp',
- library:'library-card-background.webp',
- friends:'friends-card-bg.webp',
- ranking:'friends-ranking-bg.webp',
- focus:'pomodoro-icon.webp'
+const widths=[320,375,390,430,768,1440];
+const goals=['هدف سه‌ماههٔ ستاره','هدف یادگیری ژاپنی','هدف مطالعهٔ پژوهشی'];
+const habits=['عادت تمرین صبحگاهی','عادت مراقبهٔ شبانه'];
+const assets={
+ hero:'homebanner1.webp',tasks:'tasks-card-background.webp',
+ goals:'goals-target-background.webp',streak:'daily-streak-background.webp',
+ wellness:'health-fitness-card-background.webp',ranking:'friends-ranking-bg.webp',
+ language:'language-learning-background.webp',library:'library-card-background.webp',friends:'friends-card-bg.webp'
 };
 await mkdir('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
- for(const width of sizes){
+ for(const width of widths){
   const context=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:1});
-  const page=await context.newPage(),errors=[],failures=[];
+  const page=await context.newPage(),errors=[],imageErrors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  page.on('response',r=>{if(/\/assets\/ui\/.*\.webp/.test(r.url())&&r.status()>=400)failures.push(r.url()+' status='+r.status())});
-  await page.addInitScript(()=>{
+  page.on('response',r=>{if(/\/assets\/ui\/.*\.webp/.test(r.url())&&r.status()>=400)imageErrors.push(r.url()+':'+r.status())});
+  await page.addInitScript(({goals,habits})=>{
    const now=new Date(),d=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-   localStorage.setItem('elara_space_v1',JSON.stringify({version:1,xp:420,
-    tasks:[{id:'owner-art-task-a',text:'مهم: مطالعه و مرور واقعی پروژه و هماهنگ‌سازی کارها با برنامهٔ امروز؛ هر قدم باید به‌صورت کامل روی کارت Home دیده شود',date:d,priority:'2',completed:false,createdAt:Date.now()}],
-    habits:[{id:'owner-art-habit-a',title:'تمرین روزانه و مراقبت از سلامت جسمی و ذهنی با ثبت منظم عادت‌ها',days:[],rewardDays:[]}],
-    goals:[{id:'owner-art-goal-a',title:'هدف واقعی: پیشرفت زبان با مطالعهٔ پیوسته، مرور واژه‌ها و ارزیابی منظم نتیجهٔ تمام قدم‌های کوچک',horizon:'short',steps:[{id:'owner-step-a',text:'مرور ۲۰ واژه',done:false}]}],
-    books:[{id:'owner-book-a',title:'کتاب واقعی آزمون',shelf:'reading',totalPages:250,currentPage:44}],
-    words:[{id:'word-a',front:'hello',back:'سلام'},{id:'word-b',front:'world',back:'دنیا'}]
+   localStorage.setItem('elara_space_v1',JSON.stringify({
+    version:1,xp:420,taskCompletionHistory:[],
+    tasks:[{id:'task-home',text:'تسک واقعی با عنوان چندخطی فارسی برای بررسی کامل خوانایی',date:d,priority:'2',completed:false,createdAt:Date.now()}],
+    habits:habits.map((title,i)=>({id:'habit-'+i,title,days:[],rewardDays:[]})),
+    goals:goals.map((title,i)=>({id:'goal-'+i,title,horizon:'short',steps:[{id:'step-'+i,text:'قدم مرتبط با هدف',done:i===1},{id:'other-'+i,text:'قدم بعدی',done:false}]}))
    }));
-  });
-  await page.goto(base+'/?owner-home-art='+width+'#home',{waitUntil:'domcontentloaded',timeout:35000});
-  await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&!!window.ElaraOwnerHomeArtwork&&!!window.ElaraReferenceHome,null,{timeout:30000});
+  },{goals,habits});
+  await page.goto(base+'/?layout_fidelity='+width+'#home',{waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&!!window.ElaraReferenceHome&&!!window.ElaraOwnerHomeArtwork,null,{timeout:30000});
   await page.evaluate(()=>{window.ElaraReferenceHome.render();window.ElaraOwnerHomeArtwork.refresh()});
   await page.waitForFunction(()=>{
-   const hero=document.querySelector('#panel-home .owner-home-hero-image');
-   return hero&&hero.complete&&hero.naturalWidth>0&&document.querySelector('#owner-home-summaries')&&document.querySelector('#panel-home .owner-home-wellness');
+   const img=document.querySelector('#panel-home .owner-home-hero-image');
+   return img?.complete&&img.naturalWidth>0&&document.querySelectorAll('#panel-home #elara-home-goals .ref-goal-row').length===3;
   },null,{timeout:25000});
-  const metrics=await page.evaluate(()=>{
+  const m=await page.evaluate(()=>{
    const panel=document.getElementById('panel-home');
-   const rect=s=>{const x=panel.querySelector(s);if(!x)return null;const r=x.getBoundingClientRect();return {w:r.width,h:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,scroll:x.scrollHeight,client:x.clientHeight,display:getComputedStyle(x).display,background:getComputedStyle(x).backgroundImage}};
-   const checks={
-    hero:rect('.owner-home-hero'),
-    tasks:rect('.owner-home-tasks'),goals:rect('.owner-home-goals'),
-    wellness:rect('.owner-home-wellness'),streak:rect('.owner-home-streak'),
-    ranking:rect('.owner-home-ranking'),daily:rect('.owner-home-daily'),
-    language:rect('.owner-home-language'),library:rect('.owner-home-library'),
-    friends:rect('.owner-home-friends'),focus:rect('.owner-home-focus')
-   };
-   const img=panel.querySelector('.owner-home-hero-image');
-   const icon=panel.querySelector('.owner-home-goal-icon');
-   const focusIcon=panel.querySelector('.owner-home-focus-art');
-   const all=Object.values(checks).filter(Boolean);
-   const existing=[...panel.querySelectorAll('.ref-task-row,.ref-habit-row,.ref-goal-row')].map(x=>x.textContent||'').join(' | ');
-   const title=panel.querySelector('.hero-copy h1');
-   const dynamicData=Object.fromEntries([...panel.querySelectorAll('[data-owner-summary]')].map(x=>[x.dataset.ownerSummary,x.textContent]));
-   const clippedText=[...panel.querySelectorAll('.ref-task-row strong,.ref-habit-row strong,.ref-goal-main strong')].filter(x=>{const v=getComputedStyle(x),r=x.getBoundingClientRect();return r.width>4&&x.offsetParent!==null&&(v.whiteSpace==='nowrap'||x.scrollWidth>x.clientWidth+3)}).map(x=>({text:x.textContent,whiteSpace:getComputedStyle(x).whiteSpace,client:x.clientWidth,scroll:x.scrollWidth}));
-   const quote=document.querySelector('#ref-home-quote-card');
+   const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect(),s=getComputedStyle(e);
+     return {x:r.x,y:r.y,left:r.left,right:r.right,top:r.top,bottom:r.bottom,w:r.width,h:r.height,display:s.display,visibility:s.visibility,background:s.backgroundImage}};
+   const q=s=>panel.querySelector(s);
+   const hero=q('.owner-home-hero'),grid=q('.ref-home-grid'),quick=q('#ref-quick-access'),bottom=q('#ref-bottom-grid');
+   const selectors={streak:'.owner-home-streak',tasks:'.owner-home-tasks',wellness:'.owner-home-wellness',goals:'.owner-home-goals',ranking:'.owner-home-ranking',
+     language:'.ref-quick-language',library:'.ref-quick-books',friends:'.ref-quick-social'};
+   const cards=Object.fromEntries(Object.entries(selectors).map(([key,s])=>[key,rect(q(s))]));
+   const mainVisible=[...grid.children].filter(e=>{const r=rect(e);return r.display!=='none'&&r.visibility!=='hidden'&&r.w>4&&r.h>4})
+     .map(e=>({id:e.id,cl:e.className,area:getComputedStyle(e).gridArea}));
+   const goalRows=[...q('#elara-home-goals').querySelectorAll('.ref-goal-row')].map(e=>({
+      title:e.querySelector('.ref-goal-main strong')?.textContent,
+      width:e.querySelector('.ref-goal-main')?.getBoundingClientRect().width,
+      progress:e.querySelector('.ref-goal-main .elara-track i')?.style.width,
+      step:e.querySelector('[data-home-goal-step]')?.dataset.homeGoalStep||e.querySelector('[data-goal-id]')?.dataset.homeGoalStep
+   }));
+   const habitRows=[...q('#elara-home-habits').querySelectorAll('.ref-habit-row')].map(e=>e.textContent);
+   const quickCards=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
+   const quickRects=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>rect(e));
+   const heroImg=q('.owner-home-hero-image');
+   const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
+     icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0};
+   const clicked=[...panel.querySelectorAll('button')].filter(e=>e.offsetParent!==null&&getComputedStyle(e).visibility!=='hidden')
+     .filter(e=>{const r=e.getBoundingClientRect();return r.width<5||r.height<5}).map(e=>e.outerHTML.slice(0,100));
+   const quotes=!!q('#ref-home-quote-card');
+   const text=panel.textContent||'';
    return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
-    images:{hero:{src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
-      objectFit:getComputedStyle(img).objectFit,position:getComputedStyle(img).objectPosition,drawn:img.getBoundingClientRect().height},
-     goal:{src:icon?.getAttribute('src'),naturalWidth:icon?.naturalWidth},
-     focus:{src:focusIcon?.getAttribute('src'),naturalWidth:focusIcon?.naturalWidth}},
-    checks,existing,dynamicData,title:title?.textContent,
-    quoteVisible:!!quote&&getComputedStyle(quote).display!=='none',clippedText,
-    settingsGear:!!document.querySelector('#ref-header-settings'),
-    tooNarrow:all.some(x=>x.w<80),
-    overflowCards:all.some(x=>x.right>innerWidth+4||x.left< -4),
-    hiddenButtons:[...panel.querySelectorAll('button')].filter(x=>{
-      const s=getComputedStyle(x),rect=x.getBoundingClientRect();
-      if(s.display==='none'||s.visibility==='hidden'||x.offsetParent===null)return false;
-      return rect.width<5||rect.height<5;
-    }).length
+      order:[...panel.children].map(e=>e.id||e.className),
+      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,goalRows,habitRows,computedImages,
+      summary:!!q('#owner-home-summaries'),daily:!!q('.owner-home-daily'),phrase:text.includes('نگاهی به جهان تو'),
+      quote:quotes,settings:!!document.getElementById('ref-header-settings'),quickCount:panel.querySelectorAll('#ref-quick-access').length,
+      duplicateQuickTitles:[...panel.querySelectorAll('h2')].filter(x=>x.textContent.includes('ورود سریع به بخش‌ها')).length,
+      zeroButtons:clicked,actualTasks:q('#elara-home-tasks')?.textContent||'',clipped:[...panel.querySelectorAll('.ref-task-row strong,.ref-habit-row strong,.ref-goal-main strong')].filter(e=>e.offsetParent!==null&&(getComputedStyle(e).whiteSpace==='nowrap'||e.scrollWidth>e.clientWidth+3)).map(e=>e.textContent),
    };
   });
-  for(const [key,path] of Object.entries(required)){
-   if(key==='hero'||key==='focus')continue;
-   const m=metrics.checks[key];
-   assert.ok(m,'Home missing '+key+' card at '+width);
-   assert.ok(m.background.includes(path),'Real '+key+' WebP not computed on Home at '+width+': '+m.background);
+  assert.equal(m.summary,false,'Accidental #owner-home-summaries exists');
+  assert.equal(m.daily,false,'Accidental full-width Daily banner exists');
+  assert.equal(m.phrase,false,'Accidental heading exists');
+  assert.equal(m.quote,false,'Home Quote must stay absent');
+  assert.equal(m.settings,false,'Header Settings gear must stay absent');
+  assert.equal(m.quickCount,1,'One canonical Quick Access only');
+  assert.equal(m.duplicateQuickTitles,1,'Duplicate quick access heading');
+  assert.deepEqual(m.quickCards,['tasks','language','books','exercise','social','freedom'],'Quick Access routes must remain canonical');
+  assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
+    'Some canonical Quick Access destination is offscreen or too small at '+width+': '+JSON.stringify(m.quickRects));
+
+  assert.equal(m.mainVisible.length,4,'Exactly four visible canonical cards expected: '+JSON.stringify(m.mainVisible));
+  console.log('HOME_REFERENCE_GEOMETRY '+JSON.stringify({width,visible:m.mainVisible,grid:m.grid,cards:m.cards,goals:m.goalRows,quick:m.quick,bottom:m.bottom}));
+  assert.deepEqual(m.mainVisible.map(x=>x.cl.split(' ').find(c=>['ref-streak-card','ref-tasks','ref-wellness-card','ref-goals'].includes(c))).sort(),['ref-goals','ref-streak-card','ref-tasks','ref-wellness-card'].sort(),'Main four canonical cards changed');
+  assert.ok(m.hero.bottom<=m.grid.top+3,'Hero must precede the main card row');
+  assert.ok(m.grid.bottom<=m.quick.top+3,'Quick Access must immediately follow the main row');
+  assert.ok(m.quick.bottom<=m.bottom.top+3,'Bottom cards must follow Quick Access');
+  for(const [key,name] of Object.entries(assets)){
+    if(key==='hero')continue;
+    assert.ok(m.cards[key]?.background.includes(name),'Real owner artwork not shown: '+key+' '+width);
   }
-  assert.equal(metrics.images.hero.src,'assets/ui/'+required.hero,'Hero src mismatch');
-  assert.ok(metrics.images.hero.naturalWidth>0&&metrics.images.hero.drawn>0,'Hero image not actually decoded/rendered');
-  assert.equal(metrics.images.hero.objectFit,'cover','Hero must retain aspect ratio');
-  assert.ok(metrics.images.goal.naturalWidth>0,'Goal icon did not load');
-  assert.ok(metrics.images.focus.naturalWidth>0,'Pomodoro icon did not load');
-  assert.ok(metrics.checks.focus.background.includes('gradient'),'Focus card missing');
-  assert.ok(metrics.dynamicData.language.includes('۲'),'Word counter must reflect two seeded words');
-  assert.ok(metrics.dynamicData.library.includes('کتاب واقعی آزمون'),'Real reading book must render');
-  assert.ok(metrics.existing.includes('مطالعه')&&metrics.existing.includes('تمرین')&&metrics.existing.includes('هدف واقعی'),'Real task/habit/goal rows lost: '+metrics.existing);
-  assert.deepEqual(metrics.clippedText,[],'Real Persian Task/Habit/Goal text is clipped at '+width);
-  assert.equal(metrics.quoteVisible,false,'Home Quote must not be visible');
-  assert.equal(metrics.settingsGear,false,'Home top header Settings gear forbidden');
-  assert.ok(metrics.width+2>=metrics.documentWidth,'document horizontal overflow '+width+' '+JSON.stringify(metrics));
-  if(metrics.bodyWidth>metrics.width+2)console.log('HOME_OVERFLOW_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&(r.left < -5||r.right>innerWidth+5||r.width>innerWidth+5)}).slice(0,35).map(el=>{const r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,cl:String(el.className).slice(0,90),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:getComputedStyle(el).position}}))));
-  assert.ok(metrics.width+2>=metrics.bodyWidth,'body horizontal overflow '+width);
-  assert.equal(metrics.overflowCards,false,'card geometry exceeds viewport at '+width);
-  if(metrics.tooNarrow)console.log('HOME_NARROW_DIAGNOSTICS '+JSON.stringify(Object.entries(metrics.checks).filter(([key,v])=>v&&v.w<80)));
-  if(metrics.tooNarrow)console.log('HOME_GRID_LAYOUT_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>{
-   const panel=document.querySelector('#panel-home');const grid=panel.querySelector('.ref-home-grid'),task=panel.querySelector('.owner-home-tasks'),w=panel.querySelector('.owner-home-wellness');
-   const snap=e=>e?{rect:{x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width},css:{display:getComputedStyle(e).display,width:getComputedStyle(e).width,columns:getComputedStyle(e).gridTemplateColumns,areas:getComputedStyle(e).gridTemplateAreas,area:getComputedStyle(e).gridArea,column:getComputedStyle(e).gridColumn},style:e.getAttribute('style')}:null;
-   return {panel:snap(panel),grid:snap(grid),task:snap(task),wellness:snap(w),children:[...grid.children].filter(e=>getComputedStyle(e).display!=='none').map(e=>({id:e.id,cl:e.className,w:e.getBoundingClientRect().width,area:getComputedStyle(e).gridArea,cols:getComputedStyle(e).gridColumn}))};
-  })));
-  assert.equal(metrics.tooNarrow,false,'collapsed card at '+width);
-  if(metrics.hiddenButtons)console.log('HOME_BUTTON_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('#panel-home button')].filter(el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.display!=='none'&&cs.visibility!=='hidden'&&el.offsetParent!==null&&(r.width<5||r.height<5)}).map(el=>{const r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,cl:String(el.className),title:el.textContent.slice(0,60),parent:String(el.parentElement?.className||'').slice(0,90),w:r.width,h:r.height,hidden:el.hidden}}))));
-  assert.equal(metrics.hiddenButtons,0,'visible Home buttons with zero hitbox at '+width);
-  assert.deepEqual(errors,[],'Critical page errors '+width);
-  assert.deepEqual(failures,[],'Broken WebP requests '+width);
-  await page.screenshot({path:'browser-artifacts/home-owner-art-'+width+'.png',fullPage:true,animations:'disabled'});
-  console.log('HOME_OWNER_ASSETS_PASS '+JSON.stringify({width,hero:required.hero,cards:Object.keys(metrics.checks),data:metrics.dynamicData,overflow:false,errors:0}));
+  assert.equal(m.computedImages.hero.src,'assets/ui/'+assets.hero);
+  assert.ok(m.computedImages.hero.naturalWidth>0&&m.computedImages.icon>0&&m.computedImages.flame>0,'Hero/Goals/Streak asset not decoded '+width);
+  assert.equal(m.computedImages.hero.fit,'cover','Hero distorted');
+  assert.deepEqual(m.goalRows.map(x=>x.title),goals,'Goals card did not use exactly 3 real Goal records');
+  for(const h of habits)assert.ok(!m.goalRows.some(g=>g.title?.includes(h)),'Habit leaked into Goals');
+  assert.ok(m.habitRows.some(x=>x.includes(habits[0]))&&m.habitRows.some(x=>x.includes(habits[1])),'Habits must remain in separate Habits section');
+  assert.ok(m.goalRows.every(x=>x.width>15&&/^\d+%$/.test(x.progress||'')),'Goal progress/readability broken');
+  assert.ok(m.actualTasks.includes('تسک واقعی'),'Real Task data path no longer renders');
+  assert.ok(m.documentWidth<=width+2&&m.bodyWidth<=width+2,'Horizontal overflow '+width+' '+JSON.stringify(m));
+  assert.deepEqual(m.zeroButtons,[],'Zero size important buttons '+width);
+  assert.deepEqual(m.clipped,[],'Clipped Persian content '+width);
+  assert.deepEqual(errors,[],'Critical browser pageerrors '+width);
+  assert.deepEqual(imageErrors,[],'Broken owner WebP paths '+width);
+  if(width===1440){
+    const row=['streak','tasks','wellness','goals'].map(x=>m.cards[x]);
+    assert.ok(row.every(x=>x&&x.display!=='none'),'All 4 visible in desktop row');
+    assert.ok(Math.max(...row.map(x=>x.top))-Math.min(...row.map(x=>x.top))<=4,'Four cards not on same top row');
+    assert.ok(Math.max(...row.map(x=>x.bottom))-Math.min(...row.map(x=>x.bottom))<=5,'Four card bottoms not aligned');
+    assert.ok(row.every(x=>x.h<=310&&x.h>=170),'Giant cards exceed reference compact height');
+    for(let i=1;i<row.length;i++)assert.ok(row[i].left>row[i-1].left,'Desktop left-right card order violated');
+    assert.equal(m.bottom!==null,true,'Bottom row missing');
+    console.log('HOME_REFERENCE_STRUCTURE_PASS four_aligned=1 quick_access=single goals=3 habits=separate');
+  }
+  await page.screenshot({path:'browser-artifacts/home-reference-'+width+'.png',fullPage:true,animations:'disabled'});
+  console.log('HOME_REFERENCE_WIDTH_PASS '+JSON.stringify({width,main:m.mainVisible.map(x=>x.area),goals:m.goalRows.map(x=>x.title),overflow:false}));
   await context.close();
  }
 }finally{await browser.close()}
-console.log('HOME_OWNER_ART_MATRIX_PASS 320 375 390 430 768 1440');
+console.log('HOME_REFERENCE_MATRIX_PASS 320 375 390 430 768 1440');
