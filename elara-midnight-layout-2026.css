@@ -1053,3 +1053,25 @@ body.dark #panel-tasks .task-archive-row small{font-size:.63rem!important;color:
  }
  body.dark #panel-tasks .task-archive-row{padding:9px!important}
 }
+
+
+/* Mobile task state and category are peer chips: share the second line without
+   colliding, regardless of the real task's label length. */
+@media(max-width:700px){
+ html body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-category{
+  position:static!important;grid-column:2/4!important;grid-row:2!important;
+  align-self:end!important;justify-self:start!important;
+  width:max-content!important;max-width:43%!important;min-width:0!important;
+  margin:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row>.astra-task-status{
+  position:static!important;grid-column:2/4!important;grid-row:2!important;
+  align-self:end!important;justify-self:end!important;
+  width:max-content!important;min-width:76px!important;max-width:48%!important;
+  margin:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row{
+  min-height:137px!important;grid-template-rows:minmax(68px,auto) minmax(33px,auto)!important;
+  align-content:center!important;gap:8px 7px!important
+ }
+}
