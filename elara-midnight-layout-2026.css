@@ -650,39 +650,31 @@ body.dark #panel-home.ref-home .ref-hero>[data-home-reports]{display:none!import
 }
 
 
-/* 2026-10-06 Home hero under topbar: search/bell float on banner. */
+/* Reference fidelity: the shared header occupies its own row on Home and Tasks.
+   The obsolete absolute-header/70px-hero-padding workaround caused the Home
+   search/bell to float on the artwork and blocked all later height corrections. */
 @media(min-width:701px){
- body.dark .workspace:has(#panel-home.ref-home:not(.hidden)){
-  position:relative!important;
- }
  body.dark .workspace:has(#panel-home.ref-home:not(.hidden)) .topbar.ref-topbar{
-  position:absolute!important;
-  top:0!important;left:0!important;right:0!important;z-index:50!important;
-  width:100%!important;
-  background:linear-gradient(180deg,rgba(2,18,42,.82) 0%,rgba(2,18,42,.44) 68%,rgba(2,18,42,0) 100%)!important;
-  backdrop-filter:none!important;
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  z-index:50!important;width:100%!important;
+  background:linear-gradient(90deg,#02142dec,#03162bea)!important;
+  backdrop-filter:blur(12px)!important;
  }
  body.dark .workspace:has(#panel-home.ref-home:not(.hidden)) main,
  body.dark .workspace:has(#panel-home.ref-home:not(.hidden)) #main{
-  padding-top:0!important;
+  padding-top:14px!important;
  }
- body.dark #panel-home.ref-home:not(.hidden){
-  margin-top:0!important;
- }
+ body.dark #panel-home.ref-home:not(.hidden){margin-top:0!important}
  body.dark #panel-home.ref-home:not(.hidden) .ref-hero{
-  margin-top:0!important;
-  border-top-left-radius:0!important;
-  border-top-right-radius:0!important;
-  height:224px!important;
-  min-height:224px!important;
-  max-height:224px!important;
-  padding-top:70px!important;
+  margin-top:0!important;border-radius:16px!important;
+  height:190px!important;min-height:190px!important;max-height:190px!important;
+  padding:22px 28px!important;
  }
  body.dark #panel-home.ref-home:not(.hidden) .ref-hero .hero-copy{
-  top:calc(50% + 24px)!important;
+  top:50%!important;
  }
  body.dark #panel-home.ref-home:not(.hidden) .ref-hero-floating{
-  top:calc(50% + 24px)!important;
+  top:50%!important;
  }
 }
 
