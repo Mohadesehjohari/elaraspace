@@ -99,6 +99,11 @@ try{
   assert.ok(metrics.width+2>=metrics.bodyWidth,'body horizontal overflow '+width);
   assert.equal(metrics.overflowCards,false,'card geometry exceeds viewport at '+width);
   if(metrics.tooNarrow)console.log('HOME_NARROW_DIAGNOSTICS '+JSON.stringify(Object.entries(metrics.checks).filter(([key,v])=>v&&v.w<80)));
+  if(metrics.tooNarrow)console.log('HOME_GRID_LAYOUT_DIAGNOSTICS '+JSON.stringify(await page.evaluate(()=>{
+   const panel=document.querySelector('#panel-home');const grid=panel.querySelector('.ref-home-grid'),task=panel.querySelector('.owner-home-tasks'),w=panel.querySelector('.owner-home-wellness');
+   const snap=e=>e?{rect:{x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width},css:{display:getComputedStyle(e).display,width:getComputedStyle(e).width,columns:getComputedStyle(e).gridTemplateColumns,areas:getComputedStyle(e).gridTemplateAreas,area:getComputedStyle(e).gridArea,column:getComputedStyle(e).gridColumn},style:e.getAttribute('style')}:null;
+   return {panel:snap(panel),grid:snap(grid),task:snap(task),wellness:snap(w),children:[...grid.children].filter(e=>getComputedStyle(e).display!=='none').map(e=>({id:e.id,cl:e.className,w:e.getBoundingClientRect().width,area:getComputedStyle(e).gridArea,cols:getComputedStyle(e).gridColumn}))};
+  })));
   assert.equal(metrics.tooNarrow,false,'collapsed card at '+width);
   assert.equal(metrics.hiddenButtons,0,'visible Home buttons with zero hitbox at '+width);
   assert.deepEqual(errors,[],'Critical page errors '+width);
