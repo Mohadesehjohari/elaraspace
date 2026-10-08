@@ -199,6 +199,19 @@
     if(!details?.open)return;activeTaskKebab=details;clearTimeout(taskKebabTimer);
     taskKebabTimer=setTimeout(()=>{if(details.open){details.open=false;details.querySelector(':scope>summary')?.setAttribute('aria-expanded','false')}if(activeTaskKebab===details)activeTaskKebab=null;taskKebabTimer=null},3000);
   }
+  // Own the summary click before generic delegated row handlers. A native
+  // <details> toggle can be cancelled by other Tasks click interceptors, leaving
+  // the menu visually closed even though the user pressed its control.
+  // Explicitly toggle only this summary; keep regular item-action clicks intact.
+  document.addEventListener('click',event=>{
+    const summary=event.target.closest?.('#task-list .astra-task-more>summary');
+    if(!summary)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const details=summary.parentElement,open=!details.open;
+    closeTaskKebabs();details.open=open;
+    summary.setAttribute('aria-expanded',String(open));
+    if(open)armTaskKebab(details);
+  },true);
   function handleTaskKebabClick(event){
     const summary=event.target.closest('#task-list .astra-task-more>summary');
     if(summary){
