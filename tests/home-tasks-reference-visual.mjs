@@ -35,5 +35,12 @@ try{
   await page.screenshot({path:'browser-artifacts/fidelity-baseline-'+route+'-'+width+'.png',fullPage:true,animations:'disabled'});
   await page.close();
  }
+  const gallery=await browser.newPage({viewport:{width:1280,height:900}});
+  await gallery.goto(base+'/?asset_gallery=1',{waitUntil:'domcontentloaded'});
+  const names=['nav-home-default','nav-home-active','nav-tasks-default','nav-tasks-active','11-tasks-nav-default','12-tasks-nav-active','nav-library-default','01-library-nav-default','nav-language-default','07-language-nav-default','03-wellness-nav-default','04-wellness-nav-active','09-friends-nav-default','friends_normal','friend_active','13-freedom-nav-default','reports-nav-inactive','blog-nav-inactive','store-nav-inactive','task-header-banner-bg','hero-tasks-astra-v2','task-mountain-bg','tick','tick_fraim','Empy_tick','icon-tasks-check-alpha'];
+  await gallery.setContent('<style>body{background:#06142b;color:white;font:14px system-ui}.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.item{border:1px solid #498;padding:8px;border-radius:10px;text-align:center;word-break:break-all;display:grid;justify-items:center}.item img{width:115px;height:95px;object-fit:contain}</style><div class=grid>'+names.map(n=>'<div class=item><img src="'+base+'/assets/ui/'+n+'.webp"><span>'+n+'</span></div>').join('')+'</div>');
+  await gallery.waitForTimeout(600);
+  await gallery.screenshot({path:'browser-artifacts/fidelity-baseline-asset-gallery.png',fullPage:true});
+  await gallery.close();
 }finally{await browser.close()}
 console.log('FIDELITY_BASELINE_CAPTURES_PASS');
