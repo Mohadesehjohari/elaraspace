@@ -321,7 +321,7 @@ body.dark #panel-home.ref-home .ref-achievement-row small{display:block!importan
 body.dark #panel-tasks{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
 body.dark #panel-tasks>.section-heading{display:none!important}
 body.dark #panel-tasks .astra-task-hero{
- position:relative!important;width:100%!important;height:122px!important;min-height:122px!important;max-height:122px!important;
+ position:relative!important;width:100%!important;height:148px!important;min-height:148px!important;max-height:148px!important;
  margin:0 0 12px!important;padding:13px 18px!important;border-radius:15px!important;border:1px solid rgba(92,157,226,.34)!important;
  display:grid!important;grid-template-columns:minmax(300px,360px) minmax(0,1fr)!important;align-items:center!important;gap:18px!important;direction:ltr!important;
  overflow:hidden!important;background:
@@ -334,14 +334,14 @@ body.dark #panel-tasks .astra-task-hero::before{
 }
 body.dark #panel-tasks .task-streak-summary{
  position:relative;z-index:2;direction:ltr!important;
- display:grid!important;grid-template-columns:70px minmax(0,1fr)!important;
- grid-template-rows:52px auto!important;align-items:center!important;gap:4px 12px!important;
+ display:grid!important;grid-template-columns:82px minmax(0,1fr)!important;
+ grid-template-rows:65px auto!important;align-items:center!important;gap:4px 12px!important;
  width:100%!important;min-width:0!important;max-width:365px!important;
  padding:9px 12px!important;border:1px solid rgba(255,136,81,.43)!important;
  border-radius:13px!important;
  background:linear-gradient(90deg,#290e2cbf,#0e1b35b5),url("assets/ui/daily-streak-background.webp") center/cover!important
 }
-body.dark #panel-tasks .task-streak-summary>img{grid-column:1!important;grid-row:1!important;width:60px!important;height:60px!important;object-fit:contain!important;filter:drop-shadow(0 0 12px rgba(255,115,61,.5))!important}
+body.dark #panel-tasks .task-streak-summary>img{grid-column:1!important;grid-row:1!important;width:74px!important;height:74px!important;object-fit:contain!important;filter:drop-shadow(0 0 12px rgba(255,115,61,.5))!important}
 body.dark #panel-tasks .task-streak-summary>span{grid-column:2!important;grid-row:1!important;direction:rtl!important;display:grid!important;gap:0!important}
 body.dark #panel-tasks .task-streak-summary>span b{font-size:1.55rem!important;color:#ffd067!important}
 body.dark #panel-tasks .task-streak-summary>span strong{font-size:.68rem!important;color:#fff!important}
@@ -448,7 +448,7 @@ body.dark #panel-tasks #task-list>.astra-task-row .task-summary-button::before{
  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--task-accent) 35%,transparent))
 }
 body.dark #panel-tasks #task-list>.astra-task-row .item-title{
- font-size:clamp(.84rem,.95vw,1rem)!important;font-weight:830!important;color:#f8fbff!important;
+ font-size:clamp(.88rem,1vw,1.05rem)!important;font-weight:830!important;color:#f8fbff!important;
  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;line-height:1.45!important
 }
 body.dark #panel-tasks #task-list>.astra-task-row .task-short-description{display:none!important}
@@ -457,7 +457,7 @@ body.dark #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-met
 }
 body.dark #panel-tasks #task-list>.astra-task-row .astra-task-core-meta>span{
  min-height:24px!important;padding:4px 8px!important;border-radius:999px!important;border:1px solid rgba(89,154,213,.30)!important;
- background:#092344!important;color:#c5d6e9!important;font-size:.55rem!important;white-space:nowrap!important;
+ background:#092344!important;color:#d2e3f5!important;font-size:.62rem!important;white-space:nowrap!important;
 }
 body.dark #panel-tasks #task-list>.astra-task-row .priority-badge.priority-red{color:#ff806d!important;border-color:#ff723d!important;background:rgba(255,114,61,.10)!important}
 body.dark #panel-tasks #task-list>.astra-task-row .priority-badge.priority-yellow{color:#ffd067!important;border-color:#dcae4c!important;background:rgba(255,208,103,.08)!important}
