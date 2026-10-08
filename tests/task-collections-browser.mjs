@@ -17,9 +17,12 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(t=>t.text==='تسک تازه پوشه'&&t.folder==='آرشیو'&&t.priority==='1'));
  assert.equal(await page.locator('[data-collection-task]').count(),2,'folder add did not render');
  await page.locator('[data-collection-task="f1"] [data-collection-action="toggle"]').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.completed===true);
- await page.locator('[data-collection-task="f1"] [data-collection-action="edit"]').click();await page.waitForFunction(()=>location.hash==='#tasks'&&document.getElementById('elara-task-collection-page')?.hidden===true);await page.waitForSelector('.elara-dialog-layer .task-detail-form');await page.locator('.elara-dialog-layer [data-detail="text"]').fill('ویرایش‌شده');await page.getByRole('button',{name:'ذخیره تغییرات'}).click();
-console.log('COLLECTION_EDIT_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>({title:JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text,dialog:[...document.querySelectorAll('.elara-dialog-layer')].map(x=>({text:x.textContent.slice(0,200),hidden:x.hidden})),error:window.__elaraLastError||null}))));
-await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text==='ویرایش‌شده');
+ await page.locator('[data-collection-task="f1"] [data-collection-action="edit"]').click();await page.waitForFunction(()=>location.hash==='#tasks'&&document.getElementById('elara-task-collection-page')?.hidden===true);// Collection Edit routes to the canonical Tasks editor; exercise the real
+ // editable form/persistence path instead of assuming a secondary dialog saves.
+ await page.waitForFunction(()=>document.getElementById('task-title')?.value==='داخل پوشه'&&document.getElementById('task-submit')?.textContent?.includes('ذخیره'));
+ await page.locator('#task-title').fill('ویرایش‌شده');
+ await page.locator('#task-submit').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text==='ویرایش‌شده');
  await page.evaluate(()=>ElaraTaskCollections.open('folder','آرشیو'));await page.waitForSelector('#elara-task-collection-page:not(.hidden)');await page.locator('[data-collection-back]').click();await page.waitForFunction(()=>document.getElementById('elara-task-collection-page')?.hidden===true);
  await page.evaluate(()=>ElaraTaskCollections.open('list','بعداً'));await page.waitForSelector('#elara-task-collection-page:not(.hidden)');
  assert.equal(await page.locator('[data-collection-task]').count(),1,'list page leaked unrelated tasks');
