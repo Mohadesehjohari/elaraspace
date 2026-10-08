@@ -142,7 +142,7 @@ function homeStructure(){
  grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')
  const extra=card('elara-home-books');if(extra){extra.hidden=true;if(extra.parentElement!==grid)grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
- ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} کارهای امروز`);
+ ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} تسک‌های امروز`);
  ownHeading(habits,'habits',`${art(UI_ASSETS.habits,'elara-card-art ref-habits-heading-art','')} عادت‌ها`);
  ownHeading(wellness,'wellness',`${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامتی و انرژی`);
  ownHeading(missions,'missions',`${art(UI_ASSETS.mission,'ref-art-icon ref-missions-art','')} مأموریت‌های امروز`);

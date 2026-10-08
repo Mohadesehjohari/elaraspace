@@ -26,7 +26,7 @@ function decorate(){
  const streak=$('ref-streak-card');
  if(streak){streak.classList.add('owner-home-streak');art(streak,'daily-streak-background','#100b1c40','#11112372')}
  const tasks=$('elara-home-tasks')?.closest('.elara-card');
- if(tasks){tasks.classList.add('owner-home-tasks');art(tasks,'tasks-card-background','#07132987','#061025b5')}
+ if(tasks){tasks.classList.add('owner-home-tasks');art(tasks,'tasks-card-background','#041a36c9','#061228df')}
  const goals=$('elara-home-goals')?.closest('.elara-card');
  if(goals){
   goals.classList.add('owner-home-goals');art(goals,'goals-target-background','#06102735','#0610238b');

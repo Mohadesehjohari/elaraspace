@@ -3,11 +3,11 @@
 const MAIN=Object.freeze([
  {route:'exercise',label:'ورزش و سلامتی',icon:'workout'},
  {route:'language',label:'زبان',icon:'course'},
- {route:'tasks',label:'کارها',icon:'tasks'},
+ {route:'tasks',label:'تسک‌ها',icon:'tasks'},
  {route:'home',label:'خانه',icon:'home'},
  {route:'ranking',label:'رتبه‌بندی',icon:'ranking'},
  {route:'books',label:'کتابخانه',icon:'book'},
- {route:'freedom',label:'آزادی',icon:'freedom'}
+ {route:'freedom',label:'آزادی',icon:'spark'}
 ]);
 const FRIEND=Object.freeze({route:'social',label:'دوستان',icon:'friends'});
 const PAGE=Object.freeze({route:'page',label:'صفحه من',icon:'user'});
