@@ -21,7 +21,7 @@ try{
    const d={version:1,xp:420,theme:'dark',taskLists:['کارهای شخصی'],folders:['درس'],tags:['زبان'],
      tasks:[make('fx1','مطالعه و مرور زبان انگلیسی','language',2,false),make('fx2','دانلود جزوهٔ ریاضی','',2,false),
        make('fx3','تمرین روزانهٔ ورزشی','exercise',3,false),make('fx4','عادت مطالعهٔ کتاب','habit',3,false),
-       make('fx5','تکمیل مرحلهٔ هدف','goal',2,false),make('fx6','کتاب تمام‌شدهٔ امروز','book',4,true)],
+       make('fx5','تکمیل مرحلهٔ هدف','goal',2,false),{...make('fx6','کتاب تمام‌شدهٔ دیروز','book',4,true),date:new Date(Date.now()-86400000).toLocaleDateString('en-CA'),doneAt:new Date(Date.now()-86400000).toLocaleDateString('en-CA')}],
      habits:[{id:'h1',title:'عادت تمرین صبحگاهی',days:[]}],
      goals:[{id:'g1',title:'هدف زبان در سه ماه',steps:[{id:'s1',text:'مرور واژه',done:true},{id:'s2',text:'تمرین',done:false}]},
        {id:'g2',title:'هدف مطالعه',steps:[{id:'s3',text:'شروع',done:false}]}],books:[],words:[]};
