@@ -346,6 +346,7 @@ async function createClub(spec={}){
  const title=String(spec.title||'').trim().slice(0,80),kind=CLUB_KINDS.has(spec.kind)?spec.kind:'general',visibility=spec.visibility==='private'?'private':'public',membershipMode=CLUB_MEMBERSHIP_MODES.has(spec.membershipMode)?spec.membershipMode:'invite',restDay=Math.max(0,Math.min(6,Math.floor(Number(spec.restDay)||0))),memberLimit=Math.max(2,Math.min(200,Math.floor(Number(spec.memberLimit)||50)));
  if(title.length<2)throw Error('اسم باشگاه حداقل ۲ نویسه باشد.');
  const ref=doc(collection(db,'clubs')),batch=writeBatch(db),stamp=serverTimestamp();
+ // Media Phase follows Social Core: schema retains canonical empty avatar/banner paths.
  batch.set(ref,{owner:uid,title,kind,visibility,membershipMode,assistant1:'',assistant2:'',restDay,bio:String(spec.bio||'').trim().slice(0,600),rulesText:String(spec.rulesText||'').trim().slice(0,1200),language:String(spec.language||'fa').slice(0,16),avatarPath:'',bannerPath:'',memberLimit,memberCount:1,lastMembershipUid:uid,lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:stamp,updatedAt:stamp});
  batch.set(doc(ref,'clubMembers',uid),{uid,role:'owner',joinedAt:stamp});await batch.commit();return ref.id
 }
