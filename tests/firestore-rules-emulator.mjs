@@ -181,6 +181,46 @@ try{
  await assertSucceeds(setDoc(ref(eve,'clubs/role_test_club/clubPosts/assistant_poll/votes/eve'),{uid:'eve',option:'Book A',createdAt:serverTimestamp()}));
  await assertFails(setDoc(ref(dave,'clubs/role_test_club/clubPosts/assistant_poll/votes/dave'),{uid:'dave',option:'Book A',createdAt:serverTimestamp()}));
 
+ // Club invite lifecycle: manager invites an accepted friend; recipient accepts in one membership transaction.
+ const inviteClub='clubs/invite_rules_club';
+ await assertSucceeds(setDoc(ref(alice,inviteClub),{owner:'alice',title:'Invite Rules Club',kind:'reading',visibility:'private',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,inviteClub+'/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
+ const inviteRef=inviteClub+'/clubInvites/bob';
+ await assertSucceeds(setDoc(ref(alice,inviteRef),{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,inviteRef)));
+ await assertFails(updateDoc(ref(alice,inviteRef),{status:'accepted',updatedAt:serverTimestamp()}));
+ const inviteAccept=writeBatch(bob);
+ inviteAccept.update(ref(bob,inviteRef),{status:'accepted',updatedAt:serverTimestamp()});
+ inviteAccept.set(ref(bob,inviteClub+'/clubMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()});
+ inviteAccept.update(ref(bob,inviteClub),{memberCount:2,lastMembershipUid:'bob',lastMembershipAction:'join',updatedAt:serverTimestamp()});
+ await assertSucceeds(inviteAccept.commit());
+ await assertSucceeds(getDoc(ref(bob,inviteClub)));
+
+ // Request-to-join lifecycle: outsider may request, but only a manager can accept and materialize membership.
+ const requestClub='clubs/request_rules_club';
+ await assertSucceeds(setDoc(ref(alice,requestClub),{owner:'alice',title:'Request Rules Club',kind:'focus',visibility:'public',membershipMode:'request',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,requestClub+'/clubMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
+ const joinReq=requestClub+'/clubJoinRequests/dave';
+ await assertSucceeds(setDoc(ref(dave,joinReq),{uid:'dave',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(dave,joinReq),{status:'accepted',updatedAt:serverTimestamp()}));
+ const joinAccept=writeBatch(alice);
+ joinAccept.update(ref(alice,joinReq),{status:'accepted',updatedAt:serverTimestamp()});
+ joinAccept.set(ref(alice,requestClub+'/clubMembers/dave'),{uid:'dave',role:'member',joinedAt:serverTimestamp()});
+ joinAccept.update(ref(alice,requestClub),{memberCount:2,lastMembershipUid:'dave',lastMembershipAction:'join',updatedAt:serverTimestamp()});
+ await assertSucceeds(joinAccept.commit());
+ await assertSucceeds(getDoc(ref(dave,requestClub)));
+
+ // Club ban is owner-only and atomically removes membership; banned identity cannot create a join request while ban exists.
+ const banBatch=writeBatch(alice);
+ banBatch.update(ref(alice,'clubs/role_test_club'),{memberCount:2,lastMembershipUid:'eve',lastMembershipAction:'ban',updatedAt:serverTimestamp()});
+ banBatch.delete(ref(alice,'clubs/role_test_club/clubMembers/eve'));
+ banBatch.set(ref(alice,'clubs/role_test_club/clubBans/eve'),{uid:'eve',by:'alice',createdAt:serverTimestamp()});
+ await assertSucceeds(banBatch.commit());
+ await assertFails(getDoc(ref(eve,'clubs/role_test_club')));
+ await assertFails(setDoc(ref(eve,'clubs/role_test_club/clubJoinRequests/eve'),{uid:'eve',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(deleteDoc(ref(bob,'clubs/role_test_club/clubBans/eve')));
+ await assertSucceeds(deleteDoc(ref(alice,'clubs/role_test_club/clubBans/eve')));
+
  // All five canonical collaboration kinds must be accepted through the same participant-scoped Rules.
  for(const [kind,suffix] of [['task','task'],['habit','habit'],['goal','goal'],['leitner-word','leitner']]){
    const sid='collab_'+suffix+'_rules',spacePath='collabSpaces/'+sid,invitePath='collabInvites/'+sid+'__bob';
