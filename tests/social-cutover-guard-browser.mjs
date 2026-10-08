@@ -45,7 +45,7 @@ try{
    try{await fn();results.push({name,blocked:false})}
    catch(e){results.push({name,blocked:e.message===s.socialCutover.message,reason:e.message})}
   }
-  return {results,writes:window.__cutoverWrites,readers:['dm','groups','clubs','challenges'].every(k=>!!s[k]),friend:typeof s.addFriend==='function',profile:typeof s.saveProfileValues==='function'}
+  return {results,writes:window.__cutoverWrites,readers:['dm','groups','clubs','challenges'].every(k=>!!s[k]),friend:typeof s.blockUser==='function',profile:typeof s.saveProfileValues==='function'}
  });
  assert.equal(operations.results.length,13);
  assert.ok(operations.results.every(x=>x.blocked),JSON.stringify(operations.results));
