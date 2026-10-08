@@ -1,9 +1,11 @@
 import {getApps} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,query,where,getDocs,getDoc,setDoc,updateDoc,deleteDoc,doc,serverTimestamp,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
-import {getStorage,ref as storageRef,uploadBytes,deleteObject,getBytes} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js';
+// Media uploads are deferred until a real cloud Storage backend is configured.
 
-const app=getApps()[0]||null,auth=app?getAuth(app):null,db=app?getFirestore(app):null,storage=app?getStorage(app):null;
+const app=getApps()[0]||null,auth=app?getAuth(app):null,db=app?getFirestore(app):null;
+const MEDIA_PHASE_ENABLED=false;
+const MEDIA_DEFERRED_MESSAGE='بخش تصاویر در فاز بعد فعال می‌شود';
 const state={posts:[],stories:[],loading:false,error:'',targetUid:'',targetPerson:null};
 let liveMediaUrls=new Set();
 const safe=(v,n)=>String(v??'').trim().slice(0,n);
@@ -13,11 +15,11 @@ const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.
 const person=uid=>uid===auth?.currentUser?.uid?({...window.ElaraAccount?.profile,uid,name:window.ElaraAccount?.profile?.name||window.ElaraSocial?.me?.name||'Elara'}):(state.targetPerson?.uid===uid?state.targetPerson:(friends().find(x=>x.uid===uid)||{uid,name:'دوست'}));
 const emit=()=>window.dispatchEvent(new CustomEvent('elara:page-updated',{detail:{...state}}));
 function row(snapshot){const d=snapshot.data()||{};return{id:snapshot.id,...d,createdMs:ms(d.createdAt),updatedMs:ms(d.updatedAt),expiresMs:ms(d.expiresAt),person:person(d.uid)}}
-const MEDIA_TYPES=new Map([['image/jpeg','jpg'],['image/png','png'],['image/webp','webp']]);
-function validateMedia(file){if(!file)return null;if(!(file instanceof Blob)||!MEDIA_TYPES.has(file.type))throw Error('فقط تصویر JPEG، PNG یا WebP مجاز است.');if(file.size<=0||file.size>=5*1024*1024)throw Error('حجم تصویر باید کمتر از ۵ مگابایت باشد.');return file}
-async function uploadMedia(file,kind,contentId,uid){file=validateMedia(file);if(!file)return null;if(!storage)throw Error('فضای ذخیره‌سازی در دسترس نیست.');const ext=MEDIA_TYPES.get(file.type),name=(crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/-/g,'').slice(0,24)+'.'+ext,path='pageMedia/'+uid+'/'+kind+'/'+contentId+'/'+name;await uploadBytes(storageRef(storage,path),file,{contentType:file.type,cacheControl:'private,max-age=3600'});return{mediaPath:path,mediaType:file.type}}
-async function removeMedia(path){if(!path||!storage)return;try{await deleteObject(storageRef(storage,path))}catch(error){if(String(error?.code||'')!=='storage/object-not-found')console.warn('Elara page media cleanup:',error)}}
-async function hydrateMedia(rows,urls){if(!storage)return rows;await Promise.all(rows.map(async item=>{if(!item.mediaPath)return;try{const bytes=await getBytes(storageRef(storage,item.mediaPath),5*1024*1024);const url=URL.createObjectURL(new Blob([bytes],{type:item.mediaType||'image/webp'}));item.mediaUrl=url;urls.add(url)}catch(error){console.warn('Elara page media read:',item.id,error)}}));return rows}
+// Fail closed: never write fake image metadata/URLs, never request an absent bucket.
+function validateMedia(file){if(file)throw Error(MEDIA_DEFERRED_MESSAGE);return null}
+async function uploadMedia(file){if(file)throw Error(MEDIA_DEFERRED_MESSAGE);return null}
+async function removeMedia(){return false}
+async function hydrateMedia(rows){return rows}
 async function collectFor(name,{story=false,urls=new Set()}={}){
  const current=auth?.currentUser;if(!current?.emailVerified||!db)return[];
  const ref=collection(db,name),map=new Map();
