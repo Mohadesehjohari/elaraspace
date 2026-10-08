@@ -36,6 +36,10 @@ async function open(width,height,touch=false){const context=await browser.newCon
  assert.equal(await page.locator('#task-list>.astra-task-row[aria-selected="true"]').count(),2,'right-click selection count mismatch');
  await page.locator('[data-task-bulk="cancel"]').click();await page.waitForTimeout(30);
  assert.equal(await page.locator('#task-bulk-toolbar').isHidden(),true,'bulk Cancel did not leave selection mode');
+ // The contextmenu selection handler intentionally suppresses one synthetic
+ // follow-up click on the right-clicked row for 450ms. Exercise kebab after
+ // that guard expires; otherwise the test click is not delivered to <summary>.
+ await page.waitForTimeout(510);
  const kebabs=page.locator('#task-list .astra-task-more');
  await kebabs.nth(0).locator('summary').click();await page.waitForTimeout(40);
  assert.equal(await kebabs.nth(0).getAttribute('open'),'','first task menu did not open');
