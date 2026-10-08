@@ -16,7 +16,9 @@ const clubState={
 window.__clubState=clubState;
 window.ElaraSocial={me:{uid:'A',name:'آرین',username:'aren',xp:820},friends:[{uid:'B',name:'کیان',username:'kian',xp:600},{uid:'C',name:'مهسا',username:'mahsa',xp:500}],requests:[],activities:[],error:'',refresh:async()=>{},saveProfileValues:async values=>({profile:values,warnings:[]}),publishActivity:async()=>true,openSelfProfile(){},openProfile(){}};
 window.ElaraSocial.clubs={
- kinds:['reading','fitness','focus','general'],
+ kinds:['reading','fitness','language','focus','habits','meditation','general'],
+ membershipModes:['public','request','invite'],
+ postKinds:['mission','challenge','poll','reminder','result','congratulations','notice'],
  list:async()=>clubState.clubs.map(x=>({...x})),
  discover:async()=>[],
  contribution:async id=>(clubState.members[id]||[]).map(x=>({uid:x.uid,person:{...x.person},events:0,posts:0,votes:0})),
