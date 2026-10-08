@@ -1,0 +1,103 @@
+name: Strict Social Cutover Production Gate
+on:
+  push:
+    branches:
+      - social-closure/20261008
+  pull_request:
+    paths:
+      - '.github/workflows/social-strict-cutover-gate.yml'
+      - 'firestore.rules'
+      - 'storage.rules'
+      - 'elara-social.js'
+      - 'social-groups-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
+      - 'tests/social-strict-*.mjs'
+      - 'tests/social-cutover-guard-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  migrated-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Firestore emulator tests
+        run: npm install --prefix tests --no-package-lock
+      - name: Migrated real-count production-shape compatibility (strict Rules)
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/social-strict-migrated-emulator.mjs"
+
+  guarded-client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install tests
+        run: npm install --prefix tests --no-package-lock
+      - name: Live Guard production unguarded writes against strict Rules
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/social-strict-guarded-client-emulator.mjs"
+      - name: Install browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Guarded production source blocks before Firestore (not candidate client)
+        env:
+          ELARA_GUARDED_MAIN_SHA: 9da35c08f0f6b5d3111e9bc8e39413e3e92e3247
+        run: timeout 120s node tests/social-cutover-guard-browser.mjs
+      - name: Cutover migration unit regression
+        run: node tests/social-cutover-migration.test.mjs
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install tests
+        run: npm install --prefix tests --no-package-lock
+      - name: Strict security denies legacy Challenge rate bypass and role forgery
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/social-strict-security-emulator.mjs"
+
+  firestore-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install tests
+        run: npm install --prefix tests --no-package-lock
+      - name: Comprehensive strict Firestore and Storage SDK emulator matrix
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs && node tests/storage-rules-emulator.mjs"
