@@ -60,7 +60,7 @@ try{
     kind:spec.kind,visibility:spec.visibility,membershipMode:spec.membershipMode,restDay:Number(spec.restDay)||0,
     memberCount:1,memberLimit:Number(spec.memberLimit)||50,avatarPath:'',bannerPath:'',status:'active'});return 'club_media_off'},
    members:async()=>[{uid:'owner',role:'owner',person:{uid:'owner',name:'Owner'}}],
-   posts:async()=>[],joinRequests:async()=>[]
+   posts:async()=>[],contribution:async()=>[],dailyReport:async()=>({posts:0,restDay:false}),joinRequests:async()=>[]
   }};
   window.ElaraDialog={open:async arg=>{
    if(arg.content?.classList?.contains('social-club-create')){arg.content.querySelector('[name=title]').value='No media club';return true}
