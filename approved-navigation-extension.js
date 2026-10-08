@@ -47,7 +47,8 @@ function button(def,kind='main',existing=null){
  b.className=side?'nav-item elara-nav elara-canonical-sidebar':'elara-extension-nav elara-canonical-main';
  if(kind==='secondary')b.classList.add('elara-sidebar-secondary-item');
  b.dataset.elaraTab=def.route;b.dataset.elaraNavKind=kind;b.setAttribute('aria-label',def.label);
- const pair=ASSETS[def.route],isSelected=def.route===current;
+ /* The flat vector set already shipped with Elara is the closest match to the owner's clean cyan/white desktop sidebar. Keep WebP artwork for main/mobile navigation. */
+  const pair=side?null:ASSETS[def.route],isSelected=def.route===current;
  const image=pair?`<img class="elara-art-img elara-nav-art" src="${root+pair[isSelected?1:0]}" data-file="${pair[isSelected?1:0]}" alt="" aria-hidden="true" width="40" height="40" decoding="async" loading="eager">`:'';
  b.innerHTML=`${image}${fallback(def.icon)}<small>${def.label}</small>`;
  if(pair){b.classList.add('elara-nav-has-art');const img=b.querySelector('.elara-nav-art');img.onload=()=>{img.hidden=false;b.classList.add('elara-nav-has-art')};img.onerror=()=>{img.hidden=true;b.classList.remove('elara-nav-has-art')};for(const name of ['pointerenter','pointerleave','focusin','focusout'])b['on'+name]=()=>artworkState(b)}
