@@ -48,7 +48,7 @@ body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav){
 body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav) small{
  color:inherit!important;font-size:.81rem!important;font-weight:780!important
 }
-body.dark .sidebar .elara-nav-art{width:31px!important;height:31px!important;object-fit:contain!important;filter:saturate(.8) brightness(.96)!important}
+body.dark .sidebar .elara-nav-art{width:28px!important;height:28px!important;object-fit:contain!important;opacity:.93!important;filter:grayscale(1) brightness(1.55) contrast(1.07)!important}
 body.dark .sidebar :where(.nav-item,.elara-nav,.elara-extension-nav):hover{
  background:linear-gradient(90deg,rgba(12,190,255,.10),rgba(28,91,205,.14))!important;
  border-color:rgba(50,165,232,.28)!important;
@@ -59,7 +59,7 @@ body.dark .sidebar :where([aria-current="page"],.active){
  box-shadow:inset 4px 0 0 #30e4ff,0 0 17px rgba(0,190,255,.15)!important;
 }
 [dir="rtl"] body.dark .sidebar :where([aria-current="page"],.active){box-shadow:inset -4px 0 0 #30e4ff,0 0 17px rgba(0,190,255,.15)!important}
-body.dark .sidebar :where([aria-current="page"],.active) .elara-nav-art{filter:brightness(1.12) saturate(1.04) drop-shadow(0 0 7px rgba(32,215,255,.28))!important}
+body.dark .sidebar :where([aria-current="page"],.active) .elara-nav-art{width:30px!important;height:30px!important;opacity:1!important;filter:grayscale(.35) brightness(1.27) saturate(1.35) drop-shadow(0 0 7px rgba(32,215,255,.38))!important}
 body.dark .sidebar .elara-sidebar-secondary{margin-top:11px!important;padding-top:11px!important;border-top:1px solid rgba(91,154,209,.34)!important}
 body.dark #ref-sidebar-banner{
  margin-top:auto!important;min-height:138px!important;padding:17px 15px!important;border:1px solid rgba(116,98,255,.60)!important;
@@ -75,9 +75,10 @@ body.dark #ref-sidebar-banner span{color:#a9bada!important}
 
 /* ================== HEADER ================== */
 body.dark .workspace .topbar.ref-topbar{
+ position:relative!important;z-index:10!important;
  height:64px!important;min-height:64px!important;max-height:64px!important;padding:8px 18px!important;border-bottom:0!important;
  display:flex!important;align-items:center!important;gap:11px!important;direction:ltr!important;
- background:rgba(2,18,42,.70)!important;backdrop-filter:blur(16px)!important;
+ background:linear-gradient(90deg,#02142dec,#03162bea)!important;backdrop-filter:blur(12px)!important;
 }
 body.dark .ref-topbar .topbar-leading{display:none!important}
 body.dark .ref-topbar #ref-header-search{order:1!important;width:min(470px,38vw)!important;position:relative!important;direction:rtl!important}
