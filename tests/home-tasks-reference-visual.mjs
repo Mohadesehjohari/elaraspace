@@ -31,6 +31,19 @@ try{
   await page.waitForFunction(()=>!document.documentElement.hasAttribute('data-elara-booting')&&!!window.ElaraReferenceHome,null,{timeout:30000});
   await page.evaluate((route)=>{document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');if(route==='home')window.ElaraReferenceHome?.render();window.ElaraOpen?.(route)},route);
   await page.waitForTimeout(450);
+  if(route==='home'){
+   const artwork=await page.evaluate(async()=>{
+    const images=[...document.querySelectorAll('#ref-quick-access .ref-quick-icon')];
+    await Promise.all(images.map(async img=>{img.loading='eager';try{await img.decode()}catch(_){}}));
+    return images.map(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
+      width:img.getBoundingClientRect().width,height:img.getBoundingClientRect().height,
+      display:getComputedStyle(img).display,opacity:getComputedStyle(img).opacity}));
+   });
+   assert.equal(artwork.length,6,'Exactly six real quick access icons required');
+   assert.ok(artwork.every(img=>img.src?.startsWith('assets/ui/')&&img.naturalWidth>0&&img.naturalHeight>0&&img.width>=32&&img.height>=32&&img.display!=='none'&&Number(img.opacity)>0),
+    'Owner WebP Quick Access icons must decode and visibly render: '+JSON.stringify(artwork));
+   console.log('REFERENCE_QUICK_WEBP_DECODE_PASS '+width);
+  }
   const selectors=route==='home'?['.topbar','.sidebar','.ref-home-grid','#ref-streak-card','.ref-quick-access-grid','.owner-home-hero','.owner-home-streak','.owner-home-goals','#ref-bottom-grid']:['.topbar','.sidebar','#panel-tasks','.astra-task-row','#astra-task-toolbar','.astra-task-hero','#astra-task-streak','#tasks-heading','.section-heading','.astra-task-insights'];
   const metrics=await page.evaluate((selectors)=>{const m={width:innerWidth,scrollWidth:document.documentElement.scrollWidth};for(const s of selectors){const el=document.querySelector(s);if(!el){m[s]=null;continue}const a=el.getBoundingClientRect(),cs=getComputedStyle(el);m[s]={x:Math.round(a.x),y:Math.round(a.y),width:Math.round(a.width),height:Math.round(a.height),display:cs.display,background:cs.backgroundImage?.slice(0,300)}}return m},selectors);
   if(route==='home')console.log('HOME_HERO_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>{
@@ -60,6 +73,9 @@ try{
      toolbar:rect(p.querySelector('#astra-task-toolbar'))?.height,rows:rows.length,
      rowSamples:rows.slice(0,8).map(x=>({src:x.dataset.taskSource,background:getComputedStyle(x).backgroundImage,
        checked:x.querySelector('.check-button')?.getAttribute('aria-pressed'),
+       checkWidth:x.querySelector('.check-button')?.getBoundingClientRect().width,
+       titleFont:x.querySelector('.item-title')?parseFloat(getComputedStyle(x.querySelector('.item-title')).fontSize):0,
+       statusFont:x.querySelector('.astra-task-status')?parseFloat(getComputedStyle(x.querySelector('.astra-task-status')).fontSize):0,
        checkArt:x.querySelector('.check-button')?getComputedStyle(x.querySelector('.check-button')).backgroundImage:'',
        status:getComputedStyle(x.querySelector('.astra-task-status')).display,
        title:x.querySelector('.item-title')?.textContent,
@@ -93,6 +109,12 @@ try{
     assert.ok(fidelity.rowSamples.every(x=>x.status!=='none'),'Task state badges hidden');
     assert.ok(fidelity.rowSamples.every(x=>x.titleWhiteSpace!=='nowrap'),'Task title clipping regression');
     assert.equal(fidelity.navTasks,true,'Tasks navigation not active');
+    if(width>=1400){
+      assert.ok(fidelity.rowSamples.every(x=>x.h>=80),'Tasks rows visually undersized vs owner reference: '+JSON.stringify(fidelity.rowSamples.map(x=>x.h)));
+      assert.ok(fidelity.rowSamples.every(x=>x.checkWidth>=38),'Task completion boxes too small vs owner reference');
+      assert.ok(fidelity.rowSamples.every(x=>x.titleFont>=16),'Persian Tasks titles smaller than reference readability threshold');
+      assert.ok(fidelity.rowSamples.every(x=>x.statusFont>=11),'Tasks status labels too small');
+    }
   }
     console.log('VISUAL_INVENTORY '+JSON.stringify({route,width,metrics,errors}));
   assert.ok(metrics.scrollWidth<=width+5,'viewport overflows '+route+width);
