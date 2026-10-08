@@ -31,6 +31,7 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.evaluate(()=>ElaraTaskCollections.open('list','بعداً'));await page.waitForSelector('#elara-task-collection-page:not(.hidden)');
  assert.equal(await page.locator('[data-collection-task]').count(),1,'list page leaked unrelated tasks');
  await page.locator('[data-collection-task="l1"] [data-collection-action="delete"]').click();await page.waitForSelector('.elara-dialog-layer');await page.getByRole('button',{name:'حذف'}).last().click();await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(t=>t.id==='l1'));
+ await page.waitForFunction(()=>!document.querySelector('[data-collection-task="l1"]'),null,{timeout:12000});
  assert.equal(await page.locator('[data-collection-task="l1"]').count(),0,'deleted list task remained');
  const metrics=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(metrics.sw<=metrics.w+1,'collection horizontal overflow '+width+' '+JSON.stringify(metrics));
  await page.screenshot({path:'browser-artifacts/task-collection-'+width+'.png',fullPage:true});await page.close()
