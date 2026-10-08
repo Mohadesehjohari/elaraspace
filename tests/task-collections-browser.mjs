@@ -17,12 +17,15 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.some(t=>t.text==='تسک تازه پوشه'&&t.folder==='آرشیو'&&t.priority==='1'));
  assert.equal(await page.locator('[data-collection-task]').count(),2,'folder add did not render');
  await page.locator('[data-collection-task="f1"] [data-collection-action="toggle"]').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.completed===true);
- await page.locator('[data-collection-task="f1"] [data-collection-action="edit"]').click();await page.waitForFunction(()=>location.hash==='#tasks'&&document.getElementById('elara-task-collection-page')?.hidden===true);// Collection Edit routes to the canonical Tasks editor; exercise the real
- // editable form/persistence path instead of assuming a secondary dialog saves.
- await page.waitForFunction(()=>document.getElementById('task-title')?.value==='داخل پوشه'&&document.getElementById('task-submit')?.textContent?.includes('ذخیره'));
- await page.locator('#task-title').fill('ویرایش‌شده');
- await page.locator('#task-submit').click();
- await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text==='ویرایش‌شده');
+ await page.locator('[data-collection-task="f1"] [data-collection-action="edit"]').click();await page.waitForFunction(()=>location.hash==='#tasks'&&document.getElementById('elara-task-collection-page')?.hidden===true);// ElaraTasks.taskAction('edit-task') opens the canonical Phase2 detail dialog.
+ await page.waitForSelector('.elara-dialog-layer .task-detail-form');
+ await page.locator('.elara-dialog-layer [data-detail="text"]').fill('ویرایش‌شده');
+ const dialogBefore=await page.evaluate(()=>({depth:window.ElaraDialog?.depth?.(),task:JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text}));
+ await page.getByRole('button',{name:'ذخیره تغییرات'}).click();
+ await page.waitForTimeout(350);
+ const editAfter=await page.evaluate(()=>({depth:window.ElaraDialog?.depth?.(),task:JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='f1')?.text,taskFormValue:document.getElementById('task-title')?.value}));
+ console.log('COLLECTION_REAL_DETAIL_EDIT '+JSON.stringify({width,before:dialogBefore,after:editAfter}));
+ assert.equal(editAfter.task,'ویرایش‌شده','Canonical Task detail editor must persist user changes');
  await page.evaluate(()=>ElaraTaskCollections.open('folder','آرشیو'));await page.waitForSelector('#elara-task-collection-page:not(.hidden)');await page.locator('[data-collection-back]').click();await page.waitForFunction(()=>document.getElementById('elara-task-collection-page')?.hidden===true);
  await page.evaluate(()=>ElaraTaskCollections.open('list','بعداً'));await page.waitForSelector('#elara-task-collection-page:not(.hidden)');
  assert.equal(await page.locator('[data-collection-task]').count(),1,'list page leaked unrelated tasks');
