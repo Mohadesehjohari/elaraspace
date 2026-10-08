@@ -53,7 +53,7 @@ try{
       step:e.querySelector('[data-home-goal-step]')?.dataset.homeGoalStep||e.querySelector('[data-goal-id]')?.dataset.homeGoalStep
    }));
    const habitRows=[...q('#elara-home-habits').querySelectorAll('.ref-habit-row')].map(e=>e.textContent);
-   const quickCards=[...q('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
+   const quickCards=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
    const heroImg=q('.owner-home-hero-image');
    const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
      icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0};
