@@ -1,12 +1,12 @@
 /* Canonical Home artwork and reference geometry. No injected cards/sections. */
 #panel-home.ref-home.owner-art-home{min-width:0;--owner-art-ink:#f3f6ff}
 /* The old reference cascade pulled Home under its topbar; reserve the header's own row. */
-@media(min-width:701px){#panel-home.ref-home.owner-art-home{margin-top:64px!important}}
+@media(min-width:701px){#panel-home.ref-home.owner-art-home{margin-top:54px!important}}
 #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
  position:relative!important;display:flex!important;flex-direction:column!important;
  justify-content:center!important;align-items:flex-end!important;isolation:isolate;
- width:100%!important;height:190px!important;
- min-height:190px!important;max-height:190px!important;margin-bottom:15px!important;
+ width:100%!important;height:196px!important;
+ min-height:196px!important;max-height:196px!important;margin-bottom:15px!important;
  padding:clamp(14px,2vw,25px)!important;overflow:hidden!important;border-radius:17px!important;
  background:#0b1230!important;color:#fff!important
 }
@@ -26,7 +26,7 @@
  margin:0!important;padding:0!important;text-align:right!important;color:#fff!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
- color:#fff!important;font-size:clamp(1.08rem,2vw,1.8rem)!important;
+ color:#fff!important;font-size:clamp(1.08rem,1.72vw,1.64rem)!important;
  line-height:1.55!important;margin:3px 0!important;overflow-wrap:anywhere!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy p{
@@ -358,5 +358,84 @@ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar .topba
 @media(max-width:700px){
  body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar .topbar-leading{
   display:none!important;visibility:hidden!important
+ }
+}
+
+
+/* Owner-reference visual QA, PR #22: desktop typography, topbar and card hierarchy.
+   These selectors act on the canonical cards only and never synthesize records. */
+@media(min-width:1001px){
+ body.dark .sidebar .identity{min-height:105px!important;padding-bottom:9px!important}
+ body.dark .sidebar .identity .elara-brand-wordmark{width:208px!important;height:86px!important;max-width:100%!important}
+ #panel-home.ref-home.owner-art-home .ref-home-grid>.ref-card>header h2{
+  font-size:1.00rem!important;letter-spacing:0!important
+ }
+ #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-flame{
+  width:128px!important;height:128px!important;max-width:none!important
+ }
+ #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
+  width:34px!important;height:34px!important;max-width:34px!important
+ }
+ #panel-home.ref-home.owner-art-home .ref-quick-card strong{font-size:.99rem!important}
+ #panel-home.ref-home.owner-art-home .ref-quick-card small{font-size:.70rem!important;line-height:1.35!important}
+ #panel-home.ref-home.owner-art-home .ref-quick-card>i{width:34px!important;height:34px!important}
+}
+body.dark .sidebar .elara-canonical-sidebar>.elara-icon{
+ display:grid!important;place-items:center!important;visibility:visible!important;
+ width:27px!important;height:27px!important;min-width:27px!important;
+ color:#edf8ff!important;opacity:.91!important;filter:drop-shadow(0 0 3px #30b6ef29)!important
+}
+body.dark .sidebar .elara-canonical-sidebar>.elara-icon svg{
+ display:block!important;width:100%!important;height:100%!important;
+ stroke-width:1.9!important
+}
+body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
+ color:#36e8ff!important;opacity:1!important;filter:drop-shadow(0 0 5px #27d9ff87)!important
+}
+#panel-home.ref-home.owner-art-home .ref-card>header .ref-view-all-button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ color:#bfedff!important;font-size:.70rem!important;font-weight:750!important;
+ white-space:nowrap!important;line-height:1.2!important;text-shadow:none!important
+}
+#panel-home.ref-home.owner-art-home .ref-card>header .ref-view-all-button:hover{
+ color:#fff!important;text-decoration:underline!important;filter:none!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-tasks .ref-card-count{
+ font-size:.72rem!important;color:#9cfcff!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-progress{
+ height:8px!important;margin:9px 0 6px!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row{
+ min-height:35px!important;padding:4px 3px!important;
+ background:rgba(3,20,42,.42)!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{
+ font-size:.74rem!important;line-height:1.48!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring{
+ width:108px!important;height:108px!important;
+ box-shadow:0 0 0 2px rgba(54,225,205,.44),0 0 23px rgba(12,226,200,.16)!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring strong{font-size:1.37rem!important}
+#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-copy strong{font-size:1rem!important}
+#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-wellness-cell{
+ min-height:72px!important;background:rgba(2,31,44,.86)!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{
+ width:75%!important;font-size:.74rem!important;padding:6px 8px!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{
+ background:rgba(3,20,40,.82)!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main strong{font-size:.73rem!important}
+#panel-home.ref-home.owner-art-home #ref-quick-access{margin-top:5px!important}
+@media(max-width:700px){
+ #panel-home.ref-home.owner-art-home .ref-card>header .ref-view-all-button{
+  font-size:.65rem!important;padding:2px 4px!important
+ }
+ #panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring{
+  box-shadow:0 0 0 1px rgba(54,225,205,.45),0 0 18px rgba(12,226,200,.14)!important
  }
 }
