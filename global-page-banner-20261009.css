@@ -182,18 +182,22 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
 /* Actual 320px Chromium screenshot QA: one scrollable Tasks toolbar instead of nested wrapping grids. */
 @media(max-width:700px){
  html body.dark #panel-tasks #astra-task-toolbar{
-  display:flex!important;flex-flow:row nowrap!important;direction:rtl!important;
-  gap:8px!important;align-items:center!important;overflow-x:auto!important;overflow-y:hidden!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;direction:rtl!important;
+  gap:7px!important;align-items:start!important;overflow:hidden!important;
   padding:6px 3px 9px!important;max-width:100%!important;width:100%!important;
   scrollbar-width:thin!important;scroll-snap-type:x proximity!important;
  }
- html body.dark #panel-tasks #astra-task-toolbar > *{flex:0 0 auto!important;width:max-content!important;min-width:max-content!important}
+ html body.dark #panel-tasks #astra-task-toolbar > *{min-width:0!important;max-width:100%!important;width:100%!important}
  html body.dark #panel-tasks #astra-task-toolbar #elara-task-page-actions{
-  order:0!important;display:flex!important;flex-flow:row nowrap!important;
-  align-items:center!important;gap:5px!important;grid-template-columns:none!important
+  order:1!important;grid-row:2!important;display:flex!important;flex-flow:row nowrap!important;
+  align-items:center!important;justify-content:space-between!important;gap:6px!important;
+  min-width:0!important;grid-template-columns:none!important;overflow-x:auto!important
  }
  html body.dark #panel-tasks #astra-task-toolbar #astra-task-chips{
-  order:1!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:5px!important
+  order:0!important;grid-row:1!important;display:flex!important;flex-flow:row nowrap!important;
+  align-items:center!important;gap:5px!important;width:100%!important;min-width:0!important;
+  overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity!important
  }
  html body.dark #panel-tasks #astra-task-toolbar #astra-task-chips .filters{
   display:flex!important;flex-flow:row nowrap!important;grid-template-columns:none!important;
