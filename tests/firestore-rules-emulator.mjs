@@ -278,6 +278,21 @@ try{
  await assertFails(updateDoc(ref(eve,linkPath),{active:false}));
  await assertFails(updateDoc(ref(alice,linkPath),{expiresAt:nowPlus(20*24*60*60*1000)}));
 
+ // A valid-looking token cannot be redeemed without a verified email claim
+ // or if privileged data was tampered to point at the wrong owner / kind.
+ const unverified=env.authenticatedContext('freshUnverified',{email:'fresh@example.test',email_verified:false}).firestore();
+ const memberFields={uid:'freshUnverified',role:'member',joinToken,localEntityId:'unauthorized',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ await assertFails(setDoc(ref(unverified,collab+'/members/freshUnverified'),memberFields));
+ const spoofOwnerToken='1'.repeat(64),spoofKindToken='2'.repeat(64);
+ await env.withSecurityRulesDisabled(async ctx=>{
+  const admin=ctx.firestore();
+  await setDoc(ref(admin,'collabLinks/'+spoofOwnerToken),{...validLink,ownerUid:'eve',createdAt:Timestamp.now()});
+  await setDoc(ref(admin,'collabLinks/'+spoofKindToken),{...validLink,kind:'goal',createdAt:Timestamp.now()});
+ });
+ for(const token of [spoofOwnerToken,spoofKindToken]){
+  await assertFails(setDoc(ref(dave,collab+'/members/dave'),{uid:'dave',role:'member',joinToken:token,localEntityId:'spoofed',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ }
+
  // Blocked users cannot discover/redeem even a still-active valid token.
  await assertSucceeds(setDoc(ref(alice,'blocks/alice__dave'),{owner:'alice',target:'dave',targetName:'Dave',targetUsername:'dave',createdAt:serverTimestamp()}));
  await assertFails(getDoc(ref(dave,linkPath)));
