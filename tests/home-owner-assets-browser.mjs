@@ -33,7 +33,7 @@ try{
   await page.evaluate(()=>{window.ElaraReferenceHome.render();window.ElaraOwnerHomeArtwork.refresh()});
   await page.waitForFunction(()=>{
    const img=document.querySelector('#panel-home .owner-home-hero-image');
-   return img?.complete&&img.naturalWidth>0&&document.querySelectorAll('#panel-home #elara-home-goals .ref-goal-row').length===3;
+   return img?.complete&&img.naturalWidth>0&&document.querySelectorAll('#panel-home #elara-home-goals .ref-goal-row').length===(innerWidth<=700?2:3);
   },null,{timeout:25000});
   const m=await page.evaluate(()=>{
    const panel=document.getElementById('panel-home');
