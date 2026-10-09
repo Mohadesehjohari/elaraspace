@@ -112,7 +112,7 @@ try{
     assert.ok(row.every(x=>x&&x.display!=='none'),'All 4 visible in desktop row');
     assert.ok(Math.max(...row.map(x=>x.top))-Math.min(...row.map(x=>x.top))<=4,'Four cards not on same top row');
     assert.ok(Math.max(...row.map(x=>x.bottom))-Math.min(...row.map(x=>x.bottom))<=5,'Four card bottoms not aligned');
-    assert.ok(row.every(x=>x.h<=310&&x.h>=170),'Giant cards exceed reference compact height');
+    assert.ok(row.every(x=>x.h>=315&&x.h<=335),'Four desktop owner cards must render at approved taller 322px height');
     for(let i=1;i<row.length;i++)assert.ok(row[i].left>row[i-1].left,'Desktop left-right card order violated');
     assert.equal(m.bottom!==null,true,'Bottom row missing');
     console.log('HOME_REFERENCE_STRUCTURE_PASS four_aligned=1 quick_access=single goals=3 habits=separate');
