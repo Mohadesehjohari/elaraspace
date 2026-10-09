@@ -1,0 +1,61 @@
+name: Home primary card height hotfix QA
+on:
+  push:
+    branches:
+      - fix/home-card-rendered-height-20261009
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and asset ownership
+        run: |
+          node --check boot.js
+          node --check tests/home-primary-card-height-browser.mjs
+          node --check tests/home-tasks-reference-visual.mjs
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local branch preview
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-height-http.log 2>&1 &
+          sleep 2
+      - name: Actual production-vs-branch rectangle and mobile screenshots
+        run: timeout 360s node tests/home-primary-card-height-browser.mjs
+      - name: Home and Tasks reference visual browser regressions
+        run: |
+          timeout 240s node tests/home-tasks-reference-visual.mjs
+          timeout 160s node tests/home-owner-assets-browser.mjs
+          timeout 160s node tests/task-collections-browser.mjs
+          timeout 160s node tests/task-checklist-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: home-card-height-before-after-${{ github.sha }}
+          path: browser-artifacts/*.png
+          retention-days: 14
+  core-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Home, Profile, Social, and collaboration contracts
+        run: |
+          node tests/home-first-startup.test.mjs
+          node tests/p0-home-contract.test.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+          npm install --prefix tests --no-package-lock
+          node tests/social-test.cjs

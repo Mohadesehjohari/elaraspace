@@ -46,7 +46,9 @@
   align-items:stretch!important;margin:0 0 12px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
-  height:250px!important;min-height:250px!important;max-height:250px!important
+  /* One desktop owner: final border-box (including Streak's deeper padding). */
+  box-sizing:border-box!important;
+  height:322px!important;min-height:322px!important;max-height:322px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   display:grid!important;direction:ltr!important;
