@@ -101,7 +101,10 @@ try{
     }
   }else{
     assert.ok(fidelity.heroBackground.includes('task-header-banner-bg.webp'),'Tasks panoramic owner art missing');
-    assert.ok(fidelity.heroTop>=-3&&fidelity.heroTop<=6,'Tasks hero must reach workspace top');
+    assert.ok(width<=700
+      ? fidelity.heroTop>=fidelity.headerBottom-3&&fidelity.heroTop<=fidelity.headerBottom+8
+      : fidelity.heroTop>=-3&&fidelity.heroTop<=6,
+      'Tasks hero must start immediately after real mobile header / at desktop workspace top');
     assert.ok(fidelity.rows>=5,'Tasks fixture missing canonical items');
     assert.equal(fidelity.toolbarActions,true,'Add Task button absent');
     assert.equal(fidelity.richRows,true,'source-specific real tasks lost');
