@@ -63,7 +63,7 @@ for(const width of widths){
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   for(const id of ['overview','leitner','books','classes','channels','tasks','challenges','report']){
    await page.locator('[data-ui12-jump="'+id+'"]').click();
-   assert.equal(await page.locator('[data-ui12-jump="'+id+'"]').getAttribute('class')?.includes('is-active'),true,'Shortcut '+id);
+   assert.equal((await page.locator('[data-ui12-jump="'+id+'"]').getAttribute('class'))?.includes('is-active'),true,'Shortcut '+id);
   }
   const value=await page.locator('#ui12-report .ui12-chart').innerHTML();
   await page.locator('#ui12-report [data-ui12-range="year"]').click();
