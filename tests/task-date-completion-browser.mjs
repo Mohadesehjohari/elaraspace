@@ -17,7 +17,7 @@ const seeded={version:1,theme:'dark',xp:0,taskCompletionHistory:[],folders:[],ta
 const page=await browser.newPage({viewport:{width:1440,height:950}});
 await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:stubCloud}));
 await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:stubSocial}));
-await page.addInitScript(data=>localStorage.setItem('elara_space_v1',JSON.stringify(data)),seeded);
+await page.addInitScript(data=>{if(!localStorage.getItem('elara_space_v1'))localStorage.setItem('elara_space_v1',JSON.stringify(data))},seeded);
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 try {
  await page.goto(base+'/#tasks',{waitUntil:'domcontentloaded'});
