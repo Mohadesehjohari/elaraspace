@@ -118,13 +118,18 @@ function randomToken(){
  return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
 }
 async function createShareLink(spaceId){
- const uid=requireUser(),spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('فقط سازنده می‌تواند لینک عضویت بسازد.','Only the owner can create a join link.'));
+ const uid=await requireVerifiedToken(),spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('فقط سازنده می‌تواند لینک عضویت بسازد.','Only the owner can create a join link.'));
  const token=randomToken(),space=spaceSnap.data(),expiresAt=Timestamp.fromMillis(Date.now()+LINK_LIFETIME_MS);
  await setDoc(doc(db,'collabLinks',token),{spaceId:String(spaceId),ownerUid:uid,kind:space.kind,title:String(space.title||'').slice(0,120),active:true,createdAt:serverTimestamp(),expiresAt});
  const url=new URL(location.pathname,location.origin);url.searchParams.set('elaraJoin',token);url.hash=space.kind==='language-class'?'#language-courses':'#home';return url.toString()
 }
+async function requireVerifiedToken(){
+ const uid=requireUser();
+ // Firebase claims can lag a just-verified email until an explicit refresh.
+ await auth.currentUser.getIdToken(true);return uid
+}
 async function revokeShareLinks(spaceId){
- const uid=requireUser(),spaceRef=doc(db,'collabSpaces',String(spaceId)),spaceSnap=await getDoc(spaceRef);
+ const uid=await requireVerifiedToken(),spaceRef=doc(db,'collabSpaces',String(spaceId)),spaceSnap=await getDoc(spaceRef);
  if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('لغو لینک فقط در اختیار سازنده است.','Only the space owner can revoke links.'));
  const snaps=await getDocs(query(collection(db,'collabLinks'),where('ownerUid','==',uid)));
  const active=snaps.docs.filter(x=>x.data().spaceId===String(spaceId)&&x.data().active===true);
@@ -142,9 +147,11 @@ async function copyShareLink(spaceId,anchor=null){
  const url=await createShareLink(spaceId);try{await navigator.clipboard.writeText(url);copiedBubble(anchor);window.ElaraNotify?.push?.({type:'social',title:tx('لینک کپی شد','Link copied'),message:tx('اعتبار لینک ۷ روز است؛ سازنده می‌تواند آن را زودتر لغو کند.','Link valid for 7 days; the owner can revoke it sooner.'),dedupeKey:'collab-link:'+spaceId+':'+Date.now()})}catch{const box=document.createElement('div');box.className='collab-link-box';box.innerHTML='<input readonly dir="ltr" value="'+esc(url)+'">';await window.ElaraDialog.open({title:tx('لینک اشتراک','Share link'),content:box,actions:[{label:tx('بستن','Close'),value:false}]})}return url
 }
 async function joinLink(token){
- const uid=requireUser(),value=String(token||'');
+ const uid=await requireVerifiedToken(),value=String(token||'');
  if(!/^[a-f0-9]{64}$/.test(value))throw Error(tx('این لینک معتبر نیست.','Invalid join link.'));
- const linkSnap=await getDoc(doc(db,'collabLinks',value));
+ let linkSnap;
+ try{linkSnap=await getDoc(doc(db,'collabLinks',value))}
+ catch(error){if(error?.code==='permission-denied')throw Error(tx('این لینک معتبر نیست، لغو شده یا اعتبارش تمام شده است.','This link is invalid, revoked, or expired.'));throw error}
  if(!linkSnap.exists()||linkSnap.data().active!==true||!linkSnap.data().expiresAt?.toMillis||linkSnap.data().expiresAt.toMillis()<=Date.now())
    throw Error(tx('این لینک لغو شده یا اعتبارش تمام شده است.','This join link was revoked or has expired.'));
  const link=linkSnap.data(),memberRef=doc(db,'collabSpaces',link.spaceId,'members',uid),existing=await getDoc(memberRef);
