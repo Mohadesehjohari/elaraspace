@@ -36,6 +36,7 @@ async function run(base,route,width,count=21,kind='after'){
   return {...generic,toolbar:rect(q('#astra-task-toolbar')),rows:sel('#task-list>.astra-task-row').map(x=>({source:x.className,rect:rect(x),bg:getComputedStyle(x).backgroundImage,accent:getComputedStyle(x).getPropertyValue('--task-accent').trim(),label:x.querySelector('.item-title')?.textContent||'',strike:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).textDecorationLine:''})),archived:sel('.task-archive-row').length};
  },route);
  if(kind==='after')await page.screenshot({path:'browser-artifacts/ui09-'+route+'-'+width+'-'+count+'.png',fullPage:width>=701});
+ console.log('UI09_DIAGNOSTIC '+JSON.stringify({kind,route,width,expected:count,observed:m.taskCount,host:m.hostScroll,list:m.listScroll,cards:m.cards,quick:m.quick,bottom:m.bottom,rows:m.rows?.length}));
  if(route==='home'&&kind==='after'){
   assert.equal(m.quickCount,6,'exact six shortcuts required');
   assert.ok(m.goals.every(t=>!t.includes('عادت آب خوردن')),'habit rendered as goal');
