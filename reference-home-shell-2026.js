@@ -200,10 +200,59 @@ function wellness(){const target=$('ref-wellness-data');if(!target)return;const 
 function streakView(){const root=$('ref-streak-card');if(!root)return;const n=streak(),dates=activityDates(),d=new Date(selected()+'T12:00:00');const days=Array.from({length:7},(_,i)=>{const v=new Date(d);v.setDate(v.getDate()-3+i);const key=iso(v);return `<button type="button" data-home-date="${key}" aria-pressed="${key===selected()}" aria-label="${v.toLocaleDateString('fa-IR',{dateStyle:'full'})}" class="ref-streak-day ${dates.has(key)?'done':''} ${key===selected()?'today':''}"><span class="ref-day-mark"><i class="ref-weekday-check" aria-hidden="true"></i></span><b>${v.toLocaleDateString('fa-IR',{weekday:'narrow'})}</b><strong>${v.toLocaleDateString('fa-IR',{day:'numeric'})}</strong></button>`}).join('');window.ElaraDOM.patch(root,`<div class="ref-streak-summary">${art(UI_ASSETS.flame,'ref-streak-flame','')}<strong>${fa(n)}</strong><small>روز متوالی<span>به مسیرت ادامه بده!</span></small></div><div class="ref-streak-days">${days}</div><div class="ref-day-tools"><button type="button" data-home-calendar>تقویم</button><button type="button" data-home-date="${today()}">امروز</button><small>${d.toLocaleDateString('fa-IR',{month:'long',day:'numeric'})}</small></div>`);
  for(const [cls,label] of [['.ref-tasks','کارهای'],['.ref-habits','عادت‌ها']]){const h=document.querySelector(cls+' > header h2');if(h){const text=label+(cls==='.ref-tasks'?(selected()===today()?' امروز':' '+d.toLocaleDateString('fa-IR',{month:'short',day:'numeric'})):'');let node=[...h.childNodes].find(n=>n.nodeType===3);if(!node){node=document.createTextNode('');h.append(node)}if(node.nodeValue!==text)node.nodeValue=text}}
 }
+/* Equipped character quick-view: only the user's real equipped wardrobe asset.
+   No sample avatars, no Firestore writes, no duplicate profile controls. */
+function characterQuickView(bar,account,profile){
+ let toggle=document.getElementById('ref-equipped-character-toggle');
+ if(!toggle){
+  toggle=document.createElement('button');toggle.type='button';
+  toggle.id='ref-equipped-character-toggle';toggle.className='ref-character-chevron';
+  toggle.setAttribute('aria-label','نمایش کاراکتر مجهز');toggle.setAttribute('aria-controls','ref-equipped-character-panel');
+  toggle.setAttribute('aria-expanded','false');toggle.textContent='⌄';
+  account.insertAdjacentElement('afterend',toggle);
+ }
+ let popup=document.getElementById('ref-equipped-character-panel');
+ if(!popup){
+  popup=document.createElement('aside');popup.id='ref-equipped-character-panel';
+  popup.className='ref-equipped-character-panel';popup.setAttribute('role','dialog');
+  popup.setAttribute('aria-label','کاراکتر من');popup.setAttribute('aria-modal','false');
+  popup.hidden=true;document.body.append(popup)
+ }
+ const render=()=>{
+  const current=window.ElaraSocial?.me||window.ElaraAccount?.profile||{};
+  const v=window.ElaraProfileSystem?.viewModel?.(current,{self:true})||profile||{};
+  const equipped=!!v.avatarGroup&&!!v.avatarLevel&&!!v.avatarAssetSrc;
+  const art=equipped?window.ElaraProfileSystem?.avatarShell?.({...v,avatarSrc:v.avatarAssetSrc},{className:'ref-character-preview',frameClass:'ref-character-frame'})||'':'';
+  popup.innerHTML='<header><strong>کاراکتر مجهز من</strong><button type="button" data-ref-character-close aria-label="بستن">×</button></header>'+
+  (equipped?'<div class="ref-character-art">'+art+'</div><small>سطح '+fa(v.avatarLevel)+' · '+esc(v.name||'')+'</small>':
+  '<p class="ref-character-empty">هنوز کاراکتری در کمد پروفایلت انتخاب نکرده‌ای.</p>')+
+  '<button type="button" class="ref-character-go-profile" data-ref-character-profile>مشاهدهٔ پروفایل</button>';
+ };
+ const close=()=>{popup.hidden=true;toggle.setAttribute('aria-expanded','false')};
+ if(!toggle.dataset.bound){
+  toggle.dataset.bound='1';
+  toggle.addEventListener('click',event=>{
+   event.stopPropagation();if(!popup.hidden){close();return}render();
+   const rect=toggle.getBoundingClientRect();
+   popup.style.top=Math.min(innerHeight-110,rect.bottom+8)+'px';
+   popup.style.right=Math.max(8,innerWidth-rect.right)+'px';
+   popup.hidden=false;toggle.setAttribute('aria-expanded','true')
+  });
+  document.addEventListener('click',event=>{
+   if(popup.hidden)return;
+   if(event.target.closest('#ref-equipped-character-panel [data-ref-character-profile]')){close();window.ElaraOpen?.('profile');return}
+   if(event.target.closest('#ref-equipped-character-panel [data-ref-character-close]')){close();return}
+   if(!popup.contains(event.target)&&!toggle.contains(event.target))close()
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!popup.hidden){close();toggle.focus()}});
+  window.addEventListener('elara:open',close);
+ }
+}
 function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar?.querySelector('.topbar-actions'),leading=bar?.querySelector('.topbar-leading');if(!bar||!actions)return;bar.classList.add('ref-topbar');document.querySelectorAll('.elara-toolbar').forEach(x=>x.remove());if(leading&&!leading.querySelector('.ref-mobile-brand')){const brand=element('a','ref-mobile-brand','ref-mobile-brand');brand.href='#home';brand.setAttribute('aria-label','Elara Space');brand.innerHTML='<img class="elara-brand-wordmark" src="assets/ui/brand-elara-wordmark.webp" alt="Elara"><span class="sr-only">Elara Space</span>';leading.append(brand)}
  let account=$('ref-header-account');if(!account){account=element('button','ref-header-account','ref-header-account');account.type='button';account.setAttribute('aria-label','حساب و تنظیمات');account.addEventListener('click',()=>window.ElaraPrivateDrawer?.open?.('home'));bar.prepend(account)}
  const me=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},v=window.ElaraProfileSystem?.viewModel?.(me,{self:true})||{},xp=Number(v.xp??me.xp??read().xp)||0,level=v.level||window.ElaraLevels?.level?.(xp)||1,avatar=v.avatarSrc||window.ElaraAccount?.user?.photoURL||'',name=String(v.name||me.name||'حساب من');
  account.classList.toggle('ref-account-brand-duplicate',name.trim().toLocaleLowerCase()==='elara');const frame=String(v.frameSrc||'');window.ElaraDOM.patch(account,`${window.ElaraProfileSystem.avatarShell(v,{className:'ref-account-avatar',frameClass:'ref-account-equipped-frame'})}<span class="ref-account-copy"><strong>${esc(name)}</strong><small>سطح ${fa(level)} · ${fa(xp)} XP</small><span class="ref-xp-track"><i style="width:${Math.min(100,(xp%1000)/10)}%"></i></span></span>`);
+ characterQuickView(bar,account,v);
  let search=$('ref-header-search');if(!search){search=element('div','ref-header-search','ref-header-search');search.innerHTML=`<label for="ref-search-input" class="sr-only">جستجو در Elara</label><input id="ref-search-input" type="search" autocomplete="off" placeholder="جستجو در Elara…"><div class="ref-search-results" id="ref-search-results" hidden></div>`;bar.insertBefore(search,actions);const input=$('ref-search-input'),results=$('ref-search-results');input.addEventListener('input',()=>{const q=input.value.trim(),rows=localSearch(q);results.hidden=!q;results.innerHTML=q?(rows.length?rows.map(r=>`<button type="button" data-ref-search-route="${esc(r.route)}"><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></button>`).join(''):'<p class="muted">اینجا چیزی پیدا نکردم 👀 یه عبارت دیگه امتحان کن.</p>'):''});input.addEventListener('keydown',e=>{if(e.key==='Escape'){results.hidden=true;input.blur()}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click()}});results.addEventListener('click',e=>{const b=e.target.closest('[data-ref-search-route]');if(!b)return;const q=input.value.trim();results.hidden=true;window.ElaraOpen?.(b.dataset.refSearchRoute);if(b.dataset.refSearchRoute==='tasks')setTimeout(()=>{const field=$('task-search');if(field){field.value=q;field.dispatchEvent(new Event('input',{bubbles:true}))}},0)});document.addEventListener('click',e=>{if(!search.contains(e.target))results.hidden=true})}
  const sidebar=document.querySelector('.sidebar');let sideBanner=$('ref-sidebar-banner');if(sidebar&&!sideBanner){sideBanner=element('aside','ref-sidebar-banner','ref-sidebar-banner');sideBanner.innerHTML='<img src="assets/ui/icon-reward-star.webp" alt=""><strong>هر روز<br>نسخه‌ای بهتر از تو</strong><span>— Elara</span>';sideBanner.style.backgroundImage='linear-gradient(180deg,#05142b22,#05142bdd),url("assets/ui/background-moonlit-mountains.webp")';sidebar.append(sideBanner)}
  const theme=$('theme-toggle');if(theme){theme.classList.add('ref-theme-art-control');syncThemeArtwork(theme)}
