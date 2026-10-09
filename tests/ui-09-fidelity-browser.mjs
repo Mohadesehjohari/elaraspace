@@ -138,7 +138,7 @@ try{
   }
   if(width===430){
    const nav=h.page.locator('.bottom-nav [data-elara-nav-kind]');
-   assert.equal(await nav.count(),5,'Mobile main navigation must contain five readable destinations');
+   assert.equal(await nav.count(),7,'Owner requires seven directly accessible destinations');
    const expected=['blog','books','social','home','tasks','freedom','page'];
    assert.deepEqual(await nav.evaluateAll(nodes=>nodes.map(e=>e.dataset.elaraTab)),expected,'Original 7 routes were not restored');
    for(const route of expected)assert.ok(await h.page.locator('.bottom-nav [data-elara-tab="'+route+'"]').isVisible(),'Hidden original route '+route);
