@@ -8,7 +8,7 @@ await mkdir('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const today=()=>new Date().toLocaleDateString('en-CA');
 async function run(base,route,width,count=21,kind='after'){
- const page=await browser.newPage({viewport:{width,height:width>=701?945:880},deviceScaleFactor:1});
+ const page=await browser.newPage({viewport:{width,height:width>=701?945:880},deviceScaleFactor:width<=700?2:1,isMobile:width<=700,hasTouch:width<=700});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraAccount={user:null,profile:{name:'پروفایل واقعی آزمایش',username:'fixture',xp:420,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));"}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraSocial={me:null,friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true};window.dispatchEvent(new Event('elara:social-updated'));"}));
@@ -32,7 +32,11 @@ async function run(base,route,width,count=21,kind='after'){
    const cards=['#ref-streak-card','.owner-home-tasks','#ref-wellness-card','.owner-home-goals'].map(s=>({s,r:rect(q('#panel-home '+s))}));
    const host=q('#elara-home-tasks'),list=host?.querySelector('.ref-task-list');
    const scrollables=sel('#panel-home .owner-home-tasks *').filter(x=>{const st=getComputedStyle(x);return /(auto|scroll)/.test(st.overflowY)}).map(x=>({id:x.id,cls:x.className,scrollH:x.scrollHeight,clientH:x.clientHeight}));
-   return {...generic,cards,cardStyles:cards.map(x=>{const el=q('#panel-home '+x.s),st=getComputedStyle(el);return {className:el.className,height:st.height,minHeight:st.minHeight,maxHeight:st.maxHeight,padding:st.padding,boxSizing:st.boxSizing,display:st.display,overflow:st.overflow,gridTemplateRows:st.gridTemplateRows,children:[...el.children].slice(0,5).map(ch=>({cls:ch.className,r:rect(ch)}))}}),grid:rect(q('#panel-home .ref-home-grid')),gridStyle:{marginBottom:getComputedStyle(q('#panel-home .ref-home-grid')).marginBottom,rowGap:getComputedStyle(q('#panel-home .ref-home-grid')).rowGap,gridTemplateRows:getComputedStyle(q('#panel-home .ref-home-grid')).gridTemplateRows},quickStyle:{marginTop:getComputedStyle(q('#ref-quick-access')).marginTop,marginBottom:getComputedStyle(q('#ref-quick-access')).marginBottom},quick:rect(q('#ref-quick-access')),quickRail:{client:q('.ref-quick-access-grid')?.clientWidth,scroll:q('.ref-quick-access-grid')?.scrollWidth,cards:sel('#ref-quick-access .ref-quick-card').map(rect)},bottom:rect(q('#ref-bottom-grid')),quickCount:sel('#ref-quick-access .ref-quick-card').length,goals:sel('#elara-home-goals .ref-goal-row').map(x=>x.textContent.trim()),wellnessParts:{main:rect(q('#ref-wellness-card .ref-health-main')),ring:rect(q('#ref-wellness-card .ref-health-ring')),copy:rect(q('#ref-wellness-card .ref-health-copy')),metrics:sel('#ref-wellness-card .ref-wellness-cell').map(rect)},taskCount:sel('#elara-home-tasks .ref-task-row').length,scrollables,hostScroll:host?{c:host.clientHeight,s:host.scrollHeight,overflow:getComputedStyle(host).overflowY}:null,listScroll:list?{c:list.clientHeight,s:list.scrollHeight,overflow:getComputedStyle(list).overflowY,tabindex:list.tabIndex}:null,headings:sel('#panel-home .ref-home-grid .ref-card header h2').map(rect),chevron:!!q('#ref-equipped-character-toggle')};
+   return {...generic,cards,cardStyles:cards.map(x=>{const el=q('#panel-home '+x.s),st=getComputedStyle(el);return {className:el.className,height:st.height,minHeight:st.minHeight,maxHeight:st.maxHeight,padding:st.padding,boxSizing:st.boxSizing,display:st.display,overflow:st.overflow,gridTemplateRows:st.gridTemplateRows,children:[...el.children].slice(0,5).map(ch=>({cls:ch.className,r:rect(ch)}))}}),grid:rect(q('#panel-home .ref-home-grid')),gridStyle:{marginBottom:getComputedStyle(q('#panel-home .ref-home-grid')).marginBottom,rowGap:getComputedStyle(q('#panel-home .ref-home-grid')).rowGap,gridTemplateRows:getComputedStyle(q('#panel-home .ref-home-grid')).gridTemplateRows},quickStyle:{marginTop:getComputedStyle(q('#ref-quick-access')).marginTop,marginBottom:getComputedStyle(q('#ref-quick-access')).marginBottom},quick:rect(q('#ref-quick-access')),quickRail:{client:q('.ref-quick-access-grid')?.clientWidth,scroll:q('.ref-quick-access-grid')?.scrollWidth,cards:sel('#ref-quick-access .ref-quick-card').map(rect)},bottom:rect(q('#ref-bottom-grid')),quickCount:sel('#ref-quick-access .ref-quick-card').length,
+   accountGeometry:{cluster:rect(q('.ref-header-account-cluster')),avatar:rect(q('.ref-header-account-cluster .ref-account-avatar')),chevron:rect(q('#ref-equipped-character-toggle')),account:rect(q('#ref-header-account'))},
+   mobileNav:sel('.bottom-nav [data-elara-nav-kind]').map(e=>({route:e.dataset.elaraTab,r:rect(e)})),
+   metricsChildren:sel('#ref-wellness-card .ref-wellness-cell').map(e=>({cell:rect(e),strong:rect(e.querySelector('strong')),lastUnit:rect(e.querySelector('small:last-child'))})),
+   goals:sel('#elara-home-goals .ref-goal-row').map(x=>x.textContent.trim()),wellnessParts:{main:rect(q('#ref-wellness-card .ref-health-main')),ring:rect(q('#ref-wellness-card .ref-health-ring')),copy:rect(q('#ref-wellness-card .ref-health-copy')),metrics:sel('#ref-wellness-card .ref-wellness-cell').map(rect)},taskCount:sel('#elara-home-tasks .ref-task-row').length,scrollables,hostScroll:host?{c:host.clientHeight,s:host.scrollHeight,overflow:getComputedStyle(host).overflowY}:null,listScroll:list?{c:list.clientHeight,s:list.scrollHeight,overflow:getComputedStyle(list).overflowY,tabindex:list.tabIndex}:null,headings:sel('#panel-home .ref-home-grid .ref-card header h2').map(rect),chevron:!!q('#ref-equipped-character-toggle')};
   }
   return {...generic,toolbar:rect(q('#astra-task-toolbar')),rows:sel('#task-list>.astra-task-row').map(x=>({source:x.className,rect:rect(x),bg:getComputedStyle(x).backgroundImage,accent:getComputedStyle(x).getPropertyValue('--task-accent').trim(),label:x.querySelector('.item-title')?.textContent||'',strike:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).textDecorationLine:''})),archived:sel('.task-archive-row').length};
  },route);
@@ -42,23 +46,44 @@ async function run(base,route,width,count=21,kind='after'){
   assert.equal(m.quickCount,6,'exact six shortcuts required');
   assert.ok(m.goals.every(t=>!t.includes('عادت آب خوردن')),'habit rendered as goal');
   assert.ok(m.chevron,'account character chevron not mounted');
+  const geom=m.accountGeometry,near=(a,b)=>Math.max(0,a.x-(b.x+b.w),b.x-(a.x+a.w));
+  assert.ok(geom.cluster&&geom.chevron&&geom.avatar,'Profile chevron/avatar cannot be measured '+JSON.stringify(geom));
+  assert.ok(near(geom.chevron,geom.account)<=8,'Profile chevron detached from account control '+width+': '+JSON.stringify(geom));
   assert.ok(m.taskCount>=count&&m.taskCount<=count+4,'All due tasks should be shown (including genuine Habit/Goal linked tasks): '+JSON.stringify({count,rendered:m.taskCount}));
   assert.ok(m.scrollables.filter(x=>x.scrollH>x.clientH+3).length<=1,'two overflowing Home task scroll owners: '+JSON.stringify(m.scrollables));
   if(count>5){assert.ok(m.listScroll.s>m.listScroll.c,'large task list not scrollable');assert.equal(m.listScroll.tabindex,0,'task list not keyboard focusable')}
   if(width>=1001){
+   assert.ok(m.hero?.y<=2&&m.hero?.h>=215,'Desktop landscape must reach workspace edge beneath clear toolbar');
    assert.ok(m.cards.every(x=>Math.abs(x.r.h-322)<1),'desktop 322px four cards changed: '+JSON.stringify(m.cards));
    assert.ok(Math.max(...m.cards.map(x=>x.r.bottom))-Math.min(...m.cards.map(x=>x.r.bottom))<=2,'unaligned card bottoms');
   }
-  if(width>=412&&width<=700){
-    assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'mobile first two cards not side by side');
+  if(width>=390&&width<=700){
+    assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'wide mobile first two cards not side by side');
     assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
     assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
-    assert.ok(m.cards.slice(2).every(x=>x.r.h<=235&&x.r.h>=185),'second-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
+    assert.ok(m.cards.slice(2).every(x=>x.r.h<=250&&x.r.h>=185),'second-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
-  if(width<=390)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'narrow mobile must use readable stack');
+  if(width>=360&&width<=389){
+   assert.ok(Math.abs(m.cards[1].r.y-m.cards[0].r.y)<3,'375px hybrid must pair Streak and Tasks');
+   assert.ok(m.cards[2].r.w>=m.grid.w-2&&m.cards[3].r.w>=m.grid.w-2,'real Wellness and Goals require full-width rows at 375');
+   assert.ok(m.cards[3].r.y>m.cards[2].r.y,'Goals must follow Wellness in readable hybrid flow');
+  }
+  if(width<=320)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'320px needs readable stacked cards');
+  if(width>=1001){
+   assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
+   assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
+  }
+  if(width>=360&&width<=389)assert.ok(m.quick.y<=890,'Readable narrow hybrid still has distant shortcuts '+width+': '+m.quick.y);
+  if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
+  if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
+   assert.deepEqual(m.mobileNav.map(x=>x.route),['freedom','social','home','books','more'],'Wrong mobile main nav semantics');
+   assert.ok(m.mobileNav.every((v,i,a)=>!i||v.r.x>a[i-1].r.x),'Mobile route order not physically reference-aligned: '+JSON.stringify(m.mobileNav));
+   assert.ok(m.mobileNav.every(x=>x.r.w>=44),'Mobile nav target smaller than 44px');
+   assert.ok(m.metricsChildren.every(x=>x.strong&&x.lastUnit&&x.lastUnit.bottom<=x.cell.bottom+2),
+     'Wellness values or units clipped by metric tile: '+JSON.stringify(m.metricsChildren));
    assert.ok(m.quick.h<=220,'Mobile Quick Access must not use giant multi-row grid: '+JSON.stringify(m.quick));
    assert.ok(m.quickRail.scroll>m.quickRail.client+40,'Six Quick Access destinations are not horizontally reachable');
    assert.ok(m.quickRail.cards.length===6&&m.quickRail.cards.every(x=>Math.abs(x.y-m.quickRail.cards[0].y)<2),'Mobile Quick Access must be one aligned horizontal rail');
@@ -107,8 +132,24 @@ try{
    const old=orig.m,newM=h.m;const gap=n=>+(n.quick.y-n.cards[0].r.bottom).toFixed(2);
    console.log('UI09_HOME_GAP_DELTA '+JSON.stringify({width,before:{card:old.cards[0].r.h,gap:gap(old),lower:+(old.bottom.y-old.quick.bottom).toFixed(2)},after:{card:newM.cards[0].r.h,gap:gap(newM),lower:+(newM.bottom.y-newM.quick.bottom).toFixed(2)}}));
    assert.ok(gap(newM)>=8&&gap(newM)<=14,'Home primary-to-Quick gap must be 8–14px, measured '+gap(newM));
+   console.log('UI10_ABSOLUTE_HOME_ROWS '+JSON.stringify({width,hero:newM.hero,primary:newM.grid,primaryBottom:newM.cards[0].r.bottom,quick:newM.quick,bottom:newM.bottom,beforeQuick:old.quick,beforeBottom:old.bottom}));
    const lower=newM.bottom.y-newM.quick.bottom;
    assert.ok(lower>=8&&lower<=14,'Quick-to-bottom-row gap must be 8–14px, measured '+lower);
+  }
+  if(width===430){
+   const nav=h.page.locator('.bottom-nav [data-elara-nav-kind]');
+   assert.equal(await nav.count(),5,'Mobile main navigation must contain five readable destinations');
+   const more=h.page.locator('.bottom-nav [data-elara-tab="more"]');
+   await more.click();
+   assert.equal(await more.getAttribute('aria-expanded'),'true');
+   const lang=h.page.locator('#elara-mobile-more-panel [data-more-route="language"]');
+   assert.ok(await lang.isVisible(),'Language lost from accessible secondary routes');
+   assert.ok(await h.page.locator('#elara-mobile-more-panel [data-more-route="store"]').isVisible(),'Store lost when compact mobile header shortcut is hidden');
+   await lang.click();
+   await h.page.waitForTimeout(100);
+   assert.equal(await more.getAttribute('aria-expanded'),'false');
+   await h.page.evaluate(()=>{window.ElaraOpen?.('home');window.ElaraReferenceHome?.render()});
+   console.log('UI10_MOBILE_MORE_ACCESS_PASS 430');
   }
   if(width===430||width===1440){
    const list=h.page.locator('#elara-home-tasks .ref-task-list');

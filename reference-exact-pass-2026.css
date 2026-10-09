@@ -940,49 +940,70 @@ body.light #panel-home.ref-home .elara-wellness-art{filter:saturate(1.08) contra
 }
 
 
+/* Real secondary mobile navigation, safely above the fixed five-item dock. */
+.elara-mobile-more-panel{
+ position:fixed;z-index:350;inset:auto 8px calc(77px + env(safe-area-inset-bottom)) 8px;
+ max-height:min(55dvh,360px);overflow:auto;box-sizing:border-box;
+ padding:14px;border:1px solid #3986bc;border-radius:17px;
+ background:linear-gradient(160deg,#09274b,#07152f);box-shadow:0 18px 55px #000c;
+ color:#effaff;direction:rtl;text-align:right
+}
+.elara-mobile-more-panel[hidden]{display:none!important}
+.elara-mobile-more-panel>strong{display:block;font-size:1rem;margin-bottom:10px}
+.elara-mobile-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.elara-mobile-more-grid button{min-height:45px;border:1px solid #3c668d;border-radius:10px;background:#123252;color:#e9f7ff;font:inherit}
+.elara-mobile-more-grid button:focus-visible{outline:2px solid #47deff;outline-offset:2px}
 /* P0 overlay scroll containment. */
 body.elara-private-drawer-open,
 body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none!important}
 .elara-notification-window{max-height:min(92dvh,760px)!important;overflow:auto!important;overscroll-behavior:contain!important}
 
 
-/* 2026-10-01 P0 v20 — canonical mobile navigation + centered Settings owner.
-   Nine equal grid tracks intentionally leave one trailing empty track: with eight destinations,
-   this keeps the fifth item (Home) exactly at 50% while every adjacent destination has equal spacing. */
+/* UI10: five readable phone destinations with Home centered and a real
+   secondary 'More' popover for every existing route. No routes removed. */
 @media(max-width:700px){
  .bottom-nav{
   --elara-safe-inline:max(4px,env(safe-area-inset-left),env(safe-area-inset-right));
-  display:grid!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;grid-auto-flow:column!important;
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-flow:row!important;
   align-items:stretch!important;justify-items:stretch!important;
   position:fixed!important;inset:auto 0 0!important;width:100%!important;
-  height:calc(82px + env(safe-area-inset-bottom))!important;min-height:calc(82px + env(safe-area-inset-bottom))!important;max-height:none!important;
-  padding:5px var(--elara-safe-inline) max(8px,env(safe-area-inset-bottom))!important;
+  height:calc(72px + env(safe-area-inset-bottom))!important;min-height:calc(72px + env(safe-area-inset-bottom))!important;max-height:none!important;
+  padding:3px var(--elara-safe-inline) max(5px,env(safe-area-inset-bottom))!important;
   gap:0!important;overflow:hidden!important;direction:ltr!important;box-sizing:border-box!important
  }
  .bottom-nav>[data-elara-nav-kind]{
   --nav-offset:0px!important;position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
-  transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:68px!important;min-height:68px!important;
-  display:grid!important;grid-template-rows:36px 16px!important;place-items:center!important;align-content:center!important;
+  transform:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:62px!important;min-height:62px!important;
+  display:grid!important;grid-template-rows:31px 16px!important;place-items:center!important;align-content:center!important;
   gap:2px!important;margin:0!important;padding:3px 0 2px!important;border-radius:15px!important;
   overflow:visible!important;touch-action:manipulation!important;text-decoration:none!important
  }
  .bottom-nav>[data-elara-nav-kind] .elara-nav-art{
-  width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;max-width:30px!important;
+  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;
   object-fit:contain!important;object-position:center!important;margin:0!important
  }
  .bottom-nav>[data-elara-nav-kind] small{
   display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  font-size:clamp(7.5px,2.25vw,9.5px)!important;line-height:1.05!important;white-space:nowrap!important;
+  font-size:clamp(9px,2.6vw,11px)!important;line-height:1.1!important;white-space:nowrap!important;
   overflow:visible!important;text-align:center!important
  }
  .bottom-nav>[data-elara-tab="home"]{
   z-index:3!important;background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--elara-accent) 45%,transparent),transparent 72%)!important
  }
  .bottom-nav>[data-elara-tab="home"] .elara-nav-art{
-  width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;max-width:36px!important;
+  width:33px!important;height:33px!important;min-width:33px!important;min-height:33px!important;max-width:33px!important;
   filter:brightness(1.08) drop-shadow(0 0 9px var(--elara-art-glow-strong))!important
  }
- .workspace main,#main{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+ .bottom-nav>[data-elara-tab="freedom"]{grid-column:1!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="social"]{grid-column:2!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="home"]{grid-column:3!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="books"]{grid-column:4!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="more"]{grid-column:5!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="more"] .elara-more-nav-icon{
+  display:grid!important;place-items:center!important;width:31px!important;height:31px!important;
+  color:#ecf7ff!important;font-size:26px!important;line-height:1!important
+ }
+ .workspace main,#main{padding-bottom:calc(83px + env(safe-area-inset-bottom))!important}
 
  .elara-private-drawer{
   position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;
