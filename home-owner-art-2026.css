@@ -198,7 +198,7 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
 #panel-home.ref-home.owner-art-home #ref-quick-access{
  display:block!important;width:100%!important;min-width:0!important;
  max-width:100%!important;margin:8px 0 9px!important;
- padding:7px 10px!important
+ padding:5px 8px!important
 }
 @media(min-width:1001px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
@@ -230,14 +230,14 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
 html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>i{
  grid-column:2!important;grid-row:2!important;align-self:end!important;justify-self:end!important
 }
-#panel-home.ref-home.owner-art-home #ref-quick-access>header{min-height:24px!important;height:auto!important;margin:0 0 5px!important;padding:0!important;align-items:center!important}
+#panel-home.ref-home.owner-art-home #ref-quick-access>header{min-height:22px!important;height:auto!important;margin:0 0 3px!important;padding:0!important;align-items:center!important}
 #panel-home.ref-home.owner-art-home #ref-quick-access>header h2{font-size:.96rem!important;margin:0!important;line-height:1.35!important}
 #panel-home.ref-home.owner-art-home .ref-quick-card :is(strong,small){
  color:#fff!important;text-shadow:0 1px 8px #01091ae0;white-space:normal!important
 }
 @media(max-width:700px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
-  grid-template-rows:30px minmax(0,1fr)!important;min-height:96px!important
+  grid-template-rows:28px minmax(0,1fr)!important;min-height:88px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
   width:30px!important;height:30px!important
@@ -324,14 +324,14 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;
   direction:rtl!important;overflow-x:auto!important;overflow-y:hidden!important;
   scroll-snap-type:x proximity!important;overscroll-behavior-inline:contain!important;
-  padding:2px 2px 8px!important
+  padding:1px 2px 3px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
   flex:0 0 clamp(108px,27vw,132px)!important;
   width:clamp(108px,27vw,132px)!important;min-width:clamp(108px,27vw,132px)!important;
   max-width:clamp(108px,27vw,132px)!important;
-  box-sizing:border-box!important;height:96px!important;min-height:96px!important;max-height:96px!important;
-  padding:7px!important;scroll-snap-align:start!important;
+  box-sizing:border-box!important;height:88px!important;min-height:88px!important;max-height:88px!important;
+  padding:6px!important;scroll-snap-align:start!important;
   transform:none!important;inset:auto!important;position:relative!important
  }
  #panel-home.ref-home.owner-art-home #ref-bottom-grid{
@@ -352,7 +352,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
 }
 /* At 375px and above the first two 181px cards may pair; a narrow hybrid
    preserves full-width Wellness and Goals so actual values remain readable. */
-@media(min-width:375px) and (max-width:700px){
+@media(min-width:360px) and (max-width:700px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness goals"!important;
@@ -741,7 +741,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  
 /* One-column source ownership applies only below the 2×2 breakpoint.
    Taller 216–350px mobile layouts must never override compact 412px+ rules. */
-@media(max-width:374px){
+@media(max-width:359px){
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 42px!important;
@@ -799,7 +799,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  }
 }
 
-@media(max-width:374px){
+@media(max-width:359px){
  html body.dark #panel-home.ref-home.owner-art-home .ref-health-main{
   min-height:61px!important;height:61px!important;max-height:61px!important;
   display:grid!important;grid-template-columns:62px minmax(0,1fr)!important;align-items:center!important;gap:5px!important;direction:ltr!important
@@ -811,12 +811,12 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   grid-column:2!important;direction:rtl!important;text-align:right!important;min-width:0!important
  }
 }
-@media(min-width:375px) and (max-width:700px){
+@media(min-width:360px) and (max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{display:none!important}
 }
 /* Compact readable baseline below 390: own heights in the source media,
    no implicit large grid tracks and exactly one real Tasks scrollport. */
-@media(max-width:374px){
+@media(max-width:359px){
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-tasks{
   height:183px!important;min-height:183px!important;max-height:183px!important
  }
@@ -827,9 +827,9 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   overflow-y:auto!important;min-height:0!important;flex:1 1 auto!important
  }
 }
-/* 375–389px hybrid: Streak/Tasks pair like the reference; Wellness and Goals
+/* 360–389px hybrid: Streak/Tasks pair like the reference; Wellness and Goals
    use full-width natural grid rows so genuine Persian records never compress. */
-@media(min-width:375px) and (max-width:389px){
+@media(min-width:360px) and (max-width:389px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness wellness" "goals goals"!important;
