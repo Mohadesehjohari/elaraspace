@@ -26,11 +26,10 @@ try{
      return {route,width:innerWidth,scroll:document.documentElement.scrollWidth,top:rect.top,w:rect.width,h:rect.height,border:css.borderTopWidth,bg:css.backgroundImage,imgBroken:all,headHeight:document.querySelector('.topbar')?.getBoundingClientRect().height}
    },route);
    if(width===320)console.log('BANNER_METRIC '+JSON.stringify(m));
-   // Home/Tasks desktop panoramas now sit in the 18px-inset owner content
-   // container below their separate header. Other desktop page heroes retain
-   // the edge-to-edge treatment. Mobile headers precede every route hero.
+   // Owner UI10: desktop Home/Tasks panorama is continuous *behind* the
+   // transparent header. Mobile keeps a separate touch/search header.
    const insetDesktop=width>700&&(route==='home'||route==='tasks');
-   check(width<=700||insetDesktop
+   check(width<=700
     ? m.top>=m.headHeight-3&&m.top<=m.headHeight+8
     : m.top>=-3&&m.top<85,'banner-to-header gap '+JSON.stringify(m));
    check(m.h>=100&&m.h<280,'hero geometry '+JSON.stringify(m));
