@@ -718,17 +718,21 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
 #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{
  font-size:.74rem!important;line-height:1.48!important
 }
-#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring{
- width:108px!important;height:108px!important;
- box-shadow:0 0 0 2px rgba(54,225,205,.44),0 0 23px rgba(12,226,200,.16)!important
-}
-#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring strong{font-size:1.37rem!important}
-#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-copy strong{font-size:1rem!important}
-#panel-home.ref-home.owner-art-home .owner-home-wellness .ref-wellness-cell{
- min-height:72px!important;background:rgba(2,31,44,.86)!important
-}
-#panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{
- width:75%!important;font-size:.74rem!important;padding:6px 8px!important
+/* Desktop-only art scale: these old large ring, tall metric and 75%-wide
+   Goal summary rules must never override phone-sized content grids. */
+@media(min-width:701px){
+ #panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring{
+  width:108px!important;height:108px!important;
+  box-shadow:0 0 0 2px rgba(54,225,205,.44),0 0 23px rgba(12,226,200,.16)!important
+ }
+ #panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-ring strong{font-size:1.37rem!important}
+ #panel-home.ref-home.owner-art-home .owner-home-wellness .ref-health-copy strong{font-size:1rem!important}
+ #panel-home.ref-home.owner-art-home .owner-home-wellness .ref-wellness-cell{
+  min-height:72px!important;background:rgba(2,31,44,.86)!important
+ }
+ #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{
+  width:75%!important;font-size:.74rem!important;padding:6px 8px!important
+ }
 }
 #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{
  background:rgba(3,20,40,.82)!important
