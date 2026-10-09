@@ -28,7 +28,7 @@
  .workspace .topbar .topbar-actions #elara-account-menu-trigger,
  .workspace .topbar .topbar-actions .elara-top-more,
  .workspace .topbar .ref-header-settings{display:none!important}
- .workspace .topbar .ref-header-store{display:grid!important;place-items:center!important;order:0!important;width:42px!important;height:42px!important;min-width:42px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline-offset:2px!important}
+ .workspace .topbar .ref-header-store{display:none!important;visibility:hidden!important;order:0!important;width:42px!important;height:42px!important;min-width:42px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline-offset:2px!important}
  .workspace .topbar .ref-header-store:hover,.workspace .topbar .ref-header-store:active{background:transparent!important;box-shadow:none!important}
  .workspace .topbar .ref-header-store img{width:40px!important;height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:contain!important;filter:none!important}
  .workspace .topbar .topbar-actions{grid-column:3!important;grid-row:1!important;justify-self:end!important;display:flex!important;align-items:center!important;gap:4px!important;direction:ltr!important}
