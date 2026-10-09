@@ -42,7 +42,10 @@
   grid-template-columns:1.08fr 1.08fr 1.08fr 1.08fr!important;
   grid-template-areas:"streak tasks wellness goals"!important;
   grid-auto-rows:minmax(0,1fr)!important;
-  gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  /* Two implicit zero-height tracks remain from legacy grid-area declarations.
+     Do not let their row-gap add 24px of fake whitespace below the 322px row. */
+  column-gap:12px!important;row-gap:0!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
   align-items:stretch!important;margin:0!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
@@ -194,7 +197,7 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
 /* One existing Quick Access: six canonical destinations only. */
 #panel-home.ref-home.owner-art-home #ref-quick-access{
  display:block!important;width:100%!important;min-width:0!important;
- max-width:100%!important;margin:10px 0 0!important
+ max-width:100%!important;margin:10px 0 12px!important
 }
 @media(min-width:1001px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
