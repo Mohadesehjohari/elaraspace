@@ -32,10 +32,17 @@ async function run(width,height){
  await page.locator('#panel-books [data-feature-route="library-clips"]').click();await page.waitForSelector('#panel-library-clips:not(.hidden) #library-clips');
  assert.equal(await page.locator('#panel-library-clips').isVisible(),true,width+': Book Clips deep route missing');
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
- assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,width+': Language hub launcher count');
- await freedomTiles('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card','Language');
- assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
- await page.locator('#panel-language [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
+ const ui12=await page.locator('#panel-language.ui12-language .ui12-board').count()>0;
+ if(ui12){
+  assert.equal(await page.locator('#panel-language .ui12-shortcut').count(),8,width+': UI12 Language shortcuts');
+  assert.equal(await page.locator('#panel-language .ui12-board>.ui12-card').count(),8,width+': UI12 Language cards');
+  assert.equal(await page.locator('#ui12-tasks [data-section-task-add="language"]').count(),1,width+': UI12 canonical Language Task composer shortcut');
+ }else{
+  assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,width+': Language hub launcher count');
+  await freedomTiles('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card','Language');
+  assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
+ }
+ await page.locator(ui12?'#ui12-tasks [data-section-task-add="language"]':'#panel-language>.feature-section-tasks [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
  await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target').fill('2');
  await page.evaluate(()=>{ElaraDialog.prompt=async()=> 'تمرین'});await page.locator('#task-form [data-phase2-create="tag"]').click();await page.waitForFunction(()=>document.getElementById('task-tag')?.value==='تمرین');
  await page.locator('#task-submit').click();
@@ -44,7 +51,7 @@ async function run(width,height){
  }catch(error){
   const diagnostic=await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),form=document.getElementById('task-form');return{tasks:(state.tasks||[]).map(t=>({text:t.text,sourceGroup:t.sourceGroup,dailyTarget:t.dailyTarget,date:t.date})),form:{hidden:!!form?.hidden,composer:form?.dataset?.elaraTaskComposer||'',title:document.getElementById('task-title')?.value||'',dailyTarget:document.getElementById('task-daily-target')?.value||'',due:document.getElementById('task-due')?.value||''},panel:location.hash}});console.error('SECTION_TASK_DIAGNOSTIC '+width+' '+JSON.stringify(diagnostic));throw error;
  }
- await page.waitForSelector('#panel-language [data-section-task-id]');
+ if(ui12)await page.waitForSelector('#ui12-tasks .ui12-task');else await page.waitForSelector('#panel-language [data-section-task-id]');
  const sectionTaskId=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.text==='تمرین زبان از بخش اصلی').id);
  await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));await page.waitForSelector('#panel-home:not(.hidden)');assert.equal(await page.locator('[data-ref-task="'+sectionTaskId+'"]').count(),1,width+': section-created Language Task did not reach Home');
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
