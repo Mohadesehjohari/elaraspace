@@ -312,13 +312,22 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
   height:auto!important;min-height:180px!important;max-height:295px!important
  }
+ /* Owner's mobile reference uses one compact horizontal Quick Access rail.
+    All six original destinations stay keyboard/touch-scroll reachable. */
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
-  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;grid-auto-flow:row!important;direction:rtl!important
+  display:flex!important;flex-flow:row nowrap!important;
+  gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  direction:rtl!important;overflow-x:auto!important;overflow-y:hidden!important;
+  scroll-snap-type:x proximity!important;overscroll-behavior-inline:contain!important;
+  padding:2px 2px 8px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
-  height:auto!important;min-height:90px!important;padding:10px!important;
-  flex:none!important;transform:none!important;inset:auto!important;position:relative!important
+  flex:0 0 clamp(108px,27vw,132px)!important;
+  width:clamp(108px,27vw,132px)!important;min-width:clamp(108px,27vw,132px)!important;
+  max-width:clamp(108px,27vw,132px)!important;
+  box-sizing:border-box!important;height:114px!important;min-height:114px!important;max-height:114px!important;
+  padding:9px!important;scroll-snap-align:start!important;
+  transform:none!important;inset:auto!important;position:relative!important
  }
  #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
@@ -426,7 +435,6 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{min-height:38px!important}
- html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
  html body #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"ranks habits" "achievements achievements"!important
