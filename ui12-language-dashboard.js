@@ -83,7 +83,7 @@ function renderTasks(m){
 function renderBooks(m){
  const rows=m.b.slice(0,3).map(b=>{
  const cover=validImg(b.coverData)||validImg(b.coverUrl),progress=b.totalPages?pct((Number(b.currentPage)||0)/b.totalPages*100):0;
- return '<article class="ui12-book"><div class="ui12-book-cover">'+(cover?'<img src="'+esc(cover)+'" alt="" loading="lazy">':'<img src="assets/ui/23-language-books-icon.webp" alt="" loading="eager" decoding="async">')+'</div><strong data-elara-ugc dir="auto" title="'+esc(b.title)+'">'+esc(b.title)+'</strong><small>'+esc(b.language||tx('کتاب زبان','Language book'))+'</small><div class="ui12-track" role="progressbar" aria-valuenow="'+progress+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+progress+'%"></i></div><span>'+num(progress)+'٪</span></article>';
+ return '<article class="ui12-book"><div class="ui12-book-cover">'+(cover?'<img src="'+esc(cover)+'" alt="" loading="eager" decoding="async">':'<img src="assets/ui/23-language-books-icon.webp" alt="" loading="eager" decoding="async">')+'</div><strong data-elara-ugc dir="auto" title="'+esc(b.title)+'">'+esc(b.title)+'</strong><small>'+esc(b.language||tx('کتاب زبان','Language book'))+'</small><div class="ui12-track" role="progressbar" aria-valuenow="'+progress+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+progress+'%"></i></div><span>'+num(progress)+'٪</span></article>';
  }).join('');
  const html=m.b.length?'<div class="ui12-book-grid">'+rows+'</div>':empty('23-language-books-icon.webp',tx('هنوز کتاب زبانی ثبت نکردی.','No language books yet.'),tx('افزودن کتاب','Add a book'),'language-books');
  const body=$('ui12-books').querySelector('[data-ui12-body]');
