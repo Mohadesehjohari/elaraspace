@@ -1018,3 +1018,42 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 **Honest visual exceptions:** The provided mobile reference is a high-resolution design composition, not a browser capture at the requested CSS viewports. At 412/430px, real goal/wellness/task text is denser than in that illustration and Quick Access remains somewhat lower. At 320–390px, the design intentionally stacks cards instead of forcing unreadable two columns; this puts Quick Access farther down. These are known proportion differences, not missing data, overlap, horizontal page overflow or a failed acceptance gate. A true signed-in production user's personal Tasks/Friends/avatar were not inspected (the automated browser uses isolated fixtures to protect private account data); therefore no claim is made about their specific records.
 
 **RELEASE STATUS: MERGED AND LIVE, production screenshot verified; future pixel-polish remains optional.** Do not reopen the backend-gated collaboration PRs as part of UI-09.
+
+
+---
+
+# Owner Visual Rejection — 2026-10-09 — Desktop + Mobile Home/Tasks
+
+**OWNER VISUAL ACCEPTANCE: REJECTED / OPEN — mandatory P0 follow-up after PR #27.** This entry supersedes the “future pixel-polish optional” conclusion in the earlier UI-09 release ledger. PR #27 really merged, Pages tests passed, but signed-in desktop + physical-phone screenshots supplied by owner on 2026-10-09 still do **not** meet the requested visual result. **Do not conflate deployment/fixture PASS with owner reference-fidelity PASS.** Current production baseline at review: \`c63c8608d7555aa62aa7460c21d7a71b57561804\`. At implementation, fetch latest main again. PRs #24/#26 are separate draft backend/rules-gated work; they are NOT part of this visual correction.
+
+## P0-UI10.1 Desktop three-row density / bottom row actually higher — OPEN
+- The owner explicitly rejects the current desktop **absolute placement** of the two lower Home rows, even though CI measured ~10px and ~12px adjacent-row gaps. Do NOT retest only CSS gap values. Compare actual desktop screenshot to desktop reference at equal CSS viewport/zoom and measure bounding rectangles and visible fold positions for Hero, 4-card primary grid, Quick Access section **including its heading/padding**, and bottom Ranking/Habits/Achievements row.
+- Bring the entire Quick Access composition and the final row visually upward/toward the primary grid, including removal of internal vertical dead space, excess wrapper min-height/padding, and unnecessary hero/topbar vertical footprint where consistent with the reference. Keep desktop four primary cards visibly tall and aligned (previous test ~322px; do not silently revert them to short 282px). Do not use overlap, negative transforms or hide real content.
+- Delivery metric: before/after absolute Y coordinates for primary bottom, Quick Access top/bottom, final row top and screenshot side-by-side with owner's reference; owner-visible improvement required.
+
+## P0-UI10.2 Desktop upper black translucent strip and banner edge — OPEN
+- The current real desktop has a distinct black/dark topbar strip above the fantasy panorama. Owner wants the **art visibly continuous up to the intended top edge**, not a floating image under a black band, no artificial border/seam/large scrim. Integrate header controls legibly over continuous art or harmonized page shell, with localized contrast only. Verify real screenshot, not merely transparent CSS declaration.
+- Smaller, more refined right-aligned Persian Hero headline/line-height and CTA spacing; prevent overlap with user/search/bell. Keep no Settings gear.
+
+## P0-UI10.3 Today Tasks double scrollbar — OWNER RETEST OPEN
+- Owner reported two nested scrollbar regions inside Home Today Tasks; last CI claimed one. Independently inspect the actual authenticated DOM/scroll owners and reproduce with varied task lengths (0/1/5/20+), wheel/keyboard/touch. Exactly one task-list vertical scrollbar, no clipped/unreachable task. Screenshot proof; note the outer normal page scrollbar is separate.
+
+## P0-UI10.4 Tasks scenic full-category coloring — OWNER VISUAL RETEST OPEN
+- Entire task row **including the mountains** must carry the canonical kind/category color, not just border: regular cyan/blue, Habit amber/orange, Language purple, Wellness green/teal and other types according to source metadata. Preserve artwork/detail, contrast, icons, checkboxes, past-date completion, XP dedupe and completed titles without strikethrough. Compare Tasks screenshots with reference, actual color/image coverage, not only a class present.
+
+## P0-UI10.5 Mobile visual reconstruction from actual reference — OPEN
+- **Do not invent a blanket two-column mandate.** Inspect owner's exact mobile Home reference composition: certain major cards/sections may span full width, some lower modules may form a two-column row; reproduce the real hierarchy, proportions and density at appropriate CSS viewports. The existing single-column 320–390 implementation appears excessively tall on the owner's physical phone. At 375/390 make cards genuinely compact and Quick Access reachable much earlier without cutting data; if a reference uses mixed full-width and paired cards, implement that hybrid pattern. Breakpoints derive from readable content, not arbitrary 411/412 split.
+- Mobile Home: balanced header/logo/avatar/chevron/search, medium Hero, compact Streak/Today/Wellness/Goals, proportional Quick Access, Ranking/Habits/Achievements, unobtrusive bottom navigation. Mobile Tasks: compact streak/hero, one clean filters rail, readable colored mountain task rows and Completed. All routes stay navigable through compact primary nav plus discoverable secondary destinations; no lost Blog/Page/Language/etc.
+- Test actual phone DPR/CSS width separately from image pixel width, including 320/360/375/390/412/430/768; screenshot visually compare at matching viewport, check safe area, RTL, overlays, touch targets, horizontal overflow and scroll depth before Quick Access.
+
+## P0-UI10.6 Character/account popup — OWNER RETEST OPEN
+- Visible chevron **next to actual avatar/name**, not stranded near the search bar. Click/tap opens anchored rectangular actual equipped game character panel; no invented avatar, truthful fallback, Escape/outside-click/toggle and mobile layering correct. Diagnose empty ring image on real physical-phone screenshot versus mock social/account fixtures. No new Storage dependency.
+
+## P0-UI10.7 Ranking podium artwork — OWNER RETEST OPEN
+- Remove the unwanted horizontal golden strip, retain genuine first-place gold/crown. Align three **real** avatars/frame/name/XP to actual pedestal slots in owner background artwork (center winner raised); no fake ranking users. Compare real-data/empty-state in desktop and mobile screenshots and avoid clipping.
+
+## RELEASE GATE: owner's explicit visual sign-off required — OPEN
+- Create one focused UI follow-up PR from current main; do not reopen PR #27 or merge PR #24/#26, do not deploy Firestore/Storage Rules or modify Social schema. Refactor winning CSS selectors instead of stacked \`!important\` overrides.
+- Before/after/reference screenshots at equal CSS viewport: 1440, 1648 desktop and 375, 390, 430 phone; supplement 320/360/412/768. Instrument actual content bounds, computed styles, scroll containers and image decoding. Use realistic Persian content and owner screenshot visual inspection, in addition to isolated fixture functional tests. Audit no fake characters/scores.
+- Run P0 Fast, Profile, Social, Tasks CRUD/date completion, Home data, mobile and browser regressions at final PR SHA. No claim that synthetic fixture PASS proves signed-in owner visual match.
+- When fixed: merge, Pages, verify exact live bytes + version, take new real site screenshots and request owner visual acceptance. Status only **TECHNICALLY RELEASED / VISUAL ACCEPTANCE PENDING** until actual owner confirms; do not mark finished solely because GitHub Actions are green.
