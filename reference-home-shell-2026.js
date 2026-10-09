@@ -273,7 +273,24 @@ function actions(e){
  const friends=e.target.closest('[data-ref-friends-open]');if(friends){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('social');return}
  const focus=e.target.closest('[data-elara-tab="focus"]');if(focus){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();window.ElaraOpen?.('focus')}
 }
-function init(){render();document.addEventListener('click',actions,true);for(const name of ['elara:data-changed','elara:linked-state','elara:wellness-saved','elara:privacy-local-changed'])window.addEventListener(name,scheduleDynamic);for(const name of ['elara:open','elara:hydrate','elara:account-ready','elara:wardrobe-changed','elara:profile-saved','elara:notifications-changed'])window.addEventListener(name,schedule);window.addEventListener('elara:theme-changed',()=>syncThemeArtwork());window.addEventListener('storage',scheduleDynamic);window.addEventListener('resize',schedule,{passive:true});window.addEventListener('hashchange',schedule);setTimeout(render,220)}
+function taskListKeys(e){
+ const list=e.target;
+ if(!list?.matches?.('#elara-home-tasks > .ref-task-list')||e.altKey||e.ctrlKey||e.metaKey)return;
+ if(list.scrollHeight<=list.clientHeight+1)return;
+ const step=Math.max(36,list.clientHeight*.68),max=list.scrollHeight-list.clientHeight;
+ let next=null;
+ switch(e.key){
+  case 'ArrowDown':next=list.scrollTop+38;break;
+  case 'ArrowUp':next=list.scrollTop-38;break;
+  case 'PageDown':case ' ':next=list.scrollTop+step;break;
+  case 'PageUp':next=list.scrollTop-step;break;
+  case 'End':next=max;break;
+  case 'Home':next=0;break;
+  default:return;
+ }
+ e.preventDefault();list.scrollTop=Math.max(0,Math.min(max,next));
+}
+function init(){render();document.addEventListener('click',actions,true);document.addEventListener('keydown',taskListKeys,true);for(const name of ['elara:data-changed','elara:linked-state','elara:wellness-saved','elara:privacy-local-changed'])window.addEventListener(name,scheduleDynamic);for(const name of ['elara:open','elara:hydrate','elara:account-ready','elara:wardrobe-changed','elara:profile-saved','elara:notifications-changed'])window.addEventListener(name,schedule);window.addEventListener('elara:theme-changed',()=>syncThemeArtwork());window.addEventListener('storage',scheduleDynamic);window.addEventListener('resize',schedule,{passive:true});window.addEventListener('hashchange',schedule);setTimeout(render,220)}
 window.ElaraReferenceHome={render,homeStructure,libraryFocus,localSearch};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
