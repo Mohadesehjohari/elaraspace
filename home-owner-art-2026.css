@@ -403,7 +403,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{font-size:.7rem!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:240px!important;min-height:240px!important;max-height:240px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-data{
-  display:grid!important;grid-template-rows:85px 77px!important;gap:2px!important;
+  display:grid!important;grid-template-rows:85px 85px!important;gap:2px!important;
   flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card>header{
@@ -431,8 +431,8 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   text-align:right!important;justify-self:stretch!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-copy strong{font-size:.77rem!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:77px!important;min-height:77px!important;max-height:77px!important;gap:3px!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:75px!important;min-height:75px!important;max-height:75px!important;padding:3px 2px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:85px!important;min-height:85px!important;max-height:85px!important;gap:3px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:83px!important;min-height:83px!important;max-height:83px!important;padding:3px 2px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.55rem!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.65rem!important}
@@ -783,18 +783,18 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   display:none!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card{
-  box-sizing:border-box!important;height:194px!important;min-height:194px!important;max-height:194px!important
+  box-sizing:border-box!important;height:204px!important;min-height:204px!important;max-height:204px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-data{
-  display:grid!important;grid-template-rows:61px 68px!important;
+  display:grid!important;grid-template-rows:61px 78px!important;
   height:auto!important;max-height:none!important;gap:3px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-wellness-summaries{
   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  min-height:68px!important;height:68px!important;gap:3px!important
+  min-height:78px!important;height:78px!important;gap:3px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-wellness-cell{
-  min-height:66px!important;height:66px!important;max-height:66px!important;
+  min-height:76px!important;height:76px!important;max-height:76px!important;
   gap:1px!important;padding:2px 2px!important
  }
 }
@@ -842,17 +842,17 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   grid-area:tasks!important;height:145px!important;min-height:145px!important;max-height:145px!important;padding:9px 12px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card{
-  grid-area:wellness!important;height:194px!important;min-height:194px!important;max-height:194px!important;padding:8px!important
+  grid-area:wellness!important;height:204px!important;min-height:204px!important;max-height:204px!important;padding:8px!important
  }
  html body #panel-home.ref-home.owner-art-home .owner-home-goals{
   grid-area:goals!important;height:169px!important;min-height:169px!important;max-height:169px!important;padding:8px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card>header{min-height:29px!important;height:29px!important;flex-basis:29px!important}
- html body #panel-home.ref-home.owner-art-home #ref-wellness-data{grid-template-rows:61px 68px!important;gap:3px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-data{grid-template-rows:61px 78px!important;gap:3px!important}
  html body #panel-home.ref-home.owner-art-home .ref-health-main{height:61px!important;min-height:61px!important;max-height:61px!important;grid-template-columns:62px minmax(0,1fr)!important}
  html body #panel-home.ref-home.owner-art-home .ref-health-ring{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;max-width:58px!important;max-height:58px!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:68px!important;min-height:68px!important;max-height:68px!important;gap:2px!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:66px!important;min-height:66px!important;max-height:66px!important;padding:2px 1px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:78px!important;min-height:78px!important;max-height:78px!important;gap:2px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:76px!important;min-height:76px!important;max-height:76px!important;padding:2px 1px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:17px!important;height:17px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.52rem!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card>header h2{font-size:.72rem!important}
