@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import {initializeTestEnvironment,assertSucceeds,assertFails} from '@firebase/rules-unit-testing';
-import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
+import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch,getDocs,collection,query,where} from 'firebase/firestore';
 
 const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
 const rules=await fs.readFile(new URL('../firestore.rules',import.meta.url),'utf8');
 const env=await initializeTestEnvironment({projectId,firestore:{host,port:Number(portRaw||8080),rules}});
 console.log('FIRESTORE_RULES_E2E_START '+host+':'+String(portRaw||8080)+' project='+projectId);
-const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test'}).firestore();
+const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test',email_verified:true}).firestore();
 const alice=db('alice'),bob=db('bob'),eve=db('eve'),dave=db('dave'),regA=db('regA'),regB=db('regB'),legacyA=db('legacyA'),legacyB=db('legacyB');
 const ref=(database,path)=>doc(database,path);
 const nowPlus=ms=>Timestamp.fromMillis(Date.now()+ms);
@@ -256,13 +256,56 @@ try{
  await assertSucceeds(updateDoc(ref(bob,collab+'/members/bob'),{localEntityId:'class-local-b',progressCompleted:9,progressTotal:36,progressPercent:25,updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(bob,collab),{title:'hijack',updatedAt:serverTimestamp()}));
 
- // Owner-created join link is persistent; any signed user with the token can explicitly join.
- const joinToken='joinTokenCollabClass1234567890';
- await assertSucceeds(setDoc(ref(alice,'collabLinks/'+joinToken),{spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'English C1',active:true,createdAt:serverTimestamp()}));
- await assertSucceeds(getDoc(ref(eve,'collabLinks/'+joinToken)));
+ // All new capabilities use CSPRNG-sized tokens, server-enforced expiry, verified
+ // email and immutable one-way revocation. Established membership stays intact.
+ const joinToken='a'.repeat(64),linkPath='collabLinks/'+joinToken;
+ const validLink={spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'English C1',active:true,createdAt:serverTimestamp(),expiresAt:nowPlus(7*24*60*60*1000)};
+ await assertSucceeds(setDoc(ref(alice,linkPath),validLink));
+ await assertSucceeds(getDoc(ref(eve,linkPath)));
+ await assertSucceeds(getDocs(query(collection(alice,'collabLinks'),where('ownerUid','==','alice'))));
+ await assertFails(getDocs(query(collection(eve,'collabLinks'),where('ownerUid','==','alice'))));
+ await assertFails(getDocs(collection(alice,'collabLinks')));
+ await assertFails(getDoc(ref(env.authenticatedContext('dave',{email:'dave@example.test',email_verified:false}).firestore(),linkPath)));
+ await assertFails(setDoc(ref(alice,'collabLinks/'+('b'.repeat(30))),validLink));
+ await assertFails(setDoc(ref(eve,'collabLinks/'+('b'.repeat(64))),{...validLink,ownerUid:'eve'}));
+ await assertFails(setDoc(ref(alice,'collabLinks/'+('c'.repeat(64))),{...validLink,expiresAt:nowPlus(10*24*60*60*1000)}));
+ await assertFails(setDoc(ref(alice,'collabLinks/'+('d'.repeat(64))),{...validLink,expiresAt:nowPlus(-60*1000)}));
+ await assertFails(setDoc(ref(alice,'collabLinks/'+('e'.repeat(64))),{...validLink,kind:'goal'}));
+ await assertFails(setDoc(ref(dave,collab+'/members/dave'),{uid:'dave',role:'member',joinToken:'b'.repeat(64),localEntityId:'spoof',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(eve,collab+'/members/eve'),{uid:'eve',role:'member',joinToken,localEntityId:'class-local-e',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(eve,collab)));
  await assertFails(setDoc(ref(eve,collab+'/members/dave'),{uid:'dave',role:'member',joinToken,localEntityId:'spoof',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(eve,linkPath),{active:false}));
+ await assertFails(updateDoc(ref(alice,linkPath),{expiresAt:nowPlus(20*24*60*60*1000)}));
+
+ // Blocked users cannot discover/redeem even a still-active valid token.
+ await assertSucceeds(setDoc(ref(alice,'blocks/alice__dave'),{owner:'alice',target:'dave',targetName:'Dave',targetUsername:'dave',createdAt:serverTimestamp()}));
+ await assertFails(getDoc(ref(dave,linkPath)));
+ await assertFails(setDoc(ref(dave,collab+'/members/dave'),{uid:'dave',role:'member',joinToken,localEntityId:'blocked',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,'blocks/alice__dave')));
+
+ // Expired and legacy capabilities cannot authorize NEW memberships, even if
+ // legacy clients still know those old URLs. Owners can inspect to revoke.
+ const expiredToken='f'.repeat(64),legacyToken='legacyCollabLink012345678901234567890';
+ await env.withSecurityRulesDisabled(async ctx=>{
+  const admin=ctx.firestore();
+  await setDoc(ref(admin,'collabLinks/'+expiredToken),{...validLink,createdAt:Timestamp.now(),expiresAt:nowPlus(-60000)});
+  await setDoc(ref(admin,'collabLinks/'+legacyToken),{spaceId:'collab_class_1',ownerUid:'alice',kind:'language-class',title:'Legacy',active:true,createdAt:Timestamp.now()});
+ });
+ await assertFails(getDoc(ref(dave,'collabLinks/'+expiredToken)));
+ await assertFails(getDoc(ref(dave,'collabLinks/'+legacyToken)));
+ for(const token of [expiredToken,legacyToken]){
+  await assertFails(setDoc(ref(dave,collab+'/members/dave'),{uid:'dave',role:'member',joinToken:token,localEntityId:'bad',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ }
+ await assertSucceeds(getDoc(ref(alice,'collabLinks/'+legacyToken)));
+ await assertSucceeds(updateDoc(ref(alice,'collabLinks/'+legacyToken),{active:false}));
+
+ await assertSucceeds(updateDoc(ref(alice,linkPath),{active:false}));
+ await assertFails(updateDoc(ref(alice,linkPath),{active:true}));
+ await assertFails(getDoc(ref(dave,linkPath)));
+ await assertFails(setDoc(ref(dave,collab+'/members/dave'),{uid:'dave',role:'member',joinToken,localEntityId:'revoked',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,collab)));
+ console.log('COLLAB_LINK_SECURITY_PASS verified expiry block revocation owner-list legacy idempotent-member');
 
  // Direct challenge only between accepted friends; only recipient can accept.
  const challenge='challenges/alice_bob_challenge';
