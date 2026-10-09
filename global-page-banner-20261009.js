@@ -51,7 +51,7 @@ function update(){
    panel.prepend(hero);
   }
   if(hero.dataset.elaraPageHero!==route)hero.dataset.elaraPageHero=route;
-  hero.classList.add('elara-global-hero');
+  if(!hero.classList.contains('elara-global-hero'))hero.classList.add('elara-global-hero');
   // Store deliberately keeps its existing cosmic artwork and product identity.
   if(art)hero.style.setProperty('--elara-page-art','url("'+ROOT+art+'")');
  }
