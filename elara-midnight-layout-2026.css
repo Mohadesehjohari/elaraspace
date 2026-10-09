@@ -417,9 +417,9 @@ body.dark #panel-tasks #task-list>.astra-task-row{
  /* Task's canonical source tint spans mountains + entire row with an
     actually visible WebP texture (the old near-opaque scrim hid most peaks). */
  background:linear-gradient(100deg,
-  color-mix(in srgb,var(--task-accent) 56%,#03162f85) 0%,
-  color-mix(in srgb,var(--task-accent) 43%,#061b3866) 47%,
-  color-mix(in srgb,var(--task-accent) 50%,#04142b85) 100%),
+  color-mix(in srgb,var(--task-accent) 24%,#06152dbd) 0%,
+  color-mix(in srgb,var(--task-accent) 20%,#091c36a6) 47%,
+  color-mix(in srgb,var(--task-accent) 25%,#071b37bd) 100%),
  var(--task-scene) center/cover no-repeat!important;
  box-shadow:0 7px 18px #0003,inset 0 1px 0 #ffffff08,0 0 11px color-mix(in srgb,var(--task-accent) 12%,transparent)!important;
  overflow:visible!important;
@@ -991,9 +991,9 @@ body.dark #panel-home.ref-home .ref-achievements>header h2{color:#cdeaff!importa
      WebP. Stronger accent saturation, lower opaque-black coverage and visible
      terrain detail; task type never inferred from its title. */
   background:linear-gradient(105deg,
-   color-mix(in srgb,var(--task-accent) 54%,rgba(3,16,37,.52)) 0%,
-   color-mix(in srgb,var(--task-accent) 40%,rgba(4,19,43,.37)) 48%,
-   color-mix(in srgb,var(--task-accent) 52%,rgba(3,14,37,.52)) 100%),
+   color-mix(in srgb,var(--task-accent) 30%,rgba(3,16,37,.72)) 0%,
+   color-mix(in srgb,var(--task-accent) 22%,rgba(4,19,43,.57)) 48%,
+   color-mix(in srgb,var(--task-accent) 30%,rgba(3,14,37,.72)) 100%),
    var(--task-scene) center/cover no-repeat!important;
   box-shadow:inset 5px 0 0 var(--task-accent),0 7px 18px #0004,
    0 0 12px color-mix(in srgb,var(--task-accent) 17%,transparent)!important
