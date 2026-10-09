@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import {initializeTestEnvironment,assertSucceeds,assertFails} from '@firebase/rules-unit-testing';
-import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
+import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch,getDocs,collection,query,where} from 'firebase/firestore';
 
 const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
 const rules=await fs.readFile(new URL('../firestore.rules',import.meta.url),'utf8');
 const env=await initializeTestEnvironment({projectId,firestore:{host,port:Number(portRaw||8080),rules}});
 console.log('FIRESTORE_RULES_E2E_START '+host+':'+String(portRaw||8080)+' project='+projectId);
-const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test'}).firestore();
+const db=uid=>env.authenticatedContext(uid,{email:uid+'@example.test',email_verified:true}).firestore();
 const alice=db('alice'),bob=db('bob'),eve=db('eve'),dave=db('dave'),regA=db('regA'),regB=db('regB'),legacyA=db('legacyA'),legacyB=db('legacyB');
 const ref=(database,path)=>doc(database,path);
 const nowPlus=ms=>Timestamp.fromMillis(Date.now()+ms);
@@ -263,6 +263,71 @@ try{
  await assertSucceeds(setDoc(ref(eve,collab+'/members/eve'),{uid:'eve',role:'member',joinToken,localEntityId:'class-local-e',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(eve,collab)));
  await assertFails(setDoc(ref(eve,collab+'/members/dave'),{uid:'dave',role:'member',joinToken,localEntityId:'spoof',progressCompleted:0,progressTotal:36,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+
+ // TRUSTED ACCOUNTS: two accounts first give mutual permission ONCE. This does
+ // not make private items visible. Subsequent explicitly shared items are delivered
+ // without per-item invitations through recipient-created membership.
+ const linkId='alice__bob',linkRef='accountLinks/'+linkId;
+ const pending={uidA:'alice',uidB:'bob',participants:['alice','bob'],requestedBy:'alice',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ await assertFails(setDoc(ref(eve,linkRef),pending));
+ await assertSucceeds(setDoc(ref(alice,linkRef),pending));
+ await assertSucceeds(getDoc(ref(bob,linkRef)));
+ await assertFails(getDoc(ref(eve,linkRef)));
+ await assertSucceeds(getDocs(query(collection(alice,'accountLinks'),where('participants','array-contains','alice'))));
+ await assertSucceeds(getDocs(query(collection(bob,'accountLinks'),where('participants','array-contains','bob'))));
+ await assertFails(getDocs(query(collection(eve,'accountLinks'),where('participants','array-contains','alice'))));
+ await assertFails(getDocs(collection(alice,'accountLinks')));
+ await assertFails(updateDoc(ref(alice,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(eve,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,linkRef)));
+ const unverified=env.authenticatedContext('unverified',{email:'unverified@example.test',email_verified:false}).firestore();
+ await assertFails(getDoc(ref(unverified,linkRef)));
+ const specs=[['task',{text:'Shared study'}],['habit',{title:'Shared walking'}],['goal',{title:'Shared course'}],['language-class',{title:'Shared English'}],['leitner-word',{front:'Shared word',back:'Shared translation'}]];
+ for(const [kind,data] of specs){
+  const spaceId='trusted_'+kind.replace(/[^a-z]+/g,'_'),spacePath='collabSpaces/'+spaceId,deliveryPath='trustedDeliveries/'+spaceId+'__bob';
+  const payload={ownerUid:'alice',kind,title:'Explicit '+kind,payloadJson:JSON.stringify(data),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  await assertSucceeds(setDoc(ref(alice,spacePath),payload));
+  await assertSucceeds(setDoc(ref(alice,spacePath+'/members/alice'),{uid:'alice',role:'owner',localEntityId:spaceId,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  await assertFails(getDoc(ref(bob,spacePath))); // even a trusted pair cannot see private unshared items
+  const delivery={spaceId,from:'alice',to:'bob',kind,linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  await assertFails(setDoc(ref(eve,deliveryPath),{...delivery,from:'eve'}));
+  await assertFails(setDoc(ref(alice,'trustedDeliveries/'+spaceId+'__eve'),{...delivery,to:'eve'}));
+  await assertFails(setDoc(ref(alice,deliveryPath),{...delivery,kind:'invalid'}));
+  await assertSucceeds(setDoc(ref(alice,deliveryPath),delivery));
+  await assertSucceeds(getDoc(ref(bob,deliveryPath)));
+  await assertSucceeds(getDocs(query(collection(bob,'trustedDeliveries'),where('to','==','bob'))));
+  await assertFails(getDocs(query(collection(eve,'trustedDeliveries'),where('to','==','bob'))));
+  await assertFails(getDoc(ref(eve,deliveryPath)));
+  // automatic recipient delivery: no collabInvites status or acceptance is written
+  await assertSucceeds(setDoc(ref(bob,spacePath+'/members/bob'),{uid:'bob',role:'member',trustedLinkId:linkId,localEntityId:'shared-'+spaceId,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  await assertSucceeds(getDoc(ref(bob,spacePath)));
+  await assertFails(setDoc(ref(eve,spacePath+'/members/eve'),{uid:'eve',role:'member',trustedLinkId:linkId,localEntityId:'spoof',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  await assertFails(updateDoc(ref(bob,spacePath+'/members/bob'),{trustedLinkId:'invalid',updatedAt:serverTimestamp()})); // duplicate/membership hijack
+ }
+ // Reciprocal sharing: owner Bob explicitly shares with Alice, no extra approval.
+ const reverse='collabSpaces/trusted_reverse',reverseDelivery='trustedDeliveries/trusted_reverse__alice';
+ await assertSucceeds(setDoc(ref(bob,reverse),{ownerUid:'bob',kind:'task',title:'Bob explicit task',payloadJson:JSON.stringify({text:'Bob explicit task'}),visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(bob,reverse+'/members/bob'),{uid:'bob',role:'owner',localEntityId:'b',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(bob,reverseDelivery),{spaceId:'trusted_reverse',from:'bob',to:'alice',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,reverse+'/members/alice'),{uid:'alice',role:'member',trustedLinkId:linkId,localEntityId:'a',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,reverse)));
+ // New, otherwise-valid source space: only the active link/block state may deny delivery.
+ const blockedSpace='collabSpaces/trusted_blocked_source',blockedDelivery='trustedDeliveries/trusted_blocked_source__bob';
+ await assertSucceeds(setDoc(ref(alice,blockedSpace),{ownerUid:'alice',kind:'task',title:'Block test',payloadJson:'{"text":"Block test"}',visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,blockedSpace+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'test-block',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,'blocks/alice__bob'),{owner:'alice',target:'bob',targetName:'Bob',targetUsername:'bob',createdAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,blockedDelivery),{spaceId:'trusted_blocked_source',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,'accountLinks/alice__eve'),{uidA:'alice',uidB:'eve',participants:['alice','eve'],requestedBy:'alice',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,'blocks/alice__bob')));
+ await assertSucceeds(updateDoc(ref(bob,linkRef),{status:'revoked',updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,blockedDelivery),{spaceId:'trusted_blocked_source',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,'collabSpaces/trusted_task')));
+ await assertSucceeds(updateDoc(ref(alice,linkRef),{status:'pending',requestedBy:'alice',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,linkRef),{status:'active',updatedAt:serverTimestamp()}));
+ console.log('TRUSTED_ACCOUNT_DELIVERY_PASS mutual consent five canonical kinds reciprocal no-per-item-accept block revoke & re-link');
 
  // Direct challenge only between accepted friends; only recipient can accept.
  const challenge='challenges/alice_bob_challenge';
