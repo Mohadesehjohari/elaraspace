@@ -49,7 +49,14 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.cards.every(x=>Math.abs(x.r.h-322)<1),'desktop 322px four cards changed: '+JSON.stringify(m.cards));
    assert.ok(Math.max(...m.cards.map(x=>x.r.bottom))-Math.min(...m.cards.map(x=>x.r.bottom))<=2,'unaligned card bottoms');
   }
-  if(width>=412&&width<=700){assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'mobile first two cards not side by side');assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row')}
+  if(width>=412&&width<=700){
+    assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'mobile first two cards not side by side');
+    assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
+    assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
+    assert.ok(m.cards.slice(2).every(x=>x.r.h<=235&&x.r.h>=185),'second-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
+    assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
+    assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
+   }
   if(width<=390)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'narrow mobile must use readable stack');
  }
  if(route==='tasks'&&kind==='after'){
