@@ -44,7 +44,12 @@ try {
   assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),1,'undo not persistent');
  }
  for(const [id,date] of [['past',past],['today',now],['future',future],['repeat',past],['repeat',now],['repeat',future],['shared',now],['goal-task',now]])await toggle(id,date);
- const after=await data();
+ const beforeReplay=await data();
+ await toggle('past',past);
+ await toggle('repeat',past);
+ const afterReplay=await data();
+ assert.equal(afterReplay.xp,beforeReplay.xp,'Rechecking one-off and recurrence after undo must not grant duplicate XP');
+ const after=afterReplay;
  assert.equal(after.tasks.find(t=>t.id==='repeat').occurrenceDone.length,0,'recurring undo leaked an occurrence');
  assert.equal(after.goals[0].steps[0].done,false,'linked goal undo failed');
  assert.ok(!errors.length,'page errors: '+errors.join(';'));
