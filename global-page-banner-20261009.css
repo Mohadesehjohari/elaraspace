@@ -52,11 +52,11 @@ html body.dark #panel-freedom .freedom-hero.elara-global-hero{
 }
 @media(max-width:1000px){
  html body.dark #panel-freedom .freedom-hero.elara-global-hero{
-  width:calc(100% + 20px)!important;margin-inline:-10px!important;
+  width:calc(100% + 40px)!important;margin-inline:-20px!important;
  }
 }
 @media(max-width:700px){
- html body.dark #panel-language .feature-hub-hero.elara-global-hero{
+ html body.dark #panel-language .elara-global-hero{
   height:158px!important;min-height:158px!important;max-height:158px!important;
   padding:72px 14px 8px!important;overflow:hidden!important;box-sizing:border-box!important
  }
