@@ -102,16 +102,25 @@ await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/,'uploaded Language banner is not active');
-const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
-assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
-const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
-assert.equal(Math.max(...languageGeometry.slice(0,2).map(x=>x.y))-Math.min(...languageGeometry.slice(0,2).map(x=>x.y))<=2,true,'Language first launcher row must align in the new 2x2 mobile layout: '+JSON.stringify(languageGeometry));
-assert.ok(languageGeometry[2].y>languageGeometry[0].y+40,'Language second launcher row did not move below the artwork row: '+JSON.stringify(languageGeometry));
-assert.equal(languageGeometry.every(x=>x.h>=160&&x.h<=184&&x.imgH>=100),true,'Language launcher sizing drifted from large image-first tiles: '+JSON.stringify(languageGeometry));
+const ui12=await page.locator('#panel-language.ui12-language .ui12-board').count()>0;
+if(ui12){
+ const shortcuts=page.locator('#panel-language .ui12-shortcut'),cards=page.locator('#panel-language .ui12-board>.ui12-card');
+ assert.equal(await shortcuts.count(),8,'UI12 Language shortcuts must all remain available');
+ assert.equal(await cards.count(),8,'UI12 Language cards must all remain available');
+ const geometry=await cards.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{id:x.id,x:r.x,w:r.width,right:r.right}}));
+ assert.equal(geometry.every(g=>g.w>=90&&g.x>=-2&&g.right<=innerWidth+2),true,'UI12 card overflow: '+JSON.stringify(geometry));
+}else{
+ const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
+ assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
+ const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
+ assert.equal(Math.max(...languageGeometry.slice(0,2).map(x=>x.y))-Math.min(...languageGeometry.slice(0,2).map(x=>x.y))<=2,true,'Language first launcher row must align: '+JSON.stringify(languageGeometry));
+ assert.ok(languageGeometry[2].y>languageGeometry[0].y+40,'Language second launcher row failed: '+JSON.stringify(languageGeometry));
+ assert.equal(languageGeometry.every(x=>x.h>=160&&x.h<=184&&x.imgH>=100),true,'Language launcher size drifted: '+JSON.stringify(languageGeometry));
+}
 assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
-const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
+const leitnerLaunch=ui12?page.locator('#ui12-leitner [data-ui12-route="words"]').first():page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner navigation missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
 const leitnerStats=page.locator('#panel-words [data-language-block="leitner"] .language-leitner-stats>div');
 assert.equal(await leitnerStats.count(),4,'Dedicated Leitner route must preserve the original four live stat tiles');
 const leitnerRows=await leitnerStats.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
