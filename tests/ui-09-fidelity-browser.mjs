@@ -26,7 +26,8 @@ async function run(base,route,width,count=21,kind='after'){
   const rect=x=>{if(!x)return null;let r=x.getBoundingClientRect();return {x:+r.x.toFixed(2),y:+r.y.toFixed(2),w:+r.width.toFixed(2),h:+r.height.toFixed(2),bottom:+r.bottom.toFixed(2),right:+r.right.toFixed(2)}};
   const q=s=>document.querySelector(s),sel=s=>[...document.querySelectorAll(s)];
   const top=q('.workspace>.topbar.ref-topbar'),hero=q(route==='home'?'#panel-home .owner-home-hero':'#panel-tasks .astra-task-hero');
-  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',header:rect(top)};
+  const headline=hero?.querySelector('.hero-copy h1,.elara-generated-hero h1');
+  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',headline:headline?{rect:rect(headline),fontSize:getComputedStyle(headline).fontSize,lineHeight:getComputedStyle(headline).lineHeight}:null,header:rect(top)};
   if(route==='home'){
    const cards=['#ref-streak-card','.owner-home-tasks','#ref-wellness-card','.owner-home-goals'].map(s=>({s,r:rect(q('#panel-home '+s))}));
    const host=q('#elara-home-tasks'),list=host?.querySelector('.ref-task-list');
@@ -35,7 +36,7 @@ async function run(base,route,width,count=21,kind='after'){
   }
   return {...generic,toolbar:rect(q('#astra-task-toolbar')),rows:sel('#task-list>.astra-task-row').map(x=>({source:x.className,rect:rect(x),bg:getComputedStyle(x).backgroundImage,accent:getComputedStyle(x).getPropertyValue('--task-accent').trim(),label:x.querySelector('.item-title')?.textContent||'',strike:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).textDecorationLine:''})),archived:sel('.task-archive-row').length};
  },route);
- if(kind==='after')await page.screenshot({path:'browser-artifacts/ui09-'+route+'-'+width+'-'+count+'.png',fullPage:width>=701});
+ if(kind==='after'||kind==='before')await page.screenshot({path:'browser-artifacts/ui09-'+kind+'-'+route+'-'+width+'-'+count+'.png',fullPage:width>=701});
  console.log('UI09_DIAGNOSTIC '+JSON.stringify({kind,route,width,expected:count,observed:m.taskCount,host:m.hostScroll,list:m.listScroll,cards:m.cards,quick:m.quick,bottom:m.bottom,rows:m.rows?.length}));
  if(route==='home'&&kind==='after'){
   assert.equal(m.quickCount,6,'exact six shortcuts required');
@@ -103,6 +104,7 @@ try{
    console.log('UI09_PODIUM_REAL_RECORD_LAYOUT_PASS '+JSON.stringify({width,podium}));
   }
   await h.page.close();
+  if(width===430||width===1440){const oldTasks=await run(live,'tasks',width,21,'before');await oldTasks.page.close()}
   const t=await run(preview,'tasks',width,21,'after');await t.page.close();
  }
  for(const count of [0,1,5]){
