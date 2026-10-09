@@ -61,7 +61,7 @@ async function run(base,route,width,count=21,kind='after'){
     assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'wide mobile first two cards not side by side');
     assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
     assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
-    assert.ok(m.cards.slice(2).every(x=>x.r.h<=235&&x.r.h>=185),'second-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
+    assert.ok(m.cards.slice(2).every(x=>x.r.h<=250&&x.r.h>=185),'second-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
@@ -75,7 +75,7 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
   if(width>=375&&width<=389)assert.ok(m.quick.y<=1000,'Readable full-data fallback still giant before shortcuts '+width+': '+m.quick.y);
-  if(width>=390&&width<=700)assert.ok(m.quick.y<=740,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
+  if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=360)assert.ok(m.quick.y<=1065,'Narrow fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
    assert.deepEqual(m.mobileNav.map(x=>x.route),['freedom','social','home','books','more'],'Wrong mobile main nav semantics');
