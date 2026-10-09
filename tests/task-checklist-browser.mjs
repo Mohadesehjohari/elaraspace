@@ -15,8 +15,12 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.waitForFunction(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));const day=new Date().toISOString().slice(0,10);return s.habits?.find(x=>x.id==='h1')?.days?.includes(day)});
  await page.locator('#task-list .astra-task-row.source-goal .check-button').click();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).goals?.find(x=>x.id==='g1')?.steps?.find(x=>x.id==='s1')?.done===true);
- assert.equal(await page.locator('#task-list .astra-task-row.source-habit .check-button').getAttribute('aria-pressed'),'true','Habit linked row did not remain tickable in Tasks');
- assert.equal(await page.locator('#task-list .astra-task-row.source-goal .check-button').getAttribute('aria-pressed'),'true','Goal linked row did not remain tickable in Tasks');
+  const habitArchive=page.locator('#task-checked-archive .task-archive-row',{hasText:'عادت تست'});
+  const goalArchive=page.locator('#task-checked-archive .task-archive-row',{hasText:'قدم هدف تست'});
+  assert.equal(await habitArchive.count(),1,'Completed canonical habit must move to checked section');
+  assert.equal(await goalArchive.count(),1,'Completed canonical goal step must move to checked section');
+  assert.equal(await habitArchive.locator('.task-archive-undo').getAttribute('aria-pressed'),'true','Habit archive undo missing');
+  assert.equal(await goalArchive.locator('.task-archive-undo').getAttribute('aria-pressed'),'true','Goal archive undo missing');
  await page.locator('[data-phase2-action="view-task"][data-id="t1"]').click();
  await page.waitForSelector('[data-task-checklist-editor]');
  const input=page.locator('[data-task-checklist-new]');

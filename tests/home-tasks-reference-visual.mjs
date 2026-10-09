@@ -95,13 +95,13 @@ try{
     assert.ok(fidelity.homeBackgrounds.every(x=>x.includes('assets/ui/')),'Some Home uploaded artwork missing');
     assert.ok(fidelity.img.hero>0&&fidelity.img.flame>0,'Home hero/flame did not decode');
     if(width>=1001){
-      assert.ok(fidelity.heroTop>=fidelity.headerBottom-3,'Home hero overlaps Header at '+width);
-      assert.ok(fidelity.heroHeight>=160&&fidelity.heroHeight<=210,'Home hero proportions incorrect at '+width);
+      assert.ok(fidelity.heroTop>=-3&&fidelity.heroTop<=6,'Home banner must reach workspace top at '+width);
+      assert.ok(fidelity.heroHeight>=220&&fidelity.heroHeight<=250,'Home full-bleed hero proportions incorrect at '+width);
       assert.ok(Math.max(...fidelity.main.map(x=>x.y))-Math.min(...fidelity.main.map(x=>x.y))<4,'Four Home cards not in same row at '+width);
     }
   }else{
     assert.ok(fidelity.heroBackground.includes('task-header-banner-bg.webp'),'Tasks panoramic owner art missing');
-    assert.ok(fidelity.heroTop>=fidelity.headerBottom-4,'Tasks header overlaps toolbar');
+    assert.ok(fidelity.heroTop>=-3&&fidelity.heroTop<=6,'Tasks hero must reach workspace top');
     assert.ok(fidelity.rows>=5,'Tasks fixture missing canonical items');
     assert.equal(fidelity.toolbarActions,true,'Add Task button absent');
     assert.equal(fidelity.richRows,true,'source-specific real tasks lost');
