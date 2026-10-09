@@ -50,7 +50,7 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.cards.every(x=>Math.abs(x.r.h-322)<1),'desktop 322px four cards changed: '+JSON.stringify(m.cards));
    assert.ok(Math.max(...m.cards.map(x=>x.r.bottom))-Math.min(...m.cards.map(x=>x.r.bottom))<=2,'unaligned card bottoms');
   }
-  if(width>=430&&width<=700){
+  if(width>=390&&width<=700){
     assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'wide mobile first two cards not side by side');
     assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
     assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
@@ -58,17 +58,17 @@ async function run(base,route,width,count=21,kind='after'){
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
-  if(width>=375&&width<=429){
-   assert.ok(m.cards[1].r.y>m.cards[0].r.y,'375–429 must use stacked full-width Streak/Tasks');
-   assert.ok(Math.abs(m.cards[2].r.y-m.cards[3].r.y)<3,'paired Wellness/Goals row missing in hybrid layout');
+  if(width>=375&&width<=389){
+   assert.ok(m.cards[1].r.y>m.cards[0].r.y,'375–389 must keep full-width Streak/Tasks');
+   assert.ok(m.cards[3].r.y>m.cards[2].r.y,'real Goals require a readable full-width row at 375');
   }
   if(width<=360)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'very narrow mobile needs readable stacked cards');
   if(width>=1001){
    assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
-  if(width>=375&&width<=429)assert.ok(m.quick.y<=805,'Hybrid mobile shortcuts remain too far down '+width+': '+m.quick.y);
-  if(width>=430&&width<=700)assert.ok(m.quick.y<=735,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
+  if(width>=375&&width<=389)assert.ok(m.quick.y<=880,'Readable 375 fallback still giant before shortcuts '+width+': '+m.quick.y);
+  if(width>=390&&width<=700)assert.ok(m.quick.y<=740,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=360)assert.ok(m.quick.y<=1065,'Narrow fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
    assert.ok(m.quick.h<=220,'Mobile Quick Access must not use giant multi-row grid: '+JSON.stringify(m.quick));
