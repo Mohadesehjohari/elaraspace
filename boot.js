@@ -1,6 +1,6 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
-  const BUILD='20261009-global-banner-task-polish-v1';
+  const BUILD='20261009-trusted-account-sharing-draft-v1';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css','home-owner-art-2026.css','global-page-banner-20261009.css'];
@@ -123,7 +123,7 @@
     return collabPromise;
   };
   const lazyCollab={__lazyProxy:true};
-  for(const name of ['shareEntity','createSpace','invite','acceptInvite','declineInvite','openInbox','refreshInvites','openSpace','memberRows','createShareLink','copyShareLink','joinLink']){
+  for(const name of ['shareEntity','createSpace','invite','acceptInvite','declineInvite','openInbox','refreshInvites','openSpace','memberRows','createShareLink','copyShareLink','joinLink','requestTrustedAccount','acceptTrustedAccount','disconnectTrustedAccount','listTrustedAccounts','openTrustedAccounts','activeTrustedLink']){
     lazyCollab[name]=(...args)=>loadCollab().then(api=>api?.[name]?.(...args));
   }
   window.ElaraCollab=window.ElaraCollab||lazyCollab;
@@ -160,6 +160,8 @@
       ]);
       // Social has one canonical loader shared by background preload and dependent features.
       // It stays non-blocking for Home, while Profile/Friends can await the same promise.
+      // Trusted deliveries subscribe after login without blocking Home's first paint.
+      setTimeout(()=>void loadCollab().catch(error=>console.warn('Elara trusted inbox startup:',error?.message||error)),900);
       void loadSocial().catch(error=>{
         const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد: '+String(error?.message||error)
       });
