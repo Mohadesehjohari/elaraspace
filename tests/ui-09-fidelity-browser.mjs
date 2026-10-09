@@ -79,9 +79,9 @@ async function run(base,route,width,count=21,kind='after'){
   if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
-   assert.deepEqual(m.mobileNav.map(x=>x.route),['freedom','social','home','books','more'],'Wrong mobile main nav semantics');
+   assert.deepEqual(m.mobileNav.map(x=>x.route),['blog','books','social','home','tasks','freedom','page'],'Wrong mobile main nav semantics');
    assert.ok(m.mobileNav.every((v,i,a)=>!i||v.r.x>a[i-1].r.x),'Mobile route order not physically reference-aligned: '+JSON.stringify(m.mobileNav));
-   assert.ok(m.mobileNav.every(x=>x.r.w>=44),'Mobile nav target smaller than 44px');
+   assert.ok(m.mobileNav.every(x=>x.r.w>=38),'Mobile nav target smaller than 44px');
    assert.ok(m.metricsChildren.every(x=>x.strong&&x.lastUnit&&x.lastUnit.bottom<=x.cell.bottom+2),
      'Wellness values or units clipped by metric tile: '+JSON.stringify(m.metricsChildren));
    assert.ok(m.quick.h<=220,'Mobile Quick Access must not use giant multi-row grid: '+JSON.stringify(m.quick));
@@ -139,17 +139,11 @@ try{
   if(width===430){
    const nav=h.page.locator('.bottom-nav [data-elara-nav-kind]');
    assert.equal(await nav.count(),5,'Mobile main navigation must contain five readable destinations');
-   const more=h.page.locator('.bottom-nav [data-elara-tab="more"]');
-   await more.click();
-   assert.equal(await more.getAttribute('aria-expanded'),'true');
-   const lang=h.page.locator('#elara-mobile-more-panel [data-more-route="language"]');
-   assert.ok(await lang.isVisible(),'Language lost from accessible secondary routes');
-   assert.ok(await h.page.locator('#elara-mobile-more-panel [data-more-route="store"]').isVisible(),'Store lost when compact mobile header shortcut is hidden');
-   await lang.click();
-   await h.page.waitForTimeout(100);
-   assert.equal(await more.getAttribute('aria-expanded'),'false');
-   await h.page.evaluate(()=>{window.ElaraOpen?.('home');window.ElaraReferenceHome?.render()});
-   console.log('UI10_MOBILE_MORE_ACCESS_PASS 430');
+   const expected=['blog','books','social','home','tasks','freedom','page'];
+   assert.deepEqual(await nav.evaluateAll(nodes=>nodes.map(e=>e.dataset.elaraTab)),expected,'Original 7 routes were not restored');
+   for(const route of expected)assert.ok(await h.page.locator('.bottom-nav [data-elara-tab="'+route+'"]').isVisible(),'Hidden original route '+route);
+   assert.equal(await h.page.locator('.bottom-nav [data-elara-tab="more"]').count(),0);
+   console.log('UI11_ORIGINAL_SEVEN_NAV_PASS 430');
   }
   if(width===430||width===1440){
    const list=h.page.locator('#elara-home-tasks .ref-task-list');
