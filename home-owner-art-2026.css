@@ -350,9 +350,9 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  }
  #panel-home.ref-home.owner-art-home .ref-streak-days{min-width:0!important}
 }
-/* Reference-inspired paired cards at >=375px; below that keep the content-led
-   single-column fallback to avoid microtype and inaccessible controls. */
-@media(min-width:390px) and (max-width:700px){
+/* At 375px and above the first two 181px cards may pair; a narrow hybrid
+   preserves full-width Wellness and Goals so actual values remain readable. */
+@media(min-width:375px) and (max-width:700px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness goals"!important;
@@ -741,7 +741,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  
 /* One-column source ownership applies only below the 2×2 breakpoint.
    Taller 216–350px mobile layouts must never override compact 412px+ rules. */
-@media(max-width:389px){
+@media(max-width:374px){
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 42px!important;
@@ -799,7 +799,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  }
 }
 
-@media(max-width:389px){
+@media(max-width:374px){
  html body.dark #panel-home.ref-home.owner-art-home .ref-health-main{
   min-height:61px!important;height:61px!important;max-height:61px!important;
   display:grid!important;grid-template-columns:62px minmax(0,1fr)!important;align-items:center!important;gap:5px!important;direction:ltr!important
@@ -811,12 +811,12 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   grid-column:2!important;direction:rtl!important;text-align:right!important;min-width:0!important
  }
 }
-@media(min-width:390px) and (max-width:700px){
+@media(min-width:375px) and (max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{display:none!important}
 }
 /* Compact readable baseline below 390: own heights in the source media,
    no implicit large grid tracks and exactly one real Tasks scrollport. */
-@media(max-width:389px){
+@media(max-width:374px){
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-tasks{
   height:183px!important;min-height:183px!important;max-height:183px!important
  }
@@ -827,19 +827,19 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   overflow-y:auto!important;min-height:0!important;flex:1 1 auto!important
  }
 }
-/* UI10 hybrid: the real 375–429px content will not fit four tiny cards.
-   Streak/Tasks span both columns; concise Wellness/Goals share the final row. */
+/* 375–389px hybrid: Streak/Tasks pair like the reference; Wellness and Goals
+   use full-width natural grid rows so genuine Persian records never compress. */
 @media(min-width:375px) and (max-width:389px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  grid-template-areas:"streak streak" "tasks tasks" "wellness wellness" "goals goals"!important;
+  grid-template-areas:"streak tasks" "wellness wellness" "goals goals"!important;
   grid-auto-rows:max-content!important;column-gap:8px!important;row-gap:8px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-streak-card{
-  grid-area:streak!important;height:140px!important;min-height:140px!important;max-height:140px!important;padding:26px 12px 8px!important
+  grid-area:streak!important;height:181px!important;min-height:181px!important;max-height:181px!important;padding:8px 7px!important
  }
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks{
-  grid-area:tasks!important;height:145px!important;min-height:145px!important;max-height:145px!important;padding:9px 12px!important
+  grid-area:tasks!important;height:181px!important;min-height:181px!important;max-height:181px!important;padding:8px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card{
   grid-area:wellness!important;height:204px!important;min-height:204px!important;max-height:204px!important;padding:8px!important
