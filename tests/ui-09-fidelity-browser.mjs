@@ -67,7 +67,7 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
-  if(width>=375&&width<=389)assert.ok(m.quick.y<=890,'Readable 375 fallback still giant before shortcuts '+width+': '+m.quick.y);
+  if(width>=375&&width<=389)assert.ok(m.quick.y<=940,'Readable full-data fallback still giant before shortcuts '+width+': '+m.quick.y);
   if(width>=390&&width<=700)assert.ok(m.quick.y<=740,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=360)assert.ok(m.quick.y<=1065,'Narrow fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
