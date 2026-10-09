@@ -26,7 +26,12 @@ try{
      return {route,width:innerWidth,scroll:document.documentElement.scrollWidth,top:rect.top,w:rect.width,h:rect.height,border:css.borderTopWidth,bg:css.backgroundImage,imgBroken:all,headHeight:document.querySelector('.topbar')?.getBoundingClientRect().height}
    },route);
    if(width===320)console.log('BANNER_METRIC '+JSON.stringify(m));
-   check(m.top>=-3&&m.top<85,'banner top gap '+JSON.stringify(m));
+   // On narrow screens the account/brand/search header occupies its own
+   // measured row; require the hero immediately below it (never under it).
+   // Desktop retains the existing top-of-workspace composition.
+   check(width<=700
+    ? m.top>=m.headHeight-3&&m.top<=m.headHeight+8
+    : m.top>=-3&&m.top<85,'banner-to-header gap '+JSON.stringify(m));
    check(m.h>=100&&m.h<280,'hero geometry '+JSON.stringify(m));
    check(m.border==='0px','outer border '+JSON.stringify(m));
    check(m.w>=Math.max(190,width-(width>700?255:25)),'banner does not span workspace '+JSON.stringify(m));
