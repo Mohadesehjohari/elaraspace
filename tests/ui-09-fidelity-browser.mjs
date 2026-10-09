@@ -71,7 +71,9 @@ try{
   if(orig&&width>=1001){
    const old=orig.m,newM=h.m;const gap=n=>+(n.quick.y-n.cards[0].r.bottom).toFixed(2);
    console.log('UI09_HOME_GAP_DELTA '+JSON.stringify({width,before:{card:old.cards[0].r.h,gap:gap(old),lower:+(old.bottom.y-old.quick.bottom).toFixed(2)},after:{card:newM.cards[0].r.h,gap:gap(newM),lower:+(newM.bottom.y-newM.quick.bottom).toFixed(2)}}));
-   assert.ok(gap(newM)<gap(old),'Home primary-to-Quick gap did not decrease');
+   assert.ok(gap(newM)>=8&&gap(newM)<=14,'Home primary-to-Quick gap must be 8–14px, measured '+gap(newM));
+   const lower=newM.bottom.y-newM.quick.bottom;
+   assert.ok(lower>=8&&lower<=14,'Quick-to-bottom-row gap must be 8–14px, measured '+lower);
   }
   if(width===430||width===1440) {
    const btn=h.page.locator('#ref-equipped-character-toggle');await btn.click();
