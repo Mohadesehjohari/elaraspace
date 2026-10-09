@@ -4,6 +4,7 @@ on:
     branches:
       - fix/ui-09-visual-fidelity-20261009
       - fix/ui10-owner-visual-rejection-20261009
+      - fix/ui11-mobile-home-original-nav-20261010
       - main
   workflow_dispatch:
 permissions:
