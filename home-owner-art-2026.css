@@ -455,7 +455,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.60rem!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.65rem!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals{box-sizing:border-box!important;height:192px!important;min-height:192px!important;max-height:192px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals{box-sizing:border-box!important;height:192px!important;min-height:192px!important;max-height:192px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important;overflow:hidden!important;min-height:0!important;flex:1 1 auto!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals #elara-home-goals{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;gap:3px!important}
