@@ -45,6 +45,25 @@ html body.dark #panel-tasks .astra-task-hero{
 }
 html body #main [data-elara-page-hero="freedom"]{padding-top:78px!important}
 html body #panel-freedom .freedom-root{margin-top:0!important;padding-top:0!important}
+
+html body.dark #panel-freedom .freedom-hero.elara-global-hero{
+ width:calc(100% + 36px)!important;max-width:none!important;
+ margin-inline:-18px!important;box-sizing:border-box!important;
+}
+@media(max-width:1000px){
+ html body.dark #panel-freedom .freedom-hero.elara-global-hero{
+  width:calc(100% + 20px)!important;margin-inline:-10px!important;
+ }
+}
+@media(max-width:700px){
+ html body.dark #panel-language .feature-hub-hero.elara-global-hero{
+  height:158px!important;min-height:158px!important;max-height:158px!important;
+  padding:72px 14px 8px!important;overflow:hidden!important;box-sizing:border-box!important
+ }
+ html body.dark #panel-language .feature-hub-hero.elara-global-hero p{font-size:.68rem!important;line-height:1.35!important;margin:0!important}
+ html body.dark #panel-language .feature-hub-hero.elara-global-hero h1{font-size:1.18rem!important;line-height:1.2!important;margin:0 0 4px!important}
+}
+
 html body #main .elara-global-hero.page-hero,
 html body #main .elara-global-hero.blog-hero,
 html body #main .elara-global-hero.feature-hub-hero{background-position:center 50%!important}
