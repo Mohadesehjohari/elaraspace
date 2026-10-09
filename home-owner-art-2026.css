@@ -678,9 +678,9 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
 }
 
  
-/* Mobile source-of-truth repair: contain the streak summary and preserve
-   all three real wellness metrics without obscuring Persian copy. */
-@media(max-width:700px){
+/* One-column source ownership applies only below the 2×2 breakpoint.
+   Taller 216–350px mobile layouts must never override compact 412px+ rules. */
+@media(max-width:411px){
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 50px!important;
@@ -738,6 +738,9 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  }
 }
 
+@media(min-width:412px) and (max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{display:none!important}
+}
 /* Mobile hero must not layer secondary navigation over its main headline.
    Reports remain available through canonical navigation. */
 @media(max-width:700px){
