@@ -401,9 +401,9 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header{min-height:30px!important;margin:0!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header h2{font-size:.82rem!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{font-size:.7rem!important}
- html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:212px!important;min-height:212px!important;max-height:212px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:240px!important;min-height:240px!important;max-height:240px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-data{
-  display:grid!important;grid-template-rows:77px 64px!important;gap:2px!important;
+  display:grid!important;grid-template-rows:85px 77px!important;gap:2px!important;
   flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card>header{
@@ -420,7 +420,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .ref-health-main{
   display:grid!important;grid-template-columns:74px minmax(0,1fr)!important;
   direction:ltr!important;align-items:center!important;gap:3px!important;
-  height:77px!important;min-height:77px!important;max-height:77px!important
+  height:85px!important;min-height:85px!important;max-height:85px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-ring{
   grid-column:1!important;justify-self:center!important;
@@ -431,12 +431,12 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   text-align:right!important;justify-self:stretch!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-copy strong{font-size:.77rem!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:64px!important;min-height:64px!important;max-height:64px!important;gap:3px!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:62px!important;min-height:62px!important;max-height:62px!important;padding:2px 1px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:77px!important;min-height:77px!important;max-height:77px!important;gap:3px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:75px!important;min-height:75px!important;max-height:75px!important;padding:3px 2px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.55rem!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.65rem!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals{box-sizing:border-box!important;height:212px!important;min-height:212px!important;max-height:212px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals{box-sizing:border-box!important;height:240px!important;min-height:240px!important;max-height:240px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{min-height:38px!important}
@@ -452,7 +452,10 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  justify-content:flex-start!important;direction:rtl!important;gap:2px!important;
  min-width:0!important;position:relative!important;order:3!important
 }
-.ref-header-account-cluster #ref-header-account{flex:0 0 auto!important;min-width:0!important}
+html body.dark .workspace>.topbar .ref-header-account-cluster #ref-header-account{
+ flex:0 0 auto!important;min-width:0!important;width:max-content!important;
+ padding:2px 4px!important;gap:5px!important
+}
 @media(max-width:700px){
  .ref-header-account-cluster{gap:2px!important;order:0!important}
  .ref-header-account-cluster #ref-equipped-character-toggle{min-width:26px!important;flex-basis:26px!important}
