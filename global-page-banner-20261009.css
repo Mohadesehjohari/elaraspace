@@ -1,6 +1,9 @@
 /* 2026-10-09: the hero reaches the workspace edge. The topbar overlays the hero,
    without changing the approved account/bell/theme order. */
 html body .workspace{position:relative!important}
+html body.dark .workspace>.topbar.ref-topbar{position:absolute!important;top:0!important;left:0!important;right:0!important;z-index:90!important;background:linear-gradient(180deg,rgba(2,13,33,.83),rgba(2,14,32,.22))!important;backdrop-filter:none!important}
+html body.dark #main>.panel[data-elara-banner-page]:not(.hidden){margin-top:0!important;padding-top:0!important}
+
 html body.dark .workspace:has(#panel-home.ref-home:not(.hidden))>.topbar.ref-topbar{position:absolute!important;top:0!important;left:0!important;right:0!important;z-index:90!important;background:linear-gradient(180deg,rgba(2,13,33,.83),rgba(2,14,32,.22))!important;backdrop-filter:none!important}
 html body.dark .workspace #main,html body.dark .workspace:has(#panel-home.ref-home:not(.hidden)) #main{padding-top:0!important}
 
