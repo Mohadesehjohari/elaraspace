@@ -416,10 +416,12 @@ body.dark #panel-tasks #task-list>.astra-task-row{
  border-radius:13px!important;
  /* Task's canonical source tint spans mountains + entire row with an
     actually visible WebP texture (the old near-opaque scrim hid most peaks). */
+ /* UI11 phone correction: the WebP remains visible under a quiet midnight
+    pigment, while the real sourceGroup hue stays recognizable at the rail. */
  background:linear-gradient(100deg,
-  color-mix(in srgb,var(--task-accent) 56%,#03162f85) 0%,
-  color-mix(in srgb,var(--task-accent) 43%,#061b3866) 47%,
-  color-mix(in srgb,var(--task-accent) 50%,#04142b85) 100%),
+  color-mix(in srgb,var(--task-accent) 24%,#06152dbd) 0%,
+  color-mix(in srgb,var(--task-accent) 20%,#091c36a6) 47%,
+  color-mix(in srgb,var(--task-accent) 25%,#071b37bd) 100%),
  var(--task-scene) center/cover no-repeat!important;
  box-shadow:0 7px 18px #0003,inset 0 1px 0 #ffffff08,0 0 11px color-mix(in srgb,var(--task-accent) 12%,transparent)!important;
  overflow:visible!important;
@@ -987,16 +989,16 @@ body.dark #panel-home.ref-home .ref-achievements>header h2{color:#cdeaff!importa
  body.dark #panel-tasks #task-list>.astra-task-row{
   min-height:84px!important;padding:10px 13px!important;
   border-radius:15px!important;
-  /* UI10: translucent *source-derived* pigment across the whole panoramic
-     WebP. Stronger accent saturation, lower opaque-black coverage and visible
-     terrain detail; task type never inferred from its title. */
+  /* UI11 owner phone correction: deep cosmic navy, subtle category-tinted
+     translucent scrim, visible mountain details and restrained category rail.
+     Canonical sourceGroup still supplies the actual hue. */
   background:linear-gradient(105deg,
-   color-mix(in srgb,var(--task-accent) 54%,rgba(3,16,37,.52)) 0%,
-   color-mix(in srgb,var(--task-accent) 40%,rgba(4,19,43,.37)) 48%,
-   color-mix(in srgb,var(--task-accent) 52%,rgba(3,14,37,.52)) 100%),
+   color-mix(in srgb,var(--task-accent) 15%,rgba(3,14,34,.79)) 0%,
+   color-mix(in srgb,var(--task-accent) 11%,rgba(4,18,40,.68)) 48%,
+   color-mix(in srgb,var(--task-accent) 17%,rgba(3,13,34,.76)) 100%),
    var(--task-scene) center/cover no-repeat!important;
-  box-shadow:inset 5px 0 0 var(--task-accent),0 7px 18px #0004,
-   0 0 12px color-mix(in srgb,var(--task-accent) 17%,transparent)!important
+  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--task-accent) 74%,#183b5b),0 7px 18px #0004,
+   0 0 8px color-mix(in srgb,var(--task-accent) 9%,transparent)!important
  }
  body.dark #panel-tasks #task-list>.astra-task-row .task-summary-button::before{
   flex-basis:35px!important;width:35px!important;height:35px!important

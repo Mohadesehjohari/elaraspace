@@ -959,12 +959,12 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
 .elara-notification-window{max-height:min(92dvh,760px)!important;overflow:auto!important;overscroll-behavior:contain!important}
 
 
-/* UI10: five readable phone destinations with Home centered and a real
-   secondary 'More' popover for every existing route. No routes removed. */
+/* UI11: restore the owner's *seven* original direct mobile destinations,
+   centered Home, exact historical ordering and existing custom artwork. */
 @media(max-width:700px){
  .bottom-nav{
   --elara-safe-inline:max(4px,env(safe-area-inset-left),env(safe-area-inset-right));
-  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-flow:row!important;
+  display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;grid-auto-flow:row!important;
   align-items:stretch!important;justify-items:stretch!important;
   position:fixed!important;inset:auto 0 0!important;width:100%!important;
   height:calc(72px + env(safe-area-inset-bottom))!important;min-height:calc(72px + env(safe-area-inset-bottom))!important;max-height:none!important;
@@ -979,30 +979,31 @@ body.elara-notifications-open{overflow:hidden!important;overscroll-behavior:none
   overflow:visible!important;touch-action:manipulation!important;text-decoration:none!important
  }
  .bottom-nav>[data-elara-nav-kind] .elara-nav-art{
-  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;
+  width:clamp(22px,6.4vw,30px)!important;height:clamp(22px,6.4vw,30px)!important;min-width:22px!important;min-height:22px!important;max-width:30px!important;
   object-fit:contain!important;object-position:center!important;margin:0!important
  }
  .bottom-nav>[data-elara-nav-kind] small{
   display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  font-size:clamp(9px,2.6vw,11px)!important;line-height:1.1!important;white-space:nowrap!important;
+  font-size:clamp(7.5px,2.2vw,10px)!important;line-height:1.1!important;white-space:nowrap!important;
   overflow:visible!important;text-align:center!important
  }
  .bottom-nav>[data-elara-tab="home"]{
   z-index:3!important;background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--elara-accent) 45%,transparent),transparent 72%)!important
  }
  .bottom-nav>[data-elara-tab="home"] .elara-nav-art{
-  width:33px!important;height:33px!important;min-width:33px!important;min-height:33px!important;max-width:33px!important;
+  width:clamp(27px,7vw,35px)!important;height:clamp(27px,7vw,35px)!important;min-width:27px!important;min-height:27px!important;max-width:35px!important;
   filter:brightness(1.08) drop-shadow(0 0 9px var(--elara-art-glow-strong))!important
  }
- .bottom-nav>[data-elara-tab="freedom"]{grid-column:1!important;grid-row:1!important}
- .bottom-nav>[data-elara-tab="social"]{grid-column:2!important;grid-row:1!important}
- .bottom-nav>[data-elara-tab="home"]{grid-column:3!important;grid-row:1!important}
- .bottom-nav>[data-elara-tab="books"]{grid-column:4!important;grid-row:1!important}
- .bottom-nav>[data-elara-tab="more"]{grid-column:5!important;grid-row:1!important}
- .bottom-nav>[data-elara-tab="more"] .elara-more-nav-icon{
-  display:grid!important;place-items:center!important;width:31px!important;height:31px!important;
-  color:#ecf7ff!important;font-size:26px!important;line-height:1!important
- }
+ .bottom-nav>[data-elara-tab="blog"]{grid-column:1!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="books"]{grid-column:2!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="social"]{grid-column:3!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="home"]{grid-column:4!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="tasks"]{grid-column:5!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="freedom"]{grid-column:6!important;grid-row:1!important}
+ .bottom-nav>[data-elara-tab="page"]{grid-column:7!important;grid-row:1!important}
+ /* Every destination remains directly tappable even on a 320px phone. */
+ .bottom-nav>[data-elara-nav-kind]{min-width:0!important;min-height:58px!important}
+ .bottom-nav>[data-elara-tab="home"]{border-radius:14px!important}
  .workspace main,#main{padding-bottom:calc(83px + env(safe-area-inset-bottom))!important}
 
  .elara-private-drawer{

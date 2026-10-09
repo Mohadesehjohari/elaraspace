@@ -79,7 +79,7 @@ async function run(base,route,width,count=21,kind='after'){
   if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
-   assert.deepEqual(m.mobileNav.map(x=>x.route),['freedom','social','home','books','more'],'Wrong mobile main nav semantics');
+   assert.deepEqual(m.mobileNav.map(x=>x.route),['blog','books','social','home','tasks','freedom','page'],'Wrong mobile main nav semantics');
    assert.ok(m.mobileNav.every((v,i,a)=>!i||v.r.x>a[i-1].r.x),'Mobile route order not physically reference-aligned: '+JSON.stringify(m.mobileNav));
    assert.ok(m.mobileNav.every(x=>x.r.w>=44),'Mobile nav target smaller than 44px');
    assert.ok(m.metricsChildren.every(x=>x.strong&&x.lastUnit&&x.lastUnit.bottom<=x.cell.bottom+2),
@@ -106,7 +106,7 @@ async function run(base,route,width,count=21,kind='after'){
  }
  if(kind==='after'&&width>=320&&width<=700){
   assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
-  if(width>=360)assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
+  assert.ok(m.mobileBrand?.w>=35,'Elara real wordmark missing from phone header: '+route+' '+width);
   assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
   assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Mobile search extends over image: '+JSON.stringify({route,width,search:m.mobileSearch,hero:m.hero}));
  }
@@ -138,18 +138,17 @@ try{
   }
   if(width===430){
    const nav=h.page.locator('.bottom-nav [data-elara-nav-kind]');
-   assert.equal(await nav.count(),5,'Mobile main navigation must contain five readable destinations');
-   const more=h.page.locator('.bottom-nav [data-elara-tab="more"]');
-   await more.click();
-   assert.equal(await more.getAttribute('aria-expanded'),'true');
-   const lang=h.page.locator('#elara-mobile-more-panel [data-more-route="language"]');
-   assert.ok(await lang.isVisible(),'Language lost from accessible secondary routes');
-   assert.ok(await h.page.locator('#elara-mobile-more-panel [data-more-route="store"]').isVisible(),'Store lost when compact mobile header shortcut is hidden');
-   await lang.click();
-   await h.page.waitForTimeout(100);
-   assert.equal(await more.getAttribute('aria-expanded'),'false');
-   await h.page.evaluate(()=>{window.ElaraOpen?.('home');window.ElaraReferenceHome?.render()});
-   console.log('UI10_MOBILE_MORE_ACCESS_PASS 430');
+   assert.equal(await nav.count(),7,'Owner original seven direct mobile destinations missing');
+   const expected=['blog','books','social','home','tasks','freedom','page'];
+   assert.deepEqual(await nav.evaluateAll(els=>els.map(el=>el.dataset.elaraTab)),expected);
+   assert.equal(await h.page.locator('.bottom-nav [data-elara-tab="more"]').count(),0,'More must not replace a main destination');
+   for(const route of ['tasks','page','social','freedom','books','blog']){
+    const el=h.page.locator('.bottom-nav [data-elara-tab="'+route+'"]');
+    assert.ok(await el.isVisible()&&await el.getAttribute('href')==='#'+route,'Direct destination not linked: '+route);
+   }
+   const taps=await nav.evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {route:el.dataset.elaraTab,left:r.left,right:r.right,w:r.width}}));
+   assert.ok(taps.every((it,i)=>it.w>=40&&(!i||it.left>=taps[i-1].right-1)),'Mobile dock overlap '+JSON.stringify(taps));
+   console.log('UI11_SEVEN_ORIGINAL_NAV_PASS 430');
   }
   if(width===430||width===1440){
    const list=h.page.locator('#elara-home-tasks .ref-task-list');

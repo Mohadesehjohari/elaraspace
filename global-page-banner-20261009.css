@@ -31,11 +31,11 @@ html body #main{padding-top:0!important}
   box-sizing:border-box!important;height:96px!important;min-height:96px!important;max-height:96px!important;
   padding:3px 8px!important;gap:3px!important
  }
- html body.dark .workspace>.topbar.ref-topbar .topbar-leading{display:none!important}
+ html body.dark .workspace>.topbar.ref-topbar .topbar-leading{display:flex!important;visibility:visible!important;order:3!important;flex:0 0 52px!important;min-width:52px!important;max-width:52px!important}
  html body.dark .workspace>.topbar.ref-topbar #ref-header-account{order:0!important;flex:0 0 106px!important;width:106px!important;max-width:106px!important;min-width:106px!important}
  html body.dark .workspace>.topbar.ref-topbar #ref-equipped-character-toggle{order:1!important;flex:0 0 28px!important}
  html body.dark .workspace>.topbar.ref-topbar .topbar-actions{order:2!important}
- html body.dark .workspace>.topbar.ref-topbar #ref-header-search{display:block!important;order:3!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ html body.dark .workspace>.topbar.ref-topbar #ref-header-search{display:block!important;order:4!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;min-width:0!important}
  html body.dark .workspace>.topbar.ref-topbar #ref-header-search input{width:100%!important;height:38px!important;min-height:38px!important}
 }
 /* 360–700px: real two-row header before route artwork instead of dark overlay. */
@@ -307,6 +307,13 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy :is(.elara-kicker,p){display:none!important}
 }
 
+/* UI11: panoramic mobile header is content aware; leave the 320–389px
+   fallback intact, but avoid oversized artwork above paired cards at 390px+. */
+@media(min-width:390px) and (max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
+  height:116px!important;min-height:116px!important;max-height:116px!important;
+ }
+}
 /* The mobile Home hero follows the two-line header: no reserved invisible topbar strip. */
 @media(max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
