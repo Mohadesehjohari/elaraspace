@@ -82,7 +82,10 @@ html body #panel-home.ref-home.owner-art-home .ref-streak-days{
  width:100%!important;gap:3px!important;align-items:center!important
 }
 html body #panel-home.ref-home.owner-art-home .ref-streak-day{
- display:grid!important;justify-items:center!important;min-width:0!important
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:2px!important;min-width:0!important;
+ height:43px!important;min-height:43px!important;max-height:43px!important;
+ padding:0!important
 }
 html body #panel-home.ref-home.owner-art-home .ref-streak-day .ref-day-mark{
  position:relative!important;display:grid!important;place-items:center!important;
