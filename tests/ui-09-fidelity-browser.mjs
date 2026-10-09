@@ -106,7 +106,7 @@ async function run(base,route,width,count=21,kind='after'){
  }
  if(kind==='after'&&width>=320&&width<=700){
   assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
-  if(width>=360)assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
+  assert.ok(m.mobileBrand?.w>=35,'Elara real wordmark missing from phone header: '+route+' '+width);
   assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
   assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Mobile search extends over image: '+JSON.stringify({route,width,search:m.mobileSearch,hero:m.hero}));
  }
