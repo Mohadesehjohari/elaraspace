@@ -105,7 +105,7 @@ try{
   assert.ok(m.computedImages.flameGeometry?.display!=='none'&&m.computedImages.flameGeometry?.w>=30&&m.computedImages.flameGeometry?.h>=30,'Real streak flame must be visible/prominent on Home '+width);
 
   assert.equal(m.computedImages.hero.fit,'cover','Hero distorted');
-  assert.deepEqual(m.goalRows.map(x=>x.title),goals,'Goals card did not use exactly 3 real Goal records');
+  assert.deepEqual(m.goalRows.map(x=>x.title),width<=700?goals.slice(0,2):goals,'Goals mobile preview must show at most 2 real Goal records');
   for(const h of habits)assert.ok(!m.goalRows.some(g=>g.title?.includes(h)),'Habit leaked into Goals');
   assert.ok(m.habitRows.some(x=>x.includes(habits[0]))&&m.habitRows.some(x=>x.includes(habits[1])),'Habits must remain in separate Habits section');
   assert.ok(m.goalRows.every(x=>x.width>15&&/^\d+%$/.test(x.progress||'')),'Goal progress/readability broken');
