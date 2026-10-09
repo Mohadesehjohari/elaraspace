@@ -26,8 +26,8 @@
  margin:0!important;padding:0!important;text-align:right!important;color:#fff!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
- color:#fff!important;font-size:clamp(1.08rem,1.72vw,1.64rem)!important;
- line-height:1.55!important;margin:3px 0!important;overflow-wrap:anywhere!important
+ color:#fff!important;font-size:clamp(1.07rem,1.45vw,1.45rem)!important;
+ line-height:1.38!important;margin:3px 0 7px!important;overflow-wrap:anywhere!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy p{
  color:#eaf0ff!important;line-height:1.5!important;margin:4px 0!important
@@ -43,7 +43,7 @@
   grid-template-areas:"streak tasks wellness goals"!important;
   grid-auto-rows:minmax(0,1fr)!important;
   gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  align-items:stretch!important;margin:0 0 12px!important
+  align-items:stretch!important;margin:0!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
   /* One desktop owner: final border-box (including Streak's deeper padding). */
@@ -143,6 +143,17 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
  flex:1 1 auto!important;min-height:0!important;max-height:100%!important;
  overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin!important
 }
+/* Exactly one scrollport: card count/progress stay visible; rows scroll. */
+#panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks{
+ display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+ min-height:0!important;max-height:none!important;overflow:hidden!important
+}
+#panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks>:is(.ref-card-count,.ref-task-progress){flex:0 0 auto!important}
+#panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks>.ref-task-list{
+ display:block!important;flex:1 1 auto!important;min-height:0!important;
+ overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+ touch-action:pan-y!important;scrollbar-gutter:stable!important
+}
 /* The overview is computed from actual canonical goal steps, not Habits. */
 #panel-home.ref-home.owner-art-home .ref-home-goal-overview{
  position:relative;z-index:2;display:grid!important;
@@ -183,7 +194,7 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
 /* One existing Quick Access: six canonical destinations only. */
 #panel-home.ref-home.owner-art-home #ref-quick-access{
  display:block!important;width:100%!important;min-width:0!important;
- max-width:100%!important;margin:0 0 12px!important
+ max-width:100%!important;margin:10px 0 0!important
 }
 @media(min-width:1001px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
@@ -432,7 +443,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  background:rgba(3,20,40,.82)!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main strong{font-size:.73rem!important}
-#panel-home.ref-home.owner-art-home #ref-quick-access{margin-top:5px!important}
+#panel-home.ref-home.owner-art-home #ref-quick-access{margin-top:10px!important}
 @media(max-width:700px){
  #panel-home.ref-home.owner-art-home .ref-card>header .ref-view-all-button{
   font-size:.65rem!important;padding:2px 4px!important
