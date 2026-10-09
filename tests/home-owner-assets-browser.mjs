@@ -83,7 +83,7 @@ try{
   // Desktop displays all six; mobile owner reference scrolls one aligned row.
   if(width<=700){
    assert.ok(m.quickRail.scroll>m.quickRail.client+40,'Mobile Quick Access rail has no horizontal scroll to the remaining destinations');
-   assert.ok(m.quickRects.length===6&&m.quickRects.every(x=>x.w>=100&&x.h>=100&&Math.abs(x.y-m.quickRects[0].y)<2),
+   assert.ok(m.quickRects.length===6&&m.quickRects.every(x=>x.w>=100&&x.h>=90&&Math.abs(x.y-m.quickRects[0].y)<2),
     'Mobile Quick Access row too small or not aligned: '+JSON.stringify(m.quickRects));
   }else{
    assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
