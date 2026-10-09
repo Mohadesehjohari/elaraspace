@@ -235,9 +235,25 @@ async function syncProgress(){
  for(const [kind,rows] of sets)for(const row of rows){if(!row?.collabSpaceId)continue;const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;if(progressCache.get(row.collabSpaceId)===key)continue;try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}}
 }
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncProgress(),700)}
+let joinUrlHandling=false;
 async function handleJoinFromUrl(){
- const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
- try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
+ if(joinUrlHandling)return;
+ const url=new URL(location.href),token=url.searchParams.get('elaraJoin');
+ if(!token||!auth.currentUser?.emailVerified)return;
+ joinUrlHandling=true;
+ // Remove the capability from the address bar before opening the confirmation.
+ // This also prevents duplicate prompts from auth-ready/account-ready events.
+ url.searchParams.delete('elaraJoin');
+ history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+ try{
+  const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});
+  if(ok){
+   await joinLink(token);
+   window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token});
+  }
+ }catch(error){
+  await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')});
+ }finally{joinUrlHandling=false}
 }
 document.addEventListener('click',async e=>{
  if(e.target.closest('[data-collab-inbox-launcher]')){void openInbox();return}
