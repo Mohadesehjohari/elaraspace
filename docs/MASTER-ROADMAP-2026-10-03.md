@@ -990,3 +990,22 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Targeted UI-only branch/PR from latest main. Refactor conflicting CSS ownership instead of more !important layers or transforms. Keep Social, Firebase Rules, Storage, PR #24/#26 unchanged.
 - Compare real Chromium screenshots before/after with supplied reference at desktop 1440/1648 and mobile 320/375/390/430; measure Home card heights/row gaps, banner mask, scrollbar owners, task color coverage and podium position. P0, Profile/Username, Social smoke, Tasks functionality, browser responsive all PASS at exact final SHA.
 - Merge after visual/regression gates, then Pages success + exact live bytes + actual production Chromium on https://mohadesehjohari.github.io/elaraspace/. Report PR/HEAD/merge SHA/test runs/artifacts/pass-fail separately; not Done solely because CI passed.
+
+---
+
+## UI-09 Execution Ledger — 2026-10-09
+
+**PR #27 DRAFT / UNMERGED as of this code revision.** Source: main `24a0b037998f9b6b70c7c4189a1791edc2e473fc`. Backend PR #24/#26 remain independent and are excluded. Green test runs are **not** a substitute for visually approving Home and Tasks screenshots.
+
+| Intake | Implementation/test status | Remaining release gate |
+|---|---|---|
+| UI-09.1 Home vertical rhythm | CODED / Chromium verified at 1440 and 1648: 322px four cards preserved; primary → Quick Access 36px → 10px, Quick Access → lower row 12px | final-end SHA run, screenshot visual review and LIVE Pages check |
+| UI-09.2 banners/type | CODED: removed broad dark topbar mask, softened page gradient, shrank desktop Home heading; mobile header artwork no longer intentionally under controls | verify new 320/360/375/390/412/430 screenshots (brand/search/hero) and release |
+| UI-09.3 Today's Tasks one scroll | CODED / Chromium: only .ref-task-list overflow-y:auto, focusable, full due list; header/count/progress fixed; tested 0/1/5/21+ task fixtures including derived Habit/Goal linked Tasks | wheel/touch/keyboard acceptance on final screenshot |
+| UI-09.4 full-row category tint | CODED: canonical sourceGroup classes choose mountain tint on entire row while preserving WebP, gold Habits, purple Language, green Exercise, cyan regular; Completed without title strike | final desktop/mobile before/after and real task toggle verification |
+| UI-09.5 mobile | CODED / nine-width Chromium matrix: two-column Home only at >=412px, stacked at narrow widths, quick access and bottom nav preserved, Tasks filters independent horizontal rail and actions row | visual review against owner references; ensure no clipped text/control and header offset |
+| UI-09.6 equipped character | CODED / Chromium: independent chevron, real `ElaraProfileSystem.viewModel` equipped portrait/frame only, no fake sample, truthful empty, Escape/outside/toggle close | final 320/430 and keyboard/anchor fit visual acceptance |
+| UI-09.7 ranking podium | CODED / Chromium fixture with three simulated social user records: first portrait centered/highest, three frame/portrait centers aligned, surplus inner golden border removed; genuinely empty state unchanged | final screenshot comparison with real loaded ranking artwork |
+| UI-09.8 proof | P0/Home/Tasks/Profile/Social regression and artifact-producing Chromium workflow on branch; no Firebase Rules/Storage touched | exact final HEAD all green, owner visual proof, merge, Pages, verify live SHA and Chromium LIVE |
+
+**Release status in this ledger: REVIEW OPEN / NOT LIVE.** Do not edit this to VERIFIED until the exact same merged commit passes live screenshot and layout verification. Desktop card height remains a hard invariant of 322px. Any remaining pixel-fidelity mismatch must be listed openly.
