@@ -58,6 +58,13 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.rows.some(x=>x.source.includes('source-exercise')),'exercise source absent');
   assert.ok(m.rows.some(x=>x.source.includes('source-habit')),'habit source absent');
   assert.ok(m.rows.every(x=>x.bg.includes('url(')),'mountain art lost in source gradient');
+  const source=cls=>m.rows.find(x=>x.source.includes('source-'+cls));
+  const neutral=m.rows.find(x=>!/(source-habit|source-language|source-exercise|source-goal|source-book|source-focus)/.test(x.source));
+  assert.ok(neutral,'neutral task row absent');
+  const tint=x=>x.bg.split('url(')[0];
+  for(const group of ['habit','language','exercise']){
+   assert.notEqual(tint(source(group)),tint(neutral),'Task mountain gradient identical for sourceGroup '+group+' at '+width);
+  }
   assert.ok(m.rows.every(x=>!x.strike.includes('line-through')),'Task title struck through');
  }
  if(kind==='after'&&width>=320&&width<=700){
@@ -91,6 +98,19 @@ try{
    const lower=newM.bottom.y-newM.quick.bottom;
    assert.ok(lower>=8&&lower<=14,'Quick-to-bottom-row gap must be 8–14px, measured '+lower);
   }
+  if(width===430||width===1440){
+   const list=h.page.locator('#elara-home-tasks .ref-task-list');
+   const scrollPos=()=>list.evaluate(el=>el.scrollTop);
+   await list.focus();await h.page.keyboard.press('End');
+   assert.ok(await scrollPos()>10,'Keyboard cannot scroll the single Home task list');
+   await list.evaluate(el=>{el.scrollTop=0});
+   const bounds=await list.boundingBox();
+   assert.ok(bounds&&bounds.height>12,'Single Task list has no usable scroll hitbox');
+   await h.page.mouse.move(bounds.x+bounds.width/2,bounds.y+Math.min(bounds.height/2,22));
+   await h.page.mouse.wheel(0,215);await h.page.waitForTimeout(100);
+   assert.ok(await scrollPos()>10,'Mouse wheel cannot scroll the single Home task list');
+   console.log('UI09_TASK_SCROLL_WHEEL_KEYBOARD_PASS '+width);
+  }
   if(width===430||width===1440) {
    const btn=h.page.locator('#ref-equipped-character-toggle');await btn.click();
    assert.equal(await btn.getAttribute('aria-expanded'),'true','character panel not opened');
@@ -120,7 +140,32 @@ try{
   }
   await h.page.close();
   if(width===430||width===1440){const oldTasks=await run(live,'tasks',width,21,'before');await oldTasks.page.close()}
-  const t=await run(preview,'tasks',width,21,'after');await t.page.close();
+  const t=await run(preview,'tasks',width,21,'after');
+  if(width===430){
+   const first=t.page.locator('#task-list>.astra-task-row .check-button[data-phase2-action="toggle-task"]').first();
+   const countBefore=await t.page.locator('#task-list>.astra-task-row').count();
+   await first.click();await t.page.waitForTimeout(250);
+   const archive=t.page.locator('#task-checked-archive .task-archive-row');
+   assert.ok(await archive.count()>=1,'Completed Task not moved to the Completed section');
+   const decoration=await archive.first().locator('strong').first().evaluate(el=>getComputedStyle(el).textDecorationLine);
+   assert.ok(!decoration.includes('line-through'),'Completed Task title struck through');
+   assert.ok(await t.page.locator('#task-list>.astra-task-row').count()<countBefore,'Completed Task remained in pending list');
+   const past=await t.page.evaluate(async()=>{
+    const key='elara_space_v1',state=JSON.parse(localStorage.getItem(key));
+    const d=new Date();d.setDate(d.getDate()-3);
+    const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const startXp=Number(state.xp||0);
+    state.tasks.push({id:'ui09_past_occurrence',text:'بازبینی روز گذشته',sourceGroup:'personal',priority:'4',date:iso,createdAt:Date.now(),recurrenceRule:{frequency:'daily',interval:1,startDate:iso},occurrenceDone:[],completed:false});
+    localStorage.setItem(key,JSON.stringify(state));
+    await window.ElaraTasks.taskAction('toggle-task','ui09_past_occurrence',iso);
+    const next=JSON.parse(localStorage.getItem(key));
+    return {past:iso,done:next.tasks.find(t=>t.id==='ui09_past_occurrence')?.occurrenceDone||[],xpGain:Number(next.xp||0)-startXp};
+   });
+   assert.ok(past.done.includes(past.past),'Cannot complete Task on prior occurrence date');
+   assert.equal(past.xpGain,10,'Prior-day Task completion XP mismatch');
+   console.log('UI09_TASK_COMPLETED_AND_PAST_DATE_PASS '+JSON.stringify(past));
+  }
+  await t.page.close();
  }
  for(const count of [0,1,5]){
   const {page,m}=await run(preview,'home',1440,count,'after');assert.equal(m.taskCount,count,'zero/one/five fixture should show exact count');await page.close()
