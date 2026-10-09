@@ -357,6 +357,17 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  #panel-home.ref-home.owner-art-home #ref-achievements-list{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
  #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-ranks,#panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-habits{height:190px!important;min-height:190px!important;max-height:205px!important;overflow:hidden!important}
  #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-day.done .ref-day-mark{border-color:#ffac42!important;box-shadow:0 0 9px #ed902a75!important;filter:hue-rotate(-12deg) saturate(1.1)!important}
+ /* The four real text/icon rows of a metric must fit inside its button.
+    Tight intrinsic line heights rather than a hidden overflow mask. */
+ html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell{
+  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:0!important;padding:1px 1px!important;line-height:1!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell span img{
+  display:block!important;width:17px!important;height:17px!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell :is(strong,small){line-height:1.08!important;margin:0!important}
 }
 /* At 375px and above the first two 181px cards may pair; a narrow hybrid
    preserves full-width Wellness and Goals so actual values remain readable. */
