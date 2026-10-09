@@ -70,6 +70,114 @@ async function pickFriend(title=tx('انتخاب دوست','Choose a friend')){
  const box=document.createElement('div');box.className='collab-friend-picker';box.innerHTML=rows.map((p,i)=>'<label><input type="radio" name="friend" value="'+esc(p.uid)+'" '+(i===0?'checked':'')+'><span><strong data-elara-ugc dir="auto">'+esc(p.name||p.username||tx('دوست','Friend'))+'</strong><small>'+esc(p.username?'@'+p.username:'')+'</small></span></label>').join('');
  const ok=await window.ElaraDialog.open({title,content:box,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ادامه','Continue'),value:true,kind:'primary'}]});if(ok!==true)return null;return box.querySelector('[name=friend]:checked')?.value||null
 }
+// Trusted relationship is independent from short-lived share links and
+// invitation approval. It ONLY routes individual items explicitly shared.
+const pairId=(a,b)=>[String(a),String(b)].sort().join('__');
+async function activeTrustedLink(peerUid){
+ const uid=requireUser(),peer=String(peerUid||'');if(!peer||peer===uid)return null;
+ try{
+  const snap=await getDoc(doc(db,'accountLinks',pairId(uid,peer)));
+  return snap.exists()&&snap.data().status==='active'?{id:snap.id,...snap.data()}:null;
+ }catch(error){if(error?.code==='permission-denied')return null;throw error}
+}
+async function listTrustedAccounts(){
+ const uid=requireUser(),snap=await getDocs(query(collection(db,'accountLinks'),where('participants','array-contains',uid)));
+ return snap.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.uidA===uid||x.uidB===uid);
+}
+async function requestTrustedAccount(peerUid){
+ const uid=requireUser(),peer=String(peerUid||'');if(!peer||peer===uid)throw Error(tx('حساب دوم معتبر نیست.','Invalid linked account.'));
+ if(!friends().some(x=>x.uid===peer))throw Error(tx('ابتدا باید دو حساب دوست تأییدشده باشند.','The two accounts must first be accepted friends.'));
+ const ref=doc(db,'accountLinks',pairId(uid,peer)),snapshot=await getDoc(ref);
+ if(snapshot.exists()){
+  const link=snapshot.data();
+  if(link.status==='active'||link.status==='pending')return snapshot.id;
+  await updateDoc(ref,{status:'pending',requestedBy:uid,updatedAt:serverTimestamp()});
+  return snapshot.id;
+ }
+ const [uidA,uidB]=[uid,peer].sort();
+ await setDoc(ref,{uidA,uidB,participants:[uidA,uidB],requestedBy:uid,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ return ref.id;
+}
+async function acceptTrustedAccount(linkId){
+ const uid=requireUser(),ref=doc(db,'accountLinks',String(linkId)),snap=await getDoc(ref);
+ if(!snap.exists()||snap.data().status!=='pending'||snap.data().requestedBy===uid||![snap.data().uidA,snap.data().uidB].includes(uid))throw Error(tx('درخواست پیوند معتبر نیست.','No valid trust request.'));
+ await updateDoc(ref,{status:'active',updatedAt:serverTimestamp()});
+ return true;
+}
+async function disconnectTrustedAccount(linkId){
+ const uid=requireUser(),ref=doc(db,'accountLinks',String(linkId)),snap=await getDoc(ref);
+ if(!snap.exists()||![snap.data().uidA,snap.data().uidB].includes(uid))throw Error(tx('این پیوند متعلق به حساب تو نیست.','This link is not yours.'));
+ if(snap.data().status!=='revoked')await updateDoc(ref,{status:'revoked',updatedAt:serverTimestamp()});
+ return true;
+}
+async function openTrustedAccounts(){
+ await window.ElaraLoadSocial?.().catch(()=>{});
+ const uid=requireUser(),links=await listTrustedAccounts(),list=friends(),holder=document.createElement('section');
+ holder.className='collab-trusted-accounts';holder.dir='rtl';
+ const peerName=peer=>esc(list.find(x=>x.uid===peer)?.name||list.find(x=>x.uid===peer)?.username||peer.slice(0,10));
+ holder.innerHTML='<p>'+tx('با تأیید یک‌بارهٔ دو حساب، فقط مواردی که صریحاً با هم به اشتراک می‌گذارید خودکار منتقل می‌شوند.','One-time mutual consent; only explicitly shared items are delivered automatically.')+'</p>'
+ +'<label>'+tx('درخواست پیوند به دوست','Link to friend')+'<select data-trusted-peer><option value="">'+tx('انتخاب دوست','Choose friend')+'</option>'+list.map(p=>'<option value="'+esc(p.uid)+'">'+esc(p.name||p.username||p.uid.slice(0,10))+'</option>').join('')+'</select></label>'
+ +'<button type="button" class="primary-button" data-trusted-request>'+tx('ارسال درخواست یک‌باره','Send one-time request')+'</button>'
+ +'<div>'+links.map(l=>{const peer=l.uidA===uid?l.uidB:l.uidA,recipient=l.requestedBy!==uid,action=l.status==='pending'&&recipient?'<button type="button" data-trusted-accept="'+esc(l.id)+'">'+tx('تأیید پیوند','Accept link')+'</button>':l.status!=='revoked'?'<button type="button" data-trusted-disconnect="'+esc(l.id)+'">'+tx('قطع ارتباط','Disconnect')+'</button>':'';
+ return '<article><strong>'+peerName(peer)+'</strong><small>'+esc(l.status==='active'?tx('پیوند فعال','Trusted'):l.status==='pending'?tx('منتظر رضایت متقابل','Awaiting consent'):tx('قطع‌شده','Disconnected'))+'</small>'+action+'</article>'}).join('')+'</div>';
+ holder.addEventListener('click',async e=>{
+  const btn=e.target.closest('button');if(!btn)return;
+  btn.disabled=true;
+  try{
+   if(btn.hasAttribute('data-trusted-request'))await requestTrustedAccount(holder.querySelector('[data-trusted-peer]')?.value);
+   else if(btn.dataset.trustedAccept)await acceptTrustedAccount(btn.dataset.trustedAccept);
+   else if(btn.dataset.trustedDisconnect)await disconnectTrustedAccount(btn.dataset.trustedDisconnect);
+   window.ElaraNotify?.push?.({type:'social',title:tx('وضعیت پیوند به‌روزرسانی شد','Account link updated'),message:tx('برای دیدن وضعیت تازه دوباره پنجره را باز کنید.','Reopen to see the latest state.')});
+  }catch(err){await window.ElaraDialog.alert(err.message||String(err))}
+  finally{btn.disabled=false}
+ });
+ await window.ElaraDialog.open({title:tx('حساب‌های مورداعتماد','Trusted accounts'),content:holder,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});
+ return links;
+}
+async function deliverToTrustedAccount(spaceId,kind,peerUid,link){
+ const uid=requireUser(),ref=doc(db,'trustedDeliveries',String(spaceId)+'__'+String(peerUid)),snapshot=await getDoc(ref);
+ if(snapshot.exists()){
+  if(snapshot.data().linkId!==link.id)await updateDoc(ref,{linkId:link.id,updatedAt:serverTimestamp()});
+  return ref.id;
+ }
+ await setDoc(ref,{spaceId:String(spaceId),from:uid,to:String(peerUid),kind,linkId:link.id,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+ return ref.id;
+}
+let trustedDeliveryUnsub=null,trustedDeliveryUid='',trustedInFlight=new Set();
+function stopTrustedDeliveryFeed(){
+ trustedDeliveryUnsub?.();trustedDeliveryUnsub=null;trustedDeliveryUid='';trustedInFlight.clear()
+}
+async function materializeTrustedDelivery(entry,uid){
+ if(auth.currentUser?.uid!==uid||!auth.currentUser?.emailVerified)return;
+ const key=String(entry.id);if(trustedInFlight.has(key))return;trustedInFlight.add(key);
+ try{
+  const data=entry.data();if(data.to!==uid)return;
+  const member=doc(db,'collabSpaces',data.spaceId,'members',uid);
+  const existsMember=await getDoc(member);
+  if(!existsMember.exists()){
+   const snapshot=await getDoc(doc(db,'accountLinks',data.linkId));
+   if(!snapshot.exists()||snapshot.data().status!=='active')return;
+   await setDoc(member,{uid,role:'member',trustedLinkId:data.linkId,localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  }
+  const snap=await getDoc(doc(db,'collabSpaces',data.spaceId));
+  if(!snap.exists()||snap.data().kind!==data.kind)return;
+  const space={id:snap.id,...snap.data()},localId=materialize(space);
+  const progress=progressFor(space.kind,findLocal(space.kind,localId)||{});
+  await updateDoc(member,{localEntityId:String(localId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});
+  window.dispatchEvent(new Event('elara:collab-updated'));
+ }catch(error){if(!['permission-denied','unavailable','not-found'].includes(error?.code))console.warn('Elara trusted delivery:',error)}
+ finally{trustedInFlight.delete(key)}
+}
+function startTrustedDeliveryFeed(uid=me()){
+ if(!uid||!auth.currentUser?.emailVerified)return;
+ if(trustedDeliveryUid===uid&&trustedDeliveryUnsub)return;
+ stopTrustedDeliveryFeed();trustedDeliveryUid=uid;
+ trustedDeliveryUnsub=onSnapshot(query(collection(db,'trustedDeliveries'),where('to','==',uid)),snapshot=>{
+  if(auth.currentUser?.uid!==uid)return;
+  for(const entry of snapshot.docs)void materializeTrustedDelivery(entry,uid);
+ },error=>{if(trustedDeliveryUid===uid)console.warn('Elara trusted delivery feed:',error?.code||error?.message)});
+}
+
 async function invite(spaceId,friendUid){
  const uid=requireUser(),friend=String(friendUid||'');if(!friend||friend===uid)throw Error(tx('دوست معتبر انتخاب نشده.','Choose a valid friend.'));
  const spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()};
@@ -91,6 +199,8 @@ async function invite(spaceId,friendUid){
 }
 async function shareEntity(kind,entity,friendUid=null){
  const spaceId=await createSpace(kind,entity),target=friendUid||await pickFriend(kind==='language-class'?tx('انتخاب همکلاسی','Choose classmate'):tx('این مورد با کدام دوست مشترک باشد؟','Share with which friend?'));if(!target)return spaceId;
+ const trusted=await activeTrustedLink(target);
+ if(trusted){await deliverToTrustedAccount(spaceId,kind,target,trusted);return spaceId}
  await invite(spaceId,target);return spaceId
 }
 async function acceptInvite(inviteId){
@@ -181,7 +291,7 @@ async function refreshInvites(){
  try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid)));return await applyInboxRows(snaps.docs.map(x=>({id:x.id,...x.data()})),uid)}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
 }
 async function openInbox(){
- await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span data-elara-ugc dir="auto">'+esc(row.sender?.name||row.sender?.username||tx('دوست','Friend'))+(row.sender?.username?' · @'+esc(row.sender.username):'')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
+ await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML='<button type="button" class="primary-button" data-collab-trusted-launcher>'+tx('اتصال حساب‌های مورداعتماد','Trusted account links')+'</button>'+(inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span data-elara-ugc dir="auto">'+esc(row.sender?.name||row.sender?.username||tx('دوست','Friend'))+(row.sender?.username?' · @'+esc(row.sender.username):'')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>');
  await window.ElaraDialog.open({title:tx('درخواست‌های مشترک','Shared requests'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]})
 }
 function mountInbox(){window.ElaraSocialView?.render?.()}
@@ -207,6 +317,7 @@ async function handleJoinFromUrl(){
 }
 document.addEventListener('click',async e=>{
  if(e.target.closest('[data-collab-inbox-launcher]')){void openInbox();return}
+ if(e.target.closest('[data-collab-trusted-launcher]')){void openTrustedAccounts();return}
  const accept=e.target.closest('[data-collab-accept]'),decline=e.target.closest('[data-collab-decline]');if(!accept&&!decline)return;
  const button=accept||decline;button.disabled=true;
  try{if(accept)await acceptInvite(accept.dataset.collabAccept);else await declineInvite(decline.dataset.collabDecline)}
@@ -214,10 +325,10 @@ document.addEventListener('click',async e=>{
  finally{button.disabled=false}
 });
 for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-local-changed'])window.addEventListener(ev,scheduleSync);
-onAuthStateChanged(auth,user=>{stopInviteRealtime();if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
-window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+onAuthStateChanged(auth,user=>{stopInviteRealtime();stopTrustedDeliveryFeed();if(user?.emailVerified){startInviteRealtime(user.uid);startTrustedDeliveryFeed(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);startTrustedDeliveryFeed(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
 window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
-window.addEventListener('elara:logout',stopInviteRealtime);
-setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
+window.addEventListener('elara:logout',()=>{stopInviteRealtime();stopTrustedDeliveryFeed()});
+setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);startTrustedDeliveryFeed(user.uid)}void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
-window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,requestTrustedAccount,acceptTrustedAccount,disconnectTrustedAccount,listTrustedAccounts,openTrustedAccounts,activeTrustedLink,startTrustedDeliveryFeed,stopTrustedDeliveryFeed,progressFor,findLocal};
