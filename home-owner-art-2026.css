@@ -237,10 +237,10 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
 }
 @media(max-width:700px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
-  grid-template-rows:36px minmax(0,1fr)!important;min-height:114px!important
+  grid-template-rows:30px minmax(0,1fr)!important;min-height:96px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
-  width:36px!important;height:36px!important
+  width:30px!important;height:30px!important
  }
 }
 #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-card{
@@ -313,8 +313,10 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   gap:10px!important;width:100%!important;max-width:100%!important;min-width:0!important
  }
  #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
-  height:auto!important;min-height:160px!important;max-height:255px!important
+  height:auto!important;min-height:156px!important;max-height:255px!important
  }
+ #panel-home.ref-home.owner-art-home .owner-home-tasks{min-height:165px!important}
+ #panel-home.ref-home.owner-art-home .owner-home-goals{min-height:165px!important}
  /* Owner's mobile reference uses one compact horizontal Quick Access rail.
     All six original destinations stay keyboard/touch-scroll reachable. */
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
@@ -328,8 +330,8 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   flex:0 0 clamp(108px,27vw,132px)!important;
   width:clamp(108px,27vw,132px)!important;min-width:clamp(108px,27vw,132px)!important;
   max-width:clamp(108px,27vw,132px)!important;
-  box-sizing:border-box!important;height:114px!important;min-height:114px!important;max-height:114px!important;
-  padding:9px!important;scroll-snap-align:start!important;
+  box-sizing:border-box!important;height:96px!important;min-height:96px!important;max-height:96px!important;
+  padding:7px!important;scroll-snap-align:start!important;
   transform:none!important;inset:auto!important;position:relative!important
  }
  #panel-home.ref-home.owner-art-home #ref-bottom-grid{
@@ -348,9 +350,9 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  }
  #panel-home.ref-home.owner-art-home .ref-streak-days{min-width:0!important}
 }
-/* Small-phone layouts use one readable column. At 412–700px the reference
-   two-by-two arrangement becomes viable with purpose-sized internal content. */
-@media(min-width:412px) and (max-width:700px){
+/* Reference-inspired paired cards at >=375px; below that keep the content-led
+   single-column fallback to avoid microtype and inaccessible controls. */
+@media(min-width:375px) and (max-width:700px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness goals"!important;
@@ -360,7 +362,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   min-width:0!important;align-self:stretch!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
-  box-sizing:border-box!important;min-height:192px!important;height:192px!important;max-height:192px!important;
+  box-sizing:border-box!important;min-height:181px!important;height:181px!important;max-height:181px!important;
   padding:8px 7px!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 43px!important;overflow:hidden!important
  }
@@ -395,11 +397,11 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   width:19px!important;height:19px!important;border-width:1px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-day>b{font-size:.48rem!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-tasks{box-sizing:border-box!important;height:192px!important;min-height:192px!important;max-height:192px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks{box-sizing:border-box!important;height:181px!important;min-height:181px!important;max-height:181px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header{min-height:30px!important;margin:0!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header h2{font-size:.82rem!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{font-size:.7rem!important}
- html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:232px!important;min-height:232px!important;max-height:232px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:212px!important;min-height:212px!important;max-height:212px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-data{
   display:grid!important;grid-template-rows:77px 64px!important;gap:2px!important;
   flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden!important
@@ -434,7 +436,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.55rem!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.65rem!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals{box-sizing:border-box!important;height:204px!important;min-height:204px!important;max-height:204px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals{box-sizing:border-box!important;height:212px!important;min-height:212px!important;max-height:212px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{min-height:38px!important}
@@ -725,13 +727,13 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
  
 /* One-column source ownership applies only below the 2×2 breakpoint.
    Taller 216–350px mobile layouts must never override compact 412px+ rules. */
-@media(max-width:411px){
+@media(max-width:374px){
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 42px!important;
   width:100%!important;min-width:0!important;max-width:100%!important;
-  height:180px!important;min-height:180px!important;max-height:180px!important;
-  padding:33px 11px 9px!important;overflow:hidden!important
+  height:165px!important;min-height:165px!important;max-height:165px!important;
+  padding:30px 11px 8px!important;overflow:hidden!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary{
   display:grid!important;position:relative!important;grid-column:1!important;grid-row:1!important;
@@ -767,7 +769,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   display:none!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card{
-  box-sizing:border-box!important;height:240px!important;min-height:240px!important;max-height:240px!important
+  box-sizing:border-box!important;height:210px!important;min-height:210px!important;max-height:210px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-data{
   display:grid!important;grid-template-rows:86px 66px!important;
@@ -795,7 +797,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   grid-column:2!important;direction:rtl!important;text-align:right!important;min-width:0!important
  }
 }
-@media(min-width:412px) and (max-width:700px){
+@media(min-width:375px) and (max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{display:none!important}
 }
 /* Mobile hero must not layer secondary navigation over its main headline.
