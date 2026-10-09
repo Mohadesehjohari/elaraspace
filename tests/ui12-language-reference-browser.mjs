@@ -69,13 +69,18 @@ for(const width of widths){
   await page.locator('#ui12-report [data-ui12-range="year"]').click();
   assert.notEqual(await page.locator('#ui12-report .ui12-chart').innerHTML(),value,'Report range did not update chart');
   await page.locator('#ui12-report [data-ui12-range="week"]').click();
-  const old=await page.locator('#ui12-tasks .ui12-task [aria-pressed]').first().getAttribute('aria-pressed');
-  await page.locator('#ui12-tasks .ui12-task [aria-pressed]').first().click();
-  await page.waitForTimeout(150);
-  const now=await page.locator('#ui12-tasks .ui12-task [aria-pressed]').first().getAttribute('aria-pressed');
-  assert.notEqual(now,old,'Task completion must update canonical Tasks');
-  const task=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id==='t1'));
-  assert.ok(task,'Canonical task disappeared');
+  const taskButton=page.locator('#ui12-tasks .ui12-task [data-section-task-toggle]').first();
+  const toggledId=await taskButton.getAttribute('data-section-task-toggle');
+  const old=await taskButton.getAttribute('aria-pressed');
+  await taskButton.click();
+  await page.waitForFunction(({id,previous})=>{
+   const task=JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(t=>t.id===id);
+   return !!task&&String(!!task.completed)!==previous;
+  },{id:toggledId,previous:old},{timeout:6000});
+  const now=await page.locator('#ui12-tasks [data-section-task-toggle="'+toggledId+'"]').getAttribute('aria-pressed');
+  assert.notEqual(now,old,'Canonical Task completion did not update');
+  const task=await page.evaluate(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id===id),toggledId);
+  assert.ok(task&&task.id===toggledId,'Canonical task disappeared');
   await page.locator('#ui12-leitner [data-ui12-route="words"]').first().click();
   await page.waitForSelector('#panel-words:not(.hidden)');
   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
