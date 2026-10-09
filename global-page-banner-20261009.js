@@ -50,6 +50,8 @@ function update(){
    hero.querySelector('h1').textContent=title;
    panel.prepend(hero);
   }
+  if(hero.parentElement!==panel)panel.prepend(hero);
+  else if(panel.firstElementChild!==hero)panel.prepend(hero);
   if(hero.dataset.elaraPageHero!==route)hero.dataset.elaraPageHero=route;
   if(!hero.classList.contains('elara-global-hero'))hero.classList.add('elara-global-hero');
   // Store deliberately keeps its existing cosmic artwork and product identity.
