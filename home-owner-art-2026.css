@@ -240,6 +240,42 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
 #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-card{
  height:190px!important;min-height:190px!important;max-height:210px!important
 }
+/* Actual social roster only; place #1 uses the centre/high slot.
+   Keep art frames concentric with equipped portraits (never invent users). */
+#panel-home.ref-home.owner-art-home .ref-ranks #elara-home-ranks .ref-mini-podium{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ direction:ltr!important;align-items:end!important;column-gap:5px!important;
+ border:0!important;box-shadow:none!important;background:transparent!important
+}
+#panel-home.ref-home.owner-art-home .ref-ranks #elara-home-ranks .ref-podium-person{
+ display:flex!important;flex-direction:column!important;justify-content:end!important;
+ align-items:center!important;gap:2px!important;min-width:0!important;
+ margin:0!important;padding:0!important;text-align:center!important;
+ border:0!important;background:transparent!important;color:#fff!important;
+}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-person.place-1{grid-area:1/2!important}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-person.place-2{grid-area:1/1!important}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-person.place-3{grid-area:1/3!important}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-portrait{
+ position:relative!important;display:grid!important;place-items:center!important;
+ width:49px!important;height:49px!important;min-width:49px!important;flex:none!important;
+ overflow:visible!important;border-radius:50%!important
+}
+#panel-home.ref-home.owner-art-home .ref-ranks .place-1 .ref-podium-portrait{
+ width:60px!important;height:60px!important;min-width:60px!important
+}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-portrait>img:not(.ref-podium-frame){
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center!important;border-radius:50%!important
+}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-portrait>.ref-podium-frame{
+ position:absolute!important;inset:-1px!important;width:calc(100% + 2px)!important;height:calc(100% + 2px)!important;
+ object-fit:contain!important;pointer-events:none!important
+}
+#panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-person :is(strong,small){
+ max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+}
+
 @media(min-width:701px) and (max-width:1000px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   display:grid!important;direction:ltr!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
