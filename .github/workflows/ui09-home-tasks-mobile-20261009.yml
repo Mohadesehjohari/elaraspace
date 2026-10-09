@@ -85,7 +85,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          files=(index.html boot.js home-owner-art-2026.css global-page-banner-20261009.css elara-midnight-layout-2026.css reference-exact-pass-2026.css reference-home-shell-2026.js)
+          files=(index.html boot.js home-owner-art-2026.css global-page-banner-20261009.css elara-midnight-layout-2026.css reference-exact-pass-2026.css reference-home-shell-2026.js mobile-ia-2026-10-05.css approved-navigation-extension.js)
           ok=false
           for attempt in $(seq 1 90); do
             ok=true
