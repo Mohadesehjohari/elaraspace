@@ -64,6 +64,16 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
   if(width>=360)assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
   assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
+  assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Mobile search extends over image: '+JSON.stringify({route,width,search:m.mobileSearch,hero:m.hero}));
+ }
+ if(kind==='after'&&route==='home'&&width>=1001){
+  const font=parseFloat(m.headline?.fontSize||'0');
+  assert.ok(font>=17&&font<=24,'Home desktop heading exceeds owner reference: '+font);
+ }
+ if(kind==='after'&&route==='home'&&width<=700){
+  const font=parseFloat(m.headline?.fontSize||'0');
+  assert.ok(font>=15.5&&font<=20,'Home mobile heading too big/small: '+font);
+  assert.ok(m.headline?.rect.y<m.hero.y+m.hero.h*.58,'Home mobile heading should be at top-right: '+JSON.stringify({hero:m.hero,heading:m.headline}));
  }
  if(kind==='after')assert.equal(m.scrollWidth,width,'whole-page horizontal overflow at '+route+' '+width);
  console.log('UI09_'+kind.toUpperCase()+'_'+route.toUpperCase()+' '+JSON.stringify(m));
