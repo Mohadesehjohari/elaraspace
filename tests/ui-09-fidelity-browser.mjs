@@ -8,7 +8,7 @@ await mkdir('browser-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const today=()=>new Date().toLocaleDateString('en-CA');
 async function run(base,route,width,count=21,kind='after'){
- const page=await browser.newPage({viewport:{width,height:width>=701?945:880},deviceScaleFactor:1});
+ const page=await browser.newPage({viewport:{width,height:width>=701?945:880},deviceScaleFactor:width<=700?2:1,isMobile:width<=700,hasTouch:width<=700});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraAccount={user:null,profile:{name:'پروفایل واقعی آزمایش',username:'fixture',xp:420,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));"}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraSocial={me:null,friends:[],requests:[],activities:[],refresh:async()=>{},publishActivity:async()=>true};window.dispatchEvent(new Event('elara:social-updated'));"}));
