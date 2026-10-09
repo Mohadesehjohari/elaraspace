@@ -65,19 +65,19 @@ async function run(base,route,width,count=21,kind='after'){
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
-  if(width>=375&&width<=389){
+  if(width>=360&&width<=389){
    assert.ok(Math.abs(m.cards[1].r.y-m.cards[0].r.y)<3,'375px hybrid must pair Streak and Tasks');
    assert.ok(m.cards[2].r.w>=m.grid.w-2&&m.cards[3].r.w>=m.grid.w-2,'real Wellness and Goals require full-width rows at 375');
    assert.ok(m.cards[3].r.y>m.cards[2].r.y,'Goals must follow Wellness in readable hybrid flow');
   }
-  if(width<=360)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'very narrow mobile needs readable stacked cards');
+  if(width<=320)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'320px needs readable stacked cards');
   if(width>=1001){
    assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
-  if(width>=375&&width<=389)assert.ok(m.quick.y<=890,'Readable 375 hybrid still has distant shortcuts '+width+': '+m.quick.y);
+  if(width>=360&&width<=389)assert.ok(m.quick.y<=890,'Readable narrow hybrid still has distant shortcuts '+width+': '+m.quick.y);
   if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
-  if(width<=360)assert.ok(m.quick.y<=1065,'Narrow fallback still giant before Quick Access: '+m.quick.y);
+  if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
    assert.deepEqual(m.mobileNav.map(x=>x.route),['freedom','social','home','books','more'],'Wrong mobile main nav semantics');
    assert.ok(m.mobileNav.every((v,i,a)=>!i||v.r.x>a[i-1].r.x),'Mobile route order not physically reference-aligned: '+JSON.stringify(m.mobileNav));
