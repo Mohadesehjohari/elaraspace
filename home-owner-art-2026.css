@@ -460,12 +460,35 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important;overflow:hidden!important;min-height:0!important;flex:1 1 auto!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals #elara-home-goals{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;gap:3px!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important;max-width:100%!important;min-height:27px!important;padding:3px 5px!important;margin:0!important;box-sizing:border-box!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{grid-template-columns:22px minmax(0,1fr) 23px!important;gap:3px!important;min-height:38px!important;margin:0 0 4px!important;padding:3px!important;background:rgba(4,20,45,.74)!important;border-radius:8px!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main{padding:1px!important;min-height:31px!important;overflow:hidden!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main strong{font-size:.74rem!important;line-height:1.25!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;overflow-wrap:break-word!important}
+ /* Two canonical Goal records must fit without labels painting over
+    adjacent steps. Constrain each actual row and its text/track separately. */
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{
+  display:grid!important;grid-template-columns:24px minmax(0,1fr) 24px!important;
+  align-items:center!important;gap:3px!important;
+  box-sizing:border-box!important;height:49px!important;min-height:49px!important;max-height:49px!important;
+  margin:0 0 2px!important;padding:4px 3px!important;overflow:hidden!important;
+  background:rgba(4,20,45,.74)!important;border-radius:8px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main{
+  display:grid!important;grid-template-rows:minmax(0,1fr) 4px!important;gap:2px!important;
+  box-sizing:border-box!important;height:40px!important;min-height:0!important;max-height:40px!important;
+  padding:0 1px!important;align-content:center!important;overflow:hidden!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main strong{
+  display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+  font-size:.7rem!important;line-height:1.22!important;
+  height:auto!important;min-height:0!important;max-height:2.44em!important;
+  overflow:hidden!important;overflow-wrap:anywhere!important;word-break:normal!important;text-align:right!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main .elara-track{
+  display:block!important;height:4px!important;min-height:4px!important;margin:0!important
+ }
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row>b{font-size:.62rem!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goals-see-all{display:block!important;width:100%!important;min-height:22px!important;font-size:.65rem!important;color:#cdeaff!important;background:#062c4d99!important;border:1px solid #2b6482!important;border-radius:7px!important}
- html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{min-height:38px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goals-see-all{
+  display:block!important;width:100%!important;min-height:22px!important;
+  font-size:.65rem!important;color:#cdeaff!important;background:#062c4d99!important;
+  border:1px solid #2b6482!important;border-radius:7px!important
+ }
  html body #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"ranks habits" "achievements achievements"!important
