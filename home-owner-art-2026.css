@@ -553,6 +553,12 @@ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar .topba
   width:100%!important;min-height:38px!important;height:38px!important;padding:5px 12px!important
  }
 }
+/* 360–389px gets a real complete search row even when brand wraps. */
+@media(min-width:360px) and (max-width:389px){
+ body:has(#panel-home.ref-home:not(.hidden)) .workspace>.topbar.ref-topbar{
+  height:126px!important;min-height:126px!important;max-height:126px!important
+ }
+}
 /* Owner-reference visual QA, PR #22: desktop typography, topbar and card hierarchy.
    These selectors act on the canonical cards only and never synthesize records. */
 @media(min-width:1001px){
