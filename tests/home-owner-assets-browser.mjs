@@ -55,6 +55,7 @@ try{
    const habitRows=[...q('#elara-home-habits').querySelectorAll('.ref-habit-row')].map(e=>e.textContent);
    const quickCards=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
    const quickRects=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>rect(e));
+   const quickRail=panel.querySelector('#ref-quick-access .ref-quick-access-grid');
    const heroImg=q('.owner-home-hero-image');
    const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
      icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0,flameGeometry:rect(q('.ref-streak-flame'))};
@@ -64,7 +65,7 @@ try{
    const text=panel.textContent||'';
    return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
       order:[...panel.children].map(e=>e.id||e.className),
-      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,goalRows,habitRows,computedImages,
+      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,quickRail:{client:quickRail?.clientWidth,scroll:quickRail?.scrollWidth},goalRows,habitRows,computedImages,
       summary:!!q('#owner-home-summaries'),daily:!!q('.owner-home-daily'),phrase:text.includes('نگاهی به جهان تو'),
       quote:quotes,settings:!!document.getElementById('ref-header-settings'),quickCount:panel.querySelectorAll('#ref-quick-access').length,
       duplicateQuickTitles:[...panel.querySelectorAll('h2')].filter(x=>x.textContent.includes('ورود سریع به بخش‌ها')).length,
@@ -79,8 +80,15 @@ try{
   assert.equal(m.quickCount,1,'One canonical Quick Access only');
   assert.equal(m.duplicateQuickTitles,1,'Duplicate quick access heading');
   assert.deepEqual(m.quickCards,['tasks','language','books','exercise','social','freedom'],'Quick Access routes must remain canonical');
-  assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
-    'Some canonical Quick Access destination is offscreen or too small at '+width+': '+JSON.stringify(m.quickRects));
+  // Desktop displays all six; mobile owner reference scrolls one aligned row.
+  if(width<=700){
+   assert.ok(m.quickRail.scroll>m.quickRail.client+40,'Mobile Quick Access rail has no horizontal scroll to the remaining destinations');
+   assert.ok(m.quickRects.length===6&&m.quickRects.every(x=>x.w>=100&&x.h>=100&&Math.abs(x.y-m.quickRects[0].y)<2),
+    'Mobile Quick Access row too small or not aligned: '+JSON.stringify(m.quickRects));
+  }else{
+   assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
+    'Some desktop Quick Access destination is offscreen or too small at '+width+': '+JSON.stringify(m.quickRects));
+  }
 
   assert.equal(m.mainVisible.length,4,'Exactly four visible canonical cards expected: '+JSON.stringify(m.mainVisible));
   console.log('HOME_REFERENCE_GEOMETRY '+JSON.stringify({width,visible:m.mainVisible,grid:m.grid,cards:m.cards,goals:m.goalRows,quick:m.quick,bottom:m.bottom}));
