@@ -27,7 +27,7 @@ async function run(base,route,width,count=21,kind='after'){
   const q=s=>document.querySelector(s),sel=s=>[...document.querySelectorAll(s)];
   const top=q('.workspace>.topbar.ref-topbar'),hero=q(route==='home'?'#panel-home .owner-home-hero':'#panel-tasks .astra-task-hero');
   const headline=hero?.querySelector('.hero-copy h1,.elara-generated-hero h1');
-  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',headline:headline?{rect:rect(headline),fontSize:getComputedStyle(headline).fontSize,lineHeight:getComputedStyle(headline).lineHeight}:null,header:rect(top)};
+  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',headline:headline?{rect:rect(headline),fontSize:getComputedStyle(headline).fontSize,lineHeight:getComputedStyle(headline).lineHeight}:null,header:rect(top),mobileBrand:rect(q('.topbar .ref-mobile-brand')),mobileSearch:rect(q('.topbar #ref-header-search'))};
   if(route==='home'){
    const cards=['#ref-streak-card','.owner-home-tasks','#ref-wellness-card','.owner-home-goals'].map(s=>({s,r:rect(q('#panel-home '+s))}));
    const host=q('#elara-home-tasks'),list=host?.querySelector('.ref-task-list');
@@ -59,6 +59,11 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.rows.some(x=>x.source.includes('source-habit')),'habit source absent');
   assert.ok(m.rows.every(x=>x.bg.includes('url(')),'mountain art lost in source gradient');
   assert.ok(m.rows.every(x=>!x.strike.includes('line-through')),'Task title struck through');
+ }
+ if(kind==='after'&&width>=360&&width<=700){
+  assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
+  assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
+  assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
  }
  if(kind==='after')assert.equal(m.scrollWidth,width,'whole-page horizontal overflow at '+route+' '+width);
  console.log('UI09_'+kind.toUpperCase()+'_'+route.toUpperCase()+' '+JSON.stringify(m));
