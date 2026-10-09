@@ -379,7 +379,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-ring{
   grid-column:1!important;justify-self:center!important;
-  width:68px!important;height:68px!important;min-width:68px!important;max-width:68px!important
+  width:68px!important;height:68px!important;min-width:68px!important;max-width:68px!important;min-height:68px!important;max-height:68px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-copy{
   grid-column:2!important;direction:rtl!important;min-width:0!important;
