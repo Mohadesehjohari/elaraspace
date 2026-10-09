@@ -878,10 +878,43 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   height:183px!important;min-height:183px!important;max-height:183px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals{
-  height:195px!important;min-height:195px!important;max-height:195px!important
+  box-sizing:border-box!important;height:207px!important;min-height:207px!important;max-height:207px!important;
+  padding:8px!important;overflow:hidden!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals #elara-home-goals{
+  display:flex!important;flex-direction:column!important;min-width:0!important;
+  width:100%!important;min-height:0!important;overflow:hidden!important;gap:3px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{
+  box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+  min-height:26px!important;max-height:31px!important;padding:3px 5px!important;
+  margin:0!important;flex-shrink:0!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals .ref-goals-scroll{
-  overflow-y:auto!important;min-height:0!important;flex:1 1 auto!important
+  display:grid!important;align-content:start!important;box-sizing:border-box!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  min-height:0!important;overflow:hidden!important;flex:1 1 auto!important;gap:2px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{
+  display:grid!important;grid-template-columns:24px minmax(0,1fr) 27px!important;
+  box-sizing:border-box!important;width:100%!important;min-width:0!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  margin:0!important;padding:3px!important;gap:4px!important;overflow:hidden!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main{
+  display:grid!important;grid-template-rows:minmax(0,1fr) 4px!important;
+  gap:2px!important;box-sizing:border-box!important;width:100%!important;
+  height:37px!important;min-height:0!important;max-height:37px!important;
+  padding:0!important;overflow:hidden!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-main strong{
+  font-size:.7rem!important;line-height:1.18!important;
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;
+  min-height:0!important;max-height:2.36em!important;overflow:hidden!important;text-align:right!important
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goals-see-all{
+  box-sizing:border-box!important;flex-shrink:0!important;width:100%!important;
+  min-height:22px!important;max-height:25px!important;margin:0!important
  }
 }
 /* 360–389px hybrid: Streak/Tasks pair like the reference; Wellness and Goals
