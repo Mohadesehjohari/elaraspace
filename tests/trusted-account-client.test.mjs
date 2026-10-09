@@ -3,6 +3,8 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const source=readFileSync(new URL('../elara-collab.js',import.meta.url),'utf8');
 const rules=readFileSync(new URL('../firestore.rules',import.meta.url),'utf8');
+const socialUI=readFileSync(new URL('../social-view.js',import.meta.url),'utf8');
+assert.match(socialUI,/data-collab-trusted-launcher/,'Trusted link must be reachable from Friends even with zero invitations');
 const cut=(from,to)=>{const a=source.indexOf(from),b=source.indexOf(to,a+from.length);assert.ok(a>=0&&b>a,'missing '+from);return source.slice(a,b)};
 const share=cut('async function shareEntity(kind,entity,friendUid=null){','async function acceptInvite(inviteId)');
 let didInvite=0,didDeliver=0,didCreate=0;
