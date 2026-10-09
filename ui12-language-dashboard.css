@@ -117,7 +117,7 @@
  #panel-language.ui12-language .ui12-shortcut{min-height:70px;padding:5px 2px;border-radius:10px;gap:4px}
  #panel-language.ui12-language .ui12-shortcut>span{font-size:25px;height:26px}
  #panel-language.ui12-language .ui12-shortcut strong{font-size:9px;line-height:1.3}
- #panel-language.ui12-language .ui12-board{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"leitner tasks" "books classes" "channels challenges" "report report" "stats stats";gap:8px}
+ #panel-language.ui12-language .ui12-board{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"tasks leitner" "classes books" "challenges channels" "stats stats" "report report";gap:8px}
  #panel-language.ui12-language .ui12-card{padding:9px;border-radius:12px;gap:7px}
  #panel-language.ui12-language .ui12-card-head h2{font-size:12px!important;gap:5px}
  #panel-language.ui12-language .ui12-card-icon{flex-basis:17px;width:17px;font-size:20px}
@@ -146,7 +146,7 @@
  #panel-language.ui12-language .ui12-shortcut strong{font-size:10px}
 }
 @media(max-width:374px){
- #panel-language.ui12-language .ui12-board{grid-template-columns:1fr;grid-template-areas:"leitner" "tasks" "books" "classes" "channels" "challenges" "report" "stats"}
+ #panel-language.ui12-language .ui12-board{grid-template-columns:1fr;grid-template-areas:"leitner" "tasks" "books" "classes" "channels" "challenges" "stats" "report"}
  #panel-language.ui12-language .ui12-hero .ui12-hero-copy{width:75%!important}
  #panel-language.ui12-language .ui12-card-head h2{font-size:14px!important}
  #panel-language.ui12-language .ui12-book-cover{max-height:155px}
