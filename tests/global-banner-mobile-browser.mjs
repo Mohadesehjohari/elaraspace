@@ -35,7 +35,7 @@ try{
    if(route==='home')check(await page.locator('#panel-home .owner-home-hero-image').evaluate(img=>img.naturalWidth>0),'Home owner image not decoded');
    if(route==='home'&&width<=430){
     const g=await page.evaluate(()=>({titleTop:document.querySelector('#panel-home .owner-home-hero .hero-copy h1')?.getBoundingClientRect().top,headerBottom:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
-    check((g.titleTop??-1)>=(g.headerBottom??0)-6,'mobile Home headline collides with global topbar '+JSON.stringify(g));
+    check((g.titleTop??-1)>=(g.headerBottom??0)+6,'mobile Home headline collides with global topbar '+JSON.stringify(g));
    }
    if(route==='freedom')check(m.bg.includes('/assets/ui/')||await page.locator('#panel-freedom .freedom-hero-art').evaluate(img=>img.naturalWidth>0),'Freedom owner image not decoded');
    check(m.imgBroken.length===0,'broken visible route images '+JSON.stringify(m));
