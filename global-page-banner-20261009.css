@@ -131,9 +131,6 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
  min-height:38px!important;min-width:38px!important;cursor:pointer!important
 }
 @media(min-width:1001px){
- html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
-  height:auto!important;min-height:264px!important;max-height:none!important
- }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-data{grid-template-rows:105px 91px!important}
  html body #panel-home.ref-home.owner-art-home .ref-health-main{height:105px!important;min-height:105px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:91px!important;min-height:91px!important}
