@@ -67,6 +67,12 @@ html body.dark #panel-freedom .freedom-hero.elara-global-hero{
 html body #main .elara-global-hero.page-hero,
 html body #main .elara-global-hero.blog-hero,
 html body #main .elara-global-hero.feature-hub-hero{background-position:center 50%!important}
+@media(max-width:700px){
+ html body.dark #panel-blog .blog-hero.elara-global-hero{
+  box-sizing:border-box!important;width:calc(100% + 44px)!important;max-width:none!important;
+  margin-inline:-22px!important;
+ }
+}
 html body #main .elara-global-hero.store-hero{
  background-image:radial-gradient(circle at 78% 40%,#6939ab5c,transparent 52%),linear-gradient(115deg,#081631,#12244e,#0a1732)!important
 }
