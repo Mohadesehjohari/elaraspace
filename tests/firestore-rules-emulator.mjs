@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import {initializeTestEnvironment,assertSucceeds,assertFails} from '@firebase/rules-unit-testing';
-import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
+import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch,getDocs,collection,query,where} from 'firebase/firestore';
 
 const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
@@ -273,6 +273,10 @@ try{
  await assertSucceeds(setDoc(ref(alice,linkRef),pending));
  await assertSucceeds(getDoc(ref(bob,linkRef)));
  await assertFails(getDoc(ref(eve,linkRef)));
+ await assertSucceeds(getDocs(query(collection(alice,'accountLinks'),where('participants','array-contains','alice'))));
+ await assertSucceeds(getDocs(query(collection(bob,'accountLinks'),where('participants','array-contains','bob'))));
+ await assertFails(getDocs(query(collection(eve,'accountLinks'),where('participants','array-contains','alice'))));
+ await assertFails(getDocs(collection(alice,'accountLinks')));
  await assertFails(updateDoc(ref(alice,linkRef),{status:'active',updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(eve,linkRef),{status:'active',updatedAt:serverTimestamp()}));
  await assertSucceeds(updateDoc(ref(bob,linkRef),{status:'active',updatedAt:serverTimestamp()}));
@@ -292,6 +296,8 @@ try{
   await assertFails(setDoc(ref(alice,deliveryPath),{...delivery,kind:'invalid'}));
   await assertSucceeds(setDoc(ref(alice,deliveryPath),delivery));
   await assertSucceeds(getDoc(ref(bob,deliveryPath)));
+  await assertSucceeds(getDocs(query(collection(bob,'trustedDeliveries'),where('to','==','bob'))));
+  await assertFails(getDocs(query(collection(eve,'trustedDeliveries'),where('to','==','bob'))));
   await assertFails(getDoc(ref(eve,deliveryPath)));
   // automatic recipient delivery: no collabInvites status or acceptance is written
   await assertSucceeds(setDoc(ref(bob,spacePath+'/members/bob'),{uid:'bob',role:'member',trustedLinkId:linkId,localEntityId:'shared-'+spaceId,progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
