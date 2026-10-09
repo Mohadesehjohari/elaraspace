@@ -387,7 +387,7 @@
           if(complete){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
           else removeCompletion(state,task,oldDate||now);
         }
-        window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();
+        window.ElaraLinkedTasks?.syncSourcesFromTasks(state,now);writeState(state);renderTasks();
         notify(complete?`همهٔ ${fa(target)} نوبت انجام شد.`:`نوبت ${fa(count)} از ${fa(target)} ثبت شد.`);
         return;
       }
@@ -400,7 +400,7 @@
         if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
         else if(oldDate){removeCompletion(state,task,oldDate)}
       }
-      window.ElaraLinkedTasks?.syncSourcesFromTasks(state);writeState(state);renderTasks();return;
+      window.ElaraLinkedTasks?.syncSourcesFromTasks(state,now);writeState(state);renderTasks();return;
     }
     if(action==='view-task'){await openTaskDetails(task,{collapsed:true});return}
     if(action==='edit-task'){await openTaskDetails(task,{collapsed:false});return;}
