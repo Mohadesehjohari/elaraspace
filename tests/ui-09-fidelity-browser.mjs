@@ -48,7 +48,7 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.chevron,'account character chevron not mounted');
   const geom=m.accountGeometry,near=(a,b)=>Math.max(0,a.x-(b.x+b.w),b.x-(a.x+a.w));
   assert.ok(geom.cluster&&geom.chevron&&geom.avatar,'Profile chevron/avatar cannot be measured '+JSON.stringify(geom));
-  assert.ok(near(geom.chevron,geom.avatar)<=70,'Profile chevron detached from real avatar '+width+': '+JSON.stringify(geom));
+  assert.ok(near(geom.chevron,geom.account)<=8,'Profile chevron detached from account control '+width+': '+JSON.stringify(geom));
   assert.ok(m.taskCount>=count&&m.taskCount<=count+4,'All due tasks should be shown (including genuine Habit/Goal linked tasks): '+JSON.stringify({count,rendered:m.taskCount}));
   assert.ok(m.scrollables.filter(x=>x.scrollH>x.clientH+3).length<=1,'two overflowing Home task scroll owners: '+JSON.stringify(m.scrollables));
   if(count>5){assert.ok(m.listScroll.s>m.listScroll.c,'large task list not scrollable');assert.equal(m.listScroll.tabindex,0,'task list not keyboard focusable')}
@@ -144,6 +144,7 @@ try{
    assert.equal(await more.getAttribute('aria-expanded'),'true');
    const lang=h.page.locator('#elara-mobile-more-panel [data-more-route="language"]');
    assert.ok(await lang.isVisible(),'Language lost from accessible secondary routes');
+   assert.ok(await h.page.locator('#elara-mobile-more-panel [data-more-route="store"]').isVisible(),'Store lost when compact mobile header shortcut is hidden');
    await lang.click();
    await h.page.waitForTimeout(100);
    assert.equal(await more.getAttribute('aria-expanded'),'false');
