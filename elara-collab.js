@@ -2,7 +2,7 @@
    Firestore owns consent/membership; local entities remain usable offline. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,onSnapshot,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,getDocs,query,where,onSnapshot,serverTimestamp,writeBatch,Timestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
 const KINDS=new Set(['task','habit','goal','language-class','leitner-word']);
@@ -111,20 +111,50 @@ async function acceptInvite(inviteId){
 async function declineInvite(inviteId){
  const uid=requireUser(),ref=doc(db,'collabInvites',String(inviteId)),snap=await getDoc(ref);if(!snap.exists())return false;const d=snap.data();if(d.to!==uid)return false;if(d.status==='declined')return true;if(d.status==='accepted')return false;if(d.status!=='pending')return false;await updateDoc(ref,{status:'declined',updatedAt:serverTimestamp()});inbox=inbox.filter(x=>x.id!==String(inviteId));window.ElaraNotify?.resolveByMeta?.('collab-invite',inviteId);window.dispatchEvent(new CustomEvent('elara:collab-inbox',{detail:{count:inbox.length}}));window.dispatchEvent(new Event('elara:collab-updated'));window.ElaraSocialView?.render?.();return true
 }
-function randomToken(){return (crypto.randomUUID?.()||id()).replace(/-/g,'')+Math.random().toString(36).slice(2,10)}
+const LINK_LIFETIME_MS=7*24*60*60*1000;
+function randomToken(){
+ if(!globalThis.crypto?.getRandomValues)throw Error(tx('این مرورگر قابلیت ساخت لینک امن ندارد.','Secure random generation is unavailable.'));
+ const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);
+ return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+}
 async function createShareLink(spaceId){
- const uid=requireUser(),spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('فقط سازنده می‌تواند لینک عضویت بسازد.','Only the owner can create a join link.'));
- const token=randomToken().slice(0,72),space=spaceSnap.data();await setDoc(doc(db,'collabLinks',token),{spaceId:String(spaceId),ownerUid:uid,kind:space.kind,title:String(space.title||'').slice(0,120),active:true,createdAt:serverTimestamp()});
- const url=new URL(location.href);url.searchParams.set('elaraJoin',token);url.hash=space.kind==='language-class'?'#language-courses':'#home';return url.toString()
+ const uid=await requireVerifiedToken(),spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('فقط سازنده می‌تواند لینک عضویت بسازد.','Only the owner can create a join link.'));
+ const token=randomToken(),space=spaceSnap.data(),expiresAt=Timestamp.fromMillis(Date.now()+LINK_LIFETIME_MS);
+ await setDoc(doc(db,'collabLinks',token),{spaceId:String(spaceId),ownerUid:uid,kind:space.kind,title:String(space.title||'').slice(0,120),active:true,createdAt:serverTimestamp(),expiresAt});
+ const url=new URL(location.pathname,location.origin);url.searchParams.set('elaraJoin',token);url.hash=space.kind==='language-class'?'#language-courses':'#home';return url.toString()
+}
+async function requireVerifiedToken(){
+ const uid=requireUser();
+ // Firebase claims can lag a just-verified email until an explicit refresh.
+ await auth.currentUser.getIdToken(true);return uid
+}
+async function revokeShareLinks(spaceId){
+ const uid=await requireVerifiedToken(),spaceRef=doc(db,'collabSpaces',String(spaceId)),spaceSnap=await getDoc(spaceRef);
+ if(!spaceSnap.exists()||spaceSnap.data().ownerUid!==uid)throw Error(tx('لغو لینک فقط در اختیار سازنده است.','Only the space owner can revoke links.'));
+ const snaps=await getDocs(query(collection(db,'collabLinks'),where('ownerUid','==',uid)));
+ const active=snaps.docs.filter(x=>x.data().spaceId===String(spaceId)&&x.data().active===true);
+ // The owner can invalidate all historical tokens for this one space.
+ for(let i=0;i<active.length;i+=350){
+  const batch=writeBatch(db);for(const item of active.slice(i,i+350))batch.update(item.ref,{active:false});
+  await batch.commit();
+ }
+ return active.length;
 }
 function copiedBubble(anchor){
  const bubble=document.createElement('div');bubble.textContent=tx('کپی شد ✓','Copied ✓');bubble.setAttribute('role','status');Object.assign(bubble.style,{position:'fixed',zIndex:'2147483647',pointerEvents:'none',padding:'7px 11px',borderRadius:'10px',background:'rgba(20,20,24,.92)',color:'#fff',font:'600 12px/1.2 system-ui,sans-serif',boxShadow:'0 6px 22px rgba(0,0,0,.22)',opacity:'0',transform:'translateY(4px)',transition:'opacity .14s ease,transform .14s ease'});const x=Number(anchor?.clientX),y=Number(anchor?.clientY);bubble.style.left=Math.min(innerWidth-90,Math.max(8,Number.isFinite(x)&&x>0?x+12:innerWidth/2-40))+'px';bubble.style.top=Math.min(innerHeight-40,Math.max(8,Number.isFinite(y)&&y>0?y+14:innerHeight/2))+'px';document.body.append(bubble);requestAnimationFrame(()=>{bubble.style.opacity='1';bubble.style.transform='translateY(0)'});setTimeout(()=>{bubble.style.opacity='0';bubble.style.transform='translateY(-3px)';setTimeout(()=>bubble.remove(),180)},1100)
 }
 async function copyShareLink(spaceId,anchor=null){
- copiedBubble(anchor);const url=await createShareLink(spaceId);try{await navigator.clipboard.writeText(url);window.ElaraNotify?.push?.({type:'social',title:tx('لینک کپی شد','Link copied'),message:tx('هرکس لینک را باز کند می‌تواند عضو شود.','Anyone opening the link can join.'),dedupeKey:'collab-link:'+spaceId+':'+Date.now()})}catch{const box=document.createElement('div');box.className='collab-link-box';box.innerHTML='<input readonly dir="ltr" value="'+esc(url)+'">';await window.ElaraDialog.open({title:tx('لینک اشتراک','Share link'),content:box,actions:[{label:tx('بستن','Close'),value:false}]})}return url
+ const url=await createShareLink(spaceId);try{await navigator.clipboard.writeText(url);copiedBubble(anchor);window.ElaraNotify?.push?.({type:'social',title:tx('لینک کپی شد','Link copied'),message:tx('اعتبار لینک ۷ روز است؛ سازنده می‌تواند آن را زودتر لغو کند.','Link valid for 7 days; the owner can revoke it sooner.'),dedupeKey:'collab-link:'+spaceId+':'+Date.now()})}catch{const box=document.createElement('div');box.className='collab-link-box';box.innerHTML='<input readonly dir="ltr" value="'+esc(url)+'">';await window.ElaraDialog.open({title:tx('لینک اشتراک','Share link'),content:box,actions:[{label:tx('بستن','Close'),value:false}]})}return url
 }
 async function joinLink(token){
- const uid=requireUser(),linkSnap=await getDoc(doc(db,'collabLinks',String(token)));if(!linkSnap.exists()||linkSnap.data().active!==true)throw Error(tx('این لینک معتبر نیست یا غیرفعال شده.','This join link is invalid or inactive.'));const link=linkSnap.data(),memberRef=doc(db,'collabSpaces',link.spaceId,'members',uid),existing=await getDoc(memberRef);
+ const uid=await requireVerifiedToken(),value=String(token||'');
+ if(!/^[a-f0-9]{64}$/.test(value))throw Error(tx('این لینک معتبر نیست.','Invalid join link.'));
+ let linkSnap;
+ try{linkSnap=await getDoc(doc(db,'collabLinks',value))}
+ catch(error){if(error?.code==='permission-denied')throw Error(tx('این لینک معتبر نیست، لغو شده یا اعتبارش تمام شده است.','This link is invalid, revoked, or expired.'));throw error}
+ if(!linkSnap.exists()||linkSnap.data().active!==true||!linkSnap.data().expiresAt?.toMillis||linkSnap.data().expiresAt.toMillis()<=Date.now())
+   throw Error(tx('این لینک لغو شده یا اعتبارش تمام شده است.','This join link was revoked or has expired.'));
+ const link=linkSnap.data(),memberRef=doc(db,'collabSpaces',link.spaceId,'members',uid),existing=await getDoc(memberRef);
  if(!existing.exists())await setDoc(memberRef,{uid,role:'member',joinToken:String(token),localEntityId:'',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()});
  const spaceSnap=await getDoc(doc(db,'collabSpaces',link.spaceId));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()},localEntityId=materialize(space),entity=findLocal(space.kind,localEntityId),progress=progressFor(space.kind,entity||{});
  await updateDoc(memberRef,{localEntityId:String(localEntityId),progressCompleted:progress.completed,progressTotal:progress.total,progressPercent:progress.percent,updatedAt:serverTimestamp()});return localEntityId
@@ -137,8 +167,12 @@ async function memberRows(spaceId){
 }
 async function openSpace(spaceId){
  const spaceSnap=await getDoc(doc(db,'collabSpaces',String(spaceId)));if(!spaceSnap.exists())throw Error(tx('فضای مشترک پیدا نشد.','Shared space not found.'));const space={id:spaceSnap.id,...spaceSnap.data()},rows=await memberRows(space.id),owner=space.ownerUid===me();
- const box=document.createElement('section');box.className='collab-space-dialog';box.innerHTML='<header><small>'+esc(kindLabel(space.kind))+'</small><h3 data-elara-ugc dir="auto">'+esc(space.title||kindLabel(space.kind))+'</h3><p>'+tx('این همکاری تاریخ انقضا ندارد و تا وقتی اعضا بخواهند فعال می‌ماند.','This collaboration has no timer and stays active until members leave.')+'</p></header><div class="collab-member-list">'+rows.map(r=>'<article><div><strong data-elara-ugc dir="auto">'+esc(r.name)+'</strong><small>'+esc(r.username?'@'+r.username:(r.role==='owner'?tx('سازنده','Owner'):tx('عضو','Member')))+'</small></div><div class="collab-progress"><span><i style="width:'+r.percent+'%"></i></span><b>'+r.percent.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'٪</b></div></article>').join('')+'</div>'+(owner?'<footer><button type="button" class="quiet-button" data-collab-invite-more>'+tx('دعوت دوست','Invite friend')+'</button><button type="button" class="primary-button" data-collab-copy-link>'+tx('کپی لینک عضویت','Copy join link')+'</button></footer>':'');
- box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))await copyShareLink(space.id,e)});
+ const box=document.createElement('section');box.className='collab-space-dialog';box.innerHTML='<header><small>'+esc(kindLabel(space.kind))+'</small><h3 data-elara-ugc dir="auto">'+esc(space.title||kindLabel(space.kind))+'</h3><p>'+tx('این همکاری تاریخ انقضا ندارد و تا وقتی اعضا بخواهند فعال می‌ماند.','This collaboration has no timer and stays active until members leave.')+'</p></header><div class="collab-member-list">'+rows.map(r=>'<article><div><strong data-elara-ugc dir="auto">'+esc(r.name)+'</strong><small>'+esc(r.username?'@'+r.username:(r.role==='owner'?tx('سازنده','Owner'):tx('عضو','Member')))+'</small></div><div class="collab-progress"><span><i style="width:'+r.percent+'%"></i></span><b>'+r.percent.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'٪</b></div></article>').join('')+'</div>'+(owner?'<footer><button type="button" class="quiet-button" data-collab-invite-more>'+tx('دعوت دوست','Invite friend')+'</button><button type="button" class="primary-button" data-collab-copy-link>'+tx('کپی لینک ۷ روزه','Copy 7-day link')+'</button><button type="button" class="quiet-button danger" data-collab-revoke-links>'+tx('لغو همهٔ لینک‌های عضویت','Revoke all join links')+'</button></footer>':'');
+ box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))try{await copyShareLink(space.id,e)}catch(error){await window.ElaraDialog.alert(error.message||String(error))}
+ if(e.target.closest('[data-collab-revoke-links]')){
+  const confirmed=await window.ElaraDialog.confirm(tx('همهٔ لینک‌های صادرشده برای این فضا غیرفعال شوند؟ اعضای فعلی حذف نمی‌شوند.','Revoke every join link for this space? Existing members will stay.'),{title:tx('لغو لینک‌های همکاری','Revoke join links'),confirmText:tx('لغو همه','Revoke all'),danger:true});
+  if(confirmed)try{const count=await revokeShareLinks(space.id);await window.ElaraDialog.alert(tx('تعداد '+count+' لینک غیرفعال شد.','Revoked '+count+' link(s).'))}catch(error){await window.ElaraDialog.alert(error.message||String(error))}
+ }});
  await window.ElaraDialog.open({title:tx('فضای مشترک','Shared space'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});return rows
 }
 let inbox=[],inviteRealtimeUid='',inviteRealtimeUnsub=null,inviteSeen=new Set(),inviteRealtimeChain=Promise.resolve();
@@ -201,9 +235,25 @@ async function syncProgress(){
  for(const [kind,rows] of sets)for(const row of rows){if(!row?.collabSpaceId)continue;const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;if(progressCache.get(row.collabSpaceId)===key)continue;try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}}
 }
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncProgress(),700)}
+let joinUrlHandling=false;
 async function handleJoinFromUrl(){
- const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
- try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
+ if(joinUrlHandling)return;
+ const url=new URL(location.href),token=url.searchParams.get('elaraJoin');
+ if(!token||!auth.currentUser?.emailVerified)return;
+ joinUrlHandling=true;
+ // Remove the capability from the address bar before opening the confirmation.
+ // This also prevents duplicate prompts from auth-ready/account-ready events.
+ url.searchParams.delete('elaraJoin');
+ history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+ try{
+  const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});
+  if(ok){
+   await joinLink(token);
+   window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token});
+  }
+ }catch(error){
+  await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')});
+ }finally{joinUrlHandling=false}
 }
 document.addEventListener('click',async e=>{
  if(e.target.closest('[data-collab-inbox-launcher]')){void openInbox();return}
@@ -220,4 +270,4 @@ window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
 window.addEventListener('elara:logout',stopInviteRealtime);
 setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
-window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,revokeShareLinks,progressFor,findLocal};
