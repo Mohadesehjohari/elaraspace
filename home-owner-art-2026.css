@@ -46,7 +46,9 @@
   align-items:stretch!important;margin:0 0 12px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
-  height:250px!important;min-height:250px!important;max-height:250px!important
+  /* Single desktop owner: 304px content + 18px box padding/border = 322px rendered. */
+  box-sizing:content-box!important;
+  height:304px!important;min-height:304px!important;max-height:304px!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   display:grid!important;direction:ltr!important;
