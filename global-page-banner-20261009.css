@@ -1,0 +1,148 @@
+/* 2026-10-09: the hero reaches the workspace edge. The topbar overlays the hero,
+   without changing the approved account/bell/theme order. */
+html body .workspace{position:relative!important}
+html body .workspace>.topbar.ref-topbar{
+ position:absolute!important;top:0!important;inset-inline:0!important;z-index:90!important;
+ width:100%!important;margin:0!important;border:0!important;outline:0!important;
+ background:linear-gradient(180deg,rgba(2,13,33,.83),rgba(2,14,32,.22))!important;
+ box-shadow:none!important;backdrop-filter:none!important
+}
+html body #main{padding-top:0!important}
+html body #main>.panel:not(.hidden){padding-top:0!important;margin-top:0!important}
+html body #main>.panel[data-elara-banner-page]:not(.hidden)>.section-heading:first-child{margin-top:12px!important}
+html body #main .elara-global-hero{
+ position:relative!important;isolation:isolate;overflow:hidden!important;
+ box-sizing:border-box!important;
+ width:calc(100% + 36px)!important;max-width:none!important;
+ height:235px!important;min-height:235px!important;max-height:235px!important;
+ margin:-0px -18px 14px!important;padding:78px 28px 18px!important;
+ border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;
+ background-image:linear-gradient(90deg,rgba(4,15,37,.68),rgba(3,13,34,.10) 54%,rgba(3,16,35,.52)),var(--elara-page-art)!important;
+ background-size:cover!important;background-position:center 52%!important;background-repeat:no-repeat!important;
+}
+html body #main .elara-global-hero.elara-generated-hero{display:flex!important;align-items:flex-end!important;justify-content:flex-end!important}
+html body #main .elara-global-hero.elara-generated-hero>div{position:relative!important;z-index:2!important;direction:rtl!important;text-align:right!important;color:#fff!important}
+html body #main .elara-global-hero.elara-generated-hero small{font-size:.7rem!important;color:#cde6f8!important;letter-spacing:.08em!important}
+html body #main .elara-global-hero.elara-generated-hero h1{margin:4px 0!important;color:#fff!important;font-size:clamp(1.3rem,2.4vw,2.2rem)!important}
+html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
+ width:calc(100% + 36px)!important;height:235px!important;min-height:235px!important;max-height:235px!important;
+ margin:0 -18px 14px!important;padding:78px 32px 15px!important;
+ border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero>.owner-home-hero-image{object-position:center 46%!important}
+html body.dark #panel-tasks .astra-task-hero{
+ width:calc(100% + 36px)!important;height:235px!important;min-height:235px!important;max-height:235px!important;
+ margin:0 -18px 14px!important;padding:76px 24px 14px!important;
+ border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;
+ background-image:linear-gradient(90deg,rgba(3,12,31,.36),rgba(3,11,30,.04) 48%,rgba(2,12,31,.50)),var(--elara-page-art)!important;
+ background-size:cover!important;background-position:center 53%!important
+}
+html body #main [data-elara-page-hero="freedom"]{padding-top:78px!important}
+html body #panel-freedom .freedom-root{margin-top:0!important;padding-top:0!important}
+html body #main .elara-global-hero.page-hero,
+html body #main .elara-global-hero.blog-hero,
+html body #main .elara-global-hero.feature-hub-hero{background-position:center 50%!important}
+html body #main .elara-global-hero.store-hero{
+ background-image:radial-gradient(circle at 78% 40%,#6939ab5c,transparent 52%),linear-gradient(115deg,#081631,#12244e,#0a1732)!important
+}
+html body #elara-social-page .social-page-head.elara-global-hero{border:0!important;outline:0!important;border-radius:0!important}
+html body #panel-home.ref-home.owner-art-home .ref-streak-days{
+ display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;
+ width:100%!important;gap:3px!important;align-items:center!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day{
+ display:grid!important;justify-items:center!important;min-width:0!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day .ref-day-mark{
+ position:relative!important;display:grid!important;place-items:center!important;
+ width:29px!important;height:29px!important;border:2px solid #a57648!important;
+ border-radius:50%!important;background:#10192c!important;box-shadow:none!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day.done .ref-day-mark{
+ border-color:#ffca69!important;background:linear-gradient(140deg,#ff9c45,#ffdc74)!important;
+ box-shadow:0 0 0 2px rgba(248,144,44,.28),0 0 13px rgba(255,168,53,.30)!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day.today .ref-day-mark{
+ outline:2px solid rgba(255,191,88,.68)!important;outline-offset:2px!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day .ref-weekday-check{display:none!important}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day.done .ref-day-mark::after{
+ content:""!important;display:block!important;width:11px!important;height:6px!important;
+ border-left:2.5px solid #3d230d!important;border-bottom:2.5px solid #3d230d!important;
+ transform:rotate(-45deg) translate(1px,-1px)!important
+}
+html body #panel-home.ref-home.owner-art-home .ref-streak-day:not(.done) .ref-day-mark::after{content:none!important}
+html body.dark #panel-tasks #task-list>.astra-task-row .item-title,
+html body.dark #panel-tasks .task-archive-row strong{
+ text-decoration:none!important;text-decoration-line:none!important;white-space:normal!important;overflow-wrap:anywhere!important
+}
+html body.dark #panel-tasks .task-archive-row{display:flex!important;align-items:center!important;gap:12px!important}
+html body.dark #panel-tasks .task-archive-row .task-archive-undo{
+ flex:0 0 34px!important;width:34px!important;height:34px!important;min-height:34px!important;
+ border-radius:9px!important;color:#042b3d!important;background:linear-gradient(145deg,#40f3c9,#10c4bd)!important;
+ border:1px solid #4fffe4!important;cursor:pointer!important
+}
+html body.dark #panel-tasks .task-occurrence-date{
+ display:flex!important;align-items:center!important;gap:7px!important;flex:none!important;
+ color:#bcdef7!important;font-size:.7rem!important;white-space:nowrap!important;direction:rtl!important
+}
+html body.dark #panel-tasks .task-occurrence-date input{
+ width:138px!important;height:42px!important;min-height:42px!important;
+ color-scheme:dark!important;color:#ecf9ff!important;border:1px solid #42739c!important;
+ border-radius:10px!important;background:#082340!important;padding:4px 8px!important
+}
+html body.dark #panel-tasks .task-occurrence-date button{
+ min-height:38px!important;padding:7px 11px!important;border-radius:9px!important;
+ background:#0a3354!important;border:1px solid #386e90!important;color:#c7effd!important
+}
+html body.dark #panel-tasks .astra-task-toolbar{flex-wrap:wrap!important;row-gap:7px!important}
+html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
+ min-height:38px!important;min-width:38px!important;cursor:pointer!important
+}
+@media(min-width:1001px){
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
+  height:auto!important;min-height:264px!important;max-height:none!important
+ }
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-data{grid-template-rows:105px 91px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-health-main{height:105px!important;min-height:105px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:91px!important;min-height:91px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:89px!important;min-height:89px!important}
+}
+@media(max-width:1000px){
+ html body #main .elara-global-hero,
+ html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero,
+ html body.dark #panel-tasks .astra-task-hero{
+  width:calc(100% + 20px)!important;margin-inline:-10px!important
+ }
+}
+@media(max-width:700px){
+ html body #main{padding-top:0!important}
+ html body #main .elara-global-hero,
+ html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero,
+ html body.dark #panel-tasks .astra-task-hero{
+  height:158px!important;min-height:158px!important;max-height:158px!important;
+  width:calc(100% + 20px)!important;margin:0 -10px 11px!important;
+  padding:70px 12px 9px!important;border:0!important;border-radius:0!important
+ }
+ html body #main .elara-global-hero.elara-generated-hero h1{font-size:1.1rem!important}
+ html body.dark #panel-tasks .task-streak-summary{
+  margin-top:1px!important;max-height:74px!important;min-height:70px!important;
+  padding:3px 7px!important;transform:none!important
+ }
+ html body.dark #panel-tasks .task-streak-summary>img{width:42px!important;height:42px!important}
+ html body.dark #panel-tasks .astra-task-toolbar{
+  display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;align-items:center!important;
+  scrollbar-width:thin!important;padding:6px 0!important
+ }
+ html body.dark #panel-tasks .astra-task-chips{flex:0 0 auto!important;max-width:calc(100vw - 32px)!important}
+ html body.dark #panel-tasks .elara-task-page-actions{flex:0 0 auto!important;width:auto!important;display:flex!important}
+ html body.dark #panel-tasks .task-occurrence-date{flex:0 0 auto!important}
+ html body.dark #panel-tasks #task-list>.astra-task-row{min-height:90px!important;height:auto!important}
+ html body.dark #panel-home.ref-home.owner-art-home .ref-streak-day .ref-day-mark{width:25px!important;height:25px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){max-height:none!important}
+}
+@media(max-width:390px){
+ html body #main .elara-global-hero,html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero,
+ html body.dark #panel-tasks .astra-task-hero{height:146px!important;min-height:146px!important;max-height:146px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-streak-day .ref-day-mark{width:23px!important;height:23px!important}
+}
