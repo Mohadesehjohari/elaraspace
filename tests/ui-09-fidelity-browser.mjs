@@ -60,9 +60,9 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.rows.every(x=>x.bg.includes('url(')),'mountain art lost in source gradient');
   assert.ok(m.rows.every(x=>!x.strike.includes('line-through')),'Task title struck through');
  }
- if(kind==='after'&&width>=360&&width<=700){
+ if(kind==='after'&&width>=320&&width<=700){
   assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
-  assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
+  if(width>=360)assert.ok(m.mobileBrand?.w>15,'Mobile brand missing from header: '+route+' '+width);
   assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
  }
  if(kind==='after')assert.equal(m.scrollWidth,width,'whole-page horizontal overflow at '+route+' '+width);
