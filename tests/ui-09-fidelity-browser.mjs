@@ -83,6 +83,22 @@ try{
    await btn.click();assert.equal(await h.page.locator('#ref-equipped-character-panel .ref-character-preview img[data-avatar-image]').count(),1,'equipped profile asset not shown');
    await h.page.locator('#ref-equipped-character-toggle').click();assert.equal(await btn.getAttribute('aria-expanded'),'false');
    console.log('UI09_CHARACTER_PANEL_PASS '+width);
+   // Disposable browser-only social fixture (never written to user data or Firestore).
+   await h.page.evaluate(()=>{
+    window.ElaraSocial.me={uid:'fixture_self',name:'نفر اول آزمایش',username:'fixture_self',xp:1700};
+    window.ElaraSocial.friends=[{uid:'fixture_2',name:'نفر دوم آزمایش',username:'fixture_2',xp:1100},{uid:'fixture_3',name:'نفر سوم آزمایش',username:'fixture_3',xp:650}];
+    window.dispatchEvent(new Event('elara:social-updated'));
+   });
+   await h.page.waitForFunction(()=>document.querySelectorAll('#elara-home-ranks .ref-podium-person').length===3,{},{timeout:8000});
+   const podium=await h.page.evaluate(()=>{
+    const rect=x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,cx:r.x+r.width/2,cy:r.y+r.height/2}};
+    return [...document.querySelectorAll('#elara-home-ranks .ref-podium-person')].map(p=>({rank:p.className,button:rect(p),portrait:rect(p.querySelector('.ref-podium-portrait')),frame:rect(p.querySelector('.ref-podium-frame')),name:p.querySelector('strong')?.textContent,xp:p.querySelector('small')?.textContent}));
+   });
+   assert.equal(podium.length,3);
+   assert.ok(podium.every(x=>Math.abs(x.frame.cx-x.portrait.cx)<=2&&Math.abs(x.frame.cy-x.portrait.cy)<=2),'Ranking avatar frames not centered: '+JSON.stringify(podium));
+   assert.ok(podium[0].portrait.cx>podium[1].portrait.cx&&podium[0].portrait.cx<podium[2].portrait.cx,'First rank is not centered between 2 and 3');
+   assert.ok(podium[0].portrait.y<=podium[1].portrait.y&&podium[0].portrait.y<=podium[2].portrait.y,'First rank must be highest');
+   console.log('UI09_PODIUM_REAL_RECORD_LAYOUT_PASS '+JSON.stringify({width,podium}));
   }
   await h.page.close();
   const t=await run(preview,'tasks',width,21,'after');await t.page.close();
