@@ -1021,8 +1021,11 @@ service cloud.firestore {
     // Trusted account linking: mutual, one-time opt-in. A link alone
     // never exposes a private item or creates membership.
     match /accountLinks/{linkId} {
-      allow get, list: if signed()
+      allow get: if signed()
         && (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid);
+      // The client queries participants via array-contains; this predicate
+      // must be provable from that query, unlike uidA/uidB OR.
+      allow list: if signed() && request.auth.uid in resource.data.participants;
       allow create: if verifiedAccount()
         && request.resource.data.keys().hasOnly(['uidA','uidB','participants','requestedBy','status','createdAt','updatedAt'])
         && request.resource.data.keys().hasAll(['uidA','uidB','participants','requestedBy','status','createdAt','updatedAt'])
