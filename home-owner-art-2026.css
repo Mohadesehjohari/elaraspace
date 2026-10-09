@@ -350,9 +350,9 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  }
  #panel-home.ref-home.owner-art-home .ref-streak-days{min-width:0!important}
 }
-/* At 375px and above the first two 181px cards may pair; a narrow hybrid
-   preserves full-width Wellness and Goals so actual values remain readable. */
-@media(min-width:360px) and (max-width:700px){
+/* UI11: 375px+ supports two compact 2×2 rows after the real Goals preview
+   is limited; only 360–374px retains the legible mixed-width fallback. */
+@media(min-width:375px) and (max-width:700px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness goals"!important;
@@ -876,9 +876,9 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   overflow-y:auto!important;min-height:0!important;flex:1 1 auto!important
  }
 }
-/* 360–389px hybrid: Streak/Tasks pair like the reference; Wellness and Goals
-   use full-width natural grid rows so genuine Persian records never compress. */
-@media(min-width:360px) and (max-width:389px){
+/* 360–374px: compact first row, but full-width metrics and Goals because
+   the available 150px half-card cannot preserve long Persian text. */
+@media(min-width:360px) and (max-width:374px){
  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:"streak tasks" "wellness wellness" "goals goals"!important;
