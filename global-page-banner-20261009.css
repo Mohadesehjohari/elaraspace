@@ -307,6 +307,13 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy :is(.elara-kicker,p){display:none!important}
 }
 
+/* UI11: panoramic mobile header is content aware; leave the 320–389px
+   fallback intact, but avoid oversized artwork above paired cards at 390px+. */
+@media(min-width:390px) and (max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
+  height:116px!important;min-height:116px!important;max-height:116px!important;
+ }
+}
 /* The mobile Home hero follows the two-line header: no reserved invisible topbar strip. */
 @media(max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
