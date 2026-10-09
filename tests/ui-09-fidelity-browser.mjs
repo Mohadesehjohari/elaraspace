@@ -57,7 +57,7 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.cards.every(x=>Math.abs(x.r.h-322)<1),'desktop 322px four cards changed: '+JSON.stringify(m.cards));
    assert.ok(Math.max(...m.cards.map(x=>x.r.bottom))-Math.min(...m.cards.map(x=>x.r.bottom))<=2,'unaligned card bottoms');
   }
-  if(width>=390&&width<=700){
+  if(width>=375&&width<=700){
     assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'wide mobile first two cards not side by side');
     assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
     assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
@@ -65,7 +65,7 @@ async function run(base,route,width,count=21,kind='after'){
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
-  if(width>=360&&width<=389){
+  if(width>=360&&width<=374){
    assert.ok(Math.abs(m.cards[1].r.y-m.cards[0].r.y)<3,'375px hybrid must pair Streak and Tasks');
    assert.ok(m.cards[2].r.w>=m.grid.w-2&&m.cards[3].r.w>=m.grid.w-2,'real Wellness and Goals require full-width rows at 375');
    assert.ok(m.cards[3].r.y>m.cards[2].r.y,'Goals must follow Wellness in readable hybrid flow');
@@ -75,8 +75,8 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
-  if(width>=360&&width<=389)assert.ok(m.quick.y<=890,'Readable narrow hybrid still has distant shortcuts '+width+': '+m.quick.y);
-  if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
+  if(width>=360&&width<=374)assert.ok(m.quick.y<=890,'Readable narrow hybrid still has distant shortcuts '+width+': '+m.quick.y);
+  if(width>=375&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
    assert.deepEqual(m.mobileNav.map(x=>x.route),['blog','books','social','home','tasks','freedom','page'],'Wrong mobile main nav semantics');
