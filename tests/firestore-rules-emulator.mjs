@@ -312,13 +312,16 @@ try{
  await assertSucceeds(setDoc(ref(bob,reverseDelivery),{spaceId:'trusted_reverse',from:'bob',to:'alice',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,reverse+'/members/alice'),{uid:'alice',role:'member',trustedLinkId:linkId,localEntityId:'a',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(alice,reverse)));
+ // New, otherwise-valid source space: only the active link/block state may deny delivery.
+ const blockedSpace='collabSpaces/trusted_blocked_source',blockedDelivery='trustedDeliveries/trusted_blocked_source__bob';
+ await assertSucceeds(setDoc(ref(alice,blockedSpace),{ownerUid:'alice',kind:'task',title:'Block test',payloadJson:'{"text":"Block test"}',visibility:'private',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,blockedSpace+'/members/alice'),{uid:'alice',role:'owner',localEntityId:'test-block',progressCompleted:0,progressTotal:1,progressPercent:0,joinedAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(setDoc(ref(alice,'blocks/alice__bob'),{owner:'alice',target:'bob',targetName:'Bob',targetUsername:'bob',createdAt:serverTimestamp()}));
- await assertFails(setDoc(ref(alice,'trustedDeliveries/trusted_reverse__bob'),{spaceId:'trusted_reverse',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
- await assertFails(setDoc(ref(bob,'trustedDeliveries/trusted_task__alice'),{spaceId:'trusted_task',from:'bob',to:'alice',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,blockedDelivery),{spaceId:'trusted_blocked_source',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertFails(setDoc(ref(alice,'accountLinks/alice__eve'),{uidA:'alice',uidB:'eve',participants:['alice','eve'],requestedBy:'alice',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(deleteDoc(ref(alice,'blocks/alice__bob')));
  await assertSucceeds(updateDoc(ref(bob,linkRef),{status:'revoked',updatedAt:serverTimestamp()}));
- await assertFails(setDoc(ref(alice,'trustedDeliveries/trusted_new__bob'),{spaceId:'trusted_new',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,blockedDelivery),{spaceId:'trusted_blocked_source',from:'alice',to:'bob',kind:'task',linkId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(alice,linkRef),{status:'active',updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(bob,'collabSpaces/trusted_task')));
  await assertSucceeds(updateDoc(ref(alice,linkRef),{status:'pending',requestedBy:'alice',updatedAt:serverTimestamp()}));
