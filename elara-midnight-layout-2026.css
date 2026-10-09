@@ -131,7 +131,7 @@ body.dark #panel-home.ref-home .ref-hero::before{
 }
 body.dark #panel-home.ref-home .ref-hero .hero-copy{position:absolute!important;z-index:2!important;right:30px!important;top:50%!important;transform:translateY(-50%)!important;width:min(520px,46%)!important;margin:0!important;text-align:right!important}
 body.dark #panel-home.ref-home .ref-hero .elara-kicker{font-size:.65rem!important;color:#b9d5ef!important}
-body.dark #panel-home.ref-home .ref-hero .hero-copy h1{font-size:clamp(1.75rem,2.1vw,2.12rem)!important;line-height:1.45!important;margin:2px 0 6px!important}
+body.dark #panel-home.ref-home .ref-hero .hero-copy h1{font-size:clamp(1.12rem,1.45vw,1.46rem)!important;line-height:1.4!important;margin:2px 0 8px!important}
 body.dark #panel-home.ref-home .ref-hero .hero-copy>p:not(.elara-kicker){font-size:.8rem!important;color:rgba(230,240,255,.78)!important;margin-bottom:10px!important}
 body.dark #panel-home.ref-home .ref-hero-quote{display:none!important}
 body.dark #panel-home.ref-home .ref-hero-continue{
