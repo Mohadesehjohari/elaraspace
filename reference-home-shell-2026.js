@@ -178,8 +178,13 @@ function renderGoals(){
   +'<span>'+fa(goals.length)+' هدف فعال</span>'
   +'<b>'+fa(actualPct)+'٪</b>'
   +'<i class="elara-track" aria-hidden="true"><i style="width:'+actualPct+'%"></i></i></div>';
+ // On mobile the Home card is a *preview*, never a second full Goals page.
+ // Keep every real record untouched in canonical data; the See All route is
+ // always available and avoids piling seven long Persian names over artwork.
+ const mobilePreview=isMobile();
+ const visibleGoals=mobilePreview?goals.slice(0,2):goals;
  const wrap=element('div','ref-goals-scroll');
- for(const g of goals){
+ for(const g of visibleGoals){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
   const row=element('div','ref-goal-row');row.dataset.key=String(g.id);
   const check=element(step?'button':'span','ref-goal-step'+(step?'':' ref-goal-step-empty'));
@@ -187,7 +192,8 @@ function renderGoals(){
   const main=element('button','ref-goal-main');main.type='button';main.dataset.elaraTab='goals';main.innerHTML='<strong>'+esc(g.title||g.name||'هدف')+'</strong><i class="elara-track"><i style="width:'+p+'%"></i></i>';
   const pct=element('b','');pct.textContent=fa(p)+'٪';row.append(check,main,pct);wrap.append(row);
  }
- window.ElaraDOM.patch(host,overview+wrap.outerHTML)
+ const more=mobilePreview?'<button type="button" class="ref-home-goals-see-all" data-elara-tab="goals" aria-label="دیدن همهٔ هدف‌ها">دیدن همهٔ هدف‌ها ←'+(goals.length>visibleGoals.length?' ('+fa(goals.length)+')':'')+'</button>':'';
+ window.ElaraDOM.patch(host,overview+wrap.outerHTML+more)
 }
 function renderMissions(){const host=$('elara-home-missions');if(!host)return;const compact=isMobile(),ms=arr(window.ElaraMissions?.snapshot?.()).slice(0,3);window.ElaraDOM.patch(host,ms.length?ms.map(m=>`<div class="ref-mission-row"><span class="ref-mission-check" aria-hidden="true">${m.completed?art(UI_ASSETS.taskCheck,'ref-mission-check-art','انجام‌شده'):'<i></i>'}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${compact?'':esc(m.detail||'')+(m.detail?' · ':'')}${fa(m.amount)} / ${fa(m.target)}</small></div><b class="ref-mission-reward">${art(UI_ASSETS.achievement,'ref-reward-star','')}+${fa(m.rewardXp)} XP</b></div>`).join(''):'<p class="ref-empty">فعلاً مأموریتی نداری 🫡 یه کم جلو برو؛ مأموریت بعدی خودش پیداش می‌شه.</p>')}
 function wellness(){const target=$('ref-wellness-data');if(!target)return;const u=uid();let s={};if(u)try{s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+u)||'{}')||{}}catch{}
