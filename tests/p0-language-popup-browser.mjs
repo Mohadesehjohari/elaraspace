@@ -49,42 +49,30 @@ async function topmost(page,selector,label){
  assert.equal(hit,true,label+' is not topmost');
 }
 
-// P0 first-paint contract: keep the real nav DOM stable, but do not expose an interactive/legacy shell while booting.
+// P0 UI11/UI12 navigation contract: preserve the owner's current seven routes.
+// Language remains available via ElaraOpen and deep linking, not as an eighth bottom-nav item.
 for(const width of [320,360,375,390,412,430]){
  const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true});
- const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(12000);await page.addInitScript(seed);await stub(page);
- stage(`nav-${width}:start`);
- await page.route('**/approved-navigation-extension.js*',async route=>{await new Promise(r=>setTimeout(r,1800));await route.continue()});
+ const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(12000);
+ await page.addInitScript(seed);await stub(page);
+ stage('nav-'+width+':start');
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>document.body.classList.contains('cloud-ready'),null,{timeout:5000});
- await page.waitForTimeout(150);
- const items=page.locator('.bottom-nav [data-elara-tab]');
- assert.equal(await items.count(),7,width+': original seven mobile nav destinations missing');
- const bootVisible=await page.locator('#elara-boot-screen').isVisible();
- if(bootVisible)assert.equal(await page.locator('.bottom-nav').isVisible(),false,width+': mobile navigation must remain hidden under an active boot overlay');
- await items.evaluateAll(xs=>xs.forEach((x,i)=>x.dataset.qaFallback=String(i)));
- const before=await items.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(before.every(r=>r.left>=-1&&r.right<=width+1),true,width+': boot nav geometry overflows');
- const homeBefore=before.find(r=>r.route==='home');assert.ok(homeBefore&&Math.abs(homeBefore.center-width/2)<=2,width+': boot Home geometry is not centered');
- const sortedBefore=[...before].sort((a,b)=>a.center-b.center),gapsBefore=sortedBefore.slice(1).map((r,i)=>r.center-sortedBefore[i].center);assert.ok(Math.max(...gapsBefore)-Math.min(...gapsBefore)<=3,width+': boot nav geometry has an isolated destination '+JSON.stringify(gapsBefore));
- await waitBoot(page);await page.waitForTimeout(150);
- assert.equal(await page.locator('#elara-boot-screen').isVisible(),false,width+': boot screen stayed visible after release');
- assert.equal(await page.locator('.bottom-nav').isVisible(),true,width+': navigation did not become visible after release');
- const afterItems=page.locator('.bottom-nav [data-elara-tab]');
- assert.equal(await afterItems.count(),7,width+': hydrated original seven mobile routes missing');
- assert.deepEqual(await afterItems.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['blog','books','social','home','tasks','freedom','page'],width+': hydrated mobile route order mismatch');
- assert.equal(await afterItems.evaluateAll(xs=>xs.every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': boot nav nodes were replaced instead of hydrated');
- const after=await afterItems.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(after.every(r=>r.left>=-1&&r.right<=width+1),true,width+': hydrated nav overflow');
- const homeAfter=after.find(r=>r.route==='home');assert.ok(homeAfter&&Math.abs(homeAfter.center-width/2)<=2,width+': hydrated Home is not centered');
- const sortedAfter=[...after].sort((a,b)=>a.center-b.center),gapsAfter=sortedAfter.slice(1).map((r,i)=>r.center-sortedAfter[i].center);assert.ok(Math.max(...gapsAfter)-Math.min(...gapsAfter)<=3,width+': hydrated nav has an isolated destination '+JSON.stringify(gapsAfter));
- assert.ok(Math.max(...after.map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav release caused geometry jump');
- await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));await page.waitForTimeout(80);
- assert.equal(await page.evaluate(()=>location.hash),'#language',width+': hydrated Language route failed');
- assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': hydrated Language panel failed');
- await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(180);
- assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': direct reload #language failed');
- await page.screenshot({path:`${out}/nav-${width}.png`,fullPage:false});stage(`nav-${width}:pass`);await context.close();
+ await waitBoot(page);await page.waitForTimeout(160);
+ const nav=page.locator('.bottom-nav [data-elara-nav-kind]');
+ const expected=['blog','books','social','home','tasks','freedom','page'];
+ assert.equal(await nav.count(),7,width+': current original seven-button mobile menu missing');
+ assert.deepEqual(await nav.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),expected,width+': original seven-button mobile routes were changed');
+ assert.equal(await page.locator('.bottom-nav [data-elara-tab="more"]').count(),0,width+': menu overflow replacement not allowed');
+ assert.equal(await page.locator('.bottom-nav').isVisible(),true,width+': original mobile menu is not visible after hydration');
+ const rects=await nav.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}}));
+ assert.equal(rects.every(x=>x.left>=-2&&x.right<=width+2&&x.width>25),true,width+': original nav overflows screen '+JSON.stringify(rects));
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),width+': boot layout has horizontal overflow');
+ await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));
+ await page.waitForSelector('#panel-language:not(.hidden)');
+ await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);
+ await page.waitForSelector('#panel-language:not(.hidden)');
+ await page.screenshot({path:out+'/nav-'+width+'.png',fullPage:false});
+ stage('nav-'+width+':pass');await context.close();
 }
 
 // P0-1, P0-2, P0-4, P0-5 on a real 390 mobile user path.
