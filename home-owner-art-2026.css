@@ -743,8 +743,8 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr) 42px!important;
   width:100%!important;min-width:0!important;max-width:100%!important;
-  height:165px!important;min-height:165px!important;max-height:165px!important;
-  padding:30px 11px 8px!important;overflow:hidden!important
+  height:140px!important;min-height:140px!important;max-height:140px!important;
+  padding:17px 11px 8px!important;overflow:hidden!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary{
   display:grid!important;position:relative!important;grid-column:1!important;grid-row:1!important;
@@ -780,7 +780,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   display:none!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card{
-  box-sizing:border-box!important;height:210px!important;min-height:210px!important;max-height:210px!important
+  box-sizing:border-box!important;height:146px!important;min-height:146px!important;max-height:146px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-data{
   display:grid!important;grid-template-rows:86px 66px!important;
@@ -810,6 +810,19 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
 }
 @media(min-width:390px) and (max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{display:none!important}
+}
+/* Compact readable baseline below 390: own heights in the source media,
+   no implicit large grid tracks and exactly one real Tasks scrollport. */
+@media(max-width:389px){
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-tasks{
+  height:145px!important;min-height:145px!important;max-height:145px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals{
+  height:169px!important;min-height:169px!important;max-height:169px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals .ref-goals-scroll{
+  overflow-y:auto!important;min-height:0!important;flex:1 1 auto!important
+ }
 }
 /* UI10 hybrid: the real 375–429px content will not fit four tiny cards.
    Streak/Tasks span both columns; concise Wellness/Goals share the final row. */
