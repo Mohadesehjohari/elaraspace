@@ -177,3 +177,72 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
  html body.dark #panel-tasks .astra-task-hero{height:146px!important;min-height:146px!important;max-height:146px!important}
  html body #panel-home.ref-home.owner-art-home .ref-streak-day .ref-day-mark{width:23px!important;height:23px!important}
 }
+
+
+/* Actual 320px Chromium screenshot QA: one scrollable Tasks toolbar instead of nested wrapping grids. */
+@media(max-width:700px){
+ html body.dark #panel-tasks #astra-task-toolbar{
+  display:flex!important;flex-flow:row nowrap!important;direction:rtl!important;
+  gap:8px!important;align-items:center!important;overflow-x:auto!important;overflow-y:hidden!important;
+  padding:6px 3px 9px!important;max-width:100%!important;width:100%!important;
+  scrollbar-width:thin!important;scroll-snap-type:x proximity!important;
+ }
+ html body.dark #panel-tasks #astra-task-toolbar > *{flex:0 0 auto!important;width:max-content!important;min-width:max-content!important}
+ html body.dark #panel-tasks #astra-task-toolbar #elara-task-page-actions{
+  order:0!important;display:flex!important;flex-flow:row nowrap!important;
+  align-items:center!important;gap:5px!important;grid-template-columns:none!important
+ }
+ html body.dark #panel-tasks #astra-task-toolbar #astra-task-chips{
+  order:1!important;display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:5px!important
+ }
+ html body.dark #panel-tasks #astra-task-toolbar #astra-task-chips .filters{
+  display:flex!important;flex-flow:row nowrap!important;grid-template-columns:none!important;
+  align-items:center!important;gap:5px!important;width:max-content!important;
+ }
+ html body.dark #panel-tasks #astra-task-toolbar .task-occurrence-date{order:2!important;display:flex!important;flex:none!important}
+ html body.dark #panel-tasks #elara-task-add-main{
+  display:inline-flex!important;flex:none!important;min-width:142px!important;width:auto!important;height:44px!important;min-height:44px!important
+ }
+ html body.dark #panel-tasks #astra-task-toolbar :is(button,select,input){
+  max-height:44px!important;min-height:35px!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row{
+  display:grid!important;align-content:center!important;gap:5px 7px!important;
+  min-height:110px!important;max-height:none!important;padding:8px!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row .item-content{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  gap:4px!important;max-width:100%!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row .task-summary-button{
+  display:block!important;text-align:right!important;max-width:100%!important;
+  line-height:1.3!important;min-height:0!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row .item-title{
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;
+  white-space:normal!important;overflow:hidden!important;line-height:1.35!important;
+  font-size:.88rem!important;overflow-wrap:anywhere!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta{
+  display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;
+  white-space:nowrap!important;gap:4px!important;overflow-x:auto!important;overflow-y:hidden!important;
+  max-height:26px!important;max-width:100%!important;padding-block:1px!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta>*{
+  flex:0 0 auto!important;white-space:nowrap!important;font-size:.59rem!important;
+  padding:3px 6px!important
+ }
+ html body.dark #panel-tasks #task-list>.astra-task-row :is(.astra-task-category,.astra-task-status,.astra-task-xp){
+  min-height:23px!important;height:auto!important;padding:3px 5px!important;
+  font-size:.61rem!important;line-height:1.2!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy{
+  position:absolute!important;right:11px!important;top:63px!important;bottom:7px!important;
+  width:74%!important;max-width:74%!important;margin:0!important;
+  padding:0!important;justify-content:flex-end!important;align-items:flex-start!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
+  font-size:.86rem!important;line-height:1.24!important;margin:0 0 5px!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy :is(.elara-kicker,p){display:none!important}
+}
