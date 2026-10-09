@@ -954,3 +954,39 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 3. Shared Class و relationship limits فقط بعد از قرارداد Firestore/Rules و تست دو UID.
 4. Explore tags برای Diary فقط با مدل metadata-safe؛ متن دفتر خصوصی نباید index عمومی شود.
 5. Admin dashboard utilities با RBAC/audit قبل از ابزارهای write گسترده.
+
+
+---
+
+# Owner Intake — 2026-10-09 — Home/Tasks Visual Fidelity
+**NEXT P0 UI sprint; REQUESTED / visual production acceptance OPEN.** Owner references are the desktop Home/Tasks and mobile Home/Tasks screenshots sent in supervisory chat on 2026-10-09. Execution chat must receive those actual images. Visual comparison—not merely CI/zero-overflow—is the acceptance gate. PR #25 already made all four Home top cards 322px at desktop; preserve this accepted height. Current main SHA must be fetched at implementation time. PRs #24 (time-limited collaboration links) and #26 (trusted account sharing) remain separate backend-gated drafts: do not merge or deploy their Rules during this sprint.
+
+## UI-09.1 Home row gaps [P0 / REQUESTED]
+- Close the excessive gap between the four tall primary Home cards and Quick Access; bring Quick Access and the lower Ranking/Habits/Achievements row closer upward using small consistent vertical spacing, without clipping/overlap or shrinking primary cards.
+- Preserve six Quick Access routes, genuine Tasks/Goals/Habits/Friends data, no Quote in Home.
+
+## UI-09.2 Seamless page banners and typography [P0 / REQUESTED]
+- Remove unwanted full-width translucent black mask/strip, artificial upper border, shadow/seam above Home Hero and other global route banners. Banner artwork should reach the top intended page edge visibly; local small contrast treatment around controls is allowed, not a broad black overlay.
+- Smaller, polished legible right-hand Hero title, responsive line-height and protected CTAs; retain image aspect and navigation.
+
+## UI-09.3 Today Tasks single-scroll ownership [P0 / REQUESTED]
+- Home Today's Tasks must have exactly ONE internal task-list scrollbar; heading/progress fixed, list reachable via wheel, touch and keyboard. The outer webpage scroll may continue normally. No overflow:hidden workaround that makes items unreachable. Test 0/1/5/20+ tasks.
+
+## UI-09.4 Task category full-row mountain color [P0 / REQUESTED]
+- Tint entire task row/background/mountain artwork by canonical category, not just edge/border. Regular Task cyan/blue; Habits warm amber/orange; Language purple; Wellness/Exercise green/teal; others follow actual product palette and screenshot reference. Preserve detailed mountain texture and label contrast. Do not infer type from titles.
+- Preserve any-date completion, synced canonical task/habit/goal steps, no struck-through text in Completed, XP/idempotence.
+
+## UI-09.5 Mobile Home+Tasks reference layout [P0 / REQUESTED]
+- Follow supplied mobile screenshots' hierarchy/proportions, not merely no horizontal overflow: Home balanced banner and compact cards, two-column four-primary-card layout wherever legible, responsive fallbacks on narrow screens, proportioned Quick Access/lower cards, functional bottom nav; Tasks compact banner/streak, single-row scrollable filters, actions, category-colored mountain list and completed box.
+- 320/360/375/390/412/430/768/1440/1648 tests (1920 if available). No giant cards, clipped Persian, stretched graphics, horizontal page overflow or tiny hit targets; preserve light/dark, RTL, search, bell, and all destinations.
+
+## UI-09.6 Profile dropdown + actual game character [P1 / REQUESTED]
+- A chevron adjacent to name/avatar toggles an anchored rectangular popup displaying the user's actual equipped game avatar/character via existing Avatar System; use truthful loading/empty state when none exists. No fake character, no new Firebase Storage requirement. Support click outside, Escape, toggle, keyboard/touch, correct layering; do not reinstate header gear.
+
+## UI-09.7 Ranking art alignment [P0 / REQUESTED]
+- Remove unwanted decorative gold horizontal strip around Ranking while preserving the real golden winner podium treatment. Align all three real avatars/frames and labels exactly with the visual podium slots (center highest); verify no frame clipping or fabricated friends, including responsive layouts.
+
+## UI-09.8 Implementation/proof [RELEASE GATE]
+- Targeted UI-only branch/PR from latest main. Refactor conflicting CSS ownership instead of more !important layers or transforms. Keep Social, Firebase Rules, Storage, PR #24/#26 unchanged.
+- Compare real Chromium screenshots before/after with supplied reference at desktop 1440/1648 and mobile 320/375/390/430; measure Home card heights/row gaps, banner mask, scrollbar owners, task color coverage and podium position. P0, Profile/Username, Social smoke, Tasks functionality, browser responsive all PASS at exact final SHA.
+- Merge after visual/regression gates, then Pages success + exact live bytes + actual production Chromium on https://mohadesehjohari.github.io/elaraspace/. Report PR/HEAD/merge SHA/test runs/artifacts/pass-fail separately; not Done solely because CI passed.
