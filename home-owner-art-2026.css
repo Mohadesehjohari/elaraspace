@@ -783,26 +783,26 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
   box-sizing:border-box!important;height:146px!important;min-height:146px!important;max-height:146px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-data{
-  display:grid!important;grid-template-rows:86px 66px!important;
+  display:grid!important;grid-template-rows:45px 47px!important;
   height:auto!important;max-height:none!important;gap:4px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-wellness-summaries{
   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  min-height:66px!important;height:66px!important;gap:4px!important
+  min-height:47px!important;height:47px!important;gap:3px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-wellness-cell{
-  min-height:64px!important;height:64px!important;max-height:64px!important;
-  gap:1px!important;padding:3px 2px!important
+  min-height:45px!important;height:45px!important;max-height:45px!important;
+  gap:1px!important;padding:2px 2px!important
  }
 }
 
-@media(max-width:429px){
+@media(max-width:389px){
  html body.dark #panel-home.ref-home.owner-art-home .ref-health-main{
-  min-height:86px!important;height:86px!important;max-height:86px!important;
-  display:grid!important;grid-template-columns:86px minmax(0,1fr)!important;align-items:center!important;gap:5px!important;direction:ltr!important
+  min-height:45px!important;height:45px!important;max-height:45px!important;
+  display:grid!important;grid-template-columns:45px minmax(0,1fr)!important;align-items:center!important;gap:5px!important;direction:ltr!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-health-ring{
-  width:80px!important;height:80px!important;min-width:80px!important;min-height:80px!important;max-width:80px!important;max-height:80px!important;grid-column:1!important;justify-self:center!important
+  width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;max-width:44px!important;max-height:44px!important;grid-column:1!important;justify-self:center!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-health-copy{
   grid-column:2!important;direction:rtl!important;text-align:right!important;min-width:0!important
@@ -815,7 +815,7 @@ body.dark .sidebar .elara-canonical-sidebar[aria-current="page"]>.elara-icon{
    no implicit large grid tracks and exactly one real Tasks scrollport. */
 @media(max-width:389px){
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-tasks{
-  height:145px!important;min-height:145px!important;max-height:145px!important
+  height:183px!important;min-height:183px!important;max-height:183px!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-goals{
   height:169px!important;min-height:169px!important;max-height:169px!important
