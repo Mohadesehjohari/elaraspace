@@ -1,12 +1,12 @@
 /* Canonical Home artwork and reference geometry. No injected cards/sections. */
 #panel-home.ref-home.owner-art-home{min-width:0;--owner-art-ink:#f3f6ff}
-/* The old reference cascade pulled Home under its topbar; reserve the header's own row. */
-@media(min-width:701px){#panel-home.ref-home.owner-art-home{margin-top:54px!important}}
+/* Owner UI10: desktop hero under clear toolbar; remove obsolete phantom 54px margin. */
+@media(min-width:701px){#panel-home.ref-home.owner-art-home{margin-top:0!important}}
 #panel-home.ref-home.owner-art-home .elara-hero.owner-home-hero{
  position:relative!important;display:flex!important;flex-direction:column!important;
  justify-content:center!important;align-items:flex-end!important;isolation:isolate;
- width:100%!important;height:196px!important;
- min-height:196px!important;max-height:196px!important;margin-bottom:15px!important;
+ width:100%!important;height:230px!important;
+ min-height:230px!important;max-height:230px!important;margin-bottom:14px!important;
  padding:clamp(14px,2vw,25px)!important;overflow:hidden!important;border-radius:17px!important;
  background:#0b1230!important;color:#fff!important
 }
@@ -17,7 +17,7 @@
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero::before{
  content:'';position:absolute;z-index:1;inset:0;pointer-events:none;
- background:linear-gradient(270deg,#081024df,#09112982 44%,#03071312 75%)
+ background:linear-gradient(270deg,rgba(5,16,43,.77),rgba(8,20,49,.28) 39%,transparent 71%)
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy{
  position:relative!important;z-index:2!important;direction:rtl!important;
@@ -26,8 +26,8 @@
  margin:0!important;padding:0!important;text-align:right!important;color:#fff!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
- color:#fff!important;font-size:clamp(1.07rem,1.45vw,1.45rem)!important;
- line-height:1.38!important;margin:3px 0 7px!important;overflow-wrap:anywhere!important
+ color:#fff!important;font-size:clamp(1rem,1.28vw,1.31rem)!important;
+ line-height:1.42!important;margin:3px 0 7px!important;overflow-wrap:anywhere!important
 }
 #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy p{
  color:#eaf0ff!important;line-height:1.5!important;margin:4px 0!important
@@ -116,7 +116,7 @@
   grid-column:2!important;grid-row:2!important;justify-self:start!important
  }
  #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
-  min-height:118px!important;height:118px!important;max-height:118px!important
+  min-height:98px!important;height:98px!important;max-height:98px!important
  }
 }
 
@@ -197,7 +197,8 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
 /* One existing Quick Access: six canonical destinations only. */
 #panel-home.ref-home.owner-art-home #ref-quick-access{
  display:block!important;width:100%!important;min-width:0!important;
- max-width:100%!important;margin:10px 0 12px!important
+ max-width:100%!important;margin:8px 0 9px!important;
+ padding:7px 10px!important
 }
 @media(min-width:1001px){
  html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{
@@ -209,11 +210,11 @@ html body #panel-home.ref-home.owner-art-home .owner-home-streak .ref-streak-fla
 html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card{
  position:relative!important;display:grid!important;
  grid-template-columns:minmax(0,1fr) 34px!important;
- grid-template-rows:42px minmax(0,1fr)!important;
+ grid-template-rows:30px minmax(0,1fr)!important;
  align-items:end!important;justify-items:start!important;
  width:100%!important;max-width:100%!important;min-width:0!important;
- min-height:122px!important;height:auto!important;overflow:hidden!important;
- padding:10px 12px!important;gap:4px!important;direction:ltr!important;
+ min-height:98px!important;height:auto!important;overflow:hidden!important;
+ padding:8px 10px!important;gap:3px!important;direction:ltr!important;
  border-radius:13px!important;color:#fff!important
 }
 html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>.ref-quick-icon{
@@ -229,6 +230,8 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
 html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-card>i{
  grid-column:2!important;grid-row:2!important;align-self:end!important;justify-self:end!important
 }
+#panel-home.ref-home.owner-art-home #ref-quick-access>header{min-height:24px!important;height:auto!important;margin:0 0 5px!important;padding:0!important;align-items:center!important}
+#panel-home.ref-home.owner-art-home #ref-quick-access>header h2{font-size:.96rem!important;margin:0!important;line-height:1.35!important}
 #panel-home.ref-home.owner-art-home .ref-quick-card :is(strong,small){
  color:#fff!important;text-shadow:0 1px 8px #01091ae0;white-space:normal!important
 }
@@ -310,7 +313,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   gap:10px!important;width:100%!important;max-width:100%!important;min-width:0!important
  }
  #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
-  height:auto!important;min-height:180px!important;max-height:295px!important
+  height:auto!important;min-height:160px!important;max-height:255px!important
  }
  /* Owner's mobile reference uses one compact horizontal Quick Access rail.
     All six original destinations stay keyboard/touch-scroll reachable. */
