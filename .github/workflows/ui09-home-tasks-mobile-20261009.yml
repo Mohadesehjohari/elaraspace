@@ -1,0 +1,113 @@
+name: UI09 Home Tasks Mobile Fidelity
+on:
+  push:
+    branches:
+      - fix/ui-09-visual-fidelity-20261009
+      - main
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-matrix:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Script syntax and contract checks
+        run: |
+          node --check reference-home-shell-2026.js
+          node --check home-owner-art-2026.js
+          node --check global-page-banner-20261009.js
+          node --check tests/ui-09-fidelity-browser.mjs
+          node tests/p0-home-contract.test.mjs
+          node tests/collab-invite-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run branch preview
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-ui09-http.log 2>&1 &
+          sleep 2
+      - name: Real Chrome Home and Tasks visual/functional matrix
+        run: timeout 420s node tests/ui-09-fidelity-browser.mjs
+      - name: Owner Home asset reference and Tasks checks
+        run: |
+          timeout 180s node tests/home-owner-assets-browser.mjs
+          timeout 180s node tests/task-collections-browser.mjs
+          timeout 180s node tests/task-checklist-browser.mjs
+          timeout 180s node tests/task-bulk-reorder-browser.mjs
+          timeout 240s node tests/task-date-completion-browser.mjs
+          timeout 220s node tests/global-banner-mobile-browser.mjs
+          timeout 220s node tests/home-tasks-reference-visual.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui09-home-tasks-visual-${{ github.sha }}
+          path: browser-artifacts/*.png
+          retention-days: 14
+  profile-social-p0:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: P0 profile and social regressions
+        run: |
+          node tests/home-first-startup.test.mjs
+          node tests/p0-home-contract.test.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+          npm install --prefix tests --no-package-lock
+          node tests/social-test.cjs
+
+  live-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Await exact deployed UI09 bytes (not just Pages success)
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(index.html boot.js home-owner-art-2026.css global-page-banner-20261009.css elara-midnight-layout-2026.css reference-exact-pass-2026.css reference-home-shell-2026.js)
+          ok=false
+          for attempt in $(seq 1 90); do
+            ok=true
+            for file in "${files[@]}"; do
+              if ! curl -fL --silent --show-error --max-time 15 "https://mohadesehjohari.github.io/elaraspace/${file}?ui09=${GITHUB_SHA}&attempt=${attempt}" -o "/tmp/ui09-live-${file}" || ! cmp -s "${file}" "/tmp/ui09-live-${file}"; then
+                ok=false
+                break
+              fi
+            done
+            if [ "${ok}" = true ]; then echo "UI09_LIVE_EXACT_BYTES_PASS sha=${GITHUB_SHA}"; break; fi
+            sleep 8
+          done
+          test "${ok}" = true || { echo "::error::Live assets do not match checked-out merged commit"; exit 1; }
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run full Home and Tasks mobile/desktop browser assertions on real GitHub Pages
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 510s node tests/ui-09-fidelity-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui09-LIVE-Pages-${{ github.sha }}
+          path: browser-artifacts/*.png
+          retention-days: 14

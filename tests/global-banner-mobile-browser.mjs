@@ -26,10 +26,16 @@ try{
      return {route,width:innerWidth,scroll:document.documentElement.scrollWidth,top:rect.top,w:rect.width,h:rect.height,border:css.borderTopWidth,bg:css.backgroundImage,imgBroken:all,headHeight:document.querySelector('.topbar')?.getBoundingClientRect().height}
    },route);
    if(width===320)console.log('BANNER_METRIC '+JSON.stringify(m));
-   check(m.top>=-3&&m.top<85,'banner top gap '+JSON.stringify(m));
+   // Home/Tasks desktop panoramas now sit in the 18px-inset owner content
+   // container below their separate header. Other desktop page heroes retain
+   // the edge-to-edge treatment. Mobile headers precede every route hero.
+   const insetDesktop=width>700&&(route==='home'||route==='tasks');
+   check(width<=700||insetDesktop
+    ? m.top>=m.headHeight-3&&m.top<=m.headHeight+8
+    : m.top>=-3&&m.top<85,'banner-to-header gap '+JSON.stringify(m));
    check(m.h>=100&&m.h<280,'hero geometry '+JSON.stringify(m));
    check(m.border==='0px','outer border '+JSON.stringify(m));
-   check(m.w>=Math.max(190,width-(width>700?255:25)),'banner does not span workspace '+JSON.stringify(m));
+   check(m.w>=Math.max(190,width-(width>700?(insetDesktop?270:255):25)),'banner does not span workspace '+JSON.stringify(m));
    check(m.scroll<=width+2,'horizontal overflow '+JSON.stringify(m));
    if(!['store','home','freedom'].includes(route))check(m.bg.includes('/assets/ui/'),'route-specific art missing '+JSON.stringify(m));
    if(route==='home')check(await page.locator('#panel-home .owner-home-hero-image').evaluate(img=>img.naturalWidth>0),'Home owner image not decoded');

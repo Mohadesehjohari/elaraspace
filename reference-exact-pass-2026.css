@@ -97,9 +97,15 @@
  #panel-language,#panel-books,#panel-ranking,#elara-ranking-page,#panel-home.ref-home{width:100%!important;max-width:none!important;margin-inline:0!important}
 }
 
+/* One source of truth for the Tasks mobile header's measured lines. */
+@media(min-width:360px) and (max-width:389px){body:has(#panel-tasks:not(.hidden)){--ui09-task-header-h:126px}}
+@media(max-width:359px){body:has(#panel-tasks:not(.hidden)){--ui09-task-header-h:101px}}
 /* Mobile Tasks is a separate composition, not a scaled desktop row. */
 @media(max-width:700px){
- body:has(#panel-tasks:not(.hidden)) .workspace .topbar{height:78px!important;min-height:78px!important;padding:7px 12px!important}
+ body:has(#panel-tasks:not(.hidden)) .workspace .topbar{
+  height:var(--ui09-task-header-h,106px)!important;min-height:var(--ui09-task-header-h,106px)!important;
+  max-height:var(--ui09-task-header-h,106px)!important;padding:7px 12px!important
+}
  .workspace .topbar .topbar-actions #theme-toggle.ref-theme-art-control{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}
  .workspace .topbar .ref-header-notifications{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}
  #theme-toggle .ref-theme-art,#ref-header-notifications .ref-notification-art{width:35px!important;height:35px!important}
