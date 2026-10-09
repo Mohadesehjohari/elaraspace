@@ -1061,6 +1061,43 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 
 ---
 
+# Owner Feature Intake — 2026-10-09 — Gemini Freedom AI Paths and Tasks Lists
+
+**Status: REQUESTED / NOT IMPLEMENTED.** Owner requests new AI features using Google Gemini API. Distinct from active UI reference corrections and separate backend PRs #24/#26. Do not build this as a side effect of the current UI hotfix or falsely mark it live.
+
+## AI-01 Freedom: image/text → named AI-generated journey
+- In Freedom (آزادی) AI, accept natural Persian text or an attached picture of a study plan, exercise plan, schedule, goals or other structured instructions. Gemini multimodal extracts requirements and proposes an organized journey/path with a meaningful **editable Persian name**, ordered phases, actionable steps, timing, milestones and suggested progress. If photo content is ambiguous, flag uncertainties rather than inventing facts.
+- User sees a **review/edit preview** and confirms Save or Cancel before anything is persisted. Confirmed paths persist privately in cloud user data with stable path ID, owner UID, title, stages, progress and last active step, supporting multiple paths, select active path, edit/archive/delete. Do not fake local-only persistence or invent source data.
+- Home's existing **ادامه مسیر** button becomes context-aware: show the selected active path's real title (e.g. ادامه مسیر: برنامه امتحانات) and link to an actual dedicated journey detail screen. Journey shows stage map, progress, next actions, milestones, edit/resume. If none exists, display truthful create-path empty state.
+- Explicitly confirmed steps can optionally materialize/link to canonical Tasks, Habits, Goals, Language or other existing modules; reuse IDs and progress sync; no duplicate whole-goal Tasks or invented XP. Completion in source module updates path progress correctly.
+- Persian RTL, mobile 320/375/390/430, real reload persistence, privacy and navigation regression are acceptance gates.
+
+## AI-02 Tasks: dedicated لیست‌ها hub + Gemini-generated lists
+- Add a discoverable **Tasks → لیست‌ها** section, distinct from Task CRUD, task subtasks/checklists, folders and Shared Requests. User may manually create named reusable lists (shopping/groceries, supplies, packing, reading-to-buy, anything), add/check/uncheck/reorder/edit/delete list items, optional quantities, units, notes, sections and completion progress. Persist real user-owned data and work on mobile.
+- From Freedom AI or Tasks Lists, user may type or attach a readable picture and request e.g. «از شیر، نان و تخم‌مرغ لیست خرید بساز». Gemini returns a structured editable draft with a suggested list title and itemized checkable entries; user confirms before it appears in Tasks → Lists.
+- AI must distinguish **journey/plan** vs **checkable list** vs **selected steps turned into tasks**. Do not silently convert purchases into canonical Tasks. Do not fabricate prices or quantities: only transcribe provided facts, otherwise label optional AI suggestions as suggestions.
+- Cancel writes nothing. Retry/reconnect cannot duplicate lists/items. Private by default. Sharing any list requires separate explicit permission; account linking never silently shares private lists.
+
+## AI-03 Gemini server integration: mandatory security and cost gate
+- Owner chooses **Google Gemini API** for natural-language planning, image reading and structured JSON responses. Select a currently supported model, capabilities, token costs/quotas and version when implementing; no guarantee of free/unlimited API access.
+- GitHub Pages is public static hosting: **Gemini API key/token MUST NEVER be embedded in HTML/JS, committed to git, sent to browser, stored in Firestore client-readable data or pasted into chat**. Implement a secure backend proxy, potentially using owner's own cPanel/PHP domain if Firebase ID tokens are verified server-side, or an appropriate managed backend after reviewing billing. Store secrets in server secret settings/environment.
+- Authenticate every request to a verified Firebase UID and user scope; per-user rate-limit/quotas, strict input/image MIME/size checking, safe error handling, server-side output schema validation and idempotent writes. Never trust user ID from client or generated text as authorization.
+- Image can be submitted ephemerally with explicit consent and sent directly to Gemini via protected backend without persistent Firebase Storage; never secretly upload/store personal photos. Do not log sensitive prompts/content; clearly disclose third-party AI processing. Media infrastructure remains a separate phase.
+- AI output is a **proposal**, not authoritative facts; prompt user review, particularly for exercise/fitness prescriptions, dates and uncertain OCR. Invalid output/network outage must fall back to editable manual entry.
+- New Firestore schemas/rules for paths/lists need multi-user emulator security checks; publish exact verified production Rules BEFORE releasing dependent client, following controlled cutover. No fake success indicator.
+
+## Owner acceptance
+1. Paste a study program into Freedom AI → Gemini suggests accurate editable named phases → owner approves → persistent journey exists → Home «ادامه مسیر: [real path title]» opens correct named path; reload and switch among multiple paths works.
+2. Attach an exercise/study plan picture → propose readable extracted steps with ambiguity review → owner approves → correct journey and progress; no fake medical/training claims.
+3. Ask Gemini to prepare shopping list → review/confirm → Tasks → لیست‌ها contains actual named checkable items, editable and persistent after reload; retries do not duplicate.
+4. Manual lists CRUD/reorder/check, no automatic sharing, proper privacy denied for other UID; source-linked progress and Task/Goal/Habit integration preserve truth.
+5. Key not exposed, backend auth/privacy/rate-limits tested, image consent respected, mobile/desktop functional tests pass, real production Rules+client verified.
+
+**Roadmap execution order:** Product/schema review → secure Gemini proxy and secret management → Freedom path generation and edit/confirm → persistent Journey and dynamic Continue Path CTA → manual Tasks Lists → AI list import/generation → Rules/security and live verification. Track as requested feature; DO NOT BLOCK active Home/Tasks mobile visual P0 or merge unrelated PR #24/#26.
+
+
+---
+
 ## UI10 owner-rejected visual correction — PR #28 (2026-10-09)
 
 **Owner visual acceptance: REJECTED / OPEN.** This section records a follow-up, not a reversal of the owner's rejection. PR [#28](https://github.com/Mohadesehjohari/elaraspace/pull/28) is the dedicated UI-only correction from verified main `ff78c510e9a5426c77890c7f0b9f55351d224dd3`. PR #27 stays merged; #24 and #26 are unrelated backend work and must not be touched.
@@ -1072,3 +1109,4 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 **Mobile reference caveat:** phone tests distinguish CSS viewport (320/360/375/390/412/430/768), actual touch interactions and DPR=2 captures. At 320/360 legibility requires a full-width stack. The 375 design was iterated from an unreadably narrow 2×2 into a **mixed hierarchy:** Streak/Today's Tasks paired on the first row, with full-width Wellness and Goals below; 390/412/430 use 2×2 at a larger real CSS width. Those layout strategies are not a pixel-perfect representation of the owner's 941px-wide, high-resolution reference illustration. Fixture screenshots cannot establish the owner's private account screenshot match. Keep the visual gate independently OPEN until screenshots are reviewed and explicit owner approval is obtained.
 
 **Release distinctions:** Functional PASS, Responsive PASS, Visual Reference PASS, Production Release PASS, and Owner Visual Acceptance are **five separate statuses**, never interchangeable. PR #28 must not be merged just because synthetic tests pass if visual review reveals clipped metric values, unreadable goal titles, broken account-chevron adjacency, missing task rows or an intrusive dark header. Final Chromium/Pages live-byte verification and the merge SHA must be added after an actual release. Current roadmap outcome: **UI10 IMPLEMENTATION/QA IN PROGRESS; PRODUCTION NOT YET VERIFIED; OWNER ACCEPTANCE PENDING/REJECTED.**
+
