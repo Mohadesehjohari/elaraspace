@@ -401,9 +401,9 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header{min-height:30px!important;margin:0!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header h2{font-size:.82rem!important}
  html body #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{font-size:.7rem!important}
- html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:202px!important;min-height:202px!important;max-height:202px!important;padding:8px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-card{box-sizing:border-box!important;height:218px!important;min-height:218px!important;max-height:218px!important;padding:8px!important}
  html body #panel-home.ref-home.owner-art-home #ref-wellness-data{
-  display:grid!important;grid-template-rows:76px 65px!important;gap:2px!important;
+  display:grid!important;grid-template-rows:76px 78px!important;gap:2px!important;
   flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow:hidden!important
  }
  html body #panel-home.ref-home.owner-art-home #ref-wellness-card>header{
@@ -431,8 +431,8 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
   text-align:right!important;justify-self:stretch!important
  }
  html body #panel-home.ref-home.owner-art-home .ref-health-copy strong{font-size:.77rem!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:65px!important;min-height:65px!important;max-height:65px!important;gap:3px!important}
- html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:63px!important;min-height:63px!important;max-height:63px!important;padding:3px 2px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:78px!important;min-height:78px!important;max-height:78px!important;gap:3px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:76px!important;min-height:76px!important;max-height:76px!important;padding:3px 2px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.55rem!important}
  html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.65rem!important}
@@ -459,7 +459,7 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
    and a full goals route in the existing card header. */
 @media(min-width:360px) and (max-width:700px){
  html body #panel-home.ref-home.owner-art-home .owner-home-goals{
-  box-sizing:border-box!important;height:202px!important;min-height:202px!important;max-height:202px!important;
+  box-sizing:border-box!important;height:218px!important;min-height:218px!important;max-height:218px!important;
   padding:9px!important;overflow:hidden!important
  }
  html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{
