@@ -237,7 +237,7 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
   font-size:.61rem!important;line-height:1.2!important
  }
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy{
-  position:absolute!important;right:11px!important;top:63px!important;bottom:7px!important;
+  position:absolute!important;right:11px!important;top:63px!important;bottom:7px!important;transform:none!important;
   width:74%!important;max-width:74%!important;margin:0!important;
   padding:0!important;justify-content:flex-end!important;align-items:flex-start!important
  }
