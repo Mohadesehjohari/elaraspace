@@ -76,6 +76,21 @@ service cloud.firestore {
     function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
     function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
     function validCollabKind(kind) { return kind in ['task','habit','goal','language-class','leitner-word']; }
+    function verifiedUser() { return signed() && request.auth.token.email_verified == true; }
+    // Strict capability: 32 random bytes, unexpired, not revoked, belongs to this space.
+    function validCollabJoinToken(token,spaceId) {
+      return verifiedUser()
+        && token.matches('^[a-f0-9]{64}$')
+        && exists(collabLinkPath(token))
+        && get(collabLinkPath(token)).data.keys().hasAll(['expiresAt','ownerUid','kind','spaceId'])
+        && get(collabLinkPath(token)).data.active == true
+        && get(collabLinkPath(token)).data.expiresAt is timestamp
+        && get(collabLinkPath(token)).data.expiresAt > request.time
+        && get(collabLinkPath(token)).data.spaceId == spaceId
+        && get(collabLinkPath(token)).data.ownerUid == get(collabPath(spaceId)).data.ownerUid
+        && get(collabLinkPath(token)).data.kind == get(collabPath(spaceId)).data.kind
+        && !blockedBetween(request.auth.uid, get(collabLinkPath(token)).data.ownerUid);
+    }
     function isClubManager(id) {
       return signed() && exists(clubPath(id)) && (
         get(clubPath(id)).data.owner == request.auth.uid ||
@@ -1076,11 +1091,7 @@ service cloud.firestore {
               request.resource.data.role == 'member'
               && request.resource.data.keys().hasOnly(['uid','role','joinToken','localEntityId','progressCompleted','progressTotal','progressPercent','joinedAt','updatedAt'])
               && request.resource.data.joinToken is string
-              && request.resource.data.joinToken.size() >= 20
-              && request.resource.data.joinToken.size() <= 80
-              && exists(collabLinkPath(request.resource.data.joinToken))
-              && get(collabLinkPath(request.resource.data.joinToken)).data.active == true
-              && get(collabLinkPath(request.resource.data.joinToken)).data.spaceId == spaceId
+              && validCollabJoinToken(request.resource.data.joinToken,spaceId)
             )
           );
         allow update: if signed()
@@ -1153,30 +1164,44 @@ service cloud.firestore {
     }
 
     match /collabLinks/{token} {
-      allow get: if signed();
-      allow list: if false;
-      allow create: if signed()
-        && token.size() >= 20
-        && token.size() <= 80
-        && request.resource.data.keys().hasOnly(['spaceId','ownerUid','kind','title','active','createdAt'])
+      // Owner can inspect legacy links. Visitors may read active short-lived
+      // links only; existing members remain members after link expiry.
+      allow get: if verifiedUser() && (
+        resource.data.ownerUid == request.auth.uid ||
+        (
+          resource.data.active == true
+          && resource.data.keys().hasAll(['expiresAt'])
+          && resource.data.expiresAt is timestamp
+          && resource.data.expiresAt > request.time
+          && !blockedBetween(request.auth.uid, resource.data.ownerUid)
+        )
+      );
+      allow list: if verifiedUser() && resource.data.ownerUid == request.auth.uid;
+      allow create: if verifiedUser()
+        && token.matches('^[a-f0-9]{64}$')
+        && request.resource.data.keys().hasOnly(['spaceId','ownerUid','kind','title','active','createdAt','expiresAt'])
+        && request.resource.data.keys().hasAll(['spaceId','ownerUid','kind','title','active','createdAt','expiresAt'])
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.spaceId is string
+        && request.resource.data.spaceId.size() > 0
+        && request.resource.data.spaceId.size() <= 120
         && isCollabOwner(request.resource.data.spaceId)
         && request.resource.data.kind == get(collabPath(request.resource.data.spaceId)).data.kind
         && request.resource.data.title is string
         && request.resource.data.title.size() <= 120
         && request.resource.data.active == true
-        && request.resource.data.createdAt == request.time;
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt <= request.time + duration.value(8, 'd');
+      // Revocation is permanent; re-sharing requires a newly random token.
       allow update: if signed()
         && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.spaceId == resource.data.spaceId
-        && request.resource.data.ownerUid == resource.data.ownerUid
-        && request.resource.data.kind == resource.data.kind
-        && request.resource.data.title == resource.data.title
-        && request.resource.data.createdAt == resource.data.createdAt
+        && isCollabOwner(resource.data.spaceId)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active'])
-        && request.resource.data.active is bool;
-      allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
+        && resource.data.active == true
+        && request.resource.data.active == false;
+      allow delete: if signed() && resource.data.ownerUid == request.auth.uid && isCollabOwner(resource.data.spaceId);
     }
 
     match /challengeRateLimits/{uid} {
