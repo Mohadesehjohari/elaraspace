@@ -139,7 +139,7 @@ function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queu
 function init(){
  if(started)return;started=true;
  document.addEventListener('click',e=>{
- const jump=e.target.closest('[data-ui12-jump]');if(jump&&jump.closest('#panel-language')){e.preventDefault();const id=jump.dataset.ui12Jump;document.querySelectorAll('#panel-language .ui12-shortcut').forEach(el=>el.classList.toggle('is-active',el===jump));const target=$('ui12-'+(id==='overview'?'leitner':id));target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return}
+ const jump=e.target.closest('[data-ui12-jump]');if(jump&&jump.closest('#panel-language')){e.preventDefault();const id=jump.dataset.ui12Jump;document.querySelectorAll('#panel-language .ui12-shortcut').forEach(el=>el.classList.toggle('is-active',el===jump));const target=id==='overview'?document.querySelector('#panel-language .ui12-hero'):$('ui12-'+id);target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return}
  const open=e.target.closest('[data-ui12-route]');if(open&&open.closest('#panel-language')){e.preventDefault();route(open.dataset.ui12Route);return}
  const create=e.target.closest('[data-ui12-new-class]');if(create&&create.closest('#panel-language')){e.preventDefault();if(window.ElaraLanguageClasses?.openEditor)void window.ElaraLanguageClasses.openEditor({});else route('language-courses');return}
  const button=e.target.closest('[data-ui12-range]');if(button&&button.closest('#panel-language')){e.preventDefault();range=button.dataset.ui12Range;renderReport(metrics())}
