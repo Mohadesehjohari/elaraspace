@@ -59,14 +59,14 @@ function upsert(state,spec){
  return {task,changed};
 }
 function dismissTask(state,task){ensure(state);if(!task?.linkedTask)return false;const key=taskKey(task);if(!key)return false;if(!state.linkedTaskDismissals.includes(key))state.linkedTaskDismissals.push(key);return true}
-function syncSourcesFromTasks(state){
+function syncSourcesFromTasks(state,changedDate=today()){
  ensure(state);let changed=false;
  for(const task of state.tasks){
   if(!task?.linkedTask)continue;
   if(task.sourceType==='goal-step'){
    const goal=state.goals.find(g=>String(g?.id)===String(task.sourceParentId)),step=goal?.steps?.find(s=>String(s?.id)===String(task.sourceId));
    if(step){
-    const day=today();step.dailyProgress=step.dailyProgress&&typeof step.dailyProgress==='object'?step.dailyProgress:{};task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
+    const day=validDate(changedDate)?changedDate:today();step.dailyProgress=step.dailyProgress&&typeof step.dailyProgress==='object'?step.dailyProgress:{};task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
     if(JSON.stringify(step.dailyProgress)!==JSON.stringify(task.dailyProgress)){step.dailyProgress={...task.dailyProgress};changed=true}
     if(task.recurrenceRule){
       step.occurrenceDone=Array.isArray(step.occurrenceDone)?step.occurrenceDone:[];const done=Array.isArray(task.occurrenceDone)&&task.occurrenceDone.includes(day),has=step.occurrenceDone.includes(day);
@@ -79,7 +79,7 @@ function syncSourcesFromTasks(state){
    }
   }else if(task.sourceType==='habit'){
    const habit=state.habits.find(h=>String(h?.id)===String(task.sourceId));if(habit){
-    const day=validDate(task.doneAt)?task.doneAt:(validDate(task.date)?task.date:today());
+    const day=validDate(changedDate)?changedDate:(validDate(task.doneAt)?task.doneAt:(validDate(task.date)?task.date:today()));
     habit.days=Array.isArray(habit.days)?[...new Set(habit.days.filter(validDate))]:[];
     habit.rewardDays=Array.isArray(habit.rewardDays)?[...new Set(habit.rewardDays.filter(validDate))]:[];
     const has=habit.days.includes(day);
