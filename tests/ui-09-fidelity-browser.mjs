@@ -46,10 +46,11 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.scrollables.filter(x=>x.scrollH>x.clientH+3).length<=1,'two overflowing Home task scroll owners: '+JSON.stringify(m.scrollables));
   if(count>5){assert.ok(m.listScroll.s>m.listScroll.c,'large task list not scrollable');assert.equal(m.listScroll.tabindex,0,'task list not keyboard focusable')}
   if(width>=1001){
+   assert.ok(m.hero?.y<=2&&m.hero?.h>=215,'Desktop landscape must reach workspace edge beneath clear toolbar');
    assert.ok(m.cards.every(x=>Math.abs(x.r.h-322)<1),'desktop 322px four cards changed: '+JSON.stringify(m.cards));
    assert.ok(Math.max(...m.cards.map(x=>x.r.bottom))-Math.min(...m.cards.map(x=>x.r.bottom))<=2,'unaligned card bottoms');
   }
-  if(width>=412&&width<=700){
+  if(width>=375&&width<=700){
     assert.ok(Math.abs(m.cards[0].r.y-m.cards[1].r.y)<3,'mobile first two cards not side by side');
     assert.ok(m.cards[2].r.y>m.cards[0].r.y,'mobile lower row not below first row');
     assert.ok(m.cards.slice(0,2).every(x=>x.r.h<=210&&x.r.h>=160),'first-row mobile cards too tall/clipped: '+JSON.stringify(m.cards));
@@ -57,7 +58,13 @@ async function run(base,route,width,count=21,kind='after'){
     assert.ok(m.wellnessParts.metrics.every(x=>x.bottom<=m.cards[2].r.bottom+2),'wellness metric clipped outside card');
     assert.ok(m.wellnessParts.copy?.bottom<=m.cards[2].r.bottom+2,'wellness status copy clipped outside card');
    }
-  if(width<=390)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'narrow mobile must use readable stack');
+  if(width<=360)assert.ok(m.cards[1].r.y>m.cards[0].r.y,'very narrow mobile needs readable stacked cards');
+  if(width>=1001){
+   assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
+   assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
+  }
+  if(width>=375&&width<=700)assert.ok(m.quick.y<=735,'Mobile Quick Access remains too far down '+width+': '+m.quick.y);
+  if(width<=360)assert.ok(m.quick.y<=1065,'Narrow fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
    assert.ok(m.quick.h<=220,'Mobile Quick Access must not use giant multi-row grid: '+JSON.stringify(m.quick));
    assert.ok(m.quickRail.scroll>m.quickRail.client+40,'Six Quick Access destinations are not horizontally reachable');
@@ -107,8 +114,23 @@ try{
    const old=orig.m,newM=h.m;const gap=n=>+(n.quick.y-n.cards[0].r.bottom).toFixed(2);
    console.log('UI09_HOME_GAP_DELTA '+JSON.stringify({width,before:{card:old.cards[0].r.h,gap:gap(old),lower:+(old.bottom.y-old.quick.bottom).toFixed(2)},after:{card:newM.cards[0].r.h,gap:gap(newM),lower:+(newM.bottom.y-newM.quick.bottom).toFixed(2)}}));
    assert.ok(gap(newM)>=8&&gap(newM)<=14,'Home primary-to-Quick gap must be 8–14px, measured '+gap(newM));
+   console.log('UI10_ABSOLUTE_HOME_ROWS '+JSON.stringify({width,hero:newM.hero,primary:newM.grid,primaryBottom:newM.cards[0].r.bottom,quick:newM.quick,bottom:newM.bottom,beforeQuick:old.quick,beforeBottom:old.bottom}));
    const lower=newM.bottom.y-newM.quick.bottom;
    assert.ok(lower>=8&&lower<=14,'Quick-to-bottom-row gap must be 8–14px, measured '+lower);
+  }
+  if(width===430){
+   const nav=h.page.locator('.bottom-nav [data-elara-nav-kind]');
+   assert.equal(await nav.count(),5,'Mobile main navigation must contain five readable destinations');
+   const more=h.page.locator('.bottom-nav [data-elara-tab="more"]');
+   await more.click();
+   assert.equal(await more.getAttribute('aria-expanded'),'true');
+   const lang=h.page.locator('#elara-mobile-more-panel [data-more-route="language"]');
+   assert.ok(await lang.isVisible(),'Language lost from accessible secondary routes');
+   await lang.click();
+   await h.page.waitForTimeout(100);
+   assert.equal(await more.getAttribute('aria-expanded'),'false');
+   await h.page.evaluate(()=>{window.ElaraOpen?.('home');window.ElaraReferenceHome?.render()});
+   console.log('UI10_MOBILE_MORE_ACCESS_PASS 430');
   }
   if(width===430||width===1440){
    const list=h.page.locator('#elara-home-tasks .ref-task-list');
