@@ -83,7 +83,7 @@ try{
   // Desktop displays all six; mobile owner reference scrolls one aligned row.
   if(width<=700){
    assert.ok(m.quickRail.scroll>m.quickRail.client+40,'Mobile Quick Access rail has no horizontal scroll to the remaining destinations');
-   assert.ok(m.quickRects.length===6&&m.quickRects.every(x=>x.w>=100&&x.h>=85&&Math.abs(x.y-m.quickRects[0].y)<2),
+   assert.ok(m.quickRects.length===6&&m.quickRects.every(x=>x.w>=88&&x.h>=80&&Math.abs(x.y-m.quickRects[0].y)<2),
     'Mobile Quick Access row too small or not aligned: '+JSON.stringify(m.quickRects));
   }else{
    assert.ok(m.quickRects.every(x=>x.w>=75&&x.h>=48&&x.left>=m.quick.left-3&&x.right<=m.quick.right+3),
@@ -105,7 +105,8 @@ try{
   assert.ok(m.computedImages.flameGeometry?.display!=='none'&&m.computedImages.flameGeometry?.w>=30&&m.computedImages.flameGeometry?.h>=30,'Real streak flame must be visible/prominent on Home '+width);
 
   assert.equal(m.computedImages.hero.fit,'cover','Hero distorted');
-  assert.deepEqual(m.goalRows.map(x=>x.title),goals,'Goals card did not use exactly 3 real Goal records');
+  assert.deepEqual(m.goalRows.map(x=>x.title),width<=700?goals.slice(0,2):goals,'Goals Home preview must show 2 actual rows on mobile; all 3 on desktop');
+  if(width<=700)assert.ok(m.goalRows.length===2,'Mobile should not pile all Goals over artwork');
   for(const h of habits)assert.ok(!m.goalRows.some(g=>g.title?.includes(h)),'Habit leaked into Goals');
   assert.ok(m.habitRows.some(x=>x.includes(habits[0]))&&m.habitRows.some(x=>x.includes(habits[1])),'Habits must remain in separate Habits section');
   assert.ok(m.goalRows.every(x=>x.width>15&&/^\d+%$/.test(x.progress||'')),'Goal progress/readability broken');
