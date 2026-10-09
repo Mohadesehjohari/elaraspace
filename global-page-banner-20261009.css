@@ -14,6 +14,23 @@ html body .workspace>.topbar.ref-topbar{
  box-shadow:none!important;backdrop-filter:none!important
 }
 html body #main{padding-top:0!important}
+/* At 320–359px omit the big wordmark, but retain a separate search row
+   and never obscure the header of Tasks or Home artwork. */
+@media(max-width:359px){
+ html body.dark .workspace>.topbar.ref-topbar{
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  display:flex!important;flex-flow:row wrap!important;direction:rtl!important;
+  justify-content:flex-start!important;align-items:center!important;align-content:center!important;
+  box-sizing:border-box!important;height:101px!important;min-height:101px!important;max-height:101px!important;
+  padding:4px 8px!important;gap:4px!important
+ }
+ html body.dark .workspace>.topbar.ref-topbar .topbar-leading{display:none!important}
+ html body.dark .workspace>.topbar.ref-topbar #ref-header-account{order:0!important;flex:0 0 106px!important;width:106px!important;max-width:106px!important;min-width:106px!important}
+ html body.dark .workspace>.topbar.ref-topbar #ref-equipped-character-toggle{order:1!important;flex:0 0 28px!important}
+ html body.dark .workspace>.topbar.ref-topbar .topbar-actions{order:2!important}
+ html body.dark .workspace>.topbar.ref-topbar #ref-header-search{display:block!important;order:3!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ html body.dark .workspace>.topbar.ref-topbar #ref-header-search input{width:100%!important;height:38px!important;min-height:38px!important}
+}
 /* 360–700px: real two-row header before route artwork instead of dark overlay. */
 @media(min-width:360px) and (max-width:700px){
  html body.dark .workspace>.topbar.ref-topbar{
