@@ -179,7 +179,7 @@ function renderGoals(){
   +'<b>'+fa(actualPct)+'٪</b>'
   +'<i class="elara-track" aria-hidden="true"><i style="width:'+actualPct+'%"></i></i></div>';
  const wrap=element('div','ref-goals-scroll');
- for(const g of goals){
+ for(const g of (isMobile()?goals.slice(0,2):goals)){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
   const row=element('div','ref-goal-row');row.dataset.key=String(g.id);
   const check=element(step?'button':'span','ref-goal-step'+(step?'':' ref-goal-step-empty'));
