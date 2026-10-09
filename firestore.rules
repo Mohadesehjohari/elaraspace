@@ -76,6 +76,17 @@ service cloud.firestore {
     function isCollabMember(id) { return signed() && exists(collabMemberPath(id, request.auth.uid)); }
     function isCollabOwner(id) { return signed() && exists(collabPath(id)) && get(collabPath(id)).data.ownerUid == request.auth.uid; }
     function validCollabKind(kind) { return kind in ['task','habit','goal','language-class','leitner-word']; }
+    function verifiedAccount() { return signed() && request.auth.token.email_verified == true; }
+    function accountLinkPath(id) { return /databases/$(database)/documents/accountLinks/$(id); }
+    function trustedDeliveryPath(spaceId,uid) { return /databases/$(database)/documents/trustedDeliveries/$(spaceId + '__' + uid); }
+    function trustedAccountLinkActive(linkId,from,to) {
+      return verifiedAccount() && from != to
+        && exists(accountLinkPath(linkId))
+        && get(accountLinkPath(linkId)).data.status == 'active'
+        && (get(accountLinkPath(linkId)).data.uidA == from || get(accountLinkPath(linkId)).data.uidB == from)
+        && (get(accountLinkPath(linkId)).data.uidA == to || get(accountLinkPath(linkId)).data.uidB == to)
+        && !blockedBetween(from,to);
+    }
     function isClubManager(id) {
       return signed() && exists(clubPath(id)) && (
         get(clubPath(id)).data.owner == request.auth.uid ||
@@ -1007,6 +1018,80 @@ service cloud.firestore {
     }
 
 
+    // Trusted account linking: mutual, one-time opt-in. A link alone
+    // never exposes a private item or creates membership.
+    match /accountLinks/{linkId} {
+      allow get, list: if signed()
+        && (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid);
+      allow create: if verifiedAccount()
+        && request.resource.data.keys().hasOnly(['uidA','uidB','participants','requestedBy','status','createdAt','updatedAt'])
+        && request.resource.data.keys().hasAll(['uidA','uidB','participants','requestedBy','status','createdAt','updatedAt'])
+        && request.resource.data.uidA is string && request.resource.data.uidB is string
+        && request.resource.data.uidA != request.resource.data.uidB
+        && linkId == request.resource.data.uidA + '__' + request.resource.data.uidB
+        && request.resource.data.participants == [request.resource.data.uidA,request.resource.data.uidB]
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.auth.uid in request.resource.data.participants
+        && friendOf(request.auth.uid == request.resource.data.uidA ? request.resource.data.uidB : request.resource.data.uidA)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if verifiedAccount()
+        && request.auth.uid in resource.data.participants
+        && request.resource.data.uidA == resource.data.uidA
+        && request.resource.data.uidB == resource.data.uidB
+        && request.resource.data.participants == resource.data.participants
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','requestedBy','updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            resource.data.status == 'pending'
+            && request.resource.data.status == 'active'
+            && request.resource.data.requestedBy == resource.data.requestedBy
+            && request.auth.uid != resource.data.requestedBy
+            && !blockedBetween(resource.data.uidA,resource.data.uidB)
+          ) ||
+          (
+            resource.data.status in ['pending','active']
+            && request.resource.data.status == 'revoked'
+            && request.resource.data.requestedBy == resource.data.requestedBy
+          ) ||
+          (
+            resource.data.status == 'revoked'
+            && request.resource.data.status == 'pending'
+            && request.resource.data.requestedBy == request.auth.uid
+            && friendOf(request.auth.uid == resource.data.uidA ? resource.data.uidB : resource.data.uidA)
+          )
+        );
+      allow delete: if false;
+    }
+
+    // Sender makes an EXPLICIT per-item share once. Only the named recipient
+    // can subsequently materialize its own membership; no per-item consent UI.
+    match /trustedDeliveries/{deliveryId} {
+      allow get, list: if signed() && (
+        resource.data.to == request.auth.uid || resource.data.from == request.auth.uid
+      );
+      allow create: if verifiedAccount()
+        && request.resource.data.keys().hasOnly(['spaceId','from','to','kind','linkId','createdAt','updatedAt'])
+        && request.resource.data.keys().hasAll(['spaceId','from','to','kind','linkId','createdAt','updatedAt'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && deliveryId == request.resource.data.spaceId + '__' + request.resource.data.to
+        && isCollabOwner(request.resource.data.spaceId)
+        && request.resource.data.kind == get(collabPath(request.resource.data.spaceId)).data.kind
+        && trustedAccountLinkActive(request.resource.data.linkId,request.resource.data.from,request.resource.data.to)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if verifiedAccount()
+        && resource.data.from == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['linkId','updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && trustedAccountLinkActive(request.resource.data.linkId,resource.data.from,resource.data.to);
+      allow delete: if signed() && resource.data.from == request.auth.uid;
+    }
+
     match /collabSpaces/{spaceId} {
       allow get: if isCollabMember(spaceId);
       allow list: if false;
@@ -1081,6 +1166,18 @@ service cloud.firestore {
               && exists(collabLinkPath(request.resource.data.joinToken))
               && get(collabLinkPath(request.resource.data.joinToken)).data.active == true
               && get(collabLinkPath(request.resource.data.joinToken)).data.spaceId == spaceId
+            ) ||
+            (
+              request.resource.data.role == 'member'
+              && request.resource.data.keys().hasOnly(['uid','role','trustedLinkId','localEntityId','progressCompleted','progressTotal','progressPercent','joinedAt','updatedAt'])
+              && request.resource.data.trustedLinkId is string
+              && exists(trustedDeliveryPath(spaceId,memberId))
+              && get(trustedDeliveryPath(spaceId,memberId)).data.to == request.auth.uid
+              && get(trustedDeliveryPath(spaceId,memberId)).data.spaceId == spaceId
+              && get(trustedDeliveryPath(spaceId,memberId)).data.kind == get(collabPath(spaceId)).data.kind
+              && get(trustedDeliveryPath(spaceId,memberId)).data.from == get(collabPath(spaceId)).data.ownerUid
+              && request.resource.data.trustedLinkId == get(trustedDeliveryPath(spaceId,memberId)).data.linkId
+              && trustedAccountLinkActive(request.resource.data.trustedLinkId,get(trustedDeliveryPath(spaceId,memberId)).data.from,request.auth.uid)
             )
           );
         allow update: if signed()
