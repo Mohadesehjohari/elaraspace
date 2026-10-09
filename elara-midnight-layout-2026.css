@@ -416,10 +416,12 @@ body.dark #panel-tasks #task-list>.astra-task-row{
  border-radius:13px!important;
  /* Task's canonical source tint spans mountains + entire row with an
     actually visible WebP texture (the old near-opaque scrim hid most peaks). */
+ /* UI11 phone correction: the WebP remains visible under a quiet midnight
+    pigment, while the real sourceGroup hue stays recognizable at the rail. */
  background:linear-gradient(100deg,
-  color-mix(in srgb,var(--task-accent) 56%,#03162f85) 0%,
-  color-mix(in srgb,var(--task-accent) 43%,#061b3866) 47%,
-  color-mix(in srgb,var(--task-accent) 50%,#04142b85) 100%),
+  color-mix(in srgb,var(--task-accent) 24%,#06152dbd) 0%,
+  color-mix(in srgb,var(--task-accent) 20%,#091c36a6) 47%,
+  color-mix(in srgb,var(--task-accent) 25%,#071b37bd) 100%),
  var(--task-scene) center/cover no-repeat!important;
  box-shadow:0 7px 18px #0003,inset 0 1px 0 #ffffff08,0 0 11px color-mix(in srgb,var(--task-accent) 12%,transparent)!important;
  overflow:visible!important;
