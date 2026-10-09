@@ -297,6 +297,88 @@ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid>.ref-quick-
  }
  #panel-home.ref-home.owner-art-home .ref-streak-days{min-width:0!important}
 }
+/* Small-phone layouts use one readable column. At 412–700px the reference
+   two-by-two arrangement becomes viable with purpose-sized internal content. */
+@media(min-width:412px) and (max-width:700px){
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:"streak tasks" "wellness goals"!important;
+  grid-auto-rows:max-content!important;column-gap:9px!important;row-gap:11px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-home-grid>:is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){
+  min-width:0!important;align-self:stretch!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
+  min-height:224px!important;height:224px!important;max-height:224px!important;
+  padding:34px 8px 10px!important;grid-template-rows:minmax(0,1fr) 44px!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary{
+  grid-template-columns:52px minmax(0,1fr)!important;gap:3px!important;
+  height:108px!important;min-height:96px!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-flame{
+  width:52px!important;height:52px!important;max-width:52px!important;max-height:52px!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary>strong{
+  font-size:1.12rem!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary>small{font-size:.56rem!important}
+ html body #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-days{gap:1px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-streak-card .ref-day-mark{
+  width:19px!important;height:19px!important;border-width:1px!important
+ }
+ html body #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-day>b{font-size:.48rem!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks{height:224px!important;min-height:224px!important;max-height:224px!important;padding:9px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header{min-height:30px!important;margin:0!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks>header h2{font-size:.76rem!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{font-size:.63rem!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-card{height:290px!important;min-height:290px!important;max-height:290px!important;padding:9px!important}
+ html body #panel-home.ref-home.owner-art-home #ref-wellness-data{grid-template-rows:100px 88px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-health-main{
+  display:grid!important;grid-template-columns:75px minmax(0,1fr)!important;align-items:center!important;gap:3px!important
+ }
+ html body #panel-home.ref-home.owner-art-home .ref-health-ring{width:68px!important;height:68px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-health-copy strong{font-size:.70rem!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-summaries{height:88px!important;min-height:88px!important;gap:3px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell{height:86px!important;min-height:86px!important;max-height:86px!important;padding:4px 1px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell span img{width:19px!important;height:19px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell small{font-size:.46rem!important}
+ html body #panel-home.ref-home.owner-art-home .ref-wellness-cell strong{font-size:.58rem!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals{height:290px!important;min-height:290px!important;max-height:290px!important;padding:9px!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-home-goal-overview{width:100%!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goals-scroll{width:100%!important;max-height:none!important}
+ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{min-height:38px!important}
+ html body #panel-home.ref-home.owner-art-home .ref-quick-access-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ html body #panel-home.ref-home.owner-art-home #ref-bottom-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:"ranks habits" "achievements achievements"!important
+ }
+}
+/* Real equipped wardrobe preview, anchored to the existing account header.
+   The independent chevron never hijacks the profile button. */
+.ref-character-chevron{
+ display:grid;place-items:center;flex:0 0 32px;min-width:32px;height:38px;
+ border:0;border-radius:10px;background:transparent;color:#e6f3ff;
+ font-size:1.35rem;cursor:pointer
+}
+.ref-character-chevron[aria-expanded="true"],.ref-character-chevron:hover{background:#173a63;color:#93f6ff}
+.ref-equipped-character-panel{
+ position:fixed;z-index:180;width:min(292px,calc(100vw - 16px));max-height:min(430px,calc(100dvh - 120px));
+ overflow-y:auto;padding:14px;border:1px solid #4a82c2;border-radius:14px;
+ background:linear-gradient(155deg,#10274c,#04152e);box-shadow:0 16px 48px #000b;color:#f4f8ff;
+ direction:rtl;text-align:right
+}
+.ref-equipped-character-panel[hidden]{display:none}
+.ref-equipped-character-panel header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ref-equipped-character-panel header button{min-width:40px;min-height:40px;background:#102f55;border:1px solid #356292;border-radius:10px;color:#fff}
+.ref-character-art{display:grid;place-items:center;min-height:164px;padding:8px}
+.ref-character-preview{position:relative;display:block;width:154px;height:154px}
+.ref-character-preview .elara-profile-avatar-img,.ref-character-preview .elara-profile-frame-img{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:contain
+}
+.ref-character-empty{font-size:.82rem;line-height:1.8;color:#aebed8}
+.ref-character-go-profile{display:block;min-height:40px;margin-top:10px;padding:8px 12px;border:1px solid #427bc2;border-radius:10px;color:#fff;background:#12365e}
+@media(max-width:700px){.ref-character-chevron{flex-basis:30px;min-width:30px;height:38px}}
 /* Home header: preserve the owner-approved physical RTL reading order
    Name → avatar → notifications → theme, including 320px. Home only. */
 body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar #ref-header-account{
