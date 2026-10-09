@@ -25,12 +25,15 @@ try{
      const all=[...document.images].filter(x=>x.closest('#panel-'+route)&&x.complete&&x.naturalWidth===0).slice(0,5).map(x=>x.src);
      return {route,width:innerWidth,scroll:document.documentElement.scrollWidth,top:rect.top,w:rect.width,h:rect.height,border:css.borderTopWidth,bg:css.backgroundImage,imgBroken:all,headHeight:document.querySelector('.topbar')?.getBoundingClientRect().height}
    },route);
+   if(width===320)console.log('BANNER_METRIC '+JSON.stringify(m));
    assert.ok(m.top>=-3&&m.top<85,'banner top gap '+JSON.stringify(m));
    assert.ok(m.h>=100&&m.h<280,'hero geometry '+JSON.stringify(m));
    assert.equal(m.border,'0px','outer border '+JSON.stringify(m));
    assert.ok(m.w>=Math.max(190,width-(width>700?255:25)),'banner does not span workspace '+JSON.stringify(m));
    assert.ok(m.scroll<=width+2,'horizontal overflow '+JSON.stringify(m));
-   if(route!=='store')assert.ok(m.bg.includes('/assets/ui/'),'route-specific art missing '+JSON.stringify(m));
+   if(!['store','home','freedom'].includes(route))assert.ok(m.bg.includes('/assets/ui/'),'route-specific art missing '+JSON.stringify(m));
+   if(route==='home')assert.ok(await page.locator('#panel-home .owner-home-hero-image').evaluate(img=>img.naturalWidth>0),'Home owner image not decoded');
+   if(route==='freedom')assert.ok(m.bg.includes('/assets/ui/')||await page.locator('#panel-freedom .freedom-hero-art').evaluate(img=>img.naturalWidth>0),'Freedom owner image not decoded');
    assert.equal(m.imgBroken.length,0,'broken visible route images '+JSON.stringify(m));
    if(width===1440&&(route==='home'||route==='tasks'))await page.screenshot({path:'browser-artifacts/stageA-'+route+'-'+width+'.png',fullPage:true});
   }
