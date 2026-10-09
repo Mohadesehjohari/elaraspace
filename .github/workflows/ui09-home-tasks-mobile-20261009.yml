@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - fix/ui-09-visual-fidelity-20261009
+      - fix/ui10-owner-visual-rejection-20261009
       - main
   workflow_dispatch:
 permissions:
@@ -19,6 +20,7 @@ jobs:
           node-version: '22'
       - name: Script syntax and contract checks
         run: |
+          node --check approved-navigation-extension.js
           node --check reference-home-shell-2026.js
           node --check home-owner-art-2026.js
           node --check global-page-banner-20261009.js
