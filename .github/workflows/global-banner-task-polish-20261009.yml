@@ -1,0 +1,74 @@
+name: Stage A Global Banners Task UX
+on:
+  push:
+    branches:
+      - ui/global-banner-task-polish-20261009
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check boot.js
+          node --check phase2.js
+          node --check linked-tasks.js
+          node --check reference-home-shell-2026.js
+          node --check global-page-banner-20261009.js
+          node --check tests/global-banner-mobile-browser.mjs
+          node --check tests/task-date-completion-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Local preview
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-stageA-http.log 2>&1 &
+          sleep 2
+      - name: Route banner and mobile matrix
+        run: timeout 360s node tests/global-banner-mobile-browser.mjs
+      - name: Task completion date and archive
+        run: timeout 240s node tests/task-date-completion-browser.mjs
+      - name: Canonical Home/Tasks and collections tests
+        run: |
+          timeout 240s node tests/home-tasks-reference-visual.mjs
+          timeout 180s node tests/home-owner-assets-browser.mjs
+          timeout 180s node tests/task-collections-browser.mjs
+          timeout 180s node tests/task-checklist-browser.mjs
+          timeout 180s node tests/task-bulk-reorder-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage-a-browser-screenshots-${{ github.sha }}
+          path: browser-artifacts/*.png
+          retention-days: 14
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: P0 Home Social Profile Task regressions
+        run: |
+          node tests/home-first-startup.test.mjs
+          node tests/p0-home-contract.test.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          npm install --prefix tests --no-package-lock
+          node tests/collab-invite-regression.test.mjs
+          node tests/social-test.cjs
+      - name: Rules regression (no Stage A rules changes)
+        run: npx --yes firebase-tools@latest emulators:exec --only firestore,storage --project demo-elara-rules --config firebase.json "node tests/firestore-rules-emulator.mjs"
