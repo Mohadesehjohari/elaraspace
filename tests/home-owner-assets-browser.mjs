@@ -48,6 +48,7 @@ try{
      .map(e=>({id:e.id,cl:e.className,area:getComputedStyle(e).gridArea}));
    const goalRows=[...q('#elara-home-goals').querySelectorAll('.ref-goal-row')].map(e=>({
       title:e.querySelector('.ref-goal-main strong')?.textContent,
+      rowBounds:rect(e),titleBounds:rect(e.querySelector('.ref-goal-main strong')),
       width:e.querySelector('.ref-goal-main')?.getBoundingClientRect().width,
       progress:e.querySelector('.ref-goal-main .elara-track i')?.style.width,
       step:e.querySelector('[data-home-goal-step]')?.dataset.homeGoalStep||e.querySelector('[data-goal-id]')?.dataset.homeGoalStep
@@ -56,6 +57,7 @@ try{
    const quickCards=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>e.dataset.elaraTab);
    const quickRects=[...panel.querySelectorAll('#ref-quick-access .ref-quick-card')].map(e=>rect(e));
    const quickRail=panel.querySelector('#ref-quick-access .ref-quick-access-grid');
+   const goalSeeAll=rect(q('.ref-home-goals-see-all'));
    const heroImg=q('.owner-home-hero-image');
    const computedImages={hero:{src:heroImg?.getAttribute('src'),naturalWidth:heroImg?.naturalWidth,fit:heroImg?getComputedStyle(heroImg).objectFit:null},
      icon:q('.owner-home-goal-icon')?.naturalWidth||0,flame:q('.ref-streak-flame')?.naturalWidth||0,flameGeometry:rect(q('.ref-streak-flame'))};
@@ -65,7 +67,7 @@ try{
    const text=panel.textContent||'';
    return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
       order:[...panel.children].map(e=>e.id||e.className),
-      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,quickRail:{client:quickRail?.clientWidth,scroll:quickRail?.scrollWidth},goalRows,habitRows,computedImages,
+      hero:rect(hero),grid:rect(grid),quick:rect(quick),bottom:rect(bottom),cards,mainVisible,quickCards,quickRects,quickRail:{client:quickRail?.clientWidth,scroll:quickRail?.scrollWidth},goalRows,goalSeeAll,habitRows,computedImages,
       summary:!!q('#owner-home-summaries'),daily:!!q('.owner-home-daily'),phrase:text.includes('نگاهی به جهان تو'),
       quote:quotes,settings:!!document.getElementById('ref-header-settings'),quickCount:panel.querySelectorAll('#ref-quick-access').length,
       duplicateQuickTitles:[...panel.querySelectorAll('h2')].filter(x=>x.textContent.includes('ورود سریع به بخش‌ها')).length,
@@ -110,6 +112,15 @@ try{
   for(const h of habits)assert.ok(!m.goalRows.some(g=>g.title?.includes(h)),'Habit leaked into Goals');
   assert.ok(m.habitRows.some(x=>x.includes(habits[0]))&&m.habitRows.some(x=>x.includes(habits[1])),'Habits must remain in separate Habits section');
   assert.ok(m.goalRows.every(x=>x.width>15&&/^\d+%$/.test(x.progress||'')),'Goal progress/readability broken');
+  if(width<=700){
+   assert.ok(m.goalRows.every(x=>x.titleBounds&&x.rowBounds&&
+      x.titleBounds.top>=x.rowBounds.top-1&&x.titleBounds.bottom<=x.rowBounds.bottom+1),
+     'A real Persian Goal title extends outside its own row: '+JSON.stringify(m.goalRows));
+   assert.ok(m.goalRows.every((x,i)=>i===0||x.rowBounds.top>=m.goalRows[i-1].rowBounds.bottom-1),
+     'Adjacent Goal records overlap vertically: '+JSON.stringify(m.goalRows));
+   assert.ok(m.goalSeeAll&&m.goalSeeAll.bottom<=m.cards.goals.bottom-2,
+     'See All Goals button was clipped below the card: '+JSON.stringify({goals:m.cards.goals,seeAll:m.goalSeeAll}));
+  }
   assert.ok(m.actualTasks.includes('تسک واقعی'),'Real Task data path no longer renders');
   assert.ok(m.documentWidth<=width+2&&m.bodyWidth<=width+2,'Horizontal overflow '+width+' '+JSON.stringify(m));
   assert.deepEqual(m.zeroButtons,[],'Zero size important buttons '+width);
