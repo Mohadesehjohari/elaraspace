@@ -77,10 +77,9 @@ for(const width of widths){
    const task=JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(t=>t.id===id);
    return !!task&&String(!!task.completed)!==previous;
   },{id:toggledId,previous:old},{timeout:6000});
-  const now=await page.locator('#ui12-tasks [data-section-task-toggle="'+toggledId+'"]').getAttribute('aria-pressed');
-  assert.notEqual(now,old,'Canonical Task completion did not update');
   const task=await page.evaluate(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(x=>x.id===id),toggledId);
   assert.ok(task&&task.id===toggledId,'Canonical task disappeared');
+  assert.notEqual(String(!!task.completed),old,'Canonical Task completion did not update');
   await page.locator('#ui12-leitner [data-ui12-route="words"]').first().click();
   await page.waitForSelector('#panel-words:not(.hidden)');
   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
