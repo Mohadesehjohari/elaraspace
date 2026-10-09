@@ -155,3 +155,8 @@
 @media(prefers-reduced-motion:reduce){
  #panel-language.ui12-language .ui12-shortcut{transition:none}
 }
+
+/* UI12 visual review: desktop shell header must be above (not painted over) the hero. */
+@media(min-width:701px){
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{margin-top:64px!important}
+}
