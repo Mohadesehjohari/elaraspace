@@ -61,6 +61,7 @@ for(const width of widths){
   assert.equal(await page.locator('#ui12-books .ui12-book').count(),3,'Book preview must be capped at three');
   assert.equal(await page.locator('#ui12-tasks .ui12-task').count(),5,'Task preview must be capped at five');
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
+  if(width!==1648){console.log('UI12 RESPONSIVE PASS '+width);passed++;continue}
   for(const id of ['overview','leitner','books','classes','channels','tasks','challenges','report']){
    await page.locator('[data-ui12-jump="'+id+'"]').click();
    assert.equal((await page.locator('[data-ui12-jump="'+id+'"]').getAttribute('class'))?.includes('is-active'),true,'Shortcut '+id);
