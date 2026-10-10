@@ -31,6 +31,7 @@ const bootstrap=async(page)=>{
  },testUser);
  await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
  // Test-only bypass of the signed-out Firebase account gate; never change production gate code.
+ await page.addStyleTag({content:'#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}'});
  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
  await page.locator('#elara-profile-edit-screen').waitFor({timeout:15000});
  assert.equal(await page.locator('.pe-heading h1').isVisible(),true,'The Edit Profile surface must be visible');
@@ -48,6 +49,11 @@ for(const width of sizes){
  assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
+ if(width===390||width===1440){
+  await page.evaluate(()=>{const scroller=document.getElementById('elara-profile-edit-screen');scroller.scrollTop=scroller.scrollHeight});
+  await page.screenshot({path:dir+'/profile-edit-'+width+'-bottom.png',fullPage:false});
+  await page.evaluate(()=>{document.getElementById('elara-profile-edit-screen').scrollTop=0});
+ }
  await page.locator('#elara-profile-edit-screen [name="name"]').fill('نام جدید');
  await page.locator('#elara-profile-edit-screen [name="title"]').fill('در مسیر یادگیری');
  assert.equal(await page.locator('.pe-preview-body h3').textContent(),'نام جدید');
@@ -86,9 +92,11 @@ for(const width of sizes){
    window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async()=>({warnings:[]})};
   },testUser);
   await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+  await page.addStyleTag({content:'#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}'});
   await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
   await page.locator('#elara-profile-edit-screen').waitFor();
   assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
+  assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#cloud-layer')).display),'none','Auth gate must stay excluded from mock screenshots');
   await page.screenshot({path:dir+'/profile-edit-390-after-reload.png',fullPage:false});
  }
  await context.close();
