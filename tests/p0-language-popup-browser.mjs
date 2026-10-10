@@ -164,7 +164,7 @@ assert.equal(reviewAfter.task?.completed,true,'Language review completion did no
 await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');s.words=[];localStorage.setItem('elara_space_v1',JSON.stringify(s));window.ElaraLinkedTasks.syncAll()});await page.waitForTimeout(60);
 stage('language-task:pass');stage('settings:start');
 // Settings main list via real hamburger -> Privacy.
-await page.locator('#elara-account-menu-trigger').click();await page.waitForTimeout(60);
+await page.locator('#ref-header-account').click();await page.waitForSelector('.elara-private-drawer:not(.hidden) .drawer-menu');
 assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main list missing');
 const settingsBox=await withinViewport(page,'.elara-private-drawer-panel','Settings home'),settingsVp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));
 assert.ok(Math.abs(settingsBox.x+settingsBox.width/2-settingsVp.w/2)<=3&&Math.abs(settingsBox.y+settingsBox.height/2-settingsVp.h/2)<=Math.max(10,settingsVp.h*.03),'Settings home is not centered '+JSON.stringify({settingsBox,settingsVp}));
