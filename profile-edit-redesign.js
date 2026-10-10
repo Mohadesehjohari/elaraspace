@@ -77,7 +77,7 @@
  async function stylesheet(){
   if(document.getElementById('elara-profile-edit-redesign-css'))return;
   await new Promise((done,fail)=>{
-   const link=document.createElement('link');link.rel='stylesheet';link.id='elara-profile-edit-redesign-css';link.href='profile-edit-redesign.css?v=20261011-1';
+   const link=document.createElement('link');link.rel='stylesheet';link.id='elara-profile-edit-redesign-css';link.href='profile-edit-redesign.css?v=20261011-mobile2';
    link.onload=done;link.onerror=()=>{link.remove();fail(Error('استایل صفحهٔ ویرایش پروفایل بارگذاری نشد.'))};document.head.append(link)
   })
  }
