@@ -68,6 +68,9 @@ for(const width of sizes){
   assert.ok(await page.locator('[data-pe-save]').isVisible(),'Save button missing at '+width);
   const choices=await page.locator('[data-pe-template]').count();
   assert.equal(choices,4,'Four profile design templates required');
+  assert.equal(await page.locator('[data-pe-color]').count(),6,'Six theme color choices required');
+  const touch=await page.locator('.pe-frame').first().boundingBox();
+  assert.ok(touch&&touch.width>=40&&touch.height>=40,'Frame touch target too small at '+width);
  }
  if(width>=1280){
   assert.ok(dims.back.x+dims.back.width<=dims.main.x+dims.main.width+4,
@@ -101,6 +104,7 @@ for(const width of sizes){
   assert.equal(await page.locator('#elara-profile-edit-screen').evaluate(el=>el.classList.contains('pe-mobile-preview-visible')),true,'Preview must be a mobile sheet, not a jump');
   assert.equal(await page.locator('#pe-preview-area .pe-preview-title').textContent(),'پیش‌نمایش بدون ذخیره');
   assert.ok(await page.locator('.pe-mobile-preview-close').isVisible(),'Preview needs a visible Back button');
+  await page.screenshot({path:dir+'/profile-edit-360-preview-open.png',fullPage:false});
   await page.locator('[data-pe-action="preview-close"]').click();
   await page.waitForFunction(()=>!document.getElementById('elara-profile-edit-screen').classList.contains('pe-mobile-preview-visible'));
   assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'پیش‌نمایش بدون ذخیره','Draft lost on preview close');
