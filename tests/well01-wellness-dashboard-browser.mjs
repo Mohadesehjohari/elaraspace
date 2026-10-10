@@ -14,13 +14,18 @@ async function open(width,url,seed=true){
  const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
  await page.route('**/cloud.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:cloud}));
  await page.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:social}));
- if(seed)await page.addInitScript(({date})=>{
-  localStorage.setItem('elara_private_wellness_v1_well01-qa',JSON.stringify({weight:'68.5',targetWeight:'',goal:2000,glass:250,water:{[date]:750},sleep:[{id:'well01-sleep',date,bed:'22:30',wake:'06:00'}],workouts:[{id:'well01-workout',date,type:'یوگا',minutes:30}],workoutPlanNote:'تمرین قدرتی سه روز در هفته',nutritionPlanNote:'یادداشت تغذیه شخصی',workoutPlanFolders:[],nutritionPlanFolders:[]}));
- },{date});
+
  await page.goto(url+'/?well01='+width+'#home',{waitUntil:'domcontentloaded',timeout:35000});
  await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraFeatureHubs&&!document.documentElement.hasAttribute('data-elara-booting'),{timeout:35000});
  await page.evaluate(()=>window.ElaraOpen('exercise'));
  await page.waitForSelector('#panel-exercise:not(.hidden)',{timeout:30000});
+ if(seed)await page.evaluate(({date})=>{
+  window.ElaraAccount=window.ElaraAccount||{};window.ElaraAccount.user={...(window.ElaraAccount.user||{}),uid:'well01-qa'};
+  if(window.ElaraSocial?.me)window.ElaraSocial.me.uid='well01-qa';
+  localStorage.setItem('elara_private_wellness_v1_well01-qa',JSON.stringify({weight:'68.5',targetWeight:'',goal:2000,glass:250,water:{[date]:750},sleep:[{id:'well01-sleep',date,bed:'22:30',wake:'06:00'}],workouts:[{id:'well01-workout',date,type:'یوگا',minutes:30}],workoutPlanNote:'تمرین قدرتی سه روز در هفته',nutritionPlanNote:'یادداشت تغذیه شخصی',workoutPlanFolders:[],nutritionPlanFolders:[]}));
+  window.dispatchEvent(new Event('elara:wellness-saved'));
+  window.ElaraWell01?.render();
+ },{date});
  return page;
 }
 await mkdir('browser-artifacts/well01',{recursive:true});
