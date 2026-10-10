@@ -9,7 +9,7 @@ import {collection,doc,getDoc,serverTimestamp,setDoc,updateDoc,writeBatch} from 
 const [host,port]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
 const rules=await readFile(new URL('../firestore.rules',import.meta.url),'utf8');
 const env=await initializeTestEnvironment({
- projectId:'demo-elara-friends-dm-atomic',
+ projectId:'demo-elara-rules',
  firestore:{host,port:Number(port),rules},
 });
 const aliceId='friendsAtomicAlice',bobId='friendsAtomicBob',eveId='friendsAtomicEve';
