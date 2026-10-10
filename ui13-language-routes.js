@@ -53,21 +53,51 @@ function renderChallenges(){
  const host=head('challenges','چالش‌های زبان','Language challenges',tx('فضای اختصاصی چالش زبان؛ پشتیبانی نتیجهٔ معتبر سروری هنوز فعال نشده است.','Language-specific challenges need verified server-side results and are not yet available.'));if(!host)return;
  host.innerHTML='<section class="ui13-surface ui13-challenge-empty"><img src="assets/ui/11-challenges-icon.webp" width="120" height="120" loading="eager" alt=""><h2>'+tx('چالش زبان مستقل در دست آماده‌سازی است','Dedicated language challenges are being prepared')+'</h2><p>'+tx('چالش‌های دوستانهٔ واقعی در Elara وجود دارند، اما هنوز نوع هدف زبان و داوری نتیجهٔ معتبر برای آن‌ها منتشر نشده است؛ این بخش شرکت‌کننده، امتیاز یا پیشرفت جعلی نمی‌سازد.','Real friend challenges exist, but language-specific targets and server-verified results are not published yet. No invented participants, scores or progress are shown.')+'</p><button class="ui13-primary" type="button" data-ui13-canonical="social">'+tx('مشاهدهٔ چالش‌های واقعی دوستان','See real friend challenges')+'</button></section>';
 }
+
+// L2: view-only dashboard for the canonical #panel-words and elara_space_v1.words.
+// All word creation, scheduling, deletion, and persistence stay in app.js.
+function renderLeitner(){
+ const panel=$('panel-words');if(!panel)return;
+ let host=panel.querySelector('[data-l2-leitner]');if(!host){
+  host=document.createElement('div');host.className='l2-leitner-shell';host.dataset.l2Leitner='';
+  panel.prepend(host);
+ }
+ let data;try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{data={}}
+ const words=list(data.words),today=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
+ const due=words.filter(w=>!w.due||w.due<=today);
+ const boxes=[1,2,3,4,5].map(box=>words.filter(w=>Number(w.box||1)===box).length);
+ const all=words.length;
+ const card=(key,label,value,icon)=>'<div class="l2-stat l2-stat-'+key+'"><span aria-hidden="true">'+icon+'</span><div><small>'+label+'</small><strong>'+num(value)+'</strong></div></div>';
+ host.innerHTML='<section class="l2-leitner-hero"><div class="l2-leitner-copy"><span class="l2-eyebrow">SPACED REPETITION · ELARA</span><h1>'+tx('جعبه لایتنر','Leitner box')+'</h1><p>'+tx('واژه‌هایت را در پنج جعبه مرور کن؛ هر موفقیت، فاصلهٔ مرور بعدی را بیشتر می‌کند.','Review your vocabulary in five boxes. Successful recalls increase the time until the next review.')+'</p><div class="l2-hero-actions"><button type="button" class="l2-start-review" data-l2-review '+(!due.length?'disabled':'')+'>'+tx(due.length?'شروع مرور امروز':'مرور امروز کامل است',due.length?'Start today’s review':'Today’s review is complete')+' <span aria-hidden="true">←</span></button><button type="button" class="l2-add-word" data-l2-add>＋ '+tx('افزودن واژه','Add vocabulary')+'</button></div></div></section>'+
+ '<section class="l2-leitner-stats" aria-label="'+tx('آمار واقعی لایتنر','Real Leitner statistics')+'">'+
+ card('all',tx('کل واژه‌ها','Total words'),all,'▣')+
+ card('due',tx('آمادهٔ مرور','Ready to review'),due.length,'↻')+
+ card('new',tx('جعبه اول','First box'),boxes[0],'+')+
+ card('learned',tx('جعبه پنجم','Fifth box'),boxes[4],'★')+'</section>'+
+ '<section class="l2-leitner-boxes"><header><div><span class="l2-eyebrow">YOUR LEARNING PATH</span><h2>'+tx('مسیر پیشرفت لایتنر','Your Leitner journey')+'</h2><p>'+tx('هر واژه بر اساس نتیجهٔ مرور در جعبهٔ مناسب قرار می‌گیرد.','Each word moves between boxes based on your actual reviews.')+'</p></div><strong>'+num(all)+' '+tx('واژه','words')+'</strong></header><div class="l2-five-boxes">'+
+ boxes.map((count,i)=>'<article class="l2-stage l2-stage-'+(i+1)+'"><div class="l2-stage-orb">'+num(i+1)+'</div><h3>'+tx('جعبه ','Box ')+num(i+1)+'</h3><strong>'+num(count)+'</strong><small>'+tx('واژه','words')+'</small><div class="l2-stage-meter"><i style="width:'+(all?Math.min(100,Math.round(count/all*100)):0)+'%"></i></div></article>').join('')+'</div></section>'+
+ '<section class="l2-leitner-bottom"><div><h2>'+tx('مرور مرحله‌به‌مرحله','Focused step-by-step review')+'</h2><p>'+tx('کلمات سررسیدشده را یکی‌یکی مرور کن. معنی را ببین و سپس پاسخ خودت را ثبت کن.','Review due words one by one, reveal the meaning, then record your answer.')+'</p></div><button type="button" data-l2-review '+(!due.length?'disabled':'')+'>'+tx(due.length?'ورود به مرور کلمات':'واژهٔ سررسیدشده‌ای نیست',due.length?'Enter word review':'No words due')+' <span aria-hidden="true">←</span></button></section>';
+ const form=$('word-form');if(form){form.classList.add('l2-word-form');form.setAttribute('aria-label',tx('افزودن واژه به سیستم اصلی','Add word to canonical Leitner'))}
+ const flash=panel.querySelector('.flashcard');if(flash)flash.classList.add('l2-canonical-review');
+}
 function renderActive(){
  const name=location.hash.replace(/^#/,'');
  if(name==='language-tasks')renderTasks();
+ if(name==='words')renderLeitner();
  if(name==='language-channels')void renderChannels();
  if(name==='language-challenges')renderChallenges();
 }
 document.addEventListener('click',e=>{
+ const review=e.target.closest('[data-l2-review]');if(review){e.preventDefault();if(review.disabled)return;const item=document.querySelector('#panel-words .flashcard');item?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('word-reveal')?.focus({preventScroll:true});return}
+ const addWord=e.target.closest('[data-l2-add]');if(addWord){e.preventDefault();document.getElementById('word-form')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('word-front')?.focus({preventScroll:true});return}
  const back=e.target.closest('[data-ui13-back]');if(back){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));return}
  const go=e.target.closest('[data-ui13-canonical]');if(go){e.preventDefault();window.ElaraOpen?.(go.dataset.ui13Canonical,{history:'push'});return}
  const retry=e.target.closest('[data-ui13-retry]');if(retry){e.preventDefault();void renderChannels();return}
  const club=e.target.closest('[data-ui13-open-club]');if(club){e.preventDefault();void window.ElaraSocialClubsUI?.openClub?.(club.dataset.ui13OpenClub,club.dataset.ui13Owned==='1');return}
  const create=e.target.closest('[data-ui13-create-club]');if(create){e.preventDefault();void window.ElaraSocialClubsUI?.createClub?.('language');return}
 });
-for(const event of ['elara:open','elara:state-committed','elara:data-changed','elara:locale-changed','elara:auth-changed'])window.addEventListener(event,()=>{if(event==='elara:open'||location.hash==='#language-tasks')renderActive()});
+for(const event of ['elara:open','elara:state-committed','elara:data-changed','elara:locale-changed','elara:auth-changed'])window.addEventListener(event,()=>{if(event==='elara:open'||(location.hash==='#language-tasks'||location.hash==='#words'))renderActive()});
 window.addEventListener('hashchange',renderActive);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',renderActive,{once:true});else renderActive();
-window.ElaraLanguageDestinations={renderTasks,renderChannels,renderChallenges,routes};
+window.ElaraLanguageDestinations={renderTasks,renderChannels,renderChallenges,renderLeitner,routes};
 })();
