@@ -94,7 +94,7 @@ assert.deepEqual(wellnessData.map(x=>x.label),['آب','خواب','ورزش'],'UI
 assert.ok(wellnessData.every(x=>x.visible&&x.value&&x.image?.startsWith('assets/ui/')),'Home Wellness missing functional visible metric or real image: '+JSON.stringify(wellnessData));
 await wellnessTiles.nth(0).click();
 await page.waitForSelector('#panel-exercise:not(.hidden)');
-assert.ok(await page.locator('#panel-exercise .wellness-water').count()>0,'Home water indicator failed to open canonical Wellness route');
+assert.equal(await page.locator('#panel-wellness-water .wellness-water').count(),1,'Water summary is not bound to the actual Wellness water controller');
 await page.evaluate(()=>window.ElaraOpen('home',{history:'replace'}));
 await page.waitForSelector('#panel-home:not(.hidden)');
 await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));await page.waitForTimeout(70);
