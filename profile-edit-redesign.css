@@ -258,9 +258,9 @@
 
 /* Desktop title/back belongs to the editor column, never under the elevated sticky preview. */
 @media(min-width:971px){
- .pe-shell .pe-heading{width:calc((100% - 12px) * .6875);max-width:100%;position:relative;z-index:2}
+ .pe-shell .pe-heading{width:68%;max-width:100%;margin-left:0;margin-right:auto;position:relative;z-index:2}
 }
-@media(max-width:970px){.pe-shell .pe-heading{width:100%}}
+@media(max-width:970px){.pe-shell .pe-heading{width:100%;margin-right:0;margin-left:0}}
 
 /* Reference desktop identity: avatar+name/Bio beside, rather than above, real account facts. */
 @media(min-width:1280px){
