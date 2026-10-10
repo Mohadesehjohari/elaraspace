@@ -40,7 +40,7 @@ const bootstrap=async(page)=>{
  await page.locator('.pe-preview-card').waitFor({timeout:10000});
 };
 for(const width of sizes){
- const context=await browser.newContext({viewport:{width,height:width===1440?900:844}});
+ const context=await browser.newContext({viewport:{width,height:width===1648?941:width===1440?900:844}});
  const page=await context.newPage();
  page.on('pageerror',e=>errors.push(width+': '+e.message));
  await bootstrap(page);
