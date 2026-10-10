@@ -1,0 +1,142 @@
+/* UI16 candidate. Scoped owner-reference corrections; never modifies the approved shell/nav/Home. */
+
+/* This is a real CSS fallback rather than assuming the deferred banner JS has
+   already provided --elara-page-art when Tasks first renders. Without the fallback
+   the computed background was "none" in production run 38032868169. */
+html body #main #panel-tasks .astra-task-hero{
+  background-image:linear-gradient(90deg,rgba(3,12,31,.36),rgba(3,11,30,.04) 48%,rgba(2,12,31,.50)),var(--elara-page-art,url("assets/ui/task-header-banner-bg.webp"))!important;
+  background-size:cover!important;background-repeat:no-repeat!important;
+  background-position:center 53%!important;
+}
+
+/* One cohesive top hero, image CONTENT framed lower, not shifted down. */
+html body #main #panel-language.ui12-language .ui12-hero.elara-language-hero{
+  margin-top:0!important;
+  background-image:linear-gradient(270deg,#031327ed 0%,#04152dc2 21%,#04152d4f 41%,transparent 75%),url("assets/ui/language_banner_main.webp")!important;
+  background-position:center 70%!important;
+  background-size:cover!important;
+}
+html body #main #panel-books .elara-global-hero[data-elara-page-hero="books"]{
+  background-position:center 72%!important;margin-top:0!important;
+}
+
+/* The physical RTL first row starts with narrow Stats on the right, then Books,
+   Tasks, and the widest Leitner on the far left. Second row starts with Report
+   on the right. Avoid equal-sized cards on desktop. */
+@media(min-width:1181px){
+  html[lang="fa"] #panel-language.ui12-language .ui12-board,
+  html:not([lang="en"]) #panel-language.ui12-language .ui12-board{
+    direction:rtl!important;
+    grid-template-columns:minmax(0,.64fr) minmax(0,1.08fr) minmax(0,.88fr) minmax(0,1.40fr)!important;
+    grid-template-areas:"stats books tasks leitner" "report challenges channels classes"!important;
+    column-gap:10px!important;row-gap:12px!important;
+  }
+  #panel-language.ui12-language .ui12-leitner,
+  #panel-language.ui12-language .ui12-tasks,
+  #panel-language.ui12-language .ui12-books,
+  #panel-language.ui12-language .ui12-stats{min-height:318px!important}
+  #panel-language.ui12-language .ui12-leitner-art{min-height:218px!important}
+  #panel-language.ui12-language .ui12-box{max-width:78px;height:69px}
+}
+/* LTR English uses an LTR reading order, not a forced RTL menu. */
+html[lang="en"] #panel-language.ui12-language .ui12-shortcuts,
+html[lang="en"] #panel-language.ui12-language .ui12-shortcut,
+html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!important}
+@media(min-width:1181px){
+ html[lang="en"] #panel-language.ui12-language .ui12-board{
+   grid-template-columns:minmax(0,1.40fr) minmax(0,.88fr) minmax(0,1.08fr) minmax(0,.64fr)!important;
+   grid-template-areas:"leitner tasks books stats" "classes channels challenges report"!important;
+ }
+}
+
+/* Illuminated depth retained from UI15. The visual cards use existing owner
+   Language image assets and are decorative, not synthetic vocabulary records. */
+#panel-language.ui12-language .ui12-leitner-art{
+ position:relative;isolation:isolate;overflow:hidden!important;
+ background-image:linear-gradient(180deg,#03172b22 0%,#06163230 48%,#05132ee6 100%),url("assets/ui/lightner.webp")!important;
+ background-position:47% 55%!important;background-size:cover!important
+}
+#panel-language.ui12-language .ui16-floating-cards{
+ pointer-events:none;position:absolute;inset:9px 12px auto;
+ height:69px;display:flex;align-items:flex-start;justify-content:center;gap:13px;z-index:0;
+}
+#panel-language.ui12-language .ui16-floating-cards span{
+ box-sizing:border-box;width:51px;height:64px;display:grid;place-items:center;padding:6px;
+ border:1px solid #6cdbffb8;border-radius:8px;
+ background:linear-gradient(143deg,#f2efffcf,#7cbbf9ac 48%,#163b827a);
+ box-shadow:0 0 14px #18a7ff99,0 8px 18px #0009,inset 0 1px 4px #ffffffb8;
+ transform:perspective(170px) rotate(-12deg);opacity:.93
+}
+#panel-language.ui12-language .ui16-floating-cards span:nth-child(2){transform:translateY(11px) rotate(8deg);border-color:#89fff0;box-shadow:0 0 17px #2bffd477,0 8px 18px #0009}
+#panel-language.ui12-language .ui16-floating-cards span:nth-child(3){transform:translateY(-2px) rotate(17deg);border-color:#ffd68d;box-shadow:0 0 17px #ffc76d88,0 8px 18px #0009}
+#panel-language.ui12-language .ui16-floating-cards img{
+ width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 4px #053153)
+}
+#panel-language.ui12-language .ui12-leitner-art>p,
+#panel-language.ui12-language .ui12-boxes,
+#panel-language.ui12-language .ui12-gold{position:relative;z-index:1}
+#panel-language.ui12-language .ui12-leitner-art>p{
+ margin-top:81px!important;margin-bottom:2px!important;
+ font-weight:750;font-size:11px!important
+}
+#panel-language.ui12-language .ui12-boxes{flex:0 0 auto}
+#panel-language.ui12-language .ui12-gold{
+ min-height:43px;border-radius:999px;padding:9px 14px;
+ font-size:clamp(14px,1.15vw,18px);
+ box-shadow:0 0 17px #ffba5180,inset 0 1px 2px #fff4ce;
+}
+#panel-language.ui12-language .ui12-box small{max-width:100%;white-space:normal;text-align:center}
+
+/* The language route back button must remain on top of its own panel, not behind
+   the desktop account overlay. Hide overlapping account controls only in these
+   dedicated subpages; never hide them on the root Language/Tasks screens. */
+@media(min-width:701px){
+ .workspace:has(#panel-language-tasks:not(.hidden),#panel-language-channels:not(.hidden),#panel-language-challenges:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){
+   visibility:hidden!important;pointer-events:none!important
+ }
+ #main :is(#panel-language-tasks,#panel-language-channels,#panel-language-challenges):not(.hidden) .ui13-back{
+   z-index:6;position:relative;pointer-events:auto
+ }
+}
+
+/* Classmate dialogue wraps long legal/authorized names without an x-axis crop. */
+.elara-dialog-root .language-class-report,
+.elara-dialog-root .language-class-classmates,
+.elara-dialog-root .language-class-member{
+ box-sizing:border-box;min-width:0;max-width:100%;overflow-wrap:anywhere
+}
+.elara-dialog-root .language-class-report{overflow-x:visible;overflow-y:auto;max-height:min(68dvh,690px)}
+@media(max-width:700px){
+ html body #main #panel-language.ui12-language .ui12-hero.elara-language-hero{
+   background-position:47% 73%!important;
+ }
+ #panel-language.ui12-language .ui12-leitner-art{
+   background-position:44% 50%!important;min-height:182px!important
+ }
+ #panel-language.ui12-language .ui16-floating-cards{
+   height:47px;gap:7px;inset:8px 6px auto
+ }
+ #panel-language.ui12-language .ui16-floating-cards span{
+   width:33px;height:42px;padding:4px;border-radius:5px
+ }
+ #panel-language.ui12-language .ui12-leitner-art>p{
+   margin-top:54px!important;font-size:9px!important
+ }
+ #panel-language.ui12-language .ui12-gold{
+   min-height:35px;font-size:12px;padding:6px 5px
+ }
+ .elara-dialog-panel:has(.language-class-report){max-width:calc(100vw - 16px)!important}
+ .elara-dialog-root .language-class-report-grid,
+ .elara-dialog-root .language-class-member{min-width:0!important}
+}
+@media(max-width:374px){
+ #panel-language.ui12-language .ui12-leitner-art{min-height:188px!important}
+ #panel-language.ui12-language .ui16-floating-cards span{width:40px;height:49px}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-language.ui12-language .ui16-floating-cards span{transition:none!important}
+}
+
+/* SVG language placeholder art, deliberately distinct from purple default decoration. */
+#panel-language.ui12-language .ui16-empty-svg{width:65px;height:65px;display:grid;place-items:center;color:#60e8ff;filter:drop-shadow(0 0 12px #18adfd70)}
+#panel-language.ui12-language .ui16-empty-svg svg{height:58px;width:58px;stroke:currentColor}
