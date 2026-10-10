@@ -128,10 +128,19 @@ async function run(width,height){
  await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
  const ranking=page.locator('#elara-ranking-page .social-tabs [role="tab"]');
  assert.equal(await ranking.count(),4,width+': Ranking four destinations changed');
- assert.ok((await ranking.first().evaluate(el=>el.getBoundingClientRect().height))>socialBoxes[0].h+20,
-  width+': compact Friends layout improperly applied to Ranking');
+ assert.deepEqual(await ranking.evaluateAll(xs=>xs.map(x=>x.dataset.socialRoute)),
+  ['ranking','ranking','ranking','ranking'],width+': Ranking tabs must remain owned by the Ranking route');
+ const rankingViews=await ranking.evaluateAll(xs=>xs.map(x=>x.dataset.socialView));
+ assert.equal(new Set(rankingViews).size,4,width+': Ranking destinations must be distinct');
+ const friendSelectionBefore=await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected');
+ await ranking.nth(1).click();
+ await page.waitForFunction(view=>document.querySelector('#elara-ranking-page .social-tabs [role="tab"][data-social-view="'+view+'"]')?.getAttribute('aria-selected')==='true',rankingViews[1]);
+ assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
+  friendSelectionBefore,width+': changing Ranking mutated Friends tab selection');
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));
  await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
+ assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
+  friendSelectionBefore,width+': returning from Ranking reset independent Friends selection');
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
  assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
