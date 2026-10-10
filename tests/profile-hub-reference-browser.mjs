@@ -32,7 +32,7 @@ for(const width of sizes){
  geometry.push({viewport:width,...metrics});
  await page.screenshot({path:dir+'/profile-hub-'+width+'-diagnostic.png'});
  assert.ok(metrics.hub.w>=Math.min(width-36,580)||width>700,'Narrow hub at '+width+' '+JSON.stringify(metrics));
- assert.ok(metrics.scrollWidth<=metrics.clientWidth+2,'Profile hub horizontal scroll at '+width);
+ assert.ok(metrics.scrollWidth<=metrics.clientWidth+2,'Profile hub horizontal scroll at '+width+' '+JSON.stringify(metrics));
  assert.equal(await page.locator('.elara-profile-hub-actions button').count(),3);
  assert.equal(await page.locator('.elara-profile-hub-entry').count(),5);
  assert.equal(await page.locator('.elara-profile-hub-status').textContent().then(x=>x.includes('متن واقعی')),true);
