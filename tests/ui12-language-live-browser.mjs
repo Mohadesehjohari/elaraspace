@@ -50,6 +50,7 @@ try{
   await page.waitForTimeout(120);
   await page.locator('#panel-language [data-ui12-jump="channels"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
   await page.waitForTimeout(100);
+  if(width===1440){const hit=await page.locator('#panel-language [data-ui12-jump="channels"]').evaluate(el=>{const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,p=document.elementFromPoint(x,y);return{rect:{x:r.x,y:r.y,width:r.width,height:r.height},scrollY:window.scrollY,viewport:innerHeight,hitTag:p?.tagName,hitId:p?.id,hitClass:p?.className,hitParent:p?.parentElement?.id,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}});console.log('UI13_DESKTOP_SHORTCUT_HITTEST '+JSON.stringify(hit));}
   await page.locator('#panel-language [data-ui12-jump="channels"]').click();await page.waitForSelector('#panel-language-channels:not(.hidden) .ui13-subpage');
   await page.locator('#panel-language-channels [data-ui13-back]').click();await page.waitForSelector('#panel-language:not(.hidden)');
   await page.locator('#panel-language [data-ui12-jump="tasks"]').click();await page.waitForSelector('#panel-language-tasks:not(.hidden) .ui13-subpage');
