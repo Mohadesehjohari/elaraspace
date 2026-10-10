@@ -46,7 +46,7 @@ jobs:
               fi
             done
             if [ "$ok" = true ]; then
-              echo "UI13_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=13"
+              echo "UI13_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=14"
               sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js language-custom-classes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp
               break
             fi
