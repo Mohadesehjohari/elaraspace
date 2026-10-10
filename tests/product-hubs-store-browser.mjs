@@ -100,7 +100,7 @@ async function run(width,height){
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="privacy"],.drawer-menu [data-drawer-nav="language"],.drawer-menu [data-drawer-nav="calendar"],.drawer-menu [data-drawer-nav="help"],.drawer-menu [data-drawer-nav="security"]').count(),0,width+': account settings must stay behind the profile gear');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="blocked"]').count(),1,width+': blocked accounts destination missing');
  for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,width+': dedicated Profile Settings missing '+route);
- assert.equal(await page.locator('.drawer-profile-head .drawer-settings-gear').count(),1,width+': compact profile gear missing');
+ assert.equal(await page.locator('.drawer-settings-gear').count(),1,width+': existing profile Settings gear missing');
  await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(60);
  assert.equal(await page.locator('.drawer-mobile-reports').isVisible(),isMobile,width+': Reports shortcut mobile visibility mismatch');
  await page.evaluate(()=>ElaraPrivateDrawer.open('account'));await page.waitForTimeout(80);
@@ -108,7 +108,8 @@ async function run(width,height){
  assert.ok(xpOrder.trackTop<=xpOrder.rowTop,width+': XP text must render below progress track');
 
  if(isMobile){
-  const nav=page.locator('.bottom-nav [data-elara-nav-kind]');assert.equal(await nav.count(),10,'mobile nav must expose Page and Blog directly');
+  const nav=page.locator('.bottom-nav [data-elara-nav-kind]');assert.equal(await nav.count(),7,'original owner 7-button mobile menu must remain intact');
+  assert.deepEqual(await nav.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['blog','books','social','home','tasks','freedom','page'],'original mobile navigation routes changed');
   assert.equal(await page.locator('.bottom-nav [data-elara-tab="page"]').count(),1,'Page mobile destination missing');
   assert.equal(await page.locator('.bottom-nav [data-elara-tab="blog"]').count(),1,'Blog mobile destination missing');
   assert.equal(await page.locator('.bottom-nav [data-menu-toggle],.bottom-nav .more-menu-trigger').count(),0,'ellipsis/overflow must not return');
