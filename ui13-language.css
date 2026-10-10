@@ -206,3 +206,83 @@
 /* Reframe the owner's actual library art rather than pushing the whole hero down. */
 html body #main #panel-books .elara-global-hero{background-position:center 68%!important}
 @media(max-width:700px){html body #main #panel-books .elara-global-hero{background-position:52% 66%!important}}
+
+
+/* Language Classes L1 — isolated release; no global Header, Sidebar, mobile dock, or backend changes. */
+#panel-language-courses .language-custom-classes{display:grid;gap:15px;min-width:0;color:#f2f6ff}
+#panel-language-courses .language-class-intro.l1-class-hero{
+ position:relative;isolation:isolate;display:flex;align-items:end;flex-wrap:wrap;min-height:228px;
+ padding:56px clamp(15px,2.2vw,30px) 22px!important;gap:18px;overflow:hidden;
+ border:1px solid #247eae;border-radius:20px;
+ background:linear-gradient(270deg,#031429f7 0%,#04182ff0 37%,#051b3480 67%,#07172a30 100%),
+ url('assets/ui/language_banner_main.webp') center 54%/cover no-repeat!important;
+ box-shadow:inset 0 0 0 1px #65ddff12,0 12px 36px #020a20a0;
+}
+#panel-language-courses .l1-class-hero>div:first-of-type{position:relative;z-index:1;flex:1 1 330px;min-width:0;max-width:680px}
+#panel-language-courses .l1-class-hero small{display:block;color:#7ce9ff;font-size:11px;font-weight:850;letter-spacing:.12em}
+#panel-language-courses .l1-class-hero h2{margin:5px 0 10px;font-size:clamp(22px,2.35vw,36px);font-weight:900;line-height:1.4;color:#fff;text-shadow:0 2px 18px #2448c8a0}
+#panel-language-courses .l1-class-hero p{max-width:590px;color:#d2e4ff;font-size:clamp(12px,.95vw,15px);line-height:1.95}
+#panel-language-courses .l1-return-language{position:absolute;top:14px;right:18px;z-index:2;border:1px solid #35dcf4;border-radius:999px;background:#042b48d9;color:#b9f8ff;padding:7px 13px;font:inherit;font-size:12px;font-weight:750;min-height:35px;cursor:pointer}
+#panel-language-courses .l1-class-hero .language-class-type-adders{position:relative;z-index:1;display:flex;flex:0 1 340px;justify-content:flex-start;flex-wrap:wrap;gap:7px;min-width:0}
+#panel-language-courses .l1-class-hero .language-class-type-adders>button{min-height:38px;font:inherit;font-size:12px;font-weight:800;border-radius:12px;padding:7px 13px;cursor:pointer}
+#panel-language-courses .l1-class-hero .language-class-type-adders .l1-main-cta{width:100%;min-height:47px;border:1px solid #80ceff;color:#fff;background:linear-gradient(105deg,#fa6c8f,#b83cfc 53%,#3966ff);box-shadow:0 0 24px #6b40f650;font-size:14px}
+#panel-language-courses .l1-class-hero .language-class-type-adders .sr-only{position:static}
+#panel-language-courses .l1-class-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;min-width:0}
+#panel-language-courses .l1-class-stat{display:flex;align-items:center;gap:13px;min-width:0;padding:16px;border:1px solid #246291;border-radius:17px;background:linear-gradient(140deg,#082748e9,#07182ee9);box-shadow:inset 0 0 18px #25488b15}
+#panel-language-courses .l1-stat-symbol{flex:0 0 45px;height:45px;display:grid;place-items:center;border-radius:12px;background:#054d7b4f;color:#54e5ff;border:1px solid #1c8fc4}
+#panel-language-courses .l1-stat-symbol svg{height:25px;width:25px}
+#panel-language-courses .l1-stat-active .l1-stat-symbol{color:#50f5b8;border-color:#148a76;background:#063f3c88}
+#panel-language-courses .l1-stat-shared .l1-stat-symbol{color:#c698ff;border-color:#664ac3;background:#2c205a80}
+#panel-language-courses .l1-stat-sessions .l1-stat-symbol{color:#ffc963;border-color:#94713b;background:#59402066}
+#panel-language-courses .l1-class-stat>div{display:grid;gap:3px;min-width:0}
+#panel-language-courses .l1-class-stat small{font-size:12px;font-weight:750;color:#d5e7ff}
+#panel-language-courses .l1-class-stat strong{font-size:clamp(22px,2vw,30px);line-height:1.2;color:white}
+#panel-language-courses .l1-class-stat>div>span{font-size:10px;color:#9bbadb;overflow-wrap:anywhere}
+#panel-language-courses .language-personal-classes,#panel-language-courses .language-shared-classes{min-width:0;padding:16px;border:1px solid #225a87;border-radius:18px;background:linear-gradient(155deg,#061c36f2,#07142cfa)}
+#panel-language-courses .language-personal-classes>header{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+#panel-language-courses .language-personal-classes>header h2,#panel-language-courses .language-shared-classes>header h2{margin:0;color:#f1f8ff;font-size:clamp(17px,1.65vw,22px)}
+#panel-language-courses .language-personal-classes>header p{margin:0;color:#accbe1;font-size:12px}
+#panel-language-courses .language-class-list,#panel-language-courses .language-shared-classes-list{min-width:0}
+#panel-language-courses .language-class-card{min-width:0;border:1px solid #2c6aa2;border-radius:16px;background:linear-gradient(150deg,#0b2950,#06182f 75%);box-shadow:inset 0 0 0 1px #6f87f50b}
+#panel-language-courses .language-class-card h3{font-size:clamp(15px,1.25vw,19px);overflow-wrap:anywhere;color:#fff}
+#panel-language-courses .language-class-progress{height:8px;background:#153052}
+#panel-language-courses .language-class-progress i{background:linear-gradient(90deg,#17e7ff,#4678ff,#a553f9)}
+#panel-language-courses .language-class-card>footer .primary-button{color:white;background:linear-gradient(100deg,#08aadc,#4665f8);border:1px solid #55daff;border-radius:11px}
+#panel-language-courses .language-class-card button{min-height:38px;white-space:normal}
+#panel-language-courses .language-class-empty,#panel-language-courses .language-shared-classes-empty{display:grid;justify-items:center;gap:11px;padding:28px 15px!important;text-align:center;border:1px dashed #356ca0;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,#3858bf40,transparent 65%),#06172c}
+#panel-language-courses .language-class-empty::before{content:'';display:block;width:88px;height:72px;background:url('assets/ui/24-language-classes-icon.webp') center/contain no-repeat;filter:drop-shadow(0 0 12px #536bff77)}
+#panel-language-courses .language-class-empty strong,#panel-language-courses .language-shared-classes-empty strong{color:#fff;font-size:17px}
+#panel-language-courses .language-class-empty p,#panel-language-courses .language-shared-classes-empty p{margin:0;max-width:540px;line-height:1.9;color:#bad1eb}
+#panel-language-courses .l1-empty-cta,#panel-language-courses .l1-shared-cta{min-height:44px;padding:8px 20px;border:1px solid #56b8ff;border-radius:13px;color:white;background:linear-gradient(105deg,#f6658e,#7d46fc,#376ffe);font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+#panel-language-courses .l1-shared-cta{background:#082d4c}
+#panel-language-courses :is(.l1-main-cta,.l1-empty-cta,.l1-return-language,.l1-shared-cta):focus-visible{outline:3px solid #adf9ff;outline-offset:3px}
+@media(max-width:1080px){
+ #panel-language-courses .l1-class-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-language-courses .language-class-intro.l1-class-hero{align-items:end}
+}
+@media(max-width:700px){
+ #panel-language-courses .language-custom-classes{gap:10px}
+ #panel-language-courses .language-class-intro.l1-class-hero{min-height:260px;padding:56px 14px 15px!important;display:grid;gap:11px;background-position:45% center!important}
+ #panel-language-courses .l1-class-hero>div:first-of-type{min-width:0}
+ #panel-language-courses .l1-class-hero h2{font-size:23px}
+ #panel-language-courses .l1-class-hero p{font-size:12px;line-height:1.7}
+ #panel-language-courses .l1-class-hero .language-class-type-adders{width:100%;flex-basis:auto}
+ #panel-language-courses .l1-return-language{right:13px}
+ #panel-language-courses .l1-class-stat{padding:10px;gap:9px}
+ #panel-language-courses .l1-stat-symbol{flex-basis:37px;height:37px}
+ #panel-language-courses .l1-stat-symbol svg{width:21px;height:21px}
+ #panel-language-courses .l1-class-stat small{font-size:11px}
+ #panel-language-courses .l1-class-stat strong{font-size:22px}
+ #panel-language-courses .language-personal-classes,#panel-language-courses .language-shared-classes{padding:11px}
+ #panel-language-courses .language-class-list{grid-template-columns:minmax(0,1fr)}
+ #panel-language-courses .language-personal-classes>header p{font-size:11px}
+ #panel-language-courses .language-class-card{padding:12px}
+}
+@media(max-width:355px){
+ #panel-language-courses .l1-class-stats{gap:7px}
+ #panel-language-courses .l1-class-stat{gap:6px;padding:8px}
+ #panel-language-courses .l1-stat-symbol{flex-basis:29px;height:30px}
+ #panel-language-courses .l1-stat-symbol svg{width:18px;height:18px}
+ #panel-language-courses .l1-class-stat>div>span{font-size:9px}
+ #panel-language-courses .language-class-meta span{max-width:100%;overflow-wrap:anywhere}
+}

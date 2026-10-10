@@ -86,8 +86,54 @@ function render(){
  const personalEmpty='<section class="elara-card language-class-empty"><strong>'+tx('هنوز کلاس شخصی نداری.','No personal classes yet.')+'</strong><p>'+tx('مثلاً یک کلاس ۳ ترمه با ۱۲ جلسه در هر ترم بساز و روزهای مطالعه را انتخاب کن.','Create a 3-term class with 12 sessions per term and choose your study days.')+'</p></section>';
  const sharedEmpty='<div class="language-shared-classes-empty"><strong>'+tx('هنوز کلاس مشترک پذیرفته‌شده‌ای نداری.','No accepted shared classes yet.')+'</strong><p>'+tx('دعوت‌های در انتظار در بخش «درخواست‌های مشترک» صفحه دوستان نمایش داده می‌شوند.','Pending invitations appear in the Shared requests section on Friends.')+'</p></div>';
  host.innerHTML='<section class="elara-card language-class-intro"><div><small>ELARA · CUSTOM CLASSES</small><h2>'+tx('کلاس‌های خودت را دقیق بساز','Build your classes your way')+'</h2><p>'+tx('آنلاین، آفلاین یا لینک‌شده؛ تعداد ترم و جلسه، مدت، روزها و ساعت را مشخص کن تا ETA واقعی محاسبه شود.','Online, offline or linked; set terms, sessions, duration, days and time for a real ETA.')+'</p></div><div class="language-class-type-adders"><button type="button" class="quiet-button" data-class-add-type="offline">+ '+tx('آفلاین','Offline')+'</button><button type="button" class="primary-button" data-class-add-type="online">+ '+tx('آنلاین','Online')+'</button><button type="button" class="quiet-button" data-class-add-type="linked">+ '+tx('لینک‌شده','Linked')+'</button><button type="button" class="sr-only" data-class-add>+ '+tx('کلاس جدید','New class')+'</button></div></section><section class="language-personal-classes"><header><h2>'+tx('کلاس‌های من','My classes')+'</h2></header><div class="language-class-list">'+(personalRows.length?personalRows.map(card).join(''):personalEmpty)+'</div></section><section class="elara-card language-shared-classes" data-shared-classes><header><div><small>SHARED LEARNING</small><h2>'+tx('کلاس‌های مشترک','Shared classes')+'</h2><p>'+tx('فقط کلاس‌های پذیرفته‌شده اینجا هستند؛ پیشرفت هر عضو مستقل می‌ماند.','Only accepted shared classes appear here; each member keeps independent progress.')+'</p></div><b class="language-shared-count">'+fa(sharedRows.length)+'</b></header><div class="language-shared-classes-list">'+(sharedRows.length?sharedRows.map(card).join(''):sharedEmpty)+'</div></section>';
+
+ // L1: derive every count from the existing canonical classes and session history.
+ // This layer adds presentation only; it never writes, migrates, or seeds account data.
+ const activeRows=rows.filter(c=>completed(c)<total(c)),sessionCount=rows.reduce((sum,c)=>sum+completed(c),0);
+ const hero=host.querySelector('.language-class-intro');
+ if(hero){
+   hero.classList.add('l1-class-hero');
+   const mainAction=hero.querySelector('[data-class-add]');
+   if(mainAction){
+     mainAction.classList.remove('sr-only');
+     mainAction.classList.add('l1-main-cta');
+     mainAction.textContent=tx('＋ ایجاد کلاس جدید','＋ Create new class');
+     hero.querySelector('.language-class-type-adders')?.prepend(mainAction);
+   }
+   const returnButton=document.createElement('button');
+   returnButton.type='button';returnButton.className='l1-return-language';
+   returnButton.dataset.classBack='';
+   returnButton.textContent=tx('← بازگشت به زبان','← Back to Language');
+   hero.prepend(returnButton);
+ }
+ const overview=document.createElement('section');overview.className='l1-class-stats';
+ overview.setAttribute('aria-label',tx('آمار واقعی کلاس‌های من','Actual class statistics'));
+ const statIcons={
+   all:'<path d="M4 5h16v15H4zM8 3v4M16 3v4M4 10h16"/>',
+   active:'<path d="M12 2v3m7 7h3M12 19v3M2 12h3"/><circle cx="12" cy="12" r="7"/><path d="m9 12 2 2 4-5"/>',
+   shared:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 21v-3c0-4 3-6 6-6s6 2 6 6v3M16 15c3 0 6 2 6 6"/>',
+   sessions:'<path d="M4 20V12h4v8M10 20V4h4v16M16 20V9h4v11"/>'
+ };
+ const metrics=[
+   ['all',tx('کل کلاس‌ها','Total classes'),rows.length,tx('کلاس ثبت‌شده','Recorded classes')],
+   ['active',tx('در حال یادگیری','In progress'),activeRows.length,tx('کلاس تکمیل‌نشده','Unfinished classes')],
+   ['shared',tx('کلاس‌های مشترک','Shared classes'),sharedRows.length,tx('عضویت پذیرفته‌شده','Accepted memberships')],
+   ['sessions',tx('جلسات ثبت‌شده','Sessions completed'),sessionCount,tx('بر اساس گزارش واقعی','From real session logs')]
+ ];
+ overview.innerHTML=metrics.map(([kind,label,value,note])=>'<article class="l1-class-stat l1-stat-'+kind+'"><span aria-hidden="true" class="l1-stat-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+statIcons[kind]+'</svg></span><div><small>'+label+'</small><strong>'+fa(value)+'</strong><span>'+note+'</span></div></article>').join('');
+ if(hero)hero.after(overview);else host.prepend(overview);
+ const privateHeader=host.querySelector('.language-personal-classes>header');
+ if(privateHeader)privateHeader.insertAdjacentHTML('beforeend','<p>'+tx('کلاس‌هایی که ساخته‌ای و پیشرفت واقعی هر جلسه','Classes you created, with real session progress')+'</p>');
+ if(!personalRows.length){
+   host.querySelector('.language-class-empty')?.insertAdjacentHTML('beforeend','<button type="button" class="l1-empty-cta" data-class-add>＋ '+tx('ساخت اولین کلاس','Create your first class')+'</button>');
+ }
+ if(!sharedRows.length){
+   host.querySelector('.language-shared-classes-empty')?.insertAdjacentHTML('beforeend','<button type="button" class="l1-shared-cta" data-class-friends>'+tx('مشاهده درخواست‌های دوستان ←','View Friends requests →')+'</button>');
+ }
 }
 document.addEventListener('click',e=>{
+ const goBack=e.target.closest('[data-class-back]');if(goBack){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});return}
+ const goFriends=e.target.closest('[data-class-friends]');if(goFriends){e.preventDefault();window.ElaraOpen?.('social',{history:'push'});return}
  const typed=e.target.closest('[data-class-add-type]');if(typed){void openEditor({type:typed.dataset.classAddType});return}
  const add=e.target.closest('[data-class-add]');if(add){void openEditor(null);return}
  const find=id=>read().languageClasses.find(x=>x.id===id);
