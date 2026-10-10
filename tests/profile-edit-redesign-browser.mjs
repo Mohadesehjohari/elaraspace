@@ -13,7 +13,6 @@ const sizes=[320,375,390,430,768,1440,1648];
 const geometry=[];
 const errors=[];
 const mockAuthStyle='#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}';
-const mockAuthStyle='#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}';
 const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
 const bootstrap=async(page)=>{
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
