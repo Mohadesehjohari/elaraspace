@@ -64,6 +64,13 @@ for(const width of sizes){
   await page.screenshot({path:dir+'/profile-edit-'+width+'-bottom.png',fullPage:false});
   await page.evaluate(()=>{document.getElementById('elara-profile-edit-screen').scrollTop=0});
  }
+ if(width===375){
+  await page.locator('[data-pe-action="avatars"]').click();
+  await page.locator('[data-pe-avatar-id="male:1"]').click();
+  assert.match(await page.locator('.pe-preview-avatar img.pe-preview-portrait').getAttribute('src'),/level-01-m-circle[.]png/);
+  await page.locator('[data-pe-action="reset"]').click();
+  assert.equal(await page.locator('.pe-preview-avatar img.pe-preview-portrait').count(),0,'Unsaved avatar did not reset');
+ }
  await page.locator('#elara-profile-edit-screen [name="name"]').fill('نام جدید');
  await page.locator('#elara-profile-edit-screen [name="title"]').fill('در مسیر یادگیری');
  assert.equal(await page.locator('.pe-preview-body h3').textContent(),'نام جدید');
