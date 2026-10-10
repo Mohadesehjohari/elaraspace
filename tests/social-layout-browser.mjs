@@ -28,6 +28,7 @@ async function run(width,height){
  await activity.evaluate(el=>{el.scrollTop=el.scrollHeight});assert.ok(await activity.evaluate(el=>el.scrollTop>0),width+': wheel/touch scroll target did not move');
  const faTone=await activity.innerText();for(const token of ['مأموریت','تمرین','استریک','رنکینگ','Deep Work'])assert.match(faTone,new RegExp(token),width+': missing friendly activity tone '+token);
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(100);const enTone=await activity.innerText();assert.match(enTone,/crushed a mission/i,width+': mission tone did not localize');assert.match(enTone,/wrapped a workout/i,width+': exercise tone did not localize');assert.match(enTone,/kept the streak alive/i,width+': streak tone did not localize');assert.equal(/مأموریت|تمرین|استریک|رنکینگ|دقیقه|صفحه|کتاب|عادت|هدف|کار/.test(enTone),false,width+': English activity UI kept Persian system copy');await page.evaluate(()=>window.ElaraI18n.set('fa'));await page.waitForTimeout(80);
+ await page.locator('#elara-social-page [data-social-view="requests"]').click();
  const requestCard=page.locator('#elara-social-page .social-requests-standalone');assert.equal(await requestCard.isVisible(),true,width+': standalone Friend Requests card missing');
  await page.waitForSelector('#elara-social-page .social-requests-standalone [data-friend-action="decline"]');
  const decline=page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').first();assert.equal(await decline.isVisible(),true,width+': decline missing');
