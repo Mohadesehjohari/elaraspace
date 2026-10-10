@@ -27,20 +27,20 @@ Existing UID-scoped wardrobe local storage remains the source for chosen avatar,
 
 ## Tests and acceptance
 
-Automated suite: tests/profile-edit-redesign-browser.mjs; six Chromium screenshots (320, 375, 390, 430, 768, 1440) should be uploaded under artifacts/profile-edit through the dedicated profile-edit-visual-gate GitHub Action. Run from a served PR checkout:
+Automated suite: tests/profile-edit-redesign-browser.mjs; seven Chromium viewport screenshots (320, 375, 390, 430, 768, 1440, 1648) should be uploaded under artifacts/profile-edit through the dedicated profile-edit-visual-gate GitHub Action. Run from a served PR checkout:
 
 - npm install --no-save --no-package-lock playwright@1.55.0
 - npx playwright install --with-deps chromium
 - python3 -m http.server 4173
 - node tests/profile-edit-redesign-browser.mjs
 
-The browser suite uses *mocked* profile data and stub canonical failures; it exercises responsive overflow, live preview, reset, simulated duplicate username and permission denied, local save/reload and preservation of the sidebar/nav DOM. It is NOT an authenticated Firebase permission test.
+The browser suite uses *mocked* profile data and stub canonical failures; it exercises seven-width overflow and geometry, live preview, avatar selection/reset, browser Back, simulated duplicate username and permission denied, local save/reload and preservation of sidebar/nav DOM. It captures scrolled-bottom views and full-height editor-only images. It is NOT an authenticated Firebase permission test.
 
 | Acceptance gate | Initial status |
 | --- | --- |
 | Shared entry-point and new editor JavaScript parse | PASS: isolated JS syntax parsing |
 | Existing canonical username service unmodified | PASS: source review |
-| Six-width Chromium screenshot and horizontal-overflow test | PASS: mocked Chromium gate; latest screenshot recheck is required after the mobile preview-margin correction |
+| Seven-width Chromium screenshot, geometry and horizontal-overflow test | PASS on reference-bound browser runs; after latest CSS refinement, fresh CI and screenshot review required |
 | Visual pixel/geometry comparison with supplied references | PARTIAL: actual Chromium images reviewed; left/right positioning and mobile preview overlap corrected; not pixel-perfect or accepted |
 | Actual Firebase username collision and failure handling | UNVERIFIED: authenticated staging |
 | Actual avatar/banner Firebase Storage upload | UNSUPPORTED: no matching Storage rule |
@@ -55,6 +55,24 @@ The browser suite uses *mocked* profile data and stub canonical failures; it exe
 - CI screenshots include 320/375/390/430/768/1440 and additional scrolled mobile/desktop bottoms and mocked local-reload images. These are mock-identity screenshots; the actual signed-out Firebase gate is intentionally masked by the **test only**.
 - Visual comparisons found and corrected: avatar initially on wrong side of mobile fields; desktop columns/action directions reversed; preview too low on desktop; needlessly long desktop identity region; and mobile preview negative overlap with Save/Reset (last corrected in commit fea647d4c30105fb2db5fccdb714329f91a2e520, after the cited passing screenshot).
 - Acceptance remains blocked: artwork differs from reference; detailed side-by-side measurement and live authenticated Firebase/Storage checks are still outstanding. A successful test does not prove exact visual matching.
+
+## Follow-up implementation audit (2026-10-10)
+
+The same Draft PR #39 was continued, not replaced. Changes are confined to the two isolated profile files, the minimal entry point, the browser test/CI workflow and this independent spec.
+
+- `profile-edit-redesign.js`: SVG artwork in place of placeholder Unicode control glyphs; theme preview tiles now use existing city-of-stars, moon-lake, galaxy and forest art; username format hint does not imply backend availability. Mount in existing `#main`, save the previous browser-history entry, handle browser Back, draft-exit confirmation, drawer return, account UID switch and canonical current-profile availability. Public appearance preview explicitly states that it is only an unsaved preview.
+- `profile-edit-redesign.css`: fixed column direction, avatar position, six uninterrupted desktop swatches, sticky Save/Reset at wide widths, no preview overlap with Back, and mobile-only preview/header behavior. At >=1280px, real membership date/level/earned badges now occupy the narrow facts rail alongside the avatar/name/Bio, matching the supplied desktop reference. A tablet fallback stays stacked.
+- `tests/profile-edit-redesign-browser.mjs`: seven widths; actual Chromium screenshots and geometry.json, scrolled footer, full-height mobile/desktop editor captures, avatar reset, live preview, local reload, canonical mock failure and Back.
+- Backend design documented separately in `docs/PROFILE-EDIT-CLOUD-MEDIA-PROPOSAL.md`. No Firestore/Storage rule was changed.
+- Main and PR #38 overlap review: the UI16 PR's changed-file list has no path overlap with PR #39; `main` was still at `b8b830883c39cdf717ad433d1633eb9a7b4d6e59` when reviewed. Reconfirm before any authorized merge.
+
+### Missing exact reference artwork
+
+The current repository has usable `assets/ui/banner_city_of_stars.webp`, `banner_moon_lake.webp`, `theme_galaxy_purple.webp`, `theme_forest_green.webp` and level-scoped Elara avatars. They do **not** reproduce the exact purple character-and-castle banner, anime portrait and luminous frame set shown in the supplied reference. No reference sample portrait was assigned to a real user or silently published as a canonical account image. Owner-authorized source artwork is still required for asset-level pixel equivalence.
+
+### Real service status
+
+The identity save path remains the unmodified `ElaraSocial.saveProfileValues` with the existing canonical Firestore identity logic; real authenticated collision, rules-denial, multi-account media access and cross-device reload tests have **not** been run. Existing Storage and Firestore allowlists reject a personal cloud-media contract, so avatar/banner device uploads and selected appearance extras remain local-only. GitHub Pages publishing alone cannot deploy Firebase rules.
 
 ## Open visual / functional differences
 
