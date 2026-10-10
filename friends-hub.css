@@ -532,3 +532,6 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  }
  #elara-social-page.social-reference .social-tabs>[role="tab"] .social-tab-label{font-size:9px!important}
 }
+
+/* Match the Friends reference CTA, not the gold Ranking button. */
+#panel-social>.elara-global-hero .friends-f2-hero-cta,#elara-social-page.social-reference .friends-f2-hero-cta{background:linear-gradient(120deg,#ff9b84,#fb5c9d)!important;border-color:#ffb4cb!important;color:#1d1129!important;box-shadow:0 0 15px #fc6c9a40!important}
