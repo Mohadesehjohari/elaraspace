@@ -130,7 +130,7 @@ async function openEditor({galleryOpen=false}={}){
  // Use the isolated full-width editor for signed-in accounts; preserve the old signed-out fallback.
  if(currentUid())try{
   if(!window.ElaraProfileEdit){
-   await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='profile-edit-redesign.js?v=20261011-1';script.onload=resolve;script.onerror=()=>reject(Error('صفحهٔ ویرایش پروفایل بارگذاری نشد.'));document.head.append(script)});
+   await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='profile-edit-redesign.js?v=20261011-mobile2';script.onload=resolve;script.onerror=()=>reject(Error('صفحهٔ ویرایش پروفایل بارگذاری نشد.'));document.head.append(script)});
   }
   if(window.ElaraProfileEdit?.open)return window.ElaraProfileEdit.open({galleryOpen});
  }catch(error){console.error('Elara profile editor:',error);throw error}
