@@ -40,6 +40,13 @@ try{
       await page.waitForTimeout(80);
       const bad=await page.locator('#panel-'+destination+' .elara-secondary-hero-duplicate').evaluateAll(xs=>xs.filter(el=>getComputedStyle(el).display!=='none').map(el=>el.className));
       assert.equal(bad.length,0,'Duplicate visible route hero '+destination+': '+JSON.stringify(bad));
+      if(destination==='books'){
+       const oldHero=page.locator('#library-hero');
+       assert.equal(await oldHero.count(),1,'Canonical Reading legacy header disappeared unexpectedly');
+       assert.equal(await oldHero.evaluate(el=>getComputedStyle(el).display),'none','Duplicate original Library banner still visible under uploaded-art hero');
+       const approved=await page.locator('#panel-books [data-elara-page-hero="books"]').first().evaluate(el=>({background:getComputedStyle(el).backgroundImage,position:getComputedStyle(el).backgroundPosition}));
+       assert.match(approved.background,/librairy_banner_main\.webp/,'Library primary hero lost owner WebP');
+      }
     }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   }
@@ -65,14 +72,23 @@ try{
   if(width<=700){assert.equal(await page.locator('.bottom-nav [data-elara-nav-kind="main"]').count(),7,'Global seven-button navigation changed')}
   if(width>=1440){
    const xs=await page.locator('#panel-language [data-ui12-jump]').evaluateAll(xs=>xs.map(x=>x.getBoundingClientRect().left));
-   assert.ok(xs.every((v,i)=>i===0||v>xs[i-1]),'Desktop physical shortcut order not left-to-right: '+xs);
+   assert.ok(xs.every((v,i)=>i===0||v<xs[i-1]),'Desktop physical shortcut order must read right-to-left: '+xs);
+   const cols=await page.locator('#panel-language .ui12-board').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').map(parseFloat));
+   const ratios=cols.map(x=>x/cols.reduce((n,v)=>n+v,0));
+   assert.ok(ratios.length===4&&[.16,.27,.22,.35].every((target,i)=>Math.abs(target-ratios[i])<.045),'Reference asymmetric language card widths lost: '+JSON.stringify(ratios));
    const top=await page.locator('#panel-language .ui12-hero').evaluate(el=>el.getBoundingClientRect().top);
    assert.ok(top<32,'Language hero retains unwanted top strip '+top);
   }
   if(width===1440){
-    const circles=await page.locator('#ui12-leitner .ui12-box').evaluateAll(xs=>xs.map(x=>({radius:getComputedStyle(x).borderTopLeftRadius,text:x.querySelector('b')?.textContent})));
-    assert.equal(circles.length,5,'Leitner does not show five boxes');
-    assert.ok(circles.every(x=>x.radius==='50%'&&x.text),'Leitner circles missing real count '+JSON.stringify(circles));
+    const boxes=await page.locator('#ui12-leitner .ui12-box').evaluateAll(xs=>xs.map(x=>({radius:getComputedStyle(x).borderTopLeftRadius,number:x.querySelector('b')?.textContent,count:x.querySelector('small span')?.textContent,rect:x.getBoundingClientRect().toJSON()})));
+    assert.equal(boxes.length,5,'Five physical Leitner boxes missing');
+    assert.ok(boxes.every((x,i)=>x.radius!=='50%'&&Math.abs(x.rect.height-x.rect.width)<=30&&x.number===(i+1).toLocaleString('fa-IR')),'Owner Leitner 3D numbered squares missing '+JSON.stringify(boxes));
+    assert.ok(boxes.every((x,i)=>i===0||x.rect.x>boxes[i-1].rect.x),'Owner reference shows numbered tiles 1–5 left to right: '+JSON.stringify(boxes.map(x=>x.rect.x)));
+    assert.deepEqual(boxes.map(x=>x.count),[1,0,0,0,0].map(n=>n.toLocaleString('fa-IR')),'Live box counts must come from canonical one-word fixture');
+    const originalWordSet=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).words);
+    await page.evaluate(()=>{const st=JSON.parse(localStorage.getItem('elara_space_v1'));st.words=[1,2,2,3,4,5,5].map((box,i)=>({id:'ui15-'+i,box,front:'word'+i,back:'meaning'+i,due:'2020-01-01'}));localStorage.setItem('elara_space_v1',JSON.stringify(st));ElaraLanguageUI12.refresh()});
+    assert.deepEqual(await page.locator('#ui12-leitner .ui12-box small span').allTextContents(),[1,2,1,1,2].map(n=>n.toLocaleString('fa-IR')),'Multi-word Leitner counts not driven by canonical storage');
+    await page.evaluate(words=>{const st=JSON.parse(localStorage.getItem('elara_space_v1'));st.words=words;localStorage.setItem('elara_space_v1',JSON.stringify(st));ElaraLanguageUI12.refresh()},originalWordSet);
     const promo=await page.locator('#ref-sidebar-banner').evaluate(el=>getComputedStyle(el).backgroundImage);
     assert.match(promo,/background-moonlit-mountains\.webp/,'Real sidebar landscape not displayed');
   }
