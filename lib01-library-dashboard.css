@@ -2,7 +2,6 @@
 html body #main #panel-books.library-feature-hub{--lib01-gold:#f9cb74;--lib01-gold-light:#ffe1a2;--lib01-border:rgba(238,185,110,.25);--lib01-text:#f8f0e7;--lib01-muted:#b4bec6;--lib01-panel:linear-gradient(145deg,rgba(4,18,27,.97),rgba(5,18,28,.93));color:var(--lib01-text)}
 html body #main #panel-books > .section-heading,
 html body #main #panel-books > #library-reading-summary,
-html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"],
 html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="book"]{display:none!important}
 html body.dark #main #panel-books .elara-global-hero.lib01-hero{
  height:244px!important;min-height:244px!important;max-height:244px!important;
@@ -153,4 +152,41 @@ html body #main #panel-books #lib01-overview{display:block;box-sizing:border-box
 }
 @media(prefers-reduced-motion:reduce){
  #panel-books #lib01-overview *{transition:none!important;animation:none!important}
+}
+/* Preserve the established four launcher tiles for existing route/visual contracts.
+   They become a complementary row after the new owner dashboard, never a hidden DOM stub. */
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:11px!important;
+ width:100%;max-width:100%;min-width:0;margin:2px 0 19px!important;direction:rtl
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]::before{
+ content:"دسترسی‌های بیشتر";grid-column:1/-1;display:block;color:#f3c878;font-size:14px;font-weight:900;padding:5px 3px
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+ height:200px!important;min-height:200px!important;max-height:200px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;
+ padding:8px!important;text-align:center!important;background:linear-gradient(160deg,#0b2730,#07121e)!important;
+ border:1px solid #c49b5b67!important;border-radius:15px!important;min-width:0!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+ width:132px!important;height:132px!important;max-width:100%!important;object-fit:contain!important;flex:0 0 132px!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card>span{
+ display:flex!important;flex-direction:column!important;align-items:center!important;gap:1px!important;line-height:1.25
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:12px!important;color:#ffdea0!important}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{
+ font-size:9px!important;color:#c5c9c3!important;line-height:1.25!important;display:block!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card>b{display:none!important}
+@media(max-width:700px){
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+  height:172px!important;min-height:172px!important;max-height:172px!important;padding:5px!important
+ }
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+  width:108px!important;height:108px!important;flex:0 0 108px!important
+ }
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:11px!important}
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{font-size:9px!important}
 }
