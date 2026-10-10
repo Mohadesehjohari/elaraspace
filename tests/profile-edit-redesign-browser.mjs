@@ -2,14 +2,15 @@
    Run with ELARA_TEST_URL=http://127.0.0.1:4173 node tests/profile-edit-redesign-browser.mjs
    This does NOT verify real Firebase permissions, Storage or deployed build. */
 import assert from 'node:assert/strict';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync,writeFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 
 const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const dir=process.env.ELARA_PROFILE_SHOTS||'artifacts/profile-edit';
 mkdirSync(dir,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const sizes=[320,375,390,430,768,1440];
+const sizes=[320,375,390,430,768,1440,1648];
+const geometry=[];
 const errors=[];
 const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
 const bootstrap=async(page)=>{
@@ -44,11 +45,20 @@ for(const width of sizes){
  await bootstrap(page);
  const dims=await page.evaluate(()=>{
   const a=document.querySelector('.pe-screen'),b=document.querySelector('#elara-profile-edit-screen');
-  return {editorWidth:a.clientWidth,scrollWidth:a.scrollWidth,outerScrollWidth:b.scrollWidth,outerClientWidth:b.clientWidth};
+  const rect=selector=>{const e=b.querySelector(selector);if(!e)return null;const r=e.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height)}};
+  return {
+   editorWidth:a.clientWidth,scrollWidth:a.scrollWidth,outerScrollWidth:b.scrollWidth,outerClientWidth:b.clientWidth,
+   main:rect('.pe-editor'),preview:rect('.pe-preview-outer'),banner:rect('.pe-banner'),
+   avatar:rect('.pe-avatar'),camera:rect('.pe-camera'),identity:rect('.pe-name-grid'),
+   bio:rect('.pe-bio-field'),colors:rect('.pe-colors'),templates:rect('.pe-templates'),
+   frames:rect('.pe-frames-list'),actions:rect('.pe-actions'),nav:document.querySelector('.bottom-nav')?.getBoundingClientRect().top||null
+  };
  });
+ geometry.push({viewport:width,...dims});
  assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
+ if(width===320||width===375||width===430)assert.ok(await page.locator('.pe-banner').isVisible(),'Banner hidden at '+width);
  if(width===390||width===1440){
   await page.evaluate(()=>{const scroller=document.getElementById('elara-profile-edit-screen');scroller.scrollTop=scroller.scrollHeight});
   await page.screenshot({path:dir+'/profile-edit-'+width+'-bottom.png',fullPage:false});
@@ -99,8 +109,18 @@ for(const width of sizes){
   assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#cloud-layer')).display),'none','Auth gate must stay excluded from mock screenshots');
   await page.screenshot({path:dir+'/profile-edit-390-after-reload.png',fullPage:false});
  }
+ if(width===430){
+  await page.goBack({waitUntil:'domcontentloaded'});
+  await page.locator('#elara-profile-edit-screen').waitFor({state:'detached',timeout:10000});
+  assert.match(await page.evaluate(()=>location.hash),/#home/,'Browser Back changed source page unexpectedly');
+ }
+ if(width===1440){
+  await page.locator('[data-pe-action="close"]').click();
+  await page.locator('#elara-profile-edit-screen').waitFor({state:'detached',timeout:10000});
+ }
  await context.close();
 }
+writeFileSync(dir+'/geometry.json',JSON.stringify(geometry,null,2));
 assert.equal(errors.length,0,'Uncaught browser errors: '+errors.join(' | '));
 await browser.close();
 console.log('PROFILE_EDIT_MOCK_BROWSER_PASS viewports='+sizes.join(',')+' snapshots='+dir);
