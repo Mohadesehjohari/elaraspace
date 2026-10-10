@@ -85,8 +85,14 @@
   const uid=P()?.currentUid?.();
   if(!uid)throw Error('برای ویرایش پروفایل ابتدا وارد حساب شوید.');
   await stylesheet();
-  const initial=window.ElaraSocial?.me||window.ElaraAccount?.profile||{};
-  if(initial.uid&&initial.uid!==uid)throw Error('شناسهٔ پروفایل با حساب واردشده همخوان نیست.');
+  // Never display a stale prior-account profile or save an empty account snapshot.
+  let initial=window.ElaraSocial?.me;
+  if(!initial||initial.uid!==uid||!initial.username){
+   const social=await P().canonicalProfileService();
+   if(typeof social.refresh==='function')await social.refresh();
+   initial=window.ElaraSocial?.me||window.ElaraAccount?.profile||null;
+  }
+  if(!initial||initial.uid!==uid||!initial.username)throw Error('اطلاعات معتبر پروفایل این حساب هنوز بارگذاری نشده است. دوباره تلاش کنید.');
   const person={...initial,uid},savedWardrobe=P().readWardrobe(uid),savedExtras=safeLocal(uid);
   const base=()=>draftFrom(person,savedWardrobe,savedExtras);
   let draft=base(),busy=false,serviceFailed=false,service=null,previewActive=false;
@@ -211,6 +217,7 @@
   function showPreview(){
    previewActive=!previewActive;
    shell.classList.toggle('pe-mobile-preview-visible',previewActive);
+   status('این پیش‌نمایش تغییرات ذخیره‌نشده است؛ نمایش عمومی واقعی فقط پس از ذخیره و پشتیبانی سرور تغییر می‌کند.');
    q('#pe-preview-area').scrollIntoView({behavior:'smooth',block:'start'});
   }
   async function prepare(retry=false){
