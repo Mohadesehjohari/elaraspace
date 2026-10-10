@@ -27,7 +27,7 @@ for(const width of sizes){
  const metrics=await page.evaluate(()=>{
   const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}};
   const root=document.querySelector('.elara-private-drawer'),panel=root.querySelector('.elara-private-drawer-panel'),area=document.getElementById('drawer-account-area'),hub=area.querySelector('.elara-profile-hub');
-  return {width:innerWidth,panel:rect(panel),hub:rect(hub),scrollWidth:area.scrollWidth,clientWidth:area.clientWidth,medals:hub.querySelectorAll('.elara-profile-hub-medal').length};
+  return {width:innerWidth,rootSection:root.dataset.mobileSection,rootPadding:getComputedStyle(root).padding,rootWidth:rect(root),panel:rect(panel),panelPadding:getComputedStyle(panel).padding,area:rect(area),areaPadding:getComputedStyle(area).padding,hub:rect(hub),scrollWidth:area.scrollWidth,clientWidth:area.clientWidth,medals:hub.querySelectorAll('.elara-profile-hub-medal').length};
  });
  geometry.push({viewport:width,...metrics});
  await page.screenshot({path:dir+'/profile-hub-'+width+'-diagnostic.png'});
