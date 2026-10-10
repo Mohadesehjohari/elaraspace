@@ -1,6 +1,6 @@
 /* WELL-01: scoped green/teal wellness art direction. Does not modify site navigation. */
 #panel-exercise.wellness-feature-hub{position:relative;isolation:isolate;max-width:none;min-width:0;background:radial-gradient(ellipse at 85% 0%,#0e594440,transparent 37%),radial-gradient(ellipse at 10% 48%,#08476342,transparent 48%),#031525;color:#edfffa}
-#panel-exercise>.wellness-heading,#panel-exercise>.wellness-banner,#panel-exercise>.wellness-layout,#panel-exercise>.feature-hub-hero,#panel-exercise>.feature-hub-launchers,#panel-exercise>.feature-section-tasks{display:none!important}
+#panel-exercise>.elara-global-hero,#panel-exercise>.wellness-heading,#panel-exercise>.wellness-banner,#panel-exercise>.wellness-layout,#panel-exercise>.feature-hub-hero,#panel-exercise>.feature-hub-launchers,#panel-exercise>.feature-section-tasks{display:none!important}
 #panel-exercise #well01-dashboard{display:block!important}
 .well01{--well01-green:#37e7a1;--well01-mint:#5ceccc;--well01-edge:#178c9270;--well01-bg:#062235;--well01-soft:#b4d8dd;font-family:inherit;min-width:0;width:100%;margin:0 auto;max-width:1760px;box-sizing:border-box;color:#f5fffc;line-height:1.55}
 .well01 *{box-sizing:border-box}
