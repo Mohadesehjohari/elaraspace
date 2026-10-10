@@ -80,14 +80,14 @@
 .pe-shell [aria-pressed=true]:not(.pe-color-panel){border-color:#20b9ff!important;box-shadow:0 0 0 1px #e1faff,0 0 12px #4a8fff82!important}
 .pe-shell .pe-file-choice{display:flex;position:relative;justify-content:center;align-items:center;text-align:center;overflow:hidden;margin-top:10px;border-radius:9px;border:1px dashed #62a5db;min-height:40px;color:#c4d8ff;cursor:pointer;font-size:12px}
 .pe-shell .pe-file-choice input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-.pe-shell .pe-custom-grid{display:grid;grid-template-columns:minmax(230px,.85fr) minmax(0,1.8fr);gap:10px;direction:ltr}
+.pe-shell .pe-custom-grid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,1.72fr);gap:10px;direction:ltr}
 .pe-shell .pe-custom-grid>*{direction:rtl}
 .pe-shell .pe-color-panel,.pe-shell .pe-template-panel{padding:12px}
 .pe-shell h2{margin:0;color:#fff;font-size:17px;line-height:1.35}
 .pe-shell .pe-panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .pe-shell .pe-panel-title small{font-size:10px;color:#b0cbed}
-.pe-shell .pe-colors{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-around;gap:10px;margin-top:16px;direction:ltr}
-.pe-shell .pe-colors button{flex:none;width:34px;height:34px;border:2px solid transparent;border-radius:50%;box-shadow:0 0 7px #0006}
+.pe-shell .pe-colors{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:clamp(3px,.5vw,8px);margin-top:16px;direction:ltr}
+.pe-shell .pe-colors button{flex:none;width:clamp(29px,2.3vw,36px);height:clamp(29px,2.3vw,36px);border:2px solid transparent;border-radius:50%;box-shadow:0 0 7px #0006}
 .pe-shell .pe-colors button[aria-pressed=true]{outline:2px solid #13d5ff;outline-offset:3px;box-shadow:0 0 13px #20b9ff}
 .pe-shell .pe-templates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;direction:ltr}
 .pe-shell .pe-template{position:relative;overflow:hidden;padding:0 0 3px;min-width:0;border:1px solid #258adf;border-radius:12px;background:#07142b;color:#fff}
