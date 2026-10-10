@@ -9,7 +9,7 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home';
+  let root,panel,current='home',accountGutters=null;
   function ensureProfileHubCSS(){
     if(document.getElementById('elara-profile-hub-reference-css'))return;
     const sheet=document.createElement('link');sheet.id='elara-profile-hub-reference-css';
@@ -76,6 +76,19 @@
   }
   function placeMobileSection(section){
     if(!panel)return;
+    if(section==='account'&&window.matchMedia('(max-width:700px)').matches){
+      if(!accountGutters)accountGutters=[root,panel].map(el=>({
+        value:el.style.getPropertyValue('padding'),priority:el.style.getPropertyPriority('padding')
+      }));
+      root.style.setProperty('padding','0','important');
+      panel.style.setProperty('padding','0','important');
+    }else if(accountGutters){
+      [root,panel].forEach((el,i)=>{
+        if(accountGutters[i].value)el.style.setProperty('padding',accountGutters[i].value,accountGutters[i].priority);
+        else el.style.removeProperty('padding')
+      });
+      accountGutters=null;
+    }
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
     const props=['position','inset','top','right','bottom','left','transform','width','height','max-height','margin','overflow','border-radius','align-self','justify-self'];
     if(!mobile){for(const name of props)panel.style.removeProperty(name);return}
@@ -169,6 +182,12 @@
   function renderAccount(){
     const host=$('drawer-account-area');if(!host)return;
     ensureProfileHubCSS();
+    if(window.matchMedia('(max-width:700px)').matches){
+      host.style.setProperty('height','100%','important');
+      host.style.setProperty('overflow-y','auto','important');
+      host.style.setProperty('overflow-x','hidden','important');
+      host.style.setProperty('padding','18px 12px calc(100px + env(safe-area-inset-bottom,0px))','important');
+    }else host.removeAttribute('style');
     const system=window.ElaraProfileSystem,person=profile(),uid=system?.currentUid?.(),view=profileView();
     if(!uid||!person?.uid||String(person.uid)!==String(uid)||!view){
       host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+'<p class="elara-profile-hub-empty" role="status">در حال بارگذاری اطلاعات حساب…</p>';
