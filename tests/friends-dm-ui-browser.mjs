@@ -29,12 +29,16 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-friend').count(),1,width+': friend start-chat card missing');
  await page.locator('.social-dm-row').click();
  await page.waitForSelector('.social-chat-dialog');
+ assert.equal(await page.locator('.social-dm-conversation .social-chat-dialog').count(),1,width+': must render inline conversation');
+ await page.locator('[data-dm-info]').click();
+ assert.equal(await page.locator('.social-chat-profile').isVisible(),true,width+': contact info pane failed');
+ await page.locator('[data-dm-info]').click();
  assert.match(await page.locator('.social-chat-messages').innerText(),/آماده‌ای/);
  let compose=page.locator('.social-chat-compose');
  const draft='پیش‌نویس ماندگار';
  await compose.locator('textarea[name="text"]').fill(draft);
  assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),'پیش‌نویس ماندگار','DM draft must persist immediately');
- await page.locator('.elara-dialog-close').click();
+ await page.locator('[data-dm-back]').click();
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
@@ -52,9 +56,9 @@ async function run(width,height){
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+1,width+': DM UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-dm-'+width+'.png',fullPage:true});
- await page.locator('.elara-dialog-close').click();
+ await page.locator('[data-dm-back]').click();
  await page.close();
 }
-await run(390,844);await run(1440,1000);
+for(const width of [320,375,390,430,768,1440,1648])await run(width,width<800?844:1000);
 await browser.close();
-console.log('FRIENDS_DM_UI_PASS 390/1440 recent-list live-thread send');
+console.log('FRIENDS_DM_UI_PASS inline panel, profile toggle, draft and mock send at seven widths');
