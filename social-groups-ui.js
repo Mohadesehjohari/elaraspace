@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
-let renderToken=0;
+let renderToken=0,groupSearch='',groupRecentsOnly=false;
 const api=()=>window.ElaraSocial?.groups,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
 function when(ms){if(!ms)return'';try{return new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'})}catch{return''}}
 function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.uid===current()?.uid})?.avatarSrc;return src?'<img src="'+esc(src)+'" alt="">':'<span>'+esc((p?.name||p?.username||'?').slice(0,1))+'</span>'}
@@ -18,7 +18,36 @@ async function mount(){
  const inviteRows=invites.map(x=>'<article class="social-group-invite"><div><strong>'+esc(x.group?.title||t('گروه','Group'))+'</strong><small>'+t('دعوت گروه','Group invite')+'</small></div><div><button type="button" class="primary-button" data-group-invite-action="accepted" data-group-invite-id="'+esc(x.groupId)+'">'+t('قبول','Accept')+'</button><button type="button" class="quiet-button danger" data-group-invite-action="declined" data-group-invite-id="'+esc(x.groupId)+'">'+t('رد','Decline')+'</button></div></article>').join('');
  const cards=groups.map(g=>'<button type="button" class="social-group-row '+(g.unread?'has-unread':'')+'" data-social-open-group="'+esc(g.id)+'" data-group-role="'+esc(g.role||'member')+'"><span class="social-group-icon">👥</span><span class="social-group-copy"><strong>'+esc(g.title||t('گروه','Group'))+(g.status==='closed'?' · '+t('بسته','Closed'):'')+'</strong><small>'+esc(g.lastText||t('هنوز پیامی نیست؛ شروعش کن 😎','No messages yet — start it 😎'))+'</small></span>'+(g.unread?'<b class="social-unread-badge" aria-label="'+t('خوانده‌نشده','Unread')+'">•</b>':'')+'<time>'+when(g.updatedAt)+'</time></button>').join('');
  section.innerHTML='<header class="social-groups-head"><div><small>ELARA · GROUPS</small><h2>'+t('گروه‌ها','Groups')+'</h2><p>'+t('با رفیق‌هات گروه بساز و باهم پیش برو 👊🔥','Create a group with friends and move together 👊🔥')+'</p></div><button type="button" class="primary-button" data-social-create-group>'+t('گروه جدید','New group')+'</button></header>'+(inviteRows?'<section class="social-group-invites"><h3>'+t('دعوت‌های گروه','Group invites')+'</h3>'+inviteRows+'</section>':'')+'<div class="social-groups-scroll">'+(cards||'<p class="ref-empty">'+t('هنوز گروهی نداری؛ یکی بساز 🌝','No groups yet — make one 🌝')+'</p>')+'</div>';
+
+ const recent=groups.filter(g=>Number(g.updatedAt||0)>=Date.now()-86400000);
+ const toolbar=document.createElement('div');toolbar.className='social-group-filters';
+ toolbar.innerHTML='<div class="social-group-metrics"><span><b>'+groups.length+'</b> '+t('گروه‌های من','My groups')+'</span><span><b>'+recent.length+'</b> '+t('دارای فعالیت در ۲۴ ساعت اخیر','Updated in past 24h')+'</span></div><input data-group-search type="search" aria-label="'+t('جستجوی گروه','Search groups')+'" placeholder="'+t('جستجو در گروه‌های من…','Search my groups…')+'" value="'+esc(groupSearch)+'"><label><input data-group-recents-only type="checkbox" '+(groupRecentsOnly?'checked':'')+'>'+t('فقط فعالیت اخیر','Recent only')+'</label>';
+ section.querySelector('.social-groups-scroll')?.before(toolbar);
+ for(const row of groups){
+  const button=[...section.querySelectorAll('[data-social-open-group]')].find(b=>b.dataset.socialOpenGroup===row.id);
+  if(button)button.dataset.groupUpdatedAt=String(row.updatedAt||0);
+ }
+ applyGroupFilters(section);
+ section.insertAdjacentHTML('beforeend','<div class="social-group-discovery"><h3>'+t('گروه‌های پیشنهادی','Suggested groups')+'</h3><p class="ref-empty">'+t('معرفی گروه‌های عمومی هنوز به سرویس مجاز متصل نیست.','Authorized public group discovery is not yet available.')+'</p></div>');
+ for(const row of groups.slice(0,10)){
+  service.members(row.id).then(members=>{
+   if(token!==renderToken||!section.isConnected)return;
+   const button=[...section.querySelectorAll('[data-social-open-group]')].find(b=>b.dataset.socialOpenGroup===row.id);
+   const small=button?.querySelector('.social-group-copy small');
+   if(small)small.textContent+=' · '+members.length.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+' '+t('عضو','members');
+  }).catch(()=>{});
+ }
 }
+function applyGroupFilters(section){
+ if(!section)return;
+ section.querySelectorAll('[data-social-open-group]').forEach(row=>{
+  const matches=row.textContent.toLocaleLowerCase().includes(groupSearch.toLocaleLowerCase());
+  const fresh=Number(row.dataset.groupUpdatedAt||0)>=Date.now()-86400000;
+  row.hidden=!matches||(groupRecentsOnly&&!fresh);
+ })
+}
+document.addEventListener('input',e=>{if(e.target.matches('[data-group-search]')){groupSearch=e.target.value;applyGroupFilters(e.target.closest('.social-groups-section'))}});
+document.addEventListener('change',e=>{if(e.target.matches('[data-group-recents-only]')){groupRecentsOnly=e.target.checked;applyGroupFilters(e.target.closest('.social-groups-section'))}});
 async function createGroup(){
  const service=api(),people=friends();if(!service)return;
  if(!people.length){const el=document.getElementById('toast');if(el){el.textContent=t('اول حداقل یک دوست اضافه کن.','Add at least one friend first.');el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}return}
