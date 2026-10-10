@@ -55,7 +55,7 @@
 #panel-language.ui12-language .ui12-task>button:first-child span{display:grid;place-items:center;width:100%;height:100%}
 #panel-language.ui12-language .ui12-task.is-done>button:first-child span{background:#2be8e8;border-radius:5px;font-weight:900}
 #panel-language.ui12-language .ui12-task>button:nth-child(2){min-width:0;flex:1;text-align:start;border:0;background:none;color:#edf9ff;font-size:12px;line-height:1.4;overflow-wrap:anywhere;cursor:pointer}
-#panel-language.ui12-language .ui12-task.is-done>button:nth-child(2){color:#87aabd;text-decoration:line-through}
+#panel-language.ui12-language .ui12-task.is-done>button:nth-child(2){color:#87aabd;text-decoration:none!important}
 #panel-language.ui12-language .ui12-books{grid-area:books;min-height:292px}
 #panel-language.ui12-language .ui12-book-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;align-content:start;flex:1}
 #panel-language.ui12-language .ui12-book{display:flex;flex-direction:column;align-items:center;min-width:0;gap:5px;padding:4px;border:1px solid #1a5278;border-radius:10px;background:#061a33}
@@ -159,4 +159,30 @@
 /* UI12 visual review: desktop shell header must be above (not painted over) the hero. */
 @media(min-width:701px){
  #panel-language.ui12-language .ui12-hero.elara-language-hero{margin-top:64px!important}
+}
+/* UI12 release fidelity: original owner artwork rather than temporary text-glyph icons. */
+#panel-language.ui12-language .ui12-shortcut>span{width:40px;height:36px;font-size:initial;filter:drop-shadow(0 0 8px #17ceef65)}
+#panel-language.ui12-language .ui12-shortcut>span img{width:38px;height:36px;object-fit:contain;display:block}
+#panel-language.ui12-language .ui12-shortcut:is(:hover,:focus-visible,.is-active)>span img{filter:brightness(1.3) drop-shadow(0 0 7px #17edff)}
+#panel-language.ui12-language .ui12-card-icon{width:28px;flex-basis:28px;height:28px;font-size:initial}
+#panel-language.ui12-language .ui12-card-icon img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 7px #13d1f59a)}
+#panel-language.ui12-language .ui12-leitner-art{position:relative;overflow:hidden;background:linear-gradient(180deg,#0716303b,#051627e8),url('assets/ui/language-learning-background.webp') center/cover no-repeat}
+#panel-language.ui12-language .ui12-leitner-illustration{pointer-events:none;position:absolute;left:50%;top:0;transform:translateX(-50%);height:112px;max-width:66%;object-fit:contain;opacity:.87;filter:drop-shadow(0 0 19px #0dbafcbb)}
+#panel-language.ui12-language .ui12-leitner-art>p,#panel-language.ui12-language .ui12-leitner-art>.ui12-boxes,#panel-language.ui12-language .ui12-leitner-art>.ui12-gold{position:relative;z-index:1}
+#panel-language.ui12-language .ui12-leitner-art>p{margin-top:92px!important;margin-bottom:auto!important;background:#06172b80;padding:2px;border-radius:6px}
+#panel-language.ui12-language .ui12-classes{background:radial-gradient(ellipse at 50% 85%,#0b387f59,transparent 65%),linear-gradient(160deg,#06243c,#031226 85%)}
+#panel-language.ui12-language .ui12-classes .ui12-empty:before{content:'';display:block;width:100%;height:92px;margin:0 auto 8px;background:url('assets/ui/24-language-classes-icon.webp') center/contain no-repeat;filter:drop-shadow(0 0 9px #25d1fa7a)}
+#panel-language.ui12-language .ui12-channels{border-color:#1788a2}
+#panel-language.ui12-language .ui12-challenges{border-color:#d89b4b}
+#panel-language.ui12-language .ui12-books{border-color:#0ac4c3}
+#panel-language.ui12-language .ui12-tasks{border-color:#187caf}
+#panel-language.ui12-language .ui12-stats .ui12-stat{background:linear-gradient(135deg,#091d36,#062237);border-color:#195b88}
+#panel-language.ui12-language .ui12-task.is-done>button:nth-child(2){text-decoration:none!important;opacity:.85}
+@media(max-width:700px){
+ #panel-language.ui12-language .ui12-shortcut>span{width:28px;height:31px}
+ #panel-language.ui12-language .ui12-shortcut>span img{width:28px;height:30px}
+ #panel-language.ui12-language .ui12-card-icon{width:23px;flex-basis:23px;height:23px}
+ #panel-language.ui12-language .ui12-leitner-illustration{height:91px}
+ #panel-language.ui12-language .ui12-leitner-art>p{margin-top:79px!important}
+ #panel-language.ui12-language .ui12-classes .ui12-empty:before{height:72px}
 }
