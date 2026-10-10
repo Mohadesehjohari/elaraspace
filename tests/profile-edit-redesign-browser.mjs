@@ -72,6 +72,17 @@ for(const width of sizes){
   const touch=await page.locator('.pe-frame').first().boundingBox();
   assert.ok(touch&&touch.width>=40&&touch.height>=40,'Frame touch target too small at '+width);
  }
+ if(width<=430){
+  assert.equal(await page.locator('.pe-back').isVisible(),true,'Mobile Back must be visible at '+width);
+  assert.equal(await page.locator('.pe-header-preview').isVisible(),true,'Mobile Preview must remain visible at '+width);
+  const backBox=await page.locator('.pe-back').boundingBox();
+  const previewBox=await page.locator('.pe-header-preview').boundingBox();
+  assert.ok(backBox&&previewBox&&Math.abs(backBox.y-previewBox.y)<8,'Back/Preview alignment at '+width);
+  assert.ok(backBox.x+backBox.width<=previewBox.x+1||previewBox.x+previewBox.width<=backBox.x+1,'Mobile header action overlap at '+width);
+ }else if(width>=768){
+  assert.equal(await page.locator('.pe-public-preview').isVisible(),false,'Desktop duplicate preview must be hidden');
+  assert.equal(await page.locator('.pe-preview-card').isVisible(),true,'Desktop live preview must remain');
+ }
  if(width>=1280){
   assert.ok(dims.back.x+dims.back.width<=dims.main.x+dims.main.width+4,
    'Desktop Back button overlaps preview column: '+JSON.stringify(dims));
@@ -174,6 +185,10 @@ for(const width of sizes){
   await page.goBack({waitUntil:'domcontentloaded'});
   await page.locator('#elara-profile-edit-screen').waitFor({state:'detached',timeout:10000});
   assert.match(await page.evaluate(()=>location.hash),/#home/,'Browser Back changed source page unexpectedly');
+ }
+ if(width===412){
+  await page.locator('[data-pe-action="close"]').click();
+  await page.locator('#elara-profile-edit-screen').waitFor({state:'detached',timeout:10000});
  }
  if(width===1440){
   await page.locator('[data-pe-action="close"]').click();
