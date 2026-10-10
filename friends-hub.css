@@ -232,3 +232,179 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-social-page .social-tabs .social-tab-label,
   #elara-ranking-page .social-tabs .social-tab-label{font-size:12px!important}
 }
+
+
+/* Friends reference pass (2026-10-10): isolated to #elara-social-page.
+   Keep the application's desktop sidebar, global header and existing mobile nav intact. */
+#elara-social-page.social-reference{
+  --friends-line:#155c94;--friends-cyan:#16d9ff;--friends-panel:#061b35;
+  min-width:0;max-width:100%;overflow-x:clip;box-sizing:border-box;
+}
+#elara-social-page .social-page-head{
+  isolation:isolate;position:relative;display:flex;align-items:center;justify-content:flex-start;
+  min-height:188px!important;padding:24px clamp(18px,3.6vw,50px)!important;margin-bottom:12px!important;
+  border:1px solid #1778b5!important;border-radius:19px!important;
+  background:linear-gradient(270deg,#04162cf2 0%,#04162c9e 40%,#04162c10 80%),url("assets/ui/36-friends-hero-banner.webp") center /cover no-repeat!important;
+  box-shadow:inset 0 1px #abdcff28,0 14px 40px #0005!important;
+  text-align:right!important;overflow:hidden;box-sizing:border-box;
+}
+#elara-social-page[data-social-tab="chats"] .social-page-head{
+ background:linear-gradient(270deg,#06132bea 0%,#05132b6e 61%,transparent 100%),url("assets/ui/banner_city_of_stars.webp") center/cover no-repeat!important;
+}
+#elara-social-page[data-social-tab="groups"] .social-page-head{
+ background:linear-gradient(270deg,#06132bed 0%,#06132b78 60%,transparent 100%),url("assets/ui/banner_new_dawn.webp") center/cover no-repeat!important;
+}
+#elara-social-page[data-social-tab="clubs"] .social-page-head{
+ background:linear-gradient(270deg,#06132bea 0%,#06132b75 60%,transparent 100%),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat!important;
+}
+#elara-social-page[data-social-tab="challenges"] .social-page-head{
+ background:linear-gradient(270deg,#06132bee 0%,#06132b77 60%,transparent 100%),url("assets/ui/banner_running-moonlit-mountains.webp") center/cover no-repeat!important;
+}
+#elara-social-page .social-page-head .social-head-copy{
+ position:relative;z-index:1;width:min(480px,92%);min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+ padding:0!important;margin:0!important;color:#f6f8ff;text-shadow:0 2px 8px #000b
+}
+#elara-social-page .social-page-head small{font-size:.72rem;letter-spacing:.08em;color:#c2d5fa}
+#elara-social-page .social-page-head h1{margin:0!important;font-size:clamp(1.35rem,2.8vw,2.5rem)!important;line-height:1.35;color:#fff}
+#elara-social-page .social-page-head p{margin:0!important;font-size:clamp(.8rem,1.12vw,1.05rem);line-height:1.7;color:#e6ebff}
+#elara-social-page .social-hero-cta{
+ min-height:40px;margin-top:6px;padding:8px 22px;color:#071631;font:800 .88rem/1.2 inherit;
+ border:1px solid #ffdb9b;border-radius:12px;cursor:pointer;
+ background:linear-gradient(110deg,#ffe37a,#ffba68 45%,#fd5faf 76%,#6653ff);
+ box-shadow:0 0 20px #ffb75e55,0 2px 7px #0008;white-space:normal
+}
+#elara-social-page .social-hero-cta:hover{filter:brightness(1.1)}
+#elara-social-page .social-hero-cta:focus-visible{outline:3px solid #56e4ff;outline-offset:3px}
+
+/* The old 150px artwork tiles are replaced only within the Friends module. */
+#elara-social-page .social-tabs{
+ display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;
+ width:100%!important;max-width:none!important;gap:7px!important;
+ overflow-x:auto!important;overflow-y:hidden!important;min-width:0!important;
+ margin:0 0 12px!important;padding:2px 1px 8px!important;
+ scrollbar-width:thin;scrollbar-color:#3270a7 transparent;
+}
+#elara-social-page .social-tabs [role="tab"]{
+ display:flex!important;position:relative!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+ width:auto!important;min-width:0!important;min-height:54px!important;height:54px!important;
+ padding:8px 10px!important;gap:6px!important;
+ text-align:center!important;font-size:.83rem!important;line-height:1.35!important;
+ background:linear-gradient(160deg,#071c36,#0a2343)!important;
+ border:1px solid #155385!important;border-radius:12px!important;
+ box-shadow:inset 0 1px #98c8ff10!important;
+}
+#elara-social-page .social-tabs [role="tab"]::after,
+#elara-social-page .social-tabs [role="tab"]::before{content:none!important}
+#elara-social-page .social-tabs [role="tab"] img{
+ position:static!important;inset:auto!important;display:block!important;
+ width:25px!important;height:25px!important;flex:0 0 25px!important;object-fit:contain!important;
+ filter:drop-shadow(0 0 5px #00bffc65)!important
+}
+#elara-social-page .social-tabs [role="tab"] .social-tab-label{
+ position:static!important;inset:auto!important;display:inline!important;max-width:100%;
+ font-size:inherit!important;font-weight:800!important;line-height:1.25!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;text-overflow:clip!important
+}
+#elara-social-page .social-tabs [role="tab"][aria-selected="true"]{
+ background:linear-gradient(160deg,#0752a3,#037ec7 70%,#0c3ecb)!important;
+ border-color:#21dcff!important;color:#fff!important;
+ box-shadow:inset 0 0 10px #13dcff55,0 0 15px #0bc4fd66!important;
+}
+#elara-social-page .social-reference-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px!important;min-width:0!important;max-width:100%!important
+}
+#elara-social-page .social-reference-grid>*{min-width:0;max-width:100%;box-sizing:border-box}
+#elara-social-page .social-reference-grid>.social-dashboard-stats,
+#elara-social-page .social-reference-grid>.social-friends-tools,
+#elara-social-page .social-reference-grid>.social-dm-section,
+#elara-social-page .social-reference-grid>.social-groups-section,
+#elara-social-page .social-reference-grid>.social-clubs-section,
+#elara-social-page .social-reference-grid>.social-challenges-section,
+#elara-social-page .social-reference-grid>.social-hub-slot,
+#elara-social-page .social-reference-grid>.social-request-note{grid-column:1/-1!important}
+#elara-social-page .social-reference-grid>.social-section,
+#elara-social-page .social-dm-recents,
+#elara-social-page .social-dm-start{
+ border:1px solid var(--friends-line)!important;border-radius:16px!important;
+ background:linear-gradient(155deg,#082444,#06192e 86%)!important;
+ box-shadow:inset 0 1px #76b9ff1a,0 8px 30px #0002!important
+}
+#elara-social-page .social-reference-grid>.social-section h2{font-size:clamp(.94rem,1.2vw,1.16rem)}
+#elara-social-page .social-dashboard-stats{
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px
+}
+#elara-social-page .social-dashboard-stat{
+ min-width:0;min-height:100px;padding:13px 7px;
+ display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;
+ border:1px solid #186398;border-radius:14px;
+ background:linear-gradient(145deg,#06345c,#071a32);
+ box-shadow:inset 0 1px #70e1ff17;
+ text-align:center
+}
+#elara-social-page .social-dashboard-stat>span{font-size:1.6rem}
+#elara-social-page .social-dashboard-stat strong{font-size:clamp(1rem,1.8vw,1.65rem);color:#f2f7ff;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#elara-social-page .social-dashboard-stat small{font-size:.76rem;line-height:1.4;color:#b9cbea}
+#elara-social-page .social-friends-tools{
+ display:flex;align-items:center;gap:12px;justify-content:space-between;
+ padding:9px 12px;border:1px solid #18588a;border-radius:13px;background:#081f3a
+}
+#elara-social-page .social-friends-tools input[type=search]{width:min(480px,75%);min-width:0;min-height:42px;border:1px solid #2a629a;border-radius:12px;padding:9px 12px;background:#07182f;color:#fff}
+#elara-social-page .social-friends-tools label{display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:.78rem}
+#elara-social-page .social-friends-list .social-row[hidden]{display:none!important}
+#elara-social-page .social-dashboard-links{display:flex;gap:10px;flex-wrap:wrap}
+#elara-social-page .social-dashboard-links button{
+ border:1px solid #1d6eae;border-radius:12px;padding:12px 16px;
+ color:#e8f6ff;background:#0a2d53;cursor:pointer
+}
+#elara-social-page .social-request-note{padding:14px 16px;border:1px solid #18588a;border-radius:14px;color:#c8d8f1}
+
+/* Unique real-service panels: groups, clubs and challenges are never empty filler cards. */
+#elara-social-page .social-groups-scroll,
+#elara-social-page .social-clubs-grid,
+#elara-social-page .social-challenges-grid{
+ max-height:none;overflow:visible;gap:10px
+}
+#elara-social-page .social-group-row,
+#elara-social-page .social-club-card,
+#elara-social-page .social-challenge-card{
+ min-width:0;border-radius:13px;border-color:#1c5b91;
+ background:linear-gradient(140deg,#092747,#071a34)
+}
+#elara-social-page .social-club-card:hover,
+#elara-social-page .social-group-row:hover{border-color:#1dd6ff}
+#elara-social-page .social-dm-layout{grid-template-columns:minmax(0,1fr) minmax(210px,.46fr);gap:12px}
+#elara-social-page .social-dm-scroll{max-height:520px}
+#elara-social-page .social-dm-row{min-height:66px;border-color:#1b486f}
+#elara-social-page .social-dm-row.has-unread{background:#0a335e;border-inline-start:3px solid #00ceff;border-radius:10px}
+
+/* Target viewports; allow only the local tab strip to scroll, never the document. */
+@media(max-width:1150px){
+ #elara-social-page .social-tabs{display:flex!important;justify-content:flex-start!important}
+ #elara-social-page .social-tabs [role="tab"]{flex:0 0 124px!important;width:124px!important;min-width:124px!important}
+ #elara-social-page .social-dashboard-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:768px){
+ #elara-social-page .social-page-head{min-height:205px!important;background-position:center!important;padding:16px!important}
+ #elara-social-page .social-page-head .social-head-copy{width:min(390px,96%)}
+ #elara-social-page .social-tabs [role="tab"]{min-height:66px!important;height:66px!important;flex:0 0 108px!important;width:108px!important;min-width:108px!important;flex-direction:column!important;gap:1px!important}
+ #elara-social-page .social-tabs [role="tab"] img{width:24px!important;height:24px!important;flex-basis:24px!important}
+ #elara-social-page .social-tabs [role="tab"] .social-tab-label{font-size:.75rem!important}
+ #elara-social-page .social-reference-grid{grid-template-columns:minmax(0,1fr)!important;gap:9px!important;padding-bottom:env(safe-area-inset-bottom,0px)}
+ #elara-social-page .social-reference-grid>*{grid-column:1/-1!important}
+ #elara-social-page .social-dashboard-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #elara-social-page .social-dashboard-stat{min-height:88px}
+ #elara-social-page .social-dm-layout,
+ #elara-social-page .social-groups-scroll,
+ #elara-social-page .social-clubs-grid,
+ #elara-social-page .social-challenges-grid{grid-template-columns:minmax(0,1fr)}
+ #elara-social-page .social-dm-scroll{max-height:none;overflow:visible}
+ #elara-social-page .social-reference-grid>.social-section{min-width:0}
+}
+@media(max-width:375px){
+ #elara-social-page .social-page-head{min-height:168px!important}
+ #elara-social-page .social-page-head h1{font-size:1.32rem!important}
+ #elara-social-page .social-dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #elara-social-page .social-friends-tools{flex-wrap:wrap}
+ #elara-social-page .social-friends-tools input[type=search]{width:100%}
+}
