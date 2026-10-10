@@ -11,3 +11,5 @@
 - Further #38 changes are separately queued; do not merge whole original draft PR. Do not create demo-user records in Production.
 
 - Cross-release gate: UI12/UI13 full nine-width checks, P0 identity/tasks/collaboration, seven-width Profile Edit, seven-width Friends, Product Hubs and Store. Do not declare merged or live from local fixtures; check Pages exact served code, decoded art and real-origin browser after the release.
+
+- Visual QA found duplicate `lightner.webp` on parent and child at 1440px; that candidate was withheld. The corrected scoped CSS renders a **single scenic layer behind** the real five stages and keeps visible owner art; UI13 now asserts the parent's background image is `none`, while the scene contains `lightner.webp` and has real dimensions.
