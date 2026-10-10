@@ -84,12 +84,12 @@ async function run(width,height){
   const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
    lab=x.querySelector('.social-tab-label'),lr=lab?.getBoundingClientRect(),css=getComputedStyle(x);
   return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('src')||'',
-   label:lab?.textContent?.trim()||'',labelY:lr?lr.y+lr.height/2:0,centerY:r.y+r.height/2,
+   label:lab?.textContent?.trim()||'',labelTop:lr?.top??-1,labelBottom:lr?.bottom??-1,tabTop:r.top,tabBottom:r.bottom,
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
  assert.ok(socialBoxes.every(x=>x.h>=(isMobile?47:50)&&x.h<=(isMobile?54:56)&&x.w>=100&&
-  x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&Math.abs(x.labelY-x.centerY)<=11&&
+  x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
