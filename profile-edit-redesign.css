@@ -198,7 +198,7 @@
  .pe-shell .pe-actions{grid-template-columns:1fr 1.4fr;gap:9px}
  .pe-shell .pe-actions button{min-height:50px;font-size:12px}
  .pe-shell .pe-public-preview{grid-column:1/-1;grid-row:2;min-height:44px!important}
- .pe-shell .pe-preview-outer{position:static;width:100%}
+ .pe-shell .pe-preview-outer{position:static;width:100%;margin-top:0}
  .pe-shell .pe-preview{min-height:auto;padding:11px}
  .pe-shell .pe-preview-card{min-height:520px}
  .pe-shell .pe-preview-banner{height:170px}
