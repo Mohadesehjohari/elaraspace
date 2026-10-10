@@ -49,43 +49,73 @@ html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!importan
  }
 }
 
-/* Illuminated depth retained from UI15. The visual cards use existing owner
-   Language image assets and are decorative, not synthetic vocabulary records. */
+/* The art is its own scenic layer. Real, stage-numbered, illuminated boxes
+   sit in a separate foreground row, and counts are read from saved words. */
 #panel-language.ui12-language .ui12-leitner-art{
  position:relative;isolation:isolate;overflow:hidden!important;
- background-image:linear-gradient(180deg,#03172b22 0%,#06163230 48%,#05132ee6 100%),url("assets/ui/lightner.webp")!important;
- background-position:47% 55%!important;background-size:cover!important
+ background:linear-gradient(155deg,#051c35,#04172f 65%,#061d37)!important;
 }
-#panel-language.ui12-language .ui16-floating-cards{
- pointer-events:none;position:absolute;inset:9px 12px auto;
- height:69px;display:flex;align-items:flex-start;justify-content:center;gap:13px;z-index:0;
+#panel-language.ui12-language .ui12-leitner-scene{
+ display:block;flex:0 0 96px;min-height:96px;width:100%;
+ background-image:linear-gradient(180deg,#06193200 28%,#061a3270 100%),url("assets/ui/lightner.webp");
+ background-position:center 46%;background-size:cover;background-repeat:no-repeat;
+ border-radius:11px;border:1px solid #215a88a8;
+ box-shadow:inset 0 -12px 25px #05162a8c,0 0 15px #1769bd3b;
 }
-#panel-language.ui12-language .ui16-floating-cards span{
- box-sizing:border-box;width:51px;height:64px;display:grid;place-items:center;padding:6px;
- border:1px solid #6cdbffb8;border-radius:8px;
- background:linear-gradient(143deg,#f2efffcf,#7cbbf9ac 48%,#163b827a);
- box-shadow:0 0 14px #18a7ff99,0 8px 18px #0009,inset 0 1px 4px #ffffffb8;
- transform:perspective(170px) rotate(-12deg);opacity:.93
-}
-#panel-language.ui12-language .ui16-floating-cards span:nth-child(2){transform:translateY(11px) rotate(8deg);border-color:#89fff0;box-shadow:0 0 17px #2bffd477,0 8px 18px #0009}
-#panel-language.ui12-language .ui16-floating-cards span:nth-child(3){transform:translateY(-2px) rotate(17deg);border-color:#ffd68d;box-shadow:0 0 17px #ffc76d88,0 8px 18px #0009}
-#panel-language.ui12-language .ui16-floating-cards img{
- width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 4px #053153)
-}
-#panel-language.ui12-language .ui12-leitner-art>p,
-#panel-language.ui12-language .ui12-boxes,
-#panel-language.ui12-language .ui12-gold{position:relative;z-index:1}
 #panel-language.ui12-language .ui12-leitner-art>p{
- margin-top:81px!important;margin-bottom:2px!important;
- font-weight:750;font-size:11px!important
+ margin:0!important;flex:0 0 auto;text-align:center;
+ font-weight:700;font-size:11px!important;color:#daf3ff;
 }
-#panel-language.ui12-language .ui12-boxes{flex:0 0 auto}
+#panel-language.ui12-language .ui12-boxes{
+ direction:ltr;display:flex;flex:0 0 auto;align-items:center;justify-content:space-around;
+ gap:clamp(4px,.7vw,10px);padding:8px 0 26px;min-width:0;
+}
+#panel-language.ui12-language .ui12-box{
+ max-width:78px;height:67px;min-width:0;border-radius:7px;
+ transform:perspective(240px) rotateX(8deg);
+ box-shadow:0 0 17px var(--box-glow),0 7px 0 #03101f,0 11px 14px #000a,inset 0 0 15px var(--box-glow),inset 2px 2px 4px #ffffff4d;
+}
+#panel-language.ui12-language .ui12-box:after{
+ content:"";position:absolute;left:5px;right:5px;bottom:4px;height:3px;
+ border-radius:2px;background:var(--box-edge);opacity:.65;filter:blur(2px)
+}
+#panel-language.ui12-language .ui12-box small{
+ max-width:100%;white-space:nowrap;font-size:10px;text-align:center
+}
 #panel-language.ui12-language .ui12-gold{
- min-height:43px;border-radius:999px;padding:9px 14px;
- font-size:clamp(14px,1.15vw,18px);
+ flex:0 0 auto;min-height:43px;border-radius:999px;padding:9px 14px;
+ font-size:clamp(13px,1.1vw,17px);
  box-shadow:0 0 17px #ffba5180,inset 0 1px 2px #fff4ce;
 }
-#panel-language.ui12-language .ui12-box small{max-width:100%;white-space:normal;text-align:center}
+#ref-sidebar-banner{
+ background-color:#051a34;background-position:center 65%!important;
+ background-size:cover!important;min-height:155px;
+ box-shadow:inset 0 -44px 48px #031125a6,0 0 18px #1a72c835;
+}
+#ref-sidebar-banner strong,#ref-sidebar-banner span{color:#f4f8ff;text-shadow:0 2px 8px #010b1d}
+
+/* Match the route, not screen size alone: top-level destinations have no
+   secondary Back, while dedicated pages retain their own Back control. */
+@media(min-width:701px){
+ #main > :is(#panel-home,#panel-tasks,#panel-language,#panel-books,#panel-exercise,#panel-ranking,#panel-social,#panel-freedom,#panel-blog,#panel-page):not(.hidden) > :is(.feature-parent-back,.feature-hub-parent-back,.elara-back-to-home){display:none!important}
+}
+
+/* Freedom's first image and textual overlay have a single, local darkening
+   treatment instead of multiple opaque halves. */
+#panel-freedom .freedom-hero:after{
+ background:linear-gradient(90deg,transparent 15%,#06162b24 55%,#06162b91 100%);
+ pointer-events:none;
+}
+#panel-freedom .freedom-hero-art{object-fit:cover;object-position:center 55%;opacity:1}
+#panel-freedom .freedom-hero-copy{
+ box-sizing:border-box;max-width:600px;width:min(55%,600px);
+ margin-inline-start:auto;padding:clamp(14px,2.6vw,32px);
+ align-content:center;min-width:0
+}
+#panel-freedom .freedom-hero-copy :is(h1,b,p){overflow-wrap:anywhere;line-height:1.4}
+#panel-freedom .freedom-hero-copy h1{font-size:clamp(23px,2.5vw,38px)!important}
+#panel-freedom .freedom-hero-copy b{font-size:clamp(13px,1.6vw,23px)}
+#panel-freedom .freedom-hero-copy p{font-size:clamp(11px,.98vw,15px);line-height:1.7}
 
 /* The language route back button must remain on top of its own panel, not behind
    the desktop account overlay. Hide overlapping account controls only in these
@@ -110,31 +140,28 @@ html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!importan
  html body #main #panel-language.ui12-language .ui12-hero.elara-language-hero{
    background-position:47% 73%!important;
  }
- #panel-language.ui12-language .ui12-leitner-art{
-   background-position:44% 50%!important;min-height:182px!important
+ #panel-language.ui12-language .ui12-leitner-art{min-height:185px!important}
+ #panel-language.ui12-language .ui12-leitner-scene{
+   flex-basis:72px;min-height:72px;background-position:center 54%;
  }
- #panel-language.ui12-language .ui16-floating-cards{
-   height:47px;gap:7px;inset:8px 6px auto
- }
- #panel-language.ui12-language .ui16-floating-cards span{
-   width:33px;height:42px;padding:4px;border-radius:5px
- }
- #panel-language.ui12-language .ui12-leitner-art>p{
-   margin-top:54px!important;font-size:9px!important
- }
- #panel-language.ui12-language .ui12-gold{
-   min-height:35px;font-size:12px;padding:6px 5px
- }
+ #panel-language.ui12-language .ui12-leitner-art>p{font-size:10px!important}
+ #panel-language.ui12-language .ui12-box{height:47px;max-width:none}
+ #panel-language.ui12-language .ui12-box small{font-size:9px}
+ #panel-language.ui12-language .ui12-gold{min-height:38px;font-size:12px;padding:7px 6px}
+ #panel-freedom .freedom-hero-copy{width:75%;padding:12px 12px 10px}
+ #panel-freedom .freedom-hero-copy h1{font-size:22px!important}
+ #panel-freedom .freedom-hero-copy b{font-size:12px}
+ #panel-freedom .freedom-hero-copy p{font-size:10px;line-height:1.5}
  .elara-dialog-panel:has(.language-class-report){max-width:calc(100vw - 16px)!important}
  .elara-dialog-root .language-class-report-grid,
  .elara-dialog-root .language-class-member{min-width:0!important}
 }
 @media(max-width:374px){
  #panel-language.ui12-language .ui12-leitner-art{min-height:188px!important}
- #panel-language.ui12-language .ui16-floating-cards span{width:40px;height:49px}
+ #panel-language.ui12-language .ui12-leitner-scene{flex-basis:66px;min-height:66px}
 }
 @media(prefers-reduced-motion:reduce){
- #panel-language.ui12-language .ui16-floating-cards span{transition:none!important}
+ #panel-language.ui12-language .ui12-box{transition:none!important}
 }
 
 /* SVG language placeholder art, deliberately distinct from purple default decoration. */

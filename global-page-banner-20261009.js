@@ -38,8 +38,9 @@ function update(){
   const panel=document.getElementById('panel-'+route);
   if(!panel)continue;
   panel.dataset.elaraBannerPage=route;
-  let hero=panel.querySelector('[data-elara-page-hero="'+route+'"]');
-  if(!hero)hero=panel.querySelector(choices[route]||'.feature-hub-hero,.elara-hero');
+  // Prefer the current route renderer's live hero over a stale generated copy.
+  let hero=panel.querySelector(choices[route]||'.feature-hub-hero,.elara-hero');
+  if(!hero)hero=panel.querySelector('[data-elara-page-hero="'+route+'"]');
   if(!hero&&route==='social'||!hero&&route==='ranking'){
    hero=panel.querySelector('.social-page-head');
   }
@@ -50,30 +51,26 @@ function update(){
    hero.querySelector('h1').textContent=title;
    panel.prepend(hero);
   }
-  if(hero.parentElement!==panel)panel.prepend(hero);
-  else if(panel.firstElementChild!==hero)panel.prepend(hero);
+  // Never extract Social's header from its live renderer: it recreates the
+  // nested header on every tab switch, which otherwise causes stacked heroes.
+  if(hero.parentElement===panel&&panel.firstElementChild!==hero)panel.prepend(hero);
   if(hero.dataset.elaraPageHero!==route)hero.dataset.elaraPageHero=route;
   if(!hero.classList.contains('elara-global-hero'))hero.classList.add('elara-global-hero');
-  // A route owns one primary hero. Legacy hub modules may still mount a
-  // second header below it; keep their content but suppress only redundant heroes.
-  if(['language','books','ranking','social','blog','page'].includes(route)){
-    const selector=choices[route];if(selector){
-      panel.querySelectorAll(selector).forEach(candidate=>{
-        const redundant=candidate!==hero;
-        candidate.classList.toggle('elara-secondary-hero-duplicate',redundant);
-        if(redundant)candidate.setAttribute('aria-hidden','true');
-        else candidate.removeAttribute('aria-hidden');
-      });
-    }
-  }
-  // Reading's legacy #library-hero is an illustrated secondary banner. The
-  // already selected, approved uploaded-art hero is the only visible page hero.
-  // Keep book reports/controls and canonical reading data completely intact.
-  if(route==='books'){
-    panel.querySelectorAll('#library-hero').forEach(candidate=>{
-      const redundant=candidate!==hero;
-      candidate.classList.toggle('elara-secondary-hero-duplicate',redundant);
-      if(redundant)candidate.setAttribute('aria-hidden','true');
+  // Only decorative hero containers are eligible; never hide feature cards,
+  // book reports, social tabs, requests, chats or other real content.
+  const heroSelectors={
+    language:'.feature-hub-hero,.elara-language-hero,.elara-generated-hero',
+    books:'.feature-hub-hero,.elara-library-hero,#library-hero,.elara-generated-hero',
+    ranking:'.social-page-head,.ranking-hero,.elara-generated-hero',
+    social:'.social-page-head,.social-hub-hero,.friends-hub-hero,.elara-generated-hero',
+    blog:'.blog-hero,.elara-generated-hero',
+    page:'.page-hero,.elara-generated-hero'
+  };
+  if(heroSelectors[route]){
+    panel.querySelectorAll(heroSelectors[route]).forEach(candidate=>{
+      const duplicate=candidate!==hero;
+      candidate.classList.toggle('elara-secondary-hero-duplicate',duplicate);
+      if(duplicate)candidate.setAttribute('aria-hidden','true');
       else candidate.removeAttribute('aria-hidden');
     });
   }
