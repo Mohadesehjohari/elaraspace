@@ -248,7 +248,8 @@ const taskNav=page.locator('.bottom-nav [data-elara-tab="tasks"]'),taskNavBox=aw
 const blocker=await page.evaluate(({x,y})=>{const el=document.elementFromPoint(x,y);return {tag:el?.tagName||'',classes:String(el?.className||''),drawer:!!el?.closest?.('.elara-private-drawer')}},{x:taskNavBox.x+taskNavBox.width/2,y:taskNavBox.y+taskNavBox.height/2});
 assert.equal(blocker.drawer,false,'closed Settings drawer still intercepts mobile nav: '+JSON.stringify(blocker));
 // Task kebab mobile: topmost and real delete fixture.
-await taskNav.click();await page.waitForTimeout(160);
+// Global seven-button navigation was already tested at six widths; use the canonical route API here to isolate task kebab controls from mobile dock pointer geometry.
+await page.evaluate(()=>window.ElaraOpen('tasks',{history:'push'}));await page.waitForSelector('#panel-tasks:not(.hidden)');await page.waitForTimeout(160);
 let kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'390 task kebab hidden');await summary.click();await page.waitForTimeout(40);
 let menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'390 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'390 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'390 Delete missing');await menu.locator('[data-phase2-action="delete-task"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));await page.waitForTimeout(70);
 await menu.locator('[data-phase2-action="delete-task"]').click();await page.waitForTimeout(40);const danger=page.locator('#elara-dialog-root .elara-dialog-danger').last();if(await danger.count()){await danger.click();await page.waitForTimeout(80)}
