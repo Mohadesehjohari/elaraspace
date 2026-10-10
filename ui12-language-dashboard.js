@@ -95,7 +95,7 @@ function renderBooks(m){
  const cover=validImg(b.coverData)||validImg(b.coverUrl),progress=b.totalPages?pct((Number(b.currentPage)||0)/b.totalPages*100):0;
  return '<article class="ui12-book"><div class="ui12-book-cover">'+(cover?'<img src="'+esc(cover)+'" alt="" loading="eager" decoding="async">':'<img src="assets/ui/23-language-books-icon.webp" alt="" loading="eager" decoding="async">')+'</div><strong data-elara-ugc dir="auto" title="'+esc(b.title)+'">'+esc(b.title)+'</strong><small>'+esc(b.language||tx('کتاب زبان','Language book'))+'</small><div class="ui12-track" role="progressbar" aria-valuenow="'+progress+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+progress+'%"></i></div><span>'+num(progress)+'٪</span></article>';
  }).join('');
- const html=m.b.length?'<div class="ui12-book-grid">'+rows+'</div>':empty('23-language-books-icon.webp',tx('هنوز کتاب زبانی ثبت نکردی.','No language books yet.'),tx('افزودن کتاب','Add a book'),'language-books');
+ const html=m.b.length?'<div class="ui12-book-grid">'+rows+'</div>':empty('book.webp',tx('هنوز کتاب زبانی ثبت نکردی.','No language books yet.'),tx('افزودن کتاب','Add a book'),'language-books');
  const body=$('ui12-books').querySelector('[data-ui12-body]');
  if(body.innerHTML!==html)body.innerHTML=html;
 }
@@ -108,7 +108,7 @@ function renderStats(m){
   stat(tx('دقیقه مطالعه امروز','Minutes studied today'),m.todayMinutes,'⏱');
 }
 function empty(art,msg,cta,routeName){
- return '<div class="ui12-empty-state"><img src="assets/ui/'+art+'" alt="" loading="lazy"><p>'+msg+'</p>'+(routeName?button(routeName,cta,'ui12-outline'):'')+'</div>';
+ return '<div class="ui12-empty-state">'+(art==='channels'||art==='challenges'?'<span class="ui16-empty-svg" aria-hidden="true">'+ui13Icon(art)+'</span>':'<img src="assets/ui/'+art+'" alt="" loading="lazy">')+'<p>'+msg+'</p>'+(routeName?button(routeName,cta,'ui12-outline'):'')+'</div>';
 }
 function renderClasses(m){
  const rows=m.c.slice().sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0)).slice(0,4).map(c=>{
@@ -119,8 +119,8 @@ function renderClasses(m){
  $('ui12-classes').querySelector('[data-ui12-body]').insertAdjacentHTML('beforeend','<button type="button" class="ui12-primary ui12-add" data-ui12-new-class>+ '+tx('ایجاد کلاس جدید','Create class')+'</button>');
 }
 function renderUnavailable(){
- $('ui12-channels').querySelector('[data-ui12-body]').innerHTML=empty('24-language-classes-icon.webp',tx('کانال زبان هنوز به سیستم واقعی متصل نیست. هیچ عضو یا کانال ساختگی نمایش داده نمی‌شود.','Language channels are not connected to a real service yet. No fabricated members or channels.'),'','');
- $('ui12-challenges').querySelector('[data-ui12-body]').innerHTML=empty('11-challenges-icon.webp',tx('چالش زبان هنوز پشتیبانی داده‌ای مستقل ندارد.','Language challenges do not have a dedicated data source yet.'),'','');
+ $('ui12-channels').querySelector('[data-ui12-body]').innerHTML=empty('channels',tx('کانال زبان هنوز به سیستم واقعی متصل نیست. هیچ عضو یا کانال ساختگی نمایش داده نمی‌شود.','Language channels are not connected to a real service yet. No fabricated members or channels.'),'','');
+ $('ui12-challenges').querySelector('[data-ui12-body]').innerHTML=empty('challenges',tx('چالش زبان هنوز پشتیبانی داده‌ای مستقل ندارد.','Language challenges do not have a dedicated data source yet.'),'','');
 }
 function bucketRows(rows,kind){
  const now=new Date(),out=[];
