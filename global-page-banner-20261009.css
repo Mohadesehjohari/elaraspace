@@ -327,3 +327,19 @@ html body.dark #panel-tasks #task-list>.astra-task-row .check-button{
   font-size:clamp(1rem,3.8vw,1.17rem)!important;line-height:1.36!important;margin:0 0 5px!important
  }
 }
+
+/* UI14: eliminate only duplicate legacy hero headers; primary art and content remain. */
+html body #main .elara-secondary-hero-duplicate{display:none!important;visibility:hidden!important}
+html body #main .elara-global-hero[data-elara-page-hero="books"]{background-position:center 68%!important}
+@media(max-width:700px){html body #main .elara-global-hero[data-elara-page-hero="books"]{background-position:52% 66%!important}}
+/* Avoid freedom's former opaque right-side half and overlapping description. */
+html body #main .elara-global-hero[data-elara-page-hero="freedom"]{background-image:linear-gradient(90deg,#05122988,#0617301c 46%,#06173067),var(--elara-page-art)!important}
+html body #main .elara-global-hero[data-elara-page-hero="freedom"]>div{max-width:min(48%,560px);min-width:0;overflow-wrap:anywhere}
+@media(max-width:700px){html body #main .elara-global-hero[data-elara-page-hero="freedom"]>div{max-width:76%}}
+
+/* UI14 navigation ownership: root areas have their sidebar/topbar, not a
+   second deep-page Back button. Dedicated nested editors own their Back. */
+@media(min-width:701px){
+ #main > :is(#panel-tasks,#panel-language,#panel-books):not(.hidden) > :is(.feature-parent-back,.feature-hub-parent-back){display:none!important}
+ .workspace:has(#panel-words:not(.hidden),#panel-language-books:not(.hidden),#panel-language-courses:not(.hidden),#panel-language-reports:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
+}

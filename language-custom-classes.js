@@ -52,9 +52,28 @@ async function openEditor(c){
 }
 async function report(c){
  const sum=total(c),done=completed(c),mins=done*Number(c.durationMin||0),remain=(sum-done)*Number(c.durationMin||0),e=eta(c),logs=(c.sessionLogs||[]).slice().sort((a,b)=>b.at-a.at);let classmates='';
- if(c.collabSpaceId&&window.ElaraCollab?.memberRows){try{const rows=await window.ElaraCollab.memberRows(c.collabSpaceId);classmates='<section class="language-class-classmates"><h3>'+tx('همکلاسی‌ها','Classmates')+'</h3>'+rows.map(r=>'<div><span><strong data-elara-ugc dir="auto">'+esc(r.name)+'</strong><small>'+fa(r.completed)+' / '+fa(r.total)+'</small></span><span class="language-class-progress"><i style="width:'+r.percent+'%"></i></span><b>'+fa(r.percent)+'٪</b></div>').join('')+'</section>'}catch(error){classmates='<p class="muted">'+tx('آمار همکلاسی‌ها فعلاً در دسترس نیست.','Classmate stats are temporarily unavailable.')+'</p>'}}
+ const needsClassmates=!!c.collabSpaceId;
+ classmates=needsClassmates?'<section class="language-class-classmates" data-classmate-results aria-live="polite"><h3>'+tx('همکلاسی‌ها','Classmates')+'</h3><p class="muted">'+tx('در حال دریافت آمار اعضای مجاز…','Loading authorized class members…')+'</p></section>':'';
+
  const box=document.createElement('section');box.className='language-class-report';box.dataset.elaraI18n='off';box.innerHTML='<div class="language-class-report-grid"><article><small>'+tx('پیشرفت','Progress')+'</small><strong>'+fa(pct(c))+'٪</strong></article><article><small>'+tx('جلسات','Sessions')+'</small><strong>'+fa(done)+' / '+fa(sum)+'</strong></article><article><small>'+tx('زمان انجام‌شده','Studied')+'</small><strong>'+hours(mins)+'</strong></article><article><small>'+tx('زمان باقی‌مانده','Remaining')+'</small><strong>'+hours(remain)+'</strong></article></div><div class="language-class-report-copy"><p><b>'+tx('برنامه: ','Schedule: ')+'</b>'+scheduleLabel(c)+' · '+fa(Number(c.studyHoursPerDay||1))+' '+tx('ساعت در روز','h/day')+'</p><p><b>'+tx('سرعت برنامه: ','Pace: ')+'</b>'+fa(e.sessionsPerDay||0)+' '+tx('جلسه در هر روز انتخابی','sessions per selected day')+'</p><p><b>'+tx('پایان تقریبی: ','Estimated finish: ')+'</b>'+(e.date?esc(e.date):'—')+'</p></div>'+classmates+'<div class="language-class-log"><h3>'+tx('جلسات ثبت‌شده','Session log')+'</h3>'+(logs.length?logs.map((x,i)=>'<div><span>'+tx('جلسه ','Session ')+fa(done-i)+'</span><time>'+esc(new Date(x.at).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR'))+'</time></div>').join(''):'<p class="muted">'+tx('هنوز جلسه‌ای ثبت نشده.','No sessions logged yet.')+'</p>')+'</div>';
- await window.ElaraDialog.open({title:esc(c.title),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});
+ const dialog=window.ElaraDialog.open({title:esc(c.title),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});
+ // Never delay opening the actual dialog while an authenticated collaboration query is pending.
+ if(needsClassmates){
+   void (async()=>{
+     const target=box.querySelector('[data-classmate-results]');
+     if(!window.ElaraCollab?.memberRows){if(target?.isConnected)target.innerHTML='<h3>'+tx('همکلاسی‌ها','Classmates')+'</h3><p class="muted">'+tx('دادهٔ معتبر اعضا در دسترس نیست.','Authorized member data is unavailable.')+'</p>';return}
+     try{
+       const rows=await window.ElaraCollab.memberRows(c.collabSpaceId);
+       if(!target?.isConnected)return;
+       const safeRows=Array.isArray(rows)?rows.filter(r=>r&&typeof r==='object'):[];
+       target.innerHTML='<h3>'+tx('همکلاسی‌ها','Classmates')+'</h3>'+(safeRows.length?safeRows.map(r=>{
+         const pc=Math.min(100,Math.max(0,Number(r.percent)||0));
+         return '<div class="language-class-member"><span><strong data-elara-ugc dir="auto">'+esc(r.name||tx('عضو کلاس','Class member'))+'</strong><small>'+fa(Math.max(0,Number(r.completed)||0))+' / '+fa(Math.max(0,Number(r.total)||0))+'</small></span><span class="language-class-progress"><i style="width:'+pc+'%"></i></span><b>'+fa(pc)+'٪</b></div>'
+       }).join(''):'<p class="muted">'+tx('عضو مجاز دیگری برای نمایش وجود ندارد.','No other authorized member results.')+'</p>');
+     }catch(error){if(target?.isConnected)target.innerHTML='<h3>'+tx('همکلاسی‌ها','Classmates')+'</h3><p class="muted">'+tx('آمار اعضا در دسترس نیست یا مجوز مشاهده وجود ندارد.','Member statistics unavailable or access denied.')+'</p>'}
+   })();
+ }
+ await dialog;
 }
 async function remove(c){
  const ok=await window.ElaraDialog.confirm(tx('این کلاس و گزارش جلساتش حذف شود؟','Delete this class and its session history?'),{title:tx('حذف کلاس','Delete class'),confirmText:tx('حذف','Delete'),danger:true});if(!ok)return;

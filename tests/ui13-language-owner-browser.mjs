@@ -5,7 +5,7 @@ import {mkdirSync} from 'node:fs';
 const origin=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const out='browser-artifacts/ui13';mkdirSync(out,{recursive:true});
 const widthSet=[320,360,375,390,412,430,768,1440,1648];
-const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp'];
+const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp','background-moonlit-mountains.webp'];
 const fakeCloud="window.ElaraAccount={user:{uid:'ui13-qa',email:'ui13@example.test',emailVerified:true},profile:{uid:'ui13-qa',name:'Test'}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');window.dispatchEvent(new Event('elara:account-ready'));";
 const fakeSocial="window.ElaraSocial={me:{uid:'ui13-qa',name:'Test'},friends:[],clubs:{list:async()=>[],discover:async()=>[]},challenges:{list:async()=>[]},refresh:async()=>{}};window.dispatchEvent(new Event('elara:social-updated'));";
 const browser=await chromium.launch({headless:true});
@@ -34,7 +34,26 @@ try{
      const reference=await page.locator('#panel-'+destination+' [data-elara-page-hero]').first().evaluate(el=>getComputedStyle(el).getPropertyValue('--elara-page-art'));
      assert.ok(reference.includes(art),'Owner route art not wired to '+destination+': '+reference);
     }
+    for(const destination of ['books','blog','page','ranking','social']){
+      await page.evaluate(route=>ElaraOpen(route,{history:'replace'}),destination);
+      await page.waitForSelector('#panel-'+destination+':not(.hidden)');
+      await page.waitForTimeout(80);
+      const bad=await page.locator('#panel-'+destination+' .elara-secondary-hero-duplicate').evaluateAll(xs=>xs.filter(el=>getComputedStyle(el).display!=='none').map(el=>el.className));
+      assert.equal(bad.length,0,'Duplicate visible route hero '+destination+': '+JSON.stringify(bad));
+    }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+  }
+  if(width===390||width===1440){
+    for(const destination of ['language','books','blog','page','social','ranking','freedom','exercise']){
+      await page.evaluate(route=>ElaraOpen(route,{history:'replace'}),destination);
+      await page.waitForSelector('#panel-'+destination+':not(.hidden)',{timeout:9000});
+      await page.waitForTimeout(120);
+      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert.ok(overflow<=2,'Route '+destination+' horizontal overflow at '+width+': '+overflow);
+      await page.screenshot({path:out+'/ui14-'+destination+'-'+width+'.png',fullPage:false,animations:'disabled'});
+    }
+    await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+    await page.waitForSelector('#panel-language:not(.hidden)');
   }
   await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-art')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
   const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
@@ -50,6 +69,13 @@ try{
    const top=await page.locator('#panel-language .ui12-hero').evaluate(el=>el.getBoundingClientRect().top);
    assert.ok(top<32,'Language hero retains unwanted top strip '+top);
   }
+  if(width===1440){
+    const circles=await page.locator('#ui12-leitner .ui12-box').evaluateAll(xs=>xs.map(x=>({radius:getComputedStyle(x).borderTopLeftRadius,text:x.querySelector('b')?.textContent})));
+    assert.equal(circles.length,5,'Leitner does not show five boxes');
+    assert.ok(circles.every(x=>x.radius==='50%'&&x.text),'Leitner circles missing real count '+JSON.stringify(circles));
+    const promo=await page.locator('#ref-sidebar-banner').evaluate(el=>getComputedStyle(el).backgroundImage);
+    assert.match(promo,/background-moonlit-mountains\.webp/,'Real sidebar landscape not displayed');
+  }
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   for(const [key,target] of Object.entries({leitner:'words',books:'language-books',classes:'language-courses',tasks:'language-tasks',channels:'language-channels',challenges:'language-challenges',report:'language-reports'})){
    await page.locator('#panel-language [data-ui12-jump="'+key+'"]').click();
@@ -61,11 +87,22 @@ try{
      await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(x=>x.id==='lang-1')?.completed===true,null,{timeout:8000});
      await page.locator('#panel-language-tasks [data-section-task-add="language"]').click();
      await page.waitForSelector('#task-form:not([hidden])',{timeout:8000});
-     await page.keyboard.press('Escape');
+     assert.equal(await page.locator('#task-source-group').inputValue(),'language','Language add did not preselect the canonical category');
+     await page.locator('#task-title').fill('UI14 categorized test');
+     await page.locator('#task-submit').click();
+     await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.some(x=>x.text==='UI14 categorized test'&&x.sourceGroup==='language'),null,{timeout:8000});
+     await page.waitForSelector('#panel-language-tasks .ui13-task-row',{timeout:8000});
+     assert.ok((await page.locator('#panel-language-tasks').innerText()).includes('UI14 categorized test'),'New canonical Task not in scoped Language view');
     }
    }
    if(target==='language-channels'||target==='language-challenges')assert.equal(await page.locator('#panel-'+target+' .ui13-subpage').count(),1,'Dedicated page missing');
-   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+   if(target==='language-channels'||target==='language-challenges'||target==='language-tasks'){
+     const back=page.locator('#panel-'+target+' [data-ui13-back]');
+     assert.equal(await back.count(),1,'Dedicated back missing '+target+' @'+width);
+     const hit=await back.evaluate(el=>{const r=el.getBoundingClientRect();const h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return h===el||el.contains(h)});
+     assert.equal(hit,true,'Language back covered by Header '+target+' @'+width);
+     await back.click({timeout:9000});
+   }else await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
    await page.waitForSelector('#panel-language:not(.hidden)');
   }
   if(width===390){
@@ -75,6 +112,8 @@ try{
    await page.locator('[data-class-classmates="class-1"]').click();
    await page.waitForSelector('.language-class-classmates',{timeout:10000});
    assert.ok((await page.locator('.language-class-classmates').innerText()).includes('عضو آزمایشی'),'Classmate stats did not show authorized fixture results');
+   const modalOverflow=await page.evaluate(()=>({page:document.documentElement.scrollWidth-innerWidth,report:document.querySelector('.language-class-report')?.scrollWidth-document.querySelector('.language-class-report')?.clientWidth}));
+   assert.ok(modalOverflow.page<=2&&modalOverflow.report<=2,'Classmate modal horizontal overflow '+JSON.stringify(modalOverflow));
    await page.screenshot({path:out+'/classmate-stats-390.png',fullPage:false});
    const cancel=page.locator('#elara-dialog-root button').filter({hasText:/بستن|Close/}).last();
    if(await cancel.count())await cancel.click();

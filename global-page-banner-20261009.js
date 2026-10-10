@@ -54,6 +54,18 @@ function update(){
   else if(panel.firstElementChild!==hero)panel.prepend(hero);
   if(hero.dataset.elaraPageHero!==route)hero.dataset.elaraPageHero=route;
   if(!hero.classList.contains('elara-global-hero'))hero.classList.add('elara-global-hero');
+  // A route owns one primary hero. Legacy hub modules may still mount a
+  // second header below it; keep their content but suppress only redundant heroes.
+  if(['language','books','ranking','social','blog','page'].includes(route)){
+    const selector=choices[route];if(selector){
+      panel.querySelectorAll(selector).forEach(candidate=>{
+        const redundant=candidate!==hero;
+        candidate.classList.toggle('elara-secondary-hero-duplicate',redundant);
+        if(redundant)candidate.setAttribute('aria-hidden','true');
+        else candidate.removeAttribute('aria-hidden');
+      });
+    }
+  }
   // Store deliberately keeps its existing cosmic artwork and product identity.
   if(art)hero.style.setProperty('--elara-page-art','url("'+ROOT+art+'")');
  }

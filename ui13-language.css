@@ -71,7 +71,7 @@
 }
 #panel-language-tasks,#panel-language-channels,#panel-language-challenges{min-width:0}
 #main .ui13-subpage{direction:rtl;display:grid;gap:16px;min-width:0;padding-bottom:calc(95px + env(safe-area-inset-bottom))}
-#main .ui13-subpage-head{min-height:170px;display:flex;flex-direction:column;gap:15px;justify-content:end;border:1px solid #176789;border-radius:18px;background:linear-gradient(110deg,#06203bfa,#073254d9),url('assets/ui/language_banner_main.webp') center/cover;padding:18px 20px}
+#main .ui13-subpage-head{min-height:242px;display:flex;flex-direction:column;gap:15px;justify-content:end;border:1px solid #176789;border-radius:18px;background:linear-gradient(110deg,#06203bfa,#073254d9),url('assets/ui/language_banner_main.webp') center 66%/cover;padding:88px 20px 18px}
 #main .ui13-back{width:max-content;max-width:100%;font:inherit;font-weight:750;font-size:13px;color:#a4efff;background:#082840;border:1px solid #2ccdea;border-radius:30px;min-height:38px;padding:7px 17px;cursor:pointer}
 #main .ui13-subpage-title{display:flex;align-items:center;gap:15px;min-width:0}
 #main .ui13-subpage-title svg{flex:none;color:#40efff}
@@ -130,3 +130,51 @@
   margin:0!important;text-align:right!important;align-items:flex-start!important
  }
 }
+
+/* UI14: dedicated Language pages reserve the 66px floating shell header.
+   Do not turn off pointer events or obscure working back buttons. */
+@media(min-width:701px){
+ .workspace:has(#panel-language-tasks:not(.hidden),#panel-language-channels:not(.hidden),#panel-language-challenges:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
+ #main :is(#panel-language-tasks,#panel-language-channels,#panel-language-challenges):not(.hidden) .ui13-back{position:relative;z-index:2;scroll-margin-top:90px}
+ @media(min-width:1181px){#panel-language.ui12-language .ui12-board{
+  grid-template-columns:minmax(0,.72fr) minmax(0,1.03fr) minmax(0,1.04fr) minmax(0,1.48fr)!important;
+ }}
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:center 67%!important}
+}
+.elara-dialog-root .language-class-report{min-width:0!important;box-sizing:border-box;width:min(100%,760px)!important;max-width:100%!important;max-height:min(68dvh,690px);overflow-y:auto;overscroll-behavior:contain}
+.elara-dialog-panel:has(.language-class-report){min-width:0!important;max-width:min(94vw,850px)!important;max-height:92dvh!important}
+.elara-dialog-panel:has(.language-class-report) .elara-dialog-body{min-width:0!important;max-width:100%;overflow-y:auto;overscroll-behavior:contain}
+.elara-dialog-root .language-class-report-grid{min-width:0}
+.elara-dialog-root .language-class-report-grid article{min-width:0;overflow-wrap:anywhere}
+.elara-dialog-root .language-class-classmates{min-width:0;display:grid;gap:8px}
+.elara-dialog-root .language-class-member{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(56px,1fr) auto;align-items:center;gap:9px;padding:9px;border:1px solid #265779;border-radius:10px}
+.elara-dialog-root .language-class-member>span:first-child{min-width:0;overflow-wrap:anywhere;display:grid;gap:3px}
+.elara-dialog-root .language-class-member .language-class-progress{min-width:0}
+.elara-dialog-root .language-class-log>div{min-width:0;flex-wrap:wrap}
+@media(max-width:700px){
+ #main .ui13-subpage-head{padding:16px!important;min-height:175px}
+ .elara-dialog-root .language-class-report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .elara-dialog-root .language-class-member{grid-template-columns:minmax(0,1fr) auto;gap:6px}
+ .elara-dialog-root .language-class-member .language-class-progress{grid-column:1/-1;grid-row:2;width:100%}
+ .elara-dialog-panel:has(.language-class-report){width:min(94vw,700px)!important}
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:47% 66%!important}
+}
+
+/* UI14 Leitner: counts, not decorative big number tiles. */
+#panel-language.ui12-language .ui12-boxes{justify-content:space-around;align-items:center;gap:4px;padding:8px 0 21px}
+#panel-language.ui12-language .ui12-box{position:relative;flex:0 1 47px;width:47px;min-width:0;height:47px;border-radius:50%;background:radial-gradient(circle at 35% 20%,#114367,#041729 80%);border:2px solid #18c7ef;box-shadow:inset 0 0 12px #01b6f53a,0 0 12px #01b6f55c}
+#panel-language.ui12-language .ui12-box b{font-size:17px}
+#panel-language.ui12-language .ui12-box small{position:absolute;top:calc(100% + 3px);right:50%;transform:translateX(50%);width:max-content;max-width:70px;font-size:9px;line-height:1.35;color:#d0e9ff}
+#panel-language.ui12-language .ui12-box-5{background:radial-gradient(circle at 35% 25%,#80532a,#1a1623 80%);border-color:#ffc15f}
+@media(max-width:700px){
+ #panel-language.ui12-language .ui12-boxes{gap:3px;padding-bottom:20px}
+ #panel-language.ui12-language .ui12-box{flex:0 1 34px;width:34px;height:34px}
+ #panel-language.ui12-language .ui12-box b{font-size:13px}
+ #panel-language.ui12-language .ui12-box small{font-size:7px}
+}
+@media(max-width:389px){
+ #panel-language.ui12-language .ui12-box{width:39px;height:39px;flex:0 1 39px}
+}
+/* Reframe the owner's actual library art rather than pushing the whole hero down. */
+html body #main #panel-books .elara-global-hero{background-position:center 68%!important}
+@media(max-width:700px){html body #main #panel-books .elara-global-hero{background-position:52% 66%!important}}
