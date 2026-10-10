@@ -26,6 +26,16 @@ try{
   assert.equal(await page.locator('#panel-language .ui12-shortcut svg').count(),8,'Semantic SVG icons at '+width);
   const imageState=await page.evaluate(async files=>Promise.all(files.map(async name=>{const im=new Image();im.src='assets/ui/'+name;try{await im.decode()}catch{}return{name,ok:im.naturalWidth>0,width:im.naturalWidth,height:im.naturalHeight}})),files);
   assert.ok(imageState.every(x=>x.ok),'Broken new owner WebP assets: '+JSON.stringify(imageState));
+  if(width===1440){
+    for(const [destination,art] of [['books','librairy_banner_main.webp'],['blog','weblog_banner_main.webp'],['exercise','workout_banner_main.webp']]){
+     await page.evaluate(destination=>ElaraOpen(destination,{history:'replace'}),destination);
+     await page.waitForSelector('#panel-'+destination+':not(.hidden)');
+     await page.waitForFunction(destination=>!!document.querySelector('#panel-'+destination+' [data-elara-page-hero]'),destination,{timeout:10000});
+     const reference=await page.locator('#panel-'+destination+' [data-elara-page-hero]').first().evaluate(el=>getComputedStyle(el).getPropertyValue('--elara-page-art'));
+     assert.ok(reference.includes(art),'Owner route art not wired to '+destination+': '+reference);
+    }
+    await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+  }
   const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
   assert.match(hero,/language_banner_main\.webp/,'Language hero not owner image');
   const leitner=await page.locator('#ui12-leitner .ui12-leitner-art').evaluate(e=>getComputedStyle(e).backgroundImage);
@@ -43,7 +53,16 @@ try{
   for(const [key,target] of Object.entries({leitner:'words',books:'language-books',classes:'language-courses',tasks:'language-tasks',channels:'language-channels',challenges:'language-challenges',report:'language-reports'})){
    await page.locator('#panel-language [data-ui12-jump="'+key+'"]').click();
    await page.waitForSelector('#panel-'+target+':not(.hidden)',{timeout:12000});
-   if(target==='language-tasks')assert.equal(await page.locator('#panel-language-tasks [data-section-task-toggle="lang-1"]').count(),1,'Canonical task missing from its own page');
+   if(target==='language-tasks'){
+    assert.equal(await page.locator('#panel-language-tasks [data-section-task-toggle="lang-1"]').count(),1,'Canonical task missing from its own page');
+    if(width===390){
+     await page.locator('#panel-language-tasks [data-section-task-toggle="lang-1"]').click();
+     await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(x=>x.id==='lang-1')?.completed===true,null,{timeout:8000});
+     await page.locator('#panel-language-tasks [data-section-task-add="language"]').click();
+     await page.waitForSelector('#task-form:not([hidden])',{timeout:8000});
+     await page.keyboard.press('Escape');
+    }
+   }
    if(target==='language-channels'||target==='language-challenges')assert.equal(await page.locator('#panel-'+target+' .ui13-subpage').count(),1,'Dedicated page missing');
    await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
    await page.waitForSelector('#panel-language:not(.hidden)');
