@@ -1196,3 +1196,27 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Dedicated new UI12 branch/PR from latest `main`; roadmap update within that PR. Provide **reference vs before vs after** desktop and mobile screenshots at exact comparable CSS viewport 320,360,375,390,412,430,768,1440,1648 and actual DPR; use realistic long Persian data fixtures. Test real page route, 8 tab actions, Leitner due/stats and review action, canonical language task add/check, books/read progress, class create/report/shared class split, report time-range switching; verify graceful 0/1/many states and honest gated Channels/Challenge.
 - Assert no horizontal overflow, no page-level opaque band above hero, no heading collisions, no tooltip/navbar overlays, accessible keyboard/touch controls, safe area, no double scroll, no global nav regression, no fake data, no overwritten personal data. Run P0 Fast, Profile/Username, Social, Home, Tasks, Language and mobile tests.
 - Do not merge only because Chromium and fixtures are green; perform side-by-side owner reference visual review first. After approved design checks, merge and verify Pages, exact live production bytes and screenshot of `https://mohadesehjohari.github.io/elaraspace/#language` (verify canonical route from app; no invented URL guarantee). Explicit owner visual sign-off required to label `LANGUAGE REFERENCE VISUAL CLOSED`; before that status is `UI12 OPEN / NOT VISUALLY ACCEPTED`.
+
+
+---
+
+# UI12 Asset Addendum — Owner Language Icons/Buttons (Banner Excluded) — 2026-10-10
+
+**Priority: UI12 P0 visual asset wiring, OWNER REQUIREMENT / NOT YET VERIFIED LIVE.** Source: owner screenshot of real Windows Language assets, corrected by explicit message “البته این بنر رو نمیخوام. بقیه چیزها.” All eight remaining owner-uploaded WebP files **already exist in the GitHub repository** at their literal paths below, independently checked in recursive repository tree. Their filenames include unusual spaces or spellings; **DO NOT guess filenames, rename/delete them or accidentally normalize spaces**. If desired add a documented asset map constant with exact paths and URL encoding handled by the browser.
+
+| Exact real asset path | Intended use in UI12 Language |
+| --- | --- |
+| \`assets/ui/book.webp\` | Language books / reading icon, compatible with Books card or shortcut as appropriate |
+| \`assets/ui/botten_riview.webp\` | Owner-designed Leitner **«شروع مرور امروز»** CTA graphic; retain its visual lettering if legible |
+| \`assets/ui/icon_brain.webp\` | Learning/review/words brain graphic or suitable stat/Leitner header |
+| \`assets/ui/new_words.webp\` | **New words** action (neon plus button) in the existing vocabulary/Leitner flow |
+| \`assets/ui/read botten.webp\` | Owner-designed **«مطالعه کن»** button for real book reading action (literal SPACE in filename) |
+| \`assets/ui/ready_to_review.webp\` | Due-for-review / ready-to-review state indicator in Leitner |
+| \`assets/ui/review_again.webp\` | Review-again / repeat review action or status in Leitner |
+| \`assets/ui/todays cart.webp\` | Today learning/review card/stack icon, where semantically suitable (literal SPACE in filename) |
+
+**EXPLICIT EXCLUSION:** \`assets/ui/language_banner.webp\` is in the same screenshot and in the repository, but **the owner does NOT want this image used as the Language page Hero/banner**. Do not put it on screen just because it is uploaded. Keep the existing / UI12 language panoramic reference artwork instead; audit \`assets/ui/34-language-hero-banner.webp\` or other already-approved owner image to match the actual desktop+mobile reference. Do not delete \`language_banner.webp\` from repository unless separately authorized.
+
+**Behavioral contract:** assets decorate the *real* existing Leitner, words, books and study actions. Buttons must retain accessible HTML control names, proper keyboard/touch targets, genuine click handlers, disabled/busy states and cannot be replaced by inert \`<img>\` placeholders. Do not overlay text twice when the PNG/WebP already contains Persian lettering. Preserve all original Elara global mobile seven-item dock / desktop sidebar; only use these graphics in the Language page module. Test actual WebP bytes/load/decode, object-fit/visible alpha bounds (transparent padding can shrink apparent icon), retina/320/375/390/430/1440. No artificial word counts, fake book data, duplicate records or new backend.
+
+**Verification before shipping:** create an 8-row asset audit, one line per included file (exists, decode success, destination component, real action wired, screenshot evidence); separately report \`language_banner.webp\` EXCLUDED. PR #31 remains the UI12 work branch while Draft until release gate; do not mistake GitHub content presence for rendered production usage.
