@@ -1,0 +1,114 @@
+/* UI13: only Language dashboard/deep pages and non-Home global banner artwork. */
+#panel-language.ui12-language .ui12-shortcuts{direction:ltr!important}
+#panel-language.ui12-language .ui12-shortcut{direction:rtl!important}
+#panel-language.ui12-language .ui12-shortcut>span,
+#panel-language.ui12-language .ui12-card-icon{display:grid!important;place-items:center!important;color:#75eaff!important;filter:drop-shadow(0 0 5px #2bcaff80)}
+#panel-language.ui12-language .ui12-shortcut>span svg{width:32px;height:32px;max-width:100%;stroke:currentColor;filter:drop-shadow(0 0 5px #1bd2fc55)}
+#panel-language.ui12-language .ui12-card-icon svg{width:25px;height:25px;stroke:currentColor}
+#panel-language.ui12-language .ui12-shortcut[data-ui12-jump="leitner"]>span,
+#panel-language.ui12-language .ui12-shortcut[data-ui12-jump="challenges"]>span{color:#ffd26b!important}
+#panel-language.ui12-language .ui12-shortcut[data-ui12-jump="channels"]>span{color:#ccb7ff!important}
+#panel-language.ui12-language .ui12-shortcut[data-ui12-jump="tasks"]>span{color:#8cf0ff!important}
+#panel-language.ui12-language .ui12-shortcut strong{font-weight:850!important}
+#panel-language.ui12-language .ui12-hero.elara-language-hero{
+ background-image:linear-gradient(270deg,#031327ed 0%,#04152dca 18%,#04152d5b 37%,transparent 73%),url('assets/ui/language_banner_main.webp')!important;
+ background-position:center!important;background-size:cover!important;
+}
+#panel-language.ui12-language .ui12-leitner-art{
+ background-image:linear-gradient(180deg,#03172b12 0%,#06163220 57%,#05132edd 100%),url('assets/ui/lightner.webp')!important;
+ background-position:44% center!important;background-size:cover!important;
+}
+#panel-language.ui12-language .ui12-leitner-art>p{margin-top:auto!important;margin-bottom:5px!important;background:#061a309b!important}
+#panel-language.ui12-language .ui12-box{background:#031d3ace!important;backdrop-filter:blur(3px)}
+#panel-language.ui12-language .ui12-leitner{background:linear-gradient(155deg,#031d3b,#04142b)}
+#panel-language.ui12-language .ui12-tasks{background:linear-gradient(145deg,#052037f2,#031329),url('assets/ui/daily-banner-bg_main.webp') left center/auto 100% no-repeat}
+#panel-language.ui12-language .ui12-empty-state{min-height:0!important;gap:8px}
+#panel-language.ui12-language .ui12-channels .ui12-empty-state,
+#panel-language.ui12-language .ui12-challenges .ui12-empty-state{min-height:130px!important}
+#panel-language.ui12-language .ui12-channels .ui12-empty-state img,
+#panel-language.ui12-language .ui12-challenges .ui12-empty-state img{height:58px;width:58px}
+#panel-language.ui12-language .ui12-stats{min-height:0!important}
+#panel-language.ui12-language .ui12-card{scroll-margin-top:10px}
+#panel-language.ui12-language .ui12-card-body{overflow-wrap:anywhere}
+#panel-language.ui12-language .ui12-book-grid{min-width:0!important}
+#panel-language.ui12-language .ui12-book strong{word-break:normal!important}
+#panel-language.ui12-language .ui12-card .ui12-primary{white-space:normal}
+#panel-language.ui12-language .ui12-leitner .ui12-leitner-illustration{display:none!important}
+@media(min-width:701px){
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{
+  margin-top:0!important;min-height:235px!important;padding:66px clamp(18px,2vw,34px) 18px!important
+ }
+ #panel-language.ui12-language .ui12-board{grid-template-areas:"stats books tasks leitner" "report challenges channels classes"}
+ #panel-language.ui12-language .ui12-shortcut{min-height:68px}
+}
+@media(min-width:701px) and (max-width:1180px){
+ #panel-language.ui12-language .ui12-board{grid-template-areas:"leitner tasks" "books classes" "channels challenges" "stats report"}
+}
+@media(max-width:700px){
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{
+  min-height:200px!important;margin-top:0!important;padding:17px 15px!important;
+  background-image:linear-gradient(270deg,#061529ed 0%,#061529ad 48%,#06152926 87%),url('assets/ui/language_banner_main.webp')!important;
+  background-position:48% center!important
+ }
+ #panel-language.ui12-language .ui12-shortcut{min-height:78px;gap:3px!important}
+ #panel-language.ui12-language .ui12-shortcut>span{height:29px;width:30px}
+ #panel-language.ui12-language .ui12-shortcut>span svg{height:28px;width:28px}
+ #panel-language.ui12-language .ui12-shortcut strong{font-size:clamp(9px,2.35vw,11px)!important;line-height:1.25!important}
+ #panel-language.ui12-language .ui12-board{gap:8px}
+ #panel-language.ui12-language .ui12-leitner-art{background-position:45% center!important}
+ #panel-language.ui12-language .ui12-card{padding:9px}
+ #panel-language.ui12-language .ui12-card .ui12-card-head{min-height:33px}
+ #panel-language.ui12-language .ui12-card-head h2{font-size:clamp(11px,3vw,14px)!important}
+ #panel-language.ui12-language .ui12-book-cover{max-height:120px}
+ #panel-language.ui12-language .ui12-classes .ui12-empty:before{height:65px!important}
+}
+@media(max-width:389px){
+ #panel-language.ui12-language .ui12-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px!important}
+ #panel-language.ui12-language .ui12-shortcut{min-height:65px}
+}
+@media(max-width:374px){
+ #panel-language.ui12-language .ui12-board{grid-template-columns:1fr!important;grid-template-areas:"leitner" "tasks" "books" "classes" "channels" "challenges" "stats" "report"!important}
+}
+#panel-language-tasks,#panel-language-channels,#panel-language-challenges{min-width:0}
+#main .ui13-subpage{direction:rtl;display:grid;gap:16px;min-width:0;padding-bottom:calc(95px + env(safe-area-inset-bottom))}
+#main .ui13-subpage-head{min-height:170px;display:flex;flex-direction:column;gap:15px;justify-content:end;border:1px solid #176789;border-radius:18px;background:linear-gradient(110deg,#06203bfa,#073254d9),url('assets/ui/language_banner_main.webp') center/cover;padding:18px 20px}
+#main .ui13-back{width:max-content;max-width:100%;font:inherit;font-weight:750;font-size:13px;color:#a4efff;background:#082840;border:1px solid #2ccdea;border-radius:30px;min-height:38px;padding:7px 17px;cursor:pointer}
+#main .ui13-subpage-title{display:flex;align-items:center;gap:15px;min-width:0}
+#main .ui13-subpage-title svg{flex:none;color:#40efff}
+#main .ui13-subpage-title h1{font-size:clamp(19px,2vw,29px);color:white;margin:2px 0}
+#main .ui13-subpage-title p{font-size:13px;color:#d1e7ff;margin:0;line-height:1.7}
+#main .ui13-subpage-title small{font-size:10px;color:#68e0f6}
+#main .ui13-surface{display:grid;gap:12px;background:linear-gradient(160deg,#06223d,#04172d);border:1px solid #167b9c;border-radius:17px;padding:18px;color:#eef7ff}
+#main .ui13-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#main .ui13-section-head h2{margin:0;font-size:18px}
+#main .ui13-section-head span,#main .ui13-note{color:#bdd4e4;font-size:12px;line-height:1.7}
+#main .ui13-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+#main .ui13-primary,#main .ui13-secondary{min-height:42px;border:1px solid #6aecff;border-radius:25px;padding:10px 18px;cursor:pointer;font:inherit;font-size:13px;font-weight:900}
+#main .ui13-primary{background:linear-gradient(90deg,#76eff1,#4b9bff);color:#031b31}
+#main .ui13-secondary{background:#072940;color:#e9faff}
+#main .ui13-task-list,#main .ui13-club-list{display:grid;gap:8px}
+#main .ui13-task-row,#main .ui13-club-row{display:flex;align-items:center;gap:10px;border:1px solid #216489;border-radius:12px;background:#05182f;min-height:53px;padding:9px;min-width:0}
+#main .ui13-task-row>button:first-child{width:29px;height:29px;flex:none;display:grid;place-items:center;border:1px solid #14d5eb;border-radius:7px;background:#06213a;color:#37e6f5}
+#main .ui13-task-row.is-done>button:first-child{background:#04aaba;color:#002335}
+#main .ui13-task-row>button:nth-child(2){flex:1;min-width:0;background:none;border:none;color:#f0f9ff;font:inherit;text-align:start;overflow-wrap:anywhere;cursor:pointer;text-decoration:none!important}
+#main .ui13-task-row.is-done>button:nth-child(2){opacity:.79;text-decoration:none!important}
+#main .ui13-task-row small{color:#a6c6d8;font-size:11px}
+#main .ui13-club-row{color:#f0f9ff;text-align:start;font:inherit;cursor:pointer;width:100%}
+#main .ui13-club-row>span:nth-child(2){flex:1;min-width:0;display:grid;gap:3px}
+#main .ui13-club-row strong{font-weight:900}
+#main .ui13-club-row small{font-size:11px;color:#a4cfe2}
+#main .ui13-empty{line-height:1.9;color:#c2dcf1;margin:0;overflow-wrap:anywhere}
+#main .ui13-challenge-empty{text-align:center;justify-items:center;padding:25px 15px}
+#main .ui13-challenge-empty img{max-width:35%}
+#main .ui13-challenge-empty h2{margin:0}
+#main .ui13-challenge-empty p{max-width:620px;color:#c3e0f2;line-height:1.9;margin:0}
+#main .language-class-report{max-width:min(92vw,800px);max-height:min(75dvh,730px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:700px){
+ #main .ui13-subpage{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
+ #main .ui13-subpage-head{min-height:175px;padding:13px}
+ #main .ui13-surface{padding:12px}
+ #main .ui13-section-head h2{font-size:15px}
+ #main .ui13-task-row{gap:5px}
+ #main .ui13-task-row small{font-size:10px}
+ #main .language-class-report{max-height:65dvh}
+}
