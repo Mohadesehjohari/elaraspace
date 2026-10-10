@@ -123,7 +123,7 @@
    '<p class="pe-status" role="status" aria-live="polite" data-pe-status></p>'+
    '<div class="pe-actions"><button type="button" class="pe-reset" data-pe-action="reset">'+icon('reset')+' بازنشانی تغییرات</button><button type="button" class="pe-outline pe-public-preview" data-pe-action="preview">'+icon('eye')+' پیش‌نمایش در صفحه عمومی</button><button type="submit" class="pe-save" data-pe-save>ذخیره تغییرات '+icon('check')+'</button></div>'+
    '</form>'+
-   '<aside class="pe-preview-outer" id="pe-preview-area"><div class="pe-preview"><header><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
+   '<aside class="pe-preview-outer" id="pe-preview-area" aria-label="پیش‌نمایش ویرایش‌های جاری"><div class="pe-preview"><header><button type="button" class="pe-mobile-preview-close" data-pe-action="preview-close" aria-label="بازگشت به ویرایش">'+icon('back')+' بازگشت به ویرایش</button><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
    '</div></div>';
   // Mount within the existing workspace main; global header, sidebar and mobile dock remain untouched.
   const workspaceMain=document.getElementById('main')||document.querySelector('.workspace main');
@@ -191,6 +191,7 @@
    else prevFocus?.isConnected&&prevFocus?.focus?.({preventScroll:true});
   }
   function requestExit(){
+   if(previewActive){closePreview();return true}
    if(busy){status('تا پایان ذخیره صبر کنید.');return false}
    if(dirty()&&!window.confirm(exitMessage))return false;
    if(history.state?.elaraProfileEdit)history.back();
@@ -198,7 +199,12 @@
    return true
   }
   function onHistory(){
-   if(host!==shell||history.state?.elaraProfileEdit)return;
+   if(host!==shell)return;
+   if(previewActive&&!history.state?.elaraProfilePreview){
+    previewActive=false;shell.classList.remove('pe-mobile-preview-visible');
+    q('.pe-header-preview').focus({preventScroll:true});return
+   }
+   if(history.state?.elaraProfileEdit)return;
    if(busy||(dirty()&&!window.confirm(exitMessage))){
     history.pushState({...history.state,elaraProfileEdit:true},'',location.href);return
    }
@@ -207,18 +213,28 @@
   function onHash(){if(host===shell&&location.hash!==originHash)cleanup()}
   function onAccount(){if(host===shell&&!uidStable())cleanup()}
   function beforeUnload(e){if(host===shell&&dirty()){e.preventDefault();e.returnValue=''}}
-  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();requestExit()}};
+  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();previewActive?closePreview():requestExit()}};
   document.addEventListener('keydown',keydown);
   window.addEventListener('popstate',onHistory);
   window.addEventListener('hashchange',onHash);
   window.addEventListener('elara:account-ready',onAccount);
   window.addEventListener('beforeunload',beforeUnload);
   closing=requestExit;
+  function closePreview(){
+   if(!previewActive)return;
+   if(history.state?.elaraProfilePreview){history.back();return}
+   previewActive=false;shell.classList.remove('pe-mobile-preview-visible');
+   q('.pe-header-preview').focus({preventScroll:true})
+  }
   function showPreview(){
-   previewActive=!previewActive;
-   shell.classList.toggle('pe-mobile-preview-visible',previewActive);
-   status('این پیش‌نمایش تغییرات ذخیره‌نشده است؛ نمایش عمومی واقعی فقط پس از ذخیره و پشتیبانی سرور تغییر می‌کند.');
-   q('#pe-preview-area').scrollIntoView({behavior:'smooth',block:'start'});
+   if(previewActive){closePreview();return}
+   previewActive=true;
+   shell.classList.add('pe-mobile-preview-visible');
+   status('این فقط پیش‌نمایش تغییرات ذخیره‌نشده است؛ ظاهر عمومی هنوز روی سرور ثبت نشده.');
+   if(window.matchMedia('(max-width:700px)').matches){
+    history.pushState({...history.state,elaraProfileEdit:true,elaraProfilePreview:true},'',location.href);
+    const panel=q('#pe-preview-area');panel.scrollTop=0;panel.querySelector('.pe-mobile-preview-close')?.focus({preventScroll:true})
+   }else q('#pe-preview-area').scrollIntoView({behavior:'smooth',block:'start'})
   }
   async function prepare(retry=false){
    if(service)return service;
@@ -242,6 +258,7 @@
    if(action==='close'){requestExit();return}
    if(action==='reset'){restore();return}
    if(action==='preview'){showPreview();return}
+   if(action==='preview-close'){closePreview();return}
    if(action==='banners'){q('[data-pe-banner-options]').hidden=!q('[data-pe-banner-options]').hidden;return}
    if(action==='avatars'){q('[data-pe-avatar-options]').hidden=!q('[data-pe-avatar-options]').hidden;return}
    if(action==='copy'){if(navigator.clipboard?.writeText)navigator.clipboard.writeText('@'+draft.username).then(()=>status('نام کاربری کپی شد.')).catch(()=>status('کپی نام کاربری مجاز نبود.'));return}
