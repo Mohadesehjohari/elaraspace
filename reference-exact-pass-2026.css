@@ -1615,3 +1615,8 @@ body.light .blog-hero,body.light .blog-toolbar,body.light .blog-card,body.light 
  #elara-ranking-page .social-reference-grid>.social-friend-rank{grid-column:1/-1!important}
  #elara-ranking-page .social-reference-grid>.social-side-stack{grid-template-columns:1fr!important}
 }
+
+/* UI12 release: P0 mobile Tasks action menu must never hide behind original seven-button dock. */
+@media(max-width:700px){
+ #panel-tasks .astra-task-more[open] .item-actions{top:auto!important;bottom:calc(100% + 6px)!important}
+}
