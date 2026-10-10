@@ -523,7 +523,7 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
 
 @media(max-width:768px){
  #elara-social-page .social-dm-section.has-active-thread{
-  position:fixed!important;z-index:80;top:0;right:0;left:0;
+  position:fixed!important;z-index:80;top:max(62px,env(safe-area-inset-top,0px));right:0;left:0;
   bottom:calc(74px + env(safe-area-inset-bottom,0px));height:auto;max-width:100vw;width:100vw;
   margin:0!important;padding:3px!important;border-radius:0!important;
   background:#06152c!important;overscroll-behavior:contain
