@@ -285,3 +285,12 @@
 
 /* Small-screen header is preview + title only; Back remains available via browser navigation. */
 @media(max-width:700px){.pe-shell .pe-back{display:none!important}}
+
+/* At large widths make Save/Reset visible within the dedicated editor scroller, as in the reference footer. */
+@media(min-width:1280px){
+ .pe-shell .pe-actions{
+  position:sticky;bottom:0;z-index:5;
+  padding:9px 0;background:linear-gradient(180deg,#05172bde,#031225);
+  box-shadow:0 -12px 20px #031225b0;
+ }
+}
