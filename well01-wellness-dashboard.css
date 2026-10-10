@@ -151,3 +151,13 @@
  .well01-card header h2{font-size:.7rem}
  .well01-task-row{font-size:.62rem}
 }
+/* Individual, lightweight neon glyphs rather than duplicated purple artwork. */
+.well01-shortcut-icon svg{height:29px;width:29px;max-width:77%;max-height:77%;filter:drop-shadow(0 0 5px currentColor)}
+.well01-water .well01-shortcut-icon{color:#4fe8ff;border-color:#11b8e7}
+.well01-sleep .well01-shortcut-icon{color:#b6a4ff;border-color:#8a79ff}
+.well01-weight .well01-shortcut-icon{color:#55d8ff;border-color:#22b3f1}
+.well01-exercise .well01-shortcut-icon{color:#4bffaa;border-color:#1ce4a8}
+.well01-analysis .well01-shortcut-icon{color:#50ffa4;border-color:#13dc7e}
+#panel-wellness-exercise .well01-legacy-editors{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#panel-wellness-exercise .well01-legacy-editors:empty{display:none}
+#panel-wellness-exercise .well01-legacy-editors>button{border:1px solid #21bb9a!important;background:#075850a8!important;color:#e6fff5!important;min-height:34px;border-radius:10px;padding:6px 12px;font-size:.75rem}
