@@ -35,6 +35,12 @@ try{
     status:panel.querySelector('.lib01-status')?.innerText||'',continuing:panel.querySelectorAll('.lib01-book').length,
     clips:panel.querySelectorAll('.lib01-clip').length};
   });
+  const launcherBounds=await page.locator('#panel-books>.feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card').evaluateAll(xs=>xs.map(x=>{
+    const rect=x.getBoundingClientRect(),art=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();
+    return {height:rect.height,imageHeight:art?.height||0,y:rect.y};
+  }));
+  assert.equal(launcherBounds.length,4,width+': four legacy library launcher routes must remain visible');
+  assert.ok(launcherBounds.every(x=>x.height>=(width<=700?160:188)&&x.imageHeight>=(width<=700?100:125)),width+': visual launcher compatibility '+JSON.stringify(launcherBounds));
   assert.equal(model.nHeroes,1,width+': extra visible banner');
   assert.match(model.image,/librairy_banner_main\.webp/,width+': approved library asset not used');
   assert.equal(model.tabs,8,width+': incomplete eight library shortcuts');
