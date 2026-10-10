@@ -282,3 +282,6 @@
  .pe-shell .pe-identity .pe-medal{font-size:10px;padding:3px 5px}
  .pe-shell .pe-identity>.pe-avatar-options,.pe-shell .pe-identity>.pe-banner-options{grid-column:1/-1}
 }
+
+/* Small-screen header is preview + title only; Back remains available via browser navigation. */
+@media(max-width:700px){.pe-shell .pe-back{display:none!important}}
