@@ -26,7 +26,10 @@ const bootstrap=async(page)=>{
   }};
  },testUser);
  await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+ // Test-only bypass of the signed-out Firebase account gate; never change production gate code.
+ await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
  await page.locator('#elara-profile-edit-screen').waitFor({timeout:15000});
+ assert.equal(await page.locator('.pe-heading h1').isVisible(),true,'The Edit Profile surface must be visible');
  await page.locator('.pe-preview-card').waitFor({timeout:10000});
 };
 for(const width of sizes){
@@ -41,28 +44,28 @@ for(const width of sizes){
  assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
- await page.locator('[name="name"]').fill('نام جدید');
- await page.locator('[name="title"]').fill('در مسیر یادگیری');
+ await page.locator('#elara-profile-edit-screen [name="name"]').fill('نام جدید');
+ await page.locator('#elara-profile-edit-screen [name="title"]').fill('در مسیر یادگیری');
  assert.equal(await page.locator('.pe-preview-body h3').textContent(),'نام جدید');
  assert.match(await page.locator('.pe-preview-title').textContent(),/در مسیر یادگیری/);
  await page.locator('[data-pe-action="reset"]').click();
  assert.equal(await page.locator('.pe-preview-body h3').textContent(),testUser.name);
- assert.equal(await page.locator('[name="title"]').inputValue(),'');
+ assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'');
  if(width===390){
   const navBefore=await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||'');
   const sidebarBefore=await page.evaluate(()=>document.querySelector('.sidebar')?.innerHTML||'');
   await page.locator('[data-pe-color="pink"]').click();
   await page.locator('[data-pe-template="nebula"]').click();
   assert.equal(await page.locator('.pe-preview-body').getAttribute('data-template'),'nebula');
-  await page.locator('[name="username"]').fill('occupied_qa');
+  await page.locator('#elara-profile-edit-screen [name="username"]').fill('occupied_qa');
   await page.locator('[data-pe-save]').click();
   await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('قبلاً'));
   assert.notEqual(await page.locator('[data-pe-status]').textContent(),'اطلاعات اصلی در Firebase ذخیره شد.');
-  await page.locator('[name="username"]').fill('denied_qa');
+  await page.locator('#elara-profile-edit-screen [name="username"]').fill('denied_qa');
   await page.locator('[data-pe-save]').click();
   await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('Firebase اجازهٔ ذخیره نداد'));
-  await page.locator('[name="username"]').fill('visual_qa');
-  await page.locator('[name="title"]').fill('عنوان تست');
+  await page.locator('#elara-profile-edit-screen [name="username"]').fill('visual_qa');
+  await page.locator('#elara-profile-edit-screen [name="title"]').fill('عنوان تست');
   await page.locator('[data-pe-save]').click();
   await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('روی همین مرورگر'));
   assert.equal(await page.locator('.pe-preview-title').textContent(),'عنوان تست');
@@ -79,8 +82,9 @@ for(const width of sizes){
    window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async()=>({warnings:[]})};
   },testUser);
   await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
   await page.locator('#elara-profile-edit-screen').waitFor();
-  assert.equal(await page.locator('[name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
+  assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
   await page.screenshot({path:dir+'/profile-edit-390-after-reload.png',fullPage:false});
  }
  await context.close();
