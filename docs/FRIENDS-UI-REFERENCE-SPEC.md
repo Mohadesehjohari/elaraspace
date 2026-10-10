@@ -73,3 +73,13 @@ Expected desktop structures: Friends dashboard multiple dashboard columns; chats
 - Browser automation for navigation, route persistence, actions and errors; emulator Rules coverage and two-account DM/Presence tests.
 - Owner visual signoff; coordinate with concurrent Profile Editor branch.
 - Review and record any shared-file changes before they are made. **Never merge, migrate or deploy from this spec.**
+
+## Incremental release log
+
+| Increment | PR | Commit | Branch/production evidence | Follow-up |
+| --- | --- | --- | --- | --- |
+| Friends compact internal tab strip | [#42](https://github.com/Mohadesehjohari/elaraspace/pull/42) | Merge `016e770d50934251c53f823e6476043f92be2b79` | Merged to `main`; GitHub Actions browser, contracts and Firebase Rules checks green. **LIVE NOT VERIFIED**: direct production GitHub Pages fetch was inaccessible in this execution environment. | Confirm deployed stylesheet bytes and mobile/desktop display before marking LIVE VERIFIED. |
+| Friends account dashboard and routed tabs | Draft [#41](https://github.com/Mohadesehjohari/elaraspace/pull/41) | Not merged | Early implementation on feature branch, fails/changes being worked through; production intentionally unchanged. | Reconcile latest main, test and split into the next release-sized PR. |
+| DM, Presence, Groups, Clubs, Challenges | Draft [#41](https://github.com/Mohadesehjohari/elaraspace/pull/41) | Not merged | No real two-account acceptance or live verification. | Isolate functional/security acceptance gates and never deploy Rules as part of a cosmetic release. |
+
+No central roadmap, profile editor, global navigation or Firebase Rules were changed during this release.
