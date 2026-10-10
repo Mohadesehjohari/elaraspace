@@ -1,0 +1,58 @@
+name: UI16 Owner Candidate Gate
+on:
+  pull_request:
+    paths:
+      - boot.js
+      - ui16-owner-fidelity.css
+      - ui12-language-dashboard.js
+      - tests/ui16-owner-candidate-browser.mjs
+      - .github/workflows/ui16-owner-candidate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript and owner art assets
+        run: |
+          set -eu
+          node --check boot.js
+          node --check ui12-language-dashboard.js
+          node --check tests/ui16-owner-candidate-browser.mjs
+          for name in language_banner_main.webp librairy_banner_main.webp lightner.webp new_words.webp ready_to_review.webp review_again.webp task-header-banner-bg.webp; do test -s "assets/ui/$name"; done
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve main and candidate separately
+        run: |
+          python3 -m http.server 4173 >/tmp/ui16-candidate.log 2>&1 &
+          python3 -m http.server 4174 --directory baseline >/tmp/ui16-baseline.log 2>&1 &
+          sleep 3
+          curl -fsS http://127.0.0.1:4173/ui16-owner-fidelity.css >/dev/null
+      - name: Original strong Home Tasks reference fidelity check
+        run: timeout 420s node tests/home-tasks-reference-visual.mjs
+      - name: Full nine-width, multi-route browser check
+        if: always()
+        run: timeout 720s node tests/ui16-owner-candidate-browser.mjs
+      - name: Persist real candidate and baseline screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui16-before-after
+          path: |
+            browser-artifacts/ui16/*.png
+            browser-artifacts/ui16/*.json
+            browser-artifacts/fidelity-baseline-*.png
+          retention-days: 30
+          if-no-files-found: warn
