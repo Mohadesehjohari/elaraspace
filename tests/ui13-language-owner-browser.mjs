@@ -43,6 +43,18 @@ try{
     }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   }
+  if(width===390||width===1440){
+    for(const destination of ['language','books','blog','page','social','ranking','freedom','exercise']){
+      await page.evaluate(route=>ElaraOpen(route,{history:'replace'}),destination);
+      await page.waitForSelector('#panel-'+destination+':not(.hidden)',{timeout:9000});
+      await page.waitForTimeout(120);
+      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert.ok(overflow<=2,'Route '+destination+' horizontal overflow at '+width+': '+overflow);
+      await page.screenshot({path:out+'/ui14-'+destination+'-'+width+'.png',fullPage:false,animations:'disabled'});
+    }
+    await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+    await page.waitForSelector('#panel-language:not(.hidden)');
+  }
   await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-art')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
   const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
   assert.match(hero,/language_banner_main\.webp/,'Language hero not owner image');
