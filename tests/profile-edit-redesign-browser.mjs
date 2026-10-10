@@ -14,9 +14,10 @@ const errors=[];
 const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
 const bootstrap=async(page)=>{
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:25000});
+ await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount&&typeof window.ElaraLoadSocial==='function',{timeout:25000});
+ await page.evaluate(async()=>{try{await window.ElaraLoadSocial()}catch{}});
  await page.evaluate(user=>{
-  window.ElaraAccount.user={uid:user.uid,photoURL:'',metadata:{creationTime:'2026-01-05T12:00:00Z'}};
+  Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid,photoURL:'',metadata:{creationTime:'2026-01-05T12:00:00Z'}}),set:()=>{}});
   window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async(values)=>{
    if(values.username==='occupied_qa')throw new Error('این نام کاربری قبلاً ثبت شده است.');
    if(values.username==='denied_qa'){const error=new Error('permission denied');error.code='permission-denied';throw error}
@@ -71,9 +72,10 @@ for(const width of sizes){
   assert.equal(navAfter,navBefore,'Mobile nav mutated');
   assert.equal(sidebarAfter,sidebarBefore,'Sidebar mutated');
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:20000});
+  await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount&&typeof window.ElaraLoadSocial==='function',{timeout:20000});
+  await page.evaluate(async()=>{try{await window.ElaraLoadSocial()}catch{}});
   await page.evaluate(user=>{
-   window.ElaraAccount.user={uid:user.uid,photoURL:''};
+   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid,photoURL:''}),set:()=>{}});
    window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async()=>({warnings:[]})};
   },testUser);
   await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
