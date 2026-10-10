@@ -36,6 +36,7 @@ try{
     }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   }
+  await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-art')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
   const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
   assert.match(hero,/language_banner_main\.webp/,'Language hero not owner image');
   const leitner=await page.locator('#ui12-leitner .ui12-leitner-art').evaluate(e=>getComputedStyle(e).backgroundImage);
