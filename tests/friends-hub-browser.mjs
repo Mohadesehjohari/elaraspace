@@ -23,6 +23,20 @@ async function run(width,height){
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  const tabs=page.locator('#elara-social-page .social-tabs [role="tab"]');
  assert.equal(await tabs.count(),5,width+': Friends Hub must expose five principal tabs; requests stay standalone');
+ const geometry=await page.evaluate(()=>{
+  const nav=document.querySelector('#elara-social-page .social-tabs');
+  const item=nav?.querySelector('[role="tab"]'),image=item?.querySelector('img');
+  const selected=nav?.querySelector('[aria-selected="true"]');
+  if(!nav||!item||!image||!selected)return null;
+  return {height:item.getBoundingClientRect().height,art:image.getBoundingClientRect().height,
+   width:item.getBoundingClientRect().width,selectedBorder:getComputedStyle(selected).borderTopColor,
+   navScrolls:nav.scrollWidth>nav.clientWidth};
+ });
+ assert.ok(geometry,width+': Friends nav geometry unavailable');
+ assert.ok(geometry.height>=45&&geometry.height<=56,width+': artwork tiles must be compact '+JSON.stringify(geometry));
+ assert.ok(geometry.art<=30,width+': icons must be compact '+JSON.stringify(geometry));
+ assert.ok(geometry.width>=100,width+': tap target must be usable '+JSON.stringify(geometry));
+
  assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity']);
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': permanent Friend Requests card missing');
  assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': permanent Shared Requests card missing');
@@ -62,6 +76,6 @@ async function run(width,height){
  await page.screenshot({path:'browser-artifacts/friends-hub-'+width+'.png',fullPage:true});
  await page.close();
 }
-await run(390,844);await run(1440,1000);
+for(const width of [320,375,390,430,768,1440,1648])await run(width,width<800?844:1000);
 await browser.close();
-console.log('FRIENDS_HUB_PASS chats groups friends activity clubs + standalone requests/shared-requests i18n 390/1440');
+console.log('FRIENDS_COMPACT_NAV_PASS browser geometry, full-site overflow, tabs and ranking isolation across seven widths');

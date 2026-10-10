@@ -232,3 +232,120 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   #elara-social-page .social-tabs .social-tab-label,
   #elara-ranking-page .social-tabs .social-tab-label{font-size:12px!important}
 }
+
+
+/* FRIENDS incremental release 01 — compact reference navigation.
+   Specific to Friends; never alters independent Ranking or the global mobile nav.
+   Replaces legacy 150px image tiles with compact, accessible navigation.
+*/
+#elara-social-page.social-reference .social-tabs {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 9px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 0 13px !important;
+  padding: 2px 1px 8px !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+  overscroll-behavior-inline: contain;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"] {
+  position: relative !important;
+  display: flex !important;
+  flex: 1 0 124px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: 8px 12px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  border: 1px solid #1d5082 !important;
+  border-radius: 12px !important;
+  color: #e9f3ff !important;
+  background: linear-gradient(145deg,#092846,#061a33) !important;
+  box-shadow: inset 0 1px 0 #ffffff0b !important;
+  overflow: hidden !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
+  text-indent: 0 !important;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"]::before,
+#elara-social-page.social-reference .social-tabs > [role="tab"]::after {
+  display: none !important;
+  content: none !important;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"] img {
+  position: static !important;
+  inset: auto !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  flex: 0 0 26px !important;
+  object-fit: contain !important;
+  margin: 0 !important;
+  filter: none !important;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"] .social-tab-label {
+  position: static !important;
+  inset: auto !important;
+  display: inline !important;
+  max-width: none !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  font-weight: 800 !important;
+  color: inherit !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"][aria-selected="true"] {
+  border-color: #0ceaff !important;
+  color: #fff !important;
+  background: linear-gradient(120deg,#097ca9,#094d9c) !important;
+  box-shadow: inset 0 0 0 1px #35e9ff80,0 0 14px #00c8ff63 !important;
+}
+#elara-social-page.social-reference .social-tabs > [role="tab"]:focus-visible {
+  outline: 2px solid #8cefff !important;
+  outline-offset: -3px !important;
+}
+@media (max-width: 800px) {
+  #elara-social-page.social-reference .social-tabs > [role="tab"] {
+    flex: 0 0 110px !important;
+    width: 110px !important;
+    min-width: 110px !important;
+    height: 49px !important;
+    min-height: 49px !important;
+    padding: 6px 8px !important;
+    gap: 6px !important;
+  }
+  #elara-social-page.social-reference .social-tabs > [role="tab"] img {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    flex-basis: 22px !important;
+  }
+  #elara-social-page.social-reference .social-tabs > [role="tab"] .social-tab-label {
+    font-size: 12px !important;
+  }
+}
+@media (max-width: 360px) {
+  #elara-social-page.social-reference .social-tabs > [role="tab"] {
+    flex-basis: 103px !important;
+    width: 103px !important;
+    min-width: 103px !important;
+  }
+  #elara-social-page.social-reference .social-tabs > [role="tab"] .social-tab-label {
+    font-size: 11px !important;
+  }
+}
