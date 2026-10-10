@@ -58,6 +58,21 @@ try{
   await page.waitForTimeout(100);
   await page.locator('#panel-language [data-ui12-jump="tasks"]').click();await page.waitForSelector('#panel-language-tasks:not(.hidden) .ui13-subpage');
   await page.locator('#panel-language-tasks [data-ui13-back]').click();await page.waitForSelector('#panel-language:not(.hidden)');
+
+  // L1: verify actual published Classes markup and its canonical empty-account state.
+  await page.evaluate(()=>ElaraOpen('language-courses',{history:'replace'}));
+  await page.waitForSelector('#panel-language-courses:not(.hidden) .l1-class-stats',{timeout:15000});
+  assert.equal(await page.locator('#panel-language-courses .l1-class-stat').count(),4,'L1 class metrics unavailable on live site');
+  assert.equal(await page.locator('#panel-language-courses .l1-main-cta:visible').count(),1,'L1 create-class CTA unavailable on live site');
+  assert.equal(await page.locator('#panel-language-courses .l1-empty-cta:visible').count(),1,'L1 personal empty-state CTA unavailable');
+  assert.equal(await page.locator('#panel-language-courses .l1-shared-cta:visible').count(),1,'L1 shared empty-state CTA unavailable');
+  const liveClassBg=await page.locator('#panel-language-courses .l1-class-hero').evaluate(el=>getComputedStyle(el).backgroundImage);
+  assert.match(liveClassBg,/language_banner_main\.webp/,'L1 real repository hero not loaded');
+  const liveClassOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  assert.ok(liveClassOverflow<=2,'L1 production classes horizontal overflow '+width+': '+liveClassOverflow);
+  await page.screenshot({path:out+'/live-classes-'+width+'.png',fullPage:true,animations:'disabled'});
+  await page.locator('#panel-language-courses [data-class-back]').click();
+  await page.waitForSelector('#panel-language:not(.hidden)');
   await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));
   await page.waitForSelector('#panel-home:not(.hidden)');
   assert.equal(await page.locator('#panel-language.hidden').count(),1,'Language must become hidden on Home');
