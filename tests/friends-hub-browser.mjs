@@ -51,6 +51,17 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-social > h1:visible').count(),0,width+': legacy Friends and Community header must not remain');
  const pageWidth=await page.evaluate(()=>({screen:innerWidth,content:document.documentElement.scrollWidth}));
  assert.ok(pageWidth.content<=pageWidth.screen+2,width+': F2 horizontal overflow '+JSON.stringify(pageWidth));
+ if(width>=1440){
+  const geometry=await page.evaluate(()=>{
+   const root=document.querySelector('#elara-social-page .social-reference-grid');
+   const kpi=document.querySelector('.friends-f2-kpis'),friend=document.querySelector('.friends-f2-friends');
+   const grid=root.getBoundingClientRect(),metrics=kpi.getBoundingClientRect(),friends=friend.getBoundingClientRect();
+   return {gridWidth:grid.width,kpiWidth:metrics.width,friendWidth:friends.width,columns:getComputedStyle(root).gridTemplateColumns.split(' ').length}
+  });
+  assert.equal(geometry.columns,12,width+': desktop F2 must use 12 explicit columns '+JSON.stringify(geometry));
+  assert.ok(geometry.kpiWidth>=geometry.gridWidth*.92,width+': six KPIs must span desktop grid '+JSON.stringify(geometry));
+  assert.ok(geometry.friendWidth<=geometry.gridWidth*.72,width+': Friends card should share first dashboard row '+JSON.stringify(geometry));
+ }
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
  assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': collaboration preview missing');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
