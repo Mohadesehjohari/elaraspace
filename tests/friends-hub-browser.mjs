@@ -51,7 +51,7 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats did not remount after switching tabs');
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);
  const enLabels=await page.locator('#elara-social-page .social-tabs [role="tab"]').allTextContents();
- for(const label of ['Chats','Groups','Friends','Activity','Clubs'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
+ for(const label of ['Chats','Groups','My friends','Activity','Clubs'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
  await page.locator('[data-social-route="social"][data-social-view="requests"]').click();
  assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/Friend requests/,width+': requests tab must use existing requests');
  assert.match(new URL(page.url()).searchParams.get('friendsTab'),/requests/);
