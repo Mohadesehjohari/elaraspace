@@ -32,7 +32,7 @@ async function run(width,height){
  const page=await browser.newPage({viewport:{width,height}});await wire(page);
  await page.goto(base+'/?group-stage8='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraSocialGroupsUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
- await page.locator('[data-social-route="social"][data-social-view="groups"]').click();
+ await page.locator('#elara-social-page .social-tabs [data-social-route="social"][data-social-view="groups"]').click();
  await page.waitForSelector('.social-groups-section');
  await page.locator('[data-social-create-group]').click();await page.waitForSelector('.social-group-create');
  await page.locator('.social-group-create input[name="title"]').fill('تیم خفن‌ها 🔥');
