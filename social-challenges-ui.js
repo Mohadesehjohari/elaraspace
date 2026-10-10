@@ -2,7 +2,7 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const api=()=>window.ElaraSocial?.challenges,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
-const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
+const isFriendsTab=root=>!!root?.querySelector('[data-social-view="challenges"][aria-selected="true"]');
 let token=0,lastRows=[];
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3000)}
 function expiresMs(c){return c.expiresAt?.toMillis?.()||Number(c.expiresAtMs)||0}
@@ -41,7 +41,7 @@ async function mount(){
  const mine=++token;section.innerHTML='<header class="social-challenges-head"><div><small>ELARA · CHALLENGES</small><h2>'+t('چالش دوستانه','Friend challenges')+'</h2><p>'+t('یه هدف مشخص کن؛ درخواست فقط ۳۰ ثانیه وقت داره 😎⚡','Pick a target; challenge requests expire in 30 seconds 😎⚡')+'</p></div><button type="button" class="primary-button" data-challenge-create '+(!friends().length?'disabled':'')+'>'+t('چالش جدید','New challenge')+'</button></header><div class="social-challenges-grid" data-challenge-list><p class="muted">'+t('در حال بارگذاری…','Loading…')+'</p></div>';
  try{lastRows=await service.list()}catch(error){if(mine===token)section.querySelector('[data-challenge-list]').innerHTML='<p class="ref-empty">'+esc(error?.message||error)+'</p>';return}
  if(mine!==token||!section.isConnected)return;
- const visible=lastRows.slice(0,20);section.querySelector('[data-challenge-list]').innerHTML=visible.map(card).join('')||'<p class="ref-empty">'+t('فعلاً چالشی نداری. یکی رو به مبارزه دعوت کن 👀','No challenges yet. Call out a friend 👀')+'</p>'
+ const visible=lastRows.slice(0,20),active=lastRows.filter(x=>x.status==='accepted').length,pending=lastRows.filter(x=>x.status==='pending').length;section.querySelector('[data-challenge-list]').insertAdjacentHTML('beforebegin','<div class="social-challenge-stats"><article><strong>'+active.toLocaleString('fa-IR')+'</strong><small>'+t('چالش فعال','Active challenges')+'</small></article><article><strong>'+pending.toLocaleString('fa-IR')+'</strong><small>'+t('دعوت در انتظار','Pending invites')+'</small></article><article><strong>—</strong><small>'+t('تسک و کلاس مشترک','Shared tasks / classes')+'</small></article><article><strong>—</strong><small>'+t('XP معتبر چالش','Verified challenge XP')+'</small></article></div>');section.querySelector('[data-challenge-list]').innerHTML=visible.map(card).join('')||'<p class="ref-empty">'+t('فعلاً چالشی نداری. یکی رو به مبارزه دعوت کن 👀','No challenges yet. Call out a friend 👀')+'</p>'
 }
 async function compose(target='',seed=null){
  const service=api();if(!service||!friends().length)return;const selected=target||seed?.to||'';
