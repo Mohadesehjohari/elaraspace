@@ -349,3 +349,138 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
     font-size: 11px !important;
   }
 }
+
+/* F2 owner reference dashboard. Scoped entirely to Friends (not Ranking or global mobile IA). */
+#elara-social-page.social-reference{min-width:0;max-width:100%;overflow-x:clip;--f2-border:#145d92;--f2-surface:linear-gradient(145deg,#071d37,#05162c)}
+#elara-social-page.social-reference *,#elara-social-page.social-reference *::before,#elara-social-page.social-reference *::after{box-sizing:border-box}
+#panel-social[data-f2-single-hero="true"] #elara-social-page .social-page-head{display:none!important}
+#panel-social>.elara-global-hero[data-f2-hero-tab],
+#elara-social-page.social-reference .social-page-head{
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;min-width:0!important;
+ width:100%!important;min-height:174px!important;padding:24px clamp(16px,3vw,38px)!important;
+ margin:0 0 12px!important;border:1px solid #1375ae!important;border-radius:17px!important;
+ background:linear-gradient(270deg,#04142ce8 0%,#04142caf 34%,#06132910 80%),url('assets/ui/36-friends-hero-banner.webp') 45% center/cover no-repeat!important
+}
+#panel-social>.elara-global-hero[data-f2-hero-tab]{min-height:182px!important}
+#panel-social>.elara-global-hero[data-f2-hero-tab]::before,
+#panel-social>.elara-global-hero[data-f2-hero-tab]::after,
+#elara-social-page.social-reference .social-page-head::before,
+#elara-social-page.social-reference .social-page-head::after{content:none!important;display:none!important}
+#panel-social>.elara-global-hero .friends-f2-hero-copy,#elara-social-page.social-reference .friends-f2-hero-copy{width:min(440px,100%);margin-right:0;text-align:right;position:relative;z-index:1;color:#fff}
+#panel-social>.elara-global-hero .friends-f2-hero-copy small,#elara-social-page.social-reference .friends-f2-hero-copy small{display:block;color:#c4ddf9;letter-spacing:.09em;font-size:11px}
+#panel-social>.elara-global-hero .friends-f2-hero-copy h1,#elara-social-page.social-reference .friends-f2-hero-copy h1{font-size:clamp(1.5rem,2.5vw,2.3rem)!important;font-weight:900!important;line-height:1.25!important;margin:6px 0!important;color:#fff!important}
+#panel-social>.elara-global-hero .friends-f2-hero-copy p,#elara-social-page.social-reference .friends-f2-hero-copy p{font-size:clamp(.78rem,1.18vw,1rem)!important;line-height:1.8!important;color:#e5efff!important;margin:0!important}
+#panel-social>.elara-global-hero .friends-f2-hero-cta,#elara-social-page.social-reference .friends-f2-hero-cta{
+ background:linear-gradient(130deg,#ffdc8e,#ffbb51)!important;border:1px solid #fff0b4!important;color:#171c29!important;border-radius:12px!important;
+ font:inherit!important;font-weight:800!important;padding:9px 16px!important;cursor:pointer!important;min-height:39px!important
+}
+#panel-social>.elara-global-hero .friends-f2-hero-cta{margin-top:12px!important}
+#elara-social-page.social-reference .social-reference-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:10px!important;min-width:0!important;max-width:100%!important;align-items:stretch}
+#elara-social-page.social-reference .social-reference-grid>*{min-width:0!important;max-width:100%!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-section{grid-column:span 4!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-friends{grid-column:span 6!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card{grid-column:span 3!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-requests-standalone{grid-column:span 3!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-collab-requests{grid-column:span 4!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-column:span 4!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:span 4!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-groups,
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-clubs,
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:span 4!important}
+#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-kpis,#elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-rank-cta{grid-column:1/-1!important}
+#elara-social-page.social-reference .social-reference-grid>.social-hub-slot,
+#elara-social-page.social-reference[data-social-tab="requests"] .social-reference-grid>.social-section{grid-column:1/-1!important}
+#elara-social-page.social-reference .social-reference-grid>.social-section{
+ background:var(--f2-surface)!important;border:1px solid var(--f2-border)!important;
+ border-radius:15px!important;padding:14px!important;box-shadow:inset 0 1px 0 #bfefff0b!important;min-height:0!important;overflow:hidden!important
+}
+#elara-social-page.social-reference .social-reference-grid>.social-section>header{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 11px!important;min-height:29px}
+#elara-social-page.social-reference .social-reference-grid>.social-section h2{font-size:clamp(.95rem,1.3vw,1.18rem)!important;line-height:1.6!important;font-weight:900!important;color:#f3f9ff!important;margin:0!important}
+#elara-social-page.social-reference .friends-f2-kpis{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px!important;min-width:0!important}
+#elara-social-page.social-reference .friends-f2-kpi{
+ display:flex;align-items:center;gap:9px;padding:13px 10px;min-width:0;border-radius:13px;
+ border:1px solid #195989;background:linear-gradient(145deg,#09294a,#06182f);box-shadow:inset 0 1px #cffbff09;
+}
+#elara-social-page.social-reference .friends-f2-kpi-icon{display:grid;place-items:center;width:41px;height:41px;flex:0 0 41px;border:1px solid #1771a4;border-radius:50%;font-size:24px;color:#20e9ff;background:#063154}
+#elara-social-page.social-reference .friends-f2-kpi-online .friends-f2-kpi-icon{color:#07e7a9}
+#elara-social-page.social-reference .friends-f2-kpi-requests .friends-f2-kpi-icon{color:#ff818f}
+#elara-social-page.social-reference .friends-f2-kpi-clubs .friends-f2-kpi-icon{color:#b08aff}
+#elara-social-page.social-reference .friends-f2-kpi-activity .friends-f2-kpi-icon{color:#ffbd66}
+#elara-social-page.social-reference .friends-f2-kpi-rank .friends-f2-kpi-icon{color:#ffd66e}
+#elara-social-page.social-reference .friends-f2-kpi>span:last-child{min-width:0;display:grid;gap:3px}
+#elara-social-page.social-reference .friends-f2-kpi strong{font-size:clamp(1.2rem,1.8vw,1.85rem);line-height:1.2;color:#fff;font-variant-numeric:tabular-nums}
+#elara-social-page.social-reference .friends-f2-kpi small{font-size:clamp(10px,.91vw,13px);line-height:1.5;color:#c6d9f0}
+#elara-social-page.social-reference .friends-f2-tools{display:flex;flex-wrap:nowrap;align-items:center;gap:7px;min-width:0;margin-bottom:10px}
+#elara-social-page.social-reference .friends-f2-tools input{flex:2 1 150px}
+#elara-social-page.social-reference .friends-f2-tools select{flex:1 1 96px}
+#elara-social-page.social-reference .friends-f2-tools input,#elara-social-page.social-reference .friends-f2-tools select{
+ min-width:0;max-width:100%;height:37px;border:1px solid #1c5d8b;border-radius:9px;background:#081e38;color:#e7f5ff;padding:7px 10px;font:inherit
+}
+#elara-social-page.social-reference .friends-f2-tools button{flex:0 0 35px;height:35px;border:1px solid #175c91;border-radius:8px;background:#092d51;color:#fff;cursor:pointer}
+#elara-social-page.social-reference .friends-f2-tools button[aria-pressed="true"]{border-color:#34e4fa;background:#066fa0}
+#elara-social-page.social-reference .friends-f2-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;min-height:0;max-height:300px;overflow-y:auto;overflow-x:hidden;padding:1px}
+#elara-social-page.social-reference .friends-f2-list.is-list{grid-template-columns:1fr}
+#elara-social-page.social-reference .friends-f2-friend{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;min-width:0;padding:9px;background:#082943;border:1px solid #145073;border-radius:11px}
+#elara-social-page.social-reference .friends-f2-friend[hidden],#elara-social-page.social-reference [data-f2-no-match][hidden]{display:none!important}
+#elara-social-page.social-reference .friends-f2-friend .social-person{min-width:0;overflow:hidden;max-width:100%}
+#elara-social-page.social-reference .friends-f2-friend .social-person span[data-elara-ugc]{min-width:0;max-width:100%;overflow:hidden}
+#elara-social-page.social-reference .friends-f2-friend .social-person strong,#elara-social-page.social-reference .friends-f2-friend .social-person small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#elara-social-page.social-reference .friends-f2-friend-meta{display:none}
+#elara-social-page.social-reference .friends-f2-list.is-list .friends-f2-friend-meta{display:grid;grid-column:1/-1;gap:2px}
+#elara-social-page.social-reference .friends-f2-friend-meta small{font-size:10px;color:#91cbdd}
+#elara-social-page.social-reference .friends-f2-friend-actions{display:flex;gap:5px}
+#elara-social-page.social-reference .friends-f2-friend-actions button{display:grid;place-items:center;min-width:30px;min-height:30px;border:1px solid #205b8a;border-radius:50%;background:#0b3355;color:#fff;cursor:pointer}
+#elara-social-page.social-reference .friends-f2-view-all{border:0!important;background:none!important;color:#41d9f5!important;font:inherit;font-size:11px!important;cursor:pointer;min-height:26px}
+#elara-social-page.social-reference .friends-f2-invite{display:flex;flex-wrap:wrap;gap:7px}
+#elara-social-page.social-reference .friends-f2-invite input{min-width:0;flex:1 1 90px;height:40px;padding:9px;border:1px solid #1b5a8d;border-radius:10px;background:#081b35;color:#fff}
+#elara-social-page.social-reference .friends-f2-invite .primary-button{min-width:104px;min-height:40px}
+#elara-social-page.social-reference .friends-f2-hint{color:#c0d5e9;font-size:12px;line-height:1.8;margin:0 0 14px}
+#elara-social-page.social-reference .friends-f2-preview{display:grid;gap:7px;min-height:60px}
+#elara-social-page.social-reference .friends-f2-preview-row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-width:0;padding:9px 10px;background:#082946;border:1px solid #174b73;border-radius:9px;text-align:right;color:#fff;cursor:pointer}
+#elara-social-page.social-reference .friends-f2-preview-row>span{display:grid;gap:3px;min-width:0}
+#elara-social-page.social-reference .friends-f2-preview-row strong,#elara-social-page.social-reference .friends-f2-preview-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+#elara-social-page.social-reference .friends-f2-preview-row small{color:#9bbfdb;font-size:11px}
+#elara-social-page.social-reference .friends-f2-empty{margin:0!important;color:#b5d0e9;font-size:12px;line-height:1.8}
+#elara-social-page.social-reference .friends-f2-activity-list{display:grid;gap:7px}
+#elara-social-page.social-reference .friends-f2-activity{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:center;min-width:0;background:#08273f;border:1px solid #11496f;border-radius:9px;padding:7px}
+#elara-social-page.social-reference .friends-f2-activity>.social-person{min-width:0}
+#elara-social-page.social-reference .friends-f2-activity>span{min-width:0;font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+#elara-social-page.social-reference .friends-f2-leaders{display:grid;gap:6px}
+#elara-social-page.social-reference .friends-f2-leader{display:flex;gap:8px;align-items:center;min-width:0;background:#09243e;border:1px solid #16517c;border-radius:9px;padding:7px}
+#elara-social-page.social-reference .friends-f2-leader>span{min-width:25px;font-size:15px;color:#ffda7e}
+#elara-social-page.social-reference .friends-f2-leader .social-person{flex:1 1 0;min-width:0}
+#elara-social-page.social-reference .friends-f2-leader>b{font-size:11px;white-space:nowrap;color:#ffd26d}
+#elara-social-page.social-reference .friends-f2-rank-cta{display:flex;justify-content:flex-end}
+#elara-social-page.social-reference .social-requests-standalone .social-row,
+#elara-social-page.social-reference .social-collab-requests .social-row{min-width:0;flex-wrap:wrap;padding:8px}
+#elara-social-page.social-reference .social-empty{min-height:90px!important;padding:12px!important}
+#elara-social-page.social-reference .social-empty img{max-height:42px!important;max-width:42px!important}
+#elara-social-page.social-reference .social-requests-standalone,
+#elara-social-page.social-reference .social-collab-requests{max-height:365px;overflow-y:auto!important}
+@media(max-width:1250px){
+ #elara-social-page.social-reference .friends-f2-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-friends{grid-column:span 7!important}
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card{grid-column:span 5!important}
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-requests-standalone{grid-column:span 6!important}
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-collab-requests{grid-column:span 6!important}
+}
+@media(max-width:850px){
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-section{grid-column:1/-1!important}
+ #elara-social-page.social-reference .friends-f2-list{grid-template-columns:1fr}
+ #panel-social>.elara-global-hero[data-f2-hero-tab],#elara-social-page.social-reference .social-page-head{min-height:156px!important;padding:19px!important;background-position:40% center!important}
+ #elara-social-page.social-reference .social-reference-grid{gap:9px!important}
+}
+@media(max-width:500px){
+ #elara-social-page.social-reference .friends-f2-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+ #elara-social-page.social-reference .friends-f2-kpi{padding:10px 8px;gap:8px}
+ #elara-social-page.social-reference .friends-f2-kpi-icon{width:34px;height:34px;flex-basis:34px;font-size:18px}
+ #elara-social-page.social-reference .friends-f2-kpi strong{font-size:1.3rem}
+ #elara-social-page.social-reference .friends-f2-kpi small{font-size:11px}
+ #elara-social-page.social-reference .friends-f2-tools{flex-wrap:wrap}
+ #elara-social-page.social-reference .friends-f2-tools input{flex:1 1 100%}
+ #elara-social-page.social-reference .friends-f2-tools select{flex:1 1 calc(100% - 90px)}
+ #elara-social-page.social-reference .social-reference-grid>.social-section{padding:11px!important}
+ #panel-social>.elara-global-hero[data-f2-hero-tab] .friends-f2-hero-copy,#elara-social-page.social-reference .friends-f2-hero-copy{max-width:100%}
+ #panel-social>.elara-global-hero[data-f2-hero-tab] .friends-f2-hero-copy h1,#elara-social-page.social-reference .friends-f2-hero-copy h1{font-size:1.5rem!important}
+}
