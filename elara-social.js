@@ -230,9 +230,11 @@ async function markDmRead(other){
 async function sendDm(other,value){
  const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
  const cid=await ensureDm(other),now=Date.now(),previous=dmLastSend.get(cid)||0;if(now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
- const messages=collection(db,'conversations',cid,'messages');
- await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
- await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});dmLastSend.set(cid,Date.now());
+ // The message and conversation receipt must commit together; avoid partial-success errors.
+ const messages=collection(db,'conversations',cid,'messages'),batch=writeBatch(db);
+ batch.set(doc(messages),{sender:uid,text,createdAt:serverTimestamp()});
+ batch.update(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ await batch.commit();dmLastSend.set(cid,Date.now());
  window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+Date.now()});
  return cid;
 }
