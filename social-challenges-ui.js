@@ -2,7 +2,7 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const api=()=>window.ElaraSocial?.challenges,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
-const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
+const isFriendsTab=root=>!!root?.querySelector('[data-social-view="challenges"][aria-selected="true"]');
 let token=0,lastRows=[];
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3000)}
 function expiresMs(c){return c.expiresAt?.toMillis?.()||Number(c.expiresAtMs)||0}
