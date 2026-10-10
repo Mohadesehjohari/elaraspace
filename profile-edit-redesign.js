@@ -2,11 +2,28 @@
 (function () {
  'use strict';
  const P=()=>window.ElaraProfileSystem;
+
+ const paths={
+  user:'<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+  camera:'<path d="M5 7h3l2-3h4l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="4"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  back:'<path d="M5 12h14m-6-6 6 6-6 6"/>',
+  reset:'<path d="M3 11a9 9 0 1 1 2.6 6.4"/><path d="M3 4v7h7"/>',
+  check:'<path d="m5 12 4 4L19 6"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+  level:'<path d="m12 2 3.1 6.3 7 1-5 5 1.2 7-6.3-3.3-6.3 3.3 1.2-7-5-5 7-1Z"/>',
+  edit:'<path d="M12 20h9M16.5 3.5l4 4-12 12H4.5v-4Z"/>',
+  spark:'<path d="m12 3 1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7Z"/><path d="m20 18 .6 1.4L22 20l-1.4.6L20 22l-.6-1.4L18 20l1.4-.6Z"/>',
+  none:'<circle cx="12" cy="12" r="10"/><path d="m5 19 14-14"/>'
+ };
+ const icon=name=>'<svg class="pe-svg pe-svg-'+name+'" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+(paths[name]||paths.spark)+'</svg>';
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const themes=[
-  {id:'classic',label:'Classic',theme:'dark',image:'assets/ui/banner1.webp'},
-  {id:'minimal',label:'Minimal',theme:'minimal',image:'assets/ui/banner2.webp'},
-  {id:'nebula',label:'Nebula',theme:'galaxy',image:'assets/ui/banner3.webp'},
+  {id:'classic',label:'Classic',theme:'dark',image:'assets/ui/banner_city_of_stars.webp'},
+  {id:'minimal',label:'Minimal',theme:'minimal',image:'assets/ui/banner_moon_lake.webp'},
+  {id:'nebula',label:'Nebula',theme:'galaxy',image:'assets/ui/theme_galaxy_purple.webp'},
   {id:'forest',label:'Forest',theme:'forest',image:'assets/ui/theme_forest_green.webp'}
  ];
  const colors=[['blue','#078cff'],['violet','#ad18f7'],['pink','#fd39b3'],['sunset','#ff8740'],['mint','#03d99e'],['aurora','linear-gradient(135deg,#57eaff,#ef55c7,#ffac6b)']];
@@ -78,17 +95,17 @@
   const level=model.level;
   const shell=document.createElement('div');shell.className='pe-shell';shell.id='elara-profile-edit-screen';
   shell.innerHTML='<div class="pe-screen" role="region" aria-label="ویرایش پروفایل" tabindex="-1">'+
-   '<header class="pe-heading"><div class="pe-heading-main"><span class="pe-heading-icon" aria-hidden="true">✦</span><div><h1>ویرایش پروفایل</h1><p>✨ هویت دیجیتالی خود را در Elara بسازید</p></div></div><button type="button" class="pe-outline pe-back" data-pe-action="close">بازگشت ←</button><button type="button" class="pe-outline pe-header-preview" data-pe-action="preview">◉ پیش‌نمایش</button></header>'+
+   '<header class="pe-heading"><div class="pe-heading-main"><span class="pe-heading-icon" aria-hidden="true">'+icon('user')+'</span><div><h1>ویرایش پروفایل</h1><p>✨ هویت دیجیتالی خود را در Elara بسازید</p></div></div><button type="button" class="pe-outline pe-back" data-pe-action="close">'+icon('back')+' بازگشت</button><button type="button" class="pe-outline pe-header-preview" data-pe-action="preview">'+icon('eye')+' پیش‌نمایش</button></header>'+
    '<div class="pe-layout"><form class="pe-editor" id="elara-central-profile-form" novalidate>'+
    '<section class="pe-panel pe-identity">'+
-    '<div class="pe-banner" data-pe-banner><button class="pe-change-banner" type="button" data-pe-action="banners">▧ تغییر بنر</button></div>'+
+    '<div class="pe-banner" data-pe-banner><button class="pe-change-banner" type="button" data-pe-action="banners">'+icon('image')+' تغییر بنر</button></div>'+
     '<div class="pe-banner-options" data-pe-banner-options hidden><div class="pe-options-head"><strong>انتخاب بنر Elara</strong><span>تصاویر بازشده مطابق سطح کاربر</span></div><div class="pe-banner-choices" data-pe-banners></div><label class="pe-file-choice">افزودن بنر از دستگاه (فقط ذخیره محلی)<input name="bannerFile" type="file" accept="image/png,image/jpeg,image/webp"></label></div>'+
-    '<div class="pe-identity-fields"><div class="pe-avatar-area"><div class="pe-avatar" data-pe-avatar></div><button type="button" class="pe-camera" data-pe-action="avatars" aria-label="تغییر آواتار">▣</button></div>'+
-     '<div class="pe-name-grid"><label class="pe-field">نام نمایشی<input name="name" autocomplete="nickname" maxlength="60" required></label><label class="pe-field">نام کاربری<div class="pe-username-row"><input name="username" dir="ltr" autocomplete="username" maxlength="20" required spellcheck="false"><button type="button" class="pe-copy" data-pe-action="copy" aria-label="کپی نام کاربری">▢</button></div><small class="pe-username-state" data-pe-username-state></small></label></div>'+
+    '<div class="pe-identity-fields"><div class="pe-avatar-area"><div class="pe-avatar" data-pe-avatar></div><button type="button" class="pe-camera" data-pe-action="avatars" aria-label="تغییر آواتار">'+icon('camera')+'</button></div>'+
+     '<div class="pe-name-grid"><label class="pe-field">نام نمایشی<input name="name" autocomplete="nickname" maxlength="60" required></label><label class="pe-field">نام کاربری<div class="pe-username-row"><input name="username" dir="ltr" autocomplete="username" maxlength="20" required spellcheck="false"><button type="button" class="pe-copy" data-pe-action="copy" aria-label="کپی نام کاربری">'+icon('copy')+'</button></div><small class="pe-username-state" data-pe-username-state></small></label></div>'+
      '<label class="pe-field pe-bio-field">دربارهٔ من<textarea name="bio" maxlength="300" rows="3" placeholder="در جستجوی نسخه‌ای بهتر از خودم…"></textarea><span class="pe-counter" data-pe-count="bio"></span></label>'+
     '</div>'+
     '<div class="pe-avatar-options" data-pe-avatar-options hidden><div class="pe-options-head"><strong>آواتارهای Elara</strong><span>آواتارهای قفل‌شده قابل انتخاب نیستند</span></div><div class="pe-avatar-choices" data-pe-avatars></div><label class="pe-file-choice">انتخاب عکس از دستگاه (فقط ذخیره محلی)<input name="avatarFile" type="file" accept="image/png,image/jpeg,image/webp"></label></div>'+
-    '<div class="pe-info-grid"><div class="pe-info"><span class="pe-info-icon">▦</span><div><small>تاریخ عضویت</small><strong data-pe-created></strong></div></div><div class="pe-info"><span class="pe-info-icon">☆</span><div><small>سطح کاربر</small><strong data-pe-level></strong></div></div></div>'+
+    '<div class="pe-info-grid"><div class="pe-info"><span class="pe-info-icon">'+icon('calendar')+'</span><div><small>تاریخ عضویت</small><strong data-pe-created></strong></div></div><div class="pe-info"><span class="pe-info-icon">'+icon('level')+'</span><div><small>سطح کاربر</small><strong data-pe-level></strong></div></div></div>'+
     '<div class="pe-badges"><strong>نشان‌ها</strong><div data-pe-badges></div></div>'+
    '</section>'+
    '<section class="pe-custom-grid"><div class="pe-panel pe-color-panel"><h2>رنگ تم پروفایل</h2><div class="pe-colors" data-pe-colors></div></div>'+
@@ -98,7 +115,7 @@
    '<label class="pe-privacy"><input name="profilePublic" type="checkbox"> نمایش پروفایل برای کاربران واردشده</label>'+
    '<p class="pe-storage-note">نام، نام کاربری و Bio از مسیر اصلی Firebase ذخیره می‌شوند؛ قالب، رنگ، قاب، عنوان و تصاویر انتخابی فعلاً فقط روی همین دستگاه ذخیره می‌شوند.</p>'+
    '<p class="pe-status" role="status" aria-live="polite" data-pe-status></p>'+
-   '<div class="pe-actions"><button type="button" class="pe-reset" data-pe-action="reset">↻ بازنشانی تغییرات</button><button type="button" class="pe-outline pe-public-preview" data-pe-action="preview">◉ پیش‌نمایش در صفحه عمومی</button><button type="submit" class="pe-save" data-pe-save>ذخیره تغییرات ✓</button></div>'+
+   '<div class="pe-actions"><button type="button" class="pe-reset" data-pe-action="reset">'+icon('reset')+' بازنشانی تغییرات</button><button type="button" class="pe-outline pe-public-preview" data-pe-action="preview">'+icon('eye')+' پیش‌نمایش در صفحه عمومی</button><button type="submit" class="pe-save" data-pe-save>ذخیره تغییرات '+icon('check')+'</button></div>'+
    '</form>'+
    '<aside class="pe-preview-outer" id="pe-preview-area"><div class="pe-preview"><header><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
    '</div></div>';
@@ -112,7 +129,7 @@
   q('[data-pe-avatars]').innerHTML=['female','male'].map(g=>Array.from({length:10},(_,i)=>{const n=i+1;return '<button type="button" class="pe-avatar-tile" data-pe-avatar-id="'+g+':'+n+'" '+(level<n?'disabled':'')+'><img src="'+esc(P().avatarPath(g,n))+'" alt=""><small>Lv. '+n+'</small></button>'}).join('')).join('');
   q('[data-pe-colors]').innerHTML=colors.map(c=>'<button type="button" data-pe-color="'+c[0]+'" title="'+c[0]+'" aria-label="'+c[0]+'" style="background:'+c[1]+'"></button>').join('');
   q('[data-pe-templates]').innerHTML=themes.map(t=>'<button type="button" class="pe-template" data-pe-template="'+t.id+'"><img src="'+esc(t.image)+'" alt=""><span>'+t.label+'</span></button>').join('');
-  q('[data-pe-frames]').innerHTML='<button type="button" class="pe-frame pe-frame-none" data-pe-frame="" aria-label="بدون حاشیه">╱</button>'+P().FRAMES.map(f=>'<button type="button" class="pe-frame" data-pe-frame="'+f.id+'" '+(level<f.required?'disabled title="از سطح '+f.required+'"':'')+' aria-label="'+esc(f.label)+'"><img src="'+esc(P().frameVariantPath(f.id))+'" alt=""></button>').join('');
+  q('[data-pe-frames]').innerHTML='<button type="button" class="pe-frame pe-frame-none" data-pe-frame="" aria-label="بدون حاشیه">'+icon('none')+'</button>'+P().FRAMES.map(f=>'<button type="button" class="pe-frame" data-pe-frame="'+f.id+'" '+(level<f.required?'disabled title="از سطح '+f.required+'"':'')+' aria-label="'+esc(f.label)+'"><img src="'+esc(P().frameVariantPath(f.id))+'" alt=""></button>').join('');
   const dirty=()=>JSON.stringify(draft)!==JSON.stringify(base());
   const avatarHtml=(className)=>imgMarkup(avatarSource(draft,person),draft.name,className);
   function redraw(){
@@ -120,10 +137,10 @@
    q('[data-pe-banner]').style.backgroundImage='linear-gradient(0deg,#050d25a6,transparent 48%),url("'+bannerSource(draft).replace(/"/g,'%22')+'")';
    q('[data-pe-avatar]').innerHTML=avatarHtml('pe-portrait')+(draft.frame?'<img class="pe-avatar-frame" src="'+esc(P().frameVariantPath(draft.frame,draft.shape))+'" alt="">':'');
    q('[data-pe-avatar]').dataset.shape=draft.shape;
-   q('[data-pe-count="bio"]').textContent=draft.bio.length+'/300 ✎';
-   q('[data-pe-count="title"]').textContent=draft.title.length+'/50 ✎';
+   q('[data-pe-count="bio"]').textContent=draft.bio.length+'/300';
+   q('[data-pe-count="title"]').textContent=draft.title.length+'/50';
    const valid=/^[a-z][a-z0-9_]{2,19}$/.test(draft.username.toLowerCase());
-   q('[data-pe-username-state]').textContent=valid?'✓ فرمت معتبر؛ یکتا بودن هنگام ذخیره بررسی می‌شود.':'نام کاربری: ۳ تا ۲۰ حرف کوچک، عدد یا _ و شروع با حرف';
+   q('[data-pe-username-state]').textContent=valid?'فرمت صحیح است؛ آزاد بودن نام کاربری هنوز تأیید نشده.':'نام کاربری: ۳ تا ۲۰ حرف کوچک، عدد یا _ و شروع با حرف';
    q('[data-pe-username-state]').dataset.valid=String(valid);
    qa('[data-pe-color]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.peColor===draft.color)));
    qa('[data-pe-template]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.peTemplate===draft.theme)));
@@ -135,7 +152,7 @@
    const stats='<span><strong>'+levelText+'</strong><small>سطح</small></span><span><strong>'+Number(model.xp).toLocaleString('fa-IR')+'</strong><small>XP</small></span>'+(Array.isArray(friends)?'<span><strong>'+friends.length.toLocaleString('fa-IR')+'</strong><small>دوستان</small></span>':'')+'<span><strong>'+earned.length.toLocaleString('fa-IR')+'</strong><small>نشان‌ها</small></span>';
    q('[data-pe-preview]').innerHTML='<div class="pe-preview-banner" style="background-image:url(&quot;'+esc(bannerSource(draft)).replace(/&quot;/g,'&quot;')+'&quot;)"></div>'+
     '<div class="pe-preview-avatar" data-shape="'+esc(draft.shape)+'">'+avatarHtml('pe-preview-portrait')+(draft.frame?'<img src="'+esc(P().frameVariantPath(draft.frame,draft.shape))+'" class="pe-preview-frame" alt="">':'')+'</div>'+
-    '<div class="pe-preview-body" data-template="'+esc(draft.theme)+'"><h3 dir="auto">'+esc(draft.name||'نام نمایشی')+'</h3><p class="pe-preview-user" dir="ltr">@'+esc(draft.username||'username')+'</p><p class="pe-preview-title" dir="auto">'+esc(draft.title||model.title)+'</p><div class="pe-preview-bio" dir="auto">'+esc(draft.bio||'هنوز متنی وارد نشده است.')+'</div><div class="pe-preview-stats">'+stats+'</div><div class="pe-preview-medals">'+(earned.length?earned.slice(0,6).map(m=>'<span title="'+esc(m.label)+'">✦</span>').join(''):'')+'</div></div>';
+    '<div class="pe-preview-body" data-template="'+esc(draft.theme)+'"><h3 dir="auto">'+esc(draft.name||'نام نمایشی')+'</h3><p class="pe-preview-user" dir="ltr">@'+esc(draft.username||'username')+'</p><p class="pe-preview-title" dir="auto">'+esc(draft.title||model.title)+'</p><div class="pe-preview-bio" dir="auto">'+esc(draft.bio||'هنوز متنی وارد نشده است.')+'</div><div class="pe-preview-stats">'+stats+'</div><div class="pe-preview-medals">'+(earned.length?earned.slice(0,6).map(m=>'<span title="'+esc(m.label)+'">'+icon('level')+'</span>').join(''):'')+'</div></div>';
   }
   function syncFields(){
    ['name','username','bio','title'].forEach(k=>{input(k).value=draft[k]});
