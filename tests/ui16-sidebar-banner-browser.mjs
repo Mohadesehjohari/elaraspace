@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {mkdir} from 'node:fs/promises';
-const root=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\\/$/,'');
+const root=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/[/]$/,'');
 await mkdir('browser-artifacts/ui16-sidebar',{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
