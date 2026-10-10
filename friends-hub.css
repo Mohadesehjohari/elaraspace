@@ -436,3 +436,14 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page.social-reference .social-challenges-grid{grid-template-columns:1fr}
  #elara-social-page.social-reference .social-challenge-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Narrow layouts must override the stronger desktop 12-column placement selectors. */
+@media(max-width:800px){
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-friends-section,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-friend-invite,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-requests,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-collab-requests,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-friend-activity-preview,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-friend-memberships,
+ #elara-social-page.social-reference[data-social-tab="friends"] .social-reference-grid>.social-friend-leaderboard{grid-column:1/-1!important}
+}
