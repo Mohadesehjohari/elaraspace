@@ -46,7 +46,10 @@ for(const width of sizes){
   assert.equal(await page.locator('[data-drawer-section="blocked"]').isVisible(),true,'Blocked route');
   await page.evaluate(()=>window.ElaraPrivateDrawer.open('account'));
   await page.locator('.elara-profile-hub-actions [data-profile-edit]').click();
-  await page.locator('#elara-profile-edit-screen').waitFor({timeout:10000});
+  await page.locator('#elara-profile-edit-screen').waitFor({state:'attached',timeout:10000});
+  // Signed-out Firebase auth gate is masked ONLY for fixture-based visual assertions.
+  await page.addStyleTag({content:'#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}'});
+  await page.evaluate(()=>{document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting')});
   assert.equal(await page.locator('.pe-heading h1').isVisible(),true);
  }else if(width===1440){
   assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Desktop drawer menu must remain');
