@@ -7,6 +7,7 @@ on:
       - ui12-language-dashboard.js
       - ui12-language-dashboard.css
       - ui13-language.css
+      - language-custom-classes.js
       - ui13-language-routes.js
       - global-page-banner-20261009.js
       - assets/ui/language_banner_main.webp
@@ -36,7 +37,7 @@ jobs:
           ok=false
           for attempt in $(seq 1 85); do
             ok=true
-            for file in index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp; do
+            for file in index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js language-custom-classes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp; do
               # Unique temporary path is independent of nested asset directories.
               output="/tmp/ui13-live-$(basename "$file")"
               if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?ui13=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then
@@ -45,8 +46,8 @@ jobs:
               fi
             done
             if [ "$ok" = true ]; then
-              echo "UI13_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=12"
-              sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp
+              echo "UI13_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=13"
+              sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js language-custom-classes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp
               break
             fi
             if (( attempt % 10 == 0 )); then echo "Waiting for GitHub Pages CDN: attempt $attempt"; fi
