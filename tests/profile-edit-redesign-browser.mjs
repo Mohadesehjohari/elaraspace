@@ -61,9 +61,18 @@ for(const width of sizes){
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
  if(width===320||width===375||width===430)assert.ok(await page.locator('.pe-banner').isVisible(),'Banner hidden at '+width);
  if(width===390||width===1648){
-  await page.evaluate(()=>{const el=document.getElementById('elara-profile-edit-screen');el.style.setProperty('position','absolute','important');el.style.setProperty('inset','auto 0 auto 0','important');el.style.setProperty('height','auto','important');el.style.setProperty('overflow','visible','important')});
+  await page.evaluate(()=>{
+   const el=document.getElementById('elara-profile-edit-screen');
+   el.style.setProperty('position','absolute','important');el.style.setProperty('inset','auto 0 auto 0','important');
+   el.style.setProperty('height','auto','important');el.style.setProperty('overflow','visible','important');
+   // Only the long capture masks the fixed global dock; normal viewport screenshots validate it unchanged.
+   const dock=document.querySelector('.bottom-nav');if(dock)dock.style.setProperty('visibility','hidden','important');
+  });
   await page.locator('.pe-screen').screenshot({path:dir+'/profile-edit-'+width+'-full.png',timeout:20000});
-  await page.evaluate(()=>document.getElementById('elara-profile-edit-screen').removeAttribute('style'));
+  await page.evaluate(()=>{
+   document.getElementById('elara-profile-edit-screen').removeAttribute('style');
+   document.querySelector('.bottom-nav')?.style.removeProperty('visibility');
+  });
  }
  if(width===390||width===1440){
   await page.evaluate(()=>{const scroller=document.getElementById('elara-profile-edit-screen');scroller.scrollTop=scroller.scrollHeight});
