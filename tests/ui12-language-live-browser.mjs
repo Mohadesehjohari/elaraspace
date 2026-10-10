@@ -48,6 +48,8 @@ try{
   // Restore a user-reachable document position before testing a physical click beneath the fixed topbar.
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
   await page.waitForTimeout(120);
+  await page.locator('#panel-language [data-ui12-jump="channels"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+  await page.waitForTimeout(100);
   await page.locator('#panel-language [data-ui12-jump="channels"]').click();await page.waitForSelector('#panel-language-channels:not(.hidden) .ui13-subpage');
   await page.locator('#panel-language-channels [data-ui13-back]').click();await page.waitForSelector('#panel-language:not(.hidden)');
   await page.locator('#panel-language [data-ui12-jump="tasks"]').click();await page.waitForSelector('#panel-language-tasks:not(.hidden) .ui13-subpage');
