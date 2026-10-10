@@ -38,9 +38,17 @@ function hero(host,m){
  const lastJournal=Math.max(0,...m.j.map(j=>Date.parse(j.date+'T12:00:00')||0));
  el.querySelector('[data-ui12-route=continue]').dataset.ui12Route=m.due.length?'words':latestBook>=latestClass&&latestBook>=lastJournal&&latestBook>0?'language-books':latestClass>=lastJournal&&m.c.length?'language-courses':lastJournal>0?'language-reports':m.w.length?'words':m.b.length?'language-books':m.c.length?'language-courses':'words';
 }
+/* All icons are real repository artwork; icons do not represent created user records. */
+const shortcutArt={
+ overview:'nav-home-active.webp',leitner:'22-leitner-box-icon.webp',
+ books:'23-language-books-icon.webp',classes:'24-language-classes-icon.webp',
+ channels:'07-language-nav-active.webp',tasks:'icon-tasks-check-alpha.webp',
+ challenges:'11-challenges-icon.webp',report:'25-study-report-icon.webp',
+ stats:'25-study-report-icon.webp'
+};
 const shortcuts=[
- ['overview','⌂','نمای کلی','Overview'],['leitner','▱','لایتنر','Leitner'],['books','▣','کتاب‌های زبان','Language books'],['classes','♙','کلاس‌ها','Classes'],
- ['channels','◉','کانال‌ها','Channels'],['tasks','☑','تسک‌های زبان','Language tasks'],['challenges','🏆','چالش‌ها','Challenges'],['report','▥','گزارش زبان','Language report']
+ ['overview','نمای کلی','Overview'],['leitner','لایتنر','Leitner'],['books','کتاب‌های زبان','Language books'],['classes','کلاس‌ها','Classes'],
+ ['channels','کانال‌ها','Channels'],['tasks','تسک‌های زبان','Language tasks'],['challenges','چالش‌ها','Challenges'],['report','گزارش زبان','Language report']
 ];
 function card(id,title,extra='',action=''){
  return '<section id="ui12-'+id+'" class="ui12-card ui12-'+id+'" aria-labelledby="ui12-title-'+id+'"><header class="ui12-card-head"><h2 id="ui12-title-'+id+'"><span class="ui12-card-icon" aria-hidden="true">'+extra+'</span>'+title+'</h2>'+(action?button(action,tx('مشاهده همه ←','View all →'),'ui12-link'):'')+'</header><div class="ui12-card-body" data-ui12-body="'+id+'"></div></section>';
@@ -48,7 +56,7 @@ function card(id,title,extra='',action=''){
 function mount(host){
  if(host.querySelector('.ui12-board'))return;
  const jump=document.createElement('nav');jump.className='ui12-shortcuts';jump.setAttribute('aria-label',tx('بخش‌های زبان','Language sections'));
- jump.innerHTML=shortcuts.map(([id,icon,fa,english],i)=>'<button type="button" data-ui12-jump="'+id+'" class="ui12-shortcut '+(!i?'is-active':'')+'"><span aria-hidden="true">'+icon+'</span><strong>'+tx(fa,english)+'</strong></button>').join('');
+ jump.innerHTML=shortcuts.map(([id,fa,english],i)=>'<button type="button" data-ui12-jump="'+id+'" class="ui12-shortcut '+(!i?'is-active':'')+'"><span aria-hidden="true"><img src="assets/ui/'+shortcutArt[id]+'" alt="" decoding="async"></span><strong>'+tx(fa,english)+'</strong></button>').join('');
  const board=document.createElement('div');board.className='ui12-board';board.innerHTML=
   card('leitner',tx('لایتنر امروز','Today’s Leitner'),'▱','words')+
   card('tasks',tx('تسک‌های زبان امروز','Today’s language tasks'),'☑','tasks')+
@@ -64,7 +72,7 @@ function mount(host){
 function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
-  '<div class="ui12-leitner-art"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'"><b>'+num(i+1)+'</b><small>'+num(count)+'</small></div>').join('')+'</div>'+
+  '<div class="ui12-leitner-art"><img class="ui12-leitner-illustration" src="assets/ui/22-leitner-box-icon.webp" alt="" decoding="async"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'"><b>'+num(i+1)+'</b><small>'+num(count)+'</small></div>').join('')+'</div>'+
   button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
   '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
 }
