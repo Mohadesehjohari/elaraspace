@@ -74,7 +74,7 @@ function mount(host){
 function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
-  '<div class="ui12-leitner-art"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" title="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+'"><b>'+num(count)+'</b><small>'+tx('جعبه ','Box ')+num(i+1)+'</small></div>').join('')+'</div>'+
+  '<div class="ui12-leitner-art"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" role="group" aria-label="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+' '+tx('واژه','words')+'"><b>'+num(i+1)+'</b><small><span>'+num(count)+'</span> '+tx('واژه','words')+'</small></div>').join('')+'</div>'+
   button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
   '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
 }
