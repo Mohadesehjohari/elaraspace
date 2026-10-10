@@ -535,3 +535,22 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
 
 /* Match the Friends reference CTA, not the gold Ranking button. */
 #panel-social>.elara-global-hero .friends-f2-hero-cta,#elara-social-page.social-reference .friends-f2-hero-cta{background:linear-gradient(120deg,#ff9b84,#fb5c9d)!important;border-color:#ffb4cb!important;color:#1d1129!important;box-shadow:0 0 15px #fc6c9a40!important}
+
+/* F2 12-column contract: override legacy social-friends-page 1fr grid selector.
+   The prior one-column !important rule was creating implicit columns/unused space. */
+#elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid{
+ display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;
+ gap:10px!important;width:100%!important;max-width:100%!important;min-width:0!important;
+ justify-items:stretch!important;align-items:stretch!important
+}
+#elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .friends-f2-kpis{
+ grid-column:1/-1!important;width:100%!important;max-width:100%!important;justify-self:stretch!important
+}
+@media(max-width:850px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.social-section{
+  grid-column:1/-1!important
+ }
+}
