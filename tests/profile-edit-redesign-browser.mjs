@@ -41,7 +41,7 @@ const bootstrap=async(page,viaDrawer=false)=>{
  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting')});
  await page.locator('#elara-profile-edit-screen').waitFor({timeout:15000});
  assert.equal(await page.locator('.pe-heading h1').isVisible(),true,'The Edit Profile surface must be visible');
- await page.locator('.pe-preview-card').waitFor({timeout:10000});
+ await page.locator('.pe-preview-card').waitFor({state:'attached',timeout:10000});
 };
 for(const width of sizes){
  const context=await browser.newContext({viewport:{width,height:width===1648?941:width===1440?900:844}});
