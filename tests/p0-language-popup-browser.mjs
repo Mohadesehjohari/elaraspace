@@ -169,15 +169,15 @@ assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main 
 const settingsBox=await withinViewport(page,'.elara-private-drawer-panel','Settings home'),settingsVp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));
 assert.ok(Math.abs(settingsBox.x+settingsBox.width/2-settingsVp.w/2)<=3&&Math.abs(settingsBox.y+settingsBox.height/2-settingsVp.h/2)<=Math.max(10,settingsVp.h*.03),'Settings home is not centered '+JSON.stringify({settingsBox,settingsVp}));
 await page.screenshot({path:`${out}/settings-home-390.png`,fullPage:false});
-const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),5,'Profile home must stay focused and keep account settings behind the gear');
+const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),6,'Current Profile home must expose exactly six canonical actions including Settings and Reports');
 const settingsOrder=await menuButtons.evaluateAll(xs=>xs.map(x=>x.dataset.drawerNav||(x.hasAttribute('data-approved-wardrobe')?'wardrobe':x.dataset.drawerAction||'')));
-assert.deepEqual(settingsOrder,['account','blocked','wardrobe','store','reports'],'Profile home destinations drifted');
+assert.deepEqual(settingsOrder,['account','blocked','wardrobe','settings','store','reports'],'Profile home destinations drifted');
 const settingsIcons=await menuButtons.evaluateAll(xs=>xs.map(x=>{const host=x.querySelector(':scope > .elara-icon');const svg=host?.querySelector('svg'),mark=svg?.querySelector('path,rect,circle,line,polyline,polygon,ellipse');const r=host?.getBoundingClientRect();return{hasHost:!!host,hasSvg:!!svg,hasMark:!!mark,w:r?.width||0,h:r?.height||0,color:host?getComputedStyle(host).color:''}}));
 assert.equal(settingsIcons.every(x=>x.hasHost&&x.hasSvg&&x.hasMark&&x.w>=24&&x.h>=24),true,'Profile menu contains blank icon placeholders: '+JSON.stringify(settingsIcons));
 const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Profile mobile menu is not one column: '+menuLayout.columns);
 assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y)),true,'Profile rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(80);
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(80);
 assert.equal(await page.locator('[data-drawer-section="settings"]:not(.hidden)').count(),1,'Profile gear did not open dedicated Settings page');
 for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,'Profile Settings missing '+route);
 assert.equal(await page.locator('[data-drawer-section="settings"] [data-approved-wardrobe]').count(),1,'Profile Settings missing Wardrobe');
@@ -192,12 +192,12 @@ const themeDecode=await themeImgs.evaluateAll(async xs=>{await Promise.all(xs.ma
 assert.equal(themeDecode.every(x=>x.complete&&x.naturalWidth>0),true,'One or more uploaded theme previews failed to decode: '+JSON.stringify(themeDecode.filter(x=>!x.complete||!x.naturalWidth)));
 await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
 await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
 stage('settings-privacy:pass');stage('settings-account:start');
 await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
 assert.equal(await page.locator('[data-drawer-section="security"] #drawer-password-form').isVisible(),true,'Account security page missing password form');
 assert.equal(await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').isVisible(),true,'Account Back missing');
 await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').click();await page.waitForTimeout(35);
