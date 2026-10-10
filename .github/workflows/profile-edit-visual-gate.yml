@@ -39,7 +39,7 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/profile-edit-site.log 2>&1 &
           sleep 3
-      - name: Six widths and mocked persistence interaction
+      - name: Seven widths, browser Back, live preview and mocked persistence
         run: timeout 360s node tests/profile-edit-redesign-browser.mjs
       - name: Save Chromium screenshots (including failure)
         if: always()
