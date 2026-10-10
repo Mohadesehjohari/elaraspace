@@ -55,7 +55,13 @@ try{
       await page.evaluate(route=>ElaraOpen(route,{history:'replace'}),destination);
       await page.waitForSelector('#panel-'+destination+':not(.hidden)',{timeout:9000});
       await page.waitForTimeout(120);
-      const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      const scene=await page.locator('#ui12-leitner .ui12-leitner-scene').evaluate(el=>({
+    image:getComputedStyle(el).backgroundImage,
+    height:el.getBoundingClientRect().height,
+    width:el.getBoundingClientRect().width
+   }));
+   assert.ok(scene.image.includes('lightner.webp')&&scene.height>=55&&scene.width>=120,'Leitner owner scene missing at '+width+': '+JSON.stringify(scene));
+   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       assert.ok(overflow<=2,'Route '+destination+' horizontal overflow at '+width+': '+overflow);
       await page.screenshot({path:out+'/ui14-'+destination+'-'+width+'.png',fullPage:false,animations:'disabled'});
     }
