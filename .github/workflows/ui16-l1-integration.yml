@@ -1,0 +1,59 @@
+name: UI16 L1 Language + Profile + Social Integration
+on:
+  pull_request:
+    paths:
+      - boot.js
+      - ui12-language-dashboard.js
+      - ui12-language-dashboard.css
+      - tests/ui13-language-owner-browser.mjs
+      - .github/workflows/ui16-l1-integration.yml
+permissions:
+  contents: read
+jobs:
+  owner-cross-surface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and protected surface source
+        run: |
+          node --check boot.js
+          node --check ui12-language-dashboard.js
+          node --check tests/ui13-language-owner-browser.mjs
+          node --check tests/product-hubs-store-browser.mjs
+          node --check tests/profile-edit-redesign-browser.mjs
+          node --check tests/friends-hub-browser.mjs
+          test -s assets/ui/lightner.webp
+      - name: P0 task, identity and collaboration
+        run: |
+          node tests/p0-home-contract.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-ui16-l1.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4173/boot.js >/dev/null
+      - name: Profile Edit seven-width mocked browser
+        run: timeout 480s node tests/profile-edit-redesign-browser.mjs
+      - name: Friends seven-width behavior, Ranking and seven-item mobile nav
+        run: timeout 480s node tests/friends-hub-browser.mjs
+      - name: Product hubs, Tasks, Store and published compact Friends contract
+        run: timeout 480s node tests/product-hubs-store-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui16-l1-profile-social-screens-${{ github.sha }}
+          path: |
+            artifacts/profile-edit/*.png
+            browser-artifacts/friends-hub-*.png
+          if-no-files-found: warn
+          retention-days: 30
