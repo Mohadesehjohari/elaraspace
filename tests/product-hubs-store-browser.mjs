@@ -32,11 +32,18 @@ async function run(width,height){
  await page.locator('#panel-books [data-feature-route="library-clips"]').click();await page.waitForSelector('#panel-library-clips:not(.hidden) #library-clips');
  assert.equal(await page.locator('#panel-library-clips').isVisible(),true,width+': Book Clips deep route missing');
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
- assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,width+': Language hub launcher count');
- await freedomTiles('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card','Language');
- assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
- await page.locator('#panel-language [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
- await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target').fill('2');
+ const ui12=await page.locator('#panel-language.ui12-language .ui12-board').count()>0;
+ if(ui12){
+  assert.equal(await page.locator('#panel-language .ui12-shortcut').count(),8,width+': UI12 Language shortcuts');
+  assert.equal(await page.locator('#panel-language .ui12-board>.ui12-card').count(),8,width+': UI12 Language cards');
+  assert.equal(await page.locator('#ui12-tasks [data-section-task-add="language"]').count(),1,width+': UI12 canonical Language Task composer shortcut');
+ }else{
+  assert.equal(await page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card').count(),4,width+': Language hub launcher count');
+  await freedomTiles('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card','Language');
+  assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
+ }
+ await page.locator(ui12?'#ui12-tasks [data-section-task-add="language"]':'#panel-language>.feature-section-tasks [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
+ await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target-enabled').check();await page.locator('#task-daily-target').fill('2');
  await page.evaluate(()=>{ElaraDialog.prompt=async()=> 'تمرین'});await page.locator('#task-form [data-phase2-create="tag"]').click();await page.waitForFunction(()=>document.getElementById('task-tag')?.value==='تمرین');
  await page.locator('#task-submit').click();
  try{
@@ -44,7 +51,7 @@ async function run(width,height){
  }catch(error){
   const diagnostic=await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),form=document.getElementById('task-form');return{tasks:(state.tasks||[]).map(t=>({text:t.text,sourceGroup:t.sourceGroup,dailyTarget:t.dailyTarget,date:t.date})),form:{hidden:!!form?.hidden,composer:form?.dataset?.elaraTaskComposer||'',title:document.getElementById('task-title')?.value||'',dailyTarget:document.getElementById('task-daily-target')?.value||'',due:document.getElementById('task-due')?.value||''},panel:location.hash}});console.error('SECTION_TASK_DIAGNOSTIC '+width+' '+JSON.stringify(diagnostic));throw error;
  }
- await page.waitForSelector('#panel-language [data-section-task-id]');
+ if(ui12)await page.waitForSelector('#ui12-tasks .ui12-task');else await page.waitForSelector('#panel-language [data-section-task-id]');
  const sectionTaskId=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.text==='تمرین زبان از بخش اصلی').id);
  await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));await page.waitForSelector('#panel-home:not(.hidden)');assert.equal(await page.locator('[data-ref-task="'+sectionTaskId+'"]').count(),1,width+': section-created Language Task did not reach Home');
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
@@ -67,7 +74,8 @@ async function run(width,height){
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await socialTiles.count(),6,width+': Friends hub tab count');
+ assert.equal(await socialTiles.count(),5,width+': UI11 Friends hub must keep the five canonical Social views');
+ assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity'],width+': Social destinations or order changed');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect(),s=getComputedStyle(x);return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y,border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}));
  assert.equal(socialBoxes.every(x=>x.h>=(isMobile?79.5:89.5)&&x.h<=(isMobile?94.5:106.5)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
 
@@ -87,12 +95,12 @@ async function run(width,height){
  const bannerState=await page.evaluate(()=>{const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),html=ElaraProfileSystem.composition(v);return{banner:w.banner,html}});
  assert.ok(!!bannerState.banner,width+': Store banner equip did not reach wardrobe source of truth');assert.match(bannerState.html,/assets\/ui\/banner[1-4]\.webp/,width+': equipped banner did not reach profile composition');
 
- await page.evaluate(()=>ElaraPrivateDrawer.open('settings'));await page.waitForSelector('.elara-private-drawer:not(.hidden) [data-drawer-section="settings"]:not(.hidden)');
+ await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForSelector('.elara-private-drawer:not(.hidden) .drawer-menu [data-drawer-nav="settings"]');assert.equal(await page.locator('.drawer-menu [data-drawer-nav="settings"]').count(),1,width+': canonical Profile Settings destination missing');await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForSelector('.elara-private-drawer:not(.hidden) [data-drawer-section="settings"]:not(.hidden)');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="notifications"]').count(),0,width+': notifications must stay out of Profile settings');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="privacy"],.drawer-menu [data-drawer-nav="language"],.drawer-menu [data-drawer-nav="calendar"],.drawer-menu [data-drawer-nav="help"],.drawer-menu [data-drawer-nav="security"]').count(),0,width+': account settings must stay behind the profile gear');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="blocked"]').count(),1,width+': blocked accounts destination missing');
  for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,width+': dedicated Profile Settings missing '+route);
- assert.equal(await page.locator('.drawer-profile-head .drawer-settings-gear').count(),1,width+': compact profile gear missing');
+ assert.equal(await page.locator('[data-drawer-section="settings"]:not(.hidden)').count(),1,width+': original gear must open dedicated Settings');
  await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(60);
  assert.equal(await page.locator('.drawer-mobile-reports').isVisible(),isMobile,width+': Reports shortcut mobile visibility mismatch');
  await page.evaluate(()=>ElaraPrivateDrawer.open('account'));await page.waitForTimeout(80);
@@ -100,7 +108,8 @@ async function run(width,height){
  assert.ok(xpOrder.trackTop<=xpOrder.rowTop,width+': XP text must render below progress track');
 
  if(isMobile){
-  const nav=page.locator('.bottom-nav [data-elara-nav-kind]');assert.equal(await nav.count(),10,'mobile nav must expose Page and Blog directly');
+  const nav=page.locator('.bottom-nav [data-elara-nav-kind]');assert.equal(await nav.count(),7,'original owner 7-button mobile menu must remain intact');
+  assert.deepEqual(await nav.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['blog','books','social','home','tasks','freedom','page'],'original mobile navigation routes changed');
   assert.equal(await page.locator('.bottom-nav [data-elara-tab="page"]').count(),1,'Page mobile destination missing');
   assert.equal(await page.locator('.bottom-nav [data-elara-tab="blog"]').count(),1,'Blog mobile destination missing');
   assert.equal(await page.locator('.bottom-nav [data-menu-toggle],.bottom-nav .more-menu-trigger').count(),0,'ellipsis/overflow must not return');

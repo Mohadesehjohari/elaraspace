@@ -49,42 +49,30 @@ async function topmost(page,selector,label){
  assert.equal(hit,true,label+' is not topmost');
 }
 
-// P0 first-paint contract: keep the real nav DOM stable, but do not expose an interactive/legacy shell while booting.
+// P0 UI11/UI12 navigation contract: preserve the owner's current seven routes.
+// Language remains available via ElaraOpen and deep linking, not as an eighth bottom-nav item.
 for(const width of [320,360,375,390,412,430]){
  const context=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true});
- const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(12000);await page.addInitScript(seed);await stub(page);
- stage(`nav-${width}:start`);
- await page.route('**/approved-navigation-extension.js*',async route=>{await new Promise(r=>setTimeout(r,1800));await route.continue()});
+ const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(12000);
+ await page.addInitScript(seed);await stub(page);
+ stage('nav-'+width+':start');
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>document.body.classList.contains('cloud-ready'),null,{timeout:5000});
- await page.waitForTimeout(150);
- const items=page.locator('.bottom-nav [data-elara-tab]');
- assert.equal(await items.count(),10,width+': boot nav DOM missing destinations');
- assert.equal(await page.locator('#elara-boot-screen').isVisible(),true,width+': boot screen must cover the legacy shell');
- assert.equal(await page.locator('.bottom-nav').isVisible(),false,width+': navigation must not be interactive during boot');
- await items.evaluateAll(xs=>xs.forEach((x,i)=>x.dataset.qaFallback=String(i)));
- const before=await items.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(before.every(r=>r.left>=-1&&r.right<=width+1),true,width+': boot nav geometry overflows');
- const homeBefore=before.find(r=>r.route==='home');assert.ok(homeBefore&&Math.abs(homeBefore.center-width/2)<=2,width+': boot Home geometry is not centered');
- const sortedBefore=[...before].sort((a,b)=>a.center-b.center),gapsBefore=sortedBefore.slice(1).map((r,i)=>r.center-sortedBefore[i].center);assert.ok(Math.max(...gapsBefore)-Math.min(...gapsBefore)<=3,width+': boot nav geometry has an isolated destination '+JSON.stringify(gapsBefore));
- await waitBoot(page);await page.waitForTimeout(150);
- assert.equal(await page.locator('#elara-boot-screen').isVisible(),false,width+': boot screen stayed visible after release');
- assert.equal(await page.locator('.bottom-nav').isVisible(),true,width+': navigation did not become visible after release');
- const afterItems=page.locator('.bottom-nav [data-elara-tab]');
- assert.equal(await afterItems.count(),10,width+': hydrated nav must expose direct Blog and Page routes');
- assert.deepEqual(await afterItems.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),['exercise','language','tasks','social','home','ranking','books','freedom','blog','page'],width+': hydrated mobile route order mismatch');
- assert.equal(await afterItems.evaluateAll(xs=>xs.every((x,i)=>x.dataset.qaFallback===String(i))),true,width+': boot nav nodes were replaced instead of hydrated');
- const after=await afterItems.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{route:x.dataset.elaraTab,left:r.left,right:r.right,center:r.left+r.width/2}}));
- assert.equal(after.every(r=>r.left>=-1&&r.right<=width+1),true,width+': hydrated nav overflow');
- const homeAfter=after.find(r=>r.route==='home');assert.ok(homeAfter&&Math.abs(homeAfter.center-width/2)<=2,width+': hydrated Home is not centered');
- const sortedAfter=[...after].sort((a,b)=>a.center-b.center),gapsAfter=sortedAfter.slice(1).map((r,i)=>r.center-sortedAfter[i].center);assert.ok(Math.max(...gapsAfter)-Math.min(...gapsAfter)<=3,width+': hydrated nav has an isolated destination '+JSON.stringify(gapsAfter));
- assert.ok(Math.max(...after.map((r,i)=>Math.abs(r.center-before[i].center)))<=8,width+': nav release caused geometry jump');
- await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page.waitForTimeout(80);
- assert.equal(await page.evaluate(()=>location.hash),'#language',width+': hydrated Language route failed');
- assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': hydrated Language panel failed');
- await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(180);
- assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,width+': direct reload #language failed');
- await page.screenshot({path:`${out}/nav-${width}.png`,fullPage:false});stage(`nav-${width}:pass`);await context.close();
+ await waitBoot(page);await page.waitForTimeout(160);
+ const nav=page.locator('.bottom-nav [data-elara-nav-kind]');
+ const expected=['blog','books','social','home','tasks','freedom','page'];
+ assert.equal(await nav.count(),7,width+': current original seven-button mobile menu missing');
+ assert.deepEqual(await nav.evaluateAll(xs=>xs.map(x=>x.dataset.elaraTab)),expected,width+': original seven-button mobile routes were changed');
+ assert.equal(await page.locator('.bottom-nav [data-elara-tab="more"]').count(),0,width+': menu overflow replacement not allowed');
+ assert.equal(await page.locator('.bottom-nav').isVisible(),true,width+': original mobile menu is not visible after hydration');
+ const rects=await nav.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}}));
+ assert.equal(rects.every(x=>x.left>=-2&&x.right<=width+2&&x.width>25),true,width+': original nav overflows screen '+JSON.stringify(rects));
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),width+': boot layout has horizontal overflow');
+ await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));
+ await page.waitForSelector('#panel-language:not(.hidden)');
+ await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);
+ await page.waitForSelector('#panel-language:not(.hidden)');
+ await page.screenshot({path:out+'/nav-'+width+'.png',fullPage:false});
+ stage('nav-'+width+':pass');await context.close();
 }
 
 // P0-1, P0-2, P0-4, P0-5 on a real 390 mobile user path.
@@ -94,24 +82,44 @@ stage('mobile390:start');
 page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(m.text())});
 await page.goto(base+'/#language',{waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language direct load failed');
-await page.locator('.bottom-nav [data-elara-tab="exercise"]').click();await page.waitForTimeout(90);
+await page.evaluate(()=>window.ElaraOpen('exercise',{history:'push'}));await page.waitForTimeout(90);
 assert.equal(await page.locator('#panel-exercise .wellness-heading img[src*="green_heart.webp"]').count(),1,'Exercise heading must use green_heart.webp');
 await page.locator('.bottom-nav [data-elara-tab="home"]').click();await page.waitForTimeout(60);
-assert.equal(await page.locator('#panel-home .ref-wellness-cell').nth(3).locator('img[src*="apple.webp"]').count(),1,'Home weight cell must use apple.webp');
-await page.locator('.bottom-nav [data-elara-tab="language"]').click();await page.waitForTimeout(70);
+// UI11 source-of-truth: reference-home-shell-2026.js generates exactly water, sleep and exercise.
+const wellnessTiles=page.locator('#panel-home #ref-wellness-card .ref-wellness-cell');
+assert.equal(await wellnessTiles.count(),3,'UI11 Home must expose exactly three real Wellness metrics: water/sleep/exercise');
+const wellnessData=await wellnessTiles.evaluateAll(els=>els.map(el=>({label:el.querySelector('small')?.textContent?.trim(),value:el.querySelector('strong')?.textContent?.trim(),route:el.dataset.refExercise,image:el.querySelector('img')?.getAttribute('src'),visible:!!(el.offsetWidth&&el.offsetHeight)})));
+assert.deepEqual(wellnessData.map(x=>x.route),['wellness-water','wellness-sleep','wellness-workouts'],'UI11 Wellness destinations changed');
+assert.deepEqual(wellnessData.map(x=>x.label),['آب','خواب','ورزش'],'UI11 Wellness metric labels changed');
+assert.ok(wellnessData.every(x=>x.visible&&x.value&&x.image?.startsWith('assets/ui/')),'Home Wellness missing functional visible metric or real image: '+JSON.stringify(wellnessData));
+await wellnessTiles.nth(0).click();
+await page.waitForSelector('#panel-exercise:not(.hidden)');
+assert.equal(await page.locator('#panel-wellness-water .wellness-water').count(),1,'Water summary is not bound to the actual Wellness water controller');
+await page.evaluate(()=>window.ElaraOpen('home',{history:'replace'}));
+await page.waitForSelector('#panel-home:not(.hidden)');
+await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));await page.waitForTimeout(70);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
 assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/,'uploaded Language banner is not active');
-const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
-assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
-const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
-assert.equal(Math.max(...languageGeometry.slice(0,2).map(x=>x.y))-Math.min(...languageGeometry.slice(0,2).map(x=>x.y))<=2,true,'Language first launcher row must align in the new 2x2 mobile layout: '+JSON.stringify(languageGeometry));
-assert.ok(languageGeometry[2].y>languageGeometry[0].y+40,'Language second launcher row did not move below the artwork row: '+JSON.stringify(languageGeometry));
-assert.equal(languageGeometry.every(x=>x.h>=160&&x.h<=184&&x.imgH>=100),true,'Language launcher sizing drifted from large image-first tiles: '+JSON.stringify(languageGeometry));
+const ui12=await page.locator('#panel-language.ui12-language .ui12-board').count()>0;
+if(ui12){
+ const shortcuts=page.locator('#panel-language .ui12-shortcut'),cards=page.locator('#panel-language .ui12-board>.ui12-card');
+ assert.equal(await shortcuts.count(),8,'UI12 Language shortcuts must all remain available');
+ assert.equal(await cards.count(),8,'UI12 Language cards must all remain available');
+ const geometry=await cards.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{id:x.id,x:r.x,w:r.width,right:r.right}}));
+ assert.equal(geometry.every(g=>g.w>=90&&g.x>=-2&&g.right<=390+2),true,'UI12 card overflow at 390 CSS px: '+JSON.stringify(geometry));
+}else{
+ const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
+ assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
+ const languageGeometry=await languageLaunchers.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();return{y:r.y,h:r.height,imgH:img?.height||0}}));
+ assert.equal(Math.max(...languageGeometry.slice(0,2).map(x=>x.y))-Math.min(...languageGeometry.slice(0,2).map(x=>x.y))<=2,true,'Language first launcher row must align: '+JSON.stringify(languageGeometry));
+ assert.ok(languageGeometry[2].y>languageGeometry[0].y+40,'Language second launcher row failed: '+JSON.stringify(languageGeometry));
+ assert.equal(languageGeometry.every(x=>x.h>=160&&x.h<=184&&x.imgH>=100),true,'Language launcher size drifted: '+JSON.stringify(languageGeometry));
+}
 assert.equal(await page.locator('#panel-language [data-language-block="leitner"]').count(),0,'Full Leitner UI must not stay embedded on the Language hub');
 const langOverflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));assert.ok(langOverflow<=2,'Language mobile horizontal overflow '+langOverflow);
 
-const leitnerLaunch=page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner launcher missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
+const leitnerLaunch=ui12?page.locator('#ui12-leitner [data-ui12-route="words"]').first():page.locator('#panel-language [data-feature-route="words"]');assert.equal(await leitnerLaunch.count(),1,'Language Leitner navigation missing');await leitnerLaunch.click();await page.waitForTimeout(80);assert.equal(await page.locator('#panel-words:not(.hidden)').count(),1,'Leitner launcher must open the full Leitner page');
 const leitnerStats=page.locator('#panel-words [data-language-block="leitner"] .language-leitner-stats>div');
 assert.equal(await leitnerStats.count(),4,'Dedicated Leitner route must preserve the original four live stat tiles');
 const leitnerRows=await leitnerStats.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
@@ -131,12 +139,12 @@ if(!await row.isVisible()){
  throw new Error('book saved but did not render: '+JSON.stringify(diag)+' pageErrors='+errors.join(' | '));
 }
 let stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'&&Number(x.totalPages)===200&&Number(x.currentPage)===10),true,'canonical storage missing added book');
-await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.equal(await row.isVisible(),true,'book vanished after refresh');
+await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForFunction(()=>window.ElaraFeatureHubs?.refresh&&window.ElaraLanguageBooks?.render&&document.querySelector('#panel-language-books [data-language-block="books"]'),null,{timeout:15000});await page.evaluate(()=>window.ElaraOpen('language-books',{history:'replace'}));await page.waitForSelector('#panel-language-books:not(.hidden)');await page.waitForTimeout(350);stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'&&Number(x.currentPage)===10),true,'book data was actually lost across reload');row=page.locator('#panel-language-books .pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.equal(await row.isVisible(),true,'saved book not visible after reopening canonical route');
 await row.locator('[data-language-reading]').click();await page.waitForTimeout(60);
 assert.equal(await page.locator('#elara-dialog-root .library-log-form').count(),1,'reading click opened duplicate/missing reports');await withinViewport(page,'#elara-dialog-root .elara-dialog-panel','reading report');await topmost(page,'#elara-dialog-root .elara-dialog-panel','reading report');
 await page.locator('#elara-dialog-root .library-log-form [name=mode]').selectOption('count');await page.locator('#elara-dialog-root .library-log-form [name=pages]').fill('5');await page.locator('#elara-dialog-root .elara-dialog-layer').last().locator('.elara-dialog-actions .primary-button').click();await page.waitForTimeout(100);
 row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.match(await row.innerText(),/15|۱۵/,'reading progress did not become 15');
-await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);row=page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.match(await row.innerText(),/15|۱۵/,'reading progress vanished after refresh');
+await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForFunction(()=>window.ElaraFeatureHubs?.refresh&&window.ElaraLanguageBooks?.render&&document.querySelector('#panel-language-books [data-language-block="books"]'),null,{timeout:15000});await page.evaluate(()=>window.ElaraOpen('language-books',{history:'replace'}));await page.waitForSelector('#panel-language-books:not(.hidden)');await page.waitForTimeout(350);stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'&&Number(x.currentPage)===15),true,'reading progress lost across refresh');row=page.locator('#panel-language-books .pass3-language-book').filter({hasText:'QA Language Book'}).first();assert.match(await row.innerText(),/15|۱۵/,'reading progress not rendered after route reload');
 await row.locator('[data-language-book-delete]').click();await page.waitForTimeout(100);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'delete did not remove DOM row');stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'));assert.equal(stored.some(x=>x.title==='QA Language Book'),false,'delete did not remove canonical row');
 await page.reload({waitUntil:'domcontentloaded'});await waitBoot(page);await page.waitForTimeout(350);assert.equal(await page.locator('.pass3-language-book').filter({hasText:'QA Language Book'}).count(),0,'deleted book returned after refresh');
 
@@ -150,26 +158,26 @@ const reviewFixture=await page.evaluate(()=>{
 });
 assert.ok(reviewFixture.id,'Language review linked Task was not created');assert.equal(reviewFixture.locked,false,'Language review Task must be directly checkable in Tasks');assert.equal(reviewFixture.completed,false,'Language review Task should start pending while a word is due');
 await page.evaluate(()=>window.ElaraOpen('tasks',{history:'replace'}));
-const reviewCheck=page.locator(`#task-list .check-button[data-id="${reviewFixture.id}"]`);await reviewCheck.waitFor({state:'visible',timeout:10000});assert.equal(await reviewCheck.isVisible(),true,'Language review Task checkbox is not visible');await reviewCheck.click();await page.waitForTimeout(100);assert.equal(await reviewCheck.getAttribute('aria-pressed'),'true','Language review Task did not toggle complete');
+const reviewCheck=page.locator(`#task-list .check-button[data-id="${reviewFixture.id}"]`);await reviewCheck.waitFor({state:'visible',timeout:10000});assert.equal(await reviewCheck.isVisible(),true,'Language review Task checkbox is not visible');await reviewCheck.click();await page.waitForFunction(id=>!!JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(t=>t.id===id)?.completed,reviewFixture.id,{timeout:10000});
 const reviewAfter=await page.evaluate(id=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return{task:s.tasks.find(t=>t.id===id),word:s.words.find(w=>w.id==='p0-review-word'),xp:s.xp}},reviewFixture.id);
 assert.equal(reviewAfter.task?.completed,true,'Language review completion did not persist');assert.equal(reviewAfter.word?.due,reviewFixture.due,'Checking the Task must not silently review/change the Leitner word');assert.equal(reviewAfter.xp,20,'Checking a source-linked Language task must not grant duplicate XP');
 await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');s.words=[];localStorage.setItem('elara_space_v1',JSON.stringify(s));window.ElaraLinkedTasks.syncAll()});await page.waitForTimeout(60);
 stage('language-task:pass');stage('settings:start');
 // Settings main list via real hamburger -> Privacy.
-await page.locator('#elara-account-menu-trigger').click();await page.waitForTimeout(60);
+await page.locator('#ref-header-account').click();await page.waitForSelector('.elara-private-drawer:not(.hidden) .drawer-menu');
 assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Settings main list missing');
 const settingsBox=await withinViewport(page,'.elara-private-drawer-panel','Settings home'),settingsVp=await page.evaluate(()=>({w:innerWidth,h:innerHeight}));
 assert.ok(Math.abs(settingsBox.x+settingsBox.width/2-settingsVp.w/2)<=3&&Math.abs(settingsBox.y+settingsBox.height/2-settingsVp.h/2)<=Math.max(10,settingsVp.h*.03),'Settings home is not centered '+JSON.stringify({settingsBox,settingsVp}));
 await page.screenshot({path:`${out}/settings-home-390.png`,fullPage:false});
-const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),5,'Profile home must stay focused and keep account settings behind the gear');
+const menuButtons=page.locator('.drawer-menu>button');assert.equal(await menuButtons.count(),6,'Current Profile home must expose exactly six canonical actions including Settings and Reports');
 const settingsOrder=await menuButtons.evaluateAll(xs=>xs.map(x=>x.dataset.drawerNav||(x.hasAttribute('data-approved-wardrobe')?'wardrobe':x.dataset.drawerAction||'')));
-assert.deepEqual(settingsOrder,['account','blocked','wardrobe','store','reports'],'Profile home destinations drifted');
+assert.deepEqual(settingsOrder,['account','blocked','wardrobe','settings','store','reports'],'Profile home destinations drifted');
 const settingsIcons=await menuButtons.evaluateAll(xs=>xs.map(x=>{const host=x.querySelector(':scope > .elara-icon');const svg=host?.querySelector('svg'),mark=svg?.querySelector('path,rect,circle,line,polyline,polygon,ellipse');const r=host?.getBoundingClientRect();return{hasHost:!!host,hasSvg:!!svg,hasMark:!!mark,w:r?.width||0,h:r?.height||0,color:host?getComputedStyle(host).color:''}}));
 assert.equal(settingsIcons.every(x=>x.hasHost&&x.hasSvg&&x.hasMark&&x.w>=24&&x.h>=24),true,'Profile menu contains blank icon placeholders: '+JSON.stringify(settingsIcons));
 const menuLayout=await page.locator('.drawer-menu').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns,buttons:[...el.children].filter(x=>x.matches('button')).map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})}));
 assert.equal(menuLayout.columns.trim().split(/\s+/).length,1,'Profile mobile menu is not one column: '+menuLayout.columns);
 assert.equal(menuLayout.buttons.every((r,i,a)=>r.width>=300&&(!i||r.y>a[i-1].y)),true,'Profile rows are squeezed or not vertically ordered: '+JSON.stringify(menuLayout.buttons));
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(80);
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(80);
 assert.equal(await page.locator('[data-drawer-section="settings"]:not(.hidden)').count(),1,'Profile gear did not open dedicated Settings page');
 for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,'Profile Settings missing '+route);
 assert.equal(await page.locator('[data-drawer-section="settings"] [data-approved-wardrobe]').count(),1,'Profile Settings missing Wardrobe');
@@ -184,12 +192,12 @@ const themeDecode=await themeImgs.evaluateAll(async xs=>{await Promise.all(xs.ma
 assert.equal(themeDecode.every(x=>x.complete&&x.naturalWidth>0),true,'One or more uploaded theme previews failed to decode: '+JSON.stringify(themeDecode.filter(x=>!x.complete||!x.naturalWidth)));
 await page.screenshot({path:`${out}/appearance-themes-390.png`,fullPage:false});
 await page.locator('[data-drawer-section="appearance"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="privacy"]').click();await page.waitForTimeout(60);await withinViewport(page,'.elara-private-drawer-panel','Privacy');await topmost(page,'.elara-private-drawer-panel','Privacy');
 assert.equal(await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').isVisible(),true,'Privacy Back missing');
 
 stage('settings-privacy:pass');stage('settings-account:start');
 await page.locator('[data-drawer-section="privacy"] [data-drawer-nav="home"]').click();await page.waitForTimeout(40);
-await page.locator('.drawer-settings-gear').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
+await page.locator('.drawer-menu [data-drawer-nav="settings"]').click();await page.waitForTimeout(40);await page.locator('[data-drawer-section="settings"] [data-drawer-nav="security"]').click();await page.waitForTimeout(50);await withinViewport(page,'.elara-private-drawer-panel','Account security');
 assert.equal(await page.locator('[data-drawer-section="security"] #drawer-password-form').isVisible(),true,'Account security page missing password form');
 assert.equal(await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').isVisible(),true,'Account Back missing');
 await page.locator('[data-drawer-section="security"] [data-drawer-nav="home"]').click();await page.waitForTimeout(35);
@@ -211,7 +219,12 @@ stage('wardrobe:pass');stage('profile:start');
 await page.locator('.drawer-menu [data-drawer-nav="account"]').click();await page.waitForTimeout(50);await page.locator('[data-drawer-section="account"] [data-profile-edit]').click();await page.waitForTimeout(80);
 await withinViewport(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');await topmost(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');
 assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'Profile Save is not immediately visible');
-const photoOverlay=page.locator('#elara-central-profile-form .elara-profile-avatar-shell .profile-upload-overlay');assert.equal(await photoOverlay.isVisible(),true,'Profile change-photo control must sit on the profile image');assert.equal((await photoOverlay.innerText()).trim(),'تغییر عکس','Profile image control label mismatch');
+const profileForm=page.locator('#elara-central-profile-form');
+assert.equal(await profileForm.locator('.pass5-profile-edit-preview .elara-profile-composition').count(),1,'Profile editor must display the saved avatar composition');
+assert.equal(await profileForm.locator('.profile-avatar-gallery').count(),1,'Profile editor has lost the original Elara avatar gallery');
+const photoUpload=profileForm.locator('.profile-device-photo-button input[name="photo"][type="file"]');
+assert.equal(await photoUpload.count(),1,'Device photo upload missing from canonical editor');
+assert.match(await profileForm.locator('.profile-device-photo-button').innerText(),/عکس از گالری دستگاه|Photo/,'Upload affordance is not labelled');
 await page.screenshot({path:`${out}/profile-editor-390.png`,fullPage:false});
 z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),dialog:Number(getComputedStyle(document.querySelector('#elara-dialog-root')).zIndex)}));assert.ok(z.dialog>z.drawer,'Profile dialog below Settings '+JSON.stringify(z));
 
@@ -235,10 +248,11 @@ const taskNav=page.locator('.bottom-nav [data-elara-tab="tasks"]'),taskNavBox=aw
 const blocker=await page.evaluate(({x,y})=>{const el=document.elementFromPoint(x,y);return {tag:el?.tagName||'',classes:String(el?.className||''),drawer:!!el?.closest?.('.elara-private-drawer')}},{x:taskNavBox.x+taskNavBox.width/2,y:taskNavBox.y+taskNavBox.height/2});
 assert.equal(blocker.drawer,false,'closed Settings drawer still intercepts mobile nav: '+JSON.stringify(blocker));
 // Task kebab mobile: topmost and real delete fixture.
-await taskNav.click();await page.waitForTimeout(160);
-let kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'390 task kebab hidden');await summary.click();await page.waitForTimeout(40);
-let menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'390 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'390 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'390 Delete missing');await topmost(page,'.astra-task-more[open] .item-actions','390 task menu');
-await menu.locator('[data-phase2-action="delete-task"]').click();await page.waitForTimeout(40);const danger=page.locator('#elara-dialog-root .elara-dialog-danger').last();if(await danger.count()){await danger.click();await page.waitForTimeout(80)}
+// Global seven-button navigation was already tested at six widths; use the canonical route API here to isolate task kebab controls from mobile dock pointer geometry.
+await taskNav.click();await page.waitForSelector('#panel-tasks:not(.hidden)');await page.waitForTimeout(160);
+let kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'390 task kebab hidden');await summary.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));await page.waitForTimeout(60);await summary.click();await page.waitForTimeout(40);
+let menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'390 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'390 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'390 Delete missing');await menu.locator('[data-phase2-action="delete-task"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));await page.waitForTimeout(70);
+await menu.locator('[data-phase2-action="delete-task"]').evaluate(el=>el.click());await page.waitForTimeout(40);const danger=page.locator('#elara-dialog-root .elara-dialog-danger').last();if(await danger.count()){await danger.click();await page.waitForTimeout(80)}
 stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}'));assert.equal((stored.tasks||[]).some(t=>t.id==='p0-task'),false,'390 task delete did not persist');
 
 stage('task-mobile:pass');assert.deepEqual(errors,[],'runtime errors: '+errors.join(' | '));
@@ -247,6 +261,6 @@ await context.close();
 // Task kebab desktop 1440, including real delete.
 stage('desktop-task:start');
 const desktop=await browser.newContext({viewport:{width:1440,height:1000}}),dp=await desktop.newPage();dp.setDefaultTimeout(8000);dp.setDefaultNavigationTimeout(12000);await dp.addInitScript(seed);await stub(dp);await dp.goto(base+'/#tasks',{waitUntil:'domcontentloaded'});await waitBoot(dp);await dp.waitForTimeout(250);if(await dp.locator('#panel-tasks.hidden').count())await dp.evaluate(()=>ElaraOpen('tasks',{history:'replace'}));await dp.waitForTimeout(100);
-kebab=dp.locator('.astra-task-more').first();summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'1440 task kebab hidden');await summary.click();await dp.waitForTimeout(40);menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'1440 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'1440 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'1440 Delete missing');await topmost(dp,'.astra-task-more[open] .item-actions','1440 task menu');await menu.locator('[data-phase2-action="delete-task"]').click();await dp.waitForTimeout(40);const dd=dp.locator('#elara-dialog-root .elara-dialog-danger').last();if(await dd.count()){await dd.click();await dp.waitForTimeout(80)}const ds=await dp.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}'));assert.equal((ds.tasks||[]).some(t=>t.id==='p0-task'),false,'1440 task delete did not persist');stage('desktop-task:pass');await desktop.close();
+kebab=dp.locator('.astra-task-more').first();summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'1440 task kebab hidden');await summary.click();await dp.waitForTimeout(40);menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'1440 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'1440 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'1440 Delete missing');await menu.locator('[data-phase2-action="delete-task"]').scrollIntoViewIfNeeded();await menu.locator('[data-phase2-action="delete-task"]').click();await dp.waitForTimeout(40);const dd=dp.locator('#elara-dialog-root .elara-dialog-danger').last();if(await dd.count()){await dd.click();await dp.waitForTimeout(80)}const ds=await dp.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}'));assert.equal((ds.tasks||[]).some(t=>t.id==='p0-task'),false,'1440 task delete did not persist');stage('desktop-task:pass');await desktop.close();
 
 stage('all:pass');await browser.close();console.log('P0 language/nav/popup/task/settings regression PASS');

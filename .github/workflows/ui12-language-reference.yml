@@ -1,0 +1,70 @@
+name: UI12 Language Reference QA
+on:
+  push:
+    branches:
+      - ui12-language-reference-20261010
+  pull_request:
+    paths:
+      - boot.js
+      - ui12-language-dashboard.js
+      - ui12-language-dashboard.css
+      - tests/ui12-language-reference-browser.mjs
+      - .github/workflows/ui12-language-reference.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  language-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and static safety
+        run: |
+          node --check boot.js
+          node --check ui12-language-dashboard.js
+          node --check tests/ui12-language-reference-browser.mjs
+          test -f assets/ui/34-language-hero-banner.webp
+          test -f assets/ui/language-learning-background.webp
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|elara-social.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js)$'; then
+            echo "::error::A protected navigation/backend file changed"
+            exit 1
+          fi
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start candidate and baseline preview servers
+        run: |
+          python3 -m http.server 4173 >/tmp/ui12-candidate.log 2>&1 &
+          python3 -m http.server 4174 --directory baseline >/tmp/ui12-baseline.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4173/ui12-language-dashboard.js >/dev/null
+          curl -fLsS http://127.0.0.1:4174/boot.js >/dev/null
+      - name: Run nine-width language functional and visual screenshot matrix
+        run: timeout 780s node tests/ui12-language-reference-browser.mjs
+      - name: Full P0 Language, Leitner, Tasks and modal regression
+        run: timeout 360s node tests/p0-language-popup-browser.mjs
+      - name: Full product hubs, Social and Tasks browser regression
+        if: always()
+        run: timeout 360s node tests/product-hubs-store-browser.mjs
+      - name: Verify Home, Task and profile contracts
+        if: always()
+        run: |
+          node tests/p0-home-contract.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui12-language-screenshots-${{ github.sha }}
+          path: browser-artifacts/ui12/*.png
+          if-no-files-found: warn
+          retention-days: 30

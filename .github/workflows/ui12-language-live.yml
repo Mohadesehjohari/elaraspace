@@ -1,0 +1,57 @@
+name: UI12 Live Production Exact Bytes and Browser
+on:
+  push:
+    branches: [main]
+    paths:
+      - boot.js
+      - ui12-language-dashboard.js
+      - ui12-language-dashboard.css
+      - tests/ui12-language-live-browser.mjs
+      - .github/workflows/ui12-language-live.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-language:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for GitHub Pages and compare exact deployed bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 85); do
+            ok=true
+            for file in index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css; do
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?ui12=$GITHUB_SHA&attempt=$attempt" -o "/tmp/ui12-live-$file" || ! cmp -s "$file" "/tmp/ui12-live-$file"; then
+                ok=false
+                break
+              fi
+            done
+            if [ "$ok" = true ]; then
+              echo "UI12_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css"
+              sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css
+              break
+            fi
+            if (( attempt % 10 == 0 )); then echo "Waiting for GitHub Pages CDN: attempt $attempt"; fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::UI12 live file bytes do not match deployed checkout"; exit 1; fi
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify production mobile and desktop Language
+        run: timeout 300s node tests/ui12-language-live-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui12-LIVE-language-${{ github.sha }}
+          path: browser-artifacts/ui12-live/*.png
+          if-no-files-found: warn
+          retention-days: 30
