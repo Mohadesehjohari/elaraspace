@@ -227,13 +227,32 @@ async function markDmRead(other){
  if(!uid)return false;const cid=dmId(other),ref=doc(db,'conversations',cid),snap=await getDoc(ref);if(!snap.exists())return false;const data=snap.data()||{};if(!Array.isArray(data.members)||!data.members.includes(uid))return false;
  await setDoc(doc(ref,'reads',uid),{uid,lastReadAt:serverTimestamp()});window.dispatchEvent(new Event('elara:dm-read'));return true
 }
+// A retry retains its allocated message ID: ambiguous network failures cannot silently duplicate a DM.
+const pendingDmWrites=new Map();
 async function sendDm(other,value){
  const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
- const cid=await ensureDm(other),now=Date.now(),previous=dmLastSend.get(cid)||0;if(now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
- const messages=collection(db,'conversations',cid,'messages');
- await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
- await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});dmLastSend.set(cid,Date.now());
- window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+Date.now()});
+ const cid=await ensureDm(other),now=Date.now(),previous=dmLastSend.get(cid)||0;
+ const pendingKey=cid+'|'+text;let messageRef=pendingDmWrites.get(pendingKey);
+ if(!messageRef&&now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
+ if(!messageRef){messageRef=doc(collection(db,'conversations',cid,'messages'));pendingDmWrites.set(pendingKey,messageRef)}
+ // A previous commit may have reached Firestore despite a lost acknowledgement.
+ if(pendingDmWrites.get(pendingKey)===messageRef){
+  try{const existing=await getDoc(messageRef);if(existing.exists()&&existing.data()?.sender===uid&&existing.data()?.text===text){pendingDmWrites.delete(pendingKey);dmLastSend.set(cid,Date.now());return cid}}catch(error){if(error?.code==='permission-denied')throw error}
+ }
+ // Both writes are atomic: a failed conversation update cannot leave a saved message
+ // while the UI reports a failed send. This uses the existing parent/message Rules shape.
+ const batch=writeBatch(db);
+ batch.set(messageRef,{sender:uid,text,createdAt:serverTimestamp()});
+ batch.update(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ try{await batch.commit()}
+ catch(error){
+  try{const saved=await getDoc(messageRef);if(saved.exists()&&saved.data()?.sender===uid&&saved.data()?.text===text){pendingDmWrites.delete(pendingKey);dmLastSend.set(cid,Date.now());return cid}}catch{}
+  // Retain the ID only for ambiguous transport errors; explicit denies must not reuse it.
+  if(error?.code==='permission-denied'||error?.code==='failed-precondition'||error?.code==='invalid-argument')pendingDmWrites.delete(pendingKey);
+  throw error;
+ }
+ pendingDmWrites.delete(pendingKey);dmLastSend.set(cid,Date.now());
+ window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+messageRef.id});
  return cid;
 }
 window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm,markRead:markDmRead};
