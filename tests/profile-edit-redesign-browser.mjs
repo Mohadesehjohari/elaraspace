@@ -18,12 +18,16 @@ const bootstrap=async(page)=>{
  await page.evaluate(async()=>{try{await window.ElaraLoadSocial()}catch{}});
  await page.evaluate(user=>{
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid,photoURL:'',metadata:{creationTime:'2026-01-05T12:00:00Z'}}),set:()=>{}});
-  window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async(values)=>{
+  window.__profileEditSaveCalls=[];
+  const saveProfileValues=async(values)=>{
+   window.__profileEditSaveCalls.push({...values});
    if(values.username==='occupied_qa')throw new Error('این نام کاربری قبلاً ثبت شده است.');
    if(values.username==='denied_qa'){const error=new Error('permission denied');error.code='permission-denied';throw error}
    window.ElaraSocial.me={...window.ElaraSocial.me,...values};
    return {warnings:[],profile:window.ElaraSocial.me};
-  }};
+  };
+  window.ElaraSocial={me:{...user},friends:[],saveProfileValues};
+  window.ElaraProfileSystem.canonicalProfileService=async()=>({saveProfileValues});
  },testUser);
  await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
  // Test-only bypass of the signed-out Firebase account gate; never change production gate code.
@@ -59,7 +63,7 @@ for(const width of sizes){
   assert.equal(await page.locator('.pe-preview-body').getAttribute('data-template'),'nebula');
   await page.locator('#elara-profile-edit-screen [name="username"]').fill('occupied_qa');
   await page.locator('[data-pe-save]').click();
-  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('قبلاً'));
+  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('قبلاً'),{timeout:10000}).catch(async()=>{throw Error('Duplicate check failed: '+JSON.stringify(await page.evaluate(()=>({status:document.querySelector('[data-pe-status]')?.textContent,calls:window.__profileEditSaveCalls,disabled:document.querySelector('[data-pe-save]')?.disabled}))))});
   assert.notEqual(await page.locator('[data-pe-status]').textContent(),'اطلاعات اصلی در Firebase ذخیره شد.');
   await page.locator('#elara-profile-edit-screen [name="username"]').fill('denied_qa');
   await page.locator('[data-pe-save]').click();
