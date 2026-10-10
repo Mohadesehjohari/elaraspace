@@ -1,0 +1,51 @@
+name: Profile Edit visual gate (isolated)
+on:
+  pull_request:
+    paths:
+      - 'approved-profile-system.js'
+      - 'profile-edit-redesign.js'
+      - 'profile-edit-redesign.css'
+      - 'tests/profile-edit-redesign-browser.mjs'
+      - '.github/workflows/profile-edit-visual-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  profile-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Protected surfaces / syntax / identity contracts
+        shell: bash
+        run: |
+          set -eu
+          for file in approved-profile-system.js profile-edit-redesign.js tests/profile-edit-redesign-browser.mjs; do node --check "$file"; done
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          # Existing Pass 4 suite assumes ASCII 'Level 1' in a fa-IR string ('Level ۱');
+          # keep that stale unrelated assertion outside this visual gate until test owners update it.
+          if git diff --name-only origin/main...HEAD | grep -E '^(friends-hub.css|social-(messaging|groups|clubs|challenges)-ui.js|elara-social.js|firestore.rules|storage.rules|cloud.js|mobile-ia-2026-10-05.*|ROADMAP.md)$'; then
+            echo "::error::Files owned by concurrent/backend teams were modified"; exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve PR code
+        run: |
+          python3 -m http.server 4173 >/tmp/profile-edit-site.log 2>&1 &
+          sleep 3
+      - name: Seven widths, browser Back, live preview and mocked persistence
+        run: timeout 360s node tests/profile-edit-redesign-browser.mjs
+      - name: Save Chromium screenshots (including failure)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-edit-visual-${{ github.sha }}
+          path: artifacts/profile-edit/
+          if-no-files-found: warn
+          retention-days: 30
