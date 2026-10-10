@@ -261,3 +261,24 @@
  .pe-shell .pe-heading{width:calc((100% - 12px) * .6875);max-width:100%;position:relative;z-index:2}
 }
 @media(max-width:970px){.pe-shell .pe-heading{width:100%}}
+
+/* Reference desktop identity: avatar+name/Bio beside, rather than above, real account facts. */
+@media(min-width:1280px){
+ .pe-shell .pe-identity{
+  display:grid;grid-template-columns:minmax(0,1fr) 164px;
+  grid-template-areas:"banner banner" "fields facts" "fields badges";
+  grid-template-rows:auto auto auto;gap:9px 12px;
+ }
+ .pe-shell .pe-identity>.pe-banner{grid-area:banner}
+ .pe-shell .pe-identity>.pe-identity-fields{grid-area:fields;align-self:start;margin-top:0;grid-template-columns:136px minmax(0,1fr);gap:8px 12px}
+ .pe-shell .pe-identity>.pe-info-grid{grid-area:facts;grid-template-columns:1fr;gap:7px;margin-top:0}
+ .pe-shell .pe-identity .pe-info{min-height:66px;padding:8px;gap:6px}
+ .pe-shell .pe-identity .pe-info-icon{width:28px;height:36px}
+ .pe-shell .pe-identity .pe-info-icon .pe-svg{width:25px;height:25px}
+ .pe-shell .pe-identity .pe-info strong{font-size:11px;overflow-wrap:anywhere}
+ .pe-shell .pe-identity>.pe-badges{grid-area:badges;margin:0;min-height:66px;padding:8px;display:flex;flex-direction:column;align-items:stretch;gap:7px;justify-content:center}
+ .pe-shell .pe-identity>.pe-badges>strong{font-size:12px}
+ .pe-shell .pe-identity>.pe-badges>div{justify-content:flex-start;gap:4px}
+ .pe-shell .pe-identity .pe-medal{font-size:10px;padding:3px 5px}
+ .pe-shell .pe-identity>.pe-avatar-options,.pe-shell .pe-identity>.pe-banner-options{grid-column:1/-1}
+}
