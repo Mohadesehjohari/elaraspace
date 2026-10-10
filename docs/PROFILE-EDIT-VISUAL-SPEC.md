@@ -40,14 +40,21 @@ The browser suite uses *mocked* profile data and stub canonical failures; it exe
 | --- | --- |
 | Shared entry-point and new editor JavaScript parse | PASS: isolated JS syntax parsing |
 | Existing canonical username service unmodified | PASS: source review |
-| Six-width Chromium screenshot and overflow test | PENDING: CI |
-| Visual pixel/geometry comparison with supplied references | PENDING: manual screenshot review |
+| Six-width Chromium screenshot and horizontal-overflow test | PASS: mocked Chromium gate; latest screenshot recheck is required after the mobile preview-margin correction |
+| Visual pixel/geometry comparison with supplied references | PARTIAL: actual Chromium images reviewed; left/right positioning and mobile preview overlap corrected; not pixel-perfect or accepted |
 | Actual Firebase username collision and failure handling | UNVERIFIED: authenticated staging |
 | Actual avatar/banner Firebase Storage upload | UNSUPPORTED: no matching Storage rule |
-| Same-device local appearance after reload | PENDING: browser test |
+| Same-device local appearance after reload | PASS: mocked browser test (UID-scoped localStorage); production authenticated reload unverified |
 | Cross-device/public-page appearance consistency | NOT IMPLEMENTED |
 | Real public/private-data boundary | Needs authenticated staging validation |
 | Live main publication | NOT DEPLOYED: main untouched |
+
+## CI evidence and review (2026-10-10)
+
+- The Profile Edit visual gate passed on commit f691de6e58a06f458628a271ad46baa4616d6e94 (run 38070023936), and again on commit 03602e828cc7b150570d3438e4ff576abf00dca5 (run 38070102862). Both included six mock Chromium widths. The username production hotfix workflow also passed on the first of those generations.
+- CI screenshots include 320/375/390/430/768/1440 and additional scrolled mobile/desktop bottoms and mocked local-reload images. These are mock-identity screenshots; the actual signed-out Firebase gate is intentionally masked by the **test only**.
+- Visual comparisons found and corrected: avatar initially on wrong side of mobile fields; desktop columns/action directions reversed; preview too low on desktop; needlessly long desktop identity region; and mobile preview negative overlap with Save/Reset (last corrected in commit fea647d4c30105fb2db5fccdb714329f91a2e520, after the cited passing screenshot).
+- Acceptance remains blocked: artwork differs from reference; detailed side-by-side measurement and live authenticated Firebase/Storage checks are still outstanding. A successful test does not prove exact visual matching.
 
 ## Open visual / functional differences
 
