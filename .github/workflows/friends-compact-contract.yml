@@ -1,0 +1,141 @@
+name: Friends compact contract and baseline repro
+on:
+  pull_request:
+    paths:
+      - 'tests/product-hubs-store-browser.mjs'
+      - 'tests/friends-hub-browser.mjs'
+      - '.github/workflows/friends-compact-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/product-hubs-store-browser.mjs'
+      - '.github/workflows/friends-compact-contract.yml'
+permissions:
+  contents: read
+jobs:
+  baseline-reproduction:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve untouched main baseline at 4174
+        run: |
+          python3 -m http.server 4174 --directory baseline >/tmp/friends-baseline.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4174/boot.js > /dev/null
+      - name: Reproduce the stale Friends assertion on untouched main
+        shell: bash
+        run: |
+          set +e
+          ELARA_TEST_URL=http://127.0.0.1:4174 node baseline/tests/product-hubs-store-browser.mjs > baseline-friends-old-assertion.log 2>&1
+          result=$?
+          set -e
+          tail -40 baseline-friends-old-assertion.log
+          if [ "$result" -eq 0 ]; then echo "::error::Old Friends assertion unexpectedly passes against untouched main"; exit 1; fi
+          grep -F "Friends tabs must be compact transparent icon controls" baseline-friends-old-assertion.log || { echo "::error::Baseline failed for a different reason"; exit 1; }
+          grep -F "AssertionError" baseline-friends-old-assertion.log
+          echo "BASELINE_STALE_FRIENDS_CONTRACT_REPRODUCED main=$(git -C baseline rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: main-stale-friends-assertion
+          path: baseline-friends-old-assertion.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  candidate-contract:
+    if: github.event_name == 'pull_request'
+    needs: baseline-reproduction
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact ownership and syntax
+        shell: bash
+        run: |
+          git fetch origin main
+          git diff --name-only origin/main...HEAD | tee /tmp/changed-files.txt
+          if grep -Ev '^(tests/product-hubs-store-browser.mjs|.github/workflows/friends-compact-contract.yml)$' /tmp/changed-files.txt; then
+            echo "::error::Non-test changes are outside this PR"; exit 1
+          fi
+          node --check tests/product-hubs-store-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/friends-contract-candidate.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4173/friends-hub.css >/dev/null
+      - name: Product hubs, compact tabs, actual clicks, Ranking and main dock
+        run: timeout 400s node tests/product-hubs-store-browser.mjs
+      - name: Dedicated Friends seven-width browser
+        run: timeout 500s node tests/friends-hub-browser.mjs
+      - name: Home, username and collaboration invariants
+        run: |
+          node tests/p0-home-contract.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-friends-navigation
+          path: browser-artifacts/friends-hub-*.png
+          if-no-files-found: warn
+          retention-days: 20
+
+  live-contract:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact GitHub Pages bytes of merged code
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 90); do
+            ok=true
+            for file in index.html friends-hub.css tests/product-hubs-store-browser.mjs tests/friends-hub-browser.mjs; do
+              output="/tmp/friends-pages-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?release=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "FRIENDS_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::Pages bytes did not match main";exit 1;fi
+      - name: Verify actual public Pages in Chromium with isolated fixture accounts
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/product-hubs-store-browser.mjs
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/friends-hub-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-friends-compact-${{ github.sha }}
+          path: browser-artifacts/friends-hub-*.png
+          retention-days: 30
+          if-no-files-found: warn

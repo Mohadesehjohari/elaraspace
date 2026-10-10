@@ -1,0 +1,70 @@
+name: Verify Live Profile Edit Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - approved-profile-system.js
+      - profile-edit-redesign.js
+      - profile-edit-redesign.css
+      - tests/profile-edit-redesign-browser.mjs
+      - .github/workflows/profile-edit-live-pages.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for exact deployed JS and CSS bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://mohadesehjohari.github.io/elaraspace'
+          verified=false
+          for n in $(seq 1 90); do
+            all=true
+            for file in approved-profile-system.js profile-edit-redesign.js profile-edit-redesign.css; do
+              if ! curl --fail --location --silent --show-error --max-time 15 "$base/$file?profile_release=${GITHUB_SHA}&attempt=$n" -o "/tmp/profile-live-$file"; then
+                all=false
+                break
+              fi
+              if ! cmp -s "$file" "/tmp/profile-live-$file"; then
+                all=false
+                break
+              fi
+            done
+            if [ "$all" = true ]; then
+              verified=true
+              echo "LIVE_PROFILE_EDIT_BYTES_VERIFIED=${GITHUB_SHA}"
+              break
+            fi
+            sleep 8
+          done
+          if [ "$verified" != true ]; then
+            echo '::error::GitHub Pages never served the exact PR release JS and CSS'
+            exit 1
+          fi
+          grep -Fq 'window.ElaraProfileEdit.open({galleryOpen})' /tmp/profile-live-approved-profile-system.js
+          grep -Fq 'ElaraSocial' /tmp/profile-live-profile-edit-redesign.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser smoke against GitHub Pages (mock identity only)
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+          ELARA_PROFILE_SHOTS: artifacts/profile-edit-live
+        run: timeout 360s node tests/profile-edit-redesign-browser.mjs
+      - name: Save live-site screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-edit-live-${{ github.sha }}
+          path: artifacts/profile-edit-live/
+          if-no-files-found: warn
+          retention-days: 21
