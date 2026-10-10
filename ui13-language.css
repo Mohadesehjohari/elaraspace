@@ -136,9 +136,9 @@
 @media(min-width:701px){
  .workspace:has(#panel-language-tasks:not(.hidden),#panel-language-channels:not(.hidden),#panel-language-challenges:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
  #main :is(#panel-language-tasks,#panel-language-channels,#panel-language-challenges):not(.hidden) .ui13-back{position:relative;z-index:2;scroll-margin-top:90px}
- #panel-language.ui12-language .ui12-board{
+ @media(min-width:1181px){#panel-language.ui12-language .ui12-board{
   grid-template-columns:minmax(0,.72fr) minmax(0,1.03fr) minmax(0,1.04fr) minmax(0,1.48fr)!important;
- }
+ }}
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:center 67%!important}
 }
 .elara-dialog-root .language-class-report{min-width:0!important;box-sizing:border-box;width:min(100%,760px)!important;max-width:100%!important;max-height:min(68dvh,690px);overflow-y:auto;overscroll-behavior:contain}
