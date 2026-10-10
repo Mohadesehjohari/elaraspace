@@ -33,6 +33,15 @@ const choices={
  store:'.store-hero'
 };
 let pending=false;
+const rootRoutes=new Set(['home','tasks','language','books','exercise','ranking','social','freedom','blog','page','reports','store','habits','goals','focus','missions','settings']);
+function syncHeaderForRoute(){
+ const active=document.querySelector('#main > .panel:not(.hidden)');
+ const workspace=document.querySelector('.workspace');if(!workspace)return;
+ const route=active?.id?.replace(/^panel-/,'')||'';
+ const validBack=active?.querySelector(':is([data-ui13-back],[data-f-sub-back],.feature-back,.ui13-back,.feature-hub-back,.language-back)');
+ workspace.classList.toggle('ui16-deep-back-active',!!route&&!rootRoutes.has(route)&&!!validBack);
+ workspace.dataset.ui16ActiveRoute=route;
+}
 function update(){
  for(const [route,[art,title]] of Object.entries(routeArt)){
   const panel=document.getElementById('panel-'+route);
@@ -77,11 +86,13 @@ function update(){
   // Store deliberately keeps its existing cosmic artwork and product identity.
   if(art)hero.style.setProperty('--elara-page-art','url("'+ROOT+art+'")');
  }
+ syncHeaderForRoute();
 }
 function schedule(){if(pending)return;pending=true;queueMicrotask(()=>{pending=false;update()})}
 function start(){
  update();window.addEventListener('elara:open',schedule);
  window.addEventListener('hashchange',schedule);
+ window.addEventListener('popstate',schedule);
  for(const name of ['elara:hydrate','elara:social-updated','elara:account-ready'])window.addEventListener(name,schedule);
  const main=document.getElementById('main');
  if(main)new MutationObserver(records=>{if(records.some(r=>r.addedNodes.length||r.type==='attributes'&&r.attributeName==='class'))schedule()})

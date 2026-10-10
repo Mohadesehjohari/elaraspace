@@ -233,3 +233,11 @@ html body #main #panel-freedom .freedom-hero.elara-global-hero:after{
  #panel-tasks .task-category-scope-notice{flex-wrap:wrap}
  #panel-tasks .task-category-scope-notice button{width:100%}
 }
+
+/* Account toolbar tracks the active nested route and its real Back button.
+   Root hubs restore the controls; JS owns this class, not screen width alone. */
+@media(min-width:701px){
+ .workspace.ui16-deep-back-active>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){
+  visibility:hidden!important;pointer-events:none!important
+ }
+}
