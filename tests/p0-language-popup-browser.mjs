@@ -219,7 +219,12 @@ stage('wardrobe:pass');stage('profile:start');
 await page.locator('.drawer-menu [data-drawer-nav="account"]').click();await page.waitForTimeout(50);await page.locator('[data-drawer-section="account"] [data-profile-edit]').click();await page.waitForTimeout(80);
 await withinViewport(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');await topmost(page,'#elara-dialog-root .elara-dialog-panel','Profile editor');
 assert.equal(await page.locator('#elara-central-profile-form .pass4-profile-edit-actions-top [type=submit]').isVisible(),true,'Profile Save is not immediately visible');
-const photoOverlay=page.locator('#elara-central-profile-form .elara-profile-avatar-shell .profile-upload-overlay');assert.equal(await photoOverlay.isVisible(),true,'Profile change-photo control must sit on the profile image');assert.equal((await photoOverlay.innerText()).trim(),'تغییر عکس','Profile image control label mismatch');
+const profileForm=page.locator('#elara-central-profile-form');
+assert.equal(await profileForm.locator('.pass5-profile-edit-preview .elara-profile-composition').count(),1,'Profile editor must display the saved avatar composition');
+assert.equal(await profileForm.locator('.profile-avatar-gallery').count(),1,'Profile editor has lost the original Elara avatar gallery');
+const photoUpload=profileForm.locator('.profile-device-photo-button input[name="photo"][type="file"]');
+assert.equal(await photoUpload.count(),1,'Device photo upload missing from canonical editor');
+assert.match(await profileForm.locator('.profile-device-photo-button').innerText(),/عکس از گالری دستگاه|Photo/,'Upload affordance is not labelled');
 await page.screenshot({path:`${out}/profile-editor-390.png`,fullPage:false});
 z=await page.evaluate(()=>({drawer:Number(getComputedStyle(document.querySelector('.elara-private-drawer')).zIndex),dialog:Number(getComputedStyle(document.querySelector('#elara-dialog-root')).zIndex)}));assert.ok(z.dialog>z.drawer,'Profile dialog below Settings '+JSON.stringify(z));
 
