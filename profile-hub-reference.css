@@ -99,6 +99,7 @@
 .elara-profile-hub-actions .elara-profile-hub-edit small{color:#fff}
 .elara-profile-hub-storage{font-size:10px;color:#91a9d4;line-height:1.7;margin:0;padding-inline:4px}
 @media(max-width:700px){
+ .elara-private-drawer[data-mobile-section="account"]{padding:0!important}
  .elara-private-drawer[data-mobile-section="account"] .elara-private-drawer-panel{
   display:block!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;
   padding:0!important;margin:0!important;border-radius:0!important;border:0!important;
@@ -117,17 +118,17 @@
  .elara-profile-hub-heading .drawer-section-head small{font-size:clamp(10px,2.8vw,12px)}
  .elara-profile-hub-heading [data-drawer-nav="home"]{min-width:43px;min-height:43px}
  .elara-profile-hub-hero .elara-profile-composition{
-  display:grid;direction:rtl;grid-template-columns:minmax(0,1fr) clamp(104px,28vw,139px);
+  display:grid;direction:rtl;grid-template-columns:clamp(104px,28vw,139px) minmax(0,1fr);
   grid-template-rows:auto;gap:9px;min-height:clamp(290px,81vw,390px);
   padding:clamp(120px,37vw,172px) 11px 17px;align-items:end;
   border-radius:20px;background-position:center 46%
  }
  .elara-profile-hub-hero .elara-profile-composition .elara-profile-avatar-shell{
-  grid-column:2;grid-row:1;width:clamp(105px,29vw,142px);height:clamp(105px,29vw,142px);
+  grid-column:1;grid-row:1;width:clamp(105px,29vw,142px);height:clamp(105px,29vw,142px);
   align-self:end;justify-self:center
  }
  .elara-profile-hub-hero .elara-profile-composition-copy{
-  grid-column:1;grid-row:1;text-align:center;min-width:0;align-self:end
+  grid-column:2;grid-row:1;text-align:center;min-width:0;align-self:end
  }
  .elara-profile-hub-hero .elara-profile-composition-copy strong{font-size:clamp(20px,5.3vw,27px)}
  .elara-profile-hub-hero .elara-profile-composition-copy small{font-size:clamp(9px,2.8vw,12px)}
@@ -161,3 +162,12 @@
  .elara-profile-hub-actions button small{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.elara-profile-hub *{transition:none!important}}
+
+
+@media(max-width:700px){
+ .elara-private-drawer[data-mobile-section="account"] .drawer-account-area{min-width:0}
+ .elara-private-drawer[data-mobile-section="account"] .elara-profile-composition-copy>*{max-width:100%}
+ .elara-private-drawer[data-mobile-section="account"] .elara-profile-xp-row{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;font-size:11px}
+ .elara-private-drawer[data-mobile-section="account"] .elara-profile-chips{min-width:0;max-width:100%}
+ .elara-private-drawer[data-mobile-section="account"] .elara-profile-chips span{white-space:normal;overflow-wrap:anywhere}
+}
