@@ -1,0 +1,77 @@
+name: UI13 Language Owner Art and Routes
+on:
+  push:
+    branches:
+      - ui13-language-owner-art-routes-20261010
+  pull_request:
+    paths:
+      - boot.js
+      - index.html
+      - ui12-language-dashboard.*
+      - ui13-language*
+      - global-page-banner-20261009.js
+      - language-custom-classes.js
+      - social-clubs-ui.js
+      - feature-hubs-shell.js
+      - tests/ui13-language-owner-browser.mjs
+      - tests/ui12-language-reference-browser.mjs
+      - tests/p0-language-popup-browser.mjs
+      - .github/workflows/ui13-language.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static safety and protected navigation contracts
+        run: |
+          set -eu
+          for file in boot.js ui12-language-dashboard.js ui13-language-routes.js language-custom-classes.js social-clubs-ui.js feature-hubs-shell.js; do node --check "$file"; done
+          for file in language_banner_main.webp librairy_banner_main.webp weblog_banner_main.webp workout_banner_main.webp daily-banner-bg_main.webp lightner.webp; do test -s "assets/ui/$file"; done
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|reference-home-shell-2026.css)$'; then
+            echo "::error::Protected backend/Home/global navigation modified"; exit 1
+          fi
+      - name: Install browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start candidate and original main
+        run: |
+          python3 -m http.server 4173 >/tmp/ui13-candidate.log 2>&1 &
+          python3 -m http.server 4174 --directory baseline >/tmp/ui13-baseline.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4173/ui13-language-routes.js >/dev/null
+      - name: Nine-width owner art and route screenshots, classmate dialog
+        run: timeout 420s node tests/ui13-language-owner-browser.mjs
+      - name: UI12 canonical state and full route matrix
+        run: timeout 420s node tests/ui12-language-reference-browser.mjs
+      - name: Full P0 Language, Tasks, Profile, and Leitner
+        run: timeout 360s node tests/p0-language-popup-browser.mjs
+      - name: Existing social, home, task and product browser
+        if: always()
+        run: timeout 330s node tests/product-hubs-store-browser.mjs
+      - name: Other safety contracts
+        if: always()
+        run: |
+          node tests/p0-home-contract.test.mjs
+          node tests/username-integrity-audit.test.mjs
+          node tests/collab-invite-regression.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui13-owner-comparison-${{ github.sha }}
+          path: |
+            browser-artifacts/ui13/*.png
+            browser-artifacts/ui12/*.png
+          if-no-files-found: warn
+          retention-days: 30
