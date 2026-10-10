@@ -3,7 +3,7 @@
 const routes=[
  'store',
  'library-clips','library-search','library-reports','library-shelves',
- 'language-books','language-courses','language-reports',
+ 'language-books','language-courses','language-reports','language-tasks','language-channels','language-challenges',
  'wellness-water','wellness-sleep','wellness-exercise','wellness-weight','wellness-reports','wellness-analysis',
  'focus-pomodoro','focus-ambience','focus-room','focus-deep-work',
  'reports-reading','reports-language','reports-fitness','reports-productivity'
