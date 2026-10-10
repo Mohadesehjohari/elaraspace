@@ -71,7 +71,7 @@ for(const width of widths){
   await page.evaluate(()=>window.ElaraOpen('exercise'));
   await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
   assert.equal(await page.evaluate(date=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).water[date],date),0,'refresh persists real state');
-  await page.evaluate(()=>{window.ElaraAccount.user.uid='well01-other';window.ElaraSocial.me.uid='well01-other';window.dispatchEvent(new Event('elara:account-ready'))});
+  await page.evaluate(()=>{window.ElaraAccount=window.ElaraAccount||{};window.ElaraAccount.user={...(window.ElaraAccount.user||{}),uid:'well01-other'};window.ElaraSocial=window.ElaraSocial||{me:{}};window.ElaraSocial.me={...(window.ElaraSocial.me||{}),uid:'well01-other'};window.dispatchEvent(new Event('elara:account-ready'))});
   await page.waitForFunction(()=>document.querySelector('.well01-metric-weight strong')?.textContent.includes('—'));
   assert.doesNotMatch(await dash.innerText(),/68[.٫]5|۶۸[.٫]۵|تمرین قدرتی سه روز/,'one account cannot read another account data');
  }
