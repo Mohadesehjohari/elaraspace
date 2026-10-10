@@ -74,9 +74,9 @@ function mount(host){
 function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
-  '<div class="ui12-leitner-art"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" role="group" aria-label="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+' '+tx('واژه','words')+'"><b>'+num(i+1)+'</b><small><span>'+num(count)+'</span> '+tx('واژه','words')+'</small></div>').join('')+'</div>'+
+  '<div class="ui12-leitner-art"><div class="ui12-leitner-scene" role="img" aria-label="'+tx('تصویر جعبه لایتنر در آسمان خیال‌انگیز','Leitner learning artwork')+'"></div><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" role="group" aria-label="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+' '+tx('واژه','words')+'"><b>'+num(i+1)+'</b><small><span>'+num(count)+'</span> '+tx('واژه','words')+'</small></div>').join('')+'</div>'+
   button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
-  '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
+  '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('کلمات یادگرفته‌شده','Learned words')+'</span></div>';
 }
 function renderTasks(m){
  const done=m.completed,total=m.tasks.length;
@@ -95,11 +95,21 @@ function renderBooks(m){
  const cover=validImg(b.coverData)||validImg(b.coverUrl),progress=b.totalPages?pct((Number(b.currentPage)||0)/b.totalPages*100):0;
  return '<article class="ui12-book"><div class="ui12-book-cover">'+(cover?'<img src="'+esc(cover)+'" alt="" loading="eager" decoding="async">':'<img src="assets/ui/23-language-books-icon.webp" alt="" loading="eager" decoding="async">')+'</div><strong data-elara-ugc dir="auto" title="'+esc(b.title)+'">'+esc(b.title)+'</strong><small>'+esc(b.language||tx('کتاب زبان','Language book'))+'</small><div class="ui12-track" role="progressbar" aria-valuenow="'+progress+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+progress+'%"></i></div><span>'+num(progress)+'٪</span></article>';
  }).join('');
- const html=m.b.length?'<div class="ui12-book-grid">'+rows+'</div>':empty('23-language-books-icon.webp',tx('هنوز کتاب زبانی ثبت نکردی.','No language books yet.'),tx('افزودن کتاب','Add a book'),'language-books');
+ const html=m.b.length?'<div class="ui12-book-grid">'+rows+'</div>':empty('books',tx('هنوز کتاب زبانی ثبت نکردی.','No language books yet.'),tx('افزودن کتاب','Add a book'),'language-books');
  const body=$('ui12-books').querySelector('[data-ui12-body]');
  if(body.innerHTML!==html)body.innerHTML=html;
 }
-function stat(label,value,emoji){return '<div class="ui12-stat"><span aria-hidden="true">'+emoji+'</span><div><b>'+num(value)+'</b><small>'+label+'</small></div></div>'}
+const statPaths={
+ '🔥':'<path d="M13 3c2 5-1 5 2 9 1-3 4-3 3-7 5 5 5 9 3 13-2 4-7 5-10 3-5-2-7-8-4-13 0 3 2 4 3 5 0-5 4-6 3-10z"/>',
+ '📖':ui13Paths.books,
+ '◷':'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/>',
+ '⏱':'<circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2M9 2h6M12 2v3M18 5l2-2"/>',
+ '♙':ui13Paths.classes,'▤':ui13Paths.report
+};
+function stat(label,value,kind){
+ const artwork='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(statPaths[kind]||ui13Paths.report)+'</svg>';
+ return '<div class="ui12-stat"><span class="ui12-stat-illustration" aria-hidden="true">'+artwork+'</span><div><b>'+num(value)+'</b><small>'+label+'</small></div></div>'
+}
 function renderStats(m){
  $('ui12-stats').querySelector('[data-ui12-body]').innerHTML=
   stat(tx('روز متوالی ثبت مطالعه','Consecutive logged days'),m.streak,'🔥')+
@@ -108,19 +118,19 @@ function renderStats(m){
   stat(tx('دقیقه مطالعه امروز','Minutes studied today'),m.todayMinutes,'⏱');
 }
 function empty(art,msg,cta,routeName){
- return '<div class="ui12-empty-state"><img src="assets/ui/'+art+'" alt="" loading="lazy"><p>'+msg+'</p>'+(routeName?button(routeName,cta,'ui12-outline'):'')+'</div>';
+ return '<div class="ui12-empty-state">'+(art==='channels'||art==='challenges'||art==='books'?'<span class="ui16-empty-svg" aria-hidden="true">'+ui13Icon(art)+'</span>':'<img src="assets/ui/'+art+'" alt="" loading="lazy">')+'<p>'+msg+'</p>'+(routeName?button(routeName,cta,'ui12-outline'):'')+'</div>';
 }
 function renderClasses(m){
  const rows=m.c.slice().sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0)).slice(0,4).map(c=>{
  const total=Math.max(1,Number(c.terms)||1)*Math.max(1,Number(c.sessionsPerTerm)||1),done=list(c.sessionLogs).length;
- return '<button class="ui12-class-row" type="button" data-ui12-route="language-courses"><span class="ui12-class-avatar" aria-hidden="true">♙</span><span><strong data-elara-ugc dir="auto">'+esc(c.title)+'</strong><small>'+tx(c.collabSpaceId?'مشترک':'شخصی',c.collabSpaceId?'Shared':'Personal')+' · '+num(done)+' / '+num(total)+' '+tx('جلسه','sessions')+'</small></span><span aria-hidden="true">‹</span></button>';
+ return '<button class="ui12-class-row" type="button" data-ui12-route="language-courses"><span class="ui12-class-avatar" aria-hidden="true">'+ui13Icon('classes')+'</span><span><strong data-elara-ugc dir="auto">'+esc(c.title)+'</strong><small>'+tx(c.collabSpaceId?'مشترک':'شخصی',c.collabSpaceId?'Shared':'Personal')+' · '+num(done)+' / '+num(total)+' '+tx('جلسه','sessions')+'</small></span><span aria-hidden="true">‹</span></button>';
  }).join('');
- $('ui12-classes').querySelector('[data-ui12-body]').innerHTML=rows||'<p class="ui12-empty">'+tx('هنوز کلاس زبانی ثبت نشده است.','No language classes yet.')+'</p>';
+ $('ui12-classes').querySelector('[data-ui12-body]').innerHTML=rows||'<div class="ui12-empty-state ui12-class-empty"><span class="ui16-empty-svg" aria-hidden="true">'+ui13Icon('classes')+'</span><p class="ui12-empty">'+tx('هنوز کلاس زبانی ثبت نشده است.','No language classes yet.')+'</p></div>';
  $('ui12-classes').querySelector('[data-ui12-body]').insertAdjacentHTML('beforeend','<button type="button" class="ui12-primary ui12-add" data-ui12-new-class>+ '+tx('ایجاد کلاس جدید','Create class')+'</button>');
 }
 function renderUnavailable(){
- $('ui12-channels').querySelector('[data-ui12-body]').innerHTML=empty('24-language-classes-icon.webp',tx('کانال زبان هنوز به سیستم واقعی متصل نیست. هیچ عضو یا کانال ساختگی نمایش داده نمی‌شود.','Language channels are not connected to a real service yet. No fabricated members or channels.'),'','');
- $('ui12-challenges').querySelector('[data-ui12-body]').innerHTML=empty('11-challenges-icon.webp',tx('چالش زبان هنوز پشتیبانی داده‌ای مستقل ندارد.','Language challenges do not have a dedicated data source yet.'),'','');
+ $('ui12-channels').querySelector('[data-ui12-body]').innerHTML=empty('channels',tx('کانال زبان هنوز به سیستم واقعی متصل نیست. هیچ عضو یا کانال ساختگی نمایش داده نمی‌شود.','Language channels are not connected to a real service yet. No fabricated members or channels.'),'','');
+ $('ui12-challenges').querySelector('[data-ui12-body]').innerHTML=empty('challenges',tx('چالش زبان هنوز پشتیبانی داده‌ای مستقل ندارد.','Language challenges do not have a dedicated data source yet.'),'','');
 }
 function bucketRows(rows,kind){
  const now=new Date(),out=[];

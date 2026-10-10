@@ -5,7 +5,7 @@ import {mkdirSync} from 'node:fs';
 const origin=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const out='browser-artifacts/ui13';mkdirSync(out,{recursive:true});
 const widthSet=[320,360,375,390,412,430,768,1440,1648];
-const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp','background-moonlit-mountains.webp'];
+const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp','daily-banner-bg_main.webp'];
 const fakeCloud="window.ElaraAccount={user:{uid:'ui13-qa',email:'ui13@example.test',emailVerified:true},profile:{uid:'ui13-qa',name:'Test'}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');window.dispatchEvent(new Event('elara:account-ready'));";
 const fakeSocial="window.ElaraSocial={me:{uid:'ui13-qa',name:'Test'},friends:[],clubs:{list:async()=>[],discover:async()=>[]},challenges:{list:async()=>[]},refresh:async()=>{}};window.dispatchEvent(new Event('elara:social-updated'));";
 const browser=await chromium.launch({headless:true});
@@ -62,10 +62,10 @@ try{
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
     await page.waitForSelector('#panel-language:not(.hidden)');
   }
-  await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-art')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
+  await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-scene')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
   const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
   assert.match(hero,/language_banner_main\.webp/,'Language hero not owner image');
-  const leitner=await page.locator('#ui12-leitner .ui12-leitner-art').evaluate(e=>getComputedStyle(e).backgroundImage);
+  const leitner=await page.locator('#ui12-leitner .ui12-leitner-scene').evaluate(e=>getComputedStyle(e).backgroundImage);
   assert.match(leitner,/lightner\.webp/,'Leitner owner image absent');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'UI13 viewport overflow '+width+': '+overflow);
@@ -90,7 +90,7 @@ try{
     assert.deepEqual(await page.locator('#ui12-leitner .ui12-box small span').allTextContents(),[1,2,1,1,2].map(n=>n.toLocaleString('fa-IR')),'Multi-word Leitner counts not driven by canonical storage');
     await page.evaluate(words=>{const st=JSON.parse(localStorage.getItem('elara_space_v1'));st.words=words;localStorage.setItem('elara_space_v1',JSON.stringify(st));ElaraLanguageUI12.refresh()},originalWordSet);
     const promo=await page.locator('#ref-sidebar-banner').evaluate(el=>getComputedStyle(el).backgroundImage);
-    assert.match(promo,/background-moonlit-mountains\.webp/,'Real sidebar landscape not displayed');
+    assert.match(promo,/daily-banner-bg_main\.webp/,'Owner-approved sidebar artwork is not displayed');
   }
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   for(const [key,target] of Object.entries({leitner:'words',books:'language-books',classes:'language-courses',tasks:'language-tasks',channels:'language-channels',challenges:'language-challenges',report:'language-reports'})){
@@ -120,6 +120,32 @@ try{
      await back.click({timeout:9000});
    }else await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
    await page.waitForSelector('#panel-language:not(.hidden)');
+  }
+  if(width===390){
+   const created=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.text==='UI14 categorized test'));
+   assert.ok(created?.id,'Canonical Language task missing before transfer');
+   await page.evaluate(()=>ElaraOpen('tasks',{history:'push'}));
+   await page.waitForSelector('#panel-tasks:not(.hidden) .astra-task-row[data-key="'+created.id+'"]');
+   const task=page.locator('#task-list .astra-task-row[data-key="'+created.id+'"]');
+   await task.locator('.astra-task-more summary').click();
+   await task.locator('[data-phase2-action="edit-task"]').click();
+   const category=page.locator('.task-detail-form [data-detail="sourceGroup"]');
+   await category.waitFor({state:'visible'});
+   await category.selectOption('book');
+   await page.getByRole('button',{name:'ذخیره تغییرات'}).click();
+   await page.waitForFunction(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id===id)?.sourceGroup==='book',created.id);
+   assert.equal(await page.evaluate(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.filter(t=>t.id===id).length,created.id),1,'Category edit cloned a task');
+   await page.evaluate(()=>ElaraOpen('language-tasks',{history:'push'}));
+   await page.waitForSelector('#panel-language-tasks:not(.hidden)');
+   assert.equal(await page.locator('#panel-language-tasks [data-section-task-id="'+created.id+'"]').count(),0,'Moved task remained in Language');
+   await page.evaluate(()=>ElaraOpen('books',{history:'push'}));
+   await page.waitForSelector('#panel-books:not(.hidden) [data-section-task-id="'+created.id+'"]',{timeout:10000});
+   await page.locator('#panel-books [data-section-task-all="book"]').click();
+   await page.waitForSelector('#panel-tasks:not(.hidden)');
+   assert.equal(await page.locator('#panel-tasks .astra-task-row[data-key="'+created.id+'"]').count(),1,'Library task missing from filtered canonical Tasks');
+   assert.equal(await page.evaluate(()=>document.querySelector('#panel-tasks')?.dataset.taskCategoryFilter),'book','View all lost category');
+   await page.locator('[data-task-category-clear]').click();
+   assert.equal(await page.evaluate(()=>document.querySelector('#panel-tasks')?.dataset.taskCategoryFilter||''),'','Category clear failed');
   }
   if(width===390){
    await page.evaluate(()=>ElaraOpen('language-courses',{history:'replace'}));

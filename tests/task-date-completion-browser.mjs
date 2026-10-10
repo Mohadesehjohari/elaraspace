@@ -13,6 +13,7 @@ const seeded={version:1,theme:'dark',xp:0,taskCompletionHistory:[],folders:[],ta
  tasks:[mk('past',past),mk('today',now),mk('future',future),
  mk('repeat',past,{recurrenceRule:{frequency:'daily',interval:1,startDate:past,endDate:null},occurrenceDone:[],occurrenceRewardDays:[]}),
  mk('shared',now,{collabSpaceId:'shared-space',sourceGroup:'personal'}),
+ mk('multi',now,{dailyTarget:3}),
  mk('goal-task',now,{linkedTask:true,sourceManaged:true,sourceCompletionLocked:false,sourceType:'goal-step',sourceGroup:'goal',sourceId:'step',sourceParentId:'goal',xpAwarded:true})]};
 const page=await browser.newPage({viewport:{width:1440,height:950}});
 await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:stubCloud}));
@@ -44,6 +45,34 @@ try {
   assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),1,'undo not persistent');
  }
  for(const [id,date] of [['past',past],['today',now],['future',future],['repeat',past],['repeat',now],['repeat',future],['shared',now],['goal-task',now]])await toggle(id,date);
+ // Decisions belong to the same task and must persist across reloads.
+ await select(past);
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="missed"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate[past],'missed');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&&!document.documentElement.hasAttribute('data-elara-booting'));
+ await select(past);
+ assert.equal(await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="missed"]').getAttribute('aria-pressed'),'true');
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="later"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate[past],'later');
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="done"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate?.[past],undefined);
+ assert.equal((await data()).tasks.filter(t=>t.id==='past').length,1,'decision created a duplicate record');
+ await page.locator('#task-checked-archive [data-task-archive-id="past"] .task-archive-undo').click();
+ await select(now);
+ await page.locator('#task-list .astra-task-row[data-key="multi"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="multi"] [data-task-decision="done"]').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='multi')?.completed===true);
+ const finished=await data();
+ assert.equal(finished.tasks.find(t=>t.id==='multi').dailyProgress[now],3,'Done choice must complete all multi-target sessions');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&&!document.documentElement.hasAttribute('data-elara-booting'));
+ await select(now);
+ assert.equal((await data()).xp,finished.xp,'Multi-target completion repeated XP on refresh');
+ await page.locator('#task-checked-archive [data-task-archive-id="multi"] .task-archive-undo').click();
  const beforeReplay=await data();
  await toggle('past',past);
  await toggle('repeat',past);
