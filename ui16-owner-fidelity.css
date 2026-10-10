@@ -210,3 +210,26 @@ html body #main #panel-freedom .freedom-hero.elara-global-hero:after{
 #panel-language.ui12-language .ui12-boxes .ui12-box small{
  max-width:100%;overflow-wrap:normal;white-space:nowrap
 }
+
+/* Dedicated semantic SVG assets for the Language dashboard's small concepts. */
+#panel-language.ui12-language .ui12-stat-illustration{
+ display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;
+ color:#5af2ff;filter:drop-shadow(0 0 8px #0deaff60)
+}
+#panel-language.ui12-language .ui12-stat-illustration svg{display:block;width:25px;height:25px}
+#panel-language.ui12-language .ui12-class-avatar svg{width:24px;height:24px;stroke:#9cecff}
+#panel-language.ui12-language .ui16-empty-svg svg{width:50px;height:50px}
+#panel-tasks .task-category-scope-notice{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;
+ padding:7px 12px;margin:5px 0 10px;border:1px solid #277b9d;
+ border-radius:11px;background:#06233e;color:#e4f8ff;font-size:12px
+}
+#panel-tasks .task-category-scope-notice[hidden]{display:none!important}
+#panel-tasks .task-category-scope-notice button{
+ flex-shrink:0;min-height:33px;padding:4px 10px;border-radius:9px;
+ border:1px solid #2edaf3;background:#074867;color:#fff;cursor:pointer
+}
+@media(max-width:430px){
+ #panel-tasks .task-category-scope-notice{flex-wrap:wrap}
+ #panel-tasks .task-category-scope-notice button{width:100%}
+}

@@ -217,6 +217,10 @@
   // the menu visually closed even though the user pressed its control.
   // Explicitly toggle only this summary; keep regular item-action clicks intact.
   document.addEventListener('click',event=>{
+    const clear=event.target.closest('[data-task-category-clear]');
+    if(clear){event.preventDefault();const panel=$('panel-tasks');if(panel){delete panel.dataset.taskCategoryFilter;renderTasks()}return}
+    const nav=event.target.closest('[data-elara-tab="tasks"][data-elara-nav-kind="main"],.sidebar [data-elara-tab="tasks"]');
+    if(nav){const panel=$('panel-tasks');if(panel)delete panel.dataset.taskCategoryFilter}
     const summary=event.target.closest?.('#task-list .astra-task-more>summary');
     if(!summary)return;
     event.preventDefault();event.stopImmediatePropagation();
@@ -293,13 +297,21 @@
 
   function renderTasks(){
     const state=ensureState(readState()),list=$('task-list');if(!list)return;const taskPanel=$('panel-tasks');if(taskPanel)taskPanel.dataset.strikeCompleted=String(localStorage.getItem('elara_task_strike_completed')==='yes');
-    const now=validDate(taskOccurrenceDate)?taskOccurrenceDate:today(),search=($('task-search')?.value||'').trim().toLocaleLowerCase(),filter=$('task-filter')?.value||'all',listName=$('task-list-filter')?.value||'',folder=$('task-folder-filter')?.value||'',tag=$('task-tag-filter')?.value||'',priority=$('task-priority-filter')?.value||'';
+    if(taskPanel&&!document.getElementById('task-category-scope-notice')){
+      const notice=document.createElement('div');notice.id='task-category-scope-notice';
+      notice.className='task-category-scope-notice';notice.hidden=true;
+      notice.innerHTML='<span></span><button type="button" data-task-category-clear>نمایش همه تسک‌ها</button>';
+      (taskPanel.querySelector('.astra-task-toolbar')||taskPanel.querySelector('.list-toolbar'))?.after(notice);
+    }
+    const now=validDate(taskOccurrenceDate)?taskOccurrenceDate:today(),search=($('task-search')?.value||'').trim().toLocaleLowerCase(),filter=$('task-filter')?.value||'all',listName=$('task-list-filter')?.value||'',folder=$('task-folder-filter')?.value||'',tag=$('task-tag-filter')?.value||'',priority=$('task-priority-filter')?.value||'',categoryFilter=taskPanel?.dataset.taskCategoryFilter||'';
+    const notice=document.getElementById('task-category-scope-notice');
+    if(notice){notice.hidden=!categoryFilter;const label=taskCategories.find(([k])=>k===categoryFilter)?.[1]||categoryFilter;notice.querySelector('span').textContent=categoryFilter?'تسک‌های دسته: '+label:''}
     const archivedOneOff=t=>!t.recurrenceRule&&!!t.completed;
     const visible=state.tasks.filter(t=>{
       const v=taskView(t,now),done=taskDone(t,now),todayDue=t.recurrenceRule?applies(t,now):t.date===now,rule=safeRule(t.recurrenceRule,t.date),expired=!!(rule?.endDate&&rule.endDate<now);
       if(archivedOneOff(t)||done||t.recurrenceRule&&!applies(t,now))return false;
       const hay=[v.text||t.text,v.shortDescription||t.shortDescription,v.description||t.description,v.list||t.list,v.tag||t.tag,v.folder||t.folder].map(x=>String(x||'').toLocaleLowerCase());
-      return (!search||hay.some(x=>x.includes(search)))&&(!listName||v.list===listName)&&(!folder||v.folder===folder)&&(!tag||v.tag===tag)&&(!priority||String(v.priority)===priority)&&(
+      return (!search||hay.some(x=>x.includes(search)))&&(!listName||v.list===listName)&&(!folder||v.folder===folder)&&(!tag||v.tag===tag)&&(!priority||String(v.priority)===priority)&&(!categoryFilter||String(v.sourceGroup||t.sourceGroup||'')===categoryFilter)&&(
         filter==='all'||filter==='active'&&!done&&!expired||filter==='completed'&&done||filter==='today'&&todayDue||filter==='overdue'&&!t.recurrenceRule&&!t.completed&&t.date&&t.date<now
       );
     }).sort((a,b)=>{
@@ -328,7 +340,7 @@
       window.ElaraDOM.patch(list,html);
     }else window.ElaraDOM.patch(list,visible.map(taskRowHtml).join(''));
     document.querySelectorAll('[data-task-chip]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.taskChip===filter)));
-    const archive=$('task-checked-archive'),archiveList=archive?.querySelector('[data-task-archive-list]'),archived=state.tasks.filter(t=>taskDone(t,now)&&(!t.recurrenceRule||applies(t,now))).sort((a,b)=>String(b.doneAt||b.date||'').localeCompare(String(a.doneAt||a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
+    const archive=$('task-checked-archive'),archiveList=archive?.querySelector('[data-task-archive-list]'),archived=state.tasks.filter(t=>taskDone(t,now)&&(!t.recurrenceRule||applies(t,now))&&(!categoryFilter||String(t.sourceGroup||'')===categoryFilter)).sort((a,b)=>String(b.doneAt||b.date||'').localeCompare(String(a.doneAt||a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
     if(archive&&archiveList){archive.hidden=!archived.length;const count=archive.querySelector('[data-task-archive-count]');if(count)count.textContent=archived.length.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');archiveList.innerHTML=archived.map(t=>`<article class="task-archive-row" data-task-archive-id="${esc(t.id)}"><button type="button" class="check-button task-archive-undo" data-phase2-action="toggle-task" data-id="${esc(t.id)}" data-task-date="${esc(t.recurrenceRule?now:(validDate(t.date)?t.date:now))}" aria-pressed="true" aria-label="بازگرداندن ${esc(t.text||'تسک')}">✓</button><div><strong data-elara-ugc dir="auto">${esc(t.text||'تسک')}</strong><small>${document.documentElement.lang==='en'?'Completed':'تکمیل'} · ${esc(t.recurrenceRule?now:(t.doneAt||t.date||now))}</small></div><div><button type="button" class="mini-button" data-phase2-action="edit-task" data-id="${esc(t.id)}">${document.documentElement.lang==='en'?'Edit':'ویرایش'}</button><button type="button" class="mini-button danger" data-phase2-action="delete-task" data-id="${esc(t.id)}">${document.documentElement.lang==='en'?'Delete':'حذف'}</button></div></article>`).join('')}
     $('task-empty')?.classList.toggle('hidden',visible.length!==0);
     if($('task-visible-count'))$('task-visible-count').textContent=fa(visible.length);
