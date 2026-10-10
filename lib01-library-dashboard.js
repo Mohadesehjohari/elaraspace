@@ -128,7 +128,7 @@ async function explore(kind){
  container.innerHTML=unique.length?unique.map(name=>{
   const matching=bs.filter(b=>String(b[field]||'').trim()===name);
   return '<section><h3 data-elara-ugc dir="auto">'+esc(name)+'</h3><p>'+num(matching.length)+' '+t('کتاب','books')+'</p><div>'+matching.map(b=>'<button type="button" data-reading-book="'+esc(b.id)+'" data-elara-ugc dir="auto">'+esc(b.title)+'</button>').join('')+'</div></section>';
- }).join(''):empty(t('برای کتاب‌های فعلی هنوز این اطلاعات ثبت نشده است.','No matching metadata has been recorded for your books.'),'library-shelves',t('ویرایش اطلاعات کتاب','Edit book details'));
+ }).join(''):empty(t('برای کتاب‌های فعلی هنوز این اطلاعات ثبت نشده است.','No matching metadata has been recorded for your books.'),'library-shelves',t('ویرایش اطلاعات کتاب','Edit book details')).replace('data-lib01-route','data-feature-route');
  await window.ElaraDialog?.open?.({title:kind==='authors'?t('نویسندگان کتاب‌های من','My authors'):t('ژانرهای کتاب‌های من','My genres'),content:container,actions:[{label:t('بستن','Close'),value:false}]});
 }
 const syncTimer=()=>{
