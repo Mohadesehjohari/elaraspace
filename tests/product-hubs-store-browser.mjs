@@ -95,12 +95,12 @@ async function run(width,height){
  const bannerState=await page.evaluate(()=>{const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),html=ElaraProfileSystem.composition(v);return{banner:w.banner,html}});
  assert.ok(!!bannerState.banner,width+': Store banner equip did not reach wardrobe source of truth');assert.match(bannerState.html,/assets\/ui\/banner[1-4]\.webp/,width+': equipped banner did not reach profile composition');
 
- await page.evaluate(()=>ElaraPrivateDrawer.open('settings'));await page.waitForSelector('.elara-private-drawer:not(.hidden) [data-drawer-section="settings"]:not(.hidden)');
+ await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForSelector('.elara-private-drawer:not(.hidden) .drawer-settings-gear');assert.equal(await page.locator('.drawer-settings-gear').count(),1,width+': original Profile gear missing from drawer home');await page.locator('.drawer-settings-gear').click();await page.waitForSelector('.elara-private-drawer:not(.hidden) [data-drawer-section="settings"]:not(.hidden)');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="notifications"]').count(),0,width+': notifications must stay out of Profile settings');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="privacy"],.drawer-menu [data-drawer-nav="language"],.drawer-menu [data-drawer-nav="calendar"],.drawer-menu [data-drawer-nav="help"],.drawer-menu [data-drawer-nav="security"]').count(),0,width+': account settings must stay behind the profile gear');
  assert.equal(await page.locator('.drawer-menu [data-drawer-nav="blocked"]').count(),1,width+': blocked accounts destination missing');
  for(const route of ['security','privacy','blocked','language','calendar','help','appearance','folders'])assert.equal(await page.locator('[data-drawer-section="settings"] [data-drawer-nav="'+route+'"]').count(),1,width+': dedicated Profile Settings missing '+route);
- assert.equal(await page.locator('.drawer-settings-gear').count(),1,width+': existing profile Settings gear missing');
+ assert.equal(await page.locator('[data-drawer-section="settings"]:not(.hidden)').count(),1,width+': original gear must open dedicated Settings');
  await page.evaluate(()=>ElaraPrivateDrawer.open('home'));await page.waitForTimeout(60);
  assert.equal(await page.locator('.drawer-mobile-reports').isVisible(),isMobile,width+': Reports shortcut mobile visibility mismatch');
  await page.evaluate(()=>ElaraPrivateDrawer.open('account'));await page.waitForTimeout(80);
