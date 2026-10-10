@@ -1,3 +1,4 @@
+/* UI13 owner release: run full production click/return smoke against cache-busted release v2. */
 /* UI12: post-deployment Chromium smoke against the actual GitHub Pages origin.
    Browser fixtures are local only: cloud.js and social are replaced in this test context.
    Exact live byte comparison is a separate GitHub Actions gate, not inferred here. */
