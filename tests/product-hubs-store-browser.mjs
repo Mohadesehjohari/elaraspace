@@ -76,8 +76,62 @@ async function run(width,height){
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
  assert.equal(await socialTiles.count(),5,width+': UI11 Friends hub must keep the five canonical Social views');
  assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity'],width+': Social destinations or order changed');
- const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect(),img=x.querySelector('img')?.getBoundingClientRect(),label=x.querySelector('.social-tab-label')?.getBoundingClientRect(),s=getComputedStyle(x);return{h:r.height,imgH:img?.height||0,labelY:label?.y||0,y:r.y,border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}));
- assert.equal(socialBoxes.every(x=>x.h>=(isMobile?79.5:89.5)&&x.h<=(isMobile?94.5:106.5)&&x.imgH>=(isMobile?40:48)&&x.labelY>x.y+x.h*.65&&x.border===0&&(x.bg==='rgba(0, 0, 0, 0)'||x.bg==='transparent')&&x.bgi==='none'),true,width+': Friends tabs must be compact transparent icon controls '+JSON.stringify(socialBoxes));
+
+ // Released PR #42 contract: five compact, accessible cyan-gradient Friends
+ // controls, not the obsolete 80-95px transparent artwork tiles.
+ const socialStrip=page.locator('#elara-social-page .social-tabs');
+ const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{
+  const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
+   lab=x.querySelector('.social-tab-label'),lr=lab?.getBoundingClientRect(),css=getComputedStyle(x);
+  return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('src')||'',
+   label:lab?.textContent?.trim()||'',labelY:lr?lr.y+lr.height/2:0,centerY:r.y+r.height/2,
+   selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
+   border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
+ }));
+ assert.ok(socialBoxes.every(x=>x.h>=(isMobile?47:50)&&x.h<=(isMobile?54:56)&&x.w>=100&&
+  x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&Math.abs(x.labelY-x.centerY)<=11&&
+  !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
+ assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false'],
+  width+': selected/inactive Friends ARIA state missing');
+ assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
+ assert.match(socialBoxes[0].glow,/rgb\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
+ assert.ok(socialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==socialBoxes[0].color&&
+  x.bg!==socialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
+ const scroll=await socialStrip.evaluate(el=>{
+  const start=el.scrollLeft;el.scrollLeft=-100000;const neg=el.scrollLeft;
+  el.scrollLeft=100000;const pos=el.scrollLeft;el.scrollLeft=start;
+  return{w:el.clientWidth,full:el.scrollWidth,overflow:getComputedStyle(el).overflowX,neg,pos};
+ });
+ if(isMobile)assert.ok(scroll.full>scroll.w+20&&scroll.overflow==='auto'&&
+  Math.abs(scroll.neg-scroll.pos)>20,width+': horizontal movement must stay inside Friends strip '+JSON.stringify(scroll));
+ else assert.ok(scroll.full<=scroll.w+3,width+': Friends desktop strip must fit '+JSON.stringify(scroll));
+ await socialTiles.first().focus();await page.keyboard.press('Tab');
+ const keyboard=await socialTiles.nth(1).evaluate(el=>({
+  active:document.activeElement===el,visible:el.matches(':focus-visible'),
+  outline:parseFloat(getComputedStyle(el).outlineWidth)
+ }));
+ assert.ok(keyboard.active&&keyboard.visible&&keyboard.outline>=2,
+  width+': keyboard focus order/visible outline missing '+JSON.stringify(keyboard));
+ for(const [view,section] of [
+  ['chats','.social-dm-section'],['groups','.social-groups-section'],
+  ['clubs','.social-clubs-section'],['activity','.social-friend-activity'],
+  ['friends','.social-friends-list']
+ ]){
+  await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
+  await page.waitForSelector('#elara-social-page '+section,{timeout:10000});
+  assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').getAttribute('aria-selected'),'true',
+   width+': Friends tab did not open '+view);
+  assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
+   view==='friends'?'true':'false',width+': inactive state did not update after '+view);
+ }
+ await page.evaluate(()=>ElaraOpen('ranking',{history:'replace'}));
+ await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
+ const ranking=page.locator('#elara-ranking-page .social-tabs [role="tab"]');
+ assert.equal(await ranking.count(),4,width+': Ranking four destinations changed');
+ assert.ok((await ranking.first().evaluate(el=>el.getBoundingClientRect().height))>socialBoxes[0].h+20,
+  width+': compact Friends layout improperly applied to Ranking');
+ await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));
+ await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
  assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
