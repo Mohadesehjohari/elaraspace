@@ -42,7 +42,7 @@ function hero(host,m){
 const shortcutArt={
  overview:'nav-home-active.webp',leitner:'22-leitner-box-icon.webp',
  books:'23-language-books-icon.webp',classes:'24-language-classes-icon.webp',
- channels:'07-language-nav-active.webp',tasks:'icon-tasks-check-alpha.webp',
+ channels:'nav-language-active.webp',tasks:'icon-tasks-check-alpha.webp',
  challenges:'11-challenges-icon.webp',report:'25-study-report-icon.webp',
  stats:'25-study-report-icon.webp'
 };
