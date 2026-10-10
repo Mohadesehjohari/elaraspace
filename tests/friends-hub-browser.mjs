@@ -48,6 +48,9 @@ async function run(width,height){
   return [...p.querySelectorAll('.elara-global-hero,.social-page-head')].filter(el=>{const style=getComputedStyle(el),r=el.getBoundingClientRect();return style.display!=='none'&&style.visibility!=='hidden'&&r.height>40}).length
  });
  assert.equal(heroes,1,width+': F2 must show one visible hero');
+ assert.equal(await page.locator('#panel-social > h1:visible').count(),0,width+': legacy Friends and Community header must not remain');
+ const pageWidth=await page.evaluate(()=>({screen:innerWidth,content:document.documentElement.scrollWidth}));
+ assert.ok(pageWidth.content<=pageWidth.screen+2,width+': F2 horizontal overflow '+JSON.stringify(pageWidth));
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
  assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': collaboration preview missing');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
@@ -97,6 +100,12 @@ async function run(width,height){
  assert.ok(overflow.sw<=overflow.w+2,width+': Friends Hub horizontal overflow '+JSON.stringify(overflow));
  await page.evaluate(()=>window.ElaraOpen('social',{history:'replace'}));await page.waitForTimeout(80);
  await page.screenshot({path:'browser-artifacts/friends-hub-'+width+'.png',fullPage:true});
+ if(width===390){
+  await page.evaluate(()=>{window.ElaraSocial.friends=[];window.ElaraSocial.requests=[];window.ElaraSocial.activities=[];window.dispatchEvent(new Event('elara:social-updated'))});
+  await page.waitForSelector('.friends-f2-friends .social-empty');
+  assert.match(await page.locator('.friends-f2-friends').innerText(),/No friends yet|هنوز دوستی نداری/,width+': zero-friends empty state should be truthful');
+  await page.screenshot({path:'browser-artifacts/friends-f2-empty-390.png',fullPage:true});
+ }
  await page.close();
 }
 for(const width of [320,360,375,390,412,430,768,1440,1648])await run(width,width<800?844:1000);
