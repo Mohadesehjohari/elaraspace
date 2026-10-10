@@ -85,7 +85,18 @@ assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Langu
 await page.evaluate(()=>window.ElaraOpen('exercise',{history:'push'}));await page.waitForTimeout(90);
 assert.equal(await page.locator('#panel-exercise .wellness-heading img[src*="green_heart.webp"]').count(),1,'Exercise heading must use green_heart.webp');
 await page.locator('.bottom-nav [data-elara-tab="home"]').click();await page.waitForTimeout(60);
-assert.ok(await page.locator('#panel-home .ref-wellness-cell').count()>=4,'Home original Wellness cells must remain present');
+// UI11 source-of-truth: reference-home-shell-2026.js generates exactly water, sleep and exercise.
+const wellnessTiles=page.locator('#panel-home #ref-wellness-card .ref-wellness-cell');
+assert.equal(await wellnessTiles.count(),3,'UI11 Home must expose exactly three real Wellness metrics: water/sleep/exercise');
+const wellnessData=await wellnessTiles.evaluateAll(els=>els.map(el=>({label:el.querySelector('small')?.textContent?.trim(),value:el.querySelector('strong')?.textContent?.trim(),route:el.dataset.refExercise,image:el.querySelector('img')?.getAttribute('src'),visible:!!(el.offsetWidth&&el.offsetHeight)})));
+assert.deepEqual(wellnessData.map(x=>x.route),['wellness-water','wellness-sleep','wellness-workouts'],'UI11 Wellness destinations changed');
+assert.deepEqual(wellnessData.map(x=>x.label),['آب','خواب','ورزش'],'UI11 Wellness metric labels changed');
+assert.ok(wellnessData.every(x=>x.visible&&x.value&&x.image?.startsWith('assets/ui/')),'Home Wellness missing functional visible metric or real image: '+JSON.stringify(wellnessData));
+await wellnessTiles.nth(0).click();
+await page.waitForSelector('#panel-exercise:not(.hidden)');
+assert.ok(await page.locator('#panel-exercise .wellness-water').count()>0,'Home water indicator failed to open canonical Wellness route');
+await page.evaluate(()=>window.ElaraOpen('home',{history:'replace'}));
+await page.waitForSelector('#panel-home:not(.hidden)');
 await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));await page.waitForTimeout(70);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
