@@ -43,7 +43,7 @@ async function run(width,height){
   assert.equal(await page.locator('#panel-language>.feature-section-tasks[data-section-task-shelf="language"]').count(),1,width+': Language section task shelf missing');
  }
  await page.locator(ui12?'#ui12-tasks [data-section-task-add="language"]':'#panel-language>.feature-section-tasks [data-section-task-add="language"]').click();await page.waitForSelector('#task-form:not([hidden])');
- await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target').fill('2');
+ await page.locator('#task-title').fill('تمرین زبان از بخش اصلی');await page.locator('#task-daily-target-enabled').check();await page.locator('#task-daily-target').fill('2');
  await page.evaluate(()=>{ElaraDialog.prompt=async()=> 'تمرین'});await page.locator('#task-form [data-phase2-create="tag"]').click();await page.waitForFunction(()=>document.getElementById('task-tag')?.value==='تمرین');
  await page.locator('#task-submit').click();
  try{
