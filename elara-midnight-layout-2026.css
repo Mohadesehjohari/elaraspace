@@ -66,7 +66,7 @@ body.dark #ref-sidebar-banner{
  border-radius:15px!important;background-image:
   linear-gradient(180deg,rgba(3,15,38,.16),rgba(3,15,38,.94)),
   radial-gradient(circle at 78% 16%,rgba(145,108,255,.44),transparent 16%),
-  linear-gradient(145deg,#10164c,#062b4c 48%,#07142e)!important;
+  url('assets/ui/background-moonlit-mountains.webp') center 62%/cover no-repeat!important;
  box-shadow:0 14px 28px #0005,0 0 18px rgba(113,72,255,.12)!important;
 }
 body.dark #ref-sidebar-banner img{width:48px!important;height:48px!important;filter:drop-shadow(0 0 9px rgba(255,208,103,.35))!important}
