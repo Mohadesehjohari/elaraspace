@@ -44,6 +44,23 @@ try {
   assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),1,'undo not persistent');
  }
  for(const [id,date] of [['past',past],['today',now],['future',future],['repeat',past],['repeat',now],['repeat',future],['shared',now],['goal-task',now]])await toggle(id,date);
+ // Decisions belong to the same task and must persist across reloads.
+ await select(past);
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="missed"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate[past],'missed');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&&!document.documentElement.hasAttribute('data-elara-booting'));
+ await select(past);
+ assert.equal(await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="missed"]').getAttribute('aria-pressed'),'true');
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="later"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate[past],'later');
+ await page.locator('#task-list .astra-task-row[data-key="past"]').hover();
+ await page.locator('#task-list .astra-task-row[data-key="past"] [data-task-decision="done"]').click();
+ assert.equal((await data()).tasks.find(t=>t.id==='past').decisionByDate?.[past],undefined);
+ assert.equal((await data()).tasks.filter(t=>t.id==='past').length,1,'decision created a duplicate record');
+ await page.locator('#task-checked-archive [data-task-archive-id="past"] .task-archive-undo').click();
  const beforeReplay=await data();
  await toggle('past',past);
  await toggle('repeat',past);

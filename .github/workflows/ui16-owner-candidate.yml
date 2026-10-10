@@ -29,6 +29,9 @@ jobs:
           node --check boot.js
           node --check ui12-language-dashboard.js
           node --check tests/ui16-owner-candidate-browser.mjs
+          node --check phase2.js
+          node --check app.js
+          node --check tests/task-date-completion-browser.mjs
           for name in language_banner_main.webp librairy_banner_main.webp lightner.webp new_words.webp ready_to_review.webp review_again.webp task-header-banner-bg.webp; do test -s "assets/ui/$name"; done
       - name: Install Chromium
         run: |
@@ -42,6 +45,8 @@ jobs:
           curl -fsS http://127.0.0.1:4173/ui16-owner-fidelity.css >/dev/null
       - name: Original strong Home Tasks reference fidelity check
         run: timeout 420s node tests/home-tasks-reference-visual.mjs
+      - name: Canonical task decision and past-date persistence
+        run: timeout 300s node tests/task-date-completion-browser.mjs
       - name: Full nine-width, multi-route browser check
         if: always()
         run: timeout 720s node tests/ui16-owner-candidate-browser.mjs

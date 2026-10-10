@@ -167,3 +167,32 @@ html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!importan
 /* SVG language placeholder art, deliberately distinct from purple default decoration. */
 #panel-language.ui12-language .ui16-empty-svg{width:65px;height:65px;display:grid;place-items:center;color:#60e8ff;filter:drop-shadow(0 0 12px #18adfd70)}
 #panel-language.ui12-language .ui16-empty-svg svg{height:58px;width:58px;stroke:currentColor}
+
+/* Canonical task choices: keyboard and touch do not require hover. */
+#panel-tasks #task-list .astra-task-row{position:relative}
+#panel-tasks #task-list .task-decision-actions{
+ box-sizing:border-box;grid-column:1/-1;width:100%;min-width:0;
+ display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+ max-height:0;opacity:0;visibility:hidden;overflow:hidden;padding:0;
+ transition:max-height .2s ease,opacity .18s ease,padding .18s ease
+}
+#panel-tasks #task-list .astra-task-row:is(:hover,:focus-within) .task-decision-actions{
+ max-height:100px;opacity:1;visibility:visible;padding:5px 0 4px
+}
+#panel-tasks #task-list .task-decision-actions button{
+ min-height:34px;padding:5px 10px;border:1px solid #24739d;border-radius:9px;
+ background:#072542;color:#eaf7ff;font:inherit;font-size:11px;font-weight:750;cursor:pointer
+}
+#panel-tasks #task-list .task-decision-actions button[aria-pressed="true"]{
+ background:#086078;border-color:#22e8ef;box-shadow:0 0 9px #0bdde64f
+}
+#panel-tasks #task-list .task-decision-actions button:focus-visible{outline:2px solid #8efaff;outline-offset:2px}
+#panel-tasks .task-archive-row strong,#panel-tasks .astra-task-row.done .item-title{text-decoration:none!important}
+@media(hover:none),(max-width:700px){
+ #panel-tasks #task-list .task-decision-actions{
+  max-height:none;opacity:1;visibility:visible;overflow:visible;padding:5px 0 4px
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-tasks #task-list .task-decision-actions{transition:none}
+}
