@@ -554,3 +554,18 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   grid-column:1/-1!important
  }
 }
+
+/* Owner mobile composition: two compact supporting cards beside each other when usable. */
+@media(min-width:420px) and (max-width:850px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card,
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.social-requests-standalone,
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities,
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats,
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-groups,
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-clubs{
+   grid-column:span 1!important
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card .friends-f2-invite .primary-button{
+  min-width:88px!important;font-size:11px!important
+ }
+}
