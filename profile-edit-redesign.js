@@ -16,6 +16,7 @@
   level:'<path d="m12 2 3.1 6.3 7 1-5 5 1.2 7-6.3-3.3-6.3 3.3 1.2-7-5-5 7-1Z"/>',
   edit:'<path d="M12 20h9M16.5 3.5l4 4-12 12H4.5v-4Z"/>',
   spark:'<path d="m12 3 1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7Z"/><path d="m20 18 .6 1.4L22 20l-1.4.6L20 22l-.6-1.4L18 20l1.4-.6Z"/>',
+  lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   none:'<circle cx="12" cy="12" r="10"/><path d="m5 19 14-14"/>'
  };
  const icon=name=>'<svg class="pe-svg pe-svg-'+name+'" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+(paths[name]||paths.spark)+'</svg>';
@@ -76,7 +77,7 @@
  async function stylesheet(){
   if(document.getElementById('elara-profile-edit-redesign-css'))return;
   await new Promise((done,fail)=>{
-   const link=document.createElement('link');link.rel='stylesheet';link.id='elara-profile-edit-redesign-css';link.href='profile-edit-redesign.css?v=20261011-1';
+   const link=document.createElement('link');link.rel='stylesheet';link.id='elara-profile-edit-redesign-css';link.href='profile-edit-redesign.css?v=20261011-mobile2';
    link.onload=done;link.onerror=()=>{link.remove();fail(Error('استایل صفحهٔ ویرایش پروفایل بارگذاری نشد.'))};document.head.append(link)
   })
  }
@@ -123,7 +124,7 @@
    '<p class="pe-status" role="status" aria-live="polite" data-pe-status></p>'+
    '<div class="pe-actions"><button type="button" class="pe-reset" data-pe-action="reset">'+icon('reset')+' بازنشانی تغییرات</button><button type="button" class="pe-outline pe-public-preview" data-pe-action="preview">'+icon('eye')+' پیش‌نمایش در صفحه عمومی</button><button type="submit" class="pe-save" data-pe-save>ذخیره تغییرات '+icon('check')+'</button></div>'+
    '</form>'+
-   '<aside class="pe-preview-outer" id="pe-preview-area"><div class="pe-preview"><header><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
+   '<aside class="pe-preview-outer" id="pe-preview-area" aria-label="پیش‌نمایش ویرایش‌های جاری"><div class="pe-preview"><header><button type="button" class="pe-mobile-preview-close" data-pe-action="preview-close" aria-label="بازگشت به ویرایش">'+icon('back')+' بازگشت به ویرایش</button><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
    '</div></div>';
   // Mount within the existing workspace main; global header, sidebar and mobile dock remain untouched.
   const workspaceMain=document.getElementById('main')||document.querySelector('.workspace main');
@@ -143,7 +144,7 @@
   q('[data-pe-avatars]').innerHTML=['female','male'].map(g=>Array.from({length:10},(_,i)=>{const n=i+1;return '<button type="button" class="pe-avatar-tile" data-pe-avatar-id="'+g+':'+n+'" '+(level<n?'disabled':'')+'><img src="'+esc(P().avatarPath(g,n))+'" alt=""><small>Lv. '+n+'</small></button>'}).join('')).join('');
   q('[data-pe-colors]').innerHTML=colors.map(c=>'<button type="button" data-pe-color="'+c[0]+'" title="'+c[0]+'" aria-label="'+c[0]+'" style="background:'+c[1]+'"></button>').join('');
   q('[data-pe-templates]').innerHTML=themes.map(t=>'<button type="button" class="pe-template" data-pe-template="'+t.id+'"><img src="'+esc(t.image)+'" alt=""><span>'+t.label+'</span></button>').join('');
-  q('[data-pe-frames]').innerHTML='<button type="button" class="pe-frame pe-frame-none" data-pe-frame="" aria-label="بدون حاشیه">'+icon('none')+'</button>'+P().FRAMES.map(f=>'<button type="button" class="pe-frame" data-pe-frame="'+f.id+'" '+(level<f.required?'disabled title="از سطح '+f.required+'"':'')+' aria-label="'+esc(f.label)+'"><img src="'+esc(P().frameVariantPath(f.id))+'" alt=""></button>').join('');
+  q('[data-pe-frames]').innerHTML='<button type="button" class="pe-frame pe-frame-none" data-pe-frame="" aria-label="بدون حاشیه">'+icon('none')+'</button>'+P().FRAMES.map(f=>'<button type="button" class="pe-frame" data-pe-frame="'+f.id+'" '+(level<f.required?'disabled title="از سطح '+f.required+'"':'')+' aria-label="'+esc(f.label)+'"><img src="'+esc(P().frameVariantPath(f.id))+'" alt="">'+(level<f.required?'<span class="pe-frame-lock">'+icon('lock')+'</span>':'')+'</button>').join('');
   const dirty=()=>JSON.stringify(draft)!==JSON.stringify(base());
   const avatarHtml=(className)=>imgMarkup(avatarSource(draft,person),draft.name,className);
   function redraw(){
@@ -191,6 +192,7 @@
    else prevFocus?.isConnected&&prevFocus?.focus?.({preventScroll:true});
   }
   function requestExit(){
+   if(previewActive){closePreview();return true}
    if(busy){status('تا پایان ذخیره صبر کنید.');return false}
    if(dirty()&&!window.confirm(exitMessage))return false;
    if(history.state?.elaraProfileEdit)history.back();
@@ -198,7 +200,12 @@
    return true
   }
   function onHistory(){
-   if(host!==shell||history.state?.elaraProfileEdit)return;
+   if(host!==shell)return;
+   if(previewActive&&!history.state?.elaraProfilePreview){
+    previewActive=false;shell.classList.remove('pe-mobile-preview-visible');
+    q('.pe-header-preview').focus({preventScroll:true});return
+   }
+   if(history.state?.elaraProfileEdit)return;
    if(busy||(dirty()&&!window.confirm(exitMessage))){
     history.pushState({...history.state,elaraProfileEdit:true},'',location.href);return
    }
@@ -207,18 +214,28 @@
   function onHash(){if(host===shell&&location.hash!==originHash)cleanup()}
   function onAccount(){if(host===shell&&!uidStable())cleanup()}
   function beforeUnload(e){if(host===shell&&dirty()){e.preventDefault();e.returnValue=''}}
-  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();requestExit()}};
+  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();previewActive?closePreview():requestExit()}};
   document.addEventListener('keydown',keydown);
   window.addEventListener('popstate',onHistory);
   window.addEventListener('hashchange',onHash);
   window.addEventListener('elara:account-ready',onAccount);
   window.addEventListener('beforeunload',beforeUnload);
   closing=requestExit;
+  function closePreview(){
+   if(!previewActive)return;
+   if(history.state?.elaraProfilePreview){history.back();return}
+   previewActive=false;shell.classList.remove('pe-mobile-preview-visible');
+   q('.pe-header-preview').focus({preventScroll:true})
+  }
   function showPreview(){
-   previewActive=!previewActive;
-   shell.classList.toggle('pe-mobile-preview-visible',previewActive);
-   status('این پیش‌نمایش تغییرات ذخیره‌نشده است؛ نمایش عمومی واقعی فقط پس از ذخیره و پشتیبانی سرور تغییر می‌کند.');
-   q('#pe-preview-area').scrollIntoView({behavior:'smooth',block:'start'});
+   if(previewActive){closePreview();return}
+   previewActive=true;
+   shell.classList.add('pe-mobile-preview-visible');
+   status('این فقط پیش‌نمایش تغییرات ذخیره‌نشده است؛ ظاهر عمومی هنوز روی سرور ثبت نشده.');
+   if(window.matchMedia('(max-width:700px)').matches){
+    history.pushState({...history.state,elaraProfileEdit:true,elaraProfilePreview:true},'',location.href);
+    const panel=q('#pe-preview-area');panel.scrollTop=0;panel.querySelector('.pe-mobile-preview-close')?.focus({preventScroll:true})
+   }else q('#pe-preview-area').scrollIntoView({behavior:'smooth',block:'start'})
   }
   async function prepare(retry=false){
    if(service)return service;
@@ -242,6 +259,7 @@
    if(action==='close'){requestExit();return}
    if(action==='reset'){restore();return}
    if(action==='preview'){showPreview();return}
+   if(action==='preview-close'){closePreview();return}
    if(action==='banners'){q('[data-pe-banner-options]').hidden=!q('[data-pe-banner-options]').hidden;return}
    if(action==='avatars'){q('[data-pe-avatar-options]').hidden=!q('[data-pe-avatar-options]').hidden;return}
    if(action==='copy'){if(navigator.clipboard?.writeText)navigator.clipboard.writeText('@'+draft.username).then(()=>status('نام کاربری کپی شد.')).catch(()=>status('کپی نام کاربری مجاز نبود.'));return}
