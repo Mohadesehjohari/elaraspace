@@ -40,6 +40,13 @@ try{
       await page.waitForTimeout(80);
       const bad=await page.locator('#panel-'+destination+' .elara-secondary-hero-duplicate').evaluateAll(xs=>xs.filter(el=>getComputedStyle(el).display!=='none').map(el=>el.className));
       assert.equal(bad.length,0,'Duplicate visible route hero '+destination+': '+JSON.stringify(bad));
+      if(destination==='books'){
+       const oldHero=page.locator('#library-hero');
+       assert.equal(await oldHero.count(),1,'Canonical Reading legacy header disappeared unexpectedly');
+       assert.equal(await oldHero.evaluate(el=>getComputedStyle(el).display),'none','Duplicate original Library banner still visible under uploaded-art hero');
+       const approved=await page.locator('#panel-books [data-elara-page-hero="books"]').first().evaluate(el=>({background:getComputedStyle(el).backgroundImage,position:getComputedStyle(el).backgroundPosition}));
+       assert.match(approved.background,/librairy_banner_main\.webp/,'Library primary hero lost owner WebP');
+      }
     }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   }
