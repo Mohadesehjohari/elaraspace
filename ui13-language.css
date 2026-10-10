@@ -163,7 +163,7 @@
 /* UI15 owner reference: glowing, shallow 3D square Leitner boxes.
    The big numeral is the fixed box INDEX; the smaller footer is its REAL word count. */
 #panel-language.ui12-language .ui12-boxes{
- direction:rtl;display:flex;align-items:center;justify-content:space-between;
+ direction:ltr;display:flex;align-items:center;justify-content:space-between;
  gap:clamp(3px,.6vw,9px);padding:12px 0 25px
 }
 #panel-language.ui12-language .ui12-box{
@@ -185,7 +185,7 @@
 }
 #panel-language.ui12-language .ui12-box small{
  position:absolute;box-sizing:border-box;top:calc(100% + 7px);right:50%;transform:translateX(50%);
- width:max-content;max-width:95px;font-size:10px;font-weight:750;line-height:1.3;
+ width:max-content;max-width:95px;direction:rtl;font-size:11px;font-weight:750;line-height:1.3;
  white-space:nowrap;color:#e6efff;text-shadow:0 1px 3px #000
 }
 #panel-language.ui12-language .ui12-box small span{color:#fff;font-weight:900}
@@ -197,11 +197,11 @@
  #panel-language.ui12-language .ui12-boxes{gap:3px;padding:8px 0 23px}
  #panel-language.ui12-language .ui12-box{height:46px;min-width:0;border-radius:5px;max-width:none}
  #panel-language.ui12-language .ui12-box b{font-size:17px}
- #panel-language.ui12-language .ui12-box small{font-size:8px;top:calc(100% + 5px)}
+ #panel-language.ui12-language .ui12-box small{font-size:9px;top:calc(100% + 5px)}
 }
 @media(max-width:389px){
  #panel-language.ui12-language .ui12-box{height:43px}
- #panel-language.ui12-language .ui12-box small{font-size:8px}
+ #panel-language.ui12-language .ui12-box small{font-size:9px}
 }
 /* Reframe the owner's actual library art rather than pushing the whole hero down. */
 html body #main #panel-books .elara-global-hero{background-position:center 68%!important}
