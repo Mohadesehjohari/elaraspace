@@ -68,7 +68,12 @@ try{
      await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.find(x=>x.id==='lang-1')?.completed===true,null,{timeout:8000});
      await page.locator('#panel-language-tasks [data-section-task-add="language"]').click();
      await page.waitForSelector('#task-form:not([hidden])',{timeout:8000});
-     await page.keyboard.press('Escape');
+     assert.equal(await page.locator('#task-source-group').inputValue(),'language','Language add did not preselect the canonical category');
+     await page.locator('#task-title').fill('UI14 categorized test');
+     await page.locator('#task-submit').click();
+     await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').tasks?.some(x=>x.text==='UI14 categorized test'&&x.sourceGroup==='language'),null,{timeout:8000});
+     await page.waitForSelector('#panel-language-tasks .ui13-task-row',{timeout:8000});
+     assert.ok((await page.locator('#panel-language-tasks').innerText()).includes('UI14 categorized test'),'New canonical Task not in scoped Language view');
     }
    }
    if(target==='language-channels'||target==='language-challenges')assert.equal(await page.locator('#panel-'+target+' .ui13-subpage').count(),1,'Dedicated page missing');
