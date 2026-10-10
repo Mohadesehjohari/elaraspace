@@ -1325,6 +1325,51 @@ Cursor/theme expansion، Vampire copy، wellness plan notes، Profile photo libr
 - Remaining difference: owner references are detailed conceptual compositions; some illustration density/ornamental treatments differ; channels/challenges have no real backend. **Owner final visual sign-off: PENDING**, not auto-approved.
 
 
+---
+
+## Owner Priority Override — Language Classes / Leitner / Scoped Tasks and Three-State Workflow — 2026-10-10
+
+**STATUS: OWNER REQUEST / ROADMAP ONLY — NOT IMPLEMENTED / NOT PUBLISHED / NOT OWNER ACCEPTED.** This entry overrides the immediate feature sequencing implied by older sections. Owner explicitly requested **NO new execution prompt now**. Do not mistake this roadmap commit for a production UI update.
+
+### Updated next-step ordering
+
+1. **Finish Language dashboard UI13 visual fidelity** with owner's newly uploaded approved hero/Leitner and page-banner WebPs, correct RTL placement and routing, mobile adaptation and real UI links; preserve existing global seven-item mobile dock, main desktop sidebar and accepted Home.
+2. **Then PRIORITIZE the full dedicated Language Classes experience** (personal and shared classes), and **the full dedicated Leitner experience**, as distinct properly designed pages/views. Owner wants to approve these two before moving on. Do not treat generic shortcuts/cards as final, and do not jump straight from dashboard cosmetics into unrelated Social or Focus Room work.
+3. **Then complete section-specific task managers and unified three-state task interactions**, integrated with the preceding Classes/Leitner views and the other modules. Follow with remaining dedicated Language Books / Reports / Challenges / Channels experiences, gated on real backend where needed.
+4. After owner approves these Language module experiences, resume **P0 DM sending and real friends' online status repair**, and then deliver the **shared Focus Room**, still the top NEW collaboration/focus feature. Lower-priority Pomodoro decoration, notification copy, AI-admin tooling and store do not displace this order. Existing production incidents remain OPEN until tested.
+
+### LANGUAGE-CLASSES-DETAIL — Dedicated class page [P0 next after Language dashboard]
+
+- Tap a Language Classes shortcut or class card to open a **real dedicated class view** with clear Back to Language, not merely scroll within the dashboard. Show truthful enrolled/private/shared classes with title, language, personal vs shared marker, level, course/term, schedule, lesson/session count, actual completion and next lesson where known; distinguish custom Online / Offline / Linked classes. Keep canonical class data, invitations and `کلاس‌های مشترک` as its own meaningful subsection.
+- Let users create/edit class, open class details/sessions, class-scoped tasks, homework/checklists, members/participant stats only with real backend and privacy permissions, calendar and learning progress. No fake members, sessions or placeholders disguised as data.
+- Language class **task list is scoped to that actual class** and remains in its class context. Test first-class navigation and back, reload, owner vs invited member permissions, phone layout at 320/375/390/430.
+
+### LEITNER-DETAIL — Dedicated Leitner page [P0 next after Language dashboard]
+
+- Tap the Leitner card or shortcuts to open a **full dedicated Leitner/flashcard study interface** with real five-box progression, counts/due dates, today's review queue, add/edit/delete word, import as supported, language pair, examples and spaced-repetition grading/review. Design in the same polished Elara visual style using existing **approved owner WebPs**, including `assets/ui/lightner.webp`, plus previously recorded `book.webp`, `botten_riview.webp`, `icon_brain.webp`, `new_words.webp`, `read botten.webp`, `ready_to_review.webp`, `review_again.webp`, `todays cart.webp` **according to actual purpose**. Owner rejected old `assets/ui/language_banner.webp`; do not put it back.
+- Complete a review and persist it once, updating correct box, due date, progress and counts in dashboard and full page without duplication. Preserve shared Leitner words' membership/consent model. Empty/one/many words, RTL, mobile and no fake learning statistics.
+
+### SECTION-TASKS-01 — Every module has its OWN context-filtered Tasks view [P0]
+
+- When tapping **`تسک‌های زبان` on Language**, navigate to a **dedicated Language Tasks page/view that displays ONLY tasks belonging to Language**. **Do NOT land on the general `کارها / Tasks` page or show unrelated tasks**, and do not merely scroll to a Language dashboard card. Own heading and Back to Language, toolbar, filters/search, add task, completion and status control, responsive layout.
+- Apply the same principle to *every section with tasks*, e.g. class homework/tasks in the current Language Class, study/book tasks within their Book or learning area, fitness tasks in Fitness, Focus-specific tasks in Focus, Goal-linked step tasks in Goals: open a specific section/task view filtered by canonical `sourceGroup`, class/book/goal/focus `sourceId` or an equivalent validated scope. **Never use brittle title-text heuristics** to determine ownership. Use one **canonical task data model and mutation API**, not duplicate task collections. Global Tasks remains an optional aggregated ALL view and continues to function.
+- Creating a task in a scoped view must automatically assign the correct source context; edit/complete/reload must keep it in the same scope and also reflect in Global Tasks without cross-module leakage. Do not break shared task permissions, goal-step linked tasks, XP, history, notifications, or mobile navigation.
+- For sessions/classes/Leitner, do not mislabel Word Review completion as a generic Task or create fake tasks for entities that aren't canonical tasks.
+
+### TASK-STATUS-03 — Simple explicit 3-choice control for ALL tasks [P0]
+
+User-facing labels, in plain Persian:
+- **✅ انجام دادم** — mark Done; update canonical completion of relevant task/day, move to `انجام‌شده‌ها` without striking through the task title. Apply normal XP/reward exactly once, never on duplicate taps or replays.
+- **⭕ انجام ندادم** — explicitly mark Not Done/Skipped for the selected scheduled occurrence, separate from task deletion or generic Pending; retain task and history. No XP or false completion.
+- **🕒 بعداً انجام می‌دم** — mark Deferred, not Completed; allow user to choose a new date/time or convenient preset (later today, tomorrow, choose date), with an accessible way to restore to current list. Keep the original occurrence/history and due-date intent; do NOT silently reschedule shared tasks for collaborators.
+- Offer an effortless single-tap inline **three-option popover / segmented control** on every task row/card across Home, Global Tasks, Language Tasks, Fitness, Book, Goal, Class, etc. Only one can be selected per occurrence; always show current state clearly with recognizable label, color and icon, without relying on color alone. Confirm only when needed for destructive/rescheduling consequences. Undo available after change; keyboard/touch/screen-reader support; avoid oversized controls on 320px mobile.
+- Existing uncompleted tasks with no explicit negative decision remain **Pending** at data layer (not falsely `انجام ندادم`). Three user actions are a simple tri-choice UI, while the canonical model may require `pending` as initial fourth internal state. Distinguish **task entity status** and **date-specific occurrence status** for recurring tasks so one day does not overwrite all history.
+- Preserve ability to mark **yesterday or any past day's task Done**; not only tasks dated today. The completion day and XP/business rule must not be double-counted and must be audited for consistency. Tasks marked Done appear in Completed area with NO strikethrough as already requested.
+- Migration/compatibility: audit old booleans/checkboxes and recurring entries, define backward-compatible explicit `done / not_done / deferred / pending` per scheduled occurrence, handle concurrency, offline/retry, privacy and shared task roles, and introduce schema/rules changes **only through secured tested rollout**. No new status record or reward changes without real persistence validation.
+- Test with Today/Yesterday/future, recurring/single, personal/shared/goal-linked, filter All/Done/Skipped/Deferred, add/edit/undo, two-account access and consistency across Home/Global/Language/other module scopes.
+
+**Delivery gates:** First dedicated Language Classes and Leitner reference-matched design + correct function/navigation; then section-scoped Tasks and tri-state workflow; independent focused PR(s), CI + browser screenshot comparison desktop/mobile, real production URL Pages byte checks and separate owner visual acceptance. Release Cloud Rules only if actually required and verified; do not silently merge with Draft Backend PR #24/#26. No product code is changed by this roadmap entry.
+
 ## UI13 — Language owner images and full routes (2026-10-10)
 
 - **PR**: [#32](https://github.com/Mohadesehjohari/elaraspace/pull/32), branch `ui13-language-owner-art-routes-20261010`, base `dbdd0a5cbb4b29ee278b2380a9a3e1058d9f3831`; original UI12 PR #31 already merged, never re-merged.
