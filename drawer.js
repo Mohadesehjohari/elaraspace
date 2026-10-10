@@ -183,10 +183,13 @@
     const host=$('drawer-account-area');if(!host)return;
     ensureProfileHubCSS();
     if(window.matchMedia('(max-width:700px)').matches){
+      host.style.setProperty('margin','0','important');
+      host.style.setProperty('width','100%','important');
+      host.style.setProperty('max-width','100%','important');
       host.style.setProperty('height','100%','important');
       host.style.setProperty('overflow-y','auto','important');
       host.style.setProperty('overflow-x','hidden','important');
-      host.style.setProperty('padding','18px 12px calc(100px + env(safe-area-inset-bottom,0px))','important');
+      host.style.setProperty('padding','16px 8px calc(100px + env(safe-area-inset-bottom,0px))','important');
     }else host.removeAttribute('style');
     const system=window.ElaraProfileSystem,person=profile(),uid=system?.currentUid?.(),view=profileView();
     if(!uid||!person?.uid||String(person.uid)!==String(uid)||!view){
