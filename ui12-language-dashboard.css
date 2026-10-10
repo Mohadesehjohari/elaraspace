@@ -1,5 +1,7 @@
 /* UI12 — Language-only reference reconstruction; never target the global shell or navigation. */
-#panel-language.ui12-language{display:block!important;min-width:0!important;overflow:visible!important;--ui12-cyan:#25e8fa;--ui12-line:#137ea9;--ui12-gold:#ffd267;--ui12-panel:#04162d}
+#panel-language.ui12-language.hidden{display:none!important;visibility:hidden!important}
+
+#panel-language.ui12-language:not(.hidden){display:block!important;min-width:0!important;overflow:visible!important;--ui12-cyan:#25e8fa;--ui12-line:#137ea9;--ui12-gold:#ffd267;--ui12-panel:#04162d}
 #panel-language.ui12-language>.feature-parent-back,
 #panel-language.ui12-language>.feature-hub-launchers[data-hub-kind="language"],
 #panel-language.ui12-language>.feature-section-tasks,
