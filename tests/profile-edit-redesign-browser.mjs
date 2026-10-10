@@ -71,7 +71,7 @@ for(const width of sizes){
   await page.locator('#elara-profile-edit-screen [name="username"]').fill('visual_qa');
   await page.locator('#elara-profile-edit-screen [name="title"]').fill('عنوان تست');
   await page.locator('[data-pe-save]').click();
-  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('روی همین مرورگر'));
+  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('در همین مرورگر'));
   assert.equal(await page.locator('.pe-preview-title').textContent(),'عنوان تست');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_profile_edit_extras_v1_mock-profile-edit-test')).title),'عنوان تست');
   const navAfter=await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||'');
