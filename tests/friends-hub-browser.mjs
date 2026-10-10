@@ -39,6 +39,7 @@ async function run(width,height){
 
  assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges']);
  assert.equal(await page.locator('.friends-f2-kpis .friends-f2-kpi').count(),6,width+': six F2 KPIs required');
+ await page.waitForSelector('.friends-f2-friend',{timeout:10000});
  assert.equal(await page.locator('.friends-f2-friend').count(),1,width+': authenticated friend missing');
  await page.waitForFunction(()=>document.querySelector('[data-f2-club-count]')?.textContent.trim()!=='—',null,{timeout:8000});
  assert.equal(await page.locator('[data-f2-club-count]').innerText(),'۱',width+': membership count incorrect');
