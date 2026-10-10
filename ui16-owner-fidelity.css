@@ -136,3 +136,7 @@ html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!importan
 @media(prefers-reduced-motion:reduce){
  #panel-language.ui12-language .ui16-floating-cards span{transition:none!important}
 }
+
+/* SVG language placeholder art, deliberately distinct from purple default decoration. */
+#panel-language.ui12-language .ui16-empty-svg{width:65px;height:65px;display:grid;place-items:center;color:#60e8ff;filter:drop-shadow(0 0 12px #18adfd70)}
+#panel-language.ui12-language .ui16-empty-svg svg{height:58px;width:58px;stroke:currentColor}
