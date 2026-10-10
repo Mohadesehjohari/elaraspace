@@ -59,6 +59,11 @@ for(const width of sizes){
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
  if(width===320||width===375||width===430)assert.ok(await page.locator('.pe-banner').isVisible(),'Banner hidden at '+width);
+ if(width===390||width===1648){
+  await page.evaluate(()=>{const el=document.getElementById('elara-profile-edit-screen');el.style.setProperty('position','absolute','important');el.style.setProperty('inset','auto 0 auto 0','important');el.style.setProperty('height','auto','important');el.style.setProperty('overflow','visible','important')});
+  await page.locator('.pe-screen').screenshot({path:dir+'/profile-edit-'+width+'-full.png',timeout:20000});
+  await page.evaluate(()=>document.getElementById('elara-profile-edit-screen').removeAttribute('style'));
+ }
  if(width===390||width===1440){
   await page.evaluate(()=>{const scroller=document.getElementById('elara-profile-edit-screen');scroller.scrollTop=scroller.scrollHeight});
   await page.screenshot({path:dir+'/profile-edit-'+width+'-bottom.png',fullPage:false});
