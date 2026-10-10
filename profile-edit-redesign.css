@@ -27,7 +27,8 @@
 .pe-shell .pe-identity{padding:11px}
 .pe-shell .pe-banner{height:clamp(150px,15.7vw,214px);position:relative;overflow:hidden;border:1px solid #7756ff;border-radius:14px;background-position:center 44%;background-size:cover;background-color:#100f3c;box-shadow:inset 0 0 0 1px #153ea8}
 .pe-shell .pe-change-banner{position:absolute;bottom:12px;left:14px;min-width:135px;padding:10px 15px;border-radius:13px;border:1px solid #cf7afb;background:#061129de;box-shadow:0 0 15px #b640ffa0;color:#fff;font-weight:700}
-.pe-shell .pe-identity-fields{display:grid;grid-template-columns:174px minmax(0,1fr);gap:10px 14px;margin-top:10px;align-items:start}
+.pe-shell .pe-identity-fields{display:grid;grid-template-columns:174px minmax(0,1fr);gap:10px 14px;margin-top:10px;align-items:start;direction:ltr}
+.pe-shell .pe-identity-fields>*{direction:rtl}
 .pe-shell .pe-avatar-area{height:162px;position:relative;margin-top:-2px;grid-row:span 2;align-self:start}
 .pe-shell .pe-avatar{width:154px;height:154px;position:relative;display:grid;place-items:center;border:4px solid #cb73f5;border-radius:50%;background:#05142d;box-shadow:0 0 0 3px #ffffff30,0 0 22px #bc44ff83;overflow:hidden}
 .pe-shell .pe-avatar[data-shape=square]{border-radius:20px}
