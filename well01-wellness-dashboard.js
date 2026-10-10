@@ -32,7 +32,15 @@ function mini(values,type){
  return '<div class="well01-bars '+type+'" role="img" aria-label="'+tx('نمودار هفت روز ثبت‌شده','Seven-day chart')+'">'+values.map((v,i)=>'<span title="'+esc(week()[i])+' · '+fa(Math.round(v*10)/10)+'" style="--bar:'+Math.max(3,Math.round(v/max*100))+'%"></span>').join('')+'</div>';
 }
 function shortcut(kind,icon,label,desc){
- return '<button class="well01-shortcut well01-'+kind+'" type="button" data-feature-route="'+route(kind)+'"><span class="well01-shortcut-icon"><img src="assets/ui/'+icon+'" alt="" loading="lazy"></span><span class="well01-shortcut-label"><strong>'+label+'</strong><small>'+desc+'</small></span><span class="well01-arr" aria-hidden="true">‹</span></button>';
+ const art={
+  water:'<path d="M12 2C9 6 5.5 10.5 5.5 15a6.5 6.5 0 0 0 13 0C18.5 10.5 15 6 12 2Z"/><path d="M9 15a3 3 0 0 0 3 3"/>',
+  sleep:'<path d="M20.6 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.6 14.1Z"/><path d="M17 3v4m-2-2h4"/>',
+  weight:'<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M9 9a4 4 0 0 1 6 0l-3 4-3-4Z"/>',
+  exercise:'<path d="M3 9v6M6 6v12m12-12v12m3-9v6M6 12h12"/>',
+  analysis:'<path d="M4 20V11h3v9m4 0V5h3v15m4 0v-7h3v7M3 22h19"/>'
+ };
+ const svg='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">'+art[kind]+'</svg>';
+ return '<button class="well01-shortcut well01-'+kind+'" type="button" data-feature-route="'+route(kind)+'"><span class="well01-shortcut-icon">'+svg+'</span><span class="well01-shortcut-label"><strong>'+label+'</strong><small>'+desc+'</small></span><span class="well01-arr" aria-hidden="true">‹</span></button>';
 }
 function tasks(){
  const rows=taskData();
@@ -49,7 +57,7 @@ function planSummary(s,kind){
  const mainText=note||String(first?.note||'').trim();
  const title=kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan');
  const icon=kind==='workout'?'🏋️':'🌿',label=kind==='workout'?tx('ایجاد برنامه تمرینی','Create training plan'):tx('ایجاد برنامه تغذیه','Create nutrition plan');
- return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<p class="well01-empty">'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-wellness-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
+ return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<p class="well01-empty">'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
 }
 function activity(s){
  const rows=s.workouts.filter(x=>x.date===today()),total=workoutOf(s,today()),last=rows[rows.length-1],type=last?(last.type==='ورزش دیگر'?last.customType||last.type:last.type):'';
@@ -85,11 +93,18 @@ function reports(s){
  const cards=[['water','💧',tx('مصرف آب','Water'),water,tx('میلی‌لیتر','ml')],['sleep','☾',tx('مدت خواب','Sleep'),sleep,tx('ساعت','hours')],['exercise','🏃',tx('فعالیت ورزشی','Exercise'),workout,tx('دقیقه','minutes')],['weight','⚖',tx('روند وزن','Weight trend'),[],tx('تاریخچه‌ای ثبت نشده','No weight history')]];
  return '<section class="well01-card well01-reports"><header><h2>'+tx('گزارش‌های اخیر','Recent reports')+'</h2><button type="button" data-feature-route="'+route('reports')+'">'+tx('مشاهده همه','See all')+' ‹</button></header><div class="well01-report-grid">'+cards.map(([kind,icon,label,vals,unit])=>'<button type="button" class="well01-report well01-report-'+kind+'" data-feature-route="'+route(kind)+'"><strong>'+icon+' '+label+'</strong><small>'+(kind==='weight'?unit:tx('هفت روز اخیر · ','Last 7 days · ')+unit)+'</small>'+mini(vals,kind)+'</button>').join('')+'</div></section>';
 }
+function ensureLegacyEditors(s){
+ const hdr=document.querySelector('#panel-wellness-exercise .wellness-plans > header');if(!hdr)return;
+ let bar=hdr.querySelector('.well01-legacy-editors');
+ if(!bar){bar=document.createElement('div');bar.className='well01-legacy-editors';hdr.append(bar)}
+ bar.innerHTML=(String(s.workoutPlanNote||'').trim()?'':'<button class="quiet-button" type="button" data-wellness-plan-edit="workout">'+tx('ویرایش برنامه تمرینی','Edit training plan')+'</button>')+
+ (String(s.nutritionPlanNote||'').trim()?'':'<button class="quiet-button" type="button" data-wellness-plan-edit="nutrition">'+tx('ویرایش برنامه تغذیه','Edit nutrition plan')+'</button>');
+}
 function render(){
  const panel=document.getElementById(panelId);if(!panel)return;
  let host=panel.querySelector(':scope > #well01-dashboard');
  if(!host){host=document.createElement('section');host.id='well01-dashboard';host.className='well01';host.setAttribute('dir','rtl');panel.prepend(host)}
- const s=read();
+ const s=read();ensureLegacyEditors(s);
  host.innerHTML='<section class="well01-hero"><div class="well01-hero-copy"><small>ELARA · WELLNESS</small><h1>'+tx('ورزش و سلامتی','Wellness & Fitness')+'</h1><p>'+tx('بدن سالم، ذهن روشن، جهانی بزرگ‌تر در انتظار توست.','A healthier body, a clearer mind and a bigger world await.')+'</p><button type="button" class="well01-hero-cta" data-feature-route="wellness-exercise">'+tx('شروع یک زندگی سالم‌تر','Start a healthier life')+' <span aria-hidden="true">‹</span></button></div><aside class="well01-quote"><strong>'+tx('«سرمایه واقعی تو سلامتی توست.»','“Your wellness is your real wealth.”')+'</strong><small>— ELARA</small></aside></section>'
  +'<nav class="well01-shortcuts" aria-label="'+tx('بخش‌های ورزش و سلامتی','Wellness sections')+'">'+shortcut('water','26-water-tracker-icon.webp',tx('آب','Water'),tx('آبرسانی بدن','Hydration'))+shortcut('sleep','27-sleep-tracker-icon.webp',tx('خواب','Sleep'),tx('استراحت و بازیابی','Rest and recovery'))+shortcut('weight','29-weight-tracker-icon.webp',tx('وزن','Weight'),tx('مدیریت وزن','Weight log'))+shortcut('exercise','28-exercise-icon.webp',tx('ورزش','Exercise'),tx('فعالیت و تناسب اندام','Activity'))+shortcut('analysis','09-wellness-analytics-icon..webp',tx('تحلیل','Analysis'),tx('گزارش‌ها و روند','Trends'))+'</nav>'
  +'<div class="well01-features">'+tasks()+planSummary(s,'workout')+planSummary(s,'nutrition')+activity(s)+'</div>'
@@ -98,7 +113,7 @@ function render(){
  +'<section class="well01-tip"><div><small>🌿 '+tx('نکته سلامتی امروز','Today’s wellness note')+'</small><strong>'+tx('حرکت امروز، انرژی فردای توست.','Movement today supports tomorrow’s energy.')+'</strong></div><span>'+tx('داده‌های شخصی در مرورگر این دستگاه می‌مانند؛ همگام‌سازی ابری فعال نیست.','Personal records stay in this browser; cloud sync is not enabled.')+'</span></section>';
 }
 let pending=false;function schedule(){if(pending)return;pending=true;setTimeout(()=>{pending=false;render()},30)}
-document.addEventListener('click',e=>{const edit=e.target.closest('[data-well01-plan-edit]');if(edit){const kind=edit.dataset.well01PlanEdit;document.querySelector('#well01-dashboard .well01-'+kind+'-plan [data-wellness-plan-edit]')?.click();return}const b=e.target.closest('[data-well01-start]');if(b)window.ElaraOpen?.('wellness-exercise')});
+document.addEventListener('click',e=>{const edit=e.target.closest('[data-well01-plan-edit]');if(edit){const kind=edit.dataset.well01PlanEdit;const tmp=document.createElement('button');tmp.type='button';tmp.dataset.wellnessPlanEdit=kind;tmp.hidden=true;document.body.append(tmp);tmp.click();tmp.remove();return}const b=e.target.closest('[data-well01-start]');if(b)window.ElaraOpen?.('wellness-exercise')});
 for(const name of ['elara:account-ready','elara:wellness-saved','elara:state-committed','elara:data-changed','elara:locale-changed','elara:open'])window.addEventListener(name,schedule);
 window.ElaraWell01={render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
