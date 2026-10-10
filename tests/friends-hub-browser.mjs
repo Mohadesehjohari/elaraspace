@@ -22,13 +22,14 @@ async function run(width,height){
  await page.goto(base+'/?friends-hub='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  const tabs=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await tabs.count(),5,width+': Friends Hub must expose five principal tabs; requests stay standalone');
- assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity']);
- assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': permanent Friend Requests card missing');
- assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': permanent Shared Requests card missing');
+ assert.equal(await tabs.count(),8,width+': Friends Hub needs eight reference tabs');
+ assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','challenges','activity','requests','ranking']);
+ assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': Friend Requests card missing from dashboard');
+ assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': Shared Requests card missing from dashboard');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing on default tab');
+ assert.equal(await page.locator('.social-dashboard-stat').count(),6,width+': six real-data stats missing');
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats tab did not mount DM');
@@ -51,7 +52,8 @@ async function run(width,height){
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);
  const enLabels=await page.locator('#elara-social-page .social-tabs [role="tab"]').allTextContents();
  for(const label of ['Chats','Groups','Friends','Activity','Clubs'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
- assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/Friend requests/,width+': standalone Friend Requests card did not localize');
+ await page.locator('[data-social-route="social"][data-social-view="requests"]').click();
+ assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/Friend requests/,width+': Requests tab did not localize');
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  assert.match(await page.locator('.social-friends-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
@@ -62,6 +64,6 @@ async function run(width,height){
  await page.screenshot({path:'browser-artifacts/friends-hub-'+width+'.png',fullPage:true});
  await page.close();
 }
-await run(390,844);await run(1440,1000);
+for(const width of [320,375,390,430,768,1440,1648])await run(width,width<769?844:1000);
 await browser.close();
-console.log('FRIENDS_HUB_PASS chats groups friends activity clubs + standalone requests/shared-requests i18n 390/1440');
+console.log('FRIENDS_HUB_REFERENCE_PASS seven viewports, real service stubs (not cross-account backend evidence)');
