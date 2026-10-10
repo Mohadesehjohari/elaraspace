@@ -50,10 +50,11 @@ jobs:
           curl -fLsS http://127.0.0.1:4174/boot.js >/dev/null
       - name: Run nine-width language functional and visual screenshot matrix
         run: timeout 780s node tests/ui12-language-reference-browser.mjs
-      - name: Existing Language P0 and product hub browser regressions
-        run: |
-          timeout 270s node tests/p0-language-popup-browser.mjs
-          timeout 270s node tests/product-hubs-store-browser.mjs
+      - name: Full P0 Language, Leitner, Tasks and modal regression
+        run: timeout 360s node tests/p0-language-popup-browser.mjs
+      - name: Full product hubs, Social and Tasks browser regression
+        if: always()
+        run: timeout 360s node tests/product-hubs-store-browser.mjs
       - name: Verify Home, Task and profile contracts
         if: always()
         run: |
