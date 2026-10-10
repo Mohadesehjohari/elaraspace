@@ -45,6 +45,12 @@ try{
    assert.ok(await page.locator('.sidebar').count()>0,'Original desktop sidebar missing');
   }
   await page.screenshot({path:out+'/live-language-'+width+'.png',fullPage:true,animations:'disabled'});
+  await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));
+  await page.waitForSelector('#panel-home:not(.hidden)');
+  assert.equal(await page.locator('#panel-language.hidden').count(),1,'Language must become hidden on Home');
+  assert.equal(await page.locator('#panel-language').evaluate(el=>getComputedStyle(el).display),'none','Language dashboard leaked into Home layout');
+  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+  await page.waitForSelector('#panel-language.ui12-language:not(.hidden) .ui12-board');
   console.log('UI12_LIVE_LANGUAGE_PASS '+width+' viewport 8 shortcuts/cards, original nav, honest empty data, decoded WebP, overflow='+overflow+' pageErrors='+JSON.stringify(errors));
   await context.close();
  }
