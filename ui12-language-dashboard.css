@@ -188,3 +188,11 @@
  #panel-language.ui12-language .ui12-leitner-art>p{margin-top:79px!important}
  #panel-language.ui12-language .ui12-classes .ui12-empty:before{height:72px}
 }
+
+/* UI13 follow-up: real mouse/touch shortcut focus must clear the fixed desktop header.
+   Scoped to Language only; Home, global navigation and shell are unchanged. */
+@media(min-width:701px){
+ #panel-language.ui12-language .ui12-shortcut,
+ #panel-language.ui12-language [data-ui12-jump],
+ #panel-language.ui12-language [data-ui12-route]{scroll-margin-top:112px}
+}
