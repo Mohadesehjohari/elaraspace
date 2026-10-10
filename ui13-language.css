@@ -141,21 +141,21 @@
  }
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:center 67%!important}
 }
-#main .language-class-report{min-width:0!important;box-sizing:border-box;width:min(100%,760px)!important;max-width:100%!important;max-height:min(68dvh,690px);overflow-y:auto;overscroll-behavior:contain}
+.elara-dialog-root .language-class-report{min-width:0!important;box-sizing:border-box;width:min(100%,760px)!important;max-width:100%!important;max-height:min(68dvh,690px);overflow-y:auto;overscroll-behavior:contain}
 .elara-dialog-panel:has(.language-class-report){min-width:0!important;max-width:min(94vw,850px)!important;max-height:92dvh!important}
 .elara-dialog-panel:has(.language-class-report) .elara-dialog-body{min-width:0!important;max-width:100%;overflow-y:auto;overscroll-behavior:contain}
-#main .language-class-report-grid{min-width:0}
-#main .language-class-report-grid article{min-width:0;overflow-wrap:anywhere}
-#main .language-class-classmates{min-width:0;display:grid;gap:8px}
-#main .language-class-member{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(56px,1fr) auto;align-items:center;gap:9px;padding:9px;border:1px solid #265779;border-radius:10px}
-#main .language-class-member>span:first-child{min-width:0;overflow-wrap:anywhere;display:grid;gap:3px}
-#main .language-class-member .language-class-progress{min-width:0}
-#main .language-class-log>div{min-width:0;flex-wrap:wrap}
+.elara-dialog-root .language-class-report-grid{min-width:0}
+.elara-dialog-root .language-class-report-grid article{min-width:0;overflow-wrap:anywhere}
+.elara-dialog-root .language-class-classmates{min-width:0;display:grid;gap:8px}
+.elara-dialog-root .language-class-member{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(56px,1fr) auto;align-items:center;gap:9px;padding:9px;border:1px solid #265779;border-radius:10px}
+.elara-dialog-root .language-class-member>span:first-child{min-width:0;overflow-wrap:anywhere;display:grid;gap:3px}
+.elara-dialog-root .language-class-member .language-class-progress{min-width:0}
+.elara-dialog-root .language-class-log>div{min-width:0;flex-wrap:wrap}
 @media(max-width:700px){
  #main .ui13-subpage-head{padding:16px!important;min-height:175px}
- #main .language-class-report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #main .language-class-member{grid-template-columns:minmax(0,1fr) auto;gap:6px}
- #main .language-class-member .language-class-progress{grid-column:1/-1;grid-row:2;width:100%}
+ .elara-dialog-root .language-class-report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .elara-dialog-root .language-class-member{grid-template-columns:minmax(0,1fr) auto;gap:6px}
+ .elara-dialog-root .language-class-member .language-class-progress{grid-column:1/-1;grid-row:2;width:100%}
  .elara-dialog-panel:has(.language-class-report){width:min(94vw,700px)!important}
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:47% 66%!important}
 }
