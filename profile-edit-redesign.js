@@ -119,7 +119,15 @@
    '</form>'+
    '<aside class="pe-preview-outer" id="pe-preview-area"><div class="pe-preview"><header><h2>پیش‌نمایش پروفایل</h2><small>نمایش زندهٔ تغییرات شما</small></header><div class="pe-preview-card" data-pe-preview></div></div></aside>'+
    '</div></div>';
-  document.body.append(shell);host=shell;
+  // Mount within the existing workspace main; global header, sidebar and mobile dock remain untouched.
+  const workspaceMain=document.getElementById('main')||document.querySelector('.workspace main');
+  const drawerRoot=document.querySelector('.elara-private-drawer');
+  const drawerWasOpen=!!drawerRoot&&!drawerRoot.classList.contains('hidden')&&!drawerRoot.hidden;
+  if(drawerWasOpen)window.ElaraPrivateDrawer?.close?.();
+  (workspaceMain||document.body).append(shell);host=shell;
+  const originHash=location.hash;
+  const prevFocus=document.activeElement;
+  history.pushState({...history.state,elaraProfileEdit:true},'',location.href);
   const q=sel=>shell.querySelector(sel), qa=sel=>[...shell.querySelectorAll(sel)],status=message=>{q('[data-pe-status]').textContent=message},input=name=>q('[name="'+name+'"]');
   const date=displayDate(person.createdAt||person.joinedAt||person.created||window.ElaraAccount?.user?.metadata?.creationTime);
   q('[data-pe-created]').textContent=date;
@@ -162,10 +170,44 @@
   function restore(){draft=base();syncFields();status('تغییرات ذخیره‌نشده بازنشانی شدند.')}
   syncFields();
   if(galleryOpen)q('[data-pe-avatar-options]').hidden=false;
-  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();close()}};
+  let exited=false;
+  const uidStable=()=>P()?.currentUid?.()===uid;
+  const exitMessage='تغییرات ذخیره‌نشده از بین می‌روند. از ویرایش پروفایل خارج می‌شوید؟';
+  function cleanup({returnToDrawer=false}={}){
+   if(exited||host!==shell)return;
+   exited=true;document.removeEventListener('keydown',keydown);
+   window.removeEventListener('popstate',onHistory);
+   window.removeEventListener('hashchange',onHash);
+   window.removeEventListener('elara:account-ready',onAccount);
+   window.removeEventListener('beforeunload',beforeUnload);
+   shell.remove();host=null;closing=null;
+   if(returnToDrawer&&drawerWasOpen&&uidStable())window.ElaraPrivateDrawer?.open?.('account');
+   else prevFocus?.isConnected&&prevFocus?.focus?.({preventScroll:true});
+  }
+  function requestExit(){
+   if(busy){status('تا پایان ذخیره صبر کنید.');return false}
+   if(dirty()&&!window.confirm(exitMessage))return false;
+   if(history.state?.elaraProfileEdit)history.back();
+   else cleanup({returnToDrawer:true});
+   return true
+  }
+  function onHistory(){
+   if(host!==shell||history.state?.elaraProfileEdit)return;
+   if(busy||(dirty()&&!window.confirm(exitMessage))){
+    history.pushState({...history.state,elaraProfileEdit:true},'',location.href);return
+   }
+   cleanup({returnToDrawer:true})
+  }
+  function onHash(){if(host===shell&&location.hash!==originHash)cleanup()}
+  function onAccount(){if(host===shell&&!uidStable())cleanup()}
+  function beforeUnload(e){if(host===shell&&dirty()){e.preventDefault();e.returnValue=''}}
+  const keydown=e=>{if(e.key==='Escape'&&host===shell){e.preventDefault();requestExit()}};
   document.addEventListener('keydown',keydown);
-  function close(){if(host!==shell)return;document.removeEventListener('keydown',keydown);shell.remove();host=null}
-  closing=close;
+  window.addEventListener('popstate',onHistory);
+  window.addEventListener('hashchange',onHash);
+  window.addEventListener('elara:account-ready',onAccount);
+  window.addEventListener('beforeunload',beforeUnload);
+  closing=requestExit;
   function showPreview(){
    previewActive=!previewActive;
    shell.classList.toggle('pe-mobile-preview-visible',previewActive);
@@ -190,7 +232,7 @@
   shell.addEventListener('click',e=>{
    const button=e.target.closest('button');if(!button)return;
    const action=button.dataset.peAction;
-   if(action==='close'){close();return}
+   if(action==='close'){requestExit();return}
    if(action==='reset'){restore();return}
    if(action==='preview'){showPreview();return}
    if(action==='banners'){q('[data-pe-banner-options]').hidden=!q('[data-pe-banner-options]').hidden;return}
@@ -226,14 +268,17 @@
   q('form').addEventListener('submit',async e=>{
    e.preventDefault();
    if(busy)return;
+   if(!uidStable()){status('حساب کاربری تغییر کرده است. برای جلوگیری از ذخیره در حساب اشتباه، صفحه را ببندید و دوباره باز کنید.');return}
    if(!strip(draft.name)){status('نام نمایشی الزامی است.');input('name').focus();return}
    draft.username=strip(draft.username).replace(/^@/,'').toLowerCase();
    if(!/^[a-z][a-z0-9_]{2,19}$/.test(draft.username)){status('فرمت نام کاربری معتبر نیست.');input('username').focus();return}
    busy=true;q('[data-pe-save]').disabled=true;qa('button').filter(x=>x!==q('[data-pe-save]')).forEach(x=>{x.disabled=x.disabled||false});
    try{
     const api=await prepare(serviceFailed);
+    if(!uidStable())throw Error('حساب فعال حین ذخیره تغییر کرده است؛ ذخیره متوقف شد.');
     status('در حال ذخیرهٔ اطلاعات اصلی در Firebase…');
     const result=await api.saveProfileValues({name:strip(draft.name),username:draft.username,bio:draft.bio,profilePublic:draft.profilePublic});
+    if(!uidStable())throw Error('حساب فعال پس از درخواست تغییر کرده است؛ تغییرات محلی ذخیره نشدند.');
     if(result?.warnings?.length){status('بخشی از اطلاعات در Firebase ذخیره نشد: '+result.warnings.join(' ')+' تنظیمات ظاهر ثبت نشدند.');return}
     const nextWardrobe={frame:draft.frame||null,banner:draft.banner,photoMode:draft.photoMode,avatarGroup:draft.avatarGroup||null,avatarLevel:draft.avatarLevel||null,photoCircle:draft.photoCircle,photoSquare:draft.photoSquare,shape:draft.shape,nameFont:draft.nameFont};
     if(draft.themeTouched)nextWardrobe.profileTheme=themes.find(t=>t.id===draft.theme)?.theme||null;
