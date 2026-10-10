@@ -1,5 +1,5 @@
 /* UI13: only Language dashboard/deep pages and non-Home global banner artwork. */
-#panel-language.ui12-language .ui12-shortcuts{direction:ltr!important}
+#panel-language.ui12-language .ui12-shortcuts{direction:rtl!important}
 #panel-language.ui12-language .ui12-shortcut{direction:rtl!important}
 #panel-language.ui12-language .ui12-shortcut>span,
 #panel-language.ui12-language .ui12-card-icon{display:grid!important;place-items:center!important;color:#75eaff!important;filter:drop-shadow(0 0 5px #2bcaff80)}
@@ -19,7 +19,7 @@
  background-position:44% center!important;background-size:cover!important;
 }
 #panel-language.ui12-language .ui12-leitner-art>p{margin-top:auto!important;margin-bottom:5px!important;background:#061a309b!important}
-#panel-language.ui12-language .ui12-box{background:#031d3ace!important;backdrop-filter:blur(3px)}
+#panel-language.ui12-language .ui12-box{backdrop-filter:blur(3px)}
 #panel-language.ui12-language .ui12-leitner{background:linear-gradient(155deg,#031d3b,#04142b)}
 #panel-language.ui12-language .ui12-tasks{background:linear-gradient(145deg,#052037f2,#031329),url('assets/ui/daily-banner-bg_main.webp') left center/auto 100% no-repeat}
 #panel-language.ui12-language .ui12-empty-state{min-height:0!important;gap:8px}
@@ -137,7 +137,7 @@
  .workspace:has(#panel-language-tasks:not(.hidden),#panel-language-channels:not(.hidden),#panel-language-challenges:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
  #main :is(#panel-language-tasks,#panel-language-channels,#panel-language-challenges):not(.hidden) .ui13-back{position:relative;z-index:2;scroll-margin-top:90px}
  @media(min-width:1181px){#panel-language.ui12-language .ui12-board{
-  grid-template-columns:minmax(0,.72fr) minmax(0,1.03fr) minmax(0,1.04fr) minmax(0,1.48fr)!important;
+  grid-template-columns:minmax(0,.67fr) minmax(0,1.07fr) minmax(0,.89fr) minmax(0,1.43fr)!important;
  }}
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:center 67%!important}
 }
@@ -160,20 +160,48 @@
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:47% 66%!important}
 }
 
-/* UI14 Leitner: counts, not decorative big number tiles. */
-#panel-language.ui12-language .ui12-boxes{justify-content:space-around;align-items:center;gap:4px;padding:8px 0 21px}
-#panel-language.ui12-language .ui12-box{position:relative;flex:0 1 47px;width:47px;min-width:0;height:47px;border-radius:50%;background:radial-gradient(circle at 35% 20%,#114367,#041729 80%);border:2px solid #18c7ef;box-shadow:inset 0 0 12px #01b6f53a,0 0 12px #01b6f55c}
-#panel-language.ui12-language .ui12-box b{font-size:17px}
-#panel-language.ui12-language .ui12-box small{position:absolute;top:calc(100% + 3px);right:50%;transform:translateX(50%);width:max-content;max-width:70px;font-size:9px;line-height:1.35;color:#d0e9ff}
-#panel-language.ui12-language .ui12-box-5{background:radial-gradient(circle at 35% 25%,#80532a,#1a1623 80%);border-color:#ffc15f}
+/* UI15 owner reference: glowing, shallow 3D square Leitner boxes.
+   The big numeral is the fixed box INDEX; the smaller footer is its REAL word count. */
+#panel-language.ui12-language .ui12-boxes{
+ direction:rtl;display:flex;align-items:center;justify-content:space-between;
+ gap:clamp(3px,.6vw,9px);padding:12px 0 25px
+}
+#panel-language.ui12-language .ui12-box{
+ --box-edge:#8579ff;--box-glow:#514eff85;--box-light:#3849a5;
+ position:relative;box-sizing:border-box;flex:1 1 0;min-width:0;
+ width:auto;max-width:75px;height:64px;border-radius:7px;
+ border:1.5px solid var(--box-edge);
+ background:linear-gradient(160deg,#ffffff29 0%,transparent 27%),linear-gradient(145deg,var(--box-light),#05233d 55%,#03172e 94%);
+ box-shadow:0 0 13px var(--box-glow),0 5px 0 #041020,0 8px 10px #0009,inset 0 0 14px var(--box-glow),inset 2px 2px 3px #ffffff33;
+ color:#fff;isolation:isolate;transform:perspective(260px) rotateX(4deg)
+}
+#panel-language.ui12-language .ui12-box::before{
+ content:"";position:absolute;inset:3px 4px auto;height:5px;border-radius:4px;
+ background:linear-gradient(90deg,transparent,#ffffff8c,transparent);opacity:.75
+}
+#panel-language.ui12-language .ui12-box b{
+ font-size:clamp(17px,1.5vw,23px);font-weight:900;line-height:1;
+ text-shadow:0 0 12px var(--box-edge),0 2px 3px #00192f
+}
+#panel-language.ui12-language .ui12-box small{
+ position:absolute;box-sizing:border-box;top:calc(100% + 7px);right:50%;transform:translateX(50%);
+ width:max-content;max-width:95px;font-size:10px;font-weight:750;line-height:1.3;
+ white-space:nowrap;color:#e6efff;text-shadow:0 1px 3px #000
+}
+#panel-language.ui12-language .ui12-box small span{color:#fff;font-weight:900}
+#panel-language.ui12-language .ui12-box-2{--box-edge:#328eff;--box-glow:#087aff91;--box-light:#0759a4}
+#panel-language.ui12-language .ui12-box-3{--box-edge:#2beaff;--box-glow:#00dfff91;--box-light:#026c9f}
+#panel-language.ui12-language .ui12-box-4{--box-edge:#2bffbd;--box-glow:#04e69d92;--box-light:#067454}
+#panel-language.ui12-language .ui12-box-5{--box-edge:#ffd06a;--box-glow:#ffae478f;--box-light:#af6326}
 @media(max-width:700px){
- #panel-language.ui12-language .ui12-boxes{gap:3px;padding-bottom:20px}
- #panel-language.ui12-language .ui12-box{flex:0 1 34px;width:34px;height:34px}
- #panel-language.ui12-language .ui12-box b{font-size:13px}
- #panel-language.ui12-language .ui12-box small{font-size:7px}
+ #panel-language.ui12-language .ui12-boxes{gap:3px;padding:8px 0 23px}
+ #panel-language.ui12-language .ui12-box{height:46px;min-width:0;border-radius:5px;max-width:none}
+ #panel-language.ui12-language .ui12-box b{font-size:17px}
+ #panel-language.ui12-language .ui12-box small{font-size:8px;top:calc(100% + 5px)}
 }
 @media(max-width:389px){
- #panel-language.ui12-language .ui12-box{width:39px;height:39px;flex:0 1 39px}
+ #panel-language.ui12-language .ui12-box{height:43px}
+ #panel-language.ui12-language .ui12-box small{font-size:8px}
 }
 /* Reframe the owner's actual library art rather than pushing the whole hero down. */
 html body #main #panel-books .elara-global-hero{background-position:center 68%!important}
