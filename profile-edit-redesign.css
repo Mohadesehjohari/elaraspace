@@ -251,3 +251,7 @@
  .pe-shell .pe-header-preview .pe-svg{width:17px;height:17px}
  .pe-shell .pe-save .pe-svg{width:22px;height:22px}
 }
+
+/* Keep the preview shortcut mobile-only: generic SVG-button styling must not unhide it on desktop. */
+@media(min-width:701px){.pe-shell .pe-header-preview{display:none!important}}
+@media(max-width:700px){.pe-shell .pe-header-preview{display:inline-flex!important}}
