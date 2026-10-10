@@ -127,8 +127,8 @@ function profileServiceError(error){
  return 'بارگذاری سرویس پروفایل ناموفق بود: '+message+' برای تلاش دوباره «ذخیره تغییرات» را بزن.'
 }
 async function openEditor({galleryOpen=false}={}){
- // Dedicated editor; leave the legacy dialog below as a no-network fallback if the module fails to load.
- try{
+ // Authenticated accounts get the new page; keep the established readiness/error dialog path for signed-out sessions.
+ if(currentUid())try{
   if(!window.ElaraProfileEdit){
    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='profile-edit-redesign.js?v=20261010-1';script.onload=resolve;script.onerror=()=>reject(Error('صفحهٔ ویرایش پروفایل بارگذاری نشد.'));document.head.append(script)});
   }
