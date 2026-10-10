@@ -6,7 +6,7 @@ const kindLabel=k=>({reading:t('کتاب‌خوانی','Reading'),fitness:t('و�
 const roleLabel=r=>({owner:t('صاحب','Owner'),assistant:t('دستیار','Assistant'),member:t('عضو','Member')})[r]||t('عضو','Member');
 const modeLabel=m=>({public:t('عمومی','Public'),request:t('درخواست عضویت','Request to Join'),invite:t('فقط دعوت','Invite Only')})[m]||t('فقط دعوت','Invite Only');
 const postLabel=k=>({mission:t('ماموریت','Mission'),challenge:t('چالش','Challenge'),poll:t('نظرسنجی','Poll'),reminder:t('یادآوری','Reminder'),result:t('نتیجه','Result'),congratulations:t('تبریک','Congratulations'),notice:t('اعلان','Notice')})[k]||t('اعلان','Notice');
-let token=0;
+let token=0,clubSearch='',clubKind='all';
 // Firebase Storage is not configured in production. Club text/social actions remain enabled.
 const CLUB_MEDIA_DEFERRED='بخش تصاویر در فاز بعد فعال می‌شود';
 function xpValue(){const socialXp=Number(current()?.xp),accountXp=Number(window.ElaraAccount?.profile?.xp);let localXp=NaN;try{localXp=Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp)}catch{}return[socialXp,accountXp,localXp].find(Number.isFinite)??0}
@@ -16,7 +16,7 @@ const isClubsTab=root=>!!root?.querySelector('[data-social-view="clubs"][aria-se
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3300)}
 function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.uid===current()?.uid})?.avatarSrc;return src?'<img src="'+esc(src)+'" alt="">':'<span>'+esc((p?.name||p?.username||'?').slice(0,1))+'</span>'}
 async function hydrateClubMedia(){return; /* Never fetch broken Firebase Storage URLs. */}
-function clubCard(c,owned=true){return '<button type="button" class="social-club-card" data-club-open="'+esc(c.id)+'" data-club-owned="'+(owned?'1':'0')+'"><span class="social-club-kind">'+({reading:'📚',fitness:'⚡',language:'🧠',focus:'🎯',habits:'🔥',meditation:'🫶',general:'🚀'}[c.kind]||'🚀')+'</span><span><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+(owned?roleLabel(c.role):modeLabel(c.membershipMode))+' · '+Number(c.memberCount||1).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'/'+Number(c.memberLimit||50).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small></span><b>›</b></button>'}
+function clubCard(c,owned=true){return '<button type="button" class="social-club-card" data-club-open="'+esc(c.id)+'" data-club-kind="'+esc(c.kind||'general')+'" data-club-owned="'+(owned?'1':'0')+'"><span class="social-club-kind">'+({reading:'📚',fitness:'⚡',language:'🧠',focus:'🎯',habits:'🔥',meditation:'🫶',general:'🚀'}[c.kind]||'🚀')+'</span><span><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+(owned?roleLabel(c.role):modeLabel(c.membershipMode))+' · '+(Number.isInteger(c.memberCount)?c.memberCount.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR'):t('نامشخص','Unknown'))+'/'+(Number.isInteger(c.memberLimit)?c.memberLimit.toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR'):'—')+'</small></span><b>›</b></button>'}
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;if(!isClubsTab(root)){root.querySelector('.social-clubs-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;let section=root.querySelector('.social-clubs-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-clubs-section';section.dataset.elaraI18n='off';grid.append(section)}
@@ -25,7 +25,25 @@ async function mount(){
  const inviteHost=section.querySelector('[data-club-invites]');inviteHost.innerHTML=invites.length?'<h3>'+t('دعوت‌های باشگاه','Club invites')+'</h3>'+invites.map(x=>'<article class="social-club-invite"><div><strong>'+esc(x.club?.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(x.club?.kind)+'</small></div><div><button type="button" class="primary-button" data-club-invite-action="accepted" data-club-id="'+esc(x.clubId)+'">'+t('قبول','Accept')+'</button><button type="button" class="quiet-button danger" data-club-invite-action="declined" data-club-id="'+esc(x.clubId)+'">'+t('رد','Decline')+'</button></div></article>').join(''):'';
  section.querySelector('[data-club-list]').innerHTML='<h3>'+t('باشگاه‌های من','My clubs')+'</h3>'+(clubs.map(c=>clubCard(c,true)).join('')||'<p class="ref-empty">'+t('هنوز عضو باشگاهی نیستی.','You are not in a club yet.')+'</p>');
  const ownIds=new Set(clubs.map(x=>x.id)),publicRows=discover.filter(x=>!ownIds.has(x.id));section.querySelector('[data-club-discover]').innerHTML='<h3>'+t('کشف باشگاه‌های عمومی','Discover public clubs')+'</h3>'+(publicRows.map(c=>clubCard(c,false)).join('')||'<p class="ref-empty">'+t('باشگاه عمومی دیگری پیدا نشد.','No other public club found.')+'</p>')
+ const filter=document.createElement('div');filter.className='social-club-filters';
+ filter.innerHTML='<input type="search" data-club-search placeholder="'+t('جستجوی باشگاه…','Search clubs…')+'" aria-label="'+t('جستجوی باشگاه','Search clubs')+'" value="'+esc(clubSearch)+'"><select data-club-kind-filter aria-label="'+t('نوع باشگاه','Club type')+'"><option value="all">'+t('همه موضوع‌ها','All topics')+'</option>'+['reading','fitness','language','focus','habits','meditation','general'].map(k=>'<option value="'+k+'" '+(clubKind===k?'selected':'')+'>'+kindLabel(k)+'</option>').join('')+'</select>';
+ section.querySelector('[data-club-list]')?.before(filter);applyClubFilters(section);
+ const ranking=document.createElement('div');ranking.className='social-club-ranking';
+ ranking.innerHTML='<h3>🏆 '+t('رتبه‌بندی باشگاه‌ها','Club rankings')+'</h3><div class="social-club-ranking-empty"><p>'+t('هنوز امتیاز باشگاه‌ها در یک جدول معتبر قابل دریافت نیست. سکو و XP ساختگی نمایش داده نمی‌شود.','A validated club score leaderboard is not available yet. No fabricated podium or XP is shown.')+'</p></div>';
+ section.querySelector('.social-club-filters')?.before(ranking);
+ const note=document.createElement('p');note.className='social-club-backend-note';
+ note.textContent=t('تصاویر و بارگذاری رسانه‌های باشگاهی تا آماده‌شدن Storage امن فعال نیست.','Club media uploads are disabled until secure Storage is available.');
+ section.append(note);
 }
+function applyClubFilters(section){
+ if(!section)return;
+ section.querySelectorAll('[data-club-open]').forEach(card=>{
+  const query=card.textContent.toLocaleLowerCase().includes(clubSearch.toLocaleLowerCase());
+  card.hidden=!query||(clubKind!=='all'&&card.dataset.clubKind!==clubKind);
+ })
+}
+document.addEventListener('input',e=>{if(e.target.matches('[data-club-search]')){clubSearch=e.target.value;applyClubFilters(e.target.closest('.social-clubs-section'))}});
+document.addEventListener('change',e=>{if(e.target.matches('[data-club-kind-filter]')){clubKind=e.target.value;applyClubFilters(e.target.closest('.social-clubs-section'))}});
 async function createClub(kind='general'){
  const service=api();if(!service)return;if(!canCreateClub()){toast(t('ساخت باشگاه از Level 6 باز می‌شود.','Club creation unlocks at Level 6.'));return}
  const wrap=document.createElement('div');wrap.className='social-club-create';wrap.dataset.elaraI18n='off';

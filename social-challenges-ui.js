@@ -2,7 +2,7 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const api=()=>window.ElaraSocial?.challenges,current=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
-const isFriendsTab=root=>!!root?.querySelector('[data-social-view="friends"][aria-selected="true"]');
+const isChallengesTab=root=>!!root?.querySelector('[data-social-view="challenges"][aria-selected="true"]');
 let token=0,lastRows=[];
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3000)}
 function expiresMs(c){return c.expiresAt?.toMillis?.()||Number(c.expiresAtMs)||0}
@@ -35,13 +35,23 @@ function card(c){
 }
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
- if(!isFriendsTab(root)){root.querySelector('.social-challenges-section')?.remove();return}
+ if(!isChallengesTab(root)){root.querySelector('.social-challenges-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-challenges-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-challenges-section';section.dataset.elaraI18n='off';const clubs=root.querySelector('.social-clubs-section');clubs?clubs.insertAdjacentElement('afterend',section):grid.append(section)}
  const mine=++token;section.innerHTML='<header class="social-challenges-head"><div><small>ELARA · CHALLENGES</small><h2>'+t('چالش دوستانه','Friend challenges')+'</h2><p>'+t('یه هدف مشخص کن؛ درخواست فقط ۳۰ ثانیه وقت داره 😎⚡','Pick a target; challenge requests expire in 30 seconds 😎⚡')+'</p></div><button type="button" class="primary-button" data-challenge-create '+(!friends().length?'disabled':'')+'>'+t('چالش جدید','New challenge')+'</button></header><div class="social-challenges-grid" data-challenge-list><p class="muted">'+t('در حال بارگذاری…','Loading…')+'</p></div>';
  try{lastRows=await service.list()}catch(error){if(mine===token)section.querySelector('[data-challenge-list]').innerHTML='<p class="ref-empty">'+esc(error?.message||error)+'</p>';return}
  if(mine!==token||!section.isConnected)return;
- const visible=lastRows.slice(0,20);section.querySelector('[data-challenge-list]').innerHTML=visible.map(card).join('')||'<p class="ref-empty">'+t('فعلاً چالشی نداری. یکی رو به مبارزه دعوت کن 👀','No challenges yet. Call out a friend 👀')+'</p>'
+ const visible=lastRows.slice(0,20);
+ section.querySelector('[data-challenge-list]').innerHTML=visible.map(card).join('')||'<p class="ref-empty">'+t('فعلاً چالشی نداری؛ یک دوست تأییدشده را دعوت کن.','No challenges yet; invite an accepted friend.')+'</p>';
+ const activeCount=lastRows.filter(c=>c.status==='accepted').length;
+ const pendingCount=lastRows.filter(c=>c.status==='pending'&&!c.expired).length;
+ const stats=document.createElement('div');stats.className='social-challenge-stats';
+ const statRows=[[t('چالش فعال','Active challenges'),String(activeCount),'🏆'],[t('دعوت در انتظار','Pending invitations'),String(pendingCount),'👥'],[t('تسک مشترک','Shared tasks'),'—','📖'],[t('XP چالش‌ها','Challenge XP'),'—','⭐']];
+ stats.innerHTML=statRows.map(r=>'<article><span>'+r[2]+'</span><strong>'+r[1]+'</strong><small>'+r[0]+'</small></article>').join('');
+ section.querySelector('.social-challenges-grid')?.before(stats);
+ const collab=document.createElement('section');collab.className='social-challenge-collab';
+ collab.innerHTML='<h3>'+t('تسک‌ها و کلاس‌های مشترک','Shared tasks and classes')+'</h3><p class="ref-empty">'+t('آمار تجمیعی قابل‌تأیید از سرویس همکاری در این صفحه در دسترس نیست؛ امتیاز یا پیشرفت دیگران محاسبه نمی‌شود.','No validated shared-task/class aggregates are accessible here; other people’s progress or points are not inferred.')+'</p>';
+ section.append(collab)
 }
 async function compose(target='',seed=null){
  const service=api();if(!service||!friends().length)return;const selected=target||seed?.to||'';
