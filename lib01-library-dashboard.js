@@ -5,13 +5,13 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const lang=()=>document.documentElement.lang==='en'?'en':'fa';
 const t=(fa,en)=>lang()==='en'?en:fa;
 const num=n=>Number(n||0).toLocaleString(lang()==='en'?'en-US':'fa-IR');
-const nav=(route,label,icon,active=false)=>'<button type="button" class="lib01-tab'+(active?' is-current':'')+'" data-feature-route="'+route+'"><span aria-hidden="true">'+icon+'</span>'+label+'</button>';
+const nav=(route,label,icon,active=false)=>'<button type="button" class="lib01-tab'+(active?' is-current':'')+'" data-lib01-route="'+route+'"><span aria-hidden="true">'+icon+'</span>'+label+'</button>';
 const state=()=>{try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return s&&typeof s==='object'?s:{}}catch{return{}}};
 const books=s=>Array.isArray(s.books)?s.books.map(b=>window.ElaraReading?.normalize?.(b)||b):[];
 const clips=s=>Array.isArray(s.bookClips)?s.bookClips:[];
 const pct=b=>window.ElaraReading?.progress?.(b)||0;
 const cover=b=>b.coverData||b.coverUrl||'assets/ui/icon-library-open-book.webp';
-const empty=(text,route,label)=>'<div class="lib01-empty"><span aria-hidden="true">✦</span><p>'+text+'</p>'+(route?'<button type="button" data-feature-route="'+route+'">'+label+' ←</button>':'')+'</div>';
+const empty=(text,route,label)=>'<div class="lib01-empty"><span aria-hidden="true">✦</span><p>'+text+'</p>'+(route?'<button type="button" data-lib01-route="'+route+'">'+label+' ←</button>':'')+'</div>';
 function hero(panel){
  const h=panel.querySelector(':scope > .elara-global-hero');
  if(!h)return;
@@ -24,7 +24,7 @@ function toolbar(){
  nav('library-shelves',t('کتاب‌های من','My books'),'▣')+
  nav('library-search',t('جست‌وجو','Search'),'⌕')+
  nav('library-clips',t('بریده‌های من','My clips'),'❝')+
- '<button type="button" class="lib01-tab" data-feature-route="library-clips"><span aria-hidden="true">❞</span>'+t('نقل‌قول‌ها','Quotes')+'</button>'+
+ '<button type="button" class="lib01-tab" data-lib01-route="library-clips"><span aria-hidden="true">❞</span>'+t('نقل‌قول‌ها','Quotes')+'</button>'+
  nav('library-shelves',t('قفسه‌ها','Shelves'),'▤')+
  '<button type="button" class="lib01-tab" data-lib01-explore="authors"><span aria-hidden="true">♙</span>'+t('نویسندگان','Authors')+'</button>'+
  '<button type="button" class="lib01-tab" data-lib01-explore="genres"><span aria-hidden="true">◇</span>'+t('ژانرها','Genres')+'</button></nav>'+
@@ -35,7 +35,7 @@ function statusCard(s,bs){
  read=withTotal.reduce((n,b)=>n+Math.min(Number(b.currentPage)||0,Number(b.totalPages)),0),
  progress=total?Math.round(read/total*100):0;
  const reading=bs.filter(b=>b.shelf==='reading').length,finished=bs.filter(b=>b.shelf==='finished').length;
- return '<section class="lib01-card lib01-status"><header><h2>◉ '+t('وضعیت مطالعه','Reading status')+'</h2></header><div class="lib01-status-main"><div class="lib01-ring" role="progressbar" aria-label="'+t('پیشرفت صفحات ثبت‌شده','Progress of tracked book pages')+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+progress+'" style="--lib01-progress:'+progress+'"><strong>'+num(progress)+'٪</strong><small>'+t('پیشرفت صفحات','Page progress')+'</small></div><dl><div><dt>'+t('همه کتاب‌ها','Total books')+'</dt><dd>'+num(bs.length)+'</dd></div><div><dt>'+t('در حال مطالعه','Reading')+'</dt><dd>'+num(reading)+'</dd></div><div><dt>'+t('خوانده‌شده','Finished')+'</dt><dd>'+num(finished)+'</dd></div><div><dt>'+t('صفحات ثبت‌شده','Tracked pages')+'</dt><dd>'+num(read)+'</dd></div></dl></div><footer><button type="button" data-feature-route="library-reports">'+t('مشاهده گزارش کامل','Full reading report')+' ←</button></footer></section>';
+ return '<section class="lib01-card lib01-status"><header><h2>◉ '+t('وضعیت مطالعه','Reading status')+'</h2></header><div class="lib01-status-main"><div class="lib01-ring" role="progressbar" aria-label="'+t('پیشرفت صفحات ثبت‌شده','Progress of tracked book pages')+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+progress+'" style="--lib01-progress:'+progress+'"><strong>'+num(progress)+'٪</strong><small>'+t('پیشرفت صفحات','Page progress')+'</small></div><dl><div><dt>'+t('همه کتاب‌ها','Total books')+'</dt><dd>'+num(bs.length)+'</dd></div><div><dt>'+t('در حال مطالعه','Reading')+'</dt><dd>'+num(reading)+'</dd></div><div><dt>'+t('خوانده‌شده','Finished')+'</dt><dd>'+num(finished)+'</dd></div><div><dt>'+t('صفحات ثبت‌شده','Tracked pages')+'</dt><dd>'+num(read)+'</dd></div></dl></div><footer><button type="button" data-lib01-route="library-reports">'+t('مشاهده گزارش کامل','Full reading report')+' ←</button></footer></section>';
 }
 function taskCard(s){
  const day=window.ElaraSchedule?.today?.()||new Date().toISOString().slice(0,10);
@@ -52,7 +52,7 @@ function bookCard(b){
 }
 function continueCard(bs){
  const reading=bs.filter(b=>b.shelf==='reading').sort((a,b)=>Number(b.lastReadAt||0)-Number(a.lastReadAt||0)).slice(0,4);
- return '<section class="lib01-card lib01-continue-card"><header><h2>📖 '+t('ادامه مطالعه','Continue reading')+'</h2><button type="button" data-feature-route="library-shelves">'+t('مشاهده همه','View all')+' ←</button></header>'+(reading.length?'<div class="lib01-book-grid">'+reading.map(bookCard).join('')+'</div>':empty(t('کتابی در وضعیت «در حال مطالعه» ثبت نشده است.','You have no books in progress. Starting one will show it here.'),'library-shelves',t('رفتن به کتاب‌ها','Go to books')))+'</section>';
+ return '<section class="lib01-card lib01-continue-card"><header><h2>📖 '+t('ادامه مطالعه','Continue reading')+'</h2><button type="button" data-lib01-route="library-shelves">'+t('مشاهده همه','View all')+' ←</button></header>'+(reading.length?'<div class="lib01-book-grid">'+reading.map(bookCard).join('')+'</div>':empty(t('کتابی در وضعیت «در حال مطالعه» ثبت نشده است.','You have no books in progress. Starting one will show it here.'),'library-shelves',t('رفتن به کتاب‌ها','Go to books')))+'</section>';
 }
 function clipsCard(s,bs){
  const list=clips(s).slice().sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0)).slice(0,3).filter(c=>String(c.text||'').trim());
@@ -60,19 +60,19 @@ function clipsCard(s,bs){
  const b=bs.find(x=>x.id===c.bookId);
  return '<article class="lib01-clip paper-'+i+'"><blockquote dir="auto" data-elara-ugc>“'+esc(String(c.text).slice(0,360))+'”</blockquote><p><span data-elara-ugc dir="auto">'+esc(b?.title||t('بریده شخصی','Personal clip'))+'</span>'+((c.page!==null&&c.page!==undefined&&c.page!=='')?' · '+t('ص','p.')+' '+num(c.page):'')+'</p><button type="button" data-library-open-clip="'+esc(c.id)+'">'+t('مشاهده / ویرایش','View / edit')+' ↗</button></article>';
  }).join('');
- return '<section class="lib01-card lib01-clips"><header><h2>❝ '+t('بریده‌های اخیر','Recent clips')+'</h2><button type="button" data-feature-route="library-clips">'+t('مشاهده همه','View all')+' ←</button></header>'+(cards?'<div class="lib01-clips-grid">'+cards+'</div>':empty(t('هنوز بریده‌ای ثبت نکرده‌ای.','Save a passage from a book to see it here.'),'library-clips',t('افزودن بریده','Add a clip')))+'</section>';
+ return '<section class="lib01-card lib01-clips"><header><h2>❝ '+t('بریده‌های اخیر','Recent clips')+'</h2><button type="button" data-lib01-route="library-clips">'+t('مشاهده همه','View all')+' ←</button></header>'+(cards?'<div class="lib01-clips-grid">'+cards+'</div>':empty(t('هنوز بریده‌ای ثبت نکرده‌ای.','Save a passage from a book to see it here.'),'library-clips',t('افزودن بریده','Add a clip')))+'</section>';
 }
 function reportCard(bs){
  const s=window.ElaraReading?.summary?.(bs)||{today:0,week:0,month:0};
- return '<section class="lib01-card lib01-report"><header><h2>▥ '+t('گزارش مطالعه','Reading report')+'</h2><button type="button" data-feature-route="library-reports">'+t('جزئیات','Details')+' ←</button></header><div class="lib01-report-metrics"><div><strong>'+num(s.today)+'</strong><small>'+t('صفحه امروز','Pages today')+'</small></div><div><strong>'+num(s.week)+'</strong><small>'+t('این هفته','This week')+'</small></div><div><strong>'+num(s.month)+'</strong><small>'+t('این ماه','This month')+'</small></div></div>'+(window.ElaraReading?.chart?.(bs)||'')+'<p class="lib01-data-note">'+t('نمودار فقط از تاریخچه واقعی صفحات خوانده‌شده ساخته شده است.','Chart uses recorded reading logs, not estimates.')+'</p></section>';
+ return '<section class="lib01-card lib01-report"><header><h2>▥ '+t('گزارش مطالعه','Reading report')+'</h2><button type="button" data-lib01-route="library-reports">'+t('جزئیات','Details')+' ←</button></header><div class="lib01-report-metrics"><div><strong>'+num(s.today)+'</strong><small>'+t('صفحه امروز','Pages today')+'</small></div><div><strong>'+num(s.week)+'</strong><small>'+t('این هفته','This week')+'</small></div><div><strong>'+num(s.month)+'</strong><small>'+t('این ماه','This month')+'</small></div></div>'+(window.ElaraReading?.chart?.(bs)||'')+'<p class="lib01-data-note">'+t('نمودار فقط از تاریخچه واقعی صفحات خوانده‌شده ساخته شده است.','Chart uses recorded reading logs, not estimates.')+'</p></section>';
 }
 function focusCard(){
  const timer=$('#timer-display')?.textContent?.trim()||'25:00';
- return '<section class="lib01-card lib01-focus"><header><h2>✹ '+t('اتاق تمرکز','Focus room')+'</h2><button type="button" data-feature-route="focus-pomodoro">'+t('ورود به اتاق','Enter room')+' ↗</button></header><div class="lib01-focus-scene"><div class="lib01-focus-dial"><strong data-lib01-timer>'+esc(timer)+'</strong><small>'+t('پومودورو','Pomodoro')+'</small><button type="button" data-feature-route="focus-pomodoro" aria-label="'+t('باز کردن پومودورو','Open Pomodoro')+'">▶</button></div></div><div class="lib01-focus-modes"><span>📖 '+t('مطالعه','Reading')+'</span><span>✎ '+t('نوشتن','Writing')+'</span><span>◈ '+t('کار عمیق','Deep work')+'</span><span>☼ '+t('مدیتیشن','Meditation')+'</span></div><p class="lib01-data-note">'+t('تنظیم و شروع تایمر در اتاق تمرکز انجام می‌شود.','Configure and start your actual timer in the focus room.')+'</p></section>';
+ return '<section class="lib01-card lib01-focus"><header><h2>✹ '+t('اتاق تمرکز','Focus room')+'</h2><button type="button" data-lib01-route="focus-pomodoro">'+t('ورود به اتاق','Enter room')+' ↗</button></header><div class="lib01-focus-scene"><div class="lib01-focus-dial"><strong data-lib01-timer>'+esc(timer)+'</strong><small>'+t('پومودورو','Pomodoro')+'</small><button type="button" data-lib01-route="focus-pomodoro" aria-label="'+t('باز کردن پومودورو','Open Pomodoro')+'">▶</button></div></div><div class="lib01-focus-modes"><span>📖 '+t('مطالعه','Reading')+'</span><span>✎ '+t('نوشتن','Writing')+'</span><span>◈ '+t('کار عمیق','Deep work')+'</span><span>☼ '+t('مدیتیشن','Meditation')+'</span></div><p class="lib01-data-note">'+t('تنظیم و شروع تایمر در اتاق تمرکز انجام می‌شود.','Configure and start your actual timer in the focus room.')+'</p></section>';
 }
 function shelvesCard(s,bs){
  const shelves=Array.isArray(s.bookShelves)?s.bookShelves:[];
- return '<section class="lib01-card lib01-shelves"><div><h2>▤ '+t('قفسه‌های من','My shelves')+'</h2><p>'+t('کتاب‌های تو در سه وضعیت مطالعه و ','Your books in three reading states and ')+num(shelves.length)+t(' قفسه شخصی',' custom shelves')+'</p><button type="button" data-feature-route="library-shelves">'+t('باز کردن قفسه‌ها','Open shelves')+' ←</button></div></section>';
+ return '<section class="lib01-card lib01-shelves"><div><h2>▤ '+t('قفسه‌های من','My shelves')+'</h2><p>'+t('کتاب‌های تو در سه وضعیت مطالعه و ','Your books in three reading states and ')+num(shelves.length)+t(' قفسه شخصی',' custom shelves')+'</p><button type="button" data-lib01-route="library-shelves">'+t('باز کردن قفسه‌ها','Open shelves')+' ←</button></div></section>';
 }
 function render(){
  const panel=$('#panel-books'),root=panel?.querySelector(':scope > #lib01-overview');
@@ -83,7 +83,7 @@ function render(){
  '<div class="lib01-col lib01-col-focus">'+focusCard()+reportCard(bs)+'</div>'+
  '<div class="lib01-col lib01-col-reading">'+continueCard(bs)+clipsCard(s,bs)+'</div>'+
  '<div class="lib01-col lib01-col-status">'+statusCard(s,bs)+taskCard(s)+'</div>'+
- '</div><div class="lib01-bottom">'+shelvesCard(s,bs)+'<section class="lib01-card lib01-challenge"><h2>✦ '+t('چالش مطالعه','Reading challenge')+'</h2><p>'+t('گام بعدی خودت را با تسک‌ها و مطالعه واقعی بساز.','Build your next milestone with real tasks and reading.')+'</p><button type="button" data-feature-route="library-reports">'+t('گزارش پیشرفت','Progress report')+' ←</button></section></div>';
+ '</div><div class="lib01-bottom">'+shelvesCard(s,bs)+'<section class="lib01-card lib01-challenge"><h2>✦ '+t('چالش مطالعه','Reading challenge')+'</h2><p>'+t('گام بعدی خودت را با تسک‌ها و مطالعه واقعی بساز.','Build your next milestone with real tasks and reading.')+'</p><button type="button" data-lib01-route="library-reports">'+t('گزارش پیشرفت','Progress report')+' ←</button></section></div>';
  const h=panel.querySelector(':scope > .elara-global-hero');
  if(h)h.setAttribute('aria-label',t('بنر اصلی کتابخانه','Main library banner'));
 }
@@ -108,6 +108,8 @@ function begin(){
  watching.observe(p,{childList:true});
 }
 document.addEventListener('click',e=>{
+ const route=e.target.closest('#lib01-overview [data-lib01-route]');
+ if(route){e.preventDefault();window.ElaraOpen?.(route.dataset.lib01Route,{history:'push'});return}
  const add=e.target.closest('#lib01-overview [data-lib01-add]');
  if(add){e.preventDefault();window.ElaraOpen?.('library-shelves',{history:'push'});setTimeout(()=>$('#book-title')?.focus(),150);return}
  const bookmark=e.target.closest('#lib01-overview [data-lib01-bookmark]');
