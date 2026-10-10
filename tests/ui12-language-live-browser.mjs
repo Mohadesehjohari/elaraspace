@@ -35,16 +35,19 @@ try{
   assert.equal(await page.locator('#ui12-report .ui12-chart').count(),0,'Empty records must produce honest chart empty state');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'Production horizontal overflow '+width+': '+overflow);
-  const icons=await page.locator('#panel-language .ui12-shortcut img').evaluateAll(async xs=>{await Promise.all(xs.map(x=>x.decode().catch(()=>{})));return xs.map(x=>({src:x.getAttribute('src'),loaded:x.naturalWidth>0}))});
-  assert.ok(icons.every(x=>x.loaded),'Production icon WebP decode failed: '+JSON.stringify(icons));
+  assert.equal(await page.locator('#panel-language .ui12-shortcut svg').count(),8,'Production eight semantic SVG icons missing');
   const hit=await page.locator('#panel-language .ui12-hero').evaluate(el=>getComputedStyle(el).backgroundImage);
-  assert.match(hit,/34-language-hero-banner\.webp/,'Production Hero asset mismatch');
+  assert.match(hit,/language_banner_main\.webp/,'Production Hero asset mismatch');
   if(width===390){
    assert.equal(await page.locator('.bottom-nav [data-elara-nav-kind]').count(),7,'Original 7-button dock modified on production');
   }else{
    assert.ok(await page.locator('.sidebar').count()>0,'Original desktop sidebar missing');
   }
   await page.screenshot({path:out+'/live-language-'+width+'.png',fullPage:true,animations:'disabled'});
+  await page.locator('#panel-language [data-ui12-jump="channels"]').click();await page.waitForSelector('#panel-language-channels:not(.hidden) .ui13-subpage');
+  await page.locator('#panel-language-channels [data-ui13-back]').click();await page.waitForSelector('#panel-language:not(.hidden)');
+  await page.locator('#panel-language [data-ui12-jump="tasks"]').click();await page.waitForSelector('#panel-language-tasks:not(.hidden) .ui13-subpage');
+  await page.locator('#panel-language-tasks [data-ui13-back]').click();await page.waitForSelector('#panel-language:not(.hidden)');
   await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));
   await page.waitForSelector('#panel-home:not(.hidden)');
   assert.equal(await page.locator('#panel-language.hidden').count(),1,'Language must become hidden on Home');

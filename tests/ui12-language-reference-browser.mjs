@@ -42,9 +42,8 @@ for(const width of widths){
   const cells=page.locator('#panel-language .ui12-board > .ui12-card'),jumps=page.locator('#panel-language .ui12-shortcut');
   assert.equal(await cells.count(),8,'Eight language dashboard cards: '+width);
   assert.equal(await jumps.count(),8,'Eight language shortcuts: '+width);
-  const iconImages=await page.locator('#panel-language .ui12-shortcut img').evaluateAll(async images=>{await Promise.all(images.map(img=>img.decode().catch(()=>{})));return images.map(img=>({src:img.getAttribute('src'),ready:img.complete&&img.naturalWidth>0}))});
-  assert.ok(iconImages.length===8&&iconImages.every(x=>x.ready),'Broken original Elara icon at '+width+': '+JSON.stringify(iconImages));
-  assert.match(await page.locator('#panel-language .ui12-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/);
+  assert.equal(await page.locator('#panel-language .ui12-shortcut svg').count(),8,'Eight accessible inline SVG icons at '+width);
+  assert.match(await page.locator('#panel-language .ui12-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner_main\.webp/);
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'Horizontal document overflow '+width+' '+overflow);
   const positions=await cells.evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return {id:e.id,x:r.left,y:r.top,w:r.width,right:r.right}}));
@@ -64,9 +63,13 @@ for(const width of widths){
   assert.equal(await page.locator('#ui12-tasks .ui12-task').count(),5,'Task preview must be capped at five');
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   if(width!==1648){console.log('UI12 RESPONSIVE PASS '+width);passed++;continue}
-  for(const id of ['overview','leitner','books','classes','channels','tasks','challenges','report']){
-   await page.locator('[data-ui12-jump="'+id+'"]').click();
-   assert.equal((await page.locator('[data-ui12-jump="'+id+'"]').getAttribute('class'))?.includes('is-active'),true,'Shortcut '+id);
+  const expectedRoutes={overview:'language',leitner:'words',books:'language-books',classes:'language-courses',channels:'language-channels',tasks:'language-tasks',challenges:'language-challenges',report:'language-reports'};
+  for(const [id,target] of Object.entries(expectedRoutes)){
+   await page.locator('#panel-language [data-ui12-jump="'+id+'"]').click();
+   await page.waitForSelector('#panel-'+target+':not(.hidden)',{timeout:10000});
+   if(target==='language-tasks')assert.ok(await page.locator('#panel-language-tasks .ui13-task-row').count()>0,'Language Tasks full page has no source tasks');
+   if(target==='language-channels'||target==='language-challenges')assert.ok(await page.locator('#panel-'+target+' .ui13-subpage').count()>0,'Dedicated destination absent: '+target);
+   if(id!=='overview'){await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)')}
   }
   const value=await page.locator('#ui12-report .ui12-chart').innerHTML();
   await page.locator('#ui12-report [data-ui12-range="year"]').click();

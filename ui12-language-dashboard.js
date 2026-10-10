@@ -46,25 +46,27 @@ const shortcutArt={
  challenges:'11-challenges-icon.webp',report:'25-study-report-icon.webp',
  stats:'25-study-report-icon.webp'
 };
+const ui13Paths={"overview":"<path d=\"m3 11 9-8 9 8v10H3z\"/><path d=\"M9 21v-7h6v7\"/>","leitner":"<path d=\"m3 8 9-5 9 5-9 5z\"/><path d=\"m3 13 9 5 9-5\"/><path d=\"m3 18 9 5 9-5\"/>","books":"<path d=\"M12 7c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V6c-4-1-7-1-10 1z\"/><path d=\"M12 7v14\"/>","classes":"<circle cx=\"9\" cy=\"8\" r=\"3\"/><circle cx=\"18\" cy=\"9\" r=\"2\"/><path d=\"M2 21v-3c0-3 3-5 7-5s7 2 7 5v3z\"/><path d=\"M17 14c3 0 5 2 5 5v2h-4\"/>","channels":"<circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M7.7 7.7a6 6 0 0 0 0 8.6m8.6-8.6a6 6 0 0 1 0 8.6M4.2 4.2a11 11 0 0 0 0 15.6m15.6-15.6a11 11 0 0 1 0 15.6\"/>","tasks":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"17\" rx=\"2\"/><path d=\"m7 12 3 3 7-7\"/>","challenges":"<path d=\"M6 3h12v7c0 4-3 7-6 7s-6-3-6-7z\"/><path d=\"M6 6H3v3c0 2 1 3 4 4m11-7h3v3c0 2-1 3-4 4M12 17v4m-4 0h8\"/>","report":"<path d=\"M4 20V11h4v9zm6 0V4h4v16zm6 0V8h4v12z\"/>","stats":"<path d=\"M4 20V11h4v9zm6 0V4h4v16zm6 0V8h4v12z\"/>"};
+const ui13Icon=id=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(ui13Paths[id]||ui13Paths.overview)+'</svg>';
 const shortcuts=[
  ['overview','نمای کلی','Overview'],['leitner','لایتنر','Leitner'],['books','کتاب‌های زبان','Language books'],['classes','کلاس‌ها','Classes'],
  ['channels','کانال‌ها','Channels'],['tasks','تسک‌های زبان','Language tasks'],['challenges','چالش‌ها','Challenges'],['report','گزارش زبان','Language report']
 ];
 function card(id,title,extra='',action=''){
- return '<section id="ui12-'+id+'" class="ui12-card ui12-'+id+'" aria-labelledby="ui12-title-'+id+'"><header class="ui12-card-head"><h2 id="ui12-title-'+id+'"><span class="ui12-card-icon" aria-hidden="true">'+extra+'</span>'+title+'</h2>'+(action?button(action,tx('مشاهده همه ←','View all →'),'ui12-link'):'')+'</header><div class="ui12-card-body" data-ui12-body="'+id+'"></div></section>';
+ return '<section id="ui12-'+id+'" class="ui12-card ui12-'+id+'" aria-labelledby="ui12-title-'+id+'"><header class="ui12-card-head"><h2 id="ui12-title-'+id+'"><span class="ui12-card-icon" aria-hidden="true">'+ui13Icon(id)+'</span>'+title+'</h2>'+(action?button(action,tx('مشاهده همه ←','View all →'),'ui12-link'):'')+'</header><div class="ui12-card-body" data-ui12-body="'+id+'"></div></section>';
 }
 function mount(host){
  if(host.querySelector('.ui12-board'))return;
  const jump=document.createElement('nav');jump.className='ui12-shortcuts';jump.setAttribute('aria-label',tx('بخش‌های زبان','Language sections'));
- jump.innerHTML=shortcuts.map(([id,fa,english],i)=>'<button type="button" data-ui12-jump="'+id+'" class="ui12-shortcut '+(!i?'is-active':'')+'"><span aria-hidden="true"><img src="assets/ui/'+shortcutArt[id]+'" alt="" decoding="async"></span><strong>'+tx(fa,english)+'</strong></button>').join('');
+ jump.innerHTML=shortcuts.map(([id,fa,english],i)=>'<button type="button" data-ui12-jump="'+id+'" class="ui12-shortcut '+(!i?'is-active':'')+'"><span aria-hidden="true">'+ui13Icon(id)+'</span><strong>'+tx(fa,english)+'</strong></button>').join('');
  const board=document.createElement('div');board.className='ui12-board';board.innerHTML=
   card('leitner',tx('لایتنر امروز','Today’s Leitner'),'▱','words')+
-  card('tasks',tx('تسک‌های زبان امروز','Today’s language tasks'),'☑','tasks')+
+  card('tasks',tx('تسک‌های زبان امروز','Today’s language tasks'),'☑','language-tasks')+
   card('books',tx('کتاب‌های زبان','Language books'),'▣','language-books')+
   card('stats',tx('آمار سریع زبان','Language quick stats'),'▥')+
   card('classes',tx('کلاس‌های زبان','Language classes'),'♙','language-courses')+
-  card('channels',tx('کانال‌های زبان','Language channels'),'◉')+
-  card('challenges',tx('چالش‌های زبان','Language challenges'),'🏆')+
+  card('channels',tx('کانال‌های زبان','Language channels'),'◉','language-channels')+
+  card('challenges',tx('چالش‌های زبان','Language challenges'),'🏆','language-challenges')+
   card('report',tx('گزارش زبان','Language report'),'▥','language-reports');
  const heroEl=host.querySelector('.elara-language-hero');if(heroEl){heroEl.after(jump);jump.after(board)}else host.prepend(jump,board);
  host.classList.add('ui12-language');
@@ -72,7 +74,7 @@ function mount(host){
 function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
-  '<div class="ui12-leitner-art"><img class="ui12-leitner-illustration" src="assets/ui/22-leitner-box-icon.webp" alt="" decoding="async"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'"><b>'+num(i+1)+'</b><small>'+num(count)+'</small></div>').join('')+'</div>'+
+  '<div class="ui12-leitner-art"><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'"><b>'+num(i+1)+'</b><small>'+num(count)+'</small></div>').join('')+'</div>'+
   button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
   '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
 }
@@ -149,7 +151,7 @@ function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queu
 function init(){
  if(started)return;started=true;
  document.addEventListener('click',e=>{
- const jump=e.target.closest('[data-ui12-jump]');if(jump&&jump.closest('#panel-language')){e.preventDefault();const id=jump.dataset.ui12Jump;document.querySelectorAll('#panel-language .ui12-shortcut').forEach(el=>el.classList.toggle('is-active',el===jump));const target=id==='overview'?document.querySelector('#panel-language .ui12-hero'):$('ui12-'+id);target?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});return}
+ const jump=e.target.closest('[data-ui12-jump]');if(jump&&jump.closest('#panel-language')){e.preventDefault();const id=jump.dataset.ui12Jump;document.querySelectorAll('#panel-language .ui12-shortcut').forEach(el=>el.classList.toggle('is-active',el===jump));const routes={leitner:'words',books:'language-books',classes:'language-courses',channels:'language-channels',tasks:'language-tasks',challenges:'language-challenges',report:'language-reports'};if(id==='overview')document.querySelector('#panel-language .ui12-hero')?.scrollIntoView({block:'start'});else route(routes[id]);return}
  const open=e.target.closest('[data-ui12-route]');if(open&&open.closest('#panel-language')){e.preventDefault();route(open.dataset.ui12Route);return}
  const create=e.target.closest('[data-ui12-new-class]');if(create&&create.closest('#panel-language')){e.preventDefault();if(window.ElaraLanguageClasses?.openEditor)void window.ElaraLanguageClasses.openEditor({});else route('language-courses');return}
  const button=e.target.closest('[data-ui12-range]');if(button&&button.closest('#panel-language')){e.preventDefault();range=button.dataset.ui12Range;renderReport(metrics())}

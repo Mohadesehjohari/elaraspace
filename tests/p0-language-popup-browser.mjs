@@ -100,7 +100,7 @@ await page.waitForSelector('#panel-home:not(.hidden)');
 await page.evaluate(()=>window.ElaraOpen('language',{history:'push'}));await page.waitForTimeout(70);
 assert.equal(await page.locator('#panel-language:not(.hidden)').count(),1,'Language route was not restored after asset checks');
 
-assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/,'uploaded Language banner is not active');
+assert.match(await page.locator('.elara-language-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/language_banner_main\.webp/,'uploaded Language banner is not active');
 const ui12=await page.locator('#panel-language.ui12-language .ui12-board').count()>0;
 if(ui12){
  const shortcuts=page.locator('#panel-language .ui12-shortcut'),cards=page.locator('#panel-language .ui12-board>.ui12-card');

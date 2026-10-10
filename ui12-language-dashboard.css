@@ -6,7 +6,7 @@
 #panel-language.ui12-language>.feature-hub-launchers[data-hub-kind="language"],
 #panel-language.ui12-language>.feature-section-tasks,
 #panel-language.ui12-language>.approved-language-grid{display:none!important}
-#panel-language.ui12-language .ui12-hero.elara-language-hero{position:relative!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;box-sizing:border-box!important;isolation:isolate;min-height:205px!important;width:100%!important;margin:0 0 12px!important;padding:20px clamp(16px,2.3vw,32px)!important;border:1px solid #1685a6!important;border-radius:18px!important;background:linear-gradient(270deg,#03122ceF 0%,#04162dce 22%,#04162d6e 42%,#04162d06 75%),url('assets/ui/34-language-hero-banner.webp') center/cover no-repeat!important;box-shadow:inset 0 0 0 1px #ffffff0a,0 10px 28px #0007!important;overflow:hidden!important;text-align:start!important}
+#panel-language.ui12-language .ui12-hero.elara-language-hero{position:relative!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;box-sizing:border-box!important;isolation:isolate;min-height:205px!important;width:100%!important;margin:0 0 12px!important;padding:20px clamp(16px,2.3vw,32px)!important;border:1px solid #1685a6!important;border-radius:18px!important;background:linear-gradient(270deg,#03122ceF 0%,#04162dce 22%,#04162d6e 42%,#04162d06 75%),url('assets/ui/language_banner_main.webp') center/cover no-repeat!important;box-shadow:inset 0 0 0 1px #ffffff0a,0 10px 28px #0007!important;overflow:hidden!important;text-align:start!important}
 #panel-language.ui12-language .ui12-hero .ui12-hero-copy{position:relative!important;z-index:2!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important;width:min(48%,520px)!important;min-width:0!important;margin:0!important;padding:0!important;text-align:start!important;color:#fff!important;transform:none!important}
 #panel-language.ui12-language .ui12-hero-copy small{font-size:11px!important;letter-spacing:.04em;color:#cbd5fa!important}
 #panel-language.ui12-language .ui12-hero-copy h1{font-size:clamp(20px,2vw,31px)!important;line-height:1.48!important;margin:0!important;color:#fff!important;font-weight:900!important;text-shadow:0 2px 10px #001426}
@@ -35,7 +35,7 @@
 #panel-language.ui12-language .ui12-empty{margin:auto 0;color:#c1d2e6;font-size:12px;line-height:1.75}
 #panel-language.ui12-language .ui12-more-count{font-size:11px;color:#accfe6;margin:0}
 #panel-language.ui12-language .ui12-leitner{grid-area:leitner;border-color:#f1b954;box-shadow:0 0 0 1px #d4965466,0 0 23px #e59b4945;min-height:292px}
-#panel-language.ui12-language .ui12-leitner-art{flex:1;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;gap:8px;min-height:185px;padding:10px;background:linear-gradient(180deg,#05203b45,#051b33ed),url('assets/ui/language-learning-background.webp') center/cover no-repeat;border:1px solid #294a81;border-radius:12px}
+#panel-language.ui12-language .ui12-leitner-art{flex:1;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;gap:8px;min-height:185px;padding:10px;background:linear-gradient(180deg,#05203b45,#051b33ed),url('assets/ui/lightner.webp') center/cover no-repeat;border:1px solid #294a81;border-radius:12px}
 #panel-language.ui12-language .ui12-leitner-art p{text-align:center;margin:auto 0 0;font-size:12px;color:#e2f5ff;text-shadow:0 2px 5px #000}
 #panel-language.ui12-language .ui12-boxes{display:flex;align-items:flex-end;justify-content:center;gap:3px;padding-top:8px}
 #panel-language.ui12-language .ui12-box{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;min-width:0;height:52px;border-radius:6px;background:linear-gradient(145deg,#095585,#031735);box-shadow:0 0 10px #0ddcff66,inset 0 0 8px #21d6fa29;border:1px solid #1edffa;color:#b9f9ff}
@@ -110,7 +110,7 @@
 }
 @media(max-width:700px){
  #panel-language.ui12-language{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
- #panel-language.ui12-language .ui12-hero.elara-language-hero{min-height:195px!important;margin-top:0!important;padding:16px 15px!important;background:linear-gradient(270deg,#031129ef 0%,#071831bc 49%,#03132826 92%),url('assets/ui/34-language-hero-banner.webp') center/cover no-repeat!important}
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{min-height:195px!important;margin-top:0!important;padding:16px 15px!important;background:linear-gradient(270deg,#031129ef 0%,#071831bc 49%,#03132826 92%),url('assets/ui/language_banner_main.webp') center/cover no-repeat!important}
  #panel-language.ui12-language .ui12-hero .ui12-hero-copy{width:64%!important}
  #panel-language.ui12-language .ui12-hero-copy h1{font-size:clamp(16px,4vw,22px)!important}
  #panel-language.ui12-language .ui12-hero-copy p{font-size:11px!important;line-height:1.45!important}
@@ -160,7 +160,7 @@
 
 /* UI12 visual review: desktop shell header must be above (not painted over) the hero. */
 @media(min-width:701px){
- #panel-language.ui12-language .ui12-hero.elara-language-hero{margin-top:64px!important}
+ #panel-language.ui12-language .ui12-hero.elara-language-hero{margin-top:0!important}
 }
 /* UI12 release fidelity: original owner artwork rather than temporary text-glyph icons. */
 #panel-language.ui12-language .ui12-shortcut>span{width:40px;height:36px;font-size:initial;filter:drop-shadow(0 0 8px #17ceef65)}
@@ -168,7 +168,7 @@
 #panel-language.ui12-language .ui12-shortcut:is(:hover,:focus-visible,.is-active)>span img{filter:brightness(1.3) drop-shadow(0 0 7px #17edff)}
 #panel-language.ui12-language .ui12-card-icon{width:28px;flex-basis:28px;height:28px;font-size:initial}
 #panel-language.ui12-language .ui12-card-icon img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 7px #13d1f59a)}
-#panel-language.ui12-language .ui12-leitner-art{position:relative;overflow:hidden;background:linear-gradient(180deg,#0716303b,#051627e8),url('assets/ui/language-learning-background.webp') center/cover no-repeat}
+#panel-language.ui12-language .ui12-leitner-art{position:relative;overflow:hidden;background:linear-gradient(180deg,#0716303b,#051627e8),url('assets/ui/lightner.webp') center/cover no-repeat}
 #panel-language.ui12-language .ui12-leitner-illustration{pointer-events:none;position:absolute;left:50%;top:0;transform:translateX(-50%);height:112px;max-width:66%;object-fit:contain;opacity:.87;filter:drop-shadow(0 0 19px #0dbafcbb)}
 #panel-language.ui12-language .ui12-leitner-art>p,#panel-language.ui12-language .ui12-leitner-art>.ui12-boxes,#panel-language.ui12-language .ui12-leitner-art>.ui12-gold{position:relative;z-index:1}
 #panel-language.ui12-language .ui12-leitner-art>p{margin-top:92px!important;margin-bottom:auto!important;background:#06172b80;padding:2px;border-radius:6px}
