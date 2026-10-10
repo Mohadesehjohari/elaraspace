@@ -107,7 +107,7 @@ for(const mode of ['empty','one']){
   assert.equal(await page.locator('#ui12-challenges .ui12-empty-state').count(),1);
   if(mode==='empty')assert.equal(await page.locator('#ui12-report .ui12-chart').count(),0,'Zero data must not create chart');
   if(mode==='one'){
-   await page.evaluate(()=>{const st=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');st.tasks=st.tasks.filter(t=>t.id==='t0');assert(st.tasks.length===1,'One-record fixture task unavailable');st.tasks[0].completed=false;st.tasks[0].doneAt=null;st.tasks[0].sourceCompletionLocked=false;localStorage.setItem('elara_space_v1',JSON.stringify(st));window.ElaraLanguageUI12.refresh()});
+   await page.evaluate(()=>{const st=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');st.tasks=st.tasks.filter(t=>t.id==='t0');if(st.tasks.length!==1)throw new Error('One-record fixture task unavailable');st.tasks[0].completed=false;st.tasks[0].doneAt=null;st.tasks[0].sourceCompletionLocked=false;localStorage.setItem('elara_space_v1',JSON.stringify(st));window.ElaraLanguageUI12.refresh()});
    await page.locator('#ui12-tasks .ui12-task [data-section-task-toggle="t0"]').click();
    await page.waitForFunction(()=>!!document.querySelector('#ui12-tasks .ui12-task.is-done > button:nth-child(2)'),null,{timeout:8000});
    const completed=page.locator('#ui12-tasks .ui12-task.is-done > button:nth-child(2)');
