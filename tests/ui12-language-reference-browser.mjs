@@ -109,11 +109,11 @@ for(const mode of ['empty','one']){
   if(mode==='one'){
    await page.evaluate(()=>{const st=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');st.tasks=st.tasks.filter(t=>t.id==='t0');if(st.tasks.length!==1)throw new Error('One-record fixture task unavailable');st.tasks[0].completed=false;st.tasks[0].doneAt=null;st.tasks[0].sourceCompletionLocked=false;localStorage.setItem('elara_space_v1',JSON.stringify(st));window.ElaraLanguageUI12.refresh()});
    await page.locator('#ui12-tasks .ui12-task [data-section-task-toggle="t0"]').click();
-   await page.waitForFunction(()=>!!document.querySelector('#ui12-tasks .ui12-task.is-done > button:nth-child(2)'),null,{timeout:8000});
-   const completed=page.locator('#ui12-tasks .ui12-task.is-done > button:nth-child(2)');
+   await page.waitForFunction(()=>!!document.querySelector('#ui12-tasks .ui12-task.is-done > button[data-section-task-detail="t0"]'),null,{timeout:8000});
+   const completed=page.locator('#ui12-tasks .ui12-task.is-done > button[data-section-task-detail="t0"]');
    const decoration=await completed.evaluate(el=>getComputedStyle(el).textDecorationLine);
    assert.ok(!decoration.includes('line-through'),'Completed language Task title must never be struck through: '+decoration);
-   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks[0].completed),true,'Checkbox did not mutate canonical Task');
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='t0')?.completed),true,'Checkbox did not mutate canonical Task');
   }
   await page.screenshot({path:out+'/after-390-'+mode+'.png',fullPage:true});
  }finally{await context.close()}
