@@ -9,12 +9,12 @@ const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const dir=process.env.ELARA_PROFILE_SHOTS||'artifacts/profile-edit';
 mkdirSync(dir,{recursive:true});
 const browser=await chromium.launch({headless:true});
-const sizes=[320,375,390,430,768,1440,1648];
+const sizes=[320,360,375,390,412,430,768,1440,1648];
 const geometry=[];
 const errors=[];
 const mockAuthStyle='#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}';
 const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
-const bootstrap=async(page)=>{
+const bootstrap=async(page,viaDrawer=false)=>{
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount&&typeof window.ElaraLoadSocial==='function',{timeout:25000});
  await page.evaluate(async()=>{try{await window.ElaraLoadSocial()}catch{}});
@@ -31,7 +31,11 @@ const bootstrap=async(page)=>{
   window.ElaraSocial={me:{...user},friends:[],saveProfileValues};
   window.ElaraProfileSystem.canonicalProfileService=async()=>({saveProfileValues});
  },testUser);
- await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+ if(viaDrawer){
+  await page.evaluate(()=>window.ElaraPrivateDrawer?.open?.('account'));
+  await page.locator('[data-profile-edit]').waitFor({timeout:10000});
+  await page.locator('[data-profile-edit]').evaluate(el=>el.click());
+ }else await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
  // Test-only bypass of the signed-out Firebase account gate; never change production gate code.
  await page.addStyleTag({content:mockAuthStyle});
  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting')});
@@ -43,7 +47,7 @@ for(const width of sizes){
  const context=await browser.newContext({viewport:{width,height:width===1648?941:width===1440?900:844}});
  const page=await context.newPage();
  page.on('pageerror',e=>errors.push(width+': '+e.message));
- await bootstrap(page);
+ await bootstrap(page,width===412);
  const dims=await page.evaluate(()=>{
   const a=document.querySelector('.pe-screen'),b=document.querySelector('#elara-profile-edit-screen');
   const rect=selector=>{const e=b.querySelector(selector);if(!e)return null;const r=e.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height)}};
@@ -58,6 +62,13 @@ for(const width of sizes){
  geometry.push({viewport:width,...dims});
  assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
+ if(width<=430){
+  assert.ok(dims.main.width>=width-32,'Editor not full usable mobile width at '+width);
+  assert.equal(await page.locator('.pe-preview-outer').isVisible(),false,'Preview must be a separate mobile view at '+width);
+  assert.ok(await page.locator('[data-pe-save]').isVisible(),'Save button missing at '+width);
+  const choices=await page.locator('[data-pe-template]').count();
+  assert.equal(choices,4,'Four profile design templates required');
+ }
  if(width>=1280){
   assert.ok(dims.back.x+dims.back.width<=dims.main.x+dims.main.width+4,
    'Desktop Back button overlaps preview column: '+JSON.stringify(dims));
@@ -83,6 +94,17 @@ for(const width of sizes){
   await page.evaluate(()=>{const scroller=document.getElementById('elara-profile-edit-screen');scroller.scrollTop=scroller.scrollHeight});
   await page.screenshot({path:dir+'/profile-edit-'+width+'-bottom.png',fullPage:false});
   await page.evaluate(()=>{document.getElementById('elara-profile-edit-screen').scrollTop=0});
+ }
+ if(width===360){
+  await page.locator('#elara-profile-edit-screen [name="title"]').fill('پیش‌نمایش بدون ذخیره');
+  await page.locator('[data-pe-action="preview"]').first().click();
+  assert.equal(await page.locator('#elara-profile-edit-screen').evaluate(el=>el.classList.contains('pe-mobile-preview-visible')),true,'Preview must be a mobile sheet, not a jump');
+  assert.equal(await page.locator('#pe-preview-area .pe-preview-title').textContent(),'پیش‌نمایش بدون ذخیره');
+  assert.ok(await page.locator('.pe-mobile-preview-close').isVisible(),'Preview needs a visible Back button');
+  await page.locator('[data-pe-action="preview-close"]').click();
+  await page.waitForFunction(()=>!document.getElementById('elara-profile-edit-screen').classList.contains('pe-mobile-preview-visible'));
+  assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'پیش‌نمایش بدون ذخیره','Draft lost on preview close');
+  await page.locator('[data-pe-action="reset"]').click();
  }
  if(width===375){
   await page.locator('[data-pe-action="avatars"]').click();
@@ -135,6 +157,14 @@ for(const width of sizes){
   assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
   assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#cloud-layer')).display),'none','Auth gate must stay excluded from mock screenshots');
   await page.screenshot({path:dir+'/profile-edit-390-after-reload.png',fullPage:false});
+ }
+ if(width===390){
+  await page.locator('#elara-profile-edit-screen [name="title"]').focus();
+  await page.setViewportSize({width:390,height:550});
+  await page.locator('#elara-profile-edit-screen [name="title"]').scrollIntoViewIfNeeded();
+  const visible=await page.locator('#elara-profile-edit-screen [name="title"]').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.top<innerHeight-55});
+  assert.ok(visible,'Mobile simulated keyboard obscured active title field');
+  await page.setViewportSize({width:390,height:844});
  }
  if(width===430){
   await page.goBack({waitUntil:'domcontentloaded'});
