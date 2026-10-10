@@ -30,7 +30,7 @@
  min-width:0;min-height:0;padding:19px 24px 26px;
  background:radial-gradient(ellipse at 48% -4%,#213d7a66,transparent 55%),#020e25
 }
-.elara-profile-hub{min-width:0;display:grid;gap:14px;direction:rtl;line-height:1.55;color:#f2f5ff}
+.elara-profile-hub{min-width:0;display:grid;gap:14px;direction:rtl;line-height:1.55;color:#f2f5ff;overflow-x:clip}
 .elara-profile-hub *{box-sizing:border-box}
 .elara-profile-hub button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .elara-profile-hub button:focus-visible{outline:2px solid #5bd9ff!important;outline-offset:3px}
