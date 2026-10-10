@@ -122,7 +122,7 @@ document.addEventListener('click',e=>{
   if(action==='new-group')return void window.ElaraSocialGroupsUI?.createGroup?.();
   if(action==='new-club')return void window.ElaraSocialClubsUI?.createClub?.();
   if(action==='new-challenge')return void window.ElaraSocialChallengesUI?.compose?.();
-  if(action==='new-message'){selections.social='chats';render();const first=window.ElaraSocial?.friends?.[0];if(first)window.ElaraSocialMessagingUI?.openChat?.(first.uid);return}
+  if(action==='new-message'){selections.social='chats';try{const u=new URL(location.href);u.searchParams.set('friendsTab','chats');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}catch{}render();void(async()=>{await window.ElaraSocialMessagingUI?.mount?.();const first=window.ElaraSocial?.friends?.[0];if(first)await window.ElaraSocialMessagingUI?.openChat?.(first.uid)})();return}
  }
  const b=e.target.closest('[data-social-view]');
  if(b){
