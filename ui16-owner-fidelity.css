@@ -196,3 +196,17 @@ html[lang="en"] #panel-language.ui12-language .ui12-board{direction:ltr!importan
 @media(prefers-reduced-motion:reduce){
  #panel-tasks #task-list .task-decision-actions{transition:none}
 }
+
+/* Freedom already renders one owner hero <img>. Prevent a second background
+   image and the obsolete dark overlay rules from blacking out half the scene. */
+html body #main #panel-freedom .freedom-hero.elara-global-hero{
+ background-image:none!important;background-color:#061a32!important;
+}
+html body #main #panel-freedom .freedom-hero.elara-global-hero:after{
+ background:linear-gradient(90deg,transparent 13%,#06162b28 55%,#06162b84 100%)!important;
+}
+/* All individual translated labels may wrap; constrain inside the box art. */
+#panel-language.ui12-language .ui12-boxes .ui12-box{min-width:0;flex:1 1 0}
+#panel-language.ui12-language .ui12-boxes .ui12-box small{
+ max-width:100%;overflow-wrap:normal;white-space:nowrap
+}
