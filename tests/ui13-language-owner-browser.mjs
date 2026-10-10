@@ -76,6 +76,7 @@ try{
     const boxes=await page.locator('#ui12-leitner .ui12-box').evaluateAll(xs=>xs.map(x=>({radius:getComputedStyle(x).borderTopLeftRadius,number:x.querySelector('b')?.textContent,count:x.querySelector('small span')?.textContent,rect:x.getBoundingClientRect().toJSON()})));
     assert.equal(boxes.length,5,'Five physical Leitner boxes missing');
     assert.ok(boxes.every((x,i)=>x.radius!=='50%'&&Math.abs(x.rect.height-x.rect.width)<=30&&x.number===(i+1).toLocaleString('fa-IR')),'Owner Leitner 3D numbered squares missing '+JSON.stringify(boxes));
+    assert.ok(boxes.every((x,i)=>i===0||x.rect.x>boxes[i-1].rect.x),'Owner reference shows numbered tiles 1–5 left to right: '+JSON.stringify(boxes.map(x=>x.rect.x)));
     assert.deepEqual(boxes.map(x=>x.count),[1,0,0,0,0].map(n=>n.toLocaleString('fa-IR')),'Live box counts must come from canonical one-word fixture');
     const originalWordSet=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).words);
     await page.evaluate(()=>{const st=JSON.parse(localStorage.getItem('elara_space_v1'));st.words=[1,2,2,3,4,5,5].map((box,i)=>({id:'ui15-'+i,box,front:'word'+i,back:'meaning'+i,due:'2020-01-01'}));localStorage.setItem('elara_space_v1',JSON.stringify(st));ElaraLanguageUI12.refresh()});
