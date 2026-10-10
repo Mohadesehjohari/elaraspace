@@ -3,7 +3,7 @@
 Baseline: `main@b8b830883c39cdf717ad433d1633eb9a7b4d6e59` (verified GitHub ref 2026-10-10).
 Source: UI16 owner request, reference renderings (desktop/mobile), owner screenshots of live UI15. Owner has **not** approved UI15 or UI16. **Do not merge** before explicit visual approval and passing blocking CI.
 
-Status lexicon: NOT IMPLEMENTED / PARTIAL / CODE NOT VERIFIED LIVE / BROWSER VERIFIED / OWNER APPROVED. "Code present" is never equivalent to "browser verified"; pending test is not PASS.
+Status lexicon: NOT STARTED / IN PROGRESS / CODE FIXED / BROWSER VERIFIED / LIVE VERIFIED / OWNER ACCEPTED. Passing Chromium does not imply owner visual or live acceptance.
 
 | Request | Real UI15 evidence | Responsible file(s) | Required action | Acceptance test | Owner |
 |---|---|---|---|---|---|
@@ -59,26 +59,37 @@ Issue #35 remains OPEN until owner acceptance. Issue #33 remains OPEN until secu
 
 ---
 
-## UI16 owner-fix execution — current PR #38 (2026-10-10)
+## UI16 Owner Fix — final candidate code evidence (2026-10-10)
 
-Current candidate branch `ui16-owner-acceptance-20261010`; base `main@b8b830883c39cdf717ad433d1633eb9a7b4d6e59`. Previous UI16 commits: `3c727e69` (hero/Leitner/Freedom/sidebar) and `361c6f4d` (canonical task status). This record is **candidate code, not owner signoff, merge or production verification**. Browser gates and side-by-side reference/before/after remain mandatory. Tests seed only isolated browser-local stores; never a real production account.
+PR #38 remains OPEN / DRAFT / UNMERGED. Code SHA f7a6a7edff5562dadc3f848f8e34fabde2da40b1. Base main b8b830883c39cdf717ad433d1633eb9a7b4d6e59. No fake records or production user data; screenshots with fixtures only use isolated local browser stores.
 
-| محور | وضعیت واقعی | فایل‌ها | علت/کد اصلاح | مدرک و آزمون | Live / مالک |
+| Axis | Independent status | Files changed | Cause and actual change | Verification and gaps | Screenshot paths |
 |---|---|---|---|---|---|
-| ۱. لایتنر | **CODE FIXED** | `ui12-language-dashboard.js`, `ui16-owner-fidelity.css` | HTML 5 actual storage counts; due and review are existing canonical code | UI13 and candidate screenshot comparison pending | NO / NO |
-| ۲. کتابخانه | **CODE FIXED** | `global-page-banner-20261009.js`, `ui16-owner-fidelity.css` | One active hero controller; removes only secondary decorative hero. Crop position adjusted. | Chromium 390/1440 screenshot and owner comparison pending | NO / NO |
-| ۳. زبان | **CODE FIXED** | `global-page-banner-20261009.js`, `ui12-language-dashboard.js`, `ui16-owner-fidelity.css` | Single route hero, asymmetric layout, cropped owner art | Candidate visual diff pending | NO / NO |
-| ۴. دوستان/رتبه‌بندی | **CODE FIXED** | `global-page-banner-20261009.js` | Nested social hero remains owned by social renderer; redundant visual headers marked hidden | Rendered tab/route enumeration pending | NO / NO |
-| ۵. آزادی | **CODE FIXED** | `freedom-page.css`, `ui16-owner-fidelity.css` | Remove second background and opaque overlay; text wraps | Screenshots 390/430/1440 pending | NO / NO |
-| ۶. سایدبار | **CODE FIXED** | `reference-home-shell-2026.js`, `ui16-owner-fidelity.css` | Replace wrong moonlit-mountains with daily-banner-bg_main.webp, also existing banner | Image network / screenshot confirmation pending | NO / NO |
-| ۷. هدر و Back | **IN PROGRESS** | `ui16-owner-fidelity.css`, `global-page-banner-20261009.js` | Root Back CSS suppressed; sub-route account suppression partly preexisting; route sync still needs proof | Back/Forward, click and layout pending | NO / NO |
-| ۸. تسک‌های موضوعی و تصمیم سه‌گانه | **CODE FIXED** | `app.js`, `phase2.js`, `ui16-owner-fidelity.css`, `tests/task-date-completion-browser.mjs` | Reuses sourceGroup and canonical IDs; adds per-date missed/later, done delegates canonical XP, no default strike | Cross-view CRUD and regression pending | NO / NO |
-| ۹. SVG محتوای داخلی | **IN PROGRESS** | `ui12-language-dashboard.js` | Semantic SVGs in main Language dashboard from existing UI13 work; other product-hub icon inventory incomplete | Screenshot SVG inventory pending | NO / NO |
-| ۱۰. موبایل/عرض‌ها | **IN PROGRESS** | `ui16-owner-fidelity.css`, `tests/ui16-owner-candidate-browser.mjs` | Responsive adjustments; nine-width automated browser gate | Cross-page overflow and modal proof pending | NO / NO |
+| 1 Leitner | BROWSER VERIFIED | ui12-language-dashboard.js, ui16-owner-fidelity.css | The art competed with numbered tiles. Rebuilt art scene and five real luminescent boxes; saved word counts and working review intact. | UI13 checks 5 stage counts and navigation; screenshot comparison still differs. | language 390, 1440 |
+| 2 Library banner | BROWSER VERIFIED | global-page-banner-20261009.js, ui16-owner-fidelity.css | Multiple route hero paths. Only one live hero; lower art crop without pushing page. | UI13 checks old hero hidden and real main art; screenshots. | books 390, 1440, 1648 |
+| 3 Language banner/layout | BROWSER VERIFIED | global-page-banner-20261009.js, ui12-language-dashboard.js, ui16-owner-fidelity.css | Live route banner and separate Leitner art; responsive asymmetric cards and eight shortcuts. | UI13 click routes and geometry; visual reference not owner accepted. | language 390, 1440, 1648 |
+| 4 Ranking/Friends banners | CODE FIXED | global-page-banner-20261009.js | Nested social renderer used to stack another header. Preserve renderer-owned hero and hide decorative duplicates. | UI13 390/1440 screenshots; more tab-specific visual signoff needed. | ui13 social and ranking screenshots |
+| 5 Freedom hero | CODE FIXED | freedom-page.css, ui16-owner-fidelity.css | Double background and dark overlay; restore image, local gradient, constrained typography. | UI13 Freedom 390/1440 screenshots; explicit 430 reference comparison pending. | ui13 freedom screenshots |
+| 6 Sidebar daily art | BROWSER VERIFIED | reference-home-shell-2026.js, ui16-owner-fidelity.css | Erroneous moonlit-mountains URL replaced with daily-banner-bg_main.webp, including existing cards. | UI13 image decode, CSS URL and screenshot; no production bytes verification. | ui13 after-1440 |
+| 7 Route Back/header | CODE FIXED | global-page-banner-20261009.js, ui16-owner-fidelity.css | Desktop account and Back collision. Actual active route/valid Back JS controls header; popstate re-sync. | UI13 real Back hit testing; broader deep-page enumeration open. | ui13 route screenshots |
+| 8 Task categories/three-state | CODE FIXED | app.js, phase2.js, feature-hubs-2026.js, ui16-owner-fidelity.css, tests/task-date-completion-browser.mjs, tests/ui13-language-owner-browser.mjs | Canonical category in create/edit; section View all filtered, same ID, missed/later persisted and Done uses guarded canonical XP, no default strike. | UI13 create language/edit book/move and UI16 task-date 3-choice + multi-target/refresh/XP tests; remaining all-purpose views open. | ui13 390, task browser |
+| 9 Main content icons | IN PROGRESS | ui12-language-dashboard.js, ui16-owner-fidelity.css | Replaced Language stats/empty book/classes purple decorations with specific SVG; protected menu/Freedom assets left untouched. | Language icons browser tested; wider Tasks/Library/Wellness inventory remains open. | ui16 language shots |
+| 10 Mobile/overflow | IN PROGRESS | ui16-owner-fidelity.css, tests/ui16-owner-candidate-browser.mjs, tests/ui13-language-owner-browser.mjs | Responsive cards and task controls, preserved seven-button bottom menu. | 162 route/width combinations with 0 global overflow failures; full 320/430 popup matrix open. | ui16 nine-width-audit.json |
 
-### CI and evidence (SHA-scoped)
+### Candidate browser evidence (exact code SHA)
+- UI16 162 checks: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035016 (SUCCESS).
+- UI13 routes/popup: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035043 (SUCCESS).
+- UI12: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035029 (SUCCESS).
+- P0 fast: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035013 (SUCCESS).
+- Home art: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035109 (SUCCESS).
+- Profile: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035020 (SUCCESS).
+- Social: https://github.com/Mohadesehjohari/elaraspace/actions/runs/38075035015 (SUCCESS).
+- UI16 action artifact ui16-before-after contains ui16/before-main-language-390.png, ui16/after-ui16-language-390.png and 1440/1648 equivalents for Language, Books and Tasks; also ui16/nine-width-audit.json.
+- UI13 artifact contains screenshots after widths 320/360/375/390/412/430/768/1440/1648, social/ranking/Freedom route captures and classmate modal evidence.
+- Owner reference is the two uploaded desktop/mobile concept renderings. Side-by-side concept / actual main / actual candidate images are provided separately, never confusing populated concept data with real user data.
 
-- Baseline UI16 first patch `3c727e69`: [candidate browser check run 38073667358](https://github.com/Mohadesehjohari/elaraspace/actions/runs/38073667358) PASS, [UI12 run 38073667377](https://github.com/Mohadesehjohari/elaraspace/actions/runs/38073667377) PASS, [P0 fast run 38073667393](https://github.com/Mohadesehjohari/elaraspace/actions/runs/38073667393) PASS. These are **not** proof on the final HEAD.
-- [UI13 run 38073667350](https://github.com/Mohadesehjohari/elaraspace/actions/runs/38073667350) failed: old assertion expected `lightner.webp` on entire card (instead of new scene) and old `background-moonlit-mountains.webp` sidebar. Updated UI13 test verifies actual art layer and owner-correct sidebar art without dropping five-box/count assertions. Rerun required on final HEAD.
-- Browser screenshots stored in Actions artifacts for candidate workflows (`browser-artifacts/ui16/{before-main,after-ui16}-<route>-<width>.png` and `browser-artifacts/ui13/`). Uploaded owner desktop/mobile reference is separate and must be placed beside raw screenshots, not mislabeled as current live site.
-- No owner visual approval. PR must remain **Draft / Open / Unmerged**; no Pages publish, no `LIVE VERIFIED` or `OWNER ACCEPTED`. Backend issue #33 remains separate.
+### Release and owner gates
+- OWNER ACCEPTED: NONE. Candidate concept visual resemblance remains incomplete (empty-state art, visual density, several other page references unavailable here).
+- LIVE VERIFIED: NONE. Code is unmerged; GitHub Pages JS/CSS/image live bytes were not validated.
+- Merge SHA: NONE. Do not merge until explicit owner visual approval and fresh live/Pages verification.
+- Backend issue #33 remains separate and must not be simulated using invented channels, friend data or scores.

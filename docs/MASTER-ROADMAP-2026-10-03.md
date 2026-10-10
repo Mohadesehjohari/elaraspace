@@ -1434,3 +1434,8 @@ User-facing labels, in plain Persian:
 ## UI16 owner-fix execution tracker (2026-10-10; PR #38)
 
 Source of truth: [UI16 acceptance matrix](UI16-OWNER-ACCEPTANCE-MATRIX.md). All ten owner axes are recorded there separately. Candidate branch is intentionally **Draft** and not production. Changes cover one-hero ownership, Leitner scene/real stage counts, approved sidebar art, less opaque Freedom hero, and canonical per-date task decisions. Root Back/header, remaining icon audit, complete cross-route task QA, nine-width overflow and visual comparisons remain open. Merge requires all blocking browser evidence, comparison with the owner's desktop/mobile reference screenshots, and owner's explicit visual signoff. Do not conflate isolated fixture Chrome PASS with real account or live-byte validation; social/backend issue #33 stays independent. Latest live/main SHA must be rechecked before signoff.
+
+
+### UI16 owner-fix final candidate checkpoint — 2026-10-10
+
+Code SHA f7a6a7edff5562dadc3f848f8e34fabde2da40b1 in existing Draft PR #38. All seven candidate code-specific Github Actions workflows completed successfully, including UI16 162-route/viewport checks with no global page overflow and UI13 canonical category transfers. Master status stays TESTING pending owner visual comparison, broad icon audit and comprehensive social/deep-route/mobile popup checks. No merge, no real Pages byte proof, no OWNER ACCEPTED claim. See docs/UI16-OWNER-ACCEPTANCE-MATRIX.md for independent status, changed files, causes, tests and screenshot artifact paths across all 10 axes. No fabricated account state or backend edits.
