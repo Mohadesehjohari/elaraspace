@@ -49,7 +49,7 @@ for(const width of sizes){
   const rect=selector=>{const e=b.querySelector(selector);if(!e)return null;const r=e.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),width:Math.round(r.width),height:Math.round(r.height)}};
   return {
    editorWidth:a.clientWidth,scrollWidth:a.scrollWidth,outerScrollWidth:b.scrollWidth,outerClientWidth:b.clientWidth,
-   main:rect('.pe-editor'),preview:rect('.pe-preview-outer'),banner:rect('.pe-banner'),
+   main:rect('.pe-editor'),preview:rect('.pe-preview-outer'),heading:rect('.pe-heading'),back:rect('.pe-back'),banner:rect('.pe-banner'),
    avatar:rect('.pe-avatar'),camera:rect('.pe-camera'),identity:rect('.pe-name-grid'),
    bio:rect('.pe-bio-field'),colors:rect('.pe-colors'),templates:rect('.pe-templates'),
    frames:rect('.pe-frames-list'),actions:rect('.pe-actions'),nav:document.querySelector('.bottom-nav')?.getBoundingClientRect().top||null
@@ -58,6 +58,11 @@ for(const width of sizes){
  geometry.push({viewport:width,...dims});
  assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
  assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
+ if(width>=1280){
+  assert.ok(dims.back.x+dims.back.width<=dims.main.x+dims.main.width+4,
+   'Desktop Back button overlaps preview column: '+JSON.stringify(dims));
+  assert.ok(dims.heading.x<dims.preview.x,'Desktop title is not in edit column');
+ }
  await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
  if(width===320||width===375||width===430)assert.ok(await page.locator('.pe-banner').isVisible(),'Banner hidden at '+width);
  if(width===390||width===1648){
