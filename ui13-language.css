@@ -112,3 +112,21 @@
  #main .ui13-task-row small{font-size:10px}
  #main .language-class-report{max-height:65dvh}
 }
+
+/* Keep the owner artwork's central learner uncovered by the desktop copy. */
+@media(min-width:701px){
+ #panel-language.ui12-language .ui12-hero .ui12-hero-copy{
+  position:absolute!important;inset-inline-start:auto!important;
+  right:clamp(15px,1.6vw,26px)!important;left:auto!important;top:75px!important;
+  width:min(37%,440px)!important;max-width:440px!important;
+  margin:0!important;text-align:right!important;align-items:flex-start!important
+ }
+ #panel-language.ui12-language .ui12-hero .ui12-hero-copy h1{font-size:clamp(20px,1.8vw,28px)!important}
+}
+@media(max-width:700px){
+ #panel-language.ui12-language .ui12-hero .ui12-hero-copy{
+  position:absolute!important;right:12px!important;left:auto!important;top:15px!important;
+  width:min(71%,330px)!important;max-width:330px!important;
+  margin:0!important;text-align:right!important;align-items:flex-start!important
+ }
+}
