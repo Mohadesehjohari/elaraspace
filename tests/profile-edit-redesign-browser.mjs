@@ -1,0 +1,88 @@
+/* Mocked browser contract for the isolated Edit Profile page.
+   Run with ELARA_TEST_URL=http://127.0.0.1:4173 node tests/profile-edit-redesign-browser.mjs
+   This does NOT verify real Firebase permissions, Storage or deployed build. */
+import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
+import {chromium} from 'playwright';
+
+const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
+const dir=process.env.ELARA_PROFILE_SHOTS||'artifacts/profile-edit';
+mkdirSync(dir,{recursive:true});
+const browser=await chromium.launch({headless:true});
+const sizes=[320,375,390,430,768,1440];
+const errors=[];
+const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
+const bootstrap=async(page)=>{
+ await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:25000});
+ await page.evaluate(user=>{
+  window.ElaraAccount.user={uid:user.uid,photoURL:'',metadata:{creationTime:'2026-01-05T12:00:00Z'}};
+  window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async(values)=>{
+   if(values.username==='occupied_qa')throw new Error('این نام کاربری قبلاً ثبت شده است.');
+   if(values.username==='denied_qa'){const error=new Error('permission denied');error.code='permission-denied';throw error}
+   window.ElaraSocial.me={...window.ElaraSocial.me,...values};
+   return {warnings:[],profile:window.ElaraSocial.me};
+  }};
+ },testUser);
+ await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+ await page.locator('#elara-profile-edit-screen').waitFor({timeout:15000});
+ await page.locator('.pe-preview-card').waitFor({timeout:10000});
+};
+for(const width of sizes){
+ const context=await browser.newContext({viewport:{width,height:width===1440?900:844}});
+ const page=await context.newPage();
+ page.on('pageerror',e=>errors.push(width+': '+e.message));
+ await bootstrap(page);
+ const dims=await page.evaluate(()=>{
+  const a=document.querySelector('.pe-screen'),b=document.querySelector('#elara-profile-edit-screen');
+  return {editorWidth:a.clientWidth,scrollWidth:a.scrollWidth,outerScrollWidth:b.scrollWidth,outerClientWidth:b.clientWidth};
+ });
+ assert.ok(dims.scrollWidth<=dims.editorWidth+3,'Editor horizontal overflow at '+width+': '+JSON.stringify(dims));
+ assert.ok(dims.outerScrollWidth<=dims.outerClientWidth+3,'Screen horizontal overflow at '+width);
+ await page.screenshot({path:dir+'/profile-edit-'+width+'.png',fullPage:false});
+ await page.locator('[name="name"]').fill('نام جدید');
+ await page.locator('[name="title"]').fill('در مسیر یادگیری');
+ assert.equal(await page.locator('.pe-preview-body h3').textContent(),'نام جدید');
+ assert.match(await page.locator('.pe-preview-title').textContent(),/در مسیر یادگیری/);
+ await page.locator('[data-pe-action="reset"]').click();
+ assert.equal(await page.locator('.pe-preview-body h3').textContent(),testUser.name);
+ assert.equal(await page.locator('[name="title"]').inputValue(),'');
+ if(width===390){
+  const navBefore=await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||'');
+  const sidebarBefore=await page.evaluate(()=>document.querySelector('.sidebar')?.innerHTML||'');
+  await page.locator('[data-pe-color="pink"]').click();
+  await page.locator('[data-pe-template="nebula"]').click();
+  assert.equal(await page.locator('.pe-preview-body').getAttribute('data-template'),'nebula');
+  await page.locator('[name="username"]').fill('occupied_qa');
+  await page.locator('[data-pe-save]').click();
+  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('قبلاً'));
+  assert.notEqual(await page.locator('[data-pe-status]').textContent(),'اطلاعات اصلی در Firebase ذخیره شد.');
+  await page.locator('[name="username"]').fill('denied_qa');
+  await page.locator('[data-pe-save]').click();
+  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('Firebase اجازهٔ ذخیره نداد'));
+  await page.locator('[name="username"]').fill('visual_qa');
+  await page.locator('[name="title"]').fill('عنوان تست');
+  await page.locator('[data-pe-save]').click();
+  await page.waitForFunction(()=>document.querySelector('[data-pe-status]')?.textContent.includes('روی همین مرورگر'));
+  assert.equal(await page.locator('.pe-preview-title').textContent(),'عنوان تست');
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_profile_edit_extras_v1_mock-profile-edit-test')).title),'عنوان تست');
+  const navAfter=await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||'');
+  const sidebarAfter=await page.evaluate(()=>document.querySelector('.sidebar')?.innerHTML||'');
+  assert.equal(navAfter,navBefore,'Mobile nav mutated');
+  assert.equal(sidebarAfter,sidebarBefore,'Sidebar mutated');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:20000});
+  await page.evaluate(user=>{
+   window.ElaraAccount.user={uid:user.uid,photoURL:''};
+   window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async()=>({warnings:[]})};
+  },testUser);
+  await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
+  await page.locator('#elara-profile-edit-screen').waitFor();
+  assert.equal(await page.locator('[name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
+  await page.screenshot({path:dir+'/profile-edit-390-after-reload.png',fullPage:false});
+ }
+ await context.close();
+}
+assert.equal(errors.length,0,'Uncaught browser errors: '+errors.join(' | '));
+await browser.close();
+console.log('PROFILE_EDIT_MOCK_BROWSER_PASS viewports='+sizes.join(',')+' snapshots='+dir);
