@@ -229,3 +229,25 @@
  .pe-shell .pe-frames{display:block}
  .pe-shell .pe-frames-list{margin-top:10px}
 }
+
+/* Profile Edit icons: scalable SVG artwork instead of placeholder Unicode glyphs. */
+.pe-shell .pe-svg{display:inline-block;vertical-align:middle;flex:none;width:20px;height:20px;stroke:currentColor}
+.pe-shell .pe-heading-icon .pe-svg{width:36px;height:36px;filter:drop-shadow(0 0 9px #41baff)}
+.pe-shell .pe-heading-icon{background:radial-gradient(circle at 35% 20%,#196dc5,#07417e 55%,#06214e);border-color:#23c4ff}
+.pe-shell .pe-change-banner,.pe-shell .pe-save,.pe-shell .pe-reset,.pe-shell .pe-outline{gap:8px;display:inline-flex;align-items:center;justify-content:center}
+.pe-shell .pe-change-banner .pe-svg{width:20px;height:20px}
+.pe-shell .pe-camera{display:grid;place-items:center}
+.pe-shell .pe-camera .pe-svg{width:23px;height:23px}
+.pe-shell .pe-copy{display:grid;place-items:center}
+.pe-shell .pe-copy .pe-svg{width:20px;height:20px}
+.pe-shell .pe-info-icon .pe-svg{width:32px;height:32px}
+.pe-shell .pe-save .pe-svg{width:25px;height:25px;stroke-width:3px}
+.pe-shell .pe-frame-none .pe-svg{width:100%;height:100%}
+.pe-shell .pe-preview-medals .pe-svg{width:24px;height:24px}
+.pe-shell .pe-username-state[data-valid=true]{color:#9ccfff}
+@media (max-width:700px){
+ .pe-shell .pe-heading-icon .pe-svg{width:30px;height:30px}
+ .pe-shell .pe-info-icon .pe-svg{width:26px;height:26px}
+ .pe-shell .pe-header-preview .pe-svg{width:17px;height:17px}
+ .pe-shell .pe-save .pe-svg{width:22px;height:22px}
+}
