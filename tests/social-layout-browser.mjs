@@ -39,7 +39,15 @@ async function run(width,height){
  const input=page.locator('#elara-social-page .friends-f2-invite input'),invite=page.locator('#elara-social-page .friends-f2-invite .primary-button'),search=page.locator('#elara-social-page [data-profile-lookup]');
  const boxes=await Promise.all([input.boundingBox(),invite.boundingBox(),search.boundingBox()]);
  assert.ok(boxes.every(Boolean),width+': invite/search geometry missing');
- if(width<=700){assert.ok(boxes[0].width>width*.48,width+': mobile search field too narrow');assert.ok(boxes[1].width>=42&&boxes[2].width>=42&&boxes[1].height>=40&&boxes[2].height>=40,width+': mobile invite/search icon controls lost usable hit targets '+JSON.stringify(boxes))}
+ if(width<=700){
+  const card=await page.locator('#elara-social-page .friends-f2-invite-card').boundingBox();
+  assert.ok(card,width+': suggestion card missing');
+  if(width>=420){
+    assert.ok(card.width>=width*.36,width+': paired mobile cards have inadequate width '+JSON.stringify(card));
+    assert.ok(boxes[0].width>=Math.min(120,card.width*.7)&&boxes[0].width>=card.width*.65,width+': username field must occupy a usable full line inside its own card '+JSON.stringify({card,boxes}));
+  }else assert.ok(boxes[0].width>width*.48,width+': single-column mobile search field too narrow '+JSON.stringify(boxes));
+  assert.ok(boxes[0].height>=40&&boxes[1].width>=42&&boxes[2].width>=42&&boxes[1].height>=40&&boxes[2].height>=40,width+': mobile invite/search controls lost usable hit targets '+JSON.stringify(boxes));
+}
  else{assert.ok(boxes[0].height>=48&&boxes[1].width>=52&&boxes[2].width>=52,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
  const friendTabRects=await page.locator('#elara-social-page .social-tabs [role="tab"]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
  assert.ok(friendTabRects.every(r=>r.w>0&&r.h>0),'Friends controls must be measured while visible');
