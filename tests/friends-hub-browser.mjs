@@ -60,7 +60,7 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-section').count(),0,width+': DM section leaked into Groups tab');
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  await page.waitForSelector('#elara-add-friend');
- assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing after tab switch');
+ assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing after tab switch');
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').isVisible(),true,width+': incoming Request action missing');
  await page.locator('[data-social-route="social"][data-social-view="activity"]').click();
  await page.waitForSelector('.social-friend-activity');
@@ -89,7 +89,7 @@ async function run(width,height){
  assert.equal(await page.locator('.friends-f2-list').evaluate(el=>el.classList.contains('is-list')),true);
 
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
- assert.match(await page.locator('.social-friends-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
+ assert.match(await page.locator('.friends-f2-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': Ranking must remain a separate four-tab surface');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
