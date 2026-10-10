@@ -42,6 +42,8 @@ for(const width of widths){
   const cells=page.locator('#panel-language .ui12-board > .ui12-card'),jumps=page.locator('#panel-language .ui12-shortcut');
   assert.equal(await cells.count(),8,'Eight language dashboard cards: '+width);
   assert.equal(await jumps.count(),8,'Eight language shortcuts: '+width);
+  const iconImages=await page.locator('#panel-language .ui12-shortcut img').evaluateAll(async images=>{await Promise.all(images.map(img=>img.decode().catch(()=>{})));return images.map(img=>({src:img.getAttribute('src'),ready:img.complete&&img.naturalWidth>0}))});
+  assert.ok(iconImages.length===8&&iconImages.every(x=>x.ready),'Broken original Elara icon at '+width+': '+JSON.stringify(iconImages));
   assert.match(await page.locator('#panel-language .ui12-hero').evaluate(el=>getComputedStyle(el).backgroundImage),/34-language-hero-banner\.webp/);
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'Horizontal document overflow '+width+' '+overflow);
@@ -104,6 +106,7 @@ for(const mode of ['empty','one']){
   assert.equal(await page.locator('#ui12-channels .ui12-empty-state').count(),1);
   assert.equal(await page.locator('#ui12-challenges .ui12-empty-state').count(),1);
   if(mode==='empty')assert.equal(await page.locator('#ui12-report .ui12-chart').count(),0,'Zero data must not create chart');
+  if(mode==='one'){const completed=page.locator('#ui12-tasks .ui12-task.is-done > button:nth-child(2)');assert.equal(await completed.count(),1,'One completed Task fixture must use canonical status');const decoration=await completed.evaluate(el=>getComputedStyle(el).textDecorationLine);assert.ok(!decoration.includes('line-through'),'Completed language Task title must never be struck through: '+decoration)}
   await page.screenshot({path:out+'/after-390-'+mode+'.png',fullPage:true});
  }finally{await context.close()}
 }
