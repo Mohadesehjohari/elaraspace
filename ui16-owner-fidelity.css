@@ -241,3 +241,10 @@ html body #main #panel-freedom .freedom-hero.elara-global-hero:after{
   visibility:hidden!important;pointer-events:none!important
  }
 }
+
+/* Class empty-state uses a semantic two-dimensional icon, not the obsolete
+   oversized purple 3D pseudo-element. No fictitious class is populated. */
+#panel-language.ui12-language .ui12-class-empty{min-width:0;padding:8px 12px}
+#panel-language.ui12-language .ui12-classes .ui12-class-empty .ui12-empty:before{display:none!important;content:none!important}
+#panel-language.ui12-language .ui12-class-empty .ui16-empty-svg{display:grid;place-items:center;color:#65edff}
+#panel-language.ui12-language .ui12-class-empty .ui16-empty-svg svg{width:46px;height:46px;stroke-width:1.75}

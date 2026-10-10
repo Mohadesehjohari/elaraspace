@@ -125,7 +125,7 @@ function renderClasses(m){
  const total=Math.max(1,Number(c.terms)||1)*Math.max(1,Number(c.sessionsPerTerm)||1),done=list(c.sessionLogs).length;
  return '<button class="ui12-class-row" type="button" data-ui12-route="language-courses"><span class="ui12-class-avatar" aria-hidden="true">'+ui13Icon('classes')+'</span><span><strong data-elara-ugc dir="auto">'+esc(c.title)+'</strong><small>'+tx(c.collabSpaceId?'مشترک':'شخصی',c.collabSpaceId?'Shared':'Personal')+' · '+num(done)+' / '+num(total)+' '+tx('جلسه','sessions')+'</small></span><span aria-hidden="true">‹</span></button>';
  }).join('');
- $('ui12-classes').querySelector('[data-ui12-body]').innerHTML=rows||'<p class="ui12-empty">'+tx('هنوز کلاس زبانی ثبت نشده است.','No language classes yet.')+'</p>';
+ $('ui12-classes').querySelector('[data-ui12-body]').innerHTML=rows||'<div class="ui12-empty-state ui12-class-empty"><span class="ui16-empty-svg" aria-hidden="true">'+ui13Icon('classes')+'</span><p class="ui12-empty">'+tx('هنوز کلاس زبانی ثبت نشده است.','No language classes yet.')+'</p></div>';
  $('ui12-classes').querySelector('[data-ui12-body]').insertAdjacentHTML('beforeend','<button type="button" class="ui12-primary ui12-add" data-ui12-new-class>+ '+tx('ایجاد کلاس جدید','Create class')+'</button>');
 }
 function renderUnavailable(){
