@@ -31,12 +31,13 @@ jobs:
         run: |
           node --check lib01-library-dashboard.js
           node --check tests/library-dashboard-lib01-browser.mjs
-          node tests/reading-stability.test.cjs
           test -s assets/ui/librairy_banner_main.webp
       - name: Install Chromium
         run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
+          npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
           npx playwright install --with-deps chromium
+      - name: Canonical reading model regression
+        run: node tests/reading-stability.test.cjs
       - name: LIB-01 real DOM routes and ten viewports
         run: |
           python3 -m http.server 4173 >/tmp/lib01-server.log 2>&1 &
