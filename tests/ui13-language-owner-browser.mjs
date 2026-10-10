@@ -50,6 +50,13 @@ try{
    const top=await page.locator('#panel-language .ui12-hero').evaluate(el=>el.getBoundingClientRect().top);
    assert.ok(top<32,'Language hero retains unwanted top strip '+top);
   }
+  if(width===1440){
+    const circles=await page.locator('#ui12-leitner .ui12-box').evaluateAll(xs=>xs.map(x=>({radius:getComputedStyle(x).borderTopLeftRadius,text:x.querySelector('b')?.textContent})));
+    assert.equal(circles.length,5,'Leitner does not show five boxes');
+    assert.ok(circles.every(x=>x.radius==='50%'&&x.text),'Leitner circles missing real count '+JSON.stringify(circles));
+    const promo=await page.locator('#ref-sidebar-banner').evaluate(el=>getComputedStyle(el).backgroundImage);
+    assert.match(promo,/background-moonlit-mountains\.webp/,'Real sidebar landscape not displayed');
+  }
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   for(const [key,target] of Object.entries({leitner:'words',books:'language-books',classes:'language-courses',tasks:'language-tasks',channels:'language-channels',challenges:'language-challenges',report:'language-reports'})){
    await page.locator('#panel-language [data-ui12-jump="'+key+'"]').click();
@@ -65,7 +72,13 @@ try{
     }
    }
    if(target==='language-channels'||target==='language-challenges')assert.equal(await page.locator('#panel-'+target+' .ui13-subpage').count(),1,'Dedicated page missing');
-   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+   if(target==='language-channels'||target==='language-challenges'||target==='language-tasks'){
+     const back=page.locator('#panel-'+target+' [data-ui13-back]');
+     assert.equal(await back.count(),1,'Dedicated back missing '+target+' @'+width);
+     const hit=await back.evaluate(el=>{const r=el.getBoundingClientRect();const h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return h===el||el.contains(h)});
+     assert.equal(hit,true,'Language back covered by Header '+target+' @'+width);
+     await back.click({timeout:9000});
+   }else await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
    await page.waitForSelector('#panel-language:not(.hidden)');
   }
   if(width===390){
@@ -75,6 +88,8 @@ try{
    await page.locator('[data-class-classmates="class-1"]').click();
    await page.waitForSelector('.language-class-classmates',{timeout:10000});
    assert.ok((await page.locator('.language-class-classmates').innerText()).includes('عضو آزمایشی'),'Classmate stats did not show authorized fixture results');
+   const modalOverflow=await page.evaluate(()=>({page:document.documentElement.scrollWidth-innerWidth,report:document.querySelector('.language-class-report')?.scrollWidth-document.querySelector('.language-class-report')?.clientWidth}));
+   assert.ok(modalOverflow.page<=2&&modalOverflow.report<=2,'Classmate modal horizontal overflow '+JSON.stringify(modalOverflow));
    await page.screenshot({path:out+'/classmate-stats-390.png',fullPage:false});
    const cancel=page.locator('#elara-dialog-root button').filter({hasText:/بستن|Close/}).last();
    if(await cancel.count())await cancel.click();
