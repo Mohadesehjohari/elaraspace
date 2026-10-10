@@ -55,7 +55,7 @@ try{
    assert.equal(await page.locator('[data-lib01-bookmark="book-01"]').getAttribute('aria-pressed'),'true');
    await page.locator('#timer-display').evaluate(el=>{el.textContent='13:42'});
    await page.waitForFunction(()=>document.querySelector('#lib01-overview [data-lib01-timer]')?.textContent==='13:42');
-   await page.locator('#lib01-overview [data-feature-route="library-shelves"]').first().click();
+   await page.locator('#lib01-overview [data-lib01-route="library-shelves"]').first().click();
    await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form');
    const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books);
    assert.equal(stored.length,3,'dashboard changed book count');
