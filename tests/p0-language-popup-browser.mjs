@@ -107,7 +107,7 @@ if(ui12){
  assert.equal(await shortcuts.count(),8,'UI12 Language shortcuts must all remain available');
  assert.equal(await cards.count(),8,'UI12 Language cards must all remain available');
  const geometry=await cards.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{id:x.id,x:r.x,w:r.width,right:r.right}}));
- assert.equal(geometry.every(g=>g.w>=90&&g.x>=-2&&g.right<=innerWidth+2),true,'UI12 card overflow: '+JSON.stringify(geometry));
+ assert.equal(geometry.every(g=>g.w>=90&&g.x>=-2&&g.right<=390+2),true,'UI12 card overflow at 390 CSS px: '+JSON.stringify(geometry));
 }else{
  const languageLaunchers=page.locator('#panel-language .feature-hub-launchers[data-hub-kind="language"] .feature-launcher-card');
  assert.equal(await languageLaunchers.count(),4,'Language must expose four clean launcher cards');
