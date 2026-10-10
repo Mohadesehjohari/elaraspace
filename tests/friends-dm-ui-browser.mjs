@@ -38,7 +38,7 @@ async function run(width,height){
  const draft='پیش‌نویس ماندگار';
  await compose.locator('textarea[name="text"]').fill(draft);
  assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),'پیش‌نویس ماندگار','DM draft must persist immediately');
- await page.locator('[data-dm-back]').click();
+ if(width<=700)await page.locator('[data-dm-back]').click();
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
@@ -56,7 +56,7 @@ async function run(width,height){
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+1,width+': DM UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-dm-'+width+'.png',fullPage:true});
- await page.locator('[data-dm-back]').click();
+ if(width<=700)await page.locator('[data-dm-back]').click();
  await page.close();
 }
 for(const width of [320,375,390,430,768,1440,1648])await run(width,width<800?844:1000);
