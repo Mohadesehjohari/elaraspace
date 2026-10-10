@@ -66,6 +66,17 @@ function update(){
       });
     }
   }
+  // Reading's legacy #library-hero is an illustrated secondary banner. The
+  // already selected, approved uploaded-art hero is the only visible page hero.
+  // Keep book reports/controls and canonical reading data completely intact.
+  if(route==='books'){
+    panel.querySelectorAll('#library-hero').forEach(candidate=>{
+      const redundant=candidate!==hero;
+      candidate.classList.toggle('elara-secondary-hero-duplicate',redundant);
+      if(redundant)candidate.setAttribute('aria-hidden','true');
+      else candidate.removeAttribute('aria-hidden');
+    });
+  }
   // Store deliberately keeps its existing cosmic artwork and product identity.
   if(art)hero.style.setProperty('--elara-page-art','url("'+ROOT+art+'")');
  }
