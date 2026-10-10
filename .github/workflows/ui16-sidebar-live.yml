@@ -1,0 +1,82 @@
+name: UI16 Sidebar S1 Owner Art + Live Bytes
+on:
+  pull_request:
+    paths:
+      - boot.js
+      - reference-home-shell-2026.css
+      - tests/ui16-sidebar-banner-browser.mjs
+      - .github/workflows/ui16-sidebar-live.yml
+  push:
+    branches: [main]
+    paths:
+      - boot.js
+      - reference-home-shell-2026.css
+      - tests/ui16-sidebar-banner-browser.mjs
+      - .github/workflows/ui16-sidebar-live.yml
+permissions:
+  contents: read
+jobs:
+  sidebar-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and real asset
+        run: |
+          node --check boot.js
+          node --check tests/ui16-sidebar-banner-browser.mjs
+          test -s assets/ui/daily-banner-bg_main.webp
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run actual Sidebar and mobile nav on 4 widths
+        run: |
+          python3 -m http.server 4173 >/tmp/sidebar-s1.log 2>&1 &
+          sleep 3
+          timeout 280s node tests/ui16-sidebar-banner-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sidebar-s1-candidate-${{ github.sha }}
+          path: browser-artifacts/ui16-sidebar/*.png
+          retention-days: 20
+  sidebar-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact deployed CSS, boot and artwork bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 90); do
+            ok=true
+            for file in boot.js reference-home-shell-2026.css assets/ui/daily-banner-bg_main.webp; do
+              output="/tmp/ui16-sidebar-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "SIDEBAR_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::Production Sidebar bytes do not match exact release";exit 1;fi
+      - name: Real GitHub Pages browser at four widths
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 320s node tests/ui16-sidebar-banner-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sidebar-s1-LIVE-${{ github.sha }}
+          path: browser-artifacts/ui16-sidebar/*.png
+          retention-days: 30
