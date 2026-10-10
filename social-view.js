@@ -12,8 +12,10 @@ const podiumPerson=(p,i)=>{const model=profileModel(p),shape=model?.shape||'circ
 const section=(title,body,cls='')=>`<section class="elara-card social-section ${cls}"><header><h2>${title}</h2></header>${body}</section>`;
 const socialStats=p=>`<span class="social-person-stats"><b>${fa(p.xp)} XP</b>${Number.isInteger(Number(p.streak))?`<small class="social-streak" aria-label="استریک ${fa(p.streak)} روز">🔥 ${fa(p.streak)}</small>`:''}</span>`;
 const rankingTabs=[['ranking','رنکینگ','Ranking','ranking-tab-active.webp'],['friends','دوستان','Friends','friends-tab.webp'],['community','جامعه','Community','community-tab.webp'],['clubs','کلاب‌ها','Clubs','clubs-tab.webp']];
-const socialTabs=[['friends','دوستان','Friends','43-friends-icon.webp'],['chats','گفتگوها','Chats','44-private-chats-icon.webp'],['groups','گروه‌ها','Groups','45-groups-icon.webp'],['clubs','کلاب‌ها','Clubs','46-clubs-icon..webp'],['activity','فعالیت','Activity','47-friend-activity-icon..webp']];
-let selections={social:'friends',ranking:'ranking'};
+const socialTabs=[['friends','دوستان من','My friends','43-friends-icon.webp'],['chats','چت‌ها','Chats','44-private-chats-icon.webp'],['groups','گروه‌ها','Groups','45-groups-icon.webp'],['clubs','باشگاه‌ها','Clubs','46-clubs-icon..webp'],['challenges','چالش‌ها','Challenges','11-challenges-icon.webp'],['activity','فعالیت‌ها','Activity','47-friend-activity-icon..webp'],['requests','درخواست‌ها','Requests','48-friend-requests-icon.webp'],['ranking','رتبه‌بندی','Ranking','icon-ranking-trophy.webp']];
+const initialView=(()=>{try{return new URL(location.href).searchParams.get('friendsTab')}catch{return null}})();
+let selections={social:socialTabs.some(x=>x[0]===initialView)?initialView:'friends',ranking:'ranking'};
+let friendFilter='',onlineFilter=false;
 function render(){
  const s=window.ElaraSocial||{},friends=arr(s.friends),me=s.me,uid=me?.uid,ranked=[me,...friends].filter(Boolean).sort((a,b)=>Number(b.xp||0)-Number(a.xp||0)),pendingRequests=arr(s.requests).filter(r=>r.status==='pending'),incoming=pendingRequests.filter(r=>r.to===uid),outgoingRows=pendingRequests.filter(r=>r.from===uid);
  const requests=incoming.map(r=>`<div class="social-row social-request-row is-incoming" data-key="${esc(r.id)}">${person(r.person||{})}<span class="social-request-state">${tt('ورودی','Incoming')}</span><div class="social-request-actions">${imageButton('accept-request-button.webp',tt('قبول درخواست','Accept request'),`data-friend-action="accept" data-request="${esc(r.id)}"`)}${imageButton('decline-request-button.webp',tt('رد درخواست','Decline request'),`data-friend-action="decline" data-request="${esc(r.id)}"`)}</div></div>`).join('');
@@ -66,13 +68,31 @@ function render(){
     if(route==='ranking')body=section(tt('رنکینگ دوستان','Friends ranking'),rankList,'social-friend-rank ranking-friends-only')+section(tt('رتبهٔ من بین دوستان','My rank among friends'),me?person(me)+`<div class="social-my-rank-line"><strong class="social-my-rank">${fa(ranked.findIndex(p=>p.uid===uid)+1)}</strong><span>${fa(me.xp)} XP</span></div>`:empty(tt('هنوز رتبهٔ دوستی شکل نگرفته.','No friend ranking yet.'),'icon-ranking-trophy.webp'),'social-my-rank-card');
     else body=section(tt('دعوت و جستجوی دوست','Invite and find friends'),`<form id="elara-add-friend" class="social-invite"><label class="social-search-field"><span class="sr-only">${tt('نام کاربری دوست','Friend username')}</span><input id="elara-add-friend-name" aria-label="${tt('نام کاربری دوست','Friend username')}" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="@username"></label><button type="submit" class="social-art-button invite" aria-label="${tt('ارسال درخواست دوستی','Send friend request')}" ${!me?'disabled':''}><img src="assets/ui/invite-friend-button.webp" alt=""></button>${imageButton('search-button.webp',tt('جستجوی دوست','Search for a friend'),'data-profile-lookup')}</form><p id="elara-social-message" role="status">${esc(s.error||(!me?tt('برای ارسال درخواست وارد حساب شو.','Sign in to send a friend request.'):''))}</p>`,'social-friend-invite')+section(tt('دوستان من','My friends'),'<div class="social-scroll">'+friendList+'</div>','social-friends-list');
   }
+  if(tab==='challenges'&&route==='social')body='<div class="social-hub-slot" data-social-slot="challenges" aria-live="polite"></div>';
+  if(tab==='requests'&&route==='social')body='<p class="social-request-note">'+tt('درخواست‌های واقعی دوستی و همکاری در این صفحه نمایش داده می‌شوند.','Your actual friend and collaboration requests are shown below.')+'</p>';
   if(tab==='activity'&&route==='social')body=section(tt('فعالیت دوستان','Friend activity'),'<div class="social-scroll">'+activities+'</div>','social-friend-activity');
   if(tab==='chats'&&route==='social')body='<div class="social-hub-slot" data-social-slot="chats" aria-live="polite"></div>';
   if(tab==='groups'&&route==='social')body='<div class="social-hub-slot" data-social-slot="groups" aria-live="polite"></div>';
   if(tab==='community'&&route==='ranking')body=section(tt('فعالیت دوستان','Friend activity'),'<div class="social-scroll">'+activities+'</div>','social-community')+section(tt('همراهی در مسیر رشد','Growing together'),'<p>'+tt('فقط فعالیت‌هایی که دوستان با رضایت به اشتراک گذاشته‌اند نمایش داده می‌شوند.','Only activities friends chose to share are shown here.')+'</p>','social-community-note');
   if(tab==='clubs')body=route==='ranking'?section(tt('کلاب‌ها و کافهٔ الارا','Elara clubs and cafe'),empty(tt('فعلاً کلابی برای ورود نیست 🌝 به محض آماده‌شدن، همین‌جا پیداش می‌کنی.','No clubs are available yet. When real clubs are ready, they will appear here. 🌝'),'clubs-tab.webp'),'social-clubs'):'<div class="social-hub-slot" data-social-slot="clubs" aria-live="polite"></div>';
-  if(route==='social')body=requestCard+collabCard+body;
-  const heading=route==='ranking'?{k:'ELARA · TOGETHER',faTitle:'رنکینگ و اجتماع',enTitle:'Ranking & Community',faSub:'در کنار هم، قله‌ها نزدیک‌ترند.',enSub:'Together, the next summit feels closer.'}:{k:'ELARA · FRIENDS',faTitle:'دوستان',enTitle:'Friends',faSub:'گفتگو، گروه، درخواست‌ها و فعالیت‌های واقعی دوستانت؛ جدا از رنکینگ.',enSub:'Chats, groups, requests and real friend activity — separate from Ranking.'};const headingTitle=tt(heading.faTitle,heading.enTitle);window.ElaraDOM.patch(root,`<header class="social-page-head"><div><small>${heading.k}</small><h1>${headingTitle}</h1><p>${tt(heading.faSub,heading.enSub)}</p></div><div class="social-head-art" aria-hidden="true"></div></header><div class="social-tabs" role="tablist" aria-label="${headingTitle}">${tabs.map(([key,faLabel,enLabel,art])=>`<button type="button" role="tab" aria-selected="${tab===key}" data-social-view="${key}" data-social-route="${route}"><img src="assets/ui/${art}" alt=""><span class="social-tab-label">${tt(faLabel,enLabel)}</span></button>`).join('')}</div><div class="social-reference-grid" role="tabpanel">${body}</div>`);
+  if(route==='social'&&tab==='friends'){
+   const online=friends.filter(p=>presenceFor(p).online).length;
+   const latest=sharedActivities.filter(a=>Number(a.ms||0)>=Date.now()-604800000).length;
+   const rank=me?ranked.findIndex(p=>p.uid===uid)+1:0;
+   const stats=[[tt('دوستان من','My friends'),fa(friends.length),'👥'],[tt('آنلاین الآن','Online now'),fa(online),'🟢'],[tt('درخواست جدید','New requests'),fa(incoming.length),'💌'],[tt('باشگاه‌های عضو','Club membership'),tt('مشاهده','View'),'🛡️'],[tt('فعالیت این هفته','Weekly activity'),fa(latest),'🔥'],[tt('رتبه میان دوستان','Rank among friends'),rank?fa(rank):'—','🏆']];
+   const cards='<section class="social-dashboard-stats" aria-label="'+tt('آمار دوستان','Friend statistics')+'">'+stats.map(row=>'<article class="social-dashboard-stat"><span aria-hidden="true">'+row[2]+'</span><strong>'+row[1]+'</strong><small>'+row[0]+'</small></article>').join('')+'</section>';
+   const search='<div class="social-friends-tools"><input type="search" data-friends-filter aria-label="'+tt('جستجوی دوستان','Search friends')+'" placeholder="'+tt('جستجو در دوستان من…','Search friends…')+'" value="'+esc(friendFilter)+'"><label><input type="checkbox" data-friends-online-only '+(onlineFilter?'checked':'')+'>'+tt('فقط آنلاین','Online only')+'</label></div>';
+   const extras=section(tt('فعالیت دوستان','Friend activity'),'<div class="social-scroll">'+activities+'</div>','social-dashboard-activity')+section(tt('افراد پیشنهادی','Suggested people'),empty(tt('پیشنهاد تأییدشده‌ای در دسترس نیست.','No verified suggestions are available.')),'social-dashboard-suggestions')+section(tt('گروه‌ها و باشگاه‌های من','My groups and clubs'),'<div class="social-dashboard-links"><button type="button" data-social-view="groups" data-social-route="social">'+tt('گروه‌های من','My groups')+'</button><button type="button" data-social-view="clubs" data-social-route="social">'+tt('باشگاه‌های من','My clubs')+'</button></div>','social-dashboard-communities')+section(tt('رتبه‌بندی دوستان','Friend ranking'),'<div class="social-rank-table">'+rankList+'</div><button class="quiet-button" type="button" data-social-hero-action="ranking">'+tt('مشاهده همه','View all')+'</button>','social-dashboard-ranking');
+   body=cards+body+extras;
+  }
+  if(route==='social'&&(tab==='friends'||tab==='requests'))body=requestCard+collabCard+body;
+  const heroText={friends:['دوستان الارا','Elara Friends','با همراهان هم‌مسیرت، دنیای بزرگ‌تری بساز.','Grow together with friends.'],chats:['گفتگوهایی فراتر از فاصله‌ها','Conversations beyond distance','با دوستانت در ارتباط بمان و ایده‌ها را به اشتراک بگذار.','Connect and share ideas.'],groups:['با آدم‌های هم‌مسیر دنیای بزرگ‌تری بساز','Build a bigger world together','گفتگو و یادگیری کنار گروه‌های واقعی.','Join real conversations.'],clubs:['باشگاه‌ها','Clubs','با همراهانت مسیر بزرگ‌تری بساز.','Grow together in clubs.'],challenges:['چالش‌ها، همراهی و رشد واقعی','Challenges and real growth','با دوستانت چالش‌های هیجان‌انگیز را تجربه کن.','Take on challenges together.'],activity:['فعالیت دوستان','Friend activity','فعالیت‌های واقعی به اشتراک‌گذاشته‌شده با اجازه.','Real activity shared with consent.'],requests:['درخواست‌ها','Requests','درخواست‌های دوستی و همکاریِ واقعی.','Actual friend and collaboration requests.'],ranking:['رتبه‌بندی','Ranking','بر پایهٔ داده‌های واقعی.','Based on real data.']};
+  const ht=route==='ranking'?['رنکینگ و اجتماع','Ranking & Community','در کنار هم، قله‌ها نزدیک‌ترند.','Together we grow.']:(heroText[tab]||heroText.friends);
+  const headingTitle=tt(ht[0],ht[1]);
+  const heroActions={friends:['ranking','رفتن به رتبه‌بندی','View ranking'],chats:['new-message','پیام جدید','New message'],groups:['new-group','ایجاد گروه جدید','Create group'],clubs:['new-club','ساخت باشگاه','Create club'],challenges:['new-challenge','ایجاد چالش جدید','New challenge']};
+  const action=route==='social'?heroActions[tab]:null,cta=action?'<button type="button" class="social-hero-cta" data-social-hero-action="'+action[0]+'">'+tt(action[1],action[2])+' <span aria-hidden="true">←</span></button>':'';
+  window.ElaraDOM.patch(root,'<header class="social-page-head"><div class="social-head-copy"><small>ELARA · '+(route==='ranking'?'RANKING':'FRIENDS')+'</small><h1>'+headingTitle+'</h1><p>'+tt(ht[2],ht[3])+'</p>'+cta+'</div></header><div class="social-tabs" role="tablist" aria-label="'+headingTitle+'">'+tabs.map(([key,faLabel,enLabel,art])=>'<button type="button" role="tab" aria-selected="'+(tab===key)+'" data-social-view="'+key+'" data-social-route="'+route+'"><img src="assets/ui/'+art+'" alt=""><span class="social-tab-label">'+tt(faLabel,enLabel)+'</span></button>').join('')+'</div><div class="social-reference-grid" role="tabpanel">'+body+'</div>');
+  if(route==='social')root.querySelectorAll('.social-friends-list .social-row').forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(friendFilter.toLowerCase())||(onlineFilter&&!row.querySelector('.social-presence-dot')));
   const tabStrip=root.querySelector('.social-tabs');
   if(tabStrip){
    tabStrip.style.setProperty('display','flex','important');
@@ -94,7 +114,27 @@ function render(){
  window.ElaraDOM.patch($('elara-home-activity'),arr(s.activities).length?activities: '<p class="ref-empty">اینجا فعلاً ساکته 👀 وقتی دوستات فعالیتی رو باهات share کنن، خبرها همین‌جا میاد 🔥</p>');setTimeout(()=>window.ElaraEngagementView?.scan?.(),0);
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
 }
-document.addEventListener('click',e=>{const b=e.target.closest('[data-social-view]');if(b){selections[b.dataset.socialRoute]=b.dataset.socialView;render()}if(e.target.closest('[data-social-manage]')){selections.social='friends';window.ElaraOpen('social');render()}});
+document.addEventListener('click',e=>{
+ const action=e.target.closest('[data-social-hero-action]')?.dataset.socialHeroAction;
+ if(action){
+  if(action==='ranking')return void window.ElaraOpen?.('ranking');
+  if(action==='new-group')return void window.ElaraSocialGroupsUI?.createGroup?.();
+  if(action==='new-club')return void window.ElaraSocialClubsUI?.createClub?.();
+  if(action==='new-challenge')return void window.ElaraSocialChallengesUI?.compose?.();
+  if(action==='new-message'){selections.social='chats';render();const first=window.ElaraSocial?.friends?.[0];if(first)window.ElaraSocialMessagingUI?.openChat?.(first.uid);return}
+ }
+ const b=e.target.closest('[data-social-view]');
+ if(b){
+  if(b.dataset.socialRoute==='social'&&b.dataset.socialView==='ranking')return void window.ElaraOpen?.('ranking');
+  selections[b.dataset.socialRoute]=b.dataset.socialView;
+  if(b.dataset.socialRoute==='social')try{const url=new URL(location.href);url.searchParams.set('friendsTab',selections.social);history.replaceState(history.state,'',url.pathname+url.search+url.hash)}catch{}
+  render();return
+ }
+ if(e.target.closest('[data-social-manage]')){selections.social='friends';window.ElaraOpen('social');render()}
+});
+function applyFriendFilter(){document.querySelectorAll('#elara-social-page .social-friends-list .social-row').forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(friendFilter.toLowerCase())||(onlineFilter&&!row.querySelector('.social-presence-dot')))}
+document.addEventListener('input',e=>{if(e.target.matches('[data-friends-filter]')){friendFilter=e.target.value;applyFriendFilter()}});
+document.addEventListener('change',e=>{if(e.target.matches('[data-friends-online-only]')){onlineFilter=e.target.checked;applyFriendFilter()}});
 document.addEventListener('change',async e=>{const select=e.target.closest('[data-presence-visibility]');if(!select)return;try{await window.ElaraSocial?.presence?.setVisibility?.(select.value)}catch(error){console.error('Presence privacy update:',error);render()}});
 for(const event of ['elara:social-updated','elara:presence-updated','elara:collab-updated','elara:account-ready','elara:logout','elara:locale-changed'])window.addEventListener(event,render);
 window.addEventListener('elara:open',e=>{if(['ranking','social'].includes(e.detail?.tab))render()});
