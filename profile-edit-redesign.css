@@ -255,3 +255,9 @@
 /* Keep the preview shortcut mobile-only: generic SVG-button styling must not unhide it on desktop. */
 @media(min-width:701px){.pe-shell .pe-header-preview{display:none!important}}
 @media(max-width:700px){.pe-shell .pe-header-preview{display:inline-flex!important}}
+
+/* Desktop title/back belongs to the editor column, never under the elevated sticky preview. */
+@media(min-width:971px){
+ .pe-shell .pe-heading{width:calc((100% - 12px) * .6875);max-width:100%;position:relative;z-index:2}
+}
+@media(max-width:970px){.pe-shell .pe-heading{width:100%}}
