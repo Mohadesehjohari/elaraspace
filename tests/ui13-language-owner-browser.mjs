@@ -5,7 +5,7 @@ import {mkdirSync} from 'node:fs';
 const origin=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const out='browser-artifacts/ui13';mkdirSync(out,{recursive:true});
 const widthSet=[320,360,375,390,412,430,768,1440,1648];
-const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp'];
+const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp','background-moonlit-mountains.webp'];
 const fakeCloud="window.ElaraAccount={user:{uid:'ui13-qa',email:'ui13@example.test',emailVerified:true},profile:{uid:'ui13-qa',name:'Test'}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');window.dispatchEvent(new Event('elara:account-ready'));";
 const fakeSocial="window.ElaraSocial={me:{uid:'ui13-qa',name:'Test'},friends:[],clubs:{list:async()=>[],discover:async()=>[]},challenges:{list:async()=>[]},refresh:async()=>{}};window.dispatchEvent(new Event('elara:social-updated'));";
 const browser=await chromium.launch({headless:true});
@@ -33,6 +33,13 @@ try{
      await page.waitForFunction(destination=>!!document.querySelector('#panel-'+destination+' [data-elara-page-hero]'),destination,{timeout:10000});
      const reference=await page.locator('#panel-'+destination+' [data-elara-page-hero]').first().evaluate(el=>getComputedStyle(el).getPropertyValue('--elara-page-art'));
      assert.ok(reference.includes(art),'Owner route art not wired to '+destination+': '+reference);
+    }
+    for(const destination of ['books','blog','page','ranking','social']){
+      await page.evaluate(route=>ElaraOpen(route,{history:'replace'}),destination);
+      await page.waitForSelector('#panel-'+destination+':not(.hidden)');
+      await page.waitForTimeout(80);
+      const bad=await page.locator('#panel-'+destination+' .elara-secondary-hero-duplicate').evaluateAll(xs=>xs.filter(el=>getComputedStyle(el).display!=='none').map(el=>el.className));
+      assert.equal(bad.length,0,'Duplicate visible route hero '+destination+': '+JSON.stringify(bad));
     }
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   }
