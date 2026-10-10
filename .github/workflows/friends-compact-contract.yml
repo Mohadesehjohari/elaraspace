@@ -1,0 +1,56 @@
+name: Friends compact contract and baseline repro
+on:
+  pull_request:
+    paths:
+      - 'tests/product-hubs-store-browser.mjs'
+      - 'tests/friends-hub-browser.mjs'
+      - '.github/workflows/friends-compact-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/product-hubs-store-browser.mjs'
+      - '.github/workflows/friends-compact-contract.yml'
+permissions:
+  contents: read
+jobs:
+  baseline-reproduction:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve untouched main baseline at 4174
+        run: |
+          python3 -m http.server 4174 --directory baseline >/tmp/friends-baseline.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4174/boot.js > /dev/null
+      - name: Reproduce the stale Friends assertion on untouched main
+        shell: bash
+        run: |
+          set +e
+          ELARA_TEST_URL=http://127.0.0.1:4174 node baseline/tests/product-hubs-store-browser.mjs > baseline-friends-old-assertion.log 2>&1
+          result=$?
+          set -e
+          tail -40 baseline-friends-old-assertion.log
+          if [ "$result" -eq 0 ]; then echo "::error::Old Friends assertion unexpectedly passes against untouched main"; exit 1; fi
+          grep -F "Friends tabs must be compact transparent icon controls" baseline-friends-old-assertion.log || { echo "::error::Baseline failed for a different reason"; exit 1; }
+          grep -F "AssertionError" baseline-friends-old-assertion.log
+          echo "BASELINE_STALE_FRIENDS_CONTRACT_REPRODUCED main=$(git -C baseline rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: main-stale-friends-assertion
+          path: baseline-friends-old-assertion.log
+          if-no-files-found: warn
+          retention-days: 14
