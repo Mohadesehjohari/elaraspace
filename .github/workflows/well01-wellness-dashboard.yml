@@ -1,0 +1,65 @@
+name: WELL-01 Green Wellness Dashboard
+on:
+  push:
+    branches:
+      - well01-green-dashboard-20261011
+  pull_request:
+    paths:
+      - boot.js
+      - well01-wellness-dashboard.js
+      - well01-wellness-dashboard.css
+      - tests/well01-wellness-dashboard-browser.mjs
+      - .github/workflows/well01-wellness-dashboard.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  wellness-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 36
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Safety guard and JavaScript syntax
+        run: |
+          set -eu
+          node --check boot.js
+          node --check well01-wellness-dashboard.js
+          node --check tests/well01-wellness-dashboard-browser.mjs
+          node tests/wellness-analysis.test.cjs
+          test -s assets/ui/workout_banner_main.webp
+          test -s assets/ui/health-fitness-card-background.webp
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js)$'; then
+            echo "::error::Protected shared modules were touched"; exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve PR and baseline independently
+        run: |
+          python3 -m http.server 4173 >/tmp/well01-current.log 2>&1 &
+          python3 -m http.server 4174 --directory baseline >/tmp/well01-base.log 2>&1 &
+          sleep 3
+          curl -fLsS http://127.0.0.1:4173/well01-wellness-dashboard.js >/dev/null
+      - name: Visual and functional cross-viewport acceptance
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+          ELARA_BASELINE_URL: http://127.0.0.1:4174
+        run: timeout 600s node tests/well01-wellness-dashboard-browser.mjs
+      - name: Existing private wellness notes
+        if: always()
+        run: timeout 240s node tests/wellness-notes-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: well01-before-after-${{ github.sha }}
+          path: browser-artifacts/well01/*.png
+          if-no-files-found: warn
+          retention-days: 30
