@@ -47,7 +47,7 @@
  font-weight:500;font-size:15px;line-height:1.5;
 }
 .pe-shell .pe-field input::placeholder,.pe-shell .pe-field textarea::placeholder{color:#9eb1d0}
-.pe-shell .pe-username-row{display:flex;align-items:stretch;gap:0;margin-top:5px}
+.pe-shell .pe-username-row{display:flex;align-items:stretch;gap:0;margin-top:5px;direction:ltr}
 .pe-shell .pe-username-row input{margin:0;border-radius:12px 0 0 12px;direction:ltr;text-align:left}
 .pe-shell .pe-copy{min-width:40px;border:1px solid #3567a3;border-right:none;border-radius:0 12px 12px 0;background:#122d56;color:#edf2ff;font-size:23px}
 .pe-shell .pe-username-state{display:block;font-size:10px;font-weight:500;line-height:1.35;margin:4px 0 0;color:#f3b2bd}
@@ -86,17 +86,17 @@
 .pe-shell h2{margin:0;color:#fff;font-size:17px;line-height:1.35}
 .pe-shell .pe-panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .pe-shell .pe-panel-title small{font-size:10px;color:#b0cbed}
-.pe-shell .pe-colors{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-around;gap:10px;margin-top:16px}
+.pe-shell .pe-colors{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-around;gap:10px;margin-top:16px;direction:ltr}
 .pe-shell .pe-colors button{flex:none;width:34px;height:34px;border:2px solid transparent;border-radius:50%;box-shadow:0 0 7px #0006}
 .pe-shell .pe-colors button[aria-pressed=true]{outline:2px solid #13d5ff;outline-offset:3px;box-shadow:0 0 13px #20b9ff}
-.pe-shell .pe-templates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pe-shell .pe-templates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;direction:ltr}
 .pe-shell .pe-template{position:relative;overflow:hidden;padding:0 0 3px;min-width:0;border:1px solid #258adf;border-radius:12px;background:#07142b;color:#fff}
 .pe-shell .pe-template img{display:block;width:100%;height:65px;object-fit:cover}
 .pe-shell .pe-template span{display:block;font-size:12px;line-height:1.5;font-weight:700}
 .pe-shell .pe-template[aria-pressed=true]::after{content:'✓';position:absolute;top:4px;right:4px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#008dff;color:#fff}
 .pe-shell .pe-frames{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 17px;direction:ltr}
 .pe-shell .pe-frames>*{direction:rtl}
-.pe-shell .pe-frames-list{display:flex;justify-content:space-around;align-items:center;gap:12px;flex:1}
+.pe-shell .pe-frames-list{display:flex;justify-content:space-around;align-items:center;gap:12px;flex:1;direction:ltr}
 .pe-shell .pe-frame{position:relative;flex:none;width:49px;height:49px;border-radius:50%;border:1px solid #2e78ba;background:#04142b;color:#51739c;font-size:32px}
 .pe-shell .pe-frame img{width:100%;height:100%;object-fit:contain}
 .pe-shell .pe-title-field{position:relative;padding:10px 17px}
