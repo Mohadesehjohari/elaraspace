@@ -183,6 +183,9 @@
     const host=$('drawer-account-area');if(!host)return;
     ensureProfileHubCSS();
     if(window.matchMedia('(max-width:700px)').matches){
+      // Account is the only full-screen Drawer section; bypass inherited grid slots.
+      host.style.setProperty('position','absolute','important');
+      host.style.setProperty('inset','0','important');
       host.style.setProperty('margin','0','important');
       host.style.setProperty('width','100%','important');
       host.style.setProperty('max-width','100%','important');
