@@ -173,7 +173,7 @@ function syncPresenceListeners(){
    if(!snap.exists()){delete state.presence[other]}
    else{const d=snap.data()||{},ms=d.updatedAt?.toMillis?.()||0;state.presence[other]={uid:other,visibility:d.visibility||'friends',lastSeen:ms}}
    window.dispatchEvent(new Event('elara:presence-updated'));window.ElaraSocialView?.render?.()
-  },error=>{if(error?.code!=='permission-denied')console.warn('Elara presence listener:',other,error.code||error.message)});
+  },error=>{delete state.presence[other];window.dispatchEvent(new Event('elara:presence-updated'));window.ElaraSocialView?.render?.();if(error?.code!=='permission-denied')console.warn('Elara presence listener:',other,error.code||error.message)});
   presenceRuntime.unsubs.set(other,off)
  }
 }
