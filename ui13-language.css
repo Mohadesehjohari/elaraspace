@@ -159,3 +159,22 @@
  .elara-dialog-panel:has(.language-class-report){width:min(94vw,700px)!important}
  #panel-language.ui12-language .ui12-hero.elara-language-hero{background-position:47% 66%!important}
 }
+
+/* UI14 Leitner: counts, not decorative big number tiles. */
+#panel-language.ui12-language .ui12-boxes{justify-content:space-around;align-items:center;gap:4px;padding:8px 0 21px}
+#panel-language.ui12-language .ui12-box{position:relative;flex:0 1 47px;width:47px;min-width:0;height:47px;border-radius:50%;background:radial-gradient(circle at 35% 20%,#114367,#041729 80%);border:2px solid #18c7ef;box-shadow:inset 0 0 12px #01b6f53a,0 0 12px #01b6f55c}
+#panel-language.ui12-language .ui12-box b{font-size:17px}
+#panel-language.ui12-language .ui12-box small{position:absolute;top:calc(100% + 3px);right:50%;transform:translateX(50%);width:max-content;max-width:70px;font-size:9px;line-height:1.35;color:#d0e9ff}
+#panel-language.ui12-language .ui12-box-5{background:radial-gradient(circle at 35% 25%,#80532a,#1a1623 80%);border-color:#ffc15f}
+@media(max-width:700px){
+ #panel-language.ui12-language .ui12-boxes{gap:3px;padding-bottom:20px}
+ #panel-language.ui12-language .ui12-box{flex:0 1 34px;width:34px;height:34px}
+ #panel-language.ui12-language .ui12-box b{font-size:13px}
+ #panel-language.ui12-language .ui12-box small{font-size:7px}
+}
+@media(max-width:389px){
+ #panel-language.ui12-language .ui12-box{width:39px;height:39px;flex:0 1 39px}
+}
+/* Reframe the owner's actual library art rather than pushing the whole hero down. */
+html body #main #panel-books .elara-global-hero{background-position:center 68%!important}
+@media(max-width:700px){html body #main #panel-books .elara-global-hero{background-position:52% 66%!important}}
