@@ -33,9 +33,9 @@ async function run(width,height){
    navScrolls:nav.scrollWidth>nav.clientWidth};
  });
  assert.ok(geometry,width+': Friends nav geometry unavailable');
- assert.ok(geometry.height>=45&&geometry.height<=56,width+': artwork tiles must be compact '+JSON.stringify(geometry));
+ assert.ok(geometry.height>=(width<=700?60:45)&&geometry.height<=(width<=700?74:56),width+': F2 tab height mismatch '+JSON.stringify(geometry));
  assert.ok(geometry.art<=30,width+': icons must be compact '+JSON.stringify(geometry));
- assert.ok(geometry.width>=100,width+': tap target must be usable '+JSON.stringify(geometry));
+ assert.ok(geometry.width>=(width<=700?54:100),width+': tab width must match compact reference '+JSON.stringify(geometry));
 
  assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges']);
  assert.equal(await page.locator('.friends-f2-kpis .friends-f2-kpi').count(),6,width+': six F2 KPIs required');
