@@ -96,7 +96,8 @@ try{
     assert.deepEqual(await page.locator('#ui12-leitner .ui12-box small span').allTextContents(),[1,2,1,1,2].map(n=>n.toLocaleString('fa-IR')),'Multi-word Leitner counts not driven by canonical storage');
     await page.evaluate(words=>{const st=JSON.parse(localStorage.getItem('elara_space_v1'));st.words=words;localStorage.setItem('elara_space_v1',JSON.stringify(st));ElaraLanguageUI12.refresh()},originalWordSet);
     const promo=await page.locator('#ref-sidebar-banner').evaluate(el=>getComputedStyle(el).backgroundImage);
-    assert.match(promo,/background-moonlit-mountains\.webp/,'Real sidebar landscape not displayed');
+    assert.match(promo,/daily-banner-bg_main\.webp/,'Genuine Sidebar daily artwork not displayed');
+    assert.ok(!promo.includes('background-moonlit-mountains.webp'),'Old Sidebar background must not override the owner asset');
   }
   await page.screenshot({path:out+'/after-'+width+'.png',fullPage:true,animations:'disabled'});
   for(const [key,target] of Object.entries({leitner:'words',books:'language-books',classes:'language-courses',tasks:'language-tasks',channels:'language-channels',challenges:'language-challenges',report:'language-reports'})){
