@@ -137,6 +137,11 @@
  .pe-shell .pe-name-grid{gap:7px}
  .pe-shell .pe-templates img{height:64px}
 }
+@media(min-width:701px) and (max-width:970px){
+ .pe-shell .pe-layout{grid-template-columns:minmax(0,1fr)}
+ .pe-shell .pe-preview-outer{position:static}
+ .pe-shell .pe-custom-grid{grid-template-columns:1fr 1.5fr}
+}
 @media(max-width:700px){
  #elara-profile-edit-screen.pe-shell{
   inset:62px 0 calc(80px + env(safe-area-inset-bottom)) 0;z-index:300;
@@ -210,3 +215,8 @@
  .pe-shell .pe-badges{flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.pe-shell *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+@media(max-width:400px) and (min-width:356px){
+ .pe-shell .pe-frames{display:block}
+ .pe-shell .pe-frames-list{margin-top:10px}
+}
