@@ -64,7 +64,7 @@ async function openChat(other){
  const section=layout(),dm=api(),p=friendBy(other),slot=section?.querySelector('[data-social-dm-slot]');
  if(!section||!slot||!dm||!p){return}
  stop();activeOther=other;const ticket=threadToken;
- section.classList.add('has-active-thread');
+ section.classList.add('has-active-thread');section.classList.remove('has-profile-panel');
  section.querySelectorAll('[data-social-open-dm]').forEach(b=>b.classList.toggle('is-active',b.dataset.socialOpenDm===other));
  slot.innerHTML='<p role="status" class="social-dm-loading">'+t('در حال باز کردن گفتگو…','Opening conversation…')+'</p>';
  const profile=section.querySelector('[data-dm-profile-slot]');if(profile){profile.hidden=true;profile.innerHTML=''}
@@ -78,9 +78,9 @@ async function openChat(other){
   const initial=await dm.messages(other);
   if(ticket!==threadToken||!wrap.isConnected)return;
   renderMessages(messagesHost,initial,other);
-  void dm.markRead?.(other).then(()=>section.querySelector('[data-social-open-dm="'+CSS.escape(other)+'"]')?.classList.remove('has-unread')).catch(()=>{});
+  void Promise.resolve(dm.markRead?.(other)).then(()=>section.querySelector('[data-social-open-dm="'+CSS.escape(other)+'"]')?.classList.remove('has-unread')).catch(()=>{});
  }catch(error){if(ticket===threadToken)status.textContent=String(error?.message||error);return}
- try{stopListening=dm.listen(other,m=>{if(ticket!==threadToken||!wrap.isConnected)return;renderMessages(messagesHost,m,other);void dm.markRead?.(other).catch(()=>{})},error=>{if(ticket===threadToken)status.textContent=String(error?.message||error)})}
+ try{stopListening=dm.listen(other,m=>{if(ticket!==threadToken||!wrap.isConnected)return;renderMessages(messagesHost,m,other);void Promise.resolve(dm.markRead?.(other)).catch(()=>{})},error=>{if(ticket===threadToken)status.textContent=String(error?.message||error)})}
  catch(error){status.textContent=String(error?.message||error)}
  wrap.querySelector('form').addEventListener('submit',async e=>{
   e.preventDefault();const text=field.value.trim();if(!text)return;
@@ -90,7 +90,7 @@ async function openChat(other){
   finally{button.disabled=false}
  });
  wrap.addEventListener('click',async e=>{
-  if(e.target.closest('[data-dm-back]')){stop();activeOther='';section.classList.remove('has-active-thread');section.querySelector('[data-dm-profile-slot]')?.setAttribute('hidden','');slot.innerHTML='<div class="social-chat-empty">'+t('یک گفتگو را انتخاب کن.','Select a chat.')+'</div>';section.querySelectorAll('[data-social-open-dm]').forEach(b=>b.classList.remove('is-active'));return}
+  if(e.target.closest('[data-dm-back]')){stop();activeOther='';section.classList.remove('has-active-thread','has-profile-panel');section.querySelector('[data-dm-profile-slot]')?.setAttribute('hidden','');slot.innerHTML='<div class="social-chat-empty">'+t('یک گفتگو را انتخاب کن.','Select a chat.')+'</div>';section.querySelectorAll('[data-social-open-dm]').forEach(b=>b.classList.remove('is-active'));return}
   if(e.target.closest('[data-dm-profile-toggle]')){if(!profile)return;profile.hidden=!profile.hidden;wrap.querySelector('[data-dm-profile-toggle]').setAttribute('aria-expanded',String(!profile.hidden));section.classList.toggle('has-profile-panel',!profile.hidden);if(!profile.hidden)profile.innerHTML='<div class="social-dm-profile-cover"></div>'+avatarMarkup(p)+'<h3 data-elara-ugc dir="auto">'+esc(p.name||p.username||t('دوست','Friend'))+'</h3><p>'+esc(p.username?'@'+p.username:t('دوست تأییدشده','Accepted friend'))+'</p><p class="social-dm-profile-presence">'+esc(liveLabel(other))+'</p><button type="button" data-open-profile="'+esc(other)+'" class="quiet-button">'+t('مشاهده پروفایل','View profile')+'</button>';return}
   if(e.target.closest('[data-dm-emoji]')){const at=field.selectionStart;field.setRangeText('✨',at,field.selectionEnd,'end');writeDraft(other,field.value);field.focus();return}
   if(e.target.closest('[data-dm-mute]')){const muted=window.ElaraSocial?.isMuted?.(other);try{if(muted)await window.ElaraSocial.unmuteUser(other);else await window.ElaraSocial.muteUser(other);e.target.textContent=muted?t('بی‌صدا','Mute'):t('رفع بی‌صدا','Unmute')}catch(error){status.textContent=String(error?.message||error)}return}
