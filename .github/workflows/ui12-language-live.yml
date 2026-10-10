@@ -6,6 +6,15 @@ on:
       - boot.js
       - ui12-language-dashboard.js
       - ui12-language-dashboard.css
+      - ui13-language.css
+      - ui13-language-routes.js
+      - global-page-banner-20261009.js
+      - assets/ui/language_banner_main.webp
+      - assets/ui/lightner.webp
+      - assets/ui/librairy_banner_main.webp
+      - assets/ui/weblog_banner_main.webp
+      - assets/ui/workout_banner_main.webp
+      - assets/ui/daily-banner-bg_main.webp
       - tests/ui12-language-live-browser.mjs
       - .github/workflows/ui12-language-live.yml
   workflow_dispatch:
@@ -20,22 +29,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Wait for GitHub Pages and compare exact deployed bytes
+      - name: Wait for GitHub Pages and compare owner WebP and UI13 exact deployed bytes
         shell: bash
         run: |
           set -euo pipefail
           ok=false
           for attempt in $(seq 1 85); do
             ok=true
-            for file in index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css; do
-              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?ui12=$GITHUB_SHA&attempt=$attempt" -o "/tmp/ui12-live-$file" || ! cmp -s "$file" "/tmp/ui12-live-$file"; then
+            for file in index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp; do
+              # Unique temporary path is independent of nested asset directories.
+              output="/tmp/ui13-live-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?ui13=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then
                 ok=false
                 break
               fi
             done
             if [ "$ok" = true ]; then
-              echo "UI12_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css"
-              sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css
+              echo "UI13_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA files=12"
+              sha256sum index.html boot.js ui12-language-dashboard.js ui12-language-dashboard.css ui13-language.css ui13-language-routes.js global-page-banner-20261009.js assets/ui/language_banner_main.webp assets/ui/lightner.webp assets/ui/librairy_banner_main.webp assets/ui/weblog_banner_main.webp assets/ui/workout_banner_main.webp assets/ui/daily-banner-bg_main.webp
               break
             fi
             if (( attempt % 10 == 0 )); then echo "Waiting for GitHub Pages CDN: attempt $attempt"; fi
