@@ -392,7 +392,13 @@
     if(task.sourceCompletionLocked){notify('وضعیت این تسک از بخش منبع مدیریت می‌شود.');return}
     if(task.recurrenceRule&&!applies(task,day)){notify('این تسک در تاریخ انتخاب‌شده فعال نیست.');return}
     if(choice==='done'){
-      if(!taskDone(task,day))await taskAction('toggle-task',id,day);
+      // Keep the canonical action/XP guards. A single Done decision completes
+      // remaining sessions of multi-target tasks rather than just one tick.
+      for(let n=0,max=Math.max(1,taskDailyTarget(task));n<max;n++){
+        const current=ensureState(readState()).tasks.find(row=>row.id===id);
+        if(!current||taskDone(current,day))break;
+        await taskAction('toggle-task',id,day);
+      }
       return;
     }
     if(!['missed','later'].includes(choice))return;

@@ -122,6 +122,32 @@ try{
    await page.waitForSelector('#panel-language:not(.hidden)');
   }
   if(width===390){
+   const created=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.text==='UI14 categorized test'));
+   assert.ok(created?.id,'Canonical Language task missing before transfer');
+   await page.evaluate(()=>ElaraOpen('tasks',{history:'push'}));
+   await page.waitForSelector('#panel-tasks:not(.hidden) .astra-task-row[data-key="'+created.id+'"]');
+   const task=page.locator('#task-list .astra-task-row[data-key="'+created.id+'"]');
+   await task.locator('.astra-task-more summary').click();
+   await task.locator('[data-phase2-action="edit-task"]').click();
+   const category=page.locator('.task-detail-form [data-detail="sourceGroup"]');
+   await category.waitFor({state:'visible'});
+   await category.selectOption('book');
+   await page.getByRole('button',{name:'ذخیره تغییرات'}).click();
+   await page.waitForFunction(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id===id)?.sourceGroup==='book',created.id);
+   assert.equal(await page.evaluate(id=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.filter(t=>t.id===id).length,created.id),1,'Category edit cloned a task');
+   await page.evaluate(()=>ElaraOpen('language-tasks',{history:'push'}));
+   await page.waitForSelector('#panel-language-tasks:not(.hidden)');
+   assert.equal(await page.locator('#panel-language-tasks [data-section-task-id="'+created.id+'"]').count(),0,'Moved task remained in Language');
+   await page.evaluate(()=>ElaraOpen('books',{history:'push'}));
+   await page.waitForSelector('#panel-books:not(.hidden) [data-section-task-id="'+created.id+'"]',{timeout:10000});
+   await page.locator('#panel-books [data-section-task-all="book"]').click();
+   await page.waitForSelector('#panel-tasks:not(.hidden)');
+   assert.equal(await page.locator('#panel-tasks .astra-task-row[data-key="'+created.id+'"]').count(),1,'Library task missing from filtered canonical Tasks');
+   assert.equal(await page.evaluate(()=>document.querySelector('#panel-tasks')?.dataset.taskCategoryFilter),'book','View all lost category');
+   await page.locator('[data-task-category-clear]').click();
+   assert.equal(await page.evaluate(()=>document.querySelector('#panel-tasks')?.dataset.taskCategoryFilter||''),'','Category clear failed');
+  }
+  if(width===390){
    await page.evaluate(()=>ElaraOpen('language-courses',{history:'replace'}));
    await page.waitForSelector('#panel-language-courses:not(.hidden) [data-class-classmates="class-1"]');
    await page.evaluate(()=>{window.ElaraCollab={memberRows:async()=>[{name:'عضو آزمایشی',completed:2,total:10,percent:20}],openSpace:async()=>{throw Error('must not open collaboration dashboard')}}});
