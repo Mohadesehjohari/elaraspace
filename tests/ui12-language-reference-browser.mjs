@@ -69,7 +69,7 @@ for(const width of widths){
    await page.waitForSelector('#panel-'+target+':not(.hidden)',{timeout:10000});
    if(target==='language-tasks')assert.ok(await page.locator('#panel-language-tasks .ui13-task-row').count()>0,'Language Tasks full page has no source tasks');
    if(target==='language-channels'||target==='language-challenges')assert.ok(await page.locator('#panel-'+target+' .ui13-subpage').count()>0,'Dedicated destination absent: '+target);
-   if(id!=='overview'){const back=page.locator('#panel-'+target+' [data-ui13-back],#panel-'+target+' [data-feature-route="language"]').first();if(await back.count())await back.click();else await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)')}
+   if(id!=='overview'){await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)')}
   }
   const value=await page.locator('#ui12-report .ui12-chart').innerHTML();
   await page.locator('#ui12-report [data-ui12-range="year"]').click();
