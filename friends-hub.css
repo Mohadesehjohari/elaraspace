@@ -569,3 +569,17 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
   min-width:88px!important;font-size:11px!important
  }
 }
+
+/* F2 mobile two-card composition: search keeps an entire usable line instead
+   of squeezing beside its actions in the half-width suggestion card. */
+@media(min-width:420px) and (max-width:700px){
+ #elara-social-page.social-reference .friends-f2-invite-card .friends-f2-invite input{
+   flex:1 0 100%!important;width:100%!important;min-width:0!important;
+ }
+ #elara-social-page.social-reference .friends-f2-invite-card .friends-f2-invite .primary-button{
+   flex:1 1 auto!important;min-height:42px!important;
+ }
+ #elara-social-page.social-reference .friends-f2-invite-card .friends-f2-invite [data-profile-lookup]{
+   min-width:42px!important;min-height:42px!important;
+ }
+}
