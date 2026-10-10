@@ -12,6 +12,7 @@ const browser=await chromium.launch({headless:true});
 const sizes=[320,375,390,430,768,1440,1648];
 const geometry=[];
 const errors=[];
+const mockAuthStyle='#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}';
 const testUser={uid:'mock-profile-edit-test',name:'کاربر آزمایشی',username:'visual_qa',bio:'متن تست',xp:0,profilePublic:true};
 const bootstrap=async(page)=>{
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
@@ -32,8 +33,8 @@ const bootstrap=async(page)=>{
  },testUser);
  await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
  // Test-only bypass of the signed-out Firebase account gate; never change production gate code.
- await page.addStyleTag({content:'#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}'});
- await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
+ await page.addStyleTag({content:mockAuthStyle});
+ await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting')});
  await page.locator('#elara-profile-edit-screen').waitFor({timeout:15000});
  assert.equal(await page.locator('.pe-heading h1').isVisible(),true,'The Edit Profile surface must be visible');
  await page.locator('.pe-preview-card').waitFor({timeout:10000});
@@ -114,8 +115,8 @@ for(const width of sizes){
    window.ElaraSocial={me:{...user},friends:[],saveProfileValues:async()=>({warnings:[]})};
   },testUser);
   await page.evaluate(()=>window.ElaraProfileSystem.openEditor());
-  await page.addStyleTag({content:'#cloud-layer{display:none!important;visibility:hidden!important;pointer-events:none!important}'});
-  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready')});
+  await page.addStyleTag({content:mockAuthStyle});
+  await page.evaluate(()=>{const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting')});
   await page.locator('#elara-profile-edit-screen').waitFor();
   assert.equal(await page.locator('#elara-profile-edit-screen [name="title"]').inputValue(),'عنوان تست','Local visual settings did not survive reload');
   assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#cloud-layer')).display),'none','Auth gate must stay excluded from mock screenshots');
