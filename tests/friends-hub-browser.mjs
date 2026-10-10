@@ -60,7 +60,9 @@ async function run(width,height){
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': Ranking must remain a separate four-tab surface');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+2,width+': Friends Hub horizontal overflow '+JSON.stringify(overflow));
- await page.evaluate(()=>window.ElaraOpen('social',{history:'replace'}));await page.waitForTimeout(80);
+ await page.evaluate(()=>{window.ElaraI18n.set('fa');window.ElaraOpen('social',{history:'replace'})});await page.waitForTimeout(80);
+ const heads=await page.evaluate(()=>[...document.querySelectorAll('#panel-social .social-page-head,#panel-social .elara-global-hero,#panel-social .section-heading')].map(el=>({classes:el.className,parent:el.parentElement?.id||el.parentElement?.className,heading:el.querySelector('h1,h2')?.textContent?.slice(0,45),visible:getComputedStyle(el).display!=='none',height:Math.round(el.getBoundingClientRect().height)})));
+ console.log('FRIENDS_HERO_STRUCTURE',width,JSON.stringify(heads));
  await page.screenshot({path:'browser-artifacts/friends-hub-'+width+'.png',fullPage:true});
  await page.close();
 }
