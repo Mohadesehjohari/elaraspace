@@ -80,7 +80,7 @@ function dashboard(){
  const visible=rows(),first=visible.slice(0,3),rest=visible.slice(3);
  const featured='<section class="blog-block">'+sectionHeader(tx('مقاله‌های پیشنهادی','Featured articles'),'🌟',tx('مشاهده همه ←','View all ←'),'all')+
  (first.length?'<div class="blog-grid">'+first.map(card).join('')+'</div>':emptyState('مقاله‌ای در این دسته یا جست‌وجو پیدا نشد.','No articles in this category or search.'))+'</section>';
- const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧',tx('مشاهده همه ←','View all ←'),'all')+'<div class="blog-grid">'+rest.map(card).join('')+'</div></section>':'';
+ const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧',tx('مشاهده همه ←','View all ←'),'all')+'<div class="blog-grid'+(rest.length===2?' blog-grid-two':'')+'">'+rest.map(card).join('')+'</div></section>':'';
  return hero()+'<div class="blog-frame"><section class="blog-top-controls">'+categories()+'<div class="blog-personal-links"><button type="button" data-blog-route="my">'+tx('بلاگ من','My blog')+'</button><button type="button" data-blog-route="published">'+tx('منتشرشده‌ها','Published')+'</button><button type="button" data-blog-route="drafts">'+tx('پیش‌نویس‌ها','Drafts')+'</button></div></section>'+
  quick()+'<label class="blog-search"><span aria-hidden="true">⌕</span><input data-blog-search type="search" value="'+esc(query)+'" placeholder="'+tx('جست‌وجو در مقاله‌ها…','Search articles…')+'" aria-label="'+tx('جست‌وجو در مقاله‌ها','Search articles')+'"></label>'+
  '<div class="blog-content-layout"><main class="blog-feed">'+featured+
