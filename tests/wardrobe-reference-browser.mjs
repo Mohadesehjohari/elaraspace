@@ -15,8 +15,8 @@ for(const width of widths){
  await page.waitForFunction(()=>!!window.ElaraWardrobeUI&&!!window.ElaraProfileSystem&&!!window.ElaraAccount&&typeof window.ElaraLoadSocial==='function',{timeout:25000});
  await page.evaluate(async()=>{try{await window.ElaraLoadSocial()}catch{}});
  await page.evaluate(()=>{
-   window.__wardrobeMock={uid:'wardrobe-p3-account-A',xp:width};
- },{width});
+   window.__wardrobeMock={uid:'wardrobe-p3-account-A',xp:0};
+ });
  await page.evaluate(w=>{
   window.__wardrobeMock.xp=w>=1440?100000000:0;
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:window.__wardrobeMock.uid,photoURL:''}),set:()=>{}});
