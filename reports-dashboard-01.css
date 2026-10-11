@@ -136,19 +136,25 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports>.elara-reports-hero .elara-reports-hero-content p{font-size:.69rem;max-width:270px}
  #panel-reports .elara-reports-dashboard{gap:9px}
  #panel-reports .elara-reports-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- #panel-reports .elara-reports-kpi{min-height:101px;padding:9px 8px 9px 43px}
- #panel-reports .elara-reports-kpi-icon{left:7px;top:9px;width:30px;height:34px}
+ #panel-reports .elara-reports-kpi{min-height:91px;padding:7px 7px 7px 40px;gap:2px}
+ #panel-reports .elara-reports-kpi-icon{left:6px;top:8px;width:29px;height:30px}
  #panel-reports .elara-reports-kpi-icon .elara-reports-icon{font-size:1.25rem}
  #panel-reports .elara-reports-kpi span:not(.elara-reports-icon){font-size:.65rem}
- #panel-reports .elara-reports-kpi strong{font-size:1.15rem}
- #panel-reports .elara-reports-kpi footer small{font-size:.51rem}
+ #panel-reports .elara-reports-kpi strong{font-size:1.1rem}
+ #panel-reports .elara-reports-kpi footer small{font-size:.58rem;line-height:1.3}
  #panel-reports .elara-reports-panel{padding:11px}
  #panel-reports .elara-reports-trends{min-height:0}
  #panel-reports .elara-reports-periods{width:100%;justify-content:space-evenly}
  #panel-reports .elara-reports-periods button{min-height:44px;padding:5px 9px;font-size:.66rem}
- #panel-reports .elara-reports-plot{min-width:560px}
+ #panel-reports .elara-reports-plot-scroll{overflow-x:hidden}
+ #panel-reports .elara-reports-plot{min-width:0;width:100%;height:auto;max-height:none}
  #panel-reports .elara-reports-sections-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #panel-reports .elara-reports-insight-grid{grid-template-columns:1fr}
+ #panel-reports .elara-reports-spark{width:60px;height:17px}
+ #panel-reports .elara-reports-section{gap:5px;padding:8px 7px}
+ #panel-reports .elara-reports-today .elara-reports-ring{width:112px;height:112px}
+ #panel-reports .elara-reports-today-rows>div{padding:6px 7px}
+ #panel-reports .elara-reports-activity-list button{padding:5px;min-height:40px}
  #panel-reports .elara-reports-activity-list button{min-height:44px}
  #panel-reports-today .elara-reports-detail-head{padding:15px 12px}
  body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;visibility:visible!important;min-height:44px!important;max-width:49%!important;white-space:nowrap!important}
