@@ -640,3 +640,9 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
  #panel-words.l3-review-active .flashcard #flash-front{font-size:clamp(43px,12vw,75px)}
  #panel-words.l3-review-active .flashcard .timer-actions button{min-height:58px;flex:1 1 100%}
 }
+
+/* In review mode, isolate the scene from pre-existing route injections and widgets. */
+#panel-words.l3-review-active>:not(.l3-toolbar):not(.flashcard){display:none!important}
+@media(max-width:700px){
+ #panel-words.l3-review-active{padding-bottom:calc(155px + env(safe-area-inset-bottom))!important}
+}
