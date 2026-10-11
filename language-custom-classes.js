@@ -79,6 +79,7 @@ async function remove(c){
  const ok=await window.ElaraDialog.confirm(tx('این کلاس و گزارش جلساتش حذف شود؟','Delete this class and its session history?'),{title:tx('حذف کلاس','Delete class'),confirmText:tx('حذف','Delete'),danger:true});if(!ok)return;
  const s=read();s.languageClasses=s.languageClasses.filter(x=>x.id!==c.id);write(s);
 }
+let languageClassesFilter='all';
 function render(){
  const panel=document.getElementById('panel-language-courses');if(!panel)return;
  let host=panel.querySelector('[data-custom-classes]');if(!host){host=document.createElement('section');host.className='language-custom-classes';host.dataset.customClasses='';panel.append(host)}
@@ -122,6 +123,32 @@ function render(){
  ];
  overview.innerHTML=metrics.map(([kind,label,value,note])=>'<article class="l1-class-stat l1-stat-'+kind+'"><span aria-hidden="true" class="l1-stat-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+statIcons[kind]+'</svg></span><div><small>'+label+'</small><strong>'+fa(value)+'</strong><span>'+note+'</span></div></article>').join('');
  if(hero)hero.after(overview);else host.prepend(overview);
+
+ // Visual-only, canonical data-backed type filters. Filtering never writes or duplicates classes.
+ const typeFilter=document.createElement('nav');
+ typeFilter.className='lf-class-filter';
+ typeFilter.setAttribute('aria-label',tx('فیلتر کلاس‌ها','Filter classes'));
+ typeFilter.innerHTML=[
+  ['all',tx('همه کلاس‌ها','All classes')],
+  ['online',tx('آنلاین','Online')],
+  ['linked',tx('لینک‌شده','Linked')],
+  ['offline',tx('آفلاین','Offline')]
+ ].map(([type,label])=>'<button type="button" data-lf-class-filter="'+type+'" aria-pressed="'+(languageClassesFilter===type)+'">'+label+'</button>').join('');
+ if(overview)overview.after(typeFilter);
+ for(const cardElement of host.querySelectorAll('.language-class-card')){
+  const record=rows.find(c=>String(c.id)===cardElement.dataset.languageClassId);
+  cardElement.hidden=!!record&&languageClassesFilter!=='all'&&record.type!==languageClassesFilter;
+ }
+ for(const group of host.querySelectorAll('.language-personal-classes,.language-shared-classes')){
+  const visible=group.querySelectorAll('.language-class-card:not([hidden])').length;
+  const hasCards=group.querySelectorAll('.language-class-card').length;
+  if(hasCards&&!visible){
+    const notice=document.createElement('p');notice.className='lf-filter-empty';
+    notice.textContent=tx('در این دسته کلاسی وجود ندارد.','No classes match this filter.');
+    group.querySelector('.language-class-list,.language-shared-classes-list')?.append(notice);
+  }
+ }
+
  const privateHeader=host.querySelector('.language-personal-classes>header');
  if(privateHeader)privateHeader.insertAdjacentHTML('beforeend','<p>'+tx('کلاس‌هایی که ساخته‌ای و پیشرفت واقعی هر جلسه','Classes you created, with real session progress')+'</p>');
  if(!personalRows.length){
@@ -132,6 +159,7 @@ function render(){
  }
 }
 document.addEventListener('click',e=>{
+ const filter=e.target.closest('[data-lf-class-filter]');if(filter){languageClassesFilter=filter.dataset.lfClassFilter;render();return}
  const goBack=e.target.closest('[data-class-back]');if(goBack){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});return}
  const goFriends=e.target.closest('[data-class-friends]');if(goFriends){e.preventDefault();window.ElaraOpen?.('social',{history:'push'});return}
  const typed=e.target.closest('[data-class-add-type]');if(typed){void openEditor({type:typed.dataset.classAddType});return}
