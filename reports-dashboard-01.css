@@ -146,6 +146,16 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;visibility:visible!important;min-height:44px!important;max-width:49%!important;white-space:nowrap!important}
  body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-continue{min-height:44px!important}
 }
+/* The old Home artwork stylesheet hid every Reports button on mobile.
+   Restore only the canonical button beside Continue, not the obsolete shortcut. */
+@media(max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-actions .ref-hero-reports[data-elara-tab="reports"]{
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  position:relative!important;align-items:center!important;justify-content:center!important;
+  min-height:44px!important;height:44px!important;min-width:0!important;max-width:48%!important;
+  padding:6px 12px!important;transform:none!important;white-space:nowrap!important
+ }
+}
 @media(max-width:359px){
  #panel-reports .elara-reports-kpis{grid-template-columns:1fr}
  #panel-reports .elara-reports-periods button{padding:5px 7px;font-size:.6rem}
