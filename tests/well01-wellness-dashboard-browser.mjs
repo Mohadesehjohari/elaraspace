@@ -57,6 +57,31 @@ for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
  const dash=page.locator('#well01-dashboard');
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.waitForTimeout(110);
+ if([390,412,1440].includes(width)){
+  const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
+  console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
+  const measure=await geometry(page);
+  console.log('WELL_HERO_TOP_AFTER_'+width,JSON.stringify({heroY:measure.hero.y,heroH:measure.hero.height,heroW:measure.hero.width,shortcutsY:measure.shortcut.y,cardsY:measure.features.y,headerY:measure.bar.y,headerBottom:measure.bar.bottom,appY:measure.app.y,copyY:measure.copy.y,ctaY:measure.cta.y,searchUnblocked:measure.searchUnblocked}));
+  assert.ok(measure.hero.top<measure.bar.bottom-20,'header should float over hero image at '+width);
+  assert.ok(measure.copy.top>=measure.bar.bottom-2,'hero heading must remain readable under header at '+width);
+  assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
+  assert.ok(measure.eyebrow.top>=measure.bar.bottom-2,'eyebrow must remain below actionable header at '+width);
+  assert.ok(measure.cta.bottom<=measure.hero.bottom+1,'hero CTA must remain fully within unchanged image at '+width);
+  assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
+  if(beforeGeometry.has(width)){
+    const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
+    assert.ok(Math.abs(change)<=1,'WELL-PROFILE must preserve the #79 hero vertical position at '+width+': '+change);
+    assert.ok(Math.abs(measure.hero.height-before.hero.height)<=1,'hero height must be preserved '+width);
+    assert.ok(Math.abs(measure.hero.width-before.hero.width)<=1,'hero width must be preserved '+width);
+    assert.ok(Math.abs((before.shortcut.y-measure.shortcut.y)-change)<=3,'shortcut row must move with hero '+width);
+    assert.ok(Math.abs((before.features.y-measure.features.y)-change)<=3,'feature cards must move with hero '+width);
+    console.log('WELL_HERO_TOP_DELTA_'+width,JSON.stringify({heroUp:change,shortcutUp:before.shortcut.y-measure.shortcut.y,cardsUp:before.features.y-measure.features.y}));
+  }
+  if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
+ }
+
  if(width===390||width===1440){
   const account=page.locator('.topbar .ref-header-account-cluster'),button=page.locator('#ref-header-account');
   const opacity=()=>account.evaluate(el=>Number(getComputedStyle(el).opacity));
@@ -107,31 +132,6 @@ for(const width of widths){
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
  }
- await page.evaluate(()=>window.scrollTo(0,0));
- await page.waitForTimeout(110);
- if([390,412,1440].includes(width)){
-  const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
-  console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
-  const measure=await geometry(page);
-  console.log('WELL_HERO_TOP_AFTER_'+width,JSON.stringify({heroY:measure.hero.y,heroH:measure.hero.height,heroW:measure.hero.width,shortcutsY:measure.shortcut.y,cardsY:measure.features.y,headerY:measure.bar.y,headerBottom:measure.bar.bottom,appY:measure.app.y,copyY:measure.copy.y,ctaY:measure.cta.y,searchUnblocked:measure.searchUnblocked}));
-  assert.ok(measure.hero.top<measure.bar.bottom-20,'header should float over hero image at '+width);
-  assert.ok(measure.copy.top>=measure.bar.bottom-2,'hero heading must remain readable under header at '+width);
-  assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
-  assert.ok(measure.eyebrow.top>=measure.bar.bottom-2,'eyebrow must remain below actionable header at '+width);
-  assert.ok(measure.cta.bottom<=measure.hero.bottom+1,'hero CTA must remain fully within unchanged image at '+width);
-  assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
-  if(beforeGeometry.has(width)){
-    const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
-    assert.ok(Math.abs(change)<=1,'WELL-PROFILE must preserve the #79 hero vertical position at '+width+': '+change);
-    assert.ok(Math.abs(measure.hero.height-before.hero.height)<=1,'hero height must be preserved '+width);
-    assert.ok(Math.abs(measure.hero.width-before.hero.width)<=1,'hero width must be preserved '+width);
-    assert.ok(Math.abs((before.shortcut.y-measure.shortcut.y)-change)<=3,'shortcut row must move with hero '+width);
-    assert.ok(Math.abs((before.features.y-measure.features.y)-change)<=3,'feature cards must move with hero '+width);
-    console.log('WELL_HERO_TOP_DELTA_'+width,JSON.stringify({heroUp:change,shortcutUp:before.shortcut.y-measure.shortcut.y,cardsUp:before.features.y-measure.features.y}));
-  }
-  if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
- }
-
  assert.equal(await dash.locator('.well01-shortcut').count(),5,'five category shortcuts at '+width);
  assert.equal(await dash.locator('.well01-metric').count(),4,'four daily metrics at '+width);
  assert.equal(await dash.locator('.well01-report').count(),4,'four real-data report entries at '+width);
