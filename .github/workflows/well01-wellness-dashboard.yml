@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - well01-green-dashboard-20261011
+      - main
   pull_request:
     paths:
       - boot.js
@@ -15,6 +16,7 @@ permissions:
   contents: read
 jobs:
   wellness-dashboard:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 36
     steps:
@@ -61,5 +63,50 @@ jobs:
         with:
           name: well01-before-after-${{ github.sha }}
           path: browser-artifacts/well01/*.png
+          if-no-files-found: warn
+          retention-days: 30
+
+  production-verification:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact deployed GitHub Pages bytes
+        run: |
+          set -euo pipefail
+          base="https://mohadesehjohari.github.io/elaraspace"
+          for i in $(seq 1 45); do
+            curl -fLsS -H "Cache-Control: no-cache" "$base/boot.js?well01=$GITHUB_SHA" -o /tmp/well01-live-boot.js || true
+            curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.js || true
+            curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.css?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.css || true
+            if cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
+              echo "GitHub Pages contains exact main release files: $GITHUB_SHA"
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages deployment $i/45"
+            sleep 20
+          done
+          echo "::error::GitHub Pages never served the expected main bytes"
+          exit 1
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify real production routes, viewport screenshots, privacy, and persistence
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: |
+          timeout 600s node tests/well01-wellness-dashboard-browser.mjs
+          timeout 240s node tests/wellness-notes-browser.mjs
+          echo "LIVE_VERIFIED $GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: well01-production-screenshots-${{ github.sha }}
+          path: browser-artifacts/well01/after-*.png
           if-no-files-found: warn
           retention-days: 30
