@@ -77,7 +77,7 @@ function topicGrid(){
  return '<div class="blog-topic-grid">'+cats.map(c=>'<button type="button" data-blog-category="'+c[0]+'"><span aria-hidden="true">'+c[3]+'</span><strong>'+esc(lang()==='en'?c[2]:c[1])+'</strong><small>'+catCount(c[0])+' '+tx('مقاله','articles')+'</small></button>').join('')+'</div>'
 }
 function dashboard(){
- const visible=rows(),first=visible.slice(0,3),rest=visible.slice(3);
+ const visible=rows(),featuredCount=window.innerWidth<=1200?2:3,first=visible.slice(0,featuredCount),rest=visible.slice(featuredCount);
  const featured='<section class="blog-block">'+sectionHeader(tx('مقاله‌های پیشنهادی','Featured articles'),'🌟',tx('مشاهده همه ←','View all ←'),'all')+
  (first.length?'<div class="blog-grid">'+first.map(card).join('')+'</div>':emptyState('مقاله‌ای در این دسته یا جست‌وجو پیدا نشد.','No articles in this category or search.'))+'</section>';
  const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧',tx('مشاهده همه ←','View all ←'),'all')+'<div class="blog-grid'+(rest.length===2?' blog-grid-two':'')+'">'+rest.map(card).join('')+'</div></section>':'';
@@ -269,6 +269,8 @@ window.addEventListener('beforeunload',e=>{if(editorDirty&&mode()==='write'){e.p
 window.addEventListener('popstate',()=>{editorDirty=false;render()});
 for(const event of ['elara:locale-changed','elara:open'])window.addEventListener(event,e=>{if(event==='elara:open'&&e.detail?.tab!=='blog')return;setTimeout(()=>{render();void loadPublished()},0)});
 window.addEventListener('elara:account-ready',()=>setTimeout(()=>{render();void loadPublished()},0));
+let priorBlogFeatureSize=window.innerWidth<=1200?2:3;
+window.addEventListener('resize',()=>{const next=window.innerWidth<=1200?2:3;if(next!==priorBlogFeatureSize){priorBlogFeatureSize=next;if(mode()==='home')render()}});
 const style=document.createElement('link');style.rel='stylesheet';style.href='blog01-dashboard.css?v=20261012-blog-fidelity-02';document.head.append(style);
 const img=new Image();img.src='assets/ui/weblog_banner_main.webp';img.decode?.().then(()=>{document.documentElement.dataset.elaraBlogBannerReady='true'},()=>{document.documentElement.dataset.elaraBlogBannerReady='false'});
 const start=()=>{render();void loadPublished()};
