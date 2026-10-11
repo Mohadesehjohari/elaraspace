@@ -149,8 +149,10 @@ function render(){
  const panel=$('panel-reports');if(!panel)return;
  rendering=true;
  try{
- const d=data(),hero=panel.querySelector(':scope > .feature-hub-hero');
- if(hero){hero.dataset.elaraPageHero='reports';hero.classList.add('elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p></div>'}
+ const d=data();
+ let hero=panel.querySelector(':scope > .feature-hub-hero, :scope > .elara-global-hero');
+ if(!hero){hero=document.createElement('section');hero.className='feature-hub-hero';hero.dataset.hubHero='reports';panel.prepend(hero)}
+ hero.dataset.hubHero='reports';hero.dataset.elaraPageHero='reports';hero.classList.add('feature-hub-hero','elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p></div>';
  let root=$('elara-reports-overview');if(!root){root=document.createElement('div');root.id='elara-reports-overview';root.className='elara-reports-dashboard';panel.append(root)}
  root.innerHTML=topKpis(d)+
  '<div class="elara-reports-main"><section class="elara-reports-panel elara-reports-trends"><header><div><h2>▥ روند کلی پیشرفت</h2><p>نمای کلی فعالیت‌های شما در سراسر الارا</p></div><div class="elara-reports-periods" role="group" aria-label="بازه گزارش">'+periodOptions.map(o=>'<button type="button" data-reports-days="'+o[0]+'" aria-pressed="'+(Number(o[0])===days)+'">'+o[1]+'</button>').join('')+'</div></header>'+trend(d)+'</section>'+summary(d)+'</div>'+
