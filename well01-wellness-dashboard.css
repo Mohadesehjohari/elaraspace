@@ -181,3 +181,9 @@ html body #main > .panel[id^="panel-wellness-"]:not(.hidden) .elara-card{border-
  #panel-wellness-exercise .well01-legacy-preview{grid-template-columns:1fr}
  .well01 .well01-hero{background-position:43% center}
 }
+
+/* Avoid the extra full-width site banner: wellness already renders its own single hero. */
+html body #main #panel-exercise > .elara-global-hero,
+html body #main #panel-exercise > .feature-hub-hero,
+html body #main #panel-exercise [data-elara-page-hero="exercise"]{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important}
+@media(max-width:700px){.well01 .well01-hero{background-position:72% center}}
