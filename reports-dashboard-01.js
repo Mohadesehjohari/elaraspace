@@ -165,6 +165,17 @@ function render(){
  }
  }finally{rendering=false}
 }
+function normalizeHomeReportsEntry(){
+ const home=$('panel-home');if(!home)return;
+ const choices=[...home.querySelectorAll('.ref-hero-actions')];
+ const canonical=choices.find(g=>g.querySelector('.ref-hero-reports')&&g.querySelector('.ref-hero-continue')&&!g.closest('[hidden],.hidden'))||choices.find(g=>g.querySelector('.ref-hero-reports')&&g.querySelector('.ref-hero-continue'))||choices[0];
+ for(const cls of ['ref-hero-reports','ref-hero-continue']){
+  const nodes=[...home.querySelectorAll('.'+cls)];
+  if(nodes.length<2)continue;
+  const keep=(canonical&&nodes.find(b=>canonical.contains(b)))||nodes[0];
+  for(const node of nodes)if(node!==keep)node.remove();
+ }
+}
 function open(route){window.ElaraOpen?.(route,{history:'push'})}
 document.addEventListener('click',e=>{
  const range=e.target.closest('#elara-reports-overview [data-reports-days]');
@@ -181,7 +192,7 @@ function pointText(node){
 document.addEventListener('pointerdown',e=>{const point=e.target.closest?.('.elara-reports-hit');if(point)pointText(point)});
 document.addEventListener('focusin',e=>{const point=e.target.closest?.('.elara-reports-hit');if(point)pointText(point)});
 for(const ev of ['elara:open','elara:hydrate','elara:data-changed','elara:state-committed','elara:account-ready','elara:logout','elara:auth-changed','elara:wellness-saved'])
- window.addEventListener(ev,()=>{if(location.hash==='#reports'||location.hash==='#reports-today'||ev==='elara:hydrate')queueMicrotask(render)});
+ window.addEventListener(ev,()=>{if(location.hash==='#home')queueMicrotask(normalizeHomeReportsEntry);if(location.hash==='#reports'||location.hash==='#reports-today'||ev==='elara:hydrate')queueMicrotask(render)});
 window.ElaraReportsDashboard={render,data,getRange:()=>days};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(render,0));else setTimeout(render,0);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{render();normalizeHomeReportsEntry()},0));else setTimeout(()=>{render();normalizeHomeReportsEntry()},0);
 })();
