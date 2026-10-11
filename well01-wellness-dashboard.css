@@ -187,3 +187,6 @@ html body #main #panel-exercise > .elara-global-hero,
 html body #main #panel-exercise > .feature-hub-hero,
 html body #main #panel-exercise [data-elara-page-hero="exercise"]{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important}
 @media(max-width:700px){.well01 .well01-hero{background-position:72% center}}
+
+/* The desktop fixed topbar must not cover the single wellness hero or its title. */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:70px!important}}
