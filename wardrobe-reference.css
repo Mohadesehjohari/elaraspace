@@ -1,0 +1,58 @@
+/* P3 wardrobe surface only: never changes global drawer/sidebar/mobile navigation. */
+.approved-wardrobe .approved-wardrobe-window{width:min(1380px,calc(100vw - 32px))!important;max-height:min(92dvh,980px)!important;height:auto!important;overflow:auto!important;direction:rtl;background:radial-gradient(ellipse at 45% 0%,#102957,#040c23 73%)!important;border:1px solid #795cdb!important;border-radius:22px!important;padding:15px!important;box-shadow:0 20px 80px #000b,0 0 22px #632eff35}
+.approved-wardrobe .approved-wardrobe-window>header{display:flex!important;align-items:center;gap:13px;padding:7px 10px 15px;position:sticky;top:0;z-index:5;background:linear-gradient(#081834 92%,#081834eb);border-bottom:1px solid #284a86}
+.approved-wardrobe .approved-wardrobe-window>header>div{flex:1;min-width:0}
+.approved-wardrobe .approved-wardrobe-window>header h2{margin:0;color:white;font-size:clamp(18px,2vw,25px)}
+.approved-wardrobe .approved-wardrobe-window>header .quiet-button{min-width:44px;min-height:44px}
+.approved-wardrobe #wardrobe-main{min-width:0;display:grid;gap:12px;padding:12px 4px 3px;color:#f7f4ff}
+.approved-wardrobe .wardrobe-p3-hero{position:relative;border:1px solid #6150c2;border-radius:18px;overflow:hidden;background:#06142e}
+.approved-wardrobe .wardrobe-p3-hero .elara-profile-composition{min-height:200px}
+.approved-wardrobe .wardrobe-p3-hero-caption{position:absolute;top:10px;left:12px;padding:6px 12px;background:#061a3fdc;color:#b5f2ff;border:1px solid #3c9bdc;border-radius:20px;font-size:11px;pointer-events:none}
+.approved-wardrobe .wardrobe-p3-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;min-width:0}
+.approved-wardrobe .wardrobe-p3-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:46px;border-radius:10px;border:1px solid #295f9e;background:#071936;color:#d2deff;font:inherit;font-size:13px;cursor:pointer}
+.approved-wardrobe .wardrobe-p3-tabs button[aria-current=true]{background:linear-gradient(100deg,#341382,#7729e9);border-color:#ca90ff;box-shadow:0 0 15px #994afa8c;color:#fff}
+.approved-wardrobe .wardrobe-p3-tabs button:focus-visible,.approved-wardrobe [data-wardrobe-item]:focus-visible{outline:3px solid #62e1ff;outline-offset:2px}
+.approved-wardrobe .wardrobe-p3-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(245px,.9fr);gap:12px;min-width:0;direction:rtl}
+.approved-wardrobe .wardrobe-p3-catalog,.approved-wardrobe .wardrobe-p3-detail{background:#081b3b;border:1px solid #244e8f;border-radius:13px;padding:13px;min-width:0}
+.approved-wardrobe .wardrobe-p3-catalog h3,.approved-wardrobe .wardrobe-p3-detail h3{margin:0 0 12px;font-size:17px}
+.approved-wardrobe .wardrobe-p3-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.approved-wardrobe .wardrobe-p3-tile{display:flex;flex-direction:column;gap:0;min-width:0;padding:0;border:1px solid #3964b9;border-radius:12px;overflow:hidden;background:#05132e;color:#fff;cursor:pointer}
+.approved-wardrobe .wardrobe-p3-tile.is-selected{border-color:#ca95ff;box-shadow:0 0 0 2px #9553f6,0 0 14px #af5aff}
+.approved-wardrobe .wardrobe-p3-tile.is-equipped:not(.is-selected){border-color:#39bce7}
+.approved-wardrobe .wardrobe-p3-image{height:100px;display:block;background:#07152d}
+.approved-wardrobe .wardrobe-p3-image img{display:block;height:100%;width:100%;object-fit:cover}
+.approved-wardrobe .wardrobe-p3-tile-info{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:8px;min-height:40px;text-align:right}
+.approved-wardrobe .wardrobe-p3-tile-info b{font-size:12px;overflow-wrap:anywhere}
+.approved-wardrobe .wardrobe-p3-tile-info small{font-size:10px;color:#a9cefb;white-space:nowrap}
+.approved-wardrobe .wardrobe-p3-selected-art{width:100%;height:146px;object-fit:cover;border-radius:11px;border:1px solid #3a70be}
+.approved-wardrobe .wardrobe-p3-detail-heading{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin:12px 0}
+.approved-wardrobe .wardrobe-p3-detail-heading strong{font-size:16px}
+.approved-wardrobe .wardrobe-p3-detail-heading small{font-size:12px;color:#a2c4ff}
+.approved-wardrobe .wardrobe-p3-detail p{font-size:12px;line-height:1.9;color:#b7c7e7;min-height:50px}
+.approved-wardrobe .wardrobe-p3-detail-actions{display:flex;gap:9px}
+.approved-wardrobe .wardrobe-p3-detail-actions button,.approved-wardrobe .wardrobe-p3-more,.approved-wardrobe .wardrobe-p3-groups button{min-height:42px;border-radius:9px;padding:7px 12px;background:#0c2553;border:1px solid #496ac1;color:#fff;cursor:pointer}
+.approved-wardrobe button:disabled{opacity:.52;cursor:not-allowed}
+.approved-wardrobe .wardrobe-p3-groups{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.approved-wardrobe .wardrobe-p3-groups [aria-pressed=true]{border-color:#dd9fff;background:#361669}
+.approved-wardrobe .wardrobe-p3-empty{padding:22px;text-align:center;color:#a5c3e8;line-height:1.8}
+.approved-wardrobe .wardrobe-p3-more{display:block;margin:12px auto 0}
+.approved-wardrobe .wardrobe-p3-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #27518d;background:linear-gradient(90deg,#081a39,#132461);border-radius:12px}
+.approved-wardrobe .wardrobe-p3-footer p{font-size:11px;color:#9fbbe4;margin:0;line-height:1.6}
+.approved-wardrobe .wardrobe-p3-equip{min-height:47px;min-width:178px;padding:10px 18px;border:1px solid #cc7efe;border-radius:11px;background:linear-gradient(110deg,#7833fd,#9c3ff9,#4326d4);color:#fff;font:inherit;font-weight:bold;cursor:pointer;box-shadow:0 0 12px #922df75c}
+@media(max-width:700px){
+ .approved-wardrobe .approved-wardrobe-window{position:fixed!important;inset:8px 5px calc(75px + env(safe-area-inset-bottom,0px)) 5px!important;width:auto!important;height:auto!important;max-height:none!important;padding:8px!important;border-radius:14px!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+ .approved-wardrobe .approved-wardrobe-window>header{gap:6px;padding:7px 2px}
+ .approved-wardrobe .approved-wardrobe-window>header h2{font-size:19px}
+ .approved-wardrobe .approved-wardrobe-window>header p{font-size:10px;line-height:1.5}
+ .approved-wardrobe .wardrobe-p3-hero .elara-profile-composition{min-height:170px}
+ .approved-wardrobe .wardrobe-p3-tabs{display:flex;overflow-x:auto;gap:7px;scrollbar-width:thin}
+ .approved-wardrobe .wardrobe-p3-tabs button{flex:0 0 auto;min-width:91px;min-height:46px}
+ .approved-wardrobe .wardrobe-p3-layout{display:flex;flex-direction:column;gap:10px}
+ .approved-wardrobe .wardrobe-p3-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .approved-wardrobe .wardrobe-p3-image{height:clamp(82px,27vw,125px)}
+ .approved-wardrobe .wardrobe-p3-footer{flex-wrap:wrap;padding:10px}
+ .approved-wardrobe .wardrobe-p3-equip{flex:1;min-width:0}
+ .approved-wardrobe .wardrobe-p3-detail{order:2}
+ .approved-wardrobe .wardrobe-p3-catalog{order:1}
+}
+@media(max-width:350px){.approved-wardrobe .wardrobe-p3-tabs button{min-width:83px}.approved-wardrobe .wardrobe-p3-tile-info{flex-direction:column;align-items:flex-start}.approved-wardrobe .wardrobe-p3-footer{display:grid}.approved-wardrobe .wardrobe-p3-equip{width:100%}}
