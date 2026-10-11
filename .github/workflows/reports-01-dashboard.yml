@@ -8,6 +8,7 @@ on:
       - reports-dashboard-01.js
       - reports-dashboard-01.css
       - tests/reports-dashboard-01-browser.mjs
+      - tests/reports-01-compact-browser.mjs
       - .github/workflows/reports-01-dashboard.yml
   push:
     branches: [main]
@@ -18,6 +19,7 @@ on:
       - reports-dashboard-01.js
       - reports-dashboard-01.css
       - tests/reports-dashboard-01-browser.mjs
+      - tests/reports-01-compact-browser.mjs
       - .github/workflows/reports-01-dashboard.yml
 permissions:
   contents: read
@@ -28,6 +30,8 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -37,6 +41,7 @@ jobs:
           node --check feature-hubs-2026.js
           node --check feature-hubs-shell.js
           node --check tests/reports-dashboard-01-browser.mjs
+          node --check tests/reports-01-compact-browser.mjs
           test -s assets/ui/39-reports-hero-banner.webp
       - name: Install Playwright Chromium
         run: |
@@ -47,11 +52,21 @@ jobs:
           python3 -m http.server 4173 >/tmp/reports01-server.log 2>&1 &
           sleep 3
           timeout 540s node tests/reports-dashboard-01-browser.mjs
+      - name: Before/After geometric compact layout and screenshots at 390/1440
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git worktree add --detach /tmp/reports01-before "$BASE_SHA"
+          ( cd /tmp/reports01-before && python3 -m http.server 4174 >/tmp/reports01-before-server.log 2>&1 ) &
+          sleep 3
+          REPORTS01_BEFORE_URL=http://127.0.0.1:4174 REPORTS01_AFTER_URL=http://127.0.0.1:4173 timeout 540s node tests/reports-01-compact-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: reports01-pr-screenshots
-          path: browser-artifacts/reports01/*.png
+          path: |
+            browser-artifacts/reports01/*.png
+            browser-artifacts/reports01-compact/*
           retention-days: 21
   reports01-live:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -59,6 +74,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -81,9 +98,12 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
           ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/reports-dashboard-01-browser.mjs
+          REPORTS01_AFTER_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/reports-01-compact-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: reports01-production-screenshots
-          path: browser-artifacts/reports01/*.png
+          path: |
+            browser-artifacts/reports01/*.png
+            browser-artifacts/reports01-compact/*
           retention-days: 30

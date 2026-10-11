@@ -150,6 +150,11 @@ function render(){
  rendering=true;
  try{
  const d=data();
+ // The legacy router creates this direct child for its original report view.
+ // Its content is now hosted by #panel-reports-productivity; keep no orphan heading/row.
+ for(const title of panel.querySelectorAll(':scope > h1')){
+  if(title.textContent.trim()==='گزارش‌های من')title.remove();
+ }
  let hero=panel.querySelector(':scope > .feature-hub-hero, :scope > .elara-global-hero');
  if(!hero){hero=document.createElement('section');hero.className='feature-hub-hero';hero.dataset.hubHero='reports';panel.prepend(hero)}
  hero.dataset.hubHero='reports';hero.dataset.elaraPageHero='reports';hero.classList.add('feature-hub-hero','elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p></div>';
