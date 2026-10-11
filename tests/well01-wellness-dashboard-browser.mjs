@@ -59,6 +59,37 @@ for(const width of widths){
    await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
   }
  }
+ if(width===390||width===1440){
+  await dash.locator('.well01-activity-card [data-wellness-add="workout"]').click();
+  const modal=page.locator('.wellness-workout-dialog[role="dialog"][aria-modal="true"]');
+  await modal.waitFor();
+  assert.equal(await modal.locator('[name="note"]').count(),1,'one optional workout note');
+  assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden','workout form locks background scrolling');
+  await page.screenshot({path:'browser-artifacts/well01/workout-popup-'+width+'.png'});
+  const rect=await page.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,panel:document.querySelector('#panel-exercise').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
+  console.log('WELL01_GEOMETRY_'+width,JSON.stringify(rect));
+  if(width===390){
+   await modal.locator('[name="type"]').selectOption({label:'ورزش دیگر'});
+   assert.ok(await modal.locator('[data-workout-custom]').isVisible(),'custom type visible');
+   await page.screenshot({path:'browser-artifacts/well01/workout-other-390.png'});
+   await modal.locator('[name="customType"]').fill('');
+   await modal.locator('.wellness-workout-save').click();
+   assert.ok(await modal.locator('.wellness-workout-error').isVisible(),'validation does not close dialog');
+   await modal.locator('[name="customType"]').fill('صخره‌نوردی');
+   await modal.locator('[name="minutes"]').fill('43');
+   await modal.locator('[name="note"]').fill('آرام و بدون فشار');
+   await page.screenshot({path:'browser-artifacts/well01/workout-filled-390.png'});
+   await modal.locator('.wellness-workout-save').click();
+   await modal.waitFor({state:'hidden'});
+   const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts);
+   assert.equal(rows.length,2,'one and only one workout created');
+   assert.equal(rows[1].note,'آرام و بدون فشار');
+   assert.match(await dash.locator('.well01-activity-card').innerText(),/صخره‌نوردی/,'dashboard refresh after workout save');
+  }else{
+   await page.keyboard.press('Escape');
+   await modal.waitFor({state:'hidden'});
+  }
+ }
  if(width===390){
   await dash.locator('[data-wellness-water="add"]').click();
   await page.waitForFunction(date=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')||'{}').water?.[date]===1000,date);
