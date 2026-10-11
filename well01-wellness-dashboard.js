@@ -132,7 +132,8 @@ function render(){
 let pending=false;function schedule(){if(pending)return;pending=true;setTimeout(()=>{pending=false;render()},30)}
 document.addEventListener('click',e=>{const edit=e.target.closest('[data-well01-plan-edit]');if(edit){const kind=edit.dataset.well01PlanEdit;const tmp=document.createElement('button');tmp.type='button';tmp.dataset.wellnessPlanEdit=kind;tmp.hidden=true;document.body.append(tmp);tmp.click();tmp.remove();return}const b=e.target.closest('[data-well01-start]');if(b)window.ElaraOpen?.('wellness-exercise')});
 window.addEventListener('elara:wellness-saved',render);
-for(const name of ['elara:account-ready','elara:state-committed','elara:data-changed','elara:locale-changed','elara:open'])window.addEventListener(name,schedule);
+window.addEventListener('elara:account-ready',render);
+for(const name of ['elara:state-committed','elara:data-changed','elara:locale-changed','elara:open'])window.addEventListener(name,schedule);
 window.ElaraWell01={render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 })();
