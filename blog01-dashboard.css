@@ -128,3 +128,13 @@ html body #main #panel-blog .blog-hero.elara-global-hero.is-subview-hero{display
 #panel-blog .blog-form [hidden]{display:none!important}
 #panel-blog .blog-quote br{display:block}
 @media(min-width:1201px){#panel-blog .blog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* The global header is positioned over the first hero. Subviews deliberately have
+   no large hero, so reserve the real header's hit area above Back/reader controls. */
+html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!important}
+@media(max-width:700px){
+ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:110px!important}
+}
+@media(max-width:359px){
+ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:18px!important}
+}
