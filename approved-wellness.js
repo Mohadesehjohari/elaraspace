@@ -52,7 +52,7 @@ function weeklyAnalysis(s){
  else insights.push({kind:'workout',icon:'👟',title:'حرکت',text:'هنوز ورزشی برای این هفته ثبت نشده؛ حتی یک حرکت کوتاه هم شروع حساب می‌شود.'});
  return {waterPct,sleepAvg,workoutMinutes,insights}
 }
-function normalizeWorkout(inputs,old={},id=''){const type=String(inputs?.type||''),customType=type==='ورزش دیگر'?String(inputs?.customType||'').trim().slice(0,80):'';return {...old,...inputs,id:id||old.id||'',type,customType,minutes:num(inputs?.minutes,1,1440)}}
+function normalizeWorkout(inputs,old={},id=''){const type=String(inputs?.type||''),customType=type==='ورزش دیگر'?String(inputs?.customType||'').trim().slice(0,80):'';return {...old,...inputs,id:id||old.id||'',type,customType,minutes:num(inputs?.minutes,1,1440),note:String(inputs?.note??old.note??'').trim().slice(0,600)}}
 function normalizeCycle(inputs,old={},id=''){return {...old,...inputs,id:id||old.id||'',note:String(inputs?.note||'').trim().slice(0,240)}}
 function sleepMinutes(row){const a=Date.parse(`${row.date}T${row.bed}:00`),b=Date.parse(`${row.date}T${row.wake}:00`);if(!Number.isFinite(a)||!Number.isFinite(b))return 0;const minutes=Math.round((b<=a?b+86400000:b)-a)/60000;return minutes>0&&minutes<=1440?minutes:0}
 function panel(){if($('panel-exercise'))return;const el=document.createElement('section');el.id='panel-exercise';el.className='panel hidden wellness-panel';el.innerHTML=`<header class="wellness-heading"><button type="button" class="quiet-button" data-wellness-back>→ بازگشت</button><div><h1>ورزش و حالِ خوب <img src="assets/ui/green_heart.webp" alt="" width="36" height="36"></h1><p class="muted">آب، خواب و فعالیت روزانه را در فضای خصوصی خودت ثبت کن.</p></div></header><div class="wellness-banner"><strong>هر قدم کوچک، راه تازه‌ای می‌سازد</strong><span>فضایی برای ثبت شخصی؛ بدون مقایسه با دیگران.</span></div><div class="wellness-layout">
@@ -87,7 +87,7 @@ function refresh(){
  $('wellness-water-chart').innerHTML=barChart(days().map(d=>Math.round(Number(s.water[d]||0)/glass)),Math.ceil(goal/glass),'نمودار تعداد لیوان آب در هفت روز اخیر');
  $('wellness-sleep-chart').innerHTML=lineChart(days().map(d=>+(s.sleep.filter(x=>x.date===d).reduce((n,x)=>n+sleepMinutes(x),0)/60).toFixed(1)),'نمودار خطی ساعت خواب در هفت روز اخیر');
  $('wellness-sleep-list').innerHTML=s.sleep.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(x=>`<div class="wellness-entry"><span>${svgIcon('sleep')} ${esc(x.date)} · ${esc(x.bed)} تا ${esc(x.wake)} · ${fmt(Math.round(sleepMinutes(x)/60*10)/10)} ساعت</span><button type="button" data-wellness-edit="sleep" data-id="${esc(x.id)}">ویرایش</button><button type="button" data-wellness-delete="sleep" data-id="${esc(x.id)}">حذف</button></div>`).join('')||'<p class="muted">هنوز خوابت را ثبت نکردی.</p>';
- $('wellness-workout-list').innerHTML=s.workouts.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).map(x=>`<div class="wellness-entry"><span>${svgIcon('workout')} ${esc(x.date)} · ${esc(x.type==='ورزش دیگر'?(x.customType||'ورزش دیگر'):x.type)} · ${fmt(x.minutes)} دقیقه</span><button type="button" data-wellness-edit="workout" data-id="${esc(x.id)}">ویرایش</button><button type="button" data-wellness-delete="workout" data-id="${esc(x.id)}">حذف</button></div>`).join('')||'<p class="muted">اولین حرکت امروزت را ثبت کن.</p>';
+ $('wellness-workout-list').innerHTML=s.workouts.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).map(x=>`<div class="wellness-entry"><span>${svgIcon('workout')} ${esc(x.date)} · ${esc(x.type==='ورزش دیگر'?(x.customType||'ورزش دیگر'):x.type)} · ${fmt(x.minutes)} دقیقه${x.note?' · '+esc(String(x.note).slice(0,90)):''}</span><button type="button" data-wellness-edit="workout" data-id="${esc(x.id)}">ویرایش</button><button type="button" data-wellness-delete="workout" data-id="${esc(x.id)}">حذف</button></div>`).join('')||'<p class="muted">اولین حرکت امروزت را ثبت کن.</p>';
  $('wellness-cycle-list').innerHTML=s.cycles.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(x=>`<div class="wellness-entry"><span>${esc(x.start)}${x.end?' تا '+esc(x.end):''}${x.note?` · ${esc(x.note)}`:''}</span><button type="button" data-wellness-edit="cycle" data-id="${esc(x.id)}">ویرایش</button><button type="button" data-wellness-delete="cycle" data-id="${esc(x.id)}">حذف</button></div>`).join('')||'<p class="muted">هیچ تاریخی ثبت نشده است.</p>';
  home()
 }
@@ -95,10 +95,60 @@ function home(){
  const card=$('elara-home-habits');if(card)card.querySelectorAll('[data-wellness-home]').forEach(x=>x.remove());
 }
 async function editor(kind,id){
- if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return message('پنجرهٔ ثبت هنوز آماده نیست.');
- const s=read(),old=(kind==='sleep'?s.sleep:kind==='workout'?s.workouts:s.cycles).find(x=>x.id===id)||{},form=document.createElement('div');form.className='wellness-editor';
+ if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(kind!=='workout'&&!window.ElaraDialog?.open)return message('پنجرهٔ ثبت هنوز آماده نیست.');
+ const s=read(),old=(kind==='sleep'?s.sleep:kind==='workout'?s.workouts:s.cycles).find(x=>x.id===id)||{},form=document.createElement(kind==='workout'?'form':'div');form.className='wellness-editor';
  if(kind==='sleep')form.innerHTML=`<label>تاریخ خواب<input type="date" name="date" value="${esc(old.date||today())}"></label><label>ساعت خوابیدن<input type="time" name="bed" value="${esc(old.bed||'23:00')}"></label><label>ساعت بیدارشدن<input type="time" name="wake" value="${esc(old.wake||'07:00')}"></label><small class="muted">اگر ساعت بیداری زودتر باشد، روز بعد در نظر گرفته می‌شود.</small>`;
- if(kind==='workout'){const kinds=['پیاده‌روی','دویدن','دوچرخه','یوگا','شنا','تمرین قدرتی','کشش','ورزش دیگر'],selected=kinds.includes(old.type)?old.type:'ورزش دیگر',custom=old.customType||(kinds.includes(old.type)?'':old.type)||'';form.innerHTML=`<label>تاریخ<input type="date" name="date" value="${esc(old.date||today())}"></label><label>نوع ورزش<select name="type">${kinds.map(x=>`<option ${selected===x?'selected':''}>${x}</option>`).join('')}</select></label><label data-workout-custom ${selected==='ورزش دیگر'?'':'hidden'}>نام ورزش<input type="text" name="customType" maxlength="80" value="${esc(custom)}" placeholder="مثلاً صخره‌نوردی"></label><label>مدت (دقیقه)<input type="number" name="minutes" min="1" max="1440" value="${esc(old.minutes||30)}"></label>`;const select=form.querySelector('[name="type"]'),customRow=form.querySelector('[data-workout-custom]');select?.addEventListener('change',()=>{customRow.hidden=select.value!=='ورزش دیگر';if(!customRow.hidden)form.querySelector('[name="customType"]')?.focus()})}
+ if(kind==='workout'){const kinds=['پیاده‌روی','دویدن','دوچرخه','یوگا','شنا','تمرین قدرتی','کشش','ورزش دیگر'],selected=kinds.includes(old.type)?old.type:'ورزش دیگر',custom=old.customType||(kinds.includes(old.type)?'':old.type)||'';
+ form.className='wellness-editor wellness-workout-form';form.noValidate=true;form.innerHTML=`<div class="wellness-workout-cover"><button type="button" class="wellness-workout-back" data-wellness-workout-close aria-label="بازگشت">←</button><div><span class="wellness-workout-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12"/></svg></span><h2 id="wellness-workout-title">ثبت ورزش</h2><p>فعالیت ورزشی خود را ثبت کنید</p></div></div><div class="wellness-workout-fields"><label class="wellness-workout-date"><span>▦ تاریخ</span><input type="date" name="date" required value="${esc(old.date||today())}"></label><div class="wellness-workout-pair"><label><span>🏋 نوع ورزش</span><select name="type">${kinds.map(x=>`<option ${selected===x?'selected':''}>${x}</option>`).join('')}</select></label><label data-workout-custom ${selected==='ورزش دیگر'?'':'hidden'}><span>نام ورزش</span><input type="text" name="customType" maxlength="80" value="${esc(custom)}" placeholder="مثلاً شنا، دویدن، بدنسازی"></label></div><label class="wellness-workout-minutes"><span>◷ مدت زمان (دقیقه)</span><input type="number" name="minutes" required min="1" max="1440" value="${esc(old.minutes||30)}"></label><label class="wellness-workout-note"><span>✎ یادداشت (اختیاری)</span><textarea name="note" maxlength="600" rows="3" placeholder="مثلاً احساس شما بعد از ورزش، شدت تمرین و ...">${esc(old.note||'')}</textarea></label><p class="wellness-workout-error" role="alert" aria-live="polite" hidden></p><div class="wellness-workout-footer"><button type="submit" class="wellness-workout-save">✓ ذخیره</button><button type="button" class="wellness-workout-cancel" data-wellness-workout-close>انصراف</button></div></div>`;
+ const select=form.querySelector('[name="type"]'),customRow=form.querySelector('[data-workout-custom]');select.addEventListener('change',()=>{customRow.hidden=select.value!=='ورزش دیگر';const customInput=customRow.querySelector('input');customInput.required=!customRow.hidden;if(!customRow.hidden)customInput.focus()});customRow.querySelector('input').required=selected==='ورزش دیگر';
+ const get=()=>Object.fromEntries([...form.querySelectorAll('[name]')].map(x=>[x.name,x.value]));
+ const issue=()=>{const x=get();if(!x.date||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(x.date)||Number.isNaN(Date.parse(x.date+'T12:00:00')))return 'تاریخ معتبر انتخاب کنید.';if(!kinds.includes(x.type))return 'نوع ورزش را انتخاب کنید.';if(x.type==='ورزش دیگر'&&!x.customType.trim())return 'نام ورزش را وارد کنید.';if(!Number.isInteger(Number(x.minutes))||Number(x.minutes)<1||Number(x.minutes)>1440)return 'مدت ورزش باید بین ۱ تا ۱۴۴۰ دقیقه باشد.';return ''};
+ const dialog=document.createElement('div');dialog.className='wellness-workout-overlay';
+ dialog.setAttribute('role','presentation');
+ dialog.innerHTML='<div class="wellness-workout-dialog" role="dialog" aria-modal="true" aria-labelledby="wellness-workout-title"></div>';
+ dialog.firstElementChild.append(form);
+ const prev=document.activeElement,oldBodyOverflow=document.body.style.overflow,oldHtmlOverflow=document.documentElement.style.overflow;
+ document.body.append(dialog);
+ document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';
+ const modalKey='well01-workout-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ history.pushState({...history.state,elaraWorkoutModal:modalKey},'',location.href);
+ let settled=false,busy=false;
+ const finish=()=>{
+  if(settled)return;
+  settled=true;document.removeEventListener('keydown',onKey,true);document.removeEventListener('focusin',keepFocus,true);
+  window.removeEventListener('popstate',onBack);
+  document.body.style.overflow=oldBodyOverflow;document.documentElement.style.overflow=oldHtmlOverflow;
+  dialog.remove();if(prev?.isConnected)prev.focus({preventScroll:true});
+ };
+ const close=e=>{e?.preventDefault?.();const ownState=history.state?.elaraWorkoutModal===modalKey;finish();if(ownState)history.back()};
+ const onBack=()=>finish();
+ const keepFocus=e=>{if(!settled&&!dialog.contains(e.target))dialog.querySelector('[name="date"]')?.focus({preventScroll:true})};
+ function onKey(e){
+  if(e.key==='Escape'){e.preventDefault();close();return}
+  if(e.key!=='Tab')return;
+  const nodes=[...dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')].filter(el=>el.getClientRects().length);
+  if(!nodes.length)return;
+  const first=nodes[0],last=nodes[nodes.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+ }
+ document.addEventListener('keydown',onKey,true);
+ document.addEventListener('focusin',keepFocus,true);
+ window.addEventListener('popstate',onBack);
+ dialog.addEventListener('click',e=>{if(e.target===dialog||e.target.closest('[data-wellness-workout-close]'))close(e)});
+ form.addEventListener('submit',e=>{
+  e.preventDefault();if(settled||busy)return;
+  const error=issue(),msg=form.querySelector('.wellness-workout-error');
+  if(error){msg.textContent=error;msg.hidden=false;return}
+  msg.hidden=true;busy=true;
+  const inputs=get(),current=read(),newId=id||crypto.randomUUID?.()||String(Date.now());
+  const row=normalizeWorkout({...inputs,note:inputs.note.trim().slice(0,600)},old,newId);
+  const button=form.querySelector('.wellness-workout-save');button.disabled=true;button.textContent='در حال ذخیره…';
+  if(write({workouts:id?current.workouts.map(x=>x.id===id?row:x):[...current.workouts,row]})){close();message('ثبت شد.')}
+  else{button.disabled=false;button.textContent='✓ ذخیره';busy=false;msg.textContent='ذخیره‌سازی انجام نشد؛ لطفاً دوباره تلاش کنید.';msg.hidden=false}
+ });
+ dialog.querySelector('[name="date"]').focus({preventScroll:true});return;
+ }
  if(kind==='cycle')form.innerHTML=`<label>تاریخ شروع<input type="date" name="start" value="${esc(old.start||today())}"></label><label>تاریخ پایان (اختیاری)<input type="date" name="end" value="${esc(old.end||'')}"></label><label>یادداشت اختیاری<textarea name="note" maxlength="240" rows="2" placeholder="یادداشت شخصی…">${esc(old.note||'')}</textarea></label>`;
  const ok=await window.ElaraDialog.open({title:kind==='sleep'?'ثبت خواب':kind==='workout'?'ثبت ورزش':'ثبت اختیاری تاریخ چرخه',content:form,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});if(ok!==true)return;
  const inputs=Object.fromEntries([...form.querySelectorAll('[name]')].map(x=>[x.name,x.value]));
