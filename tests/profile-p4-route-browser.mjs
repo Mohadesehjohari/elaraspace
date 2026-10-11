@@ -12,6 +12,7 @@ async function seed(page,who=user){
  await page.evaluate(usr=>{
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:usr.uid,photoURL:'',metadata:{creationTime:'2026-01-01T00:00:00Z'}})});
   const testSocial={me:{...usr},friends:[],saveProfileValues:async()=>({warnings:[]})};
+  window.__p4TestSocial=testSocial;
   Object.defineProperty(window,'ElaraSocial',{configurable:true,get:()=>testSocial,set:()=>{}});
   window.ElaraProfileSystem.levelFromXp=()=>5;
   document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');
@@ -84,6 +85,15 @@ for(const width of widths){
   assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().banner),equipped,'Equipment missing after reload');
   await page.evaluate(()=>window.ElaraProfilePages.back());
   await page.waitForURL('**/#profile');
+  // Two mock UIDs share one browser but never share the same equipped inventory.
+  await page.evaluate(()=>{
+   const b={uid:'p4-fixture-user-B',name:'حساب دوم آزمایش',username:'qa_b',bio:'',xp:0,profilePublic:true};
+   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:b.uid,photoURL:''})});
+   window.__p4TestSocial.me=b;
+   window.dispatchEvent(new Event('elara:account-ready'));
+  });
+  assert.notEqual(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().banner),equipped,'UID B received UID A equipment');
+  await page.locator('#elara-private-profile-page .elara-profile-hub').waitFor({state:'visible',timeout:10000});
  }
  await ctx.close();
 }
