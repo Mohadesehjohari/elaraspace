@@ -360,3 +360,32 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
 #panel-language-courses .language-class-card[hidden]{display:none!important}
 #panel-language-courses .lf-filter-empty{grid-column:1/-1;margin:0;border:1px dashed #315a82;border-radius:12px;padding:25px;text-align:center;color:#abc9e6}
 @media(max-width:700px){#panel-language-courses .lf-class-filter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}#panel-language-courses .lf-class-filter button{padding:9px 6px}}
+
+
+/* LANG-FIDELITY: class creation dialog, confined to the existing canonical form */
+.language-class-editor.lf-class-editor{display:grid;gap:14px;min-width:0;color:#eef7ff;direction:rtl}
+.lf-class-editor .lf-editor-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 180px;align-items:center;min-height:165px;margin:-4px -4px 4px;padding:20px 22px;overflow:hidden;border:1px solid #247ac3;border-radius:19px;background:linear-gradient(270deg,#02132bf0,#06194298),url('assets/ui/language_banner_main.webp') center/cover}
+.lf-class-editor .lf-editor-hero>div:last-child{grid-column:1;grid-row:1;z-index:1}
+.lf-class-editor .lf-editor-hero small{color:#49e7ff;letter-spacing:.18em;font-size:10px;font-weight:900}
+.lf-class-editor .lf-editor-hero h2{color:#fff;font-size:clamp(20px,2.1vw,30px);margin:7px 0;line-height:1.35}
+.lf-class-editor .lf-editor-hero p{color:#bad9fc;font-size:13px;line-height:1.75;margin:0}
+.lf-class-editor .lf-editor-cover{grid-column:2;grid-row:1;min-height:145px;background:url('assets/ui/24-language-classes-icon.webp') center/contain no-repeat;filter:drop-shadow(0 0 17px #3e7effbb)}
+.lf-class-editor>label,.lf-class-editor .language-class-form-grid>label,.lf-class-editor>[data-class-link-field]{display:grid;gap:7px;font-weight:750;color:#e6f0ff;min-width:0}
+.lf-class-editor input:not([type=checkbox]),.lf-class-editor select{width:100%;min-width:0;max-width:100%;min-height:44px;box-sizing:border-box;border:1px solid #2378b5!important;border-radius:12px!important;background:#031a34ed!important;color:#f4f7ff!important;padding:10px 12px;font:inherit}
+.lf-class-editor input:focus-visible,.lf-class-editor select:focus-visible{outline:2px solid #27e5ff;outline-offset:2px}
+.lf-class-editor .language-class-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lf-class-editor fieldset,.lf-class-editor .language-class-share-field,.lf-class-editor .language-class-live-estimate{border:1px solid #21659d;border-radius:16px;background:#04192dd4;padding:14px;min-width:0}
+.lf-class-editor .language-class-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lf-class-editor .language-class-days label{display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0;padding:9px 8px;border:1px solid #2783b7;border-radius:11px;background:#061e3c}
+.lf-class-editor .language-class-days input{accent-color:#26dffb;width:18px;height:18px;flex:none}
+.lf-class-editor .language-class-live-estimate{display:flex;flex-wrap:wrap;gap:8px 15px;color:#aee5ff}
+.lf-class-editor .language-class-live-estimate>strong{color:#fff}
+@media(max-width:650px){
+ .lf-class-editor .lf-editor-hero{grid-template-columns:minmax(0,1fr) 110px;min-height:175px;padding:14px;gap:6px}
+ .lf-class-editor .lf-editor-cover{min-height:120px}
+ .lf-class-editor .language-class-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .lf-class-editor .language-class-days{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .lf-class-editor fieldset,.lf-class-editor .language-class-share-field{padding:10px}
+ .lf-class-editor .language-class-form-grid>label{font-size:12px}
+}
+@media(max-width:355px){.lf-class-editor .lf-editor-hero{grid-template-columns:1fr 77px}.lf-class-editor .lf-editor-cover{min-height:90px}.lf-class-editor input:not([type=checkbox]),.lf-class-editor select{padding:8px 6px;font-size:13px}}
