@@ -26,7 +26,10 @@ for(const width of widths){
  await page.locator('#ref-header-account').click();
  await page.locator('.drawer-menu [data-p4-private-profile]').click();
  await page.waitForURL('**/#profile');
- await page.locator('#elara-p4-private-profile:not([hidden]) .elara-profile-hub').waitFor({timeout:10000});
+ try{await page.locator('#elara-p4-private-profile:not([hidden]) .elara-profile-hub').waitFor({timeout:10000})}catch(e){
+  console.error('P4-ROUTE-DIAG',await page.evaluate(()=>({hash:location.hash,screen:document.querySelector('#elara-p4-private-profile')?.outerHTML.slice(0,1800),drawerAccount:document.getElementById('drawer-account-area')?.innerHTML.slice(0,1300),uid:window.ElaraAccount?.user?.uid,social:window.ElaraSocial?.me?.uid,hidden:document.querySelector('#elara-p4-private-profile')?.hidden})));
+  await page.screenshot({path:out+'/profile-entry-failure-'+width+'.png',fullPage:false});throw e
+ }
  assert.equal(await page.locator('#elara-p4-private-profile .elara-profile-hub-edit').isVisible(),true);
  assert.ok(!(await page.locator('#elara-p4-private-profile').evaluate(el=>el.scrollWidth>el.clientWidth+3)),'profile overflow '+width);
  if(width===390||width===1440)await page.screenshot({path:out+'/profile-'+width+'.png',fullPage:false});
