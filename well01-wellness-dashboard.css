@@ -316,6 +316,8 @@ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margi
 .wellness-workout-fields input,.wellness-workout-fields select,.wellness-workout-fields textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;background:#04172d!important;border:1.5px solid #20d9e5!important;box-shadow:inset 0 0 10px #034550;color:#f5ffff!important;border-radius:14px!important;padding:13px 16px!important;font:inherit!important;min-height:51px;outline-offset:2px}
 .wellness-workout-fields textarea{resize:vertical;min-height:85px}
 .wellness-workout-pair{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+/* Override legacy .wellness-editor label:first-child spanning both columns. */
+.wellness-workout-form .wellness-workout-pair>label:first-child{grid-column:auto}
 .wellness-workout-fields [hidden]{display:none!important}
 .wellness-workout-footer{display:flex;gap:12px;margin-top:4px}
 .wellness-workout-save,.wellness-workout-cancel{flex:1;min-height:53px;border-radius:15px!important;border:1px solid #6e5bee!important;font-weight:800;font-size:1.15rem}
