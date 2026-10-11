@@ -286,3 +286,188 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
  #panel-language-courses .l1-class-stat>div>span{font-size:9px}
  #panel-language-courses .language-class-meta span{max-width:100%;overflow-wrap:anywhere}
 }
+
+
+/* LANG-FIDELITY classes: geometry and hierarchy enhancement.
+   This layer deliberately scopes all rules to the classes route and preserves canonical data/actions. */
+#panel-language-courses .language-custom-classes{gap:14px;container-type:inline-size}
+#panel-language-courses .language-class-intro.l1-class-hero{
+ min-height:280px;display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,.48fr);
+ align-items:center;column-gap:clamp(18px,4vw,60px);padding:52px clamp(20px,3vw,45px) 28px!important;
+ border-color:#22cbea;border-radius:24px;
+ background-image:linear-gradient(270deg,#031529ee 0%,#061a36d9 51%,#07153054 100%),url('assets/ui/language_banner_main.webp')!important;
+ background-position:center 54%!important;
+}
+#panel-language-courses .l1-class-hero>div:first-of-type{max-width:750px;align-self:center}
+#panel-language-courses .l1-class-hero h2{font-size:clamp(23px,2.3vw,35px);line-height:1.3}
+#panel-language-courses .l1-class-hero .language-class-type-adders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:410px;justify-self:end;align-self:end;gap:8px}
+#panel-language-courses .l1-class-hero .language-class-type-adders .l1-main-cta{grid-column:1/-1;min-height:54px;font-size:15px}
+#panel-language-courses .l1-class-hero .language-class-type-adders>button:not(.l1-main-cta){padding-inline:6px;min-width:0}
+#panel-language-courses .l1-class-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#panel-language-courses .l1-class-stat{min-height:112px;border-radius:17px}
+#panel-language-courses .language-personal-classes,
+#panel-language-courses .language-shared-classes{padding:clamp(15px,2vw,24px)!important;border-radius:22px}
+#panel-language-courses .language-class-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px}
+#panel-language-courses .language-class-empty{grid-column:1/-1;min-height:178px;align-content:center;padding:21px!important}
+#panel-language-courses .language-class-empty::before{height:70px}
+#panel-language-courses .language-shared-classes-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
+#panel-language-courses .language-class-card.is-shared{position:relative;overflow:hidden;padding:20px;display:grid;gap:14px;border-color:#247ba2;background:radial-gradient(ellipse at 84% 4%,#3257ae35,transparent 58%),linear-gradient(145deg,#092746,#06182f)}
+#panel-language-courses .language-class-card.is-shared::before{
+ content:'';display:block;min-height:155px;border:1px solid #235f91;border-radius:14px;
+ background:linear-gradient(0deg,#061b36b8,#071b2b15 76%),url('assets/ui/language_banner_main.webp') center 44%/cover no-repeat;
+}
+#panel-language-courses .language-class-card.is-shared>header{display:flex;align-items:center;gap:12px;min-width:0}
+#panel-language-courses .language-class-card.is-shared>header>div{min-width:0;flex:1}
+#panel-language-courses .language-class-card.is-shared>header>span{display:grid;place-items:center;flex:none;width:63px;height:63px;border-radius:50%;border:7px solid #614cdb;background:#0a2447;color:white;font-size:17px;font-weight:900;box-shadow:0 0 15px #6d45ed45}
+#panel-language-courses .language-class-card.is-shared .language-class-meta{display:flex;flex-wrap:wrap;gap:8px}
+#panel-language-courses .language-class-card.is-shared .language-class-meta>span{border:1px solid #235179;background:#061d38;border-radius:9px;padding:6px 10px}
+#panel-language-courses .language-class-card.is-shared>footer{display:flex;flex-wrap:wrap;gap:8px}
+#panel-language-courses .language-class-card.is-shared>footer>button{flex:1 1 130px}
+#panel-language-courses .language-class-card.is-shared>footer>button:first-child{background:linear-gradient(105deg,#fc749b,#a04bf4,#416dfb);border-color:#a98afd}
+#panel-language-courses .language-shared-classes-empty{grid-column:1/-1;min-height:140px;align-content:center}
+#panel-language-courses :is(.language-class-card,.l1-class-hero) button{transition:transform .16s ease,box-shadow .16s ease}
+#panel-language-courses :is(.language-class-card,.l1-class-hero) button:hover:not(:disabled){transform:translateY(-2px)}
+#panel-language-courses :is(.language-class-card,.l1-class-hero) button:focus-visible{outline:3px solid #7cecff;outline-offset:3px}
+@media(max-width:1050px){
+ #panel-language-courses .language-class-intro.l1-class-hero{grid-template-columns:minmax(0,1fr);gap:16px}
+ #panel-language-courses .l1-class-hero .language-class-type-adders{justify-self:stretch;max-width:480px}
+ #panel-language-courses .l1-class-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #panel-language-courses .language-class-intro.l1-class-hero{min-height:0;padding:58px 17px 18px!important;background-position:39% center!important}
+ #panel-language-courses .l1-class-hero .language-class-type-adders{max-width:none}
+ #panel-language-courses .l1-class-hero .language-class-type-adders .l1-main-cta{min-height:50px}
+ #panel-language-courses .l1-class-stat{min-height:94px}
+ #panel-language-courses .language-class-card.is-shared{padding:14px}
+ #panel-language-courses .language-class-card.is-shared::before{min-height:140px}
+ #panel-language-courses .language-class-card.is-shared>footer>button{flex-basis:calc(50% - 8px);min-height:43px}
+ #panel-language-courses .language-personal-classes,#panel-language-courses .language-shared-classes{padding:12px!important}
+}
+@media(max-width:355px){
+ #panel-language-courses .l1-class-hero .language-class-type-adders>button:not(.l1-main-cta){font-size:10px}
+ #panel-language-courses .language-class-card.is-shared>footer>button{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-language-courses :is(.language-class-card,.l1-class-hero) button{transition:none}
+}
+
+
+/* Canonical classes type-switcher */
+#panel-language-courses .lf-class-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px;border:1px solid #204b7d;border-radius:17px;background:#04162fc9}
+#panel-language-courses .lf-class-filter button{border:1px solid #285786;border-radius:12px;background:#071a34;color:#deecff;min-height:43px;padding:9px clamp(12px,2vw,23px);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+#panel-language-courses .lf-class-filter button[aria-pressed=true]{color:#fff;background:linear-gradient(105deg,#fa6a93,#ae46ed,#415cff);border-color:#a49cff;box-shadow:0 0 14px #8541fa55}
+#panel-language-courses .lf-class-filter button:focus-visible{outline:3px solid #7aeaff;outline-offset:3px}
+#panel-language-courses .language-class-card[hidden]{display:none!important}
+#panel-language-courses .lf-filter-empty{grid-column:1/-1;margin:0;border:1px dashed #315a82;border-radius:12px;padding:25px;text-align:center;color:#abc9e6}
+@media(max-width:700px){#panel-language-courses .lf-class-filter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}#panel-language-courses .lf-class-filter button{padding:9px 6px}}
+
+
+/* LANG-FIDELITY: class creation dialog, confined to the existing canonical form */
+.language-class-editor.lf-class-editor{display:grid;gap:14px;min-width:0;color:#eef7ff;direction:rtl}
+.lf-class-editor .lf-editor-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 180px;align-items:center;min-height:165px;margin:-4px -4px 4px;padding:20px 22px;overflow:hidden;border:1px solid #247ac3;border-radius:19px;background:linear-gradient(270deg,#02132bf0,#06194298),url('assets/ui/language_banner_main.webp') center/cover}
+.lf-class-editor .lf-editor-hero>div:last-child{grid-column:1;grid-row:1;z-index:1}
+.lf-class-editor .lf-editor-hero small{color:#49e7ff;letter-spacing:.18em;font-size:10px;font-weight:900}
+.lf-class-editor .lf-editor-hero h2{color:#fff;font-size:clamp(20px,2.1vw,30px);margin:7px 0;line-height:1.35}
+.lf-class-editor .lf-editor-hero p{color:#bad9fc;font-size:13px;line-height:1.75;margin:0}
+.lf-class-editor .lf-editor-cover{grid-column:2;grid-row:1;min-height:145px;background:url('assets/ui/24-language-classes-icon.webp') center/contain no-repeat;filter:drop-shadow(0 0 17px #3e7effbb)}
+.lf-class-editor>label,.lf-class-editor .language-class-form-grid>label,.lf-class-editor>[data-class-link-field]{display:grid;gap:7px;font-weight:750;color:#e6f0ff;min-width:0}
+.lf-class-editor input:not([type=checkbox]),.lf-class-editor select{width:100%;min-width:0;max-width:100%;min-height:44px;box-sizing:border-box;border:1px solid #2378b5!important;border-radius:12px!important;background:#031a34ed!important;color:#f4f7ff!important;padding:10px 12px;font:inherit}
+.lf-class-editor input:focus-visible,.lf-class-editor select:focus-visible{outline:2px solid #27e5ff;outline-offset:2px}
+.lf-class-editor .language-class-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.lf-class-editor fieldset,.lf-class-editor .language-class-share-field,.lf-class-editor .language-class-live-estimate{border:1px solid #21659d;border-radius:16px;background:#04192dd4;padding:14px;min-width:0}
+.lf-class-editor .language-class-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lf-class-editor .language-class-days label{display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0;padding:9px 8px;border:1px solid #2783b7;border-radius:11px;background:#061e3c}
+.lf-class-editor .language-class-days input{accent-color:#26dffb;width:18px;height:18px;flex:none}
+.lf-class-editor .language-class-live-estimate{display:flex;flex-wrap:wrap;gap:8px 15px;color:#aee5ff}
+.lf-class-editor .language-class-live-estimate>strong{color:#fff}
+@media(max-width:650px){
+ .lf-class-editor .lf-editor-hero{grid-template-columns:minmax(0,1fr) 110px;min-height:175px;padding:14px;gap:6px}
+ .lf-class-editor .lf-editor-cover{min-height:120px}
+ .lf-class-editor .language-class-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .lf-class-editor .language-class-days{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .lf-class-editor fieldset,.lf-class-editor .language-class-share-field{padding:10px}
+ .lf-class-editor .language-class-form-grid>label{font-size:12px}
+}
+@media(max-width:355px){.lf-class-editor .lf-editor-hero{grid-template-columns:1fr 77px}.lf-class-editor .lf-editor-cover{min-height:90px}.lf-class-editor input:not([type=checkbox]),.lf-class-editor select{padding:8px 6px;font-size:13px}}
+
+/* L1 class editor: dialog shell remains owned by ElaraDialog; only its scoped presentation changes. */
+#elara-dialog-root .elara-dialog-layer:has(.lf-class-editor){padding:clamp(6px,1vw,14px)!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor){
+ width:min(780px,96vw)!important;max-width:96vw!important;max-height:calc(100dvh - 20px)!important;
+ display:flex;flex-direction:column;overflow:hidden;min-width:0;
+ border:1px solid #249ef7!important;border-radius:21px!important;
+ background:linear-gradient(130deg,#041a34,#040c24 75%)!important;
+ box-shadow:0 0 0 1px #8857ff77,0 0 36px #117fe455,0 18px 80px #000c!important;
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head{
+ position:absolute;top:9px;left:9px;right:9px;z-index:4;display:flex;justify-content:space-between;
+ pointer-events:none;border:0;background:transparent;box-shadow:none;padding:0!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>div{display:none}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>button{
+ pointer-events:auto;width:39px;min-width:39px;height:39px;margin:0;
+ border:1px solid #19a6ed;background:#05224bcf;border-radius:11px;color:#eaf7ff
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-body{
+ padding:9px 13px 18px!important;overflow-y:auto!important;overflow-x:hidden!important;
+ min-width:0;min-height:0;overscroll-behavior:contain;flex:1
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions{
+ display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-start;
+ flex:none;padding:13px 18px calc(13px + env(safe-area-inset-bottom))!important;
+ border-top:1px solid #2a75ba;background:#03142eee
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions button{min-height:45px;min-width:110px}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions .primary-button{background:linear-gradient(105deg,#ffab71,#f344b8 45%,#6639f9 80%,#28b5fb);color:#fff;border:1px solid #9bdfff;box-shadow:0 0 18px #9b48fd66}
+.lf-class-editor [hidden]{display:none!important}
+.lf-class-editor [aria-invalid="true"]{border-color:#ff718b!important;box-shadow:0 0 0 2px #ef426477!important}
+.lf-class-editor .lf-editor-error{padding:11px 14px;border:1px solid #ef5576;border-radius:10px;background:#40132a;color:#ffe7ee;font-weight:700}
+@media(max-width:650px){
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor){width:100%!important;max-width:100%!important;max-height:calc(100dvh - 12px)!important;border-radius:18px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-body{padding:7px 9px 12px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions{display:grid;grid-template-columns:1fr;gap:7px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions button{width:100%;min-height:42px}
+}
+
+/* Reference pass: route-level celestial art and one wide accepted shared-class row. */
+#panel-language-courses .ui13-subpage-head{
+ position:relative;min-height:168px;align-content:center;overflow:hidden;
+ border-radius:20px;border:1px solid #226295;
+ background:linear-gradient(270deg,#031227e8 0%,#04132fcc 48%,#07183d47 100%),url('assets/ui/language-learning-background.webp') center 44%/cover no-repeat!important
+}
+#panel-language-courses .language-shared-classes-list{grid-template-columns:minmax(0,1fr)!important}
+@media(min-width:850px){
+ #panel-language-courses .language-class-card.is-shared{
+  grid-template-columns:minmax(0,1fr) minmax(190px,245px);
+  align-items:start;gap:12px 18px
+ }
+ #panel-language-courses .language-class-card.is-shared::before{
+  grid-column:2;grid-row:1 / span 6;align-self:stretch;min-height:230px
+ }
+ #panel-language-courses .language-class-card.is-shared>header,
+ #panel-language-courses .language-class-card.is-shared>.language-class-progress,
+ #panel-language-courses .language-class-card.is-shared>.language-class-meta,
+ #panel-language-courses .language-class-card.is-shared>.language-class-eta,
+ #panel-language-courses .language-class-card.is-shared>.language-class-link,
+ #panel-language-courses .language-class-card.is-shared>footer{grid-column:1}
+ #panel-language-courses .language-class-intro.l1-class-hero{min-height:176px;padding-top:45px!important}
+}
+@media(max-width:700px){
+ #panel-language-courses .ui13-subpage-head{min-height:137px;padding:18px 12px!important;border-radius:17px}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions .primary-button{order:-1}
+}
+@media(min-width:380px) and (max-width:650px){
+ .lf-class-editor .language-class-days{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ .lf-class-editor .language-class-days label{font-size:11px;padding:8px 5px;gap:3px}
+ .lf-class-editor .language-class-days input{height:15px;width:15px}
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head{
+ position:absolute!important;top:8px!important;left:8px!important;right:8px!important;
+ height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:visible!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>button{
+ position:absolute;top:0;left:0
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>.elara-dialog-back{
+ left:auto;right:0
+}

@@ -32,7 +32,7 @@ function card(c){
 }
 function editorMarkup(c={}){
  const selected=new Set((c.weekdays||[]).map(Number)),names=dayNames(),shared=!!c.collabSpaceId,collabMember=shared&&c.collabRole==='member';
- return '<form class="language-class-editor" data-language-class-form><input type="hidden" name="id" value="'+esc(c.id||'')+'"><label>'+tx('اسم کلاس','Class name')+'<input name="title" maxlength="120" required value="'+esc(c.title||'')+'" placeholder="'+tx('مثلاً English C1','e.g. English C1')+'"></label><div class="language-class-form-grid"><label>'+tx('نوع کلاس','Class type')+'<select name="type"><option value="offline" '+(c.type==='offline'||!c.type?'selected':'')+'>'+tx('آفلاین','Offline')+'</option><option value="online" '+(c.type==='online'?'selected':'')+'>'+tx('آنلاین','Online')+'</option><option value="linked" '+(c.type==='linked'?'selected':'')+'>'+tx('لینک‌شده','Linked')+'</option></select></label><label>'+tx('تعداد ترم','Terms')+'<input name="terms" type="number" min="1" max="40" value="'+esc(c.terms||1)+'" required></label><label>'+tx('جلسه در هر ترم','Sessions / term')+'<input name="sessionsPerTerm" type="number" min="1" max="100" value="'+esc(c.sessionsPerTerm||12)+'" required></label><label>'+tx('مدت هر جلسه (دقیقه)','Session duration (min)')+'<input name="durationMin" type="number" min="10" max="480" step="5" value="'+esc(c.durationMin||60)+'" required></label><label>'+tx('ساعت مطالعه','Study time')+'<input name="studyTime" type="time" value="'+esc(c.studyTime||'18:00')+'"></label><label>'+tx('چند ساعت در هر روز مطالعه؟','Study hours per selected day')+'<input name="studyHoursPerDay" type="number" min="0.25" max="16" step="0.25" value="'+esc(c.studyHoursPerDay||Math.max(1,(Number(c.durationMin)||60)/60))+'" required></label></div><fieldset><legend>'+tx('روزهای کلاس/مطالعه','Class / study days')+'</legend><div class="language-class-days">'+names.map((name,i)=>'<label><input type="checkbox" name="weekday" value="'+i+'" '+(selected.has(i)?'checked':'')+'><span>'+name+'</span></label>').join('')+'</div></fieldset><label data-class-link-field>'+tx('لینک کلاس (اختیاری)','Class link (optional)')+'<input name="linkUrl" type="url" maxlength="1000" dir="ltr" value="'+esc(c.linkUrl||'')+'" placeholder="https://..."></label><section class="language-class-share-field">'+(collabMember?'<div class="language-class-member-note"><strong>🤝 '+tx('عضو این کلاس مشترک هستی','You are a member of this shared class')+'</strong><p class="muted">'+tx('پیشرفت تو جدا ثبت می‌شود و آمار همکلاسی‌ها را از کارت کلاس می‌بینی. دعوت عضو جدید و ساخت لینک فقط برای سازندهٔ کلاس است.','Your progress is tracked separately and classmate stats are available from the class card. Only the owner can invite new members or create join links.')+'</p></div>':'<label class="language-class-share-toggle"><input type="checkbox" name="shareEnabled"> '+(shared?tx('دعوت یک دوست دیگر به این کلاس مشترک','Invite another friend to this shared class'):tx('این درس/کلاس را با یک دوست مشترک بردارم','Take this class together with a friend'))+'</label><label data-class-friend-field hidden>'+tx('دوست','Friend')+'<select name="friendUid">'+friendOptions()+'</select></label><p class="muted">'+(shared?tx('این کلاس همین حالا مشترک است؛ پیشرفت هر عضو جدا ثبت و در آمار همکلاسی‌ها نمایش داده می‌شود.','This class is already shared; each member keeps separate progress visible in classmate stats.'):tx('برای دوستت یک درخواست بدون محدودیت زمانی می‌رود؛ فقط بعد از قبول، کلاس به فضای او اضافه می‌شود.','Your friend gets a no-expiry request; the class is added only after acceptance.'))+'</p>')+'</section><div class="language-class-live-estimate" data-class-estimate></div></form>';
+ return '<form class="language-class-editor lf-class-editor" data-language-class-form><header class="lf-editor-hero"><div class="lf-editor-cover" aria-hidden="true"></div><div><small>ELARA · CUSTOM CLASS</small><h2>'+tx(c.id?'ویرایش کلاس سفارشی':'کلاس سفارشی جدید',c.id?'Edit custom class':'New custom class')+'</h2><p>'+tx('کلاس دلخواهت را بساز و برنامه یادگیری خودت را تنظیم کن.','Customize your class and learning schedule.')+'</p></div></header><input type="hidden" name="id" value="'+esc(c.id||'')+'"><label>'+tx('اسم کلاس','Class name')+'<input name="title" maxlength="120" required value="'+esc(c.title||'')+'" placeholder="'+tx('مثلاً English C1','e.g. English C1')+'"></label><div class="language-class-form-grid"><label>'+tx('نوع کلاس','Class type')+'<select name="type"><option value="offline" '+(c.type==='offline'||!c.type?'selected':'')+'>'+tx('آفلاین','Offline')+'</option><option value="online" '+(c.type==='online'?'selected':'')+'>'+tx('آنلاین','Online')+'</option><option value="linked" '+(c.type==='linked'?'selected':'')+'>'+tx('لینک‌شده','Linked')+'</option></select></label><label>'+tx('تعداد ترم','Terms')+'<input name="terms" type="number" min="1" max="40" value="'+esc(c.terms||1)+'" required></label><label>'+tx('جلسه در هر ترم','Sessions / term')+'<input name="sessionsPerTerm" type="number" min="1" max="100" value="'+esc(c.sessionsPerTerm||12)+'" required></label><label>'+tx('مدت هر جلسه (دقیقه)','Session duration (min)')+'<input name="durationMin" type="number" min="10" max="480" step="5" value="'+esc(c.durationMin||60)+'" required></label><label>'+tx('ساعت مطالعه','Study time')+'<input name="studyTime" type="time" value="'+esc(c.studyTime||'18:00')+'"></label><label>'+tx('چند ساعت در هر روز مطالعه؟','Study hours per selected day')+'<input name="studyHoursPerDay" type="number" min="0.25" max="16" step="0.25" value="'+esc(c.studyHoursPerDay||Math.max(1,(Number(c.durationMin)||60)/60))+'" required></label></div><fieldset><legend>'+tx('روزهای کلاس/مطالعه','Class / study days')+'</legend><div class="language-class-days">'+names.map((name,i)=>'<label><input type="checkbox" name="weekday" value="'+i+'" '+(selected.has(i)?'checked':'')+'><span>'+name+'</span></label>').join('')+'</div></fieldset><label data-class-link-field>'+tx('لینک کلاس (اختیاری)','Class link (optional)')+'<input name="linkUrl" type="url" maxlength="1000" dir="ltr" value="'+esc(c.linkUrl||'')+'" placeholder="https://..."></label><section class="language-class-share-field">'+(collabMember?'<div class="language-class-member-note"><strong>🤝 '+tx('عضو این کلاس مشترک هستی','You are a member of this shared class')+'</strong><p class="muted">'+tx('پیشرفت تو جدا ثبت می‌شود و آمار همکلاسی‌ها را از کارت کلاس می‌بینی. دعوت عضو جدید و ساخت لینک فقط برای سازندهٔ کلاس است.','Your progress is tracked separately and classmate stats are available from the class card. Only the owner can invite new members or create join links.')+'</p></div>':'<label class="language-class-share-toggle"><input type="checkbox" name="shareEnabled"> '+(shared?tx('دعوت یک دوست دیگر به این کلاس مشترک','Invite another friend to this shared class'):tx('این درس/کلاس را با یک دوست مشترک بردارم','Take this class together with a friend'))+'</label><label data-class-friend-field hidden>'+tx('دوست','Friend')+'<select name="friendUid">'+friendOptions()+'</select></label><p class="muted">'+(shared?tx('این کلاس همین حالا مشترک است؛ پیشرفت هر عضو جدا ثبت و در آمار همکلاسی‌ها نمایش داده می‌شود.','This class is already shared; each member keeps separate progress visible in classmate stats.'):tx('برای دوستت یک درخواست بدون محدودیت زمانی می‌رود؛ فقط بعد از قبول، کلاس به فضای او اضافه می‌شود.','Your friend gets a no-expiry request; the class is added only after acceptance.'))+'</p>')+'</section><div class="language-class-live-estimate" data-class-estimate></div></form>';
 }
 function payload(form,old){
  const days=[...form.querySelectorAll('[name=weekday]:checked')].map(x=>Number(x.value)).sort((a,b)=>a-b);
@@ -44,8 +44,29 @@ function estimateInto(form){
  form.querySelector('[data-class-link-field]').hidden=form.elements.type.value==='offline';syncShareField(form);
 }
 async function openEditor(c){
- const wrap=document.createElement('div');wrap.innerHTML=editorMarkup(c);const form=wrap.querySelector('form');estimateInto(form);form.addEventListener('input',()=>estimateInto(form));form.addEventListener('change',()=>estimateInto(form));
- const isNew=!c?.id,ok=await window.ElaraDialog.open({title:isNew?tx('کلاس سفارشی جدید','New custom class'):tx('ویرایش کلاس','Edit class'),content:wrap,wide:true,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره کلاس','Save class'),value:true,kind:'primary'}]});if(ok!==true)return;
+ const wrap=document.createElement('div');wrap.innerHTML=editorMarkup(c||{});const form=wrap.querySelector('form');estimateInto(form);form.addEventListener('input',()=>estimateInto(form));form.addEventListener('change',()=>estimateInto(form));
+ form.elements.title?.setAttribute('autocomplete','off');
+ // Validate in capture phase: dialog.js otherwise destroys the form before validation.
+ const isNew=!c?.id;
+ const dialog=window.ElaraDialog.open({title:isNew?tx('کلاس سفارشی جدید','New custom class'):tx('ویرایش کلاس','Edit class'),content:wrap,wide:true,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره کلاس','Save class'),value:true,kind:'primary'}]});
+ const saveButton=form.closest('.elara-dialog-panel')?.querySelector('.elara-dialog-actions .primary-button');
+ const errorBox=document.createElement('p');errorBox.className='lf-editor-error';errorBox.setAttribute('role','alert');errorBox.hidden=true;form.append(errorBox);
+ const onSave=event=>{
+   errorBox.hidden=true;form.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute('aria-invalid'));
+   const firstInvalid=form.querySelector(':invalid'),title=form.elements.title,days=[...form.querySelectorAll('input[name="weekday"]:checked')];
+   const friend=form.elements.friendUid,needsFriend=!!form.elements.shareEnabled?.checked;
+   const message=firstInvalid?tx('مقدار فیلد مشخص‌شده معتبر نیست.','Correct the highlighted field.'):
+    !String(title.value||'').trim()?tx('اسم کلاس را وارد کن.','Enter a class name.'):
+    !days.length?tx('حداقل یک روز هفته انتخاب کن.','Choose at least one weekday.'):
+    needsFriend&&!friend?.value?tx('برای اشتراک کلاس، یک دوست واقعی انتخاب کن.','Choose a real friend to share.'):null;
+   if(!message)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const target=firstInvalid||(!String(title.value||'').trim()?title:!days.length?form.querySelector('input[name="weekday"]'):friend);
+   errorBox.hidden=false;errorBox.textContent=message;target?.setAttribute('aria-invalid','true');target?.focus({preventScroll:false});
+   if(firstInvalid)form.reportValidity();
+ };
+ saveButton?.addEventListener('click',onSave,{capture:true});
+ const ok=await dialog;if(ok!==true)return;
  const s=read(),old=form.elements.id.value?s.languageClasses.find(x=>x.id===form.elements.id.value):null,next=payload(form,old);if(!next.title){return window.ElaraDialog.alert(tx('اسم کلاس را وارد کن.','Enter a class name.'))}if(!next.weekdays.length){return window.ElaraDialog.alert(tx('حداقل یک روز هفته انتخاب کن.','Choose at least one weekday.'))}
  if(old)Object.assign(old,next);else s.languageClasses.push(next);write(s);
  if(form.elements.shareEnabled?.checked&&form.elements.friendUid?.value){try{await window.ElaraCollab?.shareEntity?.('language-class',next,form.elements.friendUid.value);render()}catch(error){await window.ElaraDialog.alert(error?.message||String(error),{title:tx('کلاس ذخیره شد؛ دعوت ارسال نشد','Class saved; invite failed')})}}
@@ -79,6 +100,7 @@ async function remove(c){
  const ok=await window.ElaraDialog.confirm(tx('این کلاس و گزارش جلساتش حذف شود؟','Delete this class and its session history?'),{title:tx('حذف کلاس','Delete class'),confirmText:tx('حذف','Delete'),danger:true});if(!ok)return;
  const s=read();s.languageClasses=s.languageClasses.filter(x=>x.id!==c.id);write(s);
 }
+let languageClassesFilter='all';
 function render(){
  const panel=document.getElementById('panel-language-courses');if(!panel)return;
  let host=panel.querySelector('[data-custom-classes]');if(!host){host=document.createElement('section');host.className='language-custom-classes';host.dataset.customClasses='';panel.append(host)}
@@ -121,7 +143,33 @@ function render(){
    ['sessions',tx('جلسات ثبت‌شده','Sessions completed'),sessionCount,tx('بر اساس گزارش واقعی','From real session logs')]
  ];
  overview.innerHTML=metrics.map(([kind,label,value,note])=>'<article class="l1-class-stat l1-stat-'+kind+'"><span aria-hidden="true" class="l1-stat-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+statIcons[kind]+'</svg></span><div><small>'+label+'</small><strong>'+fa(value)+'</strong><span>'+note+'</span></div></article>').join('');
- if(hero)hero.after(overview);else host.prepend(overview);
+ if(hero)hero.before(overview);else host.prepend(overview);
+
+ // Visual-only, canonical data-backed type filters. Filtering never writes or duplicates classes.
+ const typeFilter=document.createElement('nav');
+ typeFilter.className='lf-class-filter';
+ typeFilter.setAttribute('aria-label',tx('فیلتر کلاس‌ها','Filter classes'));
+ typeFilter.innerHTML=[
+  ['all',tx('همه کلاس‌ها','All classes')],
+  ['online',tx('آنلاین','Online')],
+  ['linked',tx('لینک‌شده','Linked')],
+  ['offline',tx('آفلاین','Offline')]
+ ].map(([type,label])=>'<button type="button" data-lf-class-filter="'+type+'" aria-pressed="'+(languageClassesFilter===type)+'">'+label+'</button>').join('');
+ if(overview)overview.after(typeFilter);
+ for(const cardElement of host.querySelectorAll('.language-class-card')){
+  const record=rows.find(c=>String(c.id)===cardElement.dataset.languageClassId);
+  cardElement.hidden=!!record&&languageClassesFilter!=='all'&&record.type!==languageClassesFilter;
+ }
+ for(const group of host.querySelectorAll('.language-personal-classes,.language-shared-classes')){
+  const visible=group.querySelectorAll('.language-class-card:not([hidden])').length;
+  const hasCards=group.querySelectorAll('.language-class-card').length;
+  if(hasCards&&!visible){
+    const notice=document.createElement('p');notice.className='lf-filter-empty';
+    notice.textContent=tx('در این دسته کلاسی وجود ندارد.','No classes match this filter.');
+    group.querySelector('.language-class-list,.language-shared-classes-list')?.append(notice);
+  }
+ }
+
  const privateHeader=host.querySelector('.language-personal-classes>header');
  if(privateHeader)privateHeader.insertAdjacentHTML('beforeend','<p>'+tx('کلاس‌هایی که ساخته‌ای و پیشرفت واقعی هر جلسه','Classes you created, with real session progress')+'</p>');
  if(!personalRows.length){
@@ -132,6 +180,7 @@ function render(){
  }
 }
 document.addEventListener('click',e=>{
+ const filter=e.target.closest('[data-lf-class-filter]');if(filter){languageClassesFilter=filter.dataset.lfClassFilter;render();return}
  const goBack=e.target.closest('[data-class-back]');if(goBack){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});return}
  const goFriends=e.target.closest('[data-class-friends]');if(goFriends){e.preventDefault();window.ElaraOpen?.('social',{history:'push'});return}
  const typed=e.target.closest('[data-class-add-type]');if(typed){void openEditor({type:typed.dataset.classAddType});return}
