@@ -31,7 +31,8 @@ for(const width of widths){
  await page.waitForFunction(()=>location.hash==='#profile'&&document.body.classList.contains('elara-private-route-profile'),null,{timeout:12000});
  await page.locator('#elara-private-route .elara-profile-hub-hero .elara-profile-composition').waitFor({state:'visible',timeout:15000});
  assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0,'Profile must not sit inside modal drawer');
- assert.equal(await page.locator('#elara-private-route .elara-profile-hub-no-medals').count(),1,'No invented badges');
+ const badgeState=await page.evaluate(()=>({earned:(window.ElaraProfileSystem.viewModel(window.ElaraSocial.me,{self:true}).medals||[]).length,visible:document.querySelectorAll('#elara-private-route .elara-profile-hub-medal').length}));
+ assert.equal(badgeState.visible,badgeState.earned,'Medal list differs from canonical view model');
  assert.ok((await page.locator('#elara-private-route .elara-profile-hub-status').innerText()).includes('متن فارسی'),'Bio missing');
  assert.ok(await page.locator('.topbar').isVisible(),'Global header hidden');
  assert.equal(await page.locator('.approved-wardrobe:not([hidden])').count(),0,'Old wardrobe popup leaked');
