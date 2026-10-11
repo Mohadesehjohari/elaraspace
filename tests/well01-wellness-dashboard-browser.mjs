@@ -34,12 +34,12 @@ async function geometry(page){
  return page.evaluate(()=>{
  const b=selector=>document.querySelector(selector)?.getBoundingClientRect()?.toJSON();
  const box=b('#well01-dashboard .well01-hero'),bar=b('.topbar'),copy=b('#well01-dashboard .well01-hero-copy h1'),cta=b('#well01-dashboard .well01-hero-cta');
- const shortcut=b('#well01-dashboard .well01-shortcuts'),features=b('#well01-dashboard .well01-features');
+ const eyebrow=b('#well01-dashboard .well01-hero-copy small'),shortcut=b('#well01-dashboard .well01-shortcuts'),features=b('#well01-dashboard .well01-features');
  const app=b('#main'),panel=b('#panel-exercise');
  const search=document.querySelector('#ref-search-input'),searchBox=search?.getBoundingClientRect();
  const cx=searchBox?searchBox.left+searchBox.width/2:0,cy=searchBox?searchBox.top+searchBox.height/2:0;
  const searchHit=searchBox?document.elementFromPoint(cx,cy):null;
- return {hero:box,bar,copy,cta,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
+ return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
  });
 }
 for(const w of [390,1440]){
@@ -65,6 +65,8 @@ for(const width of widths){
   assert.ok(measure.hero.top<measure.bar.bottom-20,'header should float over hero image at '+width);
   assert.ok(measure.copy.top>=measure.bar.bottom-2,'hero heading must remain readable under header at '+width);
   assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
+  assert.ok(measure.eyebrow.top>=measure.bar.bottom-2,'eyebrow must remain below actionable header at '+width);
+  assert.ok(measure.cta.bottom<=measure.hero.bottom+1,'hero CTA must remain fully within unchanged image at '+width);
   assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
   if(beforeGeometry.has(width)){
     const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
