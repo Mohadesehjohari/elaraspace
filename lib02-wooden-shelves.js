@@ -13,9 +13,9 @@ const emit=s=>{localStorage.setItem('elara_space_v1',JSON.stringify(s));window.d
 function book(b){
  const p=progress(b),id=esc(b.id),title=esc(b.title||''),author=esc(b.author||t('نویسنده ثبت نشده','No author recorded'));
  const n=b.totalPages?fa(Math.min(b.currentPage||0,b.totalPages))+' / '+fa(b.totalPages):t('بدون تعداد صفحات','Page total not set');
- const menu='<details class="lib02-book-menu"><summary aria-label="'+t('عملیات کتاب','Book actions')+'">⋮</summary><div><button type="button" data-reading-book="'+id+'">'+t('ثبت صفحات','Log pages')+'</button><button type="button" data-edit-book="'+id+'">'+t('ویرایش کتاب','Edit book')+'</button><button type="button" data-library-manage-book="'+id+'">'+t('جلد و قفسه اختصاصی','Cover & custom shelf')+'</button><button type="button" data-lib02-delete="'+id+'">'+t('حذف با تأیید','Delete with confirmation')+'</button></div></details>';
+ const menu='<details class="lib02-book-menu"><summary aria-label="'+t('عملیات کتاب','Book actions')+'">⋮</summary><div><button type="button" data-lib02-read="'+id+'">'+t('ثبت صفحات','Log pages')+'</button><button type="button" data-lib02-edit="'+id+'">'+t('ویرایش کتاب','Edit book')+'</button><button type="button" data-lib02-manage="'+id+'">'+t('جلد و قفسه اختصاصی','Cover & custom shelf')+'</button><button type="button" data-lib02-delete="'+id+'">'+t('حذف با تأیید','Delete with confirmation')+'</button></div></details>';
  return '<article class="lib02-book" data-lib02-book="'+id+'"><div class="lib02-book-cover"><img src="'+esc(cover(b))+'" alt="'+t('جلد ','Cover of ')+title+'" loading="lazy"></div><div class="lib02-book-info"><strong data-elara-ugc dir="auto">'+title+'</strong><small data-elara-ugc dir="auto">'+author+'</small><div class="lib02-book-progress" role="progressbar" aria-label="'+t('درصد مطالعه','Reading progress')+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+p+'"><i style="width:'+p+'%"></i></div><small>'+fa(p)+'٪ · '+t('صفحه','Page')+' '+n+'</small>'+(b.customShelf?'<span class="lib02-custom" data-elara-ugc dir="auto">'+esc(b.customShelf)+'</span>':'')+
- '<div class="lib02-book-controls"><button type="button" data-reading-book="'+id+'">'+t('ثبت مطالعه','Log reading')+'</button><select data-lib02-status="'+id+'" aria-label="'+t('وضعیت کتاب','Reading status for ')+title+'">'+statuses.map(x=>'<option value="'+x.id+'" '+(b.shelf===x.id?'selected':'')+'>'+t(x.fa,x.en)+'</option>').join('')+'</select></div></div>'+
+ '<div class="lib02-book-controls"><button type="button" data-lib02-read="'+id+'">'+t('ثبت مطالعه','Log reading')+'</button><select data-lib02-status="'+id+'" aria-label="'+t('وضعیت کتاب','Reading status for ')+title+'">'+statuses.map(x=>'<option value="'+x.id+'" '+(b.shelf===x.id?'selected':'')+'>'+t(x.fa,x.en)+'</option>').join('')+'</select></div></div>'+
  '<button type="button" class="lib02-bookmark" data-lib02-bookmark="'+id+'" aria-pressed="'+!!b.bookmarked+'" aria-label="'+t('نشان کتاب','Bookmark book')+'">'+(b.bookmarked?'◆':'◇')+'</button>'+menu+'</article>';
 }
 function shelf(info,bs){
@@ -60,6 +60,12 @@ document.addEventListener('click',async event=>{
  if(event.target.closest('[data-lib02-add]')){event.preventDefault();const form=$('#book-form');form?.scrollIntoView({behavior:'smooth',block:'center'});$('#book-title')?.focus({preventScroll:true});return}
  if(event.target.closest('[data-lib02-new-shelf]')){event.preventDefault();await window.ElaraLibraryEnhancements.newShelf();schedule();return}
  if(event.target.closest('[data-lib02-library]')){event.preventDefault();window.ElaraOpen?.('books',{history:'push'});return}
+ const read=event.target.closest('[data-lib02-read]');
+ if(read){event.preventDefault();const match=[...document.querySelectorAll('#book-list [data-reading-book]')].find(x=>x.dataset.readingBook===read.dataset.lib02Read);match?.click();return}
+ const edit=event.target.closest('[data-lib02-edit]');
+ if(edit){event.preventDefault();const match=[...document.querySelectorAll('#book-list [data-edit-book]')].find(x=>x.dataset.editBook===edit.dataset.lib02Edit);match?.click();return}
+ const manage=event.target.closest('[data-lib02-manage]');
+ if(manage){event.preventDefault();await window.ElaraLibraryEnhancements.manageBook(manage.dataset.lib02Manage);return}
  const bm=event.target.closest('[data-lib02-bookmark]');
  if(bm){event.preventDefault();saveBooks(all=>{const i=all.findIndex(x=>x.id===bm.dataset.lib02Bookmark);if(i<0)return false;all[i]={...all[i],bookmarked:!all[i].bookmarked}});return}
  const custom=event.target.closest('[data-lib02-custom]');
