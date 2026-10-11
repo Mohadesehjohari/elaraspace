@@ -44,14 +44,30 @@ for(const width of widths){
  assert.ok(afterEquip,'Banner did not equip after explicit confirmation');
  await page.locator('[data-wardrobe-tab="frame"]').click();
  assert.ok(await page.locator('[data-wardrobe-item="frame"]').count()>0,'Frames missing');
+ const lockedFrame=page.locator('[data-wardrobe-item="frame"][data-wardrobe-id="gold"]');
+ await lockedFrame.click();
+ assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'Locked frame became equippable');
+ assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().frame),null,'Locked item unexpectedly equipped');
  await page.locator('[data-wardrobe-tab="badge"]').click();
  assert.match(await page.locator('.wardrobe-p3-empty').textContent(),/قرارداد تجهیز/);
  assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'Badge fake equip available');
  await page.locator('[data-wardrobe-tab="effect"]').click();
  assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'Effect fake equip available');
  if(width===390)await page.screenshot({path:dir+'/wardrobe-390-empty-effects.png',fullPage:false});
+ if(width===390){
+  await page.locator('.approved-wardrobe-window').evaluate(el=>el.scrollTop=el.scrollHeight);
+  await page.screenshot({path:dir+'/wardrobe-390-bottom.png',fullPage:false});
+ }
  await page.locator('[data-back-wardrobe]').click();
- assert.equal(await page.locator('.approved-wardrobe').isVisible(),false,'Back did not close wardrobe');
+ await page.locator('.approved-wardrobe').waitFor({state:'hidden',timeout:10000});
+ if(width===412){
+  await page.evaluate(()=>window.ElaraPrivateDrawer?.open?.('account'));
+  await page.locator('[data-approved-wardrobe]').first().evaluate(el=>el.click());
+  await page.locator('.approved-wardrobe:not([hidden])').waitFor();
+  await page.goBack({waitUntil:'domcontentloaded'});
+  await page.locator('.approved-wardrobe').waitFor({state:'hidden',timeout:10000});
+  assert.ok(await page.locator('.elara-private-drawer:not(.hidden)').isVisible(),'Browser Back should return to account drawer');
+ }
  await context.close();
 }
 assert.equal(errors.length,0,'Uncaught browser errors '+errors.join(' | '));
