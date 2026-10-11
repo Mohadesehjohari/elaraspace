@@ -25,6 +25,12 @@ for(const width of widths){
  const page=await ctx.newPage();page.on('pageerror',e=>errors.push(width+': '+e.message));
  await page.goto(url+'/#home',{waitUntil:'domcontentloaded'});
  await seed(page);
+ for(let attempt=0;attempt<2;attempt++){
+  const visible=await page.locator('#ref-header-account').isVisible().catch(()=>false);
+  if(visible)break;
+  if(attempt===0){await page.reload({waitUntil:'domcontentloaded'});await seed(page)}
+  await page.waitForTimeout(1500);
+ }
  await page.screenshot({path:out+'/entry-before-'+width+'.png',fullPage:false});
  const entryDiagnosis=await page.locator('#ref-header-account').evaluate(el=>({visible:!!el.getClientRects().length,display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility,opacity:getComputedStyle(el).opacity,ancestors:[...function*(x){while(x&&x!==document.body){yield [x.tagName,x.className,getComputedStyle(x).display,getComputedStyle(x).visibility];x=x.parentElement}}(el)].slice(0,8)}));
  if(!entryDiagnosis.visible)throw Error('Header account inaccessible at '+width+': '+JSON.stringify(entryDiagnosis));
