@@ -44,12 +44,14 @@ async function run(width,height){
   const tabs=[...document.querySelectorAll('#elara-social-page .social-tabs [role="tab"]')].filter(e=>getComputedStyle(e).display!=='none').length;
   return {tabs,kpis:getComputedStyle(document.querySelector('.friends-f2-kpis')).gridTemplateColumns.split(' ').length,
    friends:rect('.friends-f2-friends'),suggest:rect('.friends-f2-invite-card'),requests:rect('.friends-fidelity-requests'),
-   ranking:rect('.friends-f2-ranking'),activity:rect('.friends-f2-activities'),hero:rect('#panel-social > .elara-global-hero')};
+   ranking:rect('.friends-f2-ranking'),memberships:rect('.friends-fidelity-memberships'),activity:rect('.friends-f2-activities'),hero:rect('#panel-social > .elara-global-hero')};
  });
  assert.equal(fidelity.tabs,7,width+': Owner reference calls for seven visible destinations; Challenges remain available via Activities');
  if(width>=1440){
    assert.ok(fidelity.friends.left<fidelity.suggest.left&&fidelity.suggest.left<fidelity.requests.left,width+': physical columns must be Friends/Suggestions/Requests left-to-right '+JSON.stringify(fidelity));
    assert.ok(Math.abs(fidelity.friends.top-fidelity.requests.top)<4,width+': three primary cards must share a row');
+   assert.ok(fidelity.activity.left<fidelity.memberships.left&&fidelity.memberships.left<fidelity.ranking.left,width+': lower desktop row must flow Activity → Memberships → Ranking left-to-right '+JSON.stringify(fidelity));
+   assert.ok(Math.abs(fidelity.activity.top-fidelity.ranking.top)<4,width+': lower preview cards and podium must share one row');
  }
  if(width<=700){
    assert.equal(fidelity.kpis,3,width+': mobile six KPIs must form a 3x2 grid');
