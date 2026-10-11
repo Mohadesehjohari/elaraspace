@@ -1,0 +1,73 @@
+/* WELL-02: full-width, dark-green planetary water/sleep screens. */
+html body #main > [data-well02-page="water"] > .feature-subpage-head{background:linear-gradient(100deg,#012d35ec,#063637a8 55%,#082a3e64),url("assets/ui/health-fitness-card-background.webp") center 48%/cover no-repeat!important}
+html body #main > [data-well02-page="sleep"] > .feature-subpage-head{background:linear-gradient(100deg,#0e2242e8,#084c43bd 55%,#101e45a8),url("assets/ui/workout_banner_main.webp") center 35%/cover no-repeat!important}
+#panel-wellness-water .wellness-water,#panel-wellness-sleep .wellness-sleep{display:none!important}
+.well02-page{--mint:#55f1c4;--deep:#071b30;--aqua:#57e6ff;--edge:#1c9a96;box-sizing:border-box;width:100%;max-width:1720px;margin:0 auto 26px;min-width:0;color:#ecfff8;line-height:1.6}
+.well02-page *{box-sizing:border-box}
+.well02-page button,.well02-page input{font:inherit}
+.well02-page button{cursor:pointer}
+.well02-page button:focus-visible,.well02-page input:focus-visible{outline:3px solid #55f7ba;outline-offset:3px}
+.well02-water-layout,.well02-sleep-layout{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(270px,.82fr);gap:16px;margin-bottom:16px}
+.well02-card{min-width:0;background:radial-gradient(circle at 0% 0%,#117c6960,transparent 54%),linear-gradient(140deg,#092b3fdc,#06182be9);border:1px solid #168e9b9e;border-radius:19px;padding:20px;box-shadow:inset 0 0 26px #10b8b315,0 7px 25px #020d1a67;color:#e8fff7}
+.well02-page h2{font-weight:900;font-size:1.19rem;margin:0 0 17px;color:#f7fffa}
+.well02-card-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}
+.well02-card-head h2{margin:0}
+.well02-card-head small{font-size:.8rem;color:#bae8e3}
+.well02-water-body{display:grid;grid-template-columns:minmax(170px,.75fr) minmax(0,1.3fr);align-items:center;gap:24px;min-height:264px}
+.well02-glass-scene{position:relative;margin:0 auto;width:min(210px,100%);height:240px;display:grid;place-items:center;filter:drop-shadow(0 6px 22px #0cc3f847)}
+.well02-glass-bg{position:absolute;z-index:2;inset:0}
+.well02-glass-bg svg{width:100%;height:100%}
+.well02-water-fill{position:absolute;z-index:1;left:20.5%;bottom:11%;width:59%;max-height:76%;min-height:0;border-radius:12px 12px 38px 38px;background:linear-gradient(0deg,#12bbf3,#6dffffad);box-shadow:inset 0 0 15px #affaff8a;clip-path:polygon(0 0,100% 0,91% 100%,9% 100%);transition:height .25s}
+.well02-water-main{text-align:right;min-width:0}
+.well02-big-count{display:block;font-size:clamp(2.1rem,4.9vw,4rem);line-height:1.25;color:#f6fff9}
+.well02-big-count small{font-size:.5em;color:#8afbd9}
+.well02-water-main p{font-size:.88rem;color:#d4f1eb;margin:5px 0}
+.well02-water-main>small{font-size:.75rem;color:#b6e8df}
+.well02-water-progress{width:100%;height:10px;border-radius:9px;overflow:hidden;background:#31576a80;margin:13px 0 4px}
+.well02-water-progress i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#29cce9,#53f6a1);transition:width .25s}
+.well02-water-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:20px}
+.well02-water-actions button{min-height:45px;border-radius:15px;border:1px solid #30d8b6;background:#0a515a;color:white;font-weight:800;padding:8px 20px;font-size:1.05rem}
+.well02-water-actions button[data-well02-water="remove"]{min-width:52px;font-size:1.5rem;line-height:1.2}
+.well02-page .well02-primary{border:0!important;background:linear-gradient(105deg,#1acda8,#69f5a2)!important;color:#063a34!important;font-weight:900!important;box-shadow:0 5px 18px #0aedab23}
+.well02-page .well02-secondary{border:1px solid #42bfab!important;background:#0f544fae!important;color:#e7fff8!important;font-weight:800}
+.well02-water-form,.well02-sleep-form,.well02-sleep-goal-form{display:grid;gap:13px}
+.well02-page label{display:flex;flex-direction:column;gap:6px;font-size:.83rem;font-weight:700;color:#c7f6e9}
+.well02-page input{display:block;width:100%;max-width:100%;min-width:0;min-height:44px;border:1px solid #358b8ca6;border-radius:11px;background:#071e30ed!important;color:#f3fffc!important;padding:10px 12px!important;color-scheme:dark}
+.well02-page label:has(input:focus){color:#6cfbcf}
+.well02-page form>button,.well02-form-actions>button{min-height:43px;padding:9px 15px;border-radius:12px}
+.well02-disclosure{font-size:.76rem;color:#c1e2de;line-height:1.85;margin:14px 0 0;overflow-wrap:anywhere}
+.well02-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.well02-chart-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));direction:ltr;align-items:end;gap:8px;min-height:165px;padding-top:12px}
+.well02-bar-day{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;justify-content:end;text-align:center}
+.well02-bar-value{font-size:.74rem;color:#c8f7ed;white-space:nowrap}
+.well02-bar-track{height:112px;width:100%;max-width:48px;border-radius:8px;background:#18475b5e;display:flex;align-items:end;justify-content:center;overflow:hidden}
+.well02-bar-track i{display:block;width:100%;border-radius:7px 7px 0 0;background:linear-gradient(0deg,#168abe,#48edee);box-shadow:0 0 13px #21eefa3b}
+.well02-chart-bars.sleep .well02-bar-track i{background:linear-gradient(0deg,#6557ce,#ae8dff);box-shadow:0 0 11px #9b8ff952}
+.well02-bar-day small{font-size:.73rem;color:#b7e7e0}
+.well02-history{display:grid;align-content:start;gap:7px;max-height:326px;overflow:auto;padding:2px}
+.well02-history-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;flex-wrap:wrap;border:1px solid #286a7583;border-radius:11px;padding:10px 11px;background:#0a293ba6;font-size:.83rem}
+.well02-history-row>time{color:#9ffbe1;direction:ltr;font-variant-numeric:tabular-nums}
+.well02-history-row strong{font-size:.9rem}
+.well02-history-row>span{color:#c2f1e8}
+.well02-no-data{font-size:.85rem;color:#c7ece5;line-height:2;padding:20px;text-align:center}
+.well02-status{min-height:22px;color:#a5f6c9;font-size:.82rem;margin:12px 0}
+.well02-sleep .well02-card{background:radial-gradient(circle at 0% 0%,#6d65c340,transparent 50%),linear-gradient(130deg,#0e2840ee,#09213aeb);border-color:#298e968a}
+.well02-sleep-orb{display:flex;flex-direction:column;align-items:center;justify-content:center;width:218px;height:218px;max-width:100%;margin:8px auto 18px;border:7px solid #8f78efa8;border-radius:50%;background:radial-gradient(circle,#413c9563,#0c29458f 60%,#0b324063);box-shadow:inset 0 0 30px #7765dd58,0 0 25px #7561d743}
+.well02-sleep-orb span{font-size:3rem;line-height:1;color:#c0a8ff}
+.well02-sleep-orb strong{font-size:1.45rem;margin-top:10px;line-height:1.35;text-align:center}
+.well02-sleep-orb small{font-size:.73rem;color:#d2cefc}
+.well02-sleep-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.well02-sleep-times>div{min-width:0;text-align:center;padding:11px;border:1px solid #494e8b70;border-radius:12px;background:#151d4b6c;display:grid;gap:4px}
+.well02-sleep-times span{font-size:.78rem;color:#d5e9ec}
+.well02-sleep-times strong{font-size:1.13rem;direction:ltr}
+.well02-form-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.well02-form-actions{display:flex;flex-wrap:wrap;gap:11px}
+.well02-rule{height:1px;border:0;background:#367f8a59;margin:20px 0}
+.well02-sleep-goal-form{grid-template-columns:minmax(0,1fr) auto;align-items:end}
+.well02-row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.well02-row-actions button{border:1px solid #359b93;border-radius:9px;padding:6px 10px;background:#114a56;color:#e2fff2;min-height:34px;font-size:.75rem}
+.well02-row-actions [data-well02-sleep-delete]{border-color:#8d7384;color:#ffcfcd}
+.well02-sleep-row{padding:11px}
+@media(max-width:1050px){.well02-water-layout,.well02-sleep-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.well02-water-body{grid-template-columns:minmax(125px,.7fr) 1fr;gap:13px}.well02-glass-scene{height:190px;width:158px}.well02-card{padding:14px}}
+@media(max-width:760px){.well02-water-layout,.well02-sleep-layout,.well02-bottom{grid-template-columns:1fr}.well02-card{padding:14px}.well02-water-body{min-height:198px}.well02-glass-scene{height:190px}.well02-history{max-height:none}}
+@media(max-width:410px){.well02-water-body{grid-template-columns:minmax(112px,.6fr) minmax(0,1fr);gap:9px}.well02-glass-scene{width:113px;height:160px}.well02-big-count{font-size:2rem}.well02-water-main p{font-size:.72rem}.well02-water-actions{gap:5px;margin-top:12px}.well02-water-actions button{min-height:38px;font-size:.82rem;padding:6px 10px}.well02-chart-bars{gap:3px}.well02-bar-day small{font-size:.63rem}.well02-bar-value{font-size:.63rem}.well02-form-times{grid-template-columns:1fr}.well02-sleep-goal-form{grid-template-columns:1fr}.well02-sleep-times{gap:6px}.well02-sleep-times>div{padding:7px}.well02-sleep-orb{width:180px;height:180px}.well02-page h2{font-size:1.03rem}}
