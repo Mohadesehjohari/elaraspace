@@ -132,7 +132,8 @@ let pending=false;function schedule(){if(pending)return;pending=true;setTimeout(
 document.addEventListener('submit',formSave);
 document.addEventListener('click',click);
 window.addEventListener('elara:wellness-saved',render);
-for(const ev of ['elara:open','elara:account-ready','elara:locale-changed','hashchange'])window.addEventListener(ev,schedule);
+window.addEventListener('elara:account-ready',render);
+for(const ev of ['elara:open','elara:locale-changed','hashchange'])window.addEventListener(ev,schedule);
 window.ElaraWell02={render};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 })();
