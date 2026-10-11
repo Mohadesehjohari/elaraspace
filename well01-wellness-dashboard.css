@@ -333,3 +333,7 @@ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margi
  .wellness-workout-fields input,.wellness-workout-fields select,.wellness-workout-fields textarea{min-height:56px;font-size:1.03rem!important}
  .wellness-workout-footer{padding-bottom:env(safe-area-inset-bottom)}
 }
+
+/* Chromium correction: search/header ends around 55px at 1440; 8px let it overlap.
+   Keep a 6px clear gap after the actual topbar rather than hiding the header. */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:62px!important}}
