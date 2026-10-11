@@ -235,6 +235,7 @@ await touch.locator('.elara-private-drawer:not(.hidden)').waitFor();
 await touch.screenshot({path:'browser-artifacts/well01/profile-touch-open-390.png'});
 await touch.locator('.elara-private-drawer [data-drawer-close]').click();
 await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
+await touch.waitForTimeout(275); // allow 210ms opacity transition to settle
 const closedOpacity=await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity));
 assert.ok(closedOpacity<.9,'touch account compacts after closing');
 await touch.close();
