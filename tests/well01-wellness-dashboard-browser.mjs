@@ -107,6 +107,8 @@ for(const width of widths){
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
  }
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.waitForTimeout(110);
  if([390,412,1440].includes(width)){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
