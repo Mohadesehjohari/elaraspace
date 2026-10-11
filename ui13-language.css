@@ -428,3 +428,46 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
  #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions{display:grid;grid-template-columns:1fr;gap:7px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important}
  #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions button{width:100%;min-height:42px}
 }
+
+/* Reference pass: route-level celestial art and one wide accepted shared-class row. */
+#panel-language-courses .ui13-subpage-head{
+ position:relative;min-height:168px;align-content:center;overflow:hidden;
+ border-radius:20px;border:1px solid #226295;
+ background:linear-gradient(270deg,#031227e8 0%,#04132fcc 48%,#07183d47 100%),url('assets/ui/language-learning-background.webp') center 44%/cover no-repeat!important
+}
+#panel-language-courses .language-shared-classes-list{grid-template-columns:minmax(0,1fr)!important}
+@media(min-width:850px){
+ #panel-language-courses .language-class-card.is-shared{
+  grid-template-columns:minmax(0,1fr) minmax(190px,245px);
+  align-items:start;gap:12px 18px
+ }
+ #panel-language-courses .language-class-card.is-shared::before{
+  grid-column:2;grid-row:1 / span 6;align-self:stretch;min-height:230px
+ }
+ #panel-language-courses .language-class-card.is-shared>header,
+ #panel-language-courses .language-class-card.is-shared>.language-class-progress,
+ #panel-language-courses .language-class-card.is-shared>.language-class-meta,
+ #panel-language-courses .language-class-card.is-shared>.language-class-eta,
+ #panel-language-courses .language-class-card.is-shared>.language-class-link,
+ #panel-language-courses .language-class-card.is-shared>footer{grid-column:1}
+ #panel-language-courses .language-class-intro.l1-class-hero{min-height:176px;padding-top:45px!important}
+}
+@media(max-width:700px){
+ #panel-language-courses .ui13-subpage-head{min-height:137px;padding:18px 12px!important;border-radius:17px}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions .primary-button{order:-1}
+}
+@media(min-width:380px) and (max-width:650px){
+ .lf-class-editor .language-class-days{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ .lf-class-editor .language-class-days label{font-size:11px;padding:8px 5px;gap:3px}
+ .lf-class-editor .language-class-days input{height:15px;width:15px}
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head{
+ position:absolute!important;top:8px!important;left:8px!important;right:8px!important;
+ height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:visible!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>button{
+ position:absolute;top:0;left:0
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>.elara-dialog-back{
+ left:auto;right:0
+}
