@@ -128,43 +128,189 @@ function refreshHome(){if(window.ElaraReferenceHome)return;
  const ranks=$('elara-home-ranks');if(ranks&&!ranks.children.length){ranks.innerHTML='<p class="muted">رنکینگ واقعی خودت و دوستانت در بخش رنکینگ دیده می‌شود.</p><button type="button" class="quiet-button" data-elara-tab="ranking">دیدن رنکینگ</button>'}
  const social=$('elara-home-social');if(social&&!social.children.length){social.innerHTML='<p class="muted">با دوستانت مسیر را جذاب‌تر کن.</p><button type="button" class="quiet-button" data-elara-tab="social">دیدن دوستان</button>'}
 }
-function wardrobeWindow(){
- if(windowRoot)return;windowRoot=document.createElement('div');windowRoot.className='approved-wardrobe';windowRoot.hidden=true;
- windowRoot.innerHTML=`<button type="button" class="approved-wardrobe-scrim" data-close-wardrobe aria-label="بستن کمد"></button><section class="approved-wardrobe-window" role="dialog" aria-modal="true" aria-labelledby="wardrobe-title" tabindex="-1"><header><button class="quiet-button" type="button" data-back-wardrobe aria-label="بازگشت">←</button><div><h2 id="wardrobe-title"><img class="wardrobe-title-art" src="assets/ui/icon_wardrobe_hanger.webp" alt="" decoding="async"> کمد فضایی من</h2><p class="muted">آیتم قفل‌شده را می‌توانی ببینی و Preview کنی، اما تا رسیدن به سطح لازم قابل Equip نیست.</p></div><button class="quiet-button" type="button" data-close-wardrobe>×</button></header><div id="wardrobe-main"></div></section>`;document.body.append(windowRoot)
+/* Wardrobe P3: refactor of the existing canonical UI. Item selection never persists. */
+let wardrobeTab='banner',avatarGroupChoice='',shapeChoice='circle',wardrobeNotice='',wardrobeLauncher=null,wardrobePreviousScroll=null;
+function ensureWardrobeReferenceCSS(){
+ if(document.getElementById('wardrobe-reference-css'))return;
+ const link=document.createElement('link');link.rel='stylesheet';link.id='wardrobe-reference-css';
+ link.href='wardrobe-reference.css?v=20261011-p3';document.head.append(link);
 }
-function item(category,id,label,src,required,chosen){
- const locked=level()<required,media=category==='banner'?`<span class="wardrobe-banner" style="background-image:url('${src}')"></span>`:`<span class="wardrobe-item-media"><span class="wardrobe-media-fallback">${icon(category==='frame'?'ranking':'user')}</span><img data-profile-asset loading="lazy" src="${src}" alt="${esc(label)}"></span>`;
- return `<button type="button" class="wardrobe-item ${locked?'is-locked':''}" data-wardrobe-item="${category}" data-wardrobe-id="${esc(id)}" data-required="${required}" aria-disabled="${locked}" aria-pressed="${chosen}" title="${locked?'نیازمند سطح '+required+' · Preview مجاز است':'انتخاب '+label}">${media}<small>${esc(label)} · سطح ${required}</small>${locked?`<span class="wardrobe-lock-mark">${icon('lock')}<em>قفل</em></span>`:''}</button>`
+function wardrobeWindow(){
+ if(windowRoot)return;
+ windowRoot=document.createElement('div');windowRoot.className='approved-wardrobe wardrobe-reference';windowRoot.hidden=true;
+ windowRoot.innerHTML='<button class="approved-wardrobe-scrim" type="button" data-close-wardrobe aria-label="بستن کمد"></button>'+
+ '<section class="approved-wardrobe-window" role="dialog" aria-modal="true" aria-labelledby="wardrobe-title" tabindex="-1">'+
+ '<header class="wardrobe-reference-heading"><button type="button" class="quiet-button" data-back-wardrobe aria-label="بازگشت به پروفایل">'+icon('back')+'</button>'+
+ '<div><h2 id="wardrobe-title">کمد فضایی من</h2><p>آیتم‌های مختلف را انتخاب و پیش‌نمایش کنید، سپس تجهیز کنید.</p></div>'+
+ '<button type="button" class="quiet-button" data-close-wardrobe aria-label="بستن">×</button></header>'+
+ '<div id="wardrobe-main" class="wardrobe-reference-main"></div></section>';
+ document.body.append(windowRoot)
+}
+function wardrobeItem(kind,id,label,src,required,equipped){
+ const locked=level()<required,chosen=selectedPreview?.kind===kind&&selectedPreview?.id===id;
+ return '<button type="button" class="wardrobe-ref-item'+(locked?' is-locked':'')+(equipped?' is-equipped':'')+'" data-wardrobe-ref-item="'+kind+'" data-wardrobe-id="'+esc(id)+'" data-wardrobe-required="'+required+'" aria-pressed="'+!!chosen+'" aria-label="'+esc(label)+(locked?'، قفل تا سطح '+required:'')+'">'+
+ '<span class="wardrobe-ref-art"><img loading="lazy" decoding="async" src="'+esc(src)+'" alt=""><span class="wardrobe-ref-item-lock">'+(locked?icon('lock')+' سطح '+required:'')+'</span></span>'+
+ '<span class="wardrobe-ref-item-foot"><strong>'+esc(label)+'</strong><small>سطح '+Number(required).toLocaleString('fa-IR')+'</small></span>'+
+ (equipped?'<span class="wardrobe-ref-equipped">✓ مجهز</span>':'')+'</button>';
 }
 function previewView(){
- const system=profileSystem(),person=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},base=system?.viewModel?.(person,{self:true});if(!base)return null;
- const view={...base};if(!selectedPreview)return view;
- if(selectedPreview.kind==='avatar'){view.avatarSrc=system.avatarPath(selectedPreview.group,selectedPreview.level,wardrobe().shape||'circle');view.avatarGroup=selectedPreview.group;view.avatarLevel=selectedPreview.level;view.shape=wardrobe().shape||'circle'}
- if(selectedPreview.kind==='frame'){const f=system.frameBy(selectedPreview.id);view.frame=f?.id||null;view.frameSrc=f?system.frameVariantPath(f.id,wardrobe().shape||'circle'):'';view.frameLabel=f?.label||view.frameLabel;view.shape=wardrobe().shape||'circle'}
- if(selectedPreview.kind==='banner'){const b=system.bannerBy(selectedPreview.id);view.banner=b?.id||null;view.bannerSrc=b?.path||view.bannerSrc;view.bannerLabel=b?.label||view.bannerLabel}
+ const system=profileSystem(),userId=system?.currentUid?.(),person=window.ElaraSocial?.me||window.ElaraAccount?.profile||{};
+ if(!userId||String(person?.uid||'')!==String(userId))return null;
+ const base=system?.viewModel?.(person,{self:true});if(!base)return null;
+ const view={...base};
+ if(!selectedPreview)return view;
+ if(selectedPreview.kind==='avatar'){
+  view.avatarSrc=system.avatarPath(selectedPreview.group,selectedPreview.level,shapeChoice);
+  view.avatarGroup=selectedPreview.group;view.avatarLevel=selectedPreview.level;view.shape=shapeChoice
+ }
+ if(selectedPreview.kind==='frame'){
+  const f=system.frameBy(selectedPreview.id);
+  view.frame=f?.id||null;view.frameSrc=f?system.frameVariantPath(f.id,shapeChoice):'';
+  view.frameLabel=f?.label||view.frameLabel;view.shape=shapeChoice
+ }
+ if(selectedPreview.kind==='banner'){
+  const b=system.bannerBy(selectedPreview.id);
+  view.banner=b?.id||null;view.bannerSrc=b?.path||view.bannerSrc;view.bannerLabel=b?.label||view.bannerLabel
+ }
  return view
 }
 function drawWardrobe(){
- const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;const p=wardrobe(),group=p.avatarGroup,curLvl=level(),view=previewView(),previewLabel=selectedPreview?.label||'ترکیب فعلی';
- const avatars=group?Array.from({length:showAll.avatar?10:4},(_,i)=>{const n=i+1;return item('avatar',group+':'+n,'آواتار '+n,system.avatarPath(group,n,p.shape||'circle'),n,group===p.avatarGroup&&n===p.avatarLevel)}).join(''):'';
- const frameItems=frames().slice(0,showAll.frame?4:3).map(f=>item('frame',f.id,f.label,system.frameVariantPath(f.id,p.shape||'circle'),f.required,p.frame===f.id)).join('');
- const bannerItems=bannerList().slice(0,showAll.banner?bannerList().length:2).map(b=>item('banner',b.id,b.label,b.path,b.required,p.banner===b.id)).join('');
- host.innerHTML=`<section class="pass4-wardrobe-preview" style="--wardrobe-preview-banner:url('${view?.bannerSrc||'assets/banner-moon.svg'}')"><div class="pass4-wardrobe-preview-copy"><span class="eyebrow">PREVIEW</span><strong>${esc(previewLabel)}</strong><small>Level ${curLvl} · ${esc(system.titleForLevel(curLvl))}</small>${selectedPreview?.locked?'<em>فقط Preview؛ این آیتم هنوز قابل Equip نیست.</em>':''}</div>${view?system.composition(view):''}</section><section class="wardrobe-section"><header><div><h3>${icon('user')} آواتار</h3><small>فقط variant شکل فعال نمایش داده می‌شود؛ گروه آواتار را خودت انتخاب می‌کنی.</small></div></header><div class="profile-shape-switch"><button class="quiet-button" type="button" data-wardrobe-shape="circle" aria-pressed="${p.shape==='circle'}">Circle</button><button class="quiet-button" type="button" data-wardrobe-shape="square" aria-pressed="${p.shape==='square'}">Square</button></div><div class="pass4-avatar-groups"><button class="quiet-button" type="button" data-wardrobe-group="female" aria-pressed="${group==='female'}">آواتارهای زنانه</button><button class="quiet-button" type="button" data-wardrobe-group="male" aria-pressed="${group==='male'}">آواتارهای مردانه</button></div>${group?`<div class="wardrobe-grid">${avatars}</div>${!showAll.avatar?'<button type="button" class="quiet-button" data-wardrobe-more="avatar">نمایش بیشتر</button>':''}`:'<div class="pass4-neutral-avatar">برای دیدن آواتارها ابتدا یکی از دو گروه را خودت انتخاب کن. هیچ انتخابی از نام، عکس یا اطلاعات Wellness استنباط نمی‌شود.</div>'}<p class="muted pass4-storage-note">عکس شخصی از «ویرایش پروفایل» با crop امن Circle/Square قابل انتخاب است.</p></section><section class="wardrobe-section"><header><div><h3>${icon('ranking')} فریم‌ها</h3><small>Bronze: 1–3 · Silver: 4–6 · Gold: 7–9 · Diamond: 10</small></div></header><div class="wardrobe-grid">${frameItems}</div>${!showAll.frame?'<button type="button" class="quiet-button" data-wardrobe-more="frame">نمایش بیشتر</button>':''}</section><section class="wardrobe-section"><header><div><h3>${icon('home')} بنر پروفایل</h3><small>بنرهای محلی فعلی تا ورود Assetهای نهایی استفاده می‌شوند.</small></div></header><div class="wardrobe-grid">${bannerItems}</div>${!showAll.banner?'<button type="button" class="quiet-button" data-wardrobe-more="banner">نمایش بیشتر</button>':''}</section>`;
+ const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;
+ const p=wardrobe(),levelValue=level(),view=previewView(),medals=Array.isArray(view?.medals)?view.medals:[];
+ const tabs=[['avatar','آواتار','user'],['banner','بنر پروفایل','image'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
+ const tabsHtml=tabs.map(([id,label,art])=>'<button role="tab" type="button" data-wardrobe-tab="'+id+'" aria-selected="'+(wardrobeTab===id)+'">'+icon(art)+' '+label+'</button>').join('');
+ const group=avatarGroupChoice||p.avatarGroup||'',shape=shapeChoice||p.shape||'circle';
+ let items=[],allCount=0,limit=6;
+ if(wardrobeTab==='avatar'&&group){
+  allCount=10;limit=6;
+  items=Array.from({length:showAll.avatar?10:limit},(_,i)=>{const n=i+1;
+   return wardrobeItem('avatar',group+':'+n,'آواتار '+n,system.avatarPath(group,n,shape),n,group===p.avatarGroup&&n===p.avatarLevel)
+  })
+ }else if(wardrobeTab==='frame'){
+  const rows=frames();allCount=rows.length;limit=4;
+  items=rows.slice(0,showAll.frame?rows.length:limit).map(f=>wardrobeItem('frame',f.id,f.label,system.frameVariantPath(f.id,shape),f.required,p.frame===f.id))
+ }else if(wardrobeTab==='banner'){
+  const rows=bannerList();allCount=rows.length;limit=6;
+  items=rows.slice(0,showAll.banner?rows.length:limit).map(b=>wardrobeItem('banner',b.id,b.label,b.path,b.required,p.banner===b.id))
+ }
+ const activeDetail=selectedPreview&&selectedPreview.kind===wardrobeTab?selectedPreview:null;
+ let source='',description='',required=0,title='آیتمی انتخاب نشده',stateLabel='انتخاب کنید',actionDisabled=true;
+ if(activeDetail){
+  title=activeDetail.label;required=activeDetail.required||0;
+  const locked=levelValue<required,equipped=activeDetail.kind==='avatar'?
+   p.avatarGroup===activeDetail.group&&p.avatarLevel===activeDetail.level:
+   activeDetail.kind==='frame'?p.frame===activeDetail.id:p.banner===activeDetail.id;
+  stateLabel=locked?'قفل تا سطح '+required:equipped?'مجهز':'قابل تجهیز';
+  actionDisabled=locked||equipped;description=locked?
+   'این آیتم فقط قابل پیش‌نمایش است و پس از رسیدن به سطح لازم قابل تجهیز می‌شود.':
+   'انتخاب این کارت تا زمان فشردن «تجهیز این آیتم» ذخیره نخواهد شد.';
+  if(activeDetail.kind==='avatar')source=system.avatarPath(activeDetail.group,activeDetail.level,shape);
+  else if(activeDetail.kind==='frame')source=system.frameVariantPath(activeDetail.id,shape);
+  else source=system.bannerBy(activeDetail.id)?.path||'';
+ }
+ let note='';
+ if(wardrobeTab==='avatar'&&!group)note='<div class="wardrobe-ref-empty">برای دیدن آواتارها یک گروه را خودت انتخاب کن. گروه از اطلاعات شخصی تو حدس زده نمی‌شود.</div>';
+ if(wardrobeTab==='badge')note=medals.length?'<div class="wardrobe-ref-real-medals">'+medals.map(m=>'<span>'+icon('ranking')+' '+esc(m.label)+'</span>').join('')+'</div><p class="wardrobe-ref-limited">این نشان‌ها واقعاً کسب شده‌اند؛ قرارداد Equip نشان هنوز وجود ندارد.</p>':'<div class="wardrobe-ref-empty">هنوز نشانی کسب نکرده‌ای. تجهیز نشان فعلاً پشتیبانی Backend ندارد.</div>';
+ if(wardrobeTab==='effect')note='<div class="wardrobe-ref-empty">آیتم قابل تجهیز برای افکت در مدل فعلی وجود ندارد. امکان نمایش و تجهیز پس از راه‌اندازی قرارداد Inventory فعال می‌شود.</div>';
+ const catalogControls=wardrobeTab==='avatar'?
+  '<div class="wardrobe-ref-switch"><button type="button" data-wardrobe-group="female" aria-pressed="'+(group==='female')+'">آواتارهای زنانه</button><button type="button" data-wardrobe-group="male" aria-pressed="'+(group==='male')+'">آواتارهای مردانه</button><button type="button" data-wardrobe-shape="circle" aria-pressed="'+(shape==='circle')+'">گرد</button><button type="button" data-wardrobe-shape="square" aria-pressed="'+(shape==='square')+'">مربعی</button></div>':'';
+ const unsupported=wardrobeTab==='badge'||wardrobeTab==='effect';
+ const previewHtml=view?system.composition(view):'<div class="wardrobe-ref-empty">اطلاعات حساب هنوز بارگذاری نشده است.</div>';
+ host.innerHTML='<div class="wardrobe-ref-hero"><span class="wardrobe-ref-preview-label">'+(selectedPreview?'در حال پیش‌نمایش آیتم':'پیش‌نمایش مجهزشده')+'</span>'+
+ previewHtml+'</div>'+
+ '<div class="wardrobe-ref-tabs" role="tablist" aria-label="دسته‌بندی کمد">'+tabsHtml+'</div>'+
+ '<div class="wardrobe-ref-body"><section class="wardrobe-ref-catalog" aria-label="آیتم‌های کمد">'+
+ '<header><h3>'+esc(tabs.find(t=>t[0]===wardrobeTab)?.[1]||'کمد')+'</h3><small>دارایی‌ها و سطوح واقعی همین حساب</small></header>'+catalogControls+
+ (items.length?'<div class="wardrobe-ref-grid">'+items.join('')+'</div>':'')+note+
+ '</section><section class="wardrobe-ref-details" aria-label="جزئیات آیتم انتخاب‌شده"><h3>جزئیات آیتم انتخاب‌شده</h3>'+
+ (source?'<img src="'+esc(source)+'" alt="'+esc(title)+'" decoding="async">':'<div class="wardrobe-ref-detail-placeholder">'+icon('image')+'</div>')+
+ '<div class="wardrobe-ref-detail-title"><strong>'+esc(title)+'</strong><span>'+esc(stateLabel)+'</span></div>'+
+ (required?'<p>سطح موردنیاز: '+required.toLocaleString('fa-IR')+'</p>':'')+
+ '<p>'+esc(description||'یک کارت را لمس کن تا تصویر و شرایط آن را ببینی.')+'</p>'+
+ '<div class="wardrobe-ref-detail-actions"><button type="button" data-wardrobe-view '+(!activeDetail?'disabled':'')+'>'+icon('eye')+' پیش‌نمایش</button>'+
+ '<button type="button" data-wardrobe-remove '+(!(activeDetail&&stateLabel==='مجهز')?'disabled':'')+'>برداشتن تجهیز</button></div>'+
+ '</section></div>'+
+ '<footer class="wardrobe-ref-footer"><p role="status" aria-live="polite">'+esc(wardrobeNotice||'تجهیزات فعلی فقط در همین مرورگر و جداگانه برای UID این حساب ذخیره می‌شوند.')+'</p>'+
+ (allCount>limit&&!showAll[wardrobeTab]?'<button type="button" data-wardrobe-more="'+wardrobeTab+'">'+icon('image')+' نمایش بیشتر</button>':'')+
+ '<button type="button" class="wardrobe-ref-equip" data-wardrobe-equip '+(actionDisabled||unsupported?'disabled':'')+'>'+icon('check')+' تجهیز این آیتم</button></footer>';
 }
-function showWardrobe(){wardrobeWindow();selectedPreview=null;showAll={avatar:false,frame:false,banner:false};drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})}
-function closeWardrobe(){if(windowRoot)windowRoot.hidden=true;selectedPreview=null}
+function showWardrobe(){
+ ensureWardrobeReferenceCSS();wardrobeWindow();
+ const system=profileSystem();
+ wardrobeLauncher=document.activeElement;
+ wardrobePreviousScroll={body:document.body.style.overflow,html:document.documentElement.style.overflow};
+ selectedPreview=null;wardrobeTab='banner';wardrobeNotice='';
+ showAll={avatar:false,frame:false,banner:false};
+ avatarGroupChoice=wardrobe().avatarGroup||'';shapeChoice=wardrobe().shape||'circle';
+ drawWardrobe();
+ window.ElaraOverlayStack?.next?.(windowRoot);
+ windowRoot.hidden=false;
+ if(!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
+ windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})
+}
+function closeWardrobe({toProfile=false,fromHistory=false}={}){
+ if(!windowRoot||windowRoot.hidden)return;
+ windowRoot.hidden=true;selectedPreview=null;wardrobeNotice='';
+ // The existing overlay guard also restores scroll on a click; history/imperative close need immediate cleanup.
+ if(wardrobePreviousScroll){document.body.style.overflow=wardrobePreviousScroll.body;document.documentElement.style.overflow=wardrobePreviousScroll.html;wardrobePreviousScroll=null}
+ if(!fromHistory&&history.state?.elaraWardrobe)history.replaceState({...history.state,elaraWardrobe:false},'',location.href);
+ if(toProfile)window.ElaraPrivateDrawer?.open?.('account');
+ else if(wardrobeLauncher?.isConnected)wardrobeLauncher.focus({preventScroll:true});
+}
 window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe};
+window.addEventListener('popstate',()=>{
+ if(windowRoot&&!windowRoot.hidden&&!history.state?.elaraWardrobe)closeWardrobe({toProfile:true,fromHistory:true})
+});
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
   if(event.target.closest('[data-approved-wardrobe]')){showWardrobe();return}
-  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){closeWardrobe();return}
+  if(event.target.closest('[data-back-wardrobe]')){closeWardrobe({toProfile:true});return}
+  if(event.target.closest('[data-close-wardrobe]')){closeWardrobe();return}
   if(event.target.closest('[data-lang-leitner]')){window.ElaraOpen?.('words');return}
   if(event.target.closest('[data-lang-review]')){window.ElaraOpen?.('words');return}
-  const shape=event.target.closest('[data-wardrobe-shape]');if(shape){storeWardrobe({shape:shape.dataset.wardrobeShape});selectedPreview=null;drawWardrobe();return}
-  const group=event.target.closest('[data-wardrobe-group]');if(group){storeWardrobe({avatarGroup:group.dataset.wardrobeGroup});selectedPreview=null;drawWardrobe();return}
-  const more=event.target.closest('[data-wardrobe-more]');if(more){showAll[more.dataset.wardrobeMore]=true;drawWardrobe();return}
-  const itemButton=event.target.closest('[data-wardrobe-item]');if(itemButton){const system=profileSystem(),kind=itemButton.dataset.wardrobeItem,id=itemButton.dataset.wardrobeId,required=Number(itemButton.dataset.required||0),locked=level()<required;let preview={kind,id,label:itemButton.querySelector('small')?.textContent||id,locked};if(kind==='avatar'){const parts=id.split(':');preview={...preview,group:parts[0],level:Number(parts[1])};if(!locked&&system.canEquipAvatar(parts[0],Number(parts[1]),level()))storeWardrobe({avatarGroup:parts[0],avatarLevel:Number(parts[1])})}else if(kind==='frame'){if(!locked&&system.canEquipFrame(id,level()))storeWardrobe({frame:id})}else if(kind==='banner'){if(!locked&&system.canEquipBanner(id,level()))storeWardrobe({banner:id})}selectedPreview=preview;drawWardrobe();return}
+  const tab=event.target.closest('[data-wardrobe-tab]');
+  if(tab&&windowRoot&&!windowRoot.hidden){
+   wardrobeTab=tab.dataset.wardrobeTab;selectedPreview=null;wardrobeNotice='';drawWardrobe();return
+  }
+  const shape=event.target.closest('[data-wardrobe-shape]');
+  if(shape&&windowRoot&&!windowRoot.hidden){shapeChoice=shape.dataset.wardrobeShape;selectedPreview=null;drawWardrobe();return}
+  const group=event.target.closest('[data-wardrobe-group]');
+  if(group&&windowRoot&&!windowRoot.hidden){avatarGroupChoice=group.dataset.wardrobeGroup;selectedPreview=null;drawWardrobe();return}
+  const more=event.target.closest('[data-wardrobe-more]');
+  if(more&&windowRoot&&!windowRoot.hidden){showAll[more.dataset.wardrobeMore]=true;drawWardrobe();return}
+  const itemButton=event.target.closest('[data-wardrobe-ref-item]');
+  if(itemButton&&windowRoot&&!windowRoot.hidden){
+   const system=profileSystem(),kind=itemButton.dataset.wardrobeRefItem,id=itemButton.dataset.wardrobeId,required=Number(itemButton.dataset.wardrobeRequired||0);
+   const preview={kind,id,label:itemButton.querySelector('.wardrobe-ref-item-foot strong')?.textContent||id,required};
+   if(kind==='avatar'){const [group,number]=id.split(':');preview.group=group;preview.level=Number(number)}
+   selectedPreview=preview;wardrobeNotice=level()<required?'این آیتم قفل است؛ فقط پیش‌نمایش مجاز است.':'آیتم برای پیش‌نمایش انتخاب شد؛ هنوز تجهیز نشده است.';
+   drawWardrobe();return
+  }
+  if(event.target.closest('[data-wardrobe-view]')){
+   windowRoot?.querySelector('.wardrobe-ref-hero')?.scrollIntoView({behavior:'smooth',block:'start'});return
+  }
+  if(event.target.closest('[data-wardrobe-equip]')){
+   const system=profileSystem(),chosen=selectedPreview,userId=system?.currentUid?.(),userLevel=level();
+   if(!userId||!chosen){wardrobeNotice='ابتدا وارد حساب شو و یک آیتم انتخاب کن.';drawWardrobe();return}
+   if(userLevel<(chosen.required||0)){wardrobeNotice='این آیتم هنوز قفل است.';drawWardrobe();return}
+   let patch=null;
+   if(chosen.kind==='avatar'&&system.canEquipAvatar(chosen.group,chosen.level,userLevel))
+     patch={avatarGroup:chosen.group,avatarLevel:chosen.level,shape:shapeChoice,photoMode:'elara'};
+   if(chosen.kind==='frame'&&system.canEquipFrame(chosen.id,userLevel))patch={frame:chosen.id};
+   if(chosen.kind==='banner'&&system.canEquipBanner(chosen.id,userLevel))patch={banner:chosen.id};
+   if(!patch){wardrobeNotice='برای این آیتم مسیر تجهیز معتبر وجود ندارد.';drawWardrobe();return}
+   storeWardrobe(patch);wardrobeNotice='این آیتم در کمد همین حساب و همین مرورگر تجهیز شد.';
+   selectedPreview=null;drawWardrobe();return
+  }
+  if(event.target.closest('[data-wardrobe-remove]')){
+   const chosen=selectedPreview,p=wardrobe();if(!chosen)return;
+   if(chosen.kind==='frame'&&p.frame===chosen.id)storeWardrobe({frame:null});
+   else if(chosen.kind==='banner'&&p.banner===chosen.id)storeWardrobe({banner:null});
+   else if(chosen.kind==='avatar'&&p.avatarGroup===chosen.group&&p.avatarLevel===chosen.level)storeWardrobe({avatarGroup:null,avatarLevel:null});
+   else return;
+   selectedPreview=null;wardrobeNotice='تجهیز آیتم برداشته شد.';drawWardrobe();return
+  }
  },true);
  document.addEventListener('submit',e=>{
   if(e.target.id!=='language-book-form')return;

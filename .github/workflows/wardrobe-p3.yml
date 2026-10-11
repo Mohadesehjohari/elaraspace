@@ -1,0 +1,38 @@
+name: Wardrobe P3 nine-view Chromium
+on:
+  push:
+    branches: [feat/profile-wardrobe-reference-p3-20261011, main]
+    paths:
+      - approved-visual.js
+      - wardrobe-reference.css
+      - tests/wardrobe-reference-browser.mjs
+      - .github/workflows/wardrobe-p3.yml
+  pull_request:
+    paths:
+      - approved-visual.js
+      - wardrobe-reference.css
+      - tests/wardrobe-reference-browser.mjs
+      - .github/workflows/wardrobe-p3.yml
+permissions: {contents: read}
+jobs:
+  wardrobe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: python3 -m http.server 4173 >/tmp/wardrobe.log 2>&1 &
+      - name: Wardrobe nine-width Chromium
+        run: timeout 540s node tests/wardrobe-reference-browser.mjs
+      - name: Screenshot artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wardrobe-p3-${{ github.sha }}
+          path: artifacts/wardrobe/
+          if-no-files-found: warn
+          retention-days: 14
