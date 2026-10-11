@@ -129,7 +129,7 @@ function refreshHome(){if(window.ElaraReferenceHome)return;
  const social=$('elara-home-social');if(social&&!social.children.length){social.innerHTML='<p class="muted">با دوستانت مسیر را جذاب‌تر کن.</p><button type="button" class="quiet-button" data-elara-tab="social">دیدن دوستان</button>'}
 }
 /* Wardrobe P3: refactor of the existing canonical UI. Item selection never persists. */
-let wardrobeTab='banner',avatarGroupChoice='',shapeChoice='circle',wardrobeNotice='',wardrobeLauncher=null;
+let wardrobeTab='banner',avatarGroupChoice='',shapeChoice='circle',wardrobeNotice='',wardrobeLauncher=null,wardrobePreviousScroll=null;
 function ensureWardrobeReferenceCSS(){
  if(document.getElementById('wardrobe-reference-css'))return;
  const link=document.createElement('link');link.rel='stylesheet';link.id='wardrobe-reference-css';
@@ -238,6 +238,7 @@ function showWardrobe(){
  ensureWardrobeReferenceCSS();wardrobeWindow();
  const system=profileSystem();
  wardrobeLauncher=document.activeElement;
+ wardrobePreviousScroll={body:document.body.style.overflow,html:document.documentElement.style.overflow};
  selectedPreview=null;wardrobeTab='banner';wardrobeNotice='';
  showAll={avatar:false,frame:false,banner:false};
  avatarGroupChoice=wardrobe().avatarGroup||'';shapeChoice=wardrobe().shape||'circle';
@@ -250,6 +251,8 @@ function showWardrobe(){
 function closeWardrobe({toProfile=false,fromHistory=false}={}){
  if(!windowRoot||windowRoot.hidden)return;
  windowRoot.hidden=true;selectedPreview=null;wardrobeNotice='';
+ // The existing overlay guard also restores scroll on a click; history/imperative close need immediate cleanup.
+ if(wardrobePreviousScroll){document.body.style.overflow=wardrobePreviousScroll.body;document.documentElement.style.overflow=wardrobePreviousScroll.html;wardrobePreviousScroll=null}
  if(!fromHistory&&history.state?.elaraWardrobe)history.replaceState({...history.state,elaraWardrobe:false},'',location.href);
  if(toProfile)window.ElaraPrivateDrawer?.open?.('account');
  else if(wardrobeLauncher?.isConnected)wardrobeLauncher.focus({preventScroll:true});
