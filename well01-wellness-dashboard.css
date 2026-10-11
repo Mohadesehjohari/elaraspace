@@ -365,8 +365,9 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
 }
 @media(max-width:700px){
  html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){
-  margin-top:-54px!important;
+  margin-top:-74px!important;
  }
+ #panel-exercise.wellness-feature-hub:not(.hidden) .well01-hero-copy{top:26px}
  body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar{
   z-index:120!important;
  }
