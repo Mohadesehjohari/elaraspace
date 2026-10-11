@@ -54,6 +54,8 @@ for(const width of widths){
  assert.ok(dimensions.body<=dimensions.view+1,'unexpected horizontal scroll '+width+': '+JSON.stringify(dimensions));
  assert.ok(dimensions.panel<=dimensions.view+1,'dashboard overflow '+width+': '+JSON.stringify(dimensions));
  if(width===390||width===1440){
+  const initialRect=await page.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom,scrollY:window.scrollY}));
+  console.log('WELL01_AFTER_INITIAL_GEOMETRY_'+width,JSON.stringify(initialRect));
   await page.screenshot({path:'browser-artifacts/well01/after-'+width+'.png',fullPage:true});
   for(const kind of ['water','sleep','weight','exercise','analysis']){
    await dash.locator('.well01-shortcut[data-feature-route="wellness-'+kind+'"]').click();
