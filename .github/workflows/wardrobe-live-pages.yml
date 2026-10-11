@@ -1,0 +1,59 @@
+name: Verify Live Wardrobe P3 Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - approved-visual.js
+      - wardrobe-reference.css
+      - tests/wardrobe-reference-browser.mjs
+      - .github/workflows/wardrobe-live-pages.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-wardrobe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for exact deployed Wardrobe assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://mohadesehjohari.github.io/elaraspace'
+          verified=false
+          for n in $(seq 1 90); do
+            all=true
+            for file in approved-visual.js wardrobe-reference.css; do
+              if ! curl --fail --location --silent --show-error --max-time 12 "$base/$file?wardrobe_p3=${GITHUB_SHA}&attempt=$n" -o "/tmp/wardrobe-live-$file"; then all=false; break; fi
+              if ! cmp -s "$file" "/tmp/wardrobe-live-$file"; then all=false; break; fi
+            done
+            if [ "$all" = true ]; then
+              verified=true
+              echo "LIVE_WARDROBE_BYTES_VERIFIED=${GITHUB_SHA}"
+              break
+            fi
+            sleep 8
+          done
+          if [ "$verified" != true ]; then echo "::error::Deployed Wardrobe bytes differ from release"; exit 1; fi
+          grep -Fq 'data-wardrobe-equip' /tmp/wardrobe-live-approved-visual.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Chromium on published URL (mock identity only)
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+          ELARA_WARDROBE_SHOTS: artifacts/wardrobe-p3-live
+        run: timeout 360s node tests/wardrobe-reference-browser.mjs
+      - name: Upload live Wardrobe screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wardrobe-live-${{ github.sha }}
+          path: artifacts/wardrobe-p3-live/
+          if-no-files-found: warn
+          retention-days: 21
