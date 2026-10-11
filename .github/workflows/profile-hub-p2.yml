@@ -1,0 +1,40 @@
+name: Profile Hub P2 nine-view Chromium
+on:
+  push:
+    branches: [feat/profile-hub-reference-p2-20261011, main]
+    paths:
+      - drawer.js
+      - profile-hub-reference.css
+      - tests/profile-hub-reference-browser.mjs
+      - .github/workflows/profile-hub-p2.yml
+  pull_request:
+    paths:
+      - drawer.js
+      - profile-hub-reference.css
+      - tests/profile-hub-reference-browser.mjs
+      - .github/workflows/profile-hub-p2.yml
+permissions:
+  contents: read
+jobs:
+  profile-hub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: python3 -m http.server 4173 >/tmp/elara-profile-hub-http.log 2>&1 &
+      - name: Profile Hub nine-width interaction checks
+        run: timeout 420s node tests/profile-hub-reference-browser.mjs
+      - name: Save candidate screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-hub-p2-${{ github.sha }}
+          path: artifacts/profile-hub/
+          if-no-files-found: warn
+          retention-days: 14
