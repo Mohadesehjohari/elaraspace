@@ -63,10 +63,11 @@ for(const width of widths){
  if(width===412){
   await page.evaluate(()=>window.ElaraPrivateDrawer?.open?.('account'));
   await page.locator('[data-approved-wardrobe]').first().evaluate(el=>el.click());
-  await page.locator('.approved-wardrobe:not([hidden])').waitFor();
+  await page.waitForFunction(()=>location.hash==='#wardrobe'&&!!document.querySelector('#elara-private-route .wardrobe-p3-tabs'),null,{timeout:13000});
+  assert.equal(await page.locator('.approved-wardrobe:not([hidden])').count(),0,'Drawer wardrobe entry still opened an overlay');
   await page.goBack({waitUntil:'domcontentloaded'});
-  await page.locator('.approved-wardrobe').waitFor({state:'hidden',timeout:10000});
-  assert.ok(await page.locator('.elara-private-drawer:not(.hidden)').isVisible(),'Browser Back should return to account drawer');
+  await page.waitForFunction(()=>location.hash==='#home',null,{timeout:13000});
+  assert.ok(await page.locator('#elara-private-route').isHidden(),'Browser Back left private page in front of Home');
   const scrolling=await page.evaluate(()=>({body:document.body.style.overflow,html:document.documentElement.style.overflow}));
   assert.notEqual(scrolling.html,'hidden','Wardrobe Back left global document scroll locked');
  }
