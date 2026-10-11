@@ -38,7 +38,7 @@ jobs:
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
           test -s assets/ui/health-fitness-card-background.webp
-          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js )$'; then
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js)$'; then
             echo "::error::Protected shared modules were touched"; exit 1
           fi
       - name: Install Playwright Chromium
