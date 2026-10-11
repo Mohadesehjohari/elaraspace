@@ -54,6 +54,65 @@ function renderChallenges(){
  host.innerHTML='<section class="ui13-surface ui13-challenge-empty"><img src="assets/ui/11-challenges-icon.webp" width="120" height="120" loading="eager" alt=""><h2>'+tx('چالش زبان مستقل در دست آماده‌سازی است','Dedicated language challenges are being prepared')+'</h2><p>'+tx('چالش‌های دوستانهٔ واقعی در Elara وجود دارند، اما هنوز نوع هدف زبان و داوری نتیجهٔ معتبر برای آن‌ها منتشر نشده است؛ این بخش شرکت‌کننده، امتیاز یا پیشرفت جعلی نمی‌سازد.','Real friend challenges exist, but language-specific targets and server-verified results are not published yet. No invented participants, scores or progress are shown.')+'</p><button class="ui13-primary" type="button" data-ui13-canonical="social">'+tx('مشاهدهٔ چالش‌های واقعی دوستان','See real friend challenges')+'</button></section>';
 }
 
+// L3: presentation-only study scene. Canonical scheduling and scoring remain in app.js.
+const l3Review={start:0,done:0,history:[],preview:false,historyIndex:-1};
+function l3Due(){
+ let data;try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{data={}}
+ const today=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
+ return list(data.words).filter(w=>w&&String(w.due||'')<=today);
+}
+function l3Toolbar(){
+ const panel=$('panel-words');if(!panel)return null;
+ let toolbar=panel.querySelector('[data-l3-toolbar]');
+ if(!toolbar){
+  toolbar=document.createElement('section');
+  toolbar.className='l3-toolbar';toolbar.dataset.l3Toolbar='';
+  toolbar.innerHTML='<div class="l3-toolbar-top"><button type="button" data-l3-exit class="l3-go-back">← '+tx('بازگشت به لایتنر','Back to Leitner')+'</button><span class="l3-review-name">'+tx('مرور متمرکز واژه‌ها','Focused word review')+'</span><button type="button" data-l3-speak class="l3-speak" aria-label="'+tx('تلفظ واژه','Pronounce word')+'">♪</button></div><div class="l3-review-progress"><strong data-l3-counter></strong><div class="l3-track"><i data-l3-meter></i></div></div><div class="l3-history-actions"><button type="button" data-l3-prev disabled>← '+tx('کلمه قبلی','Previous word')+'</button><button type="button" data-l3-current hidden>'+tx('بازگشت به کلمه فعلی','Return to current word')+' →</button></div><div class="l3-history-card" data-l3-history hidden><small>'+tx('کلمه مرورشده قبلی · فقط نمایش','Previous reviewed word · read-only')+'</small><strong data-l3-history-front dir="auto"></strong><p data-l3-history-back dir="auto"></p></div>';
+  const card=panel.querySelector('.flashcard');if(card)card.before(toolbar);else panel.append(toolbar);
+ }
+ return toolbar;
+}
+function l3Sync(){
+ const panel=$('panel-words'),toolbar=l3Toolbar();if(!toolbar||!panel)return;
+ const complete=Math.min(l3Review.done,l3Review.start),all=Math.max(1,l3Review.start);
+ const counter=toolbar.querySelector('[data-l3-counter]'),meter=toolbar.querySelector('[data-l3-meter]');
+ if(counter)counter.textContent=tx('واژه ','Word ')+num(Math.min(l3Review.start,complete+1))+' '+tx('از ','of ')+num(l3Review.start)+' · '+num(complete)+' '+tx('مرورشده','reviewed');
+ if(meter)meter.style.width=Math.max(0,Math.min(100,Math.round(complete/all*100)))+'%';
+ const previous=toolbar.querySelector('[data-l3-prev]');if(previous)previous.disabled=!l3Review.history.length;
+}
+function l3Enter(){
+ const panel=$('panel-words');if(!panel||!l3Due().length)return;
+ l3Review.start=l3Due().length;l3Review.done=0;l3Review.history=[];l3Review.preview=false;l3Review.historyIndex=-1;
+ panel.classList.add('l3-review-active');panel.classList.remove('l3-history-open');
+ const toolbar=l3Toolbar();toolbar?.querySelector('[data-l3-history]')?.setAttribute('hidden','');
+ toolbar?.querySelector('[data-l3-current]')?.setAttribute('hidden','');
+ l3Sync();requestAnimationFrame(()=>{panel.querySelector('.flashcard')?.scrollIntoView({behavior:'instant',block:'center'});$('word-reveal')?.focus({preventScroll:true})});
+}
+function l3Exit(){
+ const panel=$('panel-words');if(!panel)return;
+ panel.classList.remove('l3-review-active','l3-history-open');l3Review.preview=false;
+ const bar=panel.querySelector('[data-l3-toolbar]');
+ bar?.querySelector('[data-l3-history]')?.setAttribute('hidden','');
+ bar?.querySelector('[data-l3-current]')?.setAttribute('hidden','');
+ panel.querySelector('[data-l2-review]')?.focus({preventScroll:true});
+}
+function l3Previous(){
+ const panel=$('panel-words'),bar=l3Toolbar();if(!bar||!l3Review.history.length)return;
+ l3Review.historyIndex=l3Review.preview?Math.max(0,l3Review.historyIndex-1):l3Review.history.length-1;
+ l3Review.preview=true;panel?.classList.add('l3-history-open');
+ const item=l3Review.history[l3Review.historyIndex];
+ bar.querySelector('[data-l3-history-front]').textContent=item.front;
+ bar.querySelector('[data-l3-history-back]').textContent=item.back;
+ bar.querySelector('[data-l3-history]')?.removeAttribute('hidden');
+ bar.querySelector('[data-l3-current]')?.removeAttribute('hidden');
+}
+function l3Current(){
+ const panel=$('panel-words'),bar=l3Toolbar();l3Review.preview=false;panel?.classList.remove('l3-history-open');
+ bar?.querySelector('[data-l3-history]')?.setAttribute('hidden','');
+ bar?.querySelector('[data-l3-current]')?.setAttribute('hidden','');
+ $('word-reveal')?.focus({preventScroll:true});
+}
+
 // L2: view-only dashboard for the canonical #panel-words and elara_space_v1.words.
 // All word creation, scheduling, deletion, and persistence stay in app.js.
 function renderLeitner(){
@@ -87,8 +146,21 @@ function renderActive(){
  if(name==='language-channels')void renderChannels();
  if(name==='language-challenges')renderChallenges();
 }
+document.addEventListener('click',event=>{
+ const score=event.target.closest('#word-remembered,#word-forgot');
+ if(!score||!$('panel-words')?.classList.contains('l3-review-active')||l3Review.preview)return;
+ const front=$('flash-front')?.textContent||'',back=$('flash-back')?.textContent||'';
+ if(!front)return;
+ l3Review.history.push({front,back});l3Review.done++;
+ requestAnimationFrame(l3Sync);
+},{capture:true});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('panel-words')?.classList.contains('l3-review-active')&&!document.querySelector('.elara-dialog-root:not([hidden])')){event.preventDefault();l3Exit()}});
 document.addEventListener('click',e=>{
- const review=e.target.closest('[data-l2-review]');if(review){e.preventDefault();if(review.disabled)return;const item=document.querySelector('#panel-words .flashcard');item?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('word-reveal')?.focus({preventScroll:true});return}
+ const backReview=e.target.closest('[data-l3-exit]');if(backReview){e.preventDefault();l3Exit();return}
+ const prevReview=e.target.closest('[data-l3-prev]');if(prevReview){e.preventDefault();if(!prevReview.disabled)l3Previous();return}
+ const currentReview=e.target.closest('[data-l3-current]');if(currentReview){e.preventDefault();l3Current();return}
+ const speech=e.target.closest('[data-l3-speak]');if(speech){e.preventDefault();if('speechSynthesis' in window){window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance($('flash-front')?.textContent||'');utterance.lang='en-US';utterance.rate=.88;window.speechSynthesis.speak(utterance)}return}
+ const review=e.target.closest('[data-l2-review]');if(review){e.preventDefault();if(review.disabled)return;l3Enter();return}
  const addWord=e.target.closest('[data-l2-add]');if(addWord){e.preventDefault();document.getElementById('word-form')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('word-front')?.focus({preventScroll:true});return}
  const back=e.target.closest('[data-ui13-back]');if(back){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));return}
  const go=e.target.closest('[data-ui13-canonical]');if(go){e.preventDefault();window.ElaraOpen?.(go.dataset.ui13Canonical,{history:'push'});return}
