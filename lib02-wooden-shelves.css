@@ -64,6 +64,11 @@
 #panel-library-shelves #lib02-scene .lib02-personal-tags{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 #panel-library-shelves #lib02-scene .lib02-personal-tags button{border:1px solid #aa864f;border-radius:8px;background:#3a2414;color:#ffebc7;font-size:11px;padding:8px 10px}
 #panel-library-shelves #lib02-scene .lib02-personal-tags small{color:#b5f0cf}
+
+#panel-library-shelves #lib02-scene .lib02-personal-chip{display:flex;gap:2px;align-items:stretch;border-radius:8px;overflow:hidden;border:1px solid #ad844d}
+#panel-library-shelves #lib02-scene .lib02-personal-chip>button{border:0!important;border-radius:0!important}
+#panel-library-shelves #lib02-scene .lib02-personal-chip>button[data-lib02-rename]{font-size:16px;padding:5px 7px;background:#1b2b29;color:#f5ce84;border-right:1px solid #ad844d}
+
 #panel-library-shelves #lib02-scene .lib02-extras{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:19px}
 #panel-library-shelves #lib02-scene .lib02-extras>section{border:1px solid #4d586277;border-radius:13px;background:linear-gradient(130deg,#071e26,#09141d);padding:14px 16px;min-height:145px}
 #panel-library-shelves #lib02-scene .lib02-extras h2{font-size:16px;color:#f5dba7;margin:0 0 9px}
