@@ -1,0 +1,86 @@
+name: LIB-01 Library Dashboard Reference + Live
+on:
+  pull_request:
+    paths:
+      - index.html
+      - lib01-library-dashboard.js
+      - lib01-library-dashboard.css
+      - tests/library-dashboard-lib01-browser.mjs
+      - .github/workflows/lib01-library-dashboard.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - lib01-library-dashboard.js
+      - lib01-library-dashboard.css
+      - tests/library-dashboard-lib01-browser.mjs
+      - .github/workflows/lib01-library-dashboard.yml
+permissions:
+  contents: read
+jobs:
+  lib01-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, canonical reading model and owner banner
+        run: |
+          node --check lib01-library-dashboard.js
+          node --check tests/library-dashboard-lib01-browser.mjs
+          test -s assets/ui/librairy_banner_main.webp
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
+          npx playwright install --with-deps chromium
+      - name: Canonical reading model regression
+        run: node tests/reading-stability.test.cjs
+      - name: LIB-01 real DOM routes and ten viewports
+        run: |
+          python3 -m http.server 4173 >/tmp/lib01-server.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/library-dashboard-lib01-browser.mjs
+          timeout 300s node tests/library-stage4-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib01-candidate
+          path: browser-artifacts/**/*.png
+          retention-days: 20
+  lib01-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for published exact LIB-01 bytes
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 80); do
+            ok=true
+            for file in index.html lib01-library-dashboard.js lib01-library-dashboard.css; do
+              output="/tmp/lib01-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "LIB01_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::Live bytes do not match LIB-01 merge";exit 1;fi
+      - name: Real production browser ten-width check
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/library-dashboard-lib01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib01-live
+          path: browser-artifacts/lib01/*.png
+          retention-days: 30
