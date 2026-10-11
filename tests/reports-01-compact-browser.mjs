@@ -55,6 +55,23 @@ async function measure(page,host,label,width){
    sections:{trend:!!p.querySelector('.elara-reports-trends'),today:!!p.querySelector('.elara-reports-today'),sections:!!p.querySelector('.elara-reports-sections'),insights:!!p.querySelector('.elara-reports-insights'),activities:!!p.querySelector('.elara-reports-activities')},
    viewport:document.documentElement.clientWidth,documentWidth:document.documentElement.scrollWidth,
    plot:(()=>{const wrap=p.querySelector('.elara-reports-plot-scroll'),svg=p.querySelector('.elara-reports-plot');return wrap&&svg?{scrollExcess:wrap.scrollWidth-wrap.clientWidth,wrap:rect(wrap),svg:rect(svg),viewBox:svg.getAttribute('viewBox')}:null})(),
+   lower:(()=>{
+    const lower=p.querySelector('.elara-reports-lower'),
+      activity=lower?.querySelector('.elara-reports-activities'),
+      left=lower?.firstElementChild,
+      last=activity?.querySelector('.elara-reports-activity-list>button:last-child'),
+      insight=lower?.querySelector('.elara-reports-insight-grid');
+    return activity?{
+      height:activity.getBoundingClientRect().height,
+      leftHeight:left?.getBoundingClientRect().height||0,
+      activityBottom:rect(activity).bottom,
+      lastBottom:last?rect(last).bottom:null,
+      slack:last?Number((rect(activity).bottom-rect(last).bottom).toFixed(2)):null,
+      insightCount:insight?.querySelectorAll('button').length||0,
+      insightRects:[...(insight?.querySelectorAll('button')||[])].map(rect),
+      activityCount:activity.querySelectorAll('.elara-reports-activity-list>button').length
+    }:null;
+   })(),
    mobileNav:[...document.querySelectorAll('.bottom-nav [data-elara-nav-kind="main"]')].length
   };
  });
@@ -84,6 +101,15 @@ try{
    if(width>=360)assert.ok(Math.abs(a.cardRects[0].top-a.cardRects[1].top)<=3,width+': mobile KPI rows no longer use two columns');
   }
   assert.ok(a.cardTextOverflow.every(o=>o.outer<=5),width+': KPI overflow outside card');
+  assert.ok(a.lower&&a.lower.insightCount>=1,width+': insights or recent activities missing');
+  if(a.lower.activityCount){
+   assert.ok(a.lower.slack>=0&&a.lower.slack<=34,width+': recent activities have trailing blank space '+JSON.stringify(a.lower));
+  }
+  if(width>=1151)assert.ok(a.lower.height<=a.lower.leftHeight+4,width+': desktop activity panel stretched to unrelated column height');
+  if(width<=700){
+   assert.ok(a.lower.insightRects.every(r=>r.width<=a.kpis.width+2),width+': mobile insight overflows');
+   assert.ok(a.lower.insightRects.every(r=>r.height>=44),width+': mobile insight touch target too small');
+  }
   if(b){
    if(b.legacy.length)assert.ok(a.gap+30<b.gap,width+': legacy heading gap not released');
    else assert.ok(a.gap<=b.gap+1,width+': already-compact baseline regressed: before '+b.gap+' after '+a.gap);
@@ -97,6 +123,30 @@ try{
    await page.waitForSelector('#panel-reports-today:not(.hidden) .elara-reports-detail-head');
    await page.goBack({waitUntil:'domcontentloaded'});
    await page.waitForSelector('#panel-reports:not(.hidden) .elara-reports-kpis');
+  }
+  if(width===390||width===1440){
+   const emptyState=await page.evaluate(()=>{
+    const key='elara_space_v1',original=localStorage.getItem(key),state=JSON.parse(original||'{}');
+    for(const name of ['tasks','taskCompletionHistory','focusSessions','books','habits'])state[name]=[];
+    localStorage.setItem(key,JSON.stringify(state));
+    window.ElaraReportsDashboard.render();
+    const p=document.querySelector('#panel-reports .elara-reports-activities'),
+      empty=p?.querySelector('.elara-reports-empty'),
+      insight=document.querySelector('#panel-reports .elara-reports-insight-grid');
+    const result={
+      empty:!!empty,
+      height:empty?.getBoundingClientRect().height||0,
+      containerHeight:p?.getBoundingClientRect().height||0,
+      insightButtons:insight?.querySelectorAll('button').length||0
+    };
+    if(original===null)localStorage.removeItem(key);else localStorage.setItem(key,original);
+    window.ElaraReportsDashboard.render();
+    return result;
+   });
+   assert.equal(emptyState.empty,true,width+': no-activity empty state absent');
+   assert.ok(emptyState.height<=110,width+': no-activity empty placeholder too tall '+JSON.stringify(emptyState));
+   assert.ok(emptyState.insightButtons>=1,width+': missing real-data-insufficient insight');
+   console.log('REPORTS03_EMPTY_PASS '+width+' '+JSON.stringify(emptyState));
   }
   results.push({width,before:b&&{gap:b.gap,headerToHero:b.headerToHero,legacy:b.legacy.length},after:{gap:a.gap,headerToHero:a.headerToHero,legacy:a.legacy.length,cards:a.cards}});
   console.log('REPORTS01_COMPACT_PASS '+width+' gap='+a.gap+' headerToHero='+a.headerToHero);
