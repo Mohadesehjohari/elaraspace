@@ -11,7 +11,8 @@ async function seed(page,who=user){
  await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraPrivateDrawer&&!!window.ElaraWardrobeUI&&!!window.ElaraAccount,{timeout:30000});
  await page.evaluate(usr=>{
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:usr.uid,photoURL:'',metadata:{creationTime:'2026-01-01T00:00:00Z'}})});
-  window.ElaraSocial={me:{...usr},friends:[],saveProfileValues:async()=>({warnings:[]})};
+  const testSocial={me:{...usr},friends:[],saveProfileValues:async()=>({warnings:[]})};
+  Object.defineProperty(window,'ElaraSocial',{configurable:true,get:()=>testSocial,set:()=>{}});
   window.ElaraProfileSystem.levelFromXp=()=>5;
   document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');
   document.getElementById('cloud-layer')?.setAttribute('hidden','');
