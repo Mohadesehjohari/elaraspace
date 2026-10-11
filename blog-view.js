@@ -49,13 +49,14 @@ const notice=(fa,en)=>'<div class="blog-state-notice" role="status">'+tx(fa,en)+
 function sectionHeader(title,icon,buttonText,action){return '<header class="blog-block-heading"><h2><span aria-hidden="true">'+icon+'</span>'+esc(title)+'</h2>'+(action?'<button type="button" data-blog-route="'+action+'">'+esc(buttonText||tx('مشاهده همه ←','View all ←'))+'</button>':'')+'</header>'}
 function emptyState(fa,en,action,buttonText){return '<div class="blog-empty">'+tx(fa,en)+(action?'<div><button class="blog-main-btn" type="button" data-blog-route="'+action+'">'+esc(buttonText||tx('نوشتن اولین مقاله','Write your first article'))+'</button></div>':'')+'</div>'}
 function card(a){
- const c=articleCopy(a),label=catName(a.cat),hasImage=!!a.cover;
- const info=a.published?'<b>'+esc(a.author||tx('الارا · رسمی','Elara · official'))+'</b>':'<b>'+tx('تحریریه الارا','Elara editorial')+'</b>';
+ const c=articleCopy(a),label=catName(a.cat),hasImage=!!a.cover,saved=bookmarks().includes(a.id);
+ const info=a.published?esc(a.author||tx('الارا · رسمی','Elara · official')):tx('تحریریه الارا','Elara editorial');
  return '<article class="blog-card" data-blog-id="'+esc(a.id)+'">'+
- '<div class="blog-card-cover">'+(hasImage?'<img src="'+esc(a.cover)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<span class="blog-art-mark" aria-hidden="true">'+catIcon(a.cat)+'</span>')+
- '<span class="blog-card-tag">'+esc(label)+'</span></div>'+
+ '<div class="blog-card-cover">'+(hasImage?'<img src="'+esc(a.cover)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<span class="blog-art-mark" aria-hidden="true">'+esc(catIcon(a.cat))+'</span>')+
+ '<span class="blog-card-tag">'+esc(label)+'</span>'+
+ '<button type="button" class="blog-card-save" data-blog-bookmark="'+esc(a.id)+'" aria-label="'+(saved?tx('برداشتن نشان مقاله','Remove bookmark'):tx('نشان کردن مقاله','Bookmark article'))+'" aria-pressed="'+saved+'" title="'+tx('ذخیره مقاله روی این دستگاه','Bookmark on this device')+'">'+(saved?'♥':'♧')+'</button></div>'+
  '<div class="blog-card-copy"><h3>'+esc(c.title)+'</h3><p>'+esc(c.desc)+'</p>'+
- '<div class="blog-card-footer">'+info+'<span>'+a.min+' '+tx('دقیقه مطالعه','min read')+'</span>'+(a.date&&safeDate(a.date)?'<span>'+esc(safeDate(a.date))+'</span>':'')+'</div>'+
+ '<div class="blog-card-footer"><b>'+info+'</b><span>◷ '+a.min+' '+tx('دقیقه مطالعه','min read')+'</span>'+(a.date&&safeDate(a.date)?'<span>'+esc(safeDate(a.date))+'</span>':'')+'</div>'+
  '<button class="blog-open" type="button" data-blog-open="'+esc(a.id)+'">'+tx('خواندن مقاله ←','Read article →')+'</button></div></article>'
 }
 function rows(){const q=query.trim().toLocaleLowerCase();return allArticles().filter(a=>{
@@ -69,7 +70,7 @@ function quick(){return '<section class="blog-quick" aria-label="'+tx('شروع 
 function personalList(short=false,onlyDrafts=false){
  const items=localItems().filter(x=>!onlyDrafts||x.status==='draft').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
  if(!items.length)return emptyState('هنوز نوشته‌ای روی این دستگاه ذخیره نکرده‌ای.','No drafts are saved on this device yet.','write');
- return '<div class="blog-my-list">'+items.slice(0,short?4:100).map(x=>'<article class="blog-my-card"><span class="blog-my-thumb" aria-hidden="true">✎</span><div><strong>'+esc(x.title||tx('بدون عنوان','Untitled'))+'</strong><small><span class="blog-status-chip">'+tx('پیش‌نویس محلی','Local draft')+'</span> · '+esc(safeDate(x.updatedAt)||'')+'</small><button data-blog-edit="'+esc(x.id)+'" type="button">'+tx('ادامه نوشتن','Continue')+'</button> <button type="button" data-blog-remove="'+esc(x.id)+'">'+tx('حذف','Delete')+'</button></div></article>').join('')+'</div>'
+ return '<div class="blog-my-list">'+items.slice(0,short?3:100).map(x=>'<article class="blog-my-card"><span class="blog-my-thumb" aria-hidden="true">✎</span><div><strong>'+esc(x.title||tx('بدون عنوان','Untitled'))+'</strong><small><span class="blog-status-chip">'+tx('پیش‌نویس محلی','Local draft')+'</span> · '+esc(safeDate(x.updatedAt)||'')+'</small><button data-blog-edit="'+esc(x.id)+'" type="button">'+tx('ویرایش','Edit')+'</button> <button type="button" data-blog-preview-draft="'+esc(x.id)+'">'+tx('پیش‌نمایش','Preview')+'</button> <button type="button" data-blog-remove="'+esc(x.id)+'">'+tx('حذف','Delete')+'</button></div></article>').join('')+'</div>'
 }
 function topicGrid(){
  const cats=catDefs.slice(1,7);
@@ -79,7 +80,7 @@ function dashboard(){
  const visible=rows(),first=visible.slice(0,3),rest=visible.slice(3);
  const featured='<section class="blog-block">'+sectionHeader(tx('مقاله‌های پیشنهادی','Featured articles'),'🌟',tx('مشاهده همه ←','View all ←'),'all')+
  (first.length?'<div class="blog-grid">'+first.map(card).join('')+'</div>':emptyState('مقاله‌ای در این دسته یا جست‌وجو پیدا نشد.','No articles in this category or search.'))+'</section>';
- const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧','',null)+'<div class="blog-grid">'+rest.map(card).join('')+'</div></section>':'';
+ const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧',tx('مشاهده همه ←','View all ←'),'all')+'<div class="blog-grid">'+rest.map(card).join('')+'</div></section>':'';
  return hero()+'<div class="blog-frame"><section class="blog-top-controls">'+categories()+'<div class="blog-personal-links"><button type="button" data-blog-route="my">'+tx('بلاگ من','My blog')+'</button><button type="button" data-blog-route="published">'+tx('منتشرشده‌ها','Published')+'</button><button type="button" data-blog-route="drafts">'+tx('پیش‌نویس‌ها','Drafts')+'</button></div></section>'+
  quick()+'<label class="blog-search"><span aria-hidden="true">⌕</span><input data-blog-search type="search" value="'+esc(query)+'" placeholder="'+tx('جست‌وجو در مقاله‌ها…','Search articles…')+'" aria-label="'+tx('جست‌وجو در مقاله‌ها','Search articles')+'"></label>'+
  '<div class="blog-content-layout"><main class="blog-feed">'+featured+
@@ -99,14 +100,28 @@ function listCategoryPage(){
  const id=param('category')||'all',items=allArticles().filter(x=>id==='all'||x.cat===id);
  return '<div class="blog-frame"><section class="blog-block">'+subhead(catName(id),tx('مقاله‌های واقعی این موضوع','Real articles in this topic'))+categories(id)+(items.length?'<div class="blog-grid">'+items.map(card).join('')+'</div>':emptyState('هنوز مقاله‌ای در این موضوع منتشر نشده است.','No articles are published in this topic yet.'))+'</section></div>';
 }
+function topicsPage(){
+ return '<div class="blog-frame"><section class="blog-block">'+subhead(tx('همه موضوعات','All topics'),tx('موضوعی را برای خواندن مقاله‌های همان دسته انتخاب کن.','Choose a topic to browse its articles.'))+'<div class="blog-topic-index">'+topicGrid()+'</div></section></div>';
+}
+function allPage(){
+ const items=allArticles();
+ return '<div class="blog-frame"><section class="blog-block">'+subhead(tx('همه مقاله‌ها','All articles'),tx('مقاله‌های موجود الارا و محتوای رسمی منتشرشده.','Available Elara editorial and official articles.'))+categories('all')+(items.length?'<div class="blog-grid">'+items.map(card).join('')+'</div>':emptyState('هنوز مقاله‌ای برای نمایش وجود ندارد.','No articles available yet.'))+'</section></div>';
+}
+function searchPage(){
+ const items=rows();
+ return '<div class="blog-frame"><section class="blog-block">'+subhead(tx('نتایج جست‌وجو','Search results'),tx('جست‌وجو در مقاله‌های موجود','Search published articles'))+
+ '<label class="blog-search"><span aria-hidden="true">⌕</span><input data-blog-search type="search" value="'+esc(query)+'" placeholder="'+tx('عنوان یا متن مقاله…','Article title or text…')+'" aria-label="'+tx('جست‌وجو','Search')+'"></label>'+
+ (items.length?'<div class="blog-grid">'+items.map(card).join('')+'</div>':emptyState('مقاله‌ای با این عبارت پیدا نشد.','No articles matched the search.'))+'</section></div>';
+}
 function reader(){
  const a=allArticles().find(x=>x.id===param('article')),c=a&&articleCopy(a);
  if(!a)return '<div class="blog-frame">'+subhead(tx('مقاله پیدا نشد','Article not found'))+emptyState('این مقاله موجود نیست یا در دسترس نیست.','This article is not available.')+'</div>';
- return '<div class="blog-frame"><article class="blog-block blog-reader blog-article-detail">'+subhead(tx('مطالعه مقاله','Read article'))+
- '<div class="blog-reader-banner" aria-hidden="true"></div><div class="blog-reader-inner"><small class="blog-status-chip">'+esc(catName(a.cat))+'</small><h1>'+esc(c.title)+'</h1>'+
+ const bookmarked=bookmarks().includes(a.id);
+ return '<div class="blog-frame"><article class="blog-block blog-reader blog-article-detail" data-blog-article="'+esc(a.id)+'">'+subhead(tx('مطالعه مقاله','Read article'))+
+ '<div class="blog-reader-banner" aria-hidden="true">'+(a.cover?'<img src="'+esc(a.cover)+'" alt="" referrerpolicy="no-referrer">':'')+'</div><div class="blog-reader-inner"><small class="blog-status-chip">'+esc(catName(a.cat))+'</small><h1>'+esc(c.title)+'</h1>'+
  '<div class="blog-reader-meta">'+esc(a.author||tx('تحریریه الارا','Elara editorial'))+' · '+a.min+' '+tx('دقیقه مطالعه','min read')+(a.date&&safeDate(a.date)?' · '+esc(safeDate(a.date)):'')+'</div>'+
  '<p>'+esc(c.desc)+'</p>'+c.body.map((p,i)=>'<section><h2>'+tx('بخش ','Part ')+(i+1)+'</h2><p>'+esc(p)+'</p></section>').join('')+
- '<div class="blog-form-actions"><button type="button" class="blog-quiet-btn" data-blog-share>'+tx('↗ اشتراک‌گذاری','↗ Share')+'</button><button type="button" class="blog-quiet-btn" data-blog-bookmark="'+esc(a.id)+'">'+tx('♧ ذخیره در این دستگاه','♧ Bookmark on this device')+'</button></div>'+
+ '<div class="blog-form-actions"><button type="button" class="blog-quiet-btn" data-blog-share>'+tx('↗ اشتراک‌گذاری','↗ Share')+'</button><button type="button" class="blog-quiet-btn" data-blog-bookmark="'+esc(a.id)+'" aria-pressed="'+bookmarked+'">'+(bookmarked?tx('♥ حذف نشان','♥ Remove bookmark'):tx('♧ ذخیره در این دستگاه','♧ Bookmark on this device'))+'</button></div>'+
  '<p id="blog-share-message" role="status" class="blog-editor-words"></p>'+
  '</div></article></div>';
 }
