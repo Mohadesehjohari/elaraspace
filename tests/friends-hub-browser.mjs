@@ -39,6 +39,25 @@ async function run(width,height){
 
  assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges']);
  assert.equal(await page.locator('.friends-f2-kpis .friends-f2-kpi').count(),6,width+': six F2 KPIs required');
+ const fidelity=await page.evaluate(()=>{
+  const rect=sel=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+  const tabs=[...document.querySelectorAll('#elara-social-page .social-tabs [role="tab"]')].filter(e=>getComputedStyle(e).display!=='none').length;
+  return {tabs,kpis:getComputedStyle(document.querySelector('.friends-f2-kpis')).gridTemplateColumns.split(' ').length,
+   friends:rect('.friends-f2-friends'),suggest:rect('.friends-f2-invite-card'),requests:rect('.friends-fidelity-requests'),
+   ranking:rect('.friends-f2-ranking'),activity:rect('.friends-f2-activities'),hero:rect('#panel-social > .elara-global-hero')};
+ });
+ assert.equal(fidelity.tabs,7,width+': Owner reference calls for seven visible destinations; Challenges remain available via Activities');
+ if(width>=1440){
+   assert.ok(fidelity.friends.left<fidelity.suggest.left&&fidelity.suggest.left<fidelity.requests.left,width+': physical columns must be Friends/Suggestions/Requests left-to-right '+JSON.stringify(fidelity));
+   assert.ok(Math.abs(fidelity.friends.top-fidelity.requests.top)<4,width+': three primary cards must share a row');
+ }
+ if(width<=700){
+   assert.equal(fidelity.kpis,3,width+': mobile six KPIs must form a 3x2 grid');
+   assert.ok(fidelity.friends.top<fidelity.suggest.top,width+': Friends list must precede companion cards');
+   assert.ok(fidelity.ranking.top>fidelity.activity.top,width+': mobile ranking must be last');
+ }
+ assert.ok(fidelity.ranking.height>=150,width+': scenic leaderboard must retain podium space');
+
  await page.waitForSelector('.friends-f2-friend',{timeout:10000});
  assert.equal(await page.locator('.friends-f2-friend').count(),1,width+': authenticated friend missing');
  await page.waitForFunction(()=>document.querySelector('[data-f2-club-count]')?.textContent.trim()!=='—',null,{timeout:8000});
@@ -63,7 +82,7 @@ async function run(width,height){
   assert.ok(geometry.friendWidth<=geometry.gridWidth*.72,width+': Friends card should share first dashboard row '+JSON.stringify(geometry));
  }
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
- assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': collaboration preview missing');
+ assert.equal(await page.locator('#elara-social-page .social-collab-requests').count(),0,width+': dashboard must not duplicate collaboration requests');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
@@ -76,7 +95,11 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing after tab switch');
+ assert.equal(await page.locator('#elara-social-page .friends-fidelity-request-tabs button').count(),2,width+': incoming and outgoing request filters missing');
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').isVisible(),true,width+': incoming Request action missing');
+ await page.locator('[data-f2-requests-mode="outgoing"]').click();
+ assert.equal(await page.locator('[data-f2-requests-mode="outgoing"]').getAttribute('aria-pressed'),'true');
+ await page.locator('[data-f2-requests-mode="incoming"]').click();
  await page.locator('[data-social-route="social"][data-social-view="activity"]').click();
  await page.waitForSelector('.social-friend-activity');
  assert.match(await page.locator('.social-friend-activity').innerText(),/Deep Work/,width+': Activity tab missing real activity copy');
@@ -119,6 +142,6 @@ async function run(width,height){
  }
  await page.close();
 }
-for(const width of [320,360,375,390,412,430,768,1440,1648])await run(width,width<800?844:1000);
+for(const width of [320,360,375,390,412,430,768,1024,1440,1648])await run(width,width<800?844:1000);
 await browser.close();
 console.log('FRIENDS_F2_PASS nine widths single hero, six KPIs, service previews, navigation, search, Ranking isolation');
