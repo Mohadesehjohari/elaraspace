@@ -39,10 +39,6 @@ function hide(){if(!screen||screen.hidden)return;screen.hidden=true;document.bod
 function back(){if(history.state?.elaraP4Profile){history.back();return}location.hash=origin||'#home';hide()}
 function goBackThen(action){hide();history.replaceState({...history.state,elaraP4Profile:false},'',origin);action()}
 function sync(){
- if(window.__elaraP4RequestedHash&&location.hash!==window.__elaraP4RequestedHash){
-  history.replaceState({...history.state,elaraP4Restored:true},'',window.__elaraP4RequestedHash);
- }
- window.__elaraP4RequestedHash=null;
  if(location.hash===route){
   if(!screen||screen.hidden)open({push:false});else if(owner!==uid())populate();
  }else hide();
@@ -55,6 +51,14 @@ function sync(){
 }
 window.ElaraP4Routes={openProfile:()=>open(),closeProfile:back,openWardrobe:()=>{origin=location.hash||'#home';location.hash='#wardrobe';sync()}};
 window.addEventListener('hashchange',sync);window.addEventListener('popstate',sync);
+window.addEventListener('load',()=>{
+ const requested=window.__elaraP4RequestedHash;
+ if(requested){
+  window.__elaraP4RequestedHash=null;
+  history.replaceState({...history.state,elaraP4BootPending:false,elaraP4Restored:true},'',requested);
+  sync()
+ }
+},{once:true});
 for(const name of ['elara:profile-saved','elara:wardrobe-changed','elara:account-ready','elara:social-updated'])window.addEventListener(name,()=>{if(screen&&!screen.hidden){if(owner!==uid())owner=uid();populate()}});
 document.addEventListener('click',ev=>{
  const wardrobeEntry=ev.target.closest('[data-p4-wardrobe]');
