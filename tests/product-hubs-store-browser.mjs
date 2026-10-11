@@ -115,7 +115,7 @@ async function run(width,height){
  for(const [view,section] of [
   ['chats','.social-dm-section'],['groups','.social-groups-section'],
   ['clubs','.social-clubs-section'],['activity','.social-friend-activity'],
-  ['requests','.social-requests-standalone'],['challenges','.social-challenges-section'],
+  ['requests','.social-requests-standalone'],['challenges','.social-hub-slot[data-social-slot="challenges"]'],
   ['friends','.friends-f2-friends']
  ]){
   await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
