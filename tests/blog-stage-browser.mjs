@@ -68,6 +68,10 @@ await page.locator('[data-blog-filter="focus"]').click();
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForSelector('#panel-blog .blog-article-detail',{timeout:30000});
  await page.locator('#panel-blog [data-blog-route="home"]').first().click();
+ await page.waitForSelector('#panel-blog [data-blog-search]');
+ if(!(await page.locator('#panel-blog .blog-quick').count())){
+  await page.locator('#panel-blog [data-blog-route="home"]').first().click();
+ }
  await page.waitForSelector('#panel-blog .blog-quick');
  await page.locator('#panel-blog .blog-quick [data-blog-route="write"]').last().click();
  await page.waitForSelector('#blog-editor');
