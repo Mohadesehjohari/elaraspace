@@ -1,0 +1,140 @@
+/* FOCUS-01 — dedicated responsive warm focus room, no second Pomodoro engine. */
+html body #main #panel-focus-pomodoro{--focus01-gold:#ffcc79;--focus01-border:#bf925d83;--focus01-ink:#08151f;--focus01-sky:#48d8f8;--focus01-cream:#fff6dc;overflow-x:clip!important;min-width:0}
+#panel-focus-pomodoro>.feature-subpage-head{position:relative;z-index:2;margin-bottom:3px}
+#panel-focus-pomodoro>.feature-subpage-head>div{display:none!important}
+#panel-focus-pomodoro>.feature-subpage-head>.feature-back{border-color:#a97b49;background:#24170fe8;color:#ffd38e}
+#panel-focus-pomodoro #focus01-room{box-sizing:border-box;direction:rtl;min-width:0;max-width:100%;color:#f9f0e1}
+#panel-focus-pomodoro #focus01-room *{box-sizing:border-box}
+#panel-focus-pomodoro #focus01-room button{font-family:inherit;cursor:pointer}
+#panel-focus-pomodoro #focus01-room button:focus-visible,
+#panel-focus-pomodoro #focus01-room input:focus-visible,
+#panel-focus-pomodoro #focus01-room select:focus-visible{outline:2px solid #70eaf6;outline-offset:3px}
+#panel-focus-pomodoro #focus01-room .focus01-hero{height:204px;position:relative;display:flex;align-items:flex-end;margin:0 0 13px;padding:24px 32px;border:1px solid #b8814d7d;border-radius:14px;background:linear-gradient(180deg,#040a1722 15%,#060b1c80 55%,#020913c7),url('assets/ui/librairy_banner_main.webp') center 59%/cover;box-shadow:inset 0 0 35px #000a,0 17px 26px #0008;overflow:hidden}
+#panel-focus-pomodoro #focus01-room .focus01-hero>div{position:relative;z-index:1}
+#panel-focus-pomodoro #focus01-room .focus01-hero span{font:800 11px/1.4 Arial,sans-serif;color:#fed184;letter-spacing:.15em}
+#panel-focus-pomodoro #focus01-room .focus01-hero h1{font-size:clamp(28px,3.6vw,49px);color:#fff;line-height:1.3;font-weight:900;margin:4px 0;text-shadow:0 5px 16px #000e}
+#panel-focus-pomodoro #focus01-room .focus01-hero p{font-size:clamp(13px,1.35vw,18px);margin:0;color:#ffeccf;text-shadow:0 2px 12px #000e}
+#panel-focus-pomodoro #focus01-room .focus01-layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(285px,.98fr);gap:13px;align-items:start}
+#panel-focus-pomodoro #focus01-room .focus01-main,
+#panel-focus-pomodoro #focus01-room .focus01-sidebar{display:grid;align-content:start;gap:12px;min-width:0}
+#panel-focus-pomodoro #focus01-room .focus01-main>section,
+#panel-focus-pomodoro #focus01-room .focus01-sidebar>section,
+#panel-focus-pomodoro #focus01-room .focus01-history{border:1px solid #4c5c6680;border-radius:15px;background:linear-gradient(145deg,#05131ef3,#071c28e8);box-shadow:inset 0 1px #ffffff0c,0 13px 25px #0007;min-width:0;overflow:hidden}
+#panel-focus-pomodoro #focus01-room h2{font-size:clamp(14px,1.45vw,19px);font-weight:900;color:#fce5b5;margin:0 0 11px;line-height:1.5}
+#panel-focus-pomodoro #focus01-room .focus01-clock-scene{min-height:441px;display:grid;place-items:center;position:relative;isolation:isolate;background:linear-gradient(180deg,#020a14b1,#09081460 50%,#020a18a5),url('assets/ui/library-card-background.webp') center 54%/cover}
+#panel-focus-pomodoro #focus01-room .focus01-clock-scene::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 47%,#c272162b,transparent 67%);pointer-events:none}
+#panel-focus-pomodoro #focus01-room .focus01-dial{width:min(343px,78%);aspect-ratio:1;display:grid;place-items:center;position:relative;isolation:isolate;border-radius:50%;background:radial-gradient(circle at center,#05091b 0 62%,transparent 63%),conic-gradient(from -50deg,#ffdb8f 3%,#ffba59 21%,#c758d8 39%,#623aea 56%,#2d9af4 73%,#46e0ff 87%,#071221 94%,#ffdb8f 100%);box-shadow:0 0 37px #6e4bfc8f,inset 0 0 18px #000d,0 0 10px #f6c17c6e}
+#panel-focus-pomodoro #focus01-room .focus01-dial::after{content:"";position:absolute;inset:-7px;border-radius:50%;z-index:-1;background:conic-gradient(from -90deg,#ffdd96 calc(var(--focus01-progress)*1%),transparent 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));filter:drop-shadow(0 0 12px #fbc878)}
+#panel-focus-pomodoro #focus01-room .focus01-dial-inner{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative;min-width:0}
+#panel-focus-pomodoro #focus01-room #focus01-time{font:900 clamp(43px,5.3vw,69px)/1.1 Arial,sans-serif;letter-spacing:-1px;color:#fff;text-shadow:0 4px 10px #000b;font-variant-numeric:tabular-nums}
+#panel-focus-pomodoro #focus01-room #focus01-phase{color:#fff3da;font-weight:800;font-size:clamp(15px,1.7vw,22px)}
+#panel-focus-pomodoro #focus01-room .focus01-dial-play{position:absolute;top:calc(100% + 18px);display:grid;place-items:center;width:77px;height:77px;border:2px solid #a9b5ff;border-radius:50%;color:#fff;font-size:29px;background:radial-gradient(circle at 33% 24%,#b27afe,#5b34e8 75%);box-shadow:0 0 27px #7c54efcf,inset 0 0 10px #eee5;line-height:1;z-index:4}
+#panel-focus-pomodoro #focus01-room .focus01-modes,
+#panel-focus-pomodoro #focus01-room .focus01-sounds{padding:15px}
+#panel-focus-pomodoro #focus01-room .focus01-modes>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#panel-focus-pomodoro #focus01-room .focus01-modes button{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;min-height:92px;padding:12px 6px;border:1px solid #34505a;border-radius:12px;background:linear-gradient(150deg,#0b2733,#08151c);color:#ecece8;box-shadow:inset 0 1px #ffffff09}
+#panel-focus-pomodoro #focus01-room .focus01-modes button span{font-size:26px;color:#ffd99d}
+#panel-focus-pomodoro #focus01-room .focus01-modes button strong{font-size:12px;line-height:1.3}
+#panel-focus-pomodoro #focus01-room .focus01-modes button[aria-pressed="true"]{border-color:#ffda83;background:linear-gradient(150deg,#784e1d,#271a0f);box-shadow:inset 0 0 17px #df9b4590,0 0 16px #e3bc5e67}
+#panel-focus-pomodoro #focus01-room .focus01-modes button:disabled{opacity:.85;cursor:default}
+#panel-focus-pomodoro #focus01-room .focus01-sounds header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+#panel-focus-pomodoro #focus01-room .focus01-sounds header h2{margin:0}
+#panel-focus-pomodoro #focus01-room .focus01-sounds header button{border:1px solid #b99455;border-radius:8px;background:#39260f;color:#fff1d4;font-size:11px;padding:8px 11px}
+#panel-focus-pomodoro #focus01-room .focus01-sound-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+#panel-focus-pomodoro #focus01-room .focus01-sound-grid button{display:grid;place-items:center;gap:5px;min-width:0;min-height:80px;padding:7px 2px;border:1px solid #375b67;border-radius:10px;background:#081f2b;color:#e6d8c7}
+#panel-focus-pomodoro #focus01-room .focus01-sound-grid button span{font-size:24px;line-height:1.2}
+#panel-focus-pomodoro #focus01-room .focus01-sound-grid button strong{font-size:10px;font-weight:750;line-height:1.3;overflow-wrap:anywhere}
+#panel-focus-pomodoro #focus01-room .focus01-sound-grid button[aria-pressed="true"]{border-color:#fbd28c;box-shadow:0 0 13px #ed9c3849;background:#3e2813;color:#ffdfab}
+#panel-focus-pomodoro #focus01-room .focus01-sounds>label{margin:12px 0 5px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:11px;color:#cbd7d8}
+#panel-focus-pomodoro #focus01-room .focus01-sounds>label input{flex:1;height:6px;accent-color:#ffcc7d;min-width:0}
+#panel-focus-pomodoro #focus01-room .focus01-sounds>p{font-size:10px;color:#9fb9c2;line-height:1.7;margin:8px 0 0}
+#panel-focus-pomodoro #focus01-room .focus01-sidebar>section{padding:16px}
+#panel-focus-pomodoro #focus01-room .focus01-controls{background:linear-gradient(145deg,#071823,#03131f)!important}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card{display:block;width:100%!important;margin:0!important;padding:4px!important;border:0!important;box-shadow:none!important;background:transparent!important;min-height:0!important}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card>.eyebrow{display:block;font-size:11px;color:#a9d2d1;margin:5px 0 11px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card>#timer-display{display:block;font:800 30px/1.4 Arial,sans-serif;letter-spacing:0;direction:ltr;text-align:center;color:#ffe0a1;margin:5px auto 7px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card>.timer-actions{display:flex;flex-direction:row;gap:7px;justify-content:center;margin:8px 0}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card>.timer-actions button{min-width:0;flex:1;border-radius:9px;padding:9px 5px;font-size:11px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-card>.muted{font-size:10px;line-height:1.7;color:#a6bdc1;margin:5px 0}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-config{display:grid;gap:11px;margin:9px 0 13px;padding:0}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-config>div{min-width:0}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-config label{display:block;color:#f6e3ca;font-size:12px;font-weight:750}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-config input[type="number"],
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-config select{height:37px;border-radius:9px;background:#101f29!important;border:1px solid #4d5d64!important;color:#f9f8f2!important;padding:6px;min-width:0;font-size:12px;max-width:100%}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-presets{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-presets button{border:1px solid #5f7280;color:#ffda98;background:#152431;border-radius:8px;padding:6px 9px;font-size:11px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-presets #focus-duration{width:74px;flex:1 1 74px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-tag-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-tag-row select{flex:1}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-tag-row button{flex:0 0 auto;min-height:36px;font-size:10px;border:1px solid #ad8953;border-radius:8px;background:#312314;color:#fff1d6}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-cycle-config{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-cycle-config>label{font-size:11px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-cycle-config input[type="number"]{display:block;margin-top:7px;width:100%}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-auto-break{grid-column:1/-1;display:flex!important;align-items:center;gap:8px;font-size:12px}
+#panel-focus-pomodoro #focus01-room #focus01-engine-slot .focus-auto-break input{accent-color:#ffcf78}
+#panel-focus-pomodoro #focus01-room .focus01-start{display:block;width:100%;min-height:51px;border:1px solid #ffdf93;border-radius:12px;font-weight:900;font-size:15px;color:#fff;background:linear-gradient(112deg,#477ffd,#5629f0,#b737bc,#ffc36a);box-shadow:0 0 20px #8a5aff73,inset 0 0 18px #ffffff2c;margin-top:10px}
+#panel-focus-pomodoro #focus01-room .focus01-current h2,
+#panel-focus-pomodoro #focus01-room .focus01-today h2,
+#panel-focus-pomodoro #focus01-room .focus01-shared h2{margin-bottom:10px}
+#panel-focus-pomodoro #focus01-room .focus01-target-label{display:grid;gap:7px;color:#d5e1dc;font-weight:750;font-size:12px}
+#panel-focus-pomodoro #focus01-room #focus01-target{min-height:40px;width:100%;min-width:0;border:1px solid #4c6d77;background:#0d2733;color:#fef2df;padding:9px;border-radius:9px;font-size:12px}
+#panel-focus-pomodoro #focus01-room .focus01-current p,
+#panel-focus-pomodoro #focus01-room .focus01-shared p{margin:10px 0 0;font-size:11px;line-height:1.85;color:#a7bdc0}
+#panel-focus-pomodoro #focus01-room .focus01-shared button{border:1px solid #4b7d79;border-radius:8px;padding:8px 10px;background:#123335;color:#a4ffee;font-size:11px;margin-top:12px}
+#panel-focus-pomodoro #focus01-room .focus01-stats-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#panel-focus-pomodoro #focus01-room .focus01-stats-row>div{border:1px solid #36545e;border-radius:10px;background:#0c2933;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:9px 3px}
+#panel-focus-pomodoro #focus01-room .focus01-stats-row strong{font-size:23px;font-weight:900;color:#fff}
+#panel-focus-pomodoro #focus01-room .focus01-stats-row small{font-size:10px;color:#a9c7c3;text-align:center;line-height:1.3}
+#panel-focus-pomodoro #focus01-room .focus01-status-line{color:#ffdeaa;font-size:12px;line-height:1.7;margin:12px 0 0}
+#panel-focus-pomodoro #focus01-room .focus01-history{padding:14px 16px;margin-top:12px}
+#panel-focus-pomodoro #focus01-room .focus01-history ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+#panel-focus-pomodoro #focus01-room .focus01-history li{display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:9px;border:1px solid #3e6065;background:#09222c;min-width:0}
+#panel-focus-pomodoro #focus01-room .focus01-history li strong{font-size:13px;color:#ffe1a2}
+#panel-focus-pomodoro #focus01-room .focus01-history li span{font-size:11px;color:#e6f4ee;overflow-wrap:anywhere}
+#panel-focus-pomodoro #focus01-room .focus01-history li small{font-size:9px;color:#96bdc6}
+#panel-focus-pomodoro #focus01-room .focus01-empty{font-size:12px;color:#9eb7bf;line-height:1.8}
+#panel-focus-pomodoro #focus-ambience .focus-ambience-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media(max-width:1100px){
+ #panel-focus-pomodoro #focus01-room .focus01-layout{grid-template-columns:minmax(0,1.15fr) minmax(250px,.98fr)}
+ #panel-focus-pomodoro #focus01-room .focus01-clock-scene{min-height:360px}
+ #panel-focus-pomodoro #focus01-room .focus01-dial{width:min(300px,76%)}
+ #panel-focus-pomodoro #focus01-room .focus01-sound-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-focus-pomodoro #focus01-room .focus01-modes button{padding:9px 2px;min-height:80px}
+}
+@media(max-width:760px){
+ #panel-focus-pomodoro #focus01-room .focus01-layout{display:flex;flex-direction:column;gap:11px}
+ #panel-focus-pomodoro #focus01-room .focus01-main,
+ #panel-focus-pomodoro #focus01-room .focus01-sidebar{width:100%}
+ #panel-focus-pomodoro #focus01-room .focus01-clock-scene{min-height:390px}
+ #panel-focus-pomodoro #focus01-room .focus01-dial{width:min(295px,75%)}
+ #panel-focus-pomodoro #focus01-room .focus01-sound-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+ #panel-focus-pomodoro #focus01-room .focus01-stats-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #panel-focus-pomodoro #focus01-room .focus01-history ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #panel-focus-pomodoro #focus01-room .focus01-hero{height:275px;border-radius:0;margin:0 -10px 11px;padding:16px 17px 19px;background-position:52% 64%}
+ #panel-focus-pomodoro #focus01-room .focus01-hero h1{font-size:34px}
+ #panel-focus-pomodoro #focus01-room .focus01-clock-scene{min-height:380px}
+ #panel-focus-pomodoro #focus01-room .focus01-dial{width:min(294px,76%)}
+ #panel-focus-pomodoro #focus01-room #focus01-time{font-size:clamp(42px,11vw,58px)}
+ #panel-focus-pomodoro #focus01-room .focus01-dial-play{width:69px;height:69px;font-size:27px}
+ #panel-focus-pomodoro #focus01-room .focus01-main>section,
+ #panel-focus-pomodoro #focus01-room .focus01-sidebar>section{border-radius:12px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes{padding:12px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes>div{gap:5px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes button{min-height:80px;padding:5px 2px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes button strong{font-size:10px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes button span{font-size:23px}
+ #panel-focus-pomodoro #focus01-room .focus01-sound-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-focus-pomodoro #focus01-room .focus01-sounds>label{gap:8px}
+ #panel-focus-pomodoro #focus01-room .focus01-stats-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-focus-pomodoro #focus01-room .focus01-history ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:360px){
+ #panel-focus-pomodoro #focus01-room .focus01-clock-scene{min-height:339px}
+ #panel-focus-pomodoro #focus01-room .focus01-dial{width:245px;max-width:78%}
+ #panel-focus-pomodoro #focus01-room .focus01-dial-play{width:60px;height:60px}
+ #panel-focus-pomodoro #focus01-room .focus01-modes button strong{font-size:9px}
+ #panel-focus-pomodoro #focus01-room .focus01-sounds header button{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#panel-focus-pomodoro #focus01-room *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
