@@ -18,3 +18,13 @@
  #elara-p4-private-profile button[data-p4-back]{min-width:76px;padding:5px}
  #elara-p4-private-profile .elara-profile-hub{gap:10px}
 }
+
+/* Dedicated #wardrobe route. Preserve original Wardrobe engine and equipment contract. */
+.approved-wardrobe.p4-wardrobe-route{position:fixed!important;z-index:120!important;inset:68px 0 0 clamp(0px,14vw,240px)!important;background:#020c23!important;backdrop-filter:none!important}
+.approved-wardrobe.p4-wardrobe-route .approved-wardrobe-scrim{display:none!important}
+.approved-wardrobe.p4-wardrobe-route .approved-wardrobe-window{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;max-height:100%!important;height:100%!important;margin:0!important;border-radius:0!important;overflow:auto!important;padding:clamp(9px,2vw,24px)!important;box-shadow:none!important}
+.approved-wardrobe.p4-wardrobe-route #wardrobe-main{max-width:1370px;margin:0 auto}
+@media(max-width:700px){
+ .approved-wardrobe.p4-wardrobe-route{inset:58px 0 calc(72px + env(safe-area-inset-bottom,0px)) 0!important}
+ .approved-wardrobe.p4-wardrobe-route .approved-wardrobe-window{inset:0!important;width:100%!important;height:100%!important;max-height:100%!important;padding:10px!important}
+}
