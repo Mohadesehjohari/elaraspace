@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 import {mkdirSync} from 'node:fs';
 const origin=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
 const out='browser-artifacts/ui13';mkdirSync(out,{recursive:true});
-const widthSet=[320,360,375,390,412,430,768,1440,1648];
+const widthSet=[320,360,375,390,412,430,768,1024,1440,1648];
 const files=['language_banner_main.webp','librairy_banner_main.webp','weblog_banner_main.webp','workout_banner_main.webp','daily-banner-bg_main.webp','lightner.webp','background-moonlit-mountains.webp'];
 const fakeCloud="window.ElaraAccount={user:{uid:'ui13-qa',email:'ui13@example.test',emailVerified:true},profile:{uid:'ui13-qa',name:'Test'}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');window.dispatchEvent(new Event('elara:account-ready'));";
 const fakeSocial="window.ElaraSocial={me:{uid:'ui13-qa',name:'Test'},friends:[],clubs:{list:async()=>[],discover:async()=>[]},challenges:{list:async()=>[]},refresh:async()=>{}};window.dispatchEvent(new Event('elara:social-updated'));";
@@ -137,6 +137,9 @@ try{
    await page.locator('#panel-language-courses [data-class-add]').first().click();
    await page.waitForSelector('#elara-dialog-root .lf-class-editor',{timeout:10000});
    await page.screenshot({path:out+'/classes-popup-new-'+width+'.png',fullPage:false,animations:'disabled'});
+   await page.locator('#elara-dialog-root .elara-dialog-body').evaluate(el=>{el.scrollTop=el.scrollHeight});
+   await page.screenshot({path:out+'/classes-popup-new-bottom-'+width+'.png',fullPage:false,animations:'disabled'});
+   await page.locator('#elara-dialog-root .elara-dialog-body').evaluate(el=>{el.scrollTop=0});
    const form=page.locator('#elara-dialog-root .lf-class-editor'),save=page.locator('#elara-dialog-root .elara-dialog-actions .primary-button').last();
    await save.click();
    assert.equal(await form.count(),1,'Invalid class form closed before validation at '+width);
@@ -157,6 +160,8 @@ try{
      await page.locator('[data-lf-class-filter="'+type+'"]').click();
      await page.screenshot({path:out+'/classes-filter-'+type+'-'+width+'.png',fullPage:false,animations:'disabled'});
    }
+   // Restore the default filter before the independent shared-classmate test.
+   await page.locator('[data-lf-class-filter="all"]').click();
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
    assert.ok(overflow<=2,'Class page viewport overflow at '+width+': '+overflow);
    await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
