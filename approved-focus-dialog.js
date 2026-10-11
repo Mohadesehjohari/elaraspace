@@ -1,5 +1,10 @@
-/* Reuse the single operational Focus timer in Library and its existing centered dialog. */
-(()=>{'use strict';let opening=false;
-async function showFocus(){if(opening||!window.ElaraDialog?.open)return;const card=document.querySelector('#panel-books .focus-card,#panel-focus .focus-card');if(!card)return;opening=true;const marker=document.createComment('Focus controls return to Library after closing');card.parentNode.insertBefore(marker,card);const content=document.createElement('div');content.className='approved-focus-content';content.append(card);try{await window.ElaraDialog.open({title:'فضای تمرکز',content,wide:true,actions:[{label:'بازگشت به کتابخانه',value:true,kind:'primary'}]})}finally{if(marker.isConnected)marker.replaceWith(card);opening=false}}
-window.addEventListener('click',event=>{if(!event.target.closest('[data-approved-focus]'))return;event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void showFocus()},true);
+/* FOCUS-01: approved focus entry navigates to the dedicated room.
+   Never move the canonical #timer-start or its listeners into a dialog. */
+(()=>{'use strict';
+window.addEventListener('click',event=>{
+ const trigger=event.target.closest('[data-approved-focus]');
+ if(!trigger)return;
+ event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+ window.ElaraOpen?.('focus-pomodoro',{history:'push'});
+},true);
 })();
