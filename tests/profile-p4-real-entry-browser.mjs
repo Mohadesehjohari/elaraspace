@@ -61,6 +61,7 @@ for(const width of widths){
  assert.ok(afterEquip,'Equip did not save local wardrobe');
  await page.screenshot({path:dest+'/wardrobe-'+width+'-equipped.png',fullPage:false});
  await page.reload({waitUntil:'domcontentloaded'});
+ await page.addStyleTag({content:'#cloud-layer{display:none!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell,body.cloud-locked .workspace{visibility:visible!important;opacity:1!important;pointer-events:auto!important}'});
  await page.waitForFunction(()=>window.ElaraPrivateRoutes&&window.ElaraWardrobeUI&&window.ElaraAccount,null,{timeout:25000});
  // Simulated signed-in identity again after reload (no Firebase credentials).
  await page.evaluate(async account=>{
