@@ -383,7 +383,8 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   pointer-events:auto;
   transition:opacity 210ms ease;
  }
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:is(:hover,:focus-within),
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:hover,
+ body[data-well-profile-input="keyboard"]:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:focus-within,
  body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
  body:has(#panel-exercise.wellness-feature-hub:not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
   opacity:1;
