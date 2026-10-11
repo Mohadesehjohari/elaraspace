@@ -1,5 +1,9 @@
 name: UI12 Live Production Exact Bytes and Browser
 on:
+  pull_request:
+    paths:
+      - tests/ui12-language-live-browser.mjs
+      - .github/workflows/ui12-language-live.yml
   push:
     branches: [main]
     paths:
