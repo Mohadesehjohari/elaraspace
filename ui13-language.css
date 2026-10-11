@@ -389,3 +389,42 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
  .lf-class-editor .language-class-form-grid>label{font-size:12px}
 }
 @media(max-width:355px){.lf-class-editor .lf-editor-hero{grid-template-columns:1fr 77px}.lf-class-editor .lf-editor-cover{min-height:90px}.lf-class-editor input:not([type=checkbox]),.lf-class-editor select{padding:8px 6px;font-size:13px}}
+
+/* L1 class editor: dialog shell remains owned by ElaraDialog; only its scoped presentation changes. */
+#elara-dialog-root .elara-dialog-layer:has(.lf-class-editor){padding:clamp(6px,1vw,14px)!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor){
+ width:min(780px,96vw)!important;max-width:96vw!important;max-height:calc(100dvh - 20px)!important;
+ display:flex;flex-direction:column;overflow:hidden;min-width:0;
+ border:1px solid #249ef7!important;border-radius:21px!important;
+ background:linear-gradient(130deg,#041a34,#040c24 75%)!important;
+ box-shadow:0 0 0 1px #8857ff77,0 0 36px #117fe455,0 18px 80px #000c!important;
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head{
+ position:absolute;top:9px;left:9px;right:9px;z-index:4;display:flex;justify-content:space-between;
+ pointer-events:none;border:0;background:transparent;box-shadow:none;padding:0!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>div{display:none}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>button{
+ pointer-events:auto;width:39px;min-width:39px;height:39px;margin:0;
+ border:1px solid #19a6ed;background:#05224bcf;border-radius:11px;color:#eaf7ff
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-body{
+ padding:9px 13px 18px!important;overflow-y:auto!important;overflow-x:hidden!important;
+ min-width:0;min-height:0;overscroll-behavior:contain;flex:1
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions{
+ display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-start;
+ flex:none;padding:13px 18px calc(13px + env(safe-area-inset-bottom))!important;
+ border-top:1px solid #2a75ba;background:#03142eee
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions button{min-height:45px;min-width:110px}
+#elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions .primary-button{background:linear-gradient(105deg,#ffab71,#f344b8 45%,#6639f9 80%,#28b5fb);color:#fff;border:1px solid #9bdfff;box-shadow:0 0 18px #9b48fd66}
+.lf-class-editor [hidden]{display:none!important}
+.lf-class-editor [aria-invalid="true"]{border-color:#ff718b!important;box-shadow:0 0 0 2px #ef426477!important}
+.lf-class-editor .lf-editor-error{padding:11px 14px;border:1px solid #ef5576;border-radius:10px;background:#40132a;color:#ffe7ee;font-weight:700}
+@media(max-width:650px){
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor){width:100%!important;max-width:100%!important;max-height:calc(100dvh - 12px)!important;border-radius:18px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-body{padding:7px 9px 12px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions{display:grid;grid-template-columns:1fr;gap:7px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-actions button{width:100%;min-height:42px}
+}
