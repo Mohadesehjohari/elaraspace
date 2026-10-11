@@ -15,7 +15,7 @@ try{
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.route('**/cloud.js*',x=>x.fulfill({status:200,contentType:'application/javascript',body:cloud}));
   await page.route('**/elara-social.js*',x=>x.fulfill({status:200,contentType:'application/javascript',body:social}));
-  await page.addInitScript(data=>{localStorage.setItem('elara_space_v1',JSON.stringify(data));localStorage.setItem('elara_preferences_v2',JSON.stringify({mode:'dark',language:'fa'}))},fixture);
+  await page.addInitScript(data=>{if(!localStorage.getItem('elara_space_v1'))localStorage.setItem('elara_space_v1',JSON.stringify(data));if(!localStorage.getItem('elara_preferences_v2'))localStorage.setItem('elara_preferences_v2',JSON.stringify({mode:'dark',language:'fa'}))},fixture);
   await page.goto(origin+'/?l2='+width+'#words',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraLanguageDestinations?.renderLeitner,null,{timeout:35000});
   await page.evaluate(()=>ElaraOpen('words',{history:'replace'}));
