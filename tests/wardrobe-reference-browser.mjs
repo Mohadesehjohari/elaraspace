@@ -36,6 +36,7 @@ for(const width of widths){
  assert.equal(await page.locator('[data-wardrobe-tab]').count(),5,'Five tabs');
  assert.equal(await page.locator('[data-wardrobe-tab="banner"]').getAttribute('aria-selected'),'true');
  assert.ok(await page.locator('.wardrobe-ref-hero .elara-profile-composition').isVisible());
+ await page.evaluate(()=>document.querySelectorAll('.wardrobe-ref-grid img').forEach(img=>{img.loading='eager'}));
  await page.waitForFunction(()=>[...document.querySelectorAll('.wardrobe-ref-grid img')].every(img=>img.complete&&img.naturalWidth>0),{timeout:12000})
   .catch(async()=>{throw Error('Wardrobe artwork did not load at '+width+': '+JSON.stringify(await page.locator('.wardrobe-ref-grid img').evaluateAll(xs=>xs.map(x=>({src:x.src,complete:x.complete,naturalWidth:x.naturalWidth})))));});
  await page.screenshot({path:dir+'/wardrobe-'+width+'.png'});
