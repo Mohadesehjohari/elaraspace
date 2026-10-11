@@ -56,7 +56,10 @@ function renderLanguageStrip(){
 
 function ensureHomeReportsButton(){
  const hero=document.querySelector('#panel-home .ref-hero');if(!hero)return;
+ const canonical=hero.querySelector('.ref-hero-actions .ref-hero-reports[data-elara-tab="reports"]');
  let button=hero.querySelector('[data-home-reports]');
+ // Home's canonical Reports CTA already sits next to Continue. Never create a second button.
+ if(canonical){button?.remove();return}
  if(!button){
   button=document.createElement('button');button.type='button';button.className='ref-hero-reports';button.dataset.homeReports='';
   button.setAttribute('aria-label','گزارش‌ها');
