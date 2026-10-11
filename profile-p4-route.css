@@ -28,3 +28,14 @@
  .approved-wardrobe.p4-wardrobe-route{inset:58px 0 calc(72px + env(safe-area-inset-bottom,0px)) 0!important}
  .approved-wardrobe.p4-wardrobe-route .approved-wardrobe-window{inset:0!important;width:100%!important;height:100%!important;max-height:100%!important;padding:10px!important}
 }
+
+/* P4 visual acceptance: keep legacy home content behind the dedicated private surface. */
+body.p4-private-profile-open #elara-p4-private-profile{
+ z-index:99990!important;
+ background-color:#020b24!important;
+ background-image:radial-gradient(ellipse 92% 26% at 50% 0%,#163665,#020b24 90%)!important;
+ isolation:isolate;
+}
+body.p4-private-profile-open :is(#panel-home,.global-page-banner,#ref-home-hero){visibility:hidden!important}
+body.p4-private-profile-open #elara-p4-private-profile .elara-profile-hub-hero{position:relative;z-index:1}
+.approved-wardrobe.p4-wardrobe-route{z-index:99991!important}
