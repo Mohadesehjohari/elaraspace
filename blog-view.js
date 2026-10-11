@@ -51,7 +51,7 @@ function emptyState(fa,en,action,buttonText){return '<div class="blog-empty">'+t
 function card(a){
  const c=articleCopy(a),label=catName(a.cat),hasImage=!!a.cover,saved=bookmarks().includes(a.id);
  const info=a.published?esc(a.author||tx('الارا · رسمی','Elara · official')):tx('تحریریه الارا','Elara editorial');
- return '<article class="blog-card" data-blog-id="'+esc(a.id)+'">'+
+ return '<article class="blog-card" tabindex="0" data-blog-id="'+esc(a.id)+'" aria-label="'+esc(c.title)+'">'+
  '<div class="blog-card-cover">'+(hasImage?'<img src="'+esc(a.cover)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<span class="blog-art-mark" aria-hidden="true">'+esc(catIcon(a.cat))+'</span>')+
  '<span class="blog-card-tag">'+esc(label)+'</span>'+
  '<button type="button" class="blog-card-save" data-blog-bookmark="'+esc(a.id)+'" aria-label="'+(saved?tx('برداشتن نشان مقاله','Remove bookmark'):tx('نشان کردن مقاله','Bookmark article'))+'" aria-pressed="'+saved+'" title="'+tx('ذخیره مقاله روی این دستگاه','Bookmark on this device')+'">'+(saved?'♥':'♧')+'</button></div>'+
@@ -227,6 +227,7 @@ document.addEventListener('click',e=>{
  const f=target.closest('[data-blog-filter]');if(f){filter=f.dataset.blogFilter;query='';if(mode()==='category')navigate('category',{category:filter});else if(mode()==='all')navigate('category',{category:filter});else render();return}
  const c=target.closest('[data-blog-category]');if(c){filter=c.dataset.blogCategory;navigate('category',{category:filter});return}
  const read=target.closest('[data-blog-open]');if(read){openArticle(read.dataset.blogOpen);return}
+ const clickableCard=target.closest('.blog-card');if(clickableCard&&!target.closest('button,a,input,select,textarea')){openArticle(clickableCard.dataset.blogId);return}
  const back=target.closest('[data-blog-back]');if(back){if(history.state?.blogFrom){history.back()}else navigate('home');return}
  const r=target.closest('[data-blog-route]');if(r){const selected=r.dataset.blogFocus;navigate(r.dataset.blogRoute);if(selected==='category')document.querySelector('#blog-editor [name="category"]')?.focus();if(selected==='cover')document.querySelector('#blog-editor [name="cover"]')?.click();return}
  const edit=target.closest('[data-blog-edit]');if(edit){navigate('write',{draftId:edit.dataset.blogEdit});return}
@@ -247,6 +248,7 @@ document.addEventListener('click',e=>{
   return;
  }
 });
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.blog-card')){e.preventDefault();openArticle(e.target.dataset.blogId)}});
 document.addEventListener('input',e=>{
  if(e.target.matches('[data-blog-search]')){
   query=e.target.value;filter='all';const cursor=e.target.selectionStart;
