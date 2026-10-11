@@ -1,0 +1,49 @@
+name: P4 Private Profile and Wardrobe Routes — Real UI Entry
+on:
+  pull_request:
+    paths:
+      - drawer.js
+      - approved-visual.js
+      - wardrobe-reference.css
+      - profile-pages-p4.js
+      - profile-pages-p4.css
+      - tests/profile-p4-real-entry-browser.mjs
+      - .github/workflows/profile-p4-real-entry.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  profile-p4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, canonical username and scoped edit guard
+        run: |
+          set -eu
+          for f in drawer.js approved-visual.js profile-pages-p4.js tests/profile-p4-real-entry-browser.mjs; do node --check "$f"; done
+          node tests/username-runtime-regression.test.mjs
+          if git diff --name-only origin/main...HEAD | grep -E '^(elara-social.js|firestore.rules|storage.rules|cloud.js|mobile-ia-2026-10-05.*|ROADMAP.md|friends-hub.css)$'; then
+            echo "::error::Files owned by concurrent/backend teams modified";exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve exact PR files
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-p4.log 2>&1 &
+          sleep 3
+      - name: Ten-width browser entry, real UI clicks and local equipment checks
+        run: timeout 660s node tests/profile-p4-real-entry-browser.mjs
+      - name: Upload candidate screenshots, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-p4-candidate-${{ github.sha }}
+          path: artifacts/profile-p4/
+          retention-days: 30
+          if-no-files-found: warn
