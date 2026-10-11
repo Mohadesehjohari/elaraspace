@@ -23,6 +23,10 @@ async function seed(page,who=user){
 for(const width of widths){
  const ctx=await browser.newContext({viewport:{width,height:width===390?680:width>=1024?900:780}});
  const page=await ctx.newPage();page.on('pageerror',e=>errors.push(width+': '+e.message));
+ // Deterministic mocked auth bootstrap: the real header and account UI are clicked,
+ // while Firebase is never contacted and no fixture can modify real users.
+ await page.route('**/cloud.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraAccount={user:null,profile:null,logout:async()=>{}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));"}));
+ await page.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraSocial={me:null,friends:[],requests:[],activities:[],saveProfileValues:async values=>({profile:values,warnings:[]})};window.ElaraLoadSocial=async()=>window.ElaraSocial;window.dispatchEvent(new Event('elara:social-updated'));"}));
  await page.goto(url+'/#home',{waitUntil:'domcontentloaded'});
  await seed(page);
  for(let attempt=0;attempt<2;attempt++){
