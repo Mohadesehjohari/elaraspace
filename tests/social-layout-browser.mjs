@@ -49,14 +49,14 @@ async function run(width,height){
   assert.ok(boxes[0].height>=40&&boxes[1].width>=42&&boxes[2].width>=42&&boxes[1].height>=40&&boxes[2].height>=40,width+': mobile invite/search controls lost usable hit targets '+JSON.stringify(boxes));
 }
  else{assert.ok(boxes[0].height>=48&&boxes[1].width>=52&&boxes[2].width>=52,width+': desktop invite/search controls too small '+JSON.stringify(boxes))}
- const friendTabRects=await page.locator('#elara-social-page .social-tabs [role="tab"]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
- assert.ok(friendTabRects.every(r=>r.w>0&&r.h>0),'Friends controls must be measured while visible');
+ const friendTabRects=await page.locator('#elara-social-page .social-tabs [role="tab"]:visible').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
+ assert.equal(friendTabRects.length,7,width+': exactly seven visible Friends destinations; Challenges accessible from activity');
+ assert.ok(friendTabRects.every(r=>r.w>0&&r.h>=42),'Friends visible controls must keep usable targets');
  const friendTabsStyle=await page.locator('#elara-social-page .social-tabs').evaluate(el=>{const s=getComputedStyle(el);return{display:s.display,direction:s.flexDirection,wrap:s.flexWrap,overflow:s.overflowX,client:el.clientWidth,scroll:el.scrollWidth}});
- assert.equal(friendTabsStyle.display,'flex',width+': Friends destinations must use horizontal flex strip');
- assert.equal(friendTabsStyle.direction,'row',width+': Friends destinations must use one row direction');
- assert.equal(friendTabsStyle.wrap,'nowrap',width+': Friends destinations must not wrap');
- assert.equal(friendTabsStyle.overflow,'auto',width+': Friends destinations must scroll horizontally when needed');
- assert.ok(friendTabsStyle.scroll>=friendTabsStyle.client,width+': Friends strip geometry missing horizontal scroll surface');
+ assert.equal(friendTabsStyle.display,'grid',width+': owner reference Friends navigation uses a seven-tile grid');
+ assert.ok(friendTabsStyle.scroll<=friendTabsStyle.client+2,width+': internal Friends nav must not overflow horizontally');
+ if(width<=700)assert.ok(new Set(friendTabRects.map(x=>Math.round(x.y))).size>=2,width+': mobile Friends nav must use two rows');
+ else if(width>=1440)assert.equal(new Set(friendTabRects.map(x=>Math.round(x.y))).size,1,width+': desktop Friends nav must fit one row');
  await page.screenshot({path:'browser-artifacts/friends-layout-'+width+'.png',fullPage:true});
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForFunction(()=>document.querySelector('#elara-ranking-page:not(.hidden) .social-tabs'));
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': ranking must keep four tabs');
