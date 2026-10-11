@@ -75,7 +75,9 @@ for(const width of widths){
  if(width===390){
   await page.reload({waitUntil:'domcontentloaded'});
   await seed(page);
-  await page.locator('#elara-private-profile-page .elara-profile-hub').waitFor();
+  try{await page.locator('#elara-private-profile-page .elara-profile-hub').waitFor({timeout:6000})}catch(e){
+   console.error('P4-DEEP-RELOAD-DIAG',JSON.stringify(await page.evaluate(()=>({hash:location.hash,route:window.ElaraProfilePages?true:false,uid:window.ElaraProfileSystem?.currentUid?.(),me:window.ElaraSocial?.me,root:document.querySelector('#elara-private-profile-page')?.outerHTML.slice(0,900)}))));throw e
+  }
   assert.equal(await page.evaluate(()=>location.hash),'#profile','Direct route reload failed');
   await page.evaluate(()=>window.ElaraProfilePages.navigate('wardrobe'));
   await page.locator('.p4-wardrobe-page .wardrobe-p3-tabs').waitFor();
