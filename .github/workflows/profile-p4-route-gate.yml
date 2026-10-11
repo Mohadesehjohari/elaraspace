@@ -1,0 +1,51 @@
+name: Profile P4 Real Route Candidate
+on:
+  pull_request:
+    paths:
+      - 'profile-pages-p4.js'
+      - 'profile-pages-p4.css'
+      - 'drawer.js'
+      - 'approved-visual.js'
+      - 'index.html'
+      - 'tests/profile-p4-route-browser.mjs'
+      - '.github/workflows/profile-p4-route-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-ui-route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and contracts
+        shell: bash
+        run: |
+          set -e
+          node --check profile-pages-p4.js
+          node --check drawer.js
+          node --check approved-visual.js
+          node --check tests/profile-p4-route-browser.mjs
+          node tests/username-runtime-regression.test.mjs
+          node tests/username-integrity-audit.test.mjs
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Ten widths via real account menu and wardrobe buttons
+        shell: bash
+        run: |
+          python3 -m http.server 4173 >/tmp/p4-server.log 2>&1 &
+          sleep 3
+          timeout 380s node tests/profile-p4-route-browser.mjs
+      - name: Save candidate visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-p4-candidate-${{ github.sha }}
+          path: artifacts/profile-p4/
+          if-no-files-found: warn
+          retention-days: 30
