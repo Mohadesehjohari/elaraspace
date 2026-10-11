@@ -1,0 +1,153 @@
+/* REPORTS-01. All styling is scoped to Reports route and deep Today view. */
+body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;--reports-aqua:#40d7ff;--reports-violet:#9655ff;color:#e7efff;min-width:0}
+#panel-reports .elara-reports-dashboard,#panel-reports-today .elara-reports-detail-grid{direction:rtl;min-width:0;width:100%;font-family:inherit}
+#panel-reports .elara-reports-dashboard * ,#panel-reports-today .elara-reports-detail-grid *{box-sizing:border-box}
+#panel-reports .elara-reports-dashboard{display:grid;gap:12px;padding-bottom:16px}
+#panel-reports .elara-reports-dashboard h2,#panel-reports-today h2{font-size:clamp(.95rem,1.3vw,1.16rem);font-weight:900;line-height:1.4;letter-spacing:0;color:#f4f4ff;margin:0!important}
+#panel-reports .elara-reports-dashboard p,#panel-reports-today .elara-reports-detail-grid p{margin:2px 0;color:#91a9dc;font-size:.76rem;line-height:1.65}
+#panel-reports .elara-reports-dashboard button,#panel-reports-today button{font-family:inherit;cursor:pointer}
+#panel-reports .elara-reports-dashboard button:focus-visible,#panel-reports-today button:focus-visible,#panel-reports .elara-reports-hit:focus-visible{outline:2px solid #5ce6ff;outline-offset:3px}
+#panel-reports>.feature-hub-hero.elara-reports-hero,#panel-reports>.elara-global-hero.elara-reports-hero{
+ position:relative!important;isolation:isolate;overflow:hidden!important;box-sizing:border-box!important;
+ width:100%!important;max-width:100%!important;height:173px!important;min-height:173px!important;max-height:none!important;
+ margin:0 0 12px!important;padding:22px 26px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ border-radius:14px!important;border:1px solid #2e55a0!important;background-image:linear-gradient(270deg,rgba(5,14,40,.85),rgba(3,13,38,.32) 55%,rgba(3,13,38,.13)),url('assets/ui/39-reports-hero-banner.webp')!important;
+ background-position:center 51%!important;background-size:cover!important;background-repeat:no-repeat!important;box-shadow:inset 0 0 40px #05133055!important
+}
+#panel-reports>.elara-reports-hero .elara-reports-hero-content{position:relative;z-index:2;max-width:530px;text-align:right;color:#fff}
+#panel-reports>.elara-reports-hero .elara-reports-hero-content small{font-size:.7rem;color:#bed6ff}
+#panel-reports>.elara-reports-hero .elara-reports-hero-content h1{font-size:clamp(1.6rem,2.8vw,2.25rem);line-height:1.2;margin:9px 0 6px!important;font-weight:950;color:#fff;text-shadow:0 2px 14px #020c33}
+#panel-reports>.elara-reports-hero .elara-reports-hero-content p{font-size:clamp(.72rem,1.25vw,.9rem);margin:0!important;color:#ddeaff;line-height:1.5;text-shadow:0 2px 12px #03123c}
+#panel-reports>.feature-hub-launchers[data-hub-kind="reports"]{display:none!important}
+#panel-reports .elara-reports-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;min-width:0}
+#panel-reports .elara-reports-kpi,#panel-reports .elara-reports-panel,#panel-reports-today .elara-reports-panel{
+ min-width:0;background:linear-gradient(142deg,rgba(12,35,81,.96),rgba(3,20,47,.96));
+ border:1px solid #234fa0;border-radius:11px;box-shadow:inset 0 1px #5475db1d,0 4px 14px #02091733
+}
+#panel-reports .elara-reports-kpi{position:relative;min-height:103px;padding:12px 11px 12px 58px;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+#panel-reports .elara-reports-kpi>div:not(.elara-reports-kpi-icon){min-width:0;width:100%}
+#panel-reports .elara-reports-kpi span:not(.elara-reports-icon){display:block;font-size:.72rem;color:#d7e2ff;font-weight:700}
+#panel-reports .elara-reports-kpi strong{display:inline-block;white-space:nowrap;font-size:clamp(1.15rem,2vw,1.58rem);line-height:1.4;font-weight:950;color:#fff;margin-top:2px}
+#panel-reports .elara-reports-kpi small{display:block;font-size:.63rem;color:#a4b5d9;line-height:1.5}
+#panel-reports .elara-reports-kpi-icon{position:absolute;left:10px;top:12px;color:var(--accent);border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 13%,#091b42);box-shadow:0 0 15px color-mix(in srgb,var(--accent) 35%,transparent);border-radius:9px;display:grid;place-items:center;width:40px;height:43px}
+#panel-reports .elara-reports-icon{font-size:1.7rem;font-weight:400;font-family:Arial,Tahoma,sans-serif;line-height:1}
+#panel-reports .elara-reports-kpi footer{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0;width:100%;margin-top:auto;color:var(--accent)}
+#panel-reports .elara-reports-kpi footer small{font-size:.59rem;text-align:end;color:#839bcc}
+#panel-reports .elara-reports-spark{display:block;width:78px;height:22px;color:var(--accent)}
+#panel-reports .elara-reports-no-trend{font-size:.62rem;color:#718cb9}
+#panel-reports .elara-reports-panel,#panel-reports-today .elara-reports-panel{padding:15px 15px 13px}
+#panel-reports .elara-reports-panel>header,#panel-reports-today .elara-reports-panel>header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 13px}
+#panel-reports .elara-reports-main{display:grid;grid-template-columns:minmax(0,2.52fr) minmax(250px,1fr);gap:11px;min-width:0;align-items:stretch;direction:ltr}
+#panel-reports .elara-reports-main>*{direction:rtl;min-width:0}
+#panel-reports .elara-reports-trends{min-height:305px}
+#panel-reports .elara-reports-periods{display:flex;gap:2px;padding:3px;border:1px solid #2756a5;border-radius:30px;flex-wrap:wrap;max-width:100%;background:#031b3f}
+#panel-reports .elara-reports-periods button{color:#a4bee9;border:0;border-radius:25px;background:none;font-size:.68rem;min-height:30px;padding:5px 13px;white-space:nowrap}
+#panel-reports .elara-reports-periods button[aria-pressed="true"]{background:linear-gradient(120deg,#293fba,#6a4ee7);color:#fff;box-shadow:0 0 13px #7557f95c}
+#panel-reports .elara-reports-legend{display:flex;justify-content:flex-start;flex-wrap:wrap;gap:14px;font-size:.65rem;color:#bdcbee;margin-bottom:3px}
+#panel-reports .elara-reports-legend span{display:flex;align-items:center;gap:5px}
+#panel-reports .elara-reports-legend i{display:inline-block;width:10px;height:10px;border-radius:3px}
+#panel-reports .elara-reports-legend i.tasks{background:#7756ee}
+#panel-reports .elara-reports-legend i.focus{background:#38caff;border-radius:50%}
+#panel-reports .elara-reports-legend i.progress{background:#e26bfe;border-radius:50%}
+#panel-reports .elara-reports-plot-scroll{max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+#panel-reports .elara-reports-plot{display:block;width:100%;min-width:560px;max-height:277px;overflow:visible}
+#panel-reports .elara-reports-plot text{font:12px Arial,Tahoma,sans-serif;fill:#9db4dc}
+#panel-reports .elara-reports-plot-status{font-size:.64rem;min-height:19px;color:#8da8d9}
+#panel-reports .elara-reports-table{margin-top:6px;font-size:.7rem;color:#b2c5ee}
+#panel-reports .elara-reports-table summary{padding:7px 0;cursor:pointer}
+#panel-reports .elara-reports-table-scroll{width:100%;max-height:280px;overflow:auto}
+#panel-reports .elara-reports-table table{width:100%;min-width:390px;border-collapse:collapse}
+#panel-reports .elara-reports-table th,#panel-reports .elara-reports-table td{padding:7px;text-align:right;border-bottom:1px solid #2a4282}
+#panel-reports .elara-reports-today{display:flex;flex-direction:column;align-items:stretch;gap:7px}
+#panel-reports .elara-reports-heading-icon{font-size:1.4rem;color:#9c73ff}
+#panel-reports .elara-reports-ring,#panel-reports-today .elara-reports-ring{
+ width:136px;height:136px;margin:0 auto 7px;flex-shrink:0;border-radius:50%;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;
+ background:radial-gradient(closest-side,#0a234b 83%,transparent 85% 100%),conic-gradient(#7257ff,#b667f8 calc(var(--progress)*1%),#23416e 0)
+}
+#panel-reports .elara-reports-ring strong,#panel-reports-today .elara-reports-ring strong{font-size:1.8rem;font-weight:950;color:#fff;line-height:1.4}
+#panel-reports .elara-reports-ring small,#panel-reports-today .elara-reports-ring small{font-size:.7rem;color:#b9cef5}
+#panel-reports .elara-reports-today-rows,#panel-reports-today .elara-reports-today-rows{display:grid;gap:5px}
+#panel-reports .elara-reports-today-rows>div,#panel-reports-today .elara-reports-today-rows>div{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:6px;padding:7px 8px;background:#071d43;border:1px solid #213e7d;border-radius:9px}
+#panel-reports .elara-reports-today-rows b,#panel-reports-today .elara-reports-today-rows b{font-size:1.1rem;color:#53caff}
+#panel-reports .elara-reports-today-rows span,#panel-reports-today .elara-reports-today-rows span{font-size:.68rem;color:#c6d7f5}
+#panel-reports .elara-reports-today-rows strong,#panel-reports-today .elara-reports-today-rows strong{font-size:.77rem;color:#fff}
+#panel-reports .elara-reports-button,#panel-reports-today .elara-reports-button{border-radius:24px;border:1px solid #475eaf;background:linear-gradient(120deg,#163676,#5231ac);color:#fff;min-height:35px;padding:7px 12px;font-size:.72rem}
+#panel-reports .elara-reports-note{font-size:.64rem!important;color:#8faad9!important}
+#panel-reports .elara-reports-lower{display:grid;grid-template-columns:minmax(0,2.52fr) minmax(250px,1fr);direction:ltr;gap:11px;min-width:0;align-items:stretch}
+#panel-reports .elara-reports-lower>*{direction:rtl;min-width:0}
+#panel-reports .elara-reports-lower>div:first-child{display:grid;align-content:start;gap:11px}
+#panel-reports .elara-reports-sections-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;min-width:0}
+#panel-reports .elara-reports-section{position:relative;min-width:0;text-align:right;padding:9px 7px;display:flex;flex-direction:column;align-items:stretch;gap:8px;background:linear-gradient(146deg,#102958,#081a3b);border:1px solid #234d95;border-radius:9px;color:#fff}
+#panel-reports .elara-reports-section:hover{border-color:var(--accent)}
+#panel-reports .elara-reports-section-top{display:flex;gap:4px;align-items:center;min-width:0}
+#panel-reports .elara-reports-section-top .elara-reports-icon{font-size:1.25rem;color:var(--accent)}
+#panel-reports .elara-reports-section-top strong{font-size:.64rem;min-width:0;overflow-wrap:anywhere}
+#panel-reports .elara-reports-section-top b{margin-inline-start:auto;color:#a2bae2}
+#panel-reports .elara-reports-section-value{color:#fff;font-size:.94rem;line-height:1.3}
+#panel-reports .elara-reports-section-value small{display:block;font-size:.57rem;line-height:1.6;color:#a2b9e8;font-weight:500}
+#panel-reports .elara-reports-section .elara-reports-spark{max-width:100%;height:18px}
+#panel-reports .elara-reports-insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#panel-reports .elara-reports-insight-grid button{padding:10px;min-width:0;display:grid;gap:6px;text-align:right;background:linear-gradient(135deg,#0c2555,#071b3c);border:1px solid #2c479b;border-radius:10px;color:#fff}
+#panel-reports .elara-reports-insight-grid b{font-size:1.5rem;color:#77e7ff}
+#panel-reports .elara-reports-insight-grid strong{font-size:.77rem}
+#panel-reports .elara-reports-insight-grid small{font-size:.64rem;line-height:1.7;color:#c1cff0}
+#panel-reports .elara-reports-insight-grid span{font-size:.65rem;color:#70cfff}
+#panel-reports .elara-reports-activities{min-height:240px}
+#panel-reports .elara-reports-activity-list,#panel-reports-today .elara-reports-activity-list{display:grid;gap:5px}
+#panel-reports .elara-reports-activity-list button,#panel-reports-today .elara-reports-activity-list button{display:grid;grid-template-columns:27px minmax(0,1fr) auto;align-items:center;gap:7px;min-height:35px;padding:7px 5px;background:transparent;border:0;border-bottom:1px solid #26457a;color:#e8efff;text-align:right}
+#panel-reports .elara-reports-activity-symbol,#panel-reports-today .elara-reports-activity-symbol{color:#53c8fd;font-size:1.2rem}
+#panel-reports .elara-reports-activity-list strong,#panel-reports-today .elara-reports-activity-list strong{display:block;font-size:.69rem;overflow-wrap:anywhere}
+#panel-reports .elara-reports-activity-list small,#panel-reports-today .elara-reports-activity-list small{display:block;color:#91a6d5;font-size:.61rem}
+#panel-reports .elara-reports-activity-list b,#panel-reports-today .elara-reports-activity-list b{font-size:.62rem;color:#c3dbff}
+#panel-reports .elara-reports-empty,#panel-reports-today .elara-reports-empty{display:flex;align-items:center;justify-content:center;text-align:center;min-height:170px;color:#94b1e0;font-size:.79rem;padding:20px;border:1px dashed #31538d;border-radius:9px;background:#061b40}
+#panel-reports .elara-reports-source{font-size:.64rem!important;color:#8ea4d0!important;padding:6px}
+#panel-reports-today .elara-reports-detail-head{padding:100px 12px 15px;display:grid;gap:6px}
+#panel-reports-today .elara-reports-detail-head h1{font-size:1.7rem;margin:0;color:#fff}
+#panel-reports-today .elara-reports-detail-head p{color:#a2bce5;margin:0}
+#panel-reports-today .elara-reports-detail-head button{width:max-content;padding:10px 14px;border:1px solid #4264a7;border-radius:24px;background:#132c62;color:#fff;min-height:44px}
+#panel-reports-today .elara-reports-detail-grid{display:grid;grid-template-columns:minmax(240px,1fr) minmax(0,2fr);gap:14px;align-items:start}
+@media(max-width:1450px){
+ #panel-reports .elara-reports-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-reports .elara-reports-sections-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:1050px){
+ #panel-reports .elara-reports-main,#panel-reports .elara-reports-lower{grid-template-columns:minmax(0,1fr);direction:rtl}
+ #panel-reports .elara-reports-today{grid-row:1}
+ #panel-reports .elara-reports-lower{display:flex;flex-direction:column}
+ #panel-reports .elara-reports-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-reports .elara-reports-sections-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-reports-today .elara-reports-detail-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+ #panel-reports>.feature-hub-hero.elara-reports-hero,#panel-reports>.elara-global-hero.elara-reports-hero{
+  width:100%!important;height:158px!important;min-height:158px!important;margin:0 0 10px!important;padding:16px!important;
+  background-image:linear-gradient(270deg,#061431e8,#0716339a 52%,#07163322),url('assets/ui/39-reports-hero-banner.webp')!important;
+  background-position:55% center!important;border-radius:10px!important
+ }
+ #panel-reports>.elara-reports-hero .elara-reports-hero-content h1{font-size:1.34rem}
+ #panel-reports>.elara-reports-hero .elara-reports-hero-content p{font-size:.69rem;max-width:270px}
+ #panel-reports .elara-reports-dashboard{gap:9px}
+ #panel-reports .elara-reports-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #panel-reports .elara-reports-kpi{min-height:101px;padding:9px 8px 9px 43px}
+ #panel-reports .elara-reports-kpi-icon{left:7px;top:9px;width:30px;height:34px}
+ #panel-reports .elara-reports-kpi-icon .elara-reports-icon{font-size:1.25rem}
+ #panel-reports .elara-reports-kpi span:not(.elara-reports-icon){font-size:.65rem}
+ #panel-reports .elara-reports-kpi strong{font-size:1.15rem}
+ #panel-reports .elara-reports-kpi footer small{font-size:.51rem}
+ #panel-reports .elara-reports-panel{padding:11px}
+ #panel-reports .elara-reports-trends{min-height:0}
+ #panel-reports .elara-reports-periods{width:100%;justify-content:space-evenly}
+ #panel-reports .elara-reports-periods button{min-height:44px;padding:5px 9px;font-size:.66rem}
+ #panel-reports .elara-reports-plot{min-width:560px}
+ #panel-reports .elara-reports-sections-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-reports .elara-reports-insight-grid{grid-template-columns:1fr}
+ #panel-reports .elara-reports-activity-list button{min-height:44px}
+ #panel-reports-today .elara-reports-detail-head{padding:15px 12px}
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;visibility:visible!important;min-height:44px!important;max-width:49%!important;white-space:nowrap!important}
+ body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-continue{min-height:44px!important}
+}
+@media(max-width:359px){
+ #panel-reports .elara-reports-kpis{grid-template-columns:1fr}
+ #panel-reports .elara-reports-periods button{padding:5px 7px;font-size:.6rem}
+ #panel-reports>.elara-reports-hero .elara-reports-hero-content p{max-width:220px}
+}
