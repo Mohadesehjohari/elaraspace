@@ -27,7 +27,7 @@ for(const width of widths){
   window.ElaraWardrobeUI.open();
  });
  await page.addStyleTag({content:'#cloud-layer{display:none!important}body.cloud-ready .shell{visibility:visible!important;opacity:1!important}'});
- await page.locator('.approved-wardrobe:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});
+ try{await page.locator('.approved-wardrobe:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});}catch(error){console.error('P3_LEGACY_DIAG '+JSON.stringify(await page.evaluate(()=>({hash:location.hash,wardrobeRoot:document.querySelector('.approved-wardrobe')?.outerHTML.slice(0,400),style:document.querySelector('.approved-wardrobe')?getComputedStyle(document.querySelector('.approved-wardrobe')).display:null,tabCount:document.querySelectorAll('.wardrobe-p3-tabs').length,html:document.querySelector('.approved-wardrobe')?.outerHTML.slice(0,1600)}))));throw error}
  assert.equal(await page.locator('[data-wardrobe-tab]').count(),5,'Five tabs');
  assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'No preview selection should equip');
  const box=await page.locator('.approved-wardrobe-window').boundingBox();
