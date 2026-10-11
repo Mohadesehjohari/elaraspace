@@ -22,7 +22,7 @@ async function run(width,height){
  await page.goto(base+'/?friends-hub='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  const tabs=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await tabs.count(),8,width+': F2 must expose eight Friends routes');
+ assert.equal(await tabs.count(),7,width+': owner reference requires seven primary Friends routes');
  const geometry=await page.evaluate(()=>{
   const nav=document.querySelector('#elara-social-page .social-tabs');
   const item=nav?.querySelector('[role="tab"]'),image=item?.querySelector('img');
@@ -33,11 +33,11 @@ async function run(width,height){
    navScrolls:nav.scrollWidth>nav.clientWidth};
  });
  assert.ok(geometry,width+': Friends nav geometry unavailable');
- assert.ok(geometry.height>=(width<=700?60:45)&&geometry.height<=(width<=700?74:56),width+': F2 tab height mismatch '+JSON.stringify(geometry));
+ assert.ok(geometry.height>=(width<=850?50:45)&&geometry.height<=(width<=850?68:60),width+': F2 tab height mismatch '+JSON.stringify(geometry));
  assert.ok(geometry.art<=30,width+': icons must be compact '+JSON.stringify(geometry));
- assert.ok(geometry.width>=(width<=700?54:100),width+': tab width must match compact reference '+JSON.stringify(geometry));
+ assert.ok(geometry.width>=(width<=850?49:85),width+': tab width must match compact reference '+JSON.stringify(geometry));
 
- assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges']);
+ assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking']);
  assert.equal(await page.locator('.friends-f2-kpis .friends-f2-kpi').count(),6,width+': six F2 KPIs required');
  await page.waitForSelector('.friends-f2-friend',{timeout:10000});
  assert.equal(await page.locator('.friends-f2-friend').count(),1,width+': authenticated friend missing');
@@ -61,12 +61,29 @@ async function run(width,height){
   assert.equal(geometry.columns,12,width+': desktop F2 must use 12 explicit columns '+JSON.stringify(geometry));
   assert.ok(geometry.kpiWidth>=geometry.gridWidth*.92,width+': six KPIs must span desktop grid '+JSON.stringify(geometry));
   assert.ok(geometry.friendWidth<=geometry.gridWidth*.72,width+': Friends card should share first dashboard row '+JSON.stringify(geometry));
+  const layout=await page.evaluate(()=>{
+   const box=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{x:r.x,y:r.y,w:r.width}:null};
+   return {friend:box('.friends-f2-friends'),suggest:box('.friends-f2-invite-card'),request:box('.social-requests-standalone'),activity:box('.friends-f2-activities'),chats:box('.friends-f2-preview-chats'),member:box('.friends-fidelity-membership'),rank:box('.friends-f2-ranking')};
+  });
+  assert.ok(layout.friend.x<layout.suggest.x&&layout.suggest.x<layout.request.x,width+': required left/middle/right Friends-suggestion-request layout '+JSON.stringify(layout));
+  assert.ok(Math.abs(layout.friend.y-layout.request.y)<5&&Math.abs(layout.request.y-layout.suggest.y)<5,width+': main row alignment '+JSON.stringify(layout));
+  assert.ok(layout.activity.x<layout.chats.x&&layout.chats.x<layout.member.x&&layout.member.x<layout.rank.x,width+': lower visual columns order '+JSON.stringify(layout));
  }
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
- assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': collaboration preview missing');
+ assert.equal(await page.locator('#elara-social-page .social-collab-requests').count(),0,width+': collaboration preview must not disrupt dashboard; Requests retains its own flow');
+ assert.equal(await page.locator('#elara-social-page .friends-fidelity-secondary [data-f2-tab="challenges"]').count(),1,width+': Challenges secondary route missing');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
+ const inbox=page.locator('[data-f2-requests="incoming"]'),sent=page.locator('[data-f2-requests="outgoing"]');
+ assert.equal(await inbox.getAttribute('aria-pressed'),'true',width+': received request tab missing');
+ await sent.click();assert.equal(await sent.getAttribute('aria-pressed'),'true',width+': sent request filter did not activate');
+ await inbox.click();assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').count(),1,width+': incoming request not restored');
+ if(width===390||width===412){
+  const mobile=await page.evaluate(()=>{const b=s=>document.querySelector(s)?.getBoundingClientRect();const a=b('.friends-f2-friends'),s=b('.friends-f2-invite-card'),r=b('.social-requests-standalone'),k=b('.friends-f2-kpis');return {friendX:a.x,friendY:a.y,friendW:a.width,sX:s.x,sY:s.y,rX:r.x,rY:r.y,statsCols:getComputedStyle(k).gridTemplateColumns.split(' ').length}});
+  assert.equal(mobile.statsCols,3,width+': mobile requires three KPI columns');
+  assert.ok(mobile.sX<mobile.rX&&Math.abs(mobile.sY-mobile.rY)<5,width+': paired suggestion/requests cards wrong '+JSON.stringify(mobile));
+ }
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats tab did not mount DM');
@@ -119,6 +136,6 @@ async function run(width,height){
  }
  await page.close();
 }
-for(const width of [320,360,375,390,412,430,768,1440,1648])await run(width,width<800?844:1000);
+for(const width of [320,360,375,390,412,430,768,1024,1440,1648])await run(width,width<800?844:1000);
 await browser.close();
-console.log('FRIENDS_F2_PASS nine widths single hero, six KPIs, service previews, navigation, search, Ranking isolation');
+console.log('FRIENDS_FIDELITY_PASS ten widths, physical RTL grid, seven primary destinations, verified request filters, six KPIs, navigation and no overflow');
