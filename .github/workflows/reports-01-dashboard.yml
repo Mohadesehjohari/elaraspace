@@ -1,0 +1,89 @@
+name: REPORTS-01 Reference Dashboard and Live Gate
+on:
+  pull_request:
+    paths:
+      - index.html
+      - feature-hubs-2026.js
+      - feature-hubs-shell.js
+      - reports-dashboard-01.js
+      - reports-dashboard-01.css
+      - tests/reports-dashboard-01-browser.mjs
+      - .github/workflows/reports-01-dashboard.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - feature-hubs-2026.js
+      - feature-hubs-shell.js
+      - reports-dashboard-01.js
+      - reports-dashboard-01.css
+      - tests/reports-dashboard-01-browser.mjs
+      - .github/workflows/reports-01-dashboard.yml
+permissions:
+  contents: read
+jobs:
+  reports01-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Reports assets and JavaScript
+        run: |
+          node --check reports-dashboard-01.js
+          node --check feature-hubs-2026.js
+          node --check feature-hubs-shell.js
+          node --check tests/reports-dashboard-01-browser.mjs
+          test -s assets/ui/39-reports-hero-banner.webp
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
+          npx playwright install --with-deps chromium
+      - name: Reference Reports ten-width browser gate
+        run: |
+          python3 -m http.server 4173 >/tmp/reports01-server.log 2>&1 &
+          sleep 3
+          timeout 540s node tests/reports-dashboard-01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports01-pr-screenshots
+          path: browser-artifacts/reports01/*.png
+          retention-days: 21
+  reports01-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for production byte-for-byte release
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 80); do
+            ok=true
+            for file in index.html reports-dashboard-01.js reports-dashboard-01.css feature-hubs-2026.js feature-hubs-shell.js; do
+              output="/tmp/reports01-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "REPORTS01_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::Production bytes did not match merge";exit 1;fi
+      - name: Production Chromium ten-width routes
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/reports-dashboard-01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports01-production-screenshots
+          path: browser-artifacts/reports01/*.png
+          retention-days: 30
