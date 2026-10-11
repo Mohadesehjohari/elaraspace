@@ -57,7 +57,7 @@ function planSummary(s,kind){
  const mainText=note||String(first?.note||'').trim();
  const title=kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan');
  const icon=kind==='workout'?'🏋️':'🌿',label=kind==='workout'?tx('ایجاد برنامه تمرینی','Create training plan'):tx('ایجاد برنامه تغذیه','Create nutrition plan');
- return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<p class="well01-empty">'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
+ return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
 }
 function activity(s){
  const rows=s.workouts.filter(x=>x.date===today()),total=workoutOf(s,today()),last=rows[rows.length-1],type=last?(last.type==='ورزش دیگر'?last.customType||last.type:last.type):'';
@@ -117,8 +117,18 @@ function hideDuplicateHero(panel){
   wellnessHeroObserver.observe(panel,{childList:true});
  }
 }
+function syncWell01Header(){
+ const panel=document.getElementById('panel-exercise'),bar=document.querySelector('.topbar');
+ if(!panel||panel.classList.contains('hidden')||window.scrollY>8)return;
+ const pr=panel.getBoundingClientRect(),br=bar?.getBoundingClientRect();
+ const shown=bar&&getComputedStyle(bar).display!=='none'&&getComputedStyle(bar).visibility!=='hidden';
+ panel.style.setProperty('--well01-header-clearance',(shown?Math.max(0,Math.ceil(br.bottom-pr.top)+1):0)+'px');
+}
+window.addEventListener('resize',()=>requestAnimationFrame(syncWell01Header),{passive:true});
+window.addEventListener('hashchange',()=>requestAnimationFrame(syncWell01Header));
+window.addEventListener('elara:open',()=>requestAnimationFrame(syncWell01Header));
 function render(){
- const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);
+ const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);requestAnimationFrame(syncWell01Header);
  let host=panel.querySelector(':scope > #well01-dashboard');
  if(!host){host=document.createElement('section');host.id='well01-dashboard';host.className='well01';host.setAttribute('dir','rtl');panel.prepend(host)}
  const s=read();ensureLegacyEditors(s);

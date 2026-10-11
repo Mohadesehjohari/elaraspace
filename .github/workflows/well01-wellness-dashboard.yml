@@ -7,8 +7,10 @@ on:
   pull_request:
     paths:
       - boot.js
+      - index.html
       - well01-wellness-dashboard.js
       - well01-wellness-dashboard.css
+      - approved-wellness.js
       - tests/well01-wellness-dashboard-browser.mjs
       - .github/workflows/well01-wellness-dashboard.yml
   workflow_dispatch:
@@ -32,12 +34,13 @@ jobs:
         run: |
           set -eu
           node --check boot.js
+          node --check approved-wellness.js
           node --check well01-wellness-dashboard.js
           node --check tests/well01-wellness-dashboard-browser.mjs
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
           test -s assets/ui/health-fitness-card-background.webp
-          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js)$'; then
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js)$'; then
             echo "::error::Protected shared modules were touched"; exit 1
           fi
       - name: Install Chromium
@@ -80,10 +83,12 @@ jobs:
           set -euo pipefail
           base="https://mohadesehjohari.github.io/elaraspace"
           for i in $(seq 1 45); do
+            curl -fLsS -H "Cache-Control: no-cache" "$base/index.html?well01=$GITHUB_SHA" -o /tmp/well01-live-index.html || true
+            curl -fLsS -H "Cache-Control: no-cache" "$base/approved-wellness.js?well01=$GITHUB_SHA" -o /tmp/well01-live-editor.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/boot.js?well01=$GITHUB_SHA" -o /tmp/well01-live-boot.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.css?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.css || true
-            if cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
+            if cmp -s index.html /tmp/well01-live-index.html && cmp -s approved-wellness.js /tmp/well01-live-editor.js && cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
               echo "GitHub Pages contains exact main release files: $GITHUB_SHA"
               exit 0
             fi

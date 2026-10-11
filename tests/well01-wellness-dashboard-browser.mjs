@@ -32,6 +32,9 @@ await mkdir('browser-artifacts/well01',{recursive:true});
 for(const w of [390,1440]){
  if(baseline){
   const before=await open(w,baseline);
+  await before.evaluate(()=>window.scrollTo(0,0));
+  const beforeRect=await before.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
+  console.log('WELL01_BEFORE_GEOMETRY_'+w,JSON.stringify(beforeRect));
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
  }
@@ -40,6 +43,14 @@ for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
  const dash=page.locator('#well01-dashboard');
+ if([390,412,1440].includes(width)){
+  const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
+  console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
+  assert.ok(g.hero.top >= (g.header?.bottom||0)-1,'hero overlaps header '+width);
+  assert.ok(g.hero.top <= (g.header?.bottom||0)+10,'unnecessary hero/header gap '+width);
+  if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
+ }
+
  assert.equal(await dash.locator('.well01-shortcut').count(),5,'five category shortcuts at '+width);
  assert.equal(await dash.locator('.well01-metric').count(),4,'four daily metrics at '+width);
  assert.equal(await dash.locator('.well01-report').count(),4,'four real-data report entries at '+width);
@@ -51,12 +62,68 @@ for(const width of widths){
  assert.ok(dimensions.body<=dimensions.view+1,'unexpected horizontal scroll '+width+': '+JSON.stringify(dimensions));
  assert.ok(dimensions.panel<=dimensions.view+1,'dashboard overflow '+width+': '+JSON.stringify(dimensions));
  if(width===390||width===1440){
+  const initialRect=await page.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom,scrollY:window.scrollY}));
+  console.log('WELL01_AFTER_INITIAL_GEOMETRY_'+width,JSON.stringify(initialRect));
   await page.screenshot({path:'browser-artifacts/well01/after-'+width+'.png',fullPage:true});
   for(const kind of ['water','sleep','weight','exercise','analysis']){
    await dash.locator('.well01-shortcut[data-feature-route="wellness-'+kind+'"]').click();
    await page.waitForSelector('#panel-wellness-'+kind+':not(.hidden)',{timeout:10000});
    await page.locator('#panel-wellness-'+kind+' .feature-subpage-head [data-feature-route="exercise"]').click();
    await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
+  }
+ }
+ if(width===390||width===1440){
+  await dash.locator('.well01-activity-card [data-wellness-add="workout"]').click();
+  const modal=page.locator('.wellness-workout-dialog[role="dialog"][aria-modal="true"]');
+  await modal.waitFor();
+  assert.equal(await modal.locator('[name="note"]').count(),1,'one optional workout note');
+  if(width===1440){
+   const pair=await page.evaluate(()=>({type:document.querySelector('.wellness-workout-pair [name="type"]').getBoundingClientRect().toJSON(),name:document.querySelector('.wellness-workout-pair [name="customType"]').getBoundingClientRect().toJSON(),footer:document.querySelector('.wellness-workout-footer').getBoundingClientRect().toJSON(),dialog:document.querySelector('.wellness-workout-dialog').getBoundingClientRect().toJSON()}));
+   console.log('WELL01_DESKTOP_MODAL',JSON.stringify({typeY:pair.type.y,nameY:pair.name.y,footerBottom:pair.footer.bottom,dialogBottom:pair.dialog.bottom}));
+   assert.ok(Math.abs(pair.type.y-pair.name.y)<=3,'desktop type and custom name are in the same row');
+   assert.ok(pair.footer.bottom<=900,'desktop save and cancel are visible without scrolling at 900px height');
+  }
+  assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden','workout form locks background scrolling');
+  await page.screenshot({path:'browser-artifacts/well01/workout-popup-'+width+'.png'});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(90);
+  const rect=await page.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,panel:document.querySelector('#panel-exercise').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
+  console.log('WELL01_GEOMETRY_'+width,JSON.stringify(rect));
+  if(width===390){
+   await modal.locator('[name="type"]').selectOption({label:'ورزش دیگر'});
+   assert.ok(await modal.locator('[data-workout-custom]').isVisible(),'custom type visible');
+   await page.screenshot({path:'browser-artifacts/well01/workout-other-390.png'});
+   await modal.locator('[name="customType"]').fill('');
+   await modal.locator('.wellness-workout-save').click();
+   assert.ok(await modal.locator('.wellness-workout-error').isVisible(),'validation does not close dialog');
+   await modal.locator('[name="customType"]').fill('صخره‌نوردی');
+   await modal.locator('[name="minutes"]').fill('43');
+   await modal.locator('[name="note"]').fill('آرام و بدون فشار');
+   await page.screenshot({path:'browser-artifacts/well01/workout-filled-390.png'});
+   await modal.locator('.wellness-workout-save').click();
+   await modal.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.documentElement.style.overflow!=='hidden');
+
+   const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts);
+   assert.equal(rows.length,2,'one and only one workout created');
+   assert.equal(rows[1].note,'آرام و بدون فشار');
+   assert.equal(await page.evaluate(()=>history.state?.elaraWorkoutModal||null),null,'closing removes transient modal history state');
+   await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
+   await modal.waitFor();
+   await modal.locator('[name="note"]').fill('لغو بدون ذخیره');
+   await page.keyboard.press('Escape');
+   await modal.waitFor({state:'hidden'});
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts.length),2,'Escape must not persist draft');
+   await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
+   await modal.waitFor();
+   await page.evaluate(()=>history.back());
+   await modal.waitFor({state:'hidden'});
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts.length),2,'browser Back must not save draft');
+
+   assert.match(await dash.locator('.well01-activity-card').innerText(),/صخره‌نوردی/,'dashboard refresh after workout save');
+  }else{
+   await page.keyboard.press('Escape');
+   await modal.waitFor({state:'hidden'});
   }
  }
  if(width===390){
