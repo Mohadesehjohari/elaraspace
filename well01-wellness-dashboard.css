@@ -288,3 +288,10 @@ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margi
  #panel-exercise #well01-dashboard .well01-hero{grid-template-columns:minmax(0,1fr) .4fr}
  #panel-exercise #well01-dashboard .well01-quote{display:none}
 }
+
+/* Visual QA follow-up: the shared mobile shell already offsets the topbar.
+   Do not add a second 86px padding above WELL-01. */
+@media(max-width:700px){
+ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:8px!important}
+ #panel-exercise #well01-dashboard .well01-hero{margin-top:0!important}
+}
