@@ -51,7 +51,7 @@ for(const width of widths){
  });
  await page.addStyleTag({content:'#cloud-layer{display:none!important}' });
  assert.ok((await page.locator('#elara-p4-private-profile').textContent()).includes('حساب دوم'),'second UID did not hydrate');
- await page.locator('#elara-p4-private-profile [data-approved-wardrobe]').first().click();
+ await page.locator('#elara-p4-private-profile .elara-profile-hub-actions [data-approved-wardrobe]').click();
  await page.waitForURL('**/#wardrobe');
  await page.locator('.approved-wardrobe.p4-wardrobe-route:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});
  assert.equal(await page.locator('.wardrobe-p3-tabs button').count(),5);
