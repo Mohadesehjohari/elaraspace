@@ -171,3 +171,22 @@
  .elara-private-drawer[data-mobile-section="account"] .elara-profile-chips{min-width:0;max-width:100%}
  .elara-private-drawer[data-mobile-section="account"] .elara-profile-chips span{white-space:normal;overflow-wrap:anywhere}
 }
+
+/* Remove the inherited duplicate profile card only in the Account rail. */
+.elara-private-drawer[data-mobile-section="account"] .drawer-profile-summary{display:none!important}
+.elara-private-drawer[data-mobile-section="account"] .drawer-profile-head{
+ background-position:center!important;background-size:cover!important
+}
+.elara-profile-hub-heading{position:relative}
+.elara-profile-hub-heading .drawer-section-head{
+ position:relative;padding-inline:0 53px;min-width:0
+}
+.elara-profile-hub-heading .drawer-section-head>div{min-width:0;max-width:100%}
+.elara-profile-hub-heading [data-drawer-nav="home"]{
+ position:absolute;top:5px;right:0;left:auto;order:initial;margin:0
+}
+@media(max-width:700px){
+ .elara-profile-hub-heading .drawer-section-head{padding:0 52px;min-height:72px;justify-content:center}
+ .elara-profile-hub-heading .drawer-section-head>div{text-align:center}
+ .elara-profile-hub-heading [data-drawer-nav="home"]{right:0;top:9px}
+}
