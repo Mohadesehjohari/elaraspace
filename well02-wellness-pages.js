@@ -1,7 +1,7 @@
 /* WELL-02: full-width private water and sleep pages, existing Wellness v1 key. No user-data migration. */
 (()=>{'use strict';
 const $=(sel,root=document)=>root.querySelector(sel);
-const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[c]));
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fa=value=>Number(value||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR',{maximumFractionDigits:1});
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
