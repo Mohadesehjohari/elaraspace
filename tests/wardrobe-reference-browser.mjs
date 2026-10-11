@@ -67,6 +67,8 @@ for(const width of widths){
   await page.goBack({waitUntil:'domcontentloaded'});
   await page.locator('.approved-wardrobe').waitFor({state:'hidden',timeout:10000});
   assert.ok(await page.locator('.elara-private-drawer:not(.hidden)').isVisible(),'Browser Back should return to account drawer');
+  const scrolling=await page.evaluate(()=>({body:document.body.style.overflow,html:document.documentElement.style.overflow}));
+  assert.notEqual(scrolling.html,'hidden','Wardrobe Back left global document scroll locked');
  }
  await context.close();
 }
