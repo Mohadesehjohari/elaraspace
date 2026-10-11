@@ -350,3 +350,13 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
 @media(prefers-reduced-motion:reduce){
  #panel-language-courses :is(.language-class-card,.l1-class-hero) button{transition:none}
 }
+
+
+/* Canonical classes type-switcher */
+#panel-language-courses .lf-class-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px;border:1px solid #204b7d;border-radius:17px;background:#04162fc9}
+#panel-language-courses .lf-class-filter button{border:1px solid #285786;border-radius:12px;background:#071a34;color:#deecff;min-height:43px;padding:9px clamp(12px,2vw,23px);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+#panel-language-courses .lf-class-filter button[aria-pressed=true]{color:#fff;background:linear-gradient(105deg,#fa6a93,#ae46ed,#415cff);border-color:#a49cff;box-shadow:0 0 14px #8541fa55}
+#panel-language-courses .lf-class-filter button:focus-visible{outline:3px solid #7aeaff;outline-offset:3px}
+#panel-language-courses .language-class-card[hidden]{display:none!important}
+#panel-language-courses .lf-filter-empty{grid-column:1/-1;margin:0;border:1px dashed #315a82;border-radius:12px;padding:25px;text-align:center;color:#abc9e6}
+@media(max-width:700px){#panel-language-courses .lf-class-filter{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}#panel-language-courses .lf-class-filter button{padding:9px 6px}}
