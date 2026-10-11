@@ -74,11 +74,11 @@ async function run(width,height){
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await socialTiles.count(),5,width+': UI11 Friends hub must keep the five canonical Social views');
- assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity'],width+': Social destinations or order changed');
+ assert.equal(await socialTiles.count(),8,width+': Friends F2 must provide eight distinct internal destinations');
+ assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges'],width+': Social destinations or order changed');
 
- // Released PR #42 contract: five compact, accessible cyan-gradient Friends
- // controls, not the obsolete 80-95px transparent artwork tiles.
+ // F2 extends the compact accessible cyan-gradient tab contract from PR #42
+ // to eight destinations, with vertically stacked icon+text on narrow phones.
  const socialStrip=page.locator('#elara-social-page .social-tabs');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{
   const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
@@ -88,10 +88,10 @@ async function run(width,height){
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
- assert.ok(socialBoxes.every(x=>x.h>=(isMobile?47:50)&&x.h<=(isMobile?54:56)&&x.w>=100&&
+ assert.ok(socialBoxes.every(x=>x.h>=(isMobile?62:50)&&x.h<=(isMobile?72:56)&&x.w>=(isMobile?52:100)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
- assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false'],
+ assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
  assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
  assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
@@ -115,7 +115,8 @@ async function run(width,height){
  for(const [view,section] of [
   ['chats','.social-dm-section'],['groups','.social-groups-section'],
   ['clubs','.social-clubs-section'],['activity','.social-friend-activity'],
-  ['friends','.social-friends-list']
+  ['requests','.social-requests-standalone'],['challenges','.social-challenges-section'],
+  ['friends','.friends-f2-friends']
  ]){
   await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
   await page.waitForSelector('#elara-social-page '+section,{timeout:10000});
