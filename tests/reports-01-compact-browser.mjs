@@ -54,6 +54,7 @@ async function measure(page,host,label,width){
    cardTextOverflow:allCards.map(x=>({outer:x.scrollWidth-x.clientWidth,inner:[...x.querySelectorAll('strong')].map(y=>y.scrollWidth-y.clientWidth)})),
    sections:{trend:!!p.querySelector('.elara-reports-trends'),today:!!p.querySelector('.elara-reports-today'),sections:!!p.querySelector('.elara-reports-sections'),insights:!!p.querySelector('.elara-reports-insights'),activities:!!p.querySelector('.elara-reports-activities')},
    viewport:document.documentElement.clientWidth,documentWidth:document.documentElement.scrollWidth,
+   plot:(()=>{const wrap=p.querySelector('.elara-reports-plot-scroll'),svg=p.querySelector('.elara-reports-plot');return wrap&&svg?{scrollExcess:wrap.scrollWidth-wrap.clientWidth,wrap:rect(wrap),svg:rect(svg),viewBox:svg.getAttribute('viewBox')}:null})(),
    mobileNav:[...document.querySelectorAll('.bottom-nav [data-elara-nav-kind="main"]')].length
   };
  });
@@ -78,6 +79,8 @@ try{
    assert.ok(a.header!==null,width+': real mobile header missing');
    assert.ok(a.headerToHero>=-2&&a.headerToHero<=9,width+': banner should start just below mobile header, actual '+a.headerToHero);
    assert.equal(a.mobileNav,7,width+': approved seven navigation entries changed');
+   if(a.plot){assert.ok(a.plot.scrollExcess<=3,width+': mobile plot still scrolls horizontally '+JSON.stringify(a.plot));assert.ok(a.plot.svg.width<=a.plot.wrap.width+3,width+': mobile chart SVG exceeds its panel');}
+   if(width>=360)assert.ok(a.cardRects.every(c=>c.height<=135),width+': KPI density regressed');
    if(width>=360)assert.ok(Math.abs(a.cardRects[0].top-a.cardRects[1].top)<=3,width+': mobile KPI rows no longer use two columns');
   }
   assert.ok(a.cardTextOverflow.every(o=>o.outer<=5),width+': KPI overflow outside card');
