@@ -105,8 +105,20 @@ function ensureLegacyEditors(s){
  preview.innerHTML='<article><strong>'+tx('برنامه تمرینی','Workout plan')+'</strong><p id="wellness-workout-plan" data-elara-ugc dir="auto">'+esc(workout||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>'+
  '<article><strong>'+tx('برنامه تغذیه','Nutrition plan')+'</strong><p id="wellness-nutrition-plan" data-elara-ugc dir="auto">'+esc(nutrition||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>';
 }
+let wellnessHeroObserver=null;
+function hideDuplicateHero(panel){
+ for(const node of panel.querySelectorAll('.elara-global-hero,.feature-hub-hero,[data-elara-page-hero="exercise"]')){
+  if(node.closest('#well01-dashboard'))continue;
+  node.style.setProperty('display','none','important');
+  node.setAttribute('aria-hidden','true');
+ }
+ if(!wellnessHeroObserver){
+  wellnessHeroObserver=new MutationObserver(()=>hideDuplicateHero(panel));
+  wellnessHeroObserver.observe(panel,{childList:true});
+ }
+}
 function render(){
- const panel=document.getElementById(panelId);if(!panel)return;
+ const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);
  let host=panel.querySelector(':scope > #well01-dashboard');
  if(!host){host=document.createElement('section');host.id='well01-dashboard';host.className='well01';host.setAttribute('dir','rtl');panel.prepend(host)}
  const s=read();ensureLegacyEditors(s);
