@@ -45,6 +45,8 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="reading.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="notifications.js?v=20261004-p0-section-tasks-v118"></script>
   <script>
+  window.__elaraP4RequestedHash=(location.hash==='#profile'||location.hash==='#wardrobe')?location.hash:null;
+  if(window.__elaraP4RequestedHash)history.replaceState({...history.state,elaraP4BootPending:true},'',location.pathname+location.search+'#home');
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   </script>
   <script defer src="app.js?v=20261006-home-first-v10"></script>
@@ -88,7 +90,6 @@ html[data-elara-booting] #elara-boot-screen span{
   </script>
   <script defer src="drawer.js?v=20261011-p4-entry"></script>
   <link rel="stylesheet" href="profile-p4-route.css?v=20261011-p4-1">
-  <script>window.__elaraP4RequestedHash=(location.hash==="#profile"||location.hash==="#wardrobe")?location.hash:null;</script>
   <script defer src="profile-p4-route.js?v=20261011-p4-1"></script>
   <script defer src="avatar-3d.js?v=20261005-avatar-v2"></script>
   <style id="elara-p0-friends-strip">
