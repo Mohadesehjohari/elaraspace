@@ -138,3 +138,21 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
 @media(max-width:359px){
  html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:18px!important}
 }
+
+/* Approved Elara scenery is decorative editorial placeholder artwork for the
+   five bundled articles only, never a claimed user-uploaded cover image. */
+#panel-blog .blog-card[data-blog-id="plan-week"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_city_of_stars.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="focus-reset"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="habit-small"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="read-better"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="energy-day"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
+@media(max-width:900px){
+ /* Reference mobile order: featured, authors, topics, my posts, remaining articles.
+    Do not move actual sidebars or alter the global mobile navigation. */
+ #panel-blog .blog-content-layout{display:flex;flex-direction:column;gap:12px}
+ #panel-blog .blog-feed{display:contents}
+ #panel-blog .blog-feed>section:first-child{order:1;width:100%}
+ #panel-blog .blog-side{order:2;width:100%}
+ #panel-blog .blog-feed>section:nth-child(2){order:3;width:100%}
+ #panel-blog .blog-feed>section:nth-child(n+3){order:4;width:100%}
+}
