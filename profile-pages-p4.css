@@ -43,6 +43,9 @@ body.elara-private-route-active .workspace{min-width:0}
 #elara-private-route .elara-page-wardrobe .wardrobe-p3-image{height:clamp(92px,11vw,154px)}
 #elara-private-route .elara-page-wardrobe .wardrobe-p3-detail{min-height:310px}
 #elara-private-route .elara-page-wardrobe .wardrobe-p3-footer{min-height:75px}
+@media(min-width:701px) and (max-width:1100px){
+ #elara-private-route{padding-top:96px}
+}
 @media(max-width:900px){
  #elara-private-route .elara-profile-hub-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
  #elara-private-route .elara-page-wardrobe .wardrobe-p3-layout{grid-template-columns:minmax(0,1fr)}
