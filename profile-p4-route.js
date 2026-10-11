@@ -39,6 +39,10 @@ function hide(){if(!screen||screen.hidden)return;screen.hidden=true;document.bod
 function back(){if(history.state?.elaraP4Profile){history.back();return}location.hash=origin||'#home';hide()}
 function goBackThen(action){hide();history.replaceState({...history.state,elaraP4Profile:false},'',origin);action()}
 function sync(){
+ if(window.__elaraP4RequestedHash&&location.hash!==window.__elaraP4RequestedHash){
+  history.replaceState({...history.state,elaraP4Restored:true},'',window.__elaraP4RequestedHash);
+ }
+ window.__elaraP4RequestedHash=null;
  if(location.hash===route){
   if(!screen||screen.hidden)open({push:false});else if(owner!==uid())populate();
  }else hide();
