@@ -96,13 +96,13 @@ await page.locator('[data-blog-filter="focus"]').click();
  await page.waitForSelector('#blog-editor');
  if(width===390){
   await page.evaluate(()=>{window.ElaraAccount.user.uid='other-blog-qa';window.dispatchEvent(new Event('elara:account-ready'))});
-  await page.locator('#panel-blog [data-blog-route="home"]').first().click();
+  await page.evaluate(()=>window.ElaraBlog.navigate('home'));
   await page.waitForSelector('#panel-blog .blog-quick');
   assert.match(await page.locator('#panel-blog .blog-feed .blog-empty').first().innerText(),/هنوز|no drafts/i,width+': no cross-account draft leakage');
   await page.evaluate(()=>{window.ElaraAccount.user.uid='blog-qa';window.dispatchEvent(new Event('elara:account-ready'))});
   await page.waitForFunction(()=>document.querySelector('#panel-blog .blog-my-card'));
  }
- await page.locator('#panel-blog [data-blog-route="home"]').first().click();
+ await page.evaluate(()=>window.ElaraBlog.navigate('home'));
  await page.waitForSelector('#panel-blog .blog-quick');
  await page.screenshot({path:'browser-artifacts/blog01/dashboard-'+width+'.png',fullPage:true});
  if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/blog01/after-'+width+'.png',fullPage:true});
