@@ -29,12 +29,26 @@ async function open(width,url,seed=true){
  return page;
 }
 await mkdir('browser-artifacts/well01',{recursive:true});
+const beforeGeometry=new Map();
+async function geometry(page){
+ return page.evaluate(()=>{
+ const b=selector=>document.querySelector(selector)?.getBoundingClientRect()?.toJSON();
+ const box=b('#well01-dashboard .well01-hero'),bar=b('.topbar'),copy=b('#well01-dashboard .well01-hero-copy h1'),cta=b('#well01-dashboard .well01-hero-cta');
+ const shortcut=b('#well01-dashboard .well01-shortcuts'),features=b('#well01-dashboard .well01-features');
+ const app=b('#main'),panel=b('#panel-exercise');
+ const search=document.querySelector('#ref-search-input'),searchBox=search?.getBoundingClientRect();
+ const cx=searchBox?searchBox.left+searchBox.width/2:0,cy=searchBox?searchBox.top+searchBox.height/2:0;
+ const searchHit=searchBox?document.elementFromPoint(cx,cy):null;
+ return {hero:box,bar,copy,cta,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
+ });
+}
 for(const w of [390,1440]){
  if(baseline){
   const before=await open(w,baseline);
   await before.evaluate(()=>window.scrollTo(0,0));
-  const beforeRect=await before.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
-  console.log('WELL01_BEFORE_GEOMETRY_'+w,JSON.stringify(beforeRect));
+  const beforeRect=await geometry(before);
+  beforeGeometry.set(w,beforeRect);
+  console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar.y,headerBottom:beforeRect.bar.bottom,appY:beforeRect.app.y}));
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
  }
@@ -46,8 +60,21 @@ for(const width of widths){
  if([390,412,1440].includes(width)){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
-  assert.ok(g.hero.top >= (g.header?.bottom||0)-1,'hero overlaps header '+width);
-  assert.ok(g.hero.top <= (g.header?.bottom||0)+10,'unnecessary hero/header gap '+width);
+  const measure=await geometry(page);
+  console.log('WELL_HERO_TOP_AFTER_'+width,JSON.stringify({heroY:measure.hero.y,heroH:measure.hero.height,heroW:measure.hero.width,shortcutsY:measure.shortcut.y,cardsY:measure.features.y,headerY:measure.bar.y,headerBottom:measure.bar.bottom,appY:measure.app.y,copyY:measure.copy.y,ctaY:measure.cta.y,searchUnblocked:measure.searchUnblocked}));
+  assert.ok(measure.hero.top<measure.bar.bottom-20,'header should float over hero image at '+width);
+  assert.ok(measure.copy.top>=measure.bar.bottom-2,'hero heading must remain readable under header at '+width);
+  assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
+  assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
+  if(beforeGeometry.has(width)){
+    const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
+    assert.ok(change>=35,'hero must physically move upward at '+width+': '+change);
+    assert.ok(Math.abs(measure.hero.height-before.hero.height)<=1,'hero height must be preserved '+width);
+    assert.ok(Math.abs(measure.hero.width-before.hero.width)<=1,'hero width must be preserved '+width);
+    assert.ok(Math.abs((before.shortcut.y-measure.shortcut.y)-change)<=3,'shortcut row must move with hero '+width);
+    assert.ok(Math.abs((before.features.y-measure.features.y)-change)<=3,'feature cards must move with hero '+width);
+    console.log('WELL_HERO_TOP_DELTA_'+width,JSON.stringify({heroUp:change,shortcutUp:before.shortcut.y-measure.shortcut.y,cardsUp:before.features.y-measure.features.y}));
+  }
   if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
  }
 
