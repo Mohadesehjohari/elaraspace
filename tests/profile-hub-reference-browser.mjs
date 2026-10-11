@@ -42,6 +42,10 @@ for(const width of sizes){
   await page.locator('.elara-profile-hub').screenshot({path:dir+'/profile-hub-'+width+'-full.png',timeout:30000});
  }
  if(width===390){
+  await page.evaluate(()=>{document.getElementById('drawer-account-area').scrollTop=document.getElementById('drawer-account-area').scrollHeight});
+  await page.screenshot({path:dir+'/profile-hub-390-bottom.png'});
+  assert.equal(await page.locator('.elara-profile-hub-actions button').count(),3,'Three bottom actions must remain available');
+  await page.evaluate(()=>{document.getElementById('drawer-account-area').scrollTop=0});
   await page.locator('.elara-profile-hub-entry[data-drawer-nav="blocked"]').click();
   assert.equal(await page.locator('[data-drawer-section="blocked"]').isVisible(),true,'Blocked route');
   await page.evaluate(()=>window.ElaraPrivateDrawer.open('account'));
