@@ -19,6 +19,8 @@ async function startPage(width){
  const page=await ctx.newPage();
  const errors=[];
  page.on('pageerror',e=>errors.push(e.message));
+ // 360px verifies the Reports layout even if the optional Feature Hub adapter fails.
+ if(width===360)await page.route('**/feature-hubs-2026.js*',route=>route.abort());
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
  await page.addInitScript(x=>localStorage.setItem('elara_space_v1',JSON.stringify(x)),data);
@@ -80,7 +82,8 @@ try{
   }
   assert.ok(a.cardTextOverflow.every(o=>o.outer<=5),width+': KPI overflow outside card');
   if(b){
-   assert.ok(a.gap+30<b.gap,width+': compact change did not free heading/grid space: before '+b.gap+' after '+a.gap);
+   if(b.legacy.length)assert.ok(a.gap+30<b.gap,width+': legacy heading gap not released');
+   else assert.ok(a.gap<=b.gap+1,width+': already-compact baseline regressed: before '+b.gap+' after '+a.gap);
    if(width<=700)assert.ok(a.headerToHero<=b.headerToHero+1,width+': banner moved lower on mobile');
   }
   assert.ok(!errors.some(x=>/reports-dashboard-01|feature-hubs-2026/i.test(x)),width+': new Reports console errors '+JSON.stringify(errors));
