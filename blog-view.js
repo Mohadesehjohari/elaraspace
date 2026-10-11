@@ -215,7 +215,7 @@ document.addEventListener('change',e=>{
 window.addEventListener('beforeunload',e=>{if(editorDirty&&mode()==='write'){e.preventDefault();e.returnValue=''}});
 window.addEventListener('popstate',()=>{editorDirty=false;render()});
 for(const event of ['elara:locale-changed','elara:open'])window.addEventListener(event,e=>{if(event==='elara:open'&&e.detail?.tab!=='blog')return;setTimeout(()=>{render();void loadPublished()},0)});
-window.addEventListener('elara:account-ready',()=>setTimeout(()=>void loadPublished(),0));
+window.addEventListener('elara:account-ready',()=>setTimeout(()=>{render();void loadPublished()},0));
 const style=document.createElement('link');style.rel='stylesheet';style.href='blog01-dashboard.css?v=20261011-blog01-coral-v1';document.head.append(style);
 const img=new Image();img.src='assets/ui/weblog_banner_main.webp';img.decode?.().then(()=>{document.documentElement.dataset.elaraBlogBannerReady='true'},()=>{document.documentElement.dataset.elaraBlogBannerReady='false'});
 const start=()=>{render();void loadPublished()};
