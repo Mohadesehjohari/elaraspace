@@ -179,7 +179,7 @@ function showWardrobe(){
  selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
  showAll={avatar:false,frame:false,banner:false};
  drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;
- if(wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
+ if(location.hash!=='#wardrobe'&&wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
  windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})
 }
 function closeWardrobe(fromHistory=false){
@@ -197,8 +197,8 @@ window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe}
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
-  if(event.target.closest('[data-approved-wardrobe]')){showWardrobe();return}
-  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){closeWardrobe();return}
+  if(event.target.closest('[data-approved-wardrobe]')){if(window.ElaraProfilePages?.navigate)window.ElaraProfilePages.navigate('wardrobe');else showWardrobe();return}
+  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){if(location.hash==='#wardrobe'&&window.ElaraProfilePages?.back)window.ElaraProfilePages.back();else closeWardrobe();return}
   if(event.target.closest('[data-lang-leitner]')){window.ElaraOpen?.('words');return}
   if(event.target.closest('[data-lang-review]')){window.ElaraOpen?.('words');return}
   const tab=event.target.closest('[data-wardrobe-tab]');if(tab){wardrobeTab=tab.dataset.wardrobeTab;selectedPreview=null;drawWardrobe();return}
