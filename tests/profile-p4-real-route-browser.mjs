@@ -12,7 +12,7 @@ for(const width of widths){
  const page=await context.newPage();
  page.on('pageerror',e=>failures.push(width+': '+e.message));
  await page.goto(base+'/#home',{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraPrivateDrawer&&!!window.ElaraWardrobeUI&&!!window.ElaraP4Routes,{timeout:30000});
+ await page.waitForFunction(()=>!!window.ElaraProfileSystem&&!!window.ElaraPrivateDrawer&&!!window.ElaraWardrobeUI&&!!window.ElaraP4Routes&&!!window.ElaraAccount,{timeout:30000});
  await page.evaluate(()=>{
   const user={uid:'p4-mock-uid-A',name:'کاربر آزمایشی',username:'qa_p4',bio:'آزمون مستقل',xp:500,profilePublic:true};
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid}),set:()=>{}});
