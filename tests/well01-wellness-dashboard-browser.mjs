@@ -43,6 +43,14 @@ for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
  const dash=page.locator('#well01-dashboard');
+ if([390,412,1440].includes(width)){
+  const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
+  console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
+  assert.ok(g.hero.top >= (g.header?.bottom||0)-1,'hero overlaps header '+width);
+  assert.ok(g.hero.top <= (g.header?.bottom||0)+10,'unnecessary hero/header gap '+width);
+  if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
+ }
+
  assert.equal(await dash.locator('.well01-shortcut').count(),5,'five category shortcuts at '+width);
  assert.equal(await dash.locator('.well01-metric').count(),4,'four daily metrics at '+width);
  assert.equal(await dash.locator('.well01-report').count(),4,'four real-data report entries at '+width);
@@ -88,9 +96,24 @@ for(const width of widths){
    await page.screenshot({path:'browser-artifacts/well01/workout-filled-390.png'});
    await modal.locator('.wellness-workout-save').click();
    await modal.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.documentElement.style.overflow!=='hidden');
+
    const rows=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts);
    assert.equal(rows.length,2,'one and only one workout created');
    assert.equal(rows[1].note,'آرام و بدون فشار');
+   assert.equal(await page.evaluate(()=>history.state?.elaraWorkoutModal||null),null,'closing removes transient modal history state');
+   await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
+   await modal.waitFor();
+   await modal.locator('[name="note"]').fill('لغو بدون ذخیره');
+   await page.keyboard.press('Escape');
+   await modal.waitFor({state:'hidden'});
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts.length),2,'Escape must not persist draft');
+   await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
+   await modal.waitFor();
+   await page.evaluate(()=>history.back());
+   await modal.waitFor({state:'hidden'});
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts.length),2,'browser Back must not save draft');
+
    assert.match(await dash.locator('.well01-activity-card').innerText(),/صخره‌نوردی/,'dashboard refresh after workout save');
   }else{
    await page.keyboard.press('Escape');
