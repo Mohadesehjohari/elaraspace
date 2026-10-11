@@ -17,7 +17,7 @@ try{
   const page=await context.newPage(),empty=width===320;
   await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth}));
   await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
-  await page.addInitScript(data=>localStorage.setItem('elara_space_v1',JSON.stringify(data)),model(empty));
+  await page.addInitScript(data=>{if(!sessionStorage.getItem('elara_lib02_fixture_once')){localStorage.setItem('elara_space_v1',JSON.stringify(data));sessionStorage.setItem('elara_lib02_fixture_once','yes')}},model(empty));
   await page.goto(base+'/?lib02='+width+'#library-shelves',{waitUntil:'domcontentloaded',timeout:40000});
   await page.waitForFunction(()=>!!window.ElaraLibraryShelvesLIB02&&!!window.ElaraLibraryEnhancements&&!!window.ElaraFeatureHubs&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
