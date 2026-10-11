@@ -118,7 +118,7 @@ for(const width of widths){
   if(width===1440)assert.ok(await opacity()<=.15,'account fades after drawer closed');
   else assert.ok((await opacity())>=.48&&(await opacity())<.9,'touch account returns to compact form');
   if(width===1440){
-   await button.focus();await page.waitForTimeout(260);
+   await page.keyboard.press('Tab');await button.focus();await page.waitForTimeout(260);
    assert.ok(await opacity()>.9,'keyboard focus-within reveals account');
    await page.keyboard.press('Enter');await drawer.waitFor();
    await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
