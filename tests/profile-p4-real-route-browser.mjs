@@ -34,7 +34,11 @@ for(const width of widths){
  }
  assert.equal(await page.locator('#elara-p4-private-profile .elara-profile-hub-edit').isVisible(),true);
  assert.ok(!(await page.locator('#elara-p4-private-profile').evaluate(el=>el.scrollWidth>el.clientWidth+3)),'profile overflow '+width);
- if(width===390||width===1440)await page.screenshot({path:out+'/profile-'+width+'.png',fullPage:false});
+ if(width===390||width===1440){
+  await page.screenshot({path:out+'/profile-'+width+'.png',fullPage:false});
+  await page.locator('#elara-p4-private-profile').evaluate(el=>el.scrollTop=el.scrollHeight);
+  await page.screenshot({path:out+'/profile-'+width+'-bottom.png',fullPage:false});
+}
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>!!window.ElaraP4Routes&&!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:20000});
  // A user session mock cannot survive reload; auth gate must not display another account's private data.
@@ -55,7 +59,11 @@ for(const width of widths){
  await page.waitForURL('**/#wardrobe');
  await page.locator('.approved-wardrobe.p4-wardrobe-route:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});
  assert.equal(await page.locator('.wardrobe-p3-tabs button').count(),5);
- if(width===390||width===1440)await page.screenshot({path:out+'/wardrobe-'+width+'.png',fullPage:false});
+ if(width===390||width===1440){
+  await page.screenshot({path:out+'/wardrobe-'+width+'.png',fullPage:false});
+  await page.locator('.approved-wardrobe-window').evaluate(el=>el.scrollTop=el.scrollHeight);
+  await page.screenshot({path:out+'/wardrobe-'+width+'-bottom.png',fullPage:false});
+}
  await page.locator('[data-back-wardrobe]').click();
  await page.waitForURL('**/#profile');
  await context.close();
