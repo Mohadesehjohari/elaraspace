@@ -72,7 +72,8 @@ try{
   await page.waitForSelector('#panel-reports:not(.hidden) .elara-reports-kpis');
   await page.evaluate(()=>window.ElaraOpen('home',{history:'replace'}));
   await page.waitForSelector('#panel-home:not(.hidden) .ref-hero-actions');
-  assert.equal(await page.locator('#panel-home .ref-hero-reports').count(),1,width+': do not duplicate home Reports CTA');
+  const homeReportsButtons=await page.locator('#panel-home .ref-hero-reports').evaluateAll(xs=>xs.map(x=>({html:x.outerHTML.slice(0,280),parent:x.parentElement?.className,ancestor:x.closest('.elara-hero,.ref-hero,.ref-hero-actions')?.className,display:getComputedStyle(x).display})));
+  assert.equal(homeReportsButtons.length,1,width+': do not duplicate home Reports CTA '+JSON.stringify(homeReportsButtons));
   assert.equal(await page.locator('#panel-home .ref-hero-continue').count(),1,width+': home Continue CTA preserved');
   await page.locator('#panel-home .ref-hero-reports').click();
   await page.waitForSelector('#panel-reports:not(.hidden) .elara-reports-kpis');
