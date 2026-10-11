@@ -2,6 +2,10 @@
 body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;--reports-aqua:#40d7ff;--reports-violet:#9655ff;color:#e7efff;min-width:0}
 #panel-reports .elara-reports-dashboard,#panel-reports-today .elara-reports-detail-grid{direction:rtl;min-width:0;width:100%;font-family:inherit}
 #panel-reports .elara-reports-dashboard * ,#panel-reports-today .elara-reports-detail-grid *{box-sizing:border-box}
+/* REPORTS-01 compact flow: legacy hub has 18px grid gap in addition to hero margin.
+   The only intended hero-to-KPI separation is the hero's 14px bottom margin. */
+#panel-reports.reports-feature-hub{row-gap:0!important;column-gap:0!important}
+#panel-reports.reports-feature-hub > .elara-reports-hero{margin-bottom:14px!important}
 #panel-reports .elara-reports-dashboard{display:grid;gap:12px;padding-bottom:16px}
 #panel-reports .elara-reports-dashboard h2,#panel-reports-today h2{font-size:clamp(.95rem,1.3vw,1.16rem);font-weight:900;line-height:1.4;letter-spacing:0;color:#f4f4ff;margin:0!important}
 #panel-reports .elara-reports-dashboard p,#panel-reports-today .elara-reports-detail-grid p{margin:2px 0;color:#91a9dc;font-size:.76rem;line-height:1.65}
@@ -119,6 +123,10 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports-today .elara-reports-detail-grid{grid-template-columns:1fr}
 }
 @media(max-width:700px){
+ /* The regular mobile topbar occupies real layout height; remove only Reports' 10px main padding.
+    Retain the horizontal content inset and the safe area owned by the site shell. */
+ body.dark #main:has(> #panel-reports:not(.hidden)){padding-top:0!important}
+ #panel-reports.reports-feature-hub > .elara-reports-hero{margin-bottom:10px!important}
  #panel-reports>.feature-hub-hero.elara-reports-hero,#panel-reports>.elara-global-hero.elara-reports-hero{
   width:100%!important;height:158px!important;min-height:158px!important;margin:0 0 10px!important;padding:16px!important;
   background-image:linear-gradient(270deg,#061431e8,#0716339a 52%,#07163322),url('assets/ui/39-reports-hero-banner.webp')!important;
