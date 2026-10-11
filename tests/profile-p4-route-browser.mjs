@@ -31,7 +31,8 @@ for(const width of widths){
  await page.locator('#ref-header-account').click();
  await page.locator('.drawer-menu [data-drawer-nav="account"]').click();
  await page.waitForURL('**/#profile');
- await page.locator('#elara-private-profile-page:not([hidden]) .elara-profile-hub').waitFor({timeout:10000});
+ try{await page.locator('#elara-private-profile-page:not([hidden]) .elara-profile-hub').waitFor({timeout:6000})}
+ catch(e){const diag=await page.evaluate(()=>({hash:location.hash,root:document.getElementById('elara-private-profile-page')?.outerHTML.slice(0,1800),uid:window.ElaraProfileSystem?.currentUid?.(),me:window.ElaraSocial?.me,drawer:document.querySelector('#drawer-account-area')?.innerHTML.slice(0,350),errors:document.querySelector('.cloud-layer')?.getAttribute('hidden')}));console.error('P4-ROUTE-DIAG',JSON.stringify(diag));await page.screenshot({path:out+'/profile-failed-'+width+'.png'});throw e}
  const routeBefore=await page.evaluate(()=>({hash:location.hash,drawerVisible:!document.querySelector('.elara-private-drawer')?.classList.contains('hidden'),social:!!document.getElementById('panel-page')}));
  assert.equal(routeBefore.hash,'#profile');
  assert.equal(routeBefore.drawerVisible,false,'Account page remains trapped inside Drawer');
