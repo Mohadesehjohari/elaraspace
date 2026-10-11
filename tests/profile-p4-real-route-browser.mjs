@@ -23,7 +23,7 @@ for(const width of widths){
  });
  await page.addStyleTag({content:'#cloud-layer{display:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell{visibility:visible!important;opacity:1!important}'});
  // Only clicks on visible UI. Never call openProfile or openWardrobe programmatically.
- await page.locator('#elara-account-menu-trigger').click();
+ await page.locator('#ref-header-account').click();
  await page.locator('.drawer-menu [data-p4-private-profile]').click();
  await page.waitForURL('**/#profile');
  await page.locator('#elara-p4-private-profile:not([hidden]) .elara-profile-hub').waitFor({timeout:10000});
