@@ -192,7 +192,17 @@ function pointText(node){
 document.addEventListener('pointerdown',e=>{const point=e.target.closest?.('.elara-reports-hit');if(point)pointText(point)});
 document.addEventListener('focusin',e=>{const point=e.target.closest?.('.elara-reports-hit');if(point)pointText(point)});
 for(const ev of ['elara:open','elara:hydrate','elara:data-changed','elara:state-committed','elara:account-ready','elara:logout','elara:auth-changed','elara:wellness-saved'])
- window.addEventListener(ev,()=>{if(location.hash==='#home')queueMicrotask(normalizeHomeReportsEntry);if(location.hash==='#reports'||location.hash==='#reports-today'||ev==='elara:hydrate')queueMicrotask(render)});
+ window.addEventListener(ev,()=>{if(location.hash==='#home'){normalizeHomeReportsEntry();queueMicrotask(normalizeHomeReportsEntry)}if(location.hash==='#reports'||location.hash==='#reports-today'||ev==='elara:hydrate')queueMicrotask(render)});
 window.ElaraReportsDashboard={render,data,getRange:()=>days};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{render();normalizeHomeReportsEntry()},0));else setTimeout(()=>{render();normalizeHomeReportsEntry()},0);
+function init(){
+ render();normalizeHomeReportsEntry();
+ const home=$('panel-home');
+ if(home&&typeof MutationObserver!=='undefined'){
+  const observer=new MutationObserver(records=>{
+   if(records.some(record=>record.addedNodes.length))normalizeHomeReportsEntry();
+  });
+  observer.observe(home,{childList:true,subtree:true});
+ }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));else setTimeout(init,0);
 })();
