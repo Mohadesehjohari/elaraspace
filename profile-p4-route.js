@@ -31,7 +31,7 @@ function populate(){
  target.querySelectorAll('.elara-profile-hub-heading').forEach(n=>n.remove());
 }
 function open({push=true}={}){
- create();if(!uid()&& !window.ElaraAccount?.user){screen.hidden=false;populate();return}
+ create();
  if(push){origin=location.hash&&location.hash!==route?location.hash:'#home';history.pushState({...history.state,elaraP4Profile:true},'',route)}
  owner=uid();scrollY=window.scrollY;screen.hidden=false;document.body.classList.add('p4-private-profile-open');populate();screen.scrollTop=0;
 }
