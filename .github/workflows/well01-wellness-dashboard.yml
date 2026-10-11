@@ -57,6 +57,7 @@ jobs:
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
           ELARA_BASELINE_URL: http://127.0.0.1:4174
+          WELL_PROFILE_CAPTURE_ONLY: '1'
         run: timeout 600s node tests/well01-wellness-dashboard-browser.mjs
       - name: Existing private wellness notes
         if: always()
