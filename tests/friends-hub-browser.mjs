@@ -75,7 +75,7 @@ async function run(width,height){
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
- const inbox=page.locator('[data-f2-requests="incoming"]'),sent=page.locator('[data-f2-requests="outgoing"]');
+ const inbox=page.locator('#elara-social-page [data-f2-requests="incoming"]'),sent=page.locator('#elara-social-page [data-f2-requests="outgoing"]');
  assert.equal(await inbox.getAttribute('aria-pressed'),'true',width+': received request tab missing');
  await sent.click();assert.equal(await sent.getAttribute('aria-pressed'),'true',width+': sent request filter did not activate');
  await inbox.click();assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').count(),1,width+': incoming request not restored');
