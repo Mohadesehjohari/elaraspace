@@ -52,15 +52,14 @@ async function run(width,height){
  const friendTabRects=await page.locator('#elara-social-page .social-tabs [role="tab"]').evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}));
  assert.ok(friendTabRects.every(r=>r.w>0&&r.h>0),'Friends controls must be measured while visible');
  const friendTabsStyle=await page.locator('#elara-social-page .social-tabs').evaluate(el=>{const s=getComputedStyle(el);return{display:s.display,direction:s.flexDirection,wrap:s.flexWrap,overflow:s.overflowX,client:el.clientWidth,scroll:el.scrollWidth}});
- assert.equal(friendTabsStyle.display,'flex',width+': Friends destinations must use horizontal flex strip');
- assert.equal(friendTabsStyle.direction,'row',width+': Friends destinations must use one row direction');
- assert.equal(friendTabsStyle.wrap,'nowrap',width+': Friends destinations must not wrap');
- assert.equal(friendTabsStyle.overflow,'auto',width+': Friends destinations must scroll horizontally when needed');
- assert.ok(friendTabsStyle.scroll>=friendTabsStyle.client,width+': Friends strip geometry missing horizontal scroll surface');
+ assert.equal(friendTabsStyle.display,'grid',width+': Friends destinations must use owner-reference grid');
+ assert.ok(friendTabsStyle.scroll<=friendTabsStyle.client+3,width+': seven-item grid must not overflow the page');
+ const visualRows=new Set(friendTabRects.map(r=>Math.round(r.y))).size;
+ assert.equal(visualRows,width<=850?2:1,width+': Friends navigation row count is wrong');
  await page.screenshot({path:'browser-artifacts/friends-layout-'+width+'.png',fullPage:true});
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForFunction(()=>document.querySelector('#elara-ranking-page:not(.hidden) .social-tabs'));
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': ranking must keep four tabs');
- assert.equal(await page.locator('#elara-social-page .social-tabs [role="tab"]').count(),8,width+': F2 Friends must expose eight supported destinations');
+ assert.equal(await page.locator('#elara-social-page .social-tabs [role="tab"]').count(),7,width+': seven primary destinations must remain available');
 
  const tabs=await page.locator('#elara-ranking-page .social-tabs [role="tab"]').all();for(const tab of tabs){const b=await tab.boundingBox(),img=await tab.locator('img').boundingBox(),label=await tab.locator('.social-tab-label').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})),style=await tab.evaluate(el=>{const s=getComputedStyle(el);return{border:parseFloat(s.borderTopWidth),bg:s.backgroundColor,bgi:s.backgroundImage}}),minHeight=width<=700?52:60,minArt=width<=700?42:50;assert.ok(b&&b.height>=minHeight&&b.height<80,width+': ranking artwork button geometry drifted '+JSON.stringify(b));assert.ok(img&&img.height>=minArt,width+': ranking artwork too small');assert.ok(label.w<=2&&label.h<=2,width+': duplicated ranking label must stay visually hidden');assert.equal(style.border,0,width+': ranking tab rectangular border returned');assert.ok(style.bg==='rgba(0, 0, 0, 0)'||style.bg==='transparent',width+': ranking tab background returned '+style.bg);assert.equal(style.bgi,'none',width+': ranking tab background image returned')}
  const first=await page.locator('#elara-ranking-page .social-podium-place.place-1 .social-podium-avatar').boundingBox(),other=await page.locator('#elara-ranking-page .social-podium-place.place-2 .social-podium-avatar').boundingBox();assert.ok(first&&other&&first.width>other.width,width+': first-place frame must be larger');

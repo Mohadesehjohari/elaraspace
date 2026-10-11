@@ -74,11 +74,11 @@ async function run(width,height){
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
  const socialTiles=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await socialTiles.count(),8,width+': Friends F2 must provide eight distinct internal destinations');
- assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges'],width+': Social destinations or order changed');
+ assert.equal(await socialTiles.count(),7,width+': Friends owner design must present seven primary routes');
+ assert.deepEqual(await socialTiles.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking'],width+': Social destinations or order changed');
 
  // F2 extends the compact accessible cyan-gradient tab contract from PR #42
- // to eight destinations, with vertically stacked icon+text on narrow phones.
+ // to seven destinations in a compact four-plus-three grid on narrow phones.
  const socialStrip=page.locator('#elara-social-page .social-tabs');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{
   const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
@@ -88,13 +88,13 @@ async function run(width,height){
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
- assert.ok(socialBoxes.every(x=>x.h>=(isMobile?62:50)&&x.h<=(isMobile?72:56)&&x.w>=(isMobile?52:100)&&
+ assert.ok(socialBoxes.every(x=>x.h>=(isMobile?49:48)&&x.h<=(isMobile?68:64)&&x.w>=(isMobile?48:85)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
- assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
+ assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
- assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
- assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
+ assert.match(socialBoxes[0].color,/rgb\((1|12),\s*234,\s*255\)/,width+': selected cyan border color missing');
+ assert.match(socialBoxes[0].glow,/rgba?\((80,\s*235,\s*255|0,\s*200,\s*255|53,\s*233,\s*255)/,width+': selected cyan focus/glow missing');
  assert.ok(socialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==socialBoxes[0].color&&
   x.bg!==socialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
@@ -102,9 +102,8 @@ async function run(width,height){
   el.scrollLeft=100000;const pos=el.scrollLeft;el.scrollLeft=start;
   return{w:el.clientWidth,full:el.scrollWidth,overflow:getComputedStyle(el).overflowX,neg,pos};
  });
- if(isMobile)assert.ok(scroll.full>scroll.w+20&&scroll.overflow==='auto'&&
-  Math.abs(scroll.neg-scroll.pos)>20,width+': horizontal movement must stay inside Friends strip '+JSON.stringify(scroll));
- else assert.ok(scroll.full<=scroll.w+3,width+': Friends desktop strip must fit '+JSON.stringify(scroll));
+ assert.ok(scroll.full<=scroll.w+3,width+': seven primary Friends destinations must fit without sideways scrolling '+JSON.stringify(scroll));
+ if(isMobile){const lines=await socialTiles.evaluateAll(xs=>new Set(xs.map(x=>Math.round(x.getBoundingClientRect().top))).size);assert.equal(lines,2,width+': owner reference needs two mobile rows')}
  await socialTiles.first().focus();await page.keyboard.press('Tab');
  const keyboard=await socialTiles.nth(1).evaluate(el=>({
   active:document.activeElement===el,visible:el.matches(':focus-visible'),
@@ -118,9 +117,10 @@ async function run(width,height){
   ['requests','.social-requests-standalone'],['challenges','.social-hub-slot[data-social-slot="challenges"]'],
   ['friends','.friends-f2-friends']
  ]){
-  await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
+  if(view==='challenges'){await page.locator('[role="tab"][data-social-view="friends"]').click();await page.locator('[data-f2-tab="challenges"]').click()}
+  else await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
   await page.waitForSelector('#elara-social-page '+section,{timeout:10000});
-  assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').getAttribute('aria-selected'),'true',
+  if(view!=='challenges')assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').getAttribute('aria-selected'),'true',
    width+': Friends tab did not open '+view);
   assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
    view==='friends'?'true':'false',width+': inactive state did not update after '+view);
