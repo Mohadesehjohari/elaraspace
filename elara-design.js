@@ -57,12 +57,12 @@ function setup(){
   document.querySelector('.elara-lang-shortcut').onclick=()=>open('settings');
   document.querySelector('.elara-mode-shortcut').onclick=()=>{pref.mode=pref.mode==='dark'?'light':'dark';savePref()};
   $('elara-back-button').onclick=()=>{if((Number(history.state?.elaraDepth)||0)>0)history.back();else if(current!=='home')open('home',{history:'replace'})};
-  window.addEventListener('popstate',e=>{const raw=e.state?.elaraTab||location.hash.replace(/^#/,'')||'home',tab=raw==='profile'?'home':raw;open($('panel-'+tab)?tab:'home',{history:'none'})});
+  window.addEventListener('popstate',e=>{const hashRoute=location.hash.replace(/^#/,'');if(hashRoute==='profile'||hashRoute==='wardrobe')return;const raw=e.state?.elaraTab||hashRoute||'home',tab=raw==='profile'?'home':raw;open($('panel-'+tab)?tab:'home',{history:'none'})});
   window.addEventListener('elara:hydrate',render);window.addEventListener('elara:data-changed',render);window.addEventListener('elara:social-updated',render);
   $('elara-share-activity').onchange=e=>{const id=window.ElaraSocial?.me?.uid;if(!id){e.target.checked=false;return}localStorage.setItem('elara_share_activity_'+id,e.target.checked?'yes':'no')};
   new MutationObserver(()=>{if(current==='home')$('elara-mirror-timer').textContent=$('timer-display')?.textContent||'25:00'}).observe($('timer-display'),{childList:true,subtree:true,characterData:true});
   for(const id of ['theme-toggle','settings-theme-toggle'])$(id)?.addEventListener('click',e=>{e.stopImmediatePropagation();pref.mode=pref.mode==='dark'?'light':'dark';savePref()},true);
-  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;if(!$('panel-'+requested)&&requested==='language'){window.__elaraPendingRoute=requested;open('home',{history:'none'})}else open($('panel-'+requested)?requested:'home',{history:'replace'})
+  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;if(rawRequested==='profile'||rawRequested==='wardrobe'){open('home',{history:'none'})}else if(!$('panel-'+requested)&&requested==='language'){window.__elaraPendingRoute=requested;open('home',{history:'none'})}else open($('panel-'+requested)?requested:'home',{history:'replace'})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
