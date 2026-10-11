@@ -721,3 +721,6 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-rank-cta{grid-column:1/-1!important;grid-row:10!important}
 }
 }
+
+/* Seven visible Friends dashboard destinations; challenge remains reachable via Activities. */
+#elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-tabs>[role="tab"][data-social-view="challenges"]{display:none!important;visibility:hidden!important}
