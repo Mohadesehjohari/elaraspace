@@ -51,6 +51,7 @@ async function run(width,height){
  assert.match(await page.locator('#blog-save-status').innerText(),/دستگاه|device/);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForSelector('#blog-editor',{timeout:30000});
+ await page.waitForFunction(()=>document.querySelector('#blog-editor [name="title"]')?.value==='متن آزمایشی',null,{timeout:15000});
  assert.equal(await page.locator('#blog-editor [name="title"]').inputValue(),'متن آزمایشی',width+': saved draft recovered after refresh');
  await page.locator('#panel-blog [data-blog-route="home"]').first().click();
  await page.waitForSelector('#panel-blog .blog-quick');
