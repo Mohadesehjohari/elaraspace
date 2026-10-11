@@ -46,8 +46,28 @@ function estimateInto(form){
 async function openEditor(c){
  const wrap=document.createElement('div');wrap.innerHTML=editorMarkup(c);const form=wrap.querySelector('form');estimateInto(form);form.addEventListener('input',()=>estimateInto(form));form.addEventListener('change',()=>estimateInto(form));
  form.elements.title?.setAttribute('autocomplete','off');
- const isNew=!c?.id,ok=await window.ElaraDialog.open({title:isNew?tx('کلاس سفارشی جدید','New custom class'):tx('ویرایش کلاس','Edit class'),content:wrap,wide:true,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره کلاس','Save class'),value:true,kind:'primary'}]});if(ok!==true)return;
- const s=read(),old=form.elements.id.value?s.languageClasses.find(x=>x.id===form.elements.id.value):null,next=payload(form,old);if(!form.checkValidity()){return window.ElaraDialog.alert(tx('مقادیر واردشده معتبر نیستند. نام، تعداد جلسات و زمان‌بندی را بررسی کن.','Please check the required fields and their allowed ranges.'))}if(!next.title){return window.ElaraDialog.alert(tx('اسم کلاس را وارد کن.','Enter a class name.'))}if(!next.weekdays.length){return window.ElaraDialog.alert(tx('حداقل یک روز هفته انتخاب کن.','Choose at least one weekday.'))}
+ // Validate in capture phase: dialog.js otherwise destroys the form before validation.
+ const isNew=!c?.id;
+ const dialog=window.ElaraDialog.open({title:isNew?tx('کلاس سفارشی جدید','New custom class'):tx('ویرایش کلاس','Edit class'),content:wrap,wide:true,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره کلاس','Save class'),value:true,kind:'primary'}]});
+ const saveButton=form.closest('.elara-dialog-panel')?.querySelector('.elara-dialog-actions .primary-button');
+ const errorBox=document.createElement('p');errorBox.className='lf-editor-error';errorBox.setAttribute('role','alert');errorBox.hidden=true;form.append(errorBox);
+ const onSave=event=>{
+   errorBox.hidden=true;form.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute('aria-invalid'));
+   const firstInvalid=form.querySelector(':invalid'),title=form.elements.title,days=[...form.querySelectorAll('input[name="weekday"]:checked')];
+   const friend=form.elements.friendUid,needsFriend=!!form.elements.shareEnabled?.checked;
+   const message=firstInvalid?tx('مقدار فیلد مشخص‌شده معتبر نیست.','Correct the highlighted field.'):
+    !String(title.value||'').trim()?tx('اسم کلاس را وارد کن.','Enter a class name.'):
+    !days.length?tx('حداقل یک روز هفته انتخاب کن.','Choose at least one weekday.'):
+    needsFriend&&!friend?.value?tx('برای اشتراک کلاس، یک دوست واقعی انتخاب کن.','Choose a real friend to share.'):null;
+   if(!message)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const target=firstInvalid||(!String(title.value||'').trim()?title:!days.length?form.querySelector('input[name="weekday"]'):friend);
+   errorBox.hidden=false;errorBox.textContent=message;target?.setAttribute('aria-invalid','true');target?.focus({preventScroll:false});
+   if(firstInvalid)form.reportValidity();
+ };
+ saveButton?.addEventListener('click',onSave,{capture:true});
+ const ok=await dialog;if(ok!==true)return;
+ const s=read(),old=form.elements.id.value?s.languageClasses.find(x=>x.id===form.elements.id.value):null,next=payload(form,old);if(!next.title){return window.ElaraDialog.alert(tx('اسم کلاس را وارد کن.','Enter a class name.'))}if(!next.weekdays.length){return window.ElaraDialog.alert(tx('حداقل یک روز هفته انتخاب کن.','Choose at least one weekday.'))}
  if(old)Object.assign(old,next);else s.languageClasses.push(next);write(s);
  if(form.elements.shareEnabled?.checked&&form.elements.friendUid?.value){try{await window.ElaraCollab?.shareEntity?.('language-class',next,form.elements.friendUid.value);render()}catch(error){await window.ElaraDialog.alert(error?.message||String(error),{title:tx('کلاس ذخیره شد؛ دعوت ارسال نشد','Class saved; invite failed')})}}
 }
@@ -123,7 +143,7 @@ function render(){
    ['sessions',tx('جلسات ثبت‌شده','Sessions completed'),sessionCount,tx('بر اساس گزارش واقعی','From real session logs')]
  ];
  overview.innerHTML=metrics.map(([kind,label,value,note])=>'<article class="l1-class-stat l1-stat-'+kind+'"><span aria-hidden="true" class="l1-stat-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+statIcons[kind]+'</svg></span><div><small>'+label+'</small><strong>'+fa(value)+'</strong><span>'+note+'</span></div></article>').join('');
- if(hero)hero.after(overview);else host.prepend(overview);
+ if(hero)hero.before(overview);else host.prepend(overview);
 
  // Visual-only, canonical data-backed type filters. Filtering never writes or duplicates classes.
  const typeFilter=document.createElement('nav');
