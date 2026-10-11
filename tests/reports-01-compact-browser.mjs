@@ -19,6 +19,8 @@ async function startPage(width){
  const page=await ctx.newPage();
  const errors=[];
  page.on('pageerror',e=>errors.push(e.message));
+ // 360px verifies the Reports layout even if the optional Feature Hub adapter fails.
+ if(width===360)await page.route('**/feature-hubs-2026.js*',route=>route.abort());
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
  await page.addInitScript(x=>localStorage.setItem('elara_space_v1',JSON.stringify(x)),data);
