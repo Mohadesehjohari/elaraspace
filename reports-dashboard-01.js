@@ -6,7 +6,7 @@ const fmt=x=>Number(x).toLocaleString('fa-IR',{maximumFractionDigits:1});
 const valid=d=>window.ElaraSchedule?.validDate?.(d)===true;
 const iso=d=>window.ElaraSchedule?.iso?.(d)||[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const today=()=>iso(new Date()),shift=(date,n)=>{const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
-const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
+const uid=()=>window.ElaraAccount?window.ElaraAccount.user?.uid||null:window.ElaraSocial?.me?.uid||null;
 const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
 const dateOf=ms=>Number.isFinite(Number(ms))&&Number(ms)>0?iso(new Date(Number(ms))):null;
 const seenUnique=(xs,key)=>{const seen=new Set();return xs.filter(x=>{const k=key(x);if(!k||seen.has(k))return false;seen.add(k);return true})};
@@ -99,7 +99,7 @@ function trend(d){
  const labels=rows.map((r,i)=>i%Math.max(1,Math.ceil(rows.length/9))===0?'<text x="'+px(i)+'" y="218" text-anchor="middle">'+esc(r.date.slice(5))+'</text>':'').join('');
  return '<div class="elara-reports-legend"><span><i class="tasks"></i>تسک (تعداد)</span><span><i class="focus"></i>تمرکز (دقیقه)</span><span><i class="progress"></i>پیشرفت برنامه (٪)</span></div>'+
  '<div class="elara-reports-plot-scroll"><svg class="elara-reports-plot" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="نمودار ترکیبی: ستون‌های تسک، خط دقیقه تمرکز و نوار مستقل درصد برنامه. جدول جزئیات در ادامه قرار دارد.">'+
- '<text x="50" y="16">تعداد تسک</text><text x="816" y="16" text-anchor="end">دقیقه تمرکز</text>'+grids+bars+line('focus',maxFocus,'#38caff')+
+ '<text x="50" y="16">تعداد تسک</text><text x="816" y="16" text-anchor="end">دقیقه تمرکز</text>'+grids+bars+(rows.some(r=>r.focus>0)?line('focus',maxFocus,'#38caff'):'')+
  '<line x1="'+x0+'" y1="'+lowerBot+'" x2="'+x1+'" y2="'+lowerBot+'" stroke="#a77dff" stroke-opacity=".5"/><text x="15" y="'+lowerTop+'">۱۰۰٪</text><text x="22" y="'+lowerBot+'">۰٪</text>'+progress+dots+labels+
  '</svg></div><p class="elara-reports-plot-status" aria-live="polite">برای دیدن عدد و تاریخ، روی نقطه نمودار لمس یا با Tab انتخاب کنید.</p>'+
  '<details class="elara-reports-table"><summary>جدول داده‌های نمودار و مقیاس‌ها</summary><div class="elara-reports-table-scroll"><table><thead><tr><th>شروع بازه</th><th>تسک (تعداد)</th><th>تمرکز (دقیقه)</th><th>تکمیل برنامه</th></tr></thead><tbody>'+
