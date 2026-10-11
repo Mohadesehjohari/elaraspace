@@ -337,3 +337,7 @@ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margi
 /* Chromium correction: search/header ends around 55px at 1440; 8px let it overlap.
    Keep a 6px clear gap after the actual topbar rather than hiding the header. */
 @media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:62px!important}}
+
+/* Measured final topbar clearance (Chromium 1440: bottom=66; mobile 390: bottom=96). */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:67px!important}}
+@media(max-width:700px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:0!important}}
