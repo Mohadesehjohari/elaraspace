@@ -235,3 +235,13 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports .elara-reports-activity-list b{font-size:.64rem;white-space:nowrap}
  #panel-reports .elara-reports-activities .elara-reports-empty{min-height:78px}
 }
+
+/* REPORTS-LIVE-03 visual hotfix: mobile flex columns must occupy their full width. */
+@media(max-width:1050px){
+ #panel-reports .elara-reports-lower{align-items:stretch}
+ #panel-reports .elara-reports-lower>div:first-child,
+ #panel-reports .elara-reports-lower>.elara-reports-activities{
+  width:100%;
+  align-self:stretch;
+ }
+}

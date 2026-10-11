@@ -62,6 +62,9 @@ async function measure(page,host,label,width){
       last=activity?.querySelector('.elara-reports-activity-list>button:last-child'),
       insight=lower?.querySelector('.elara-reports-insight-grid');
     return activity?{
+      width:activity.getBoundingClientRect().width,
+      parentWidth:lower.getBoundingClientRect().width,
+      firstColumnWidth:left?.getBoundingClientRect().width||0,
       height:activity.getBoundingClientRect().height,
       leftHeight:left?.getBoundingClientRect().height||0,
       activityBottom:rect(activity).bottom,
@@ -102,6 +105,10 @@ try{
   }
   assert.ok(a.cardTextOverflow.every(o=>o.outer<=5),width+': KPI overflow outside card');
   assert.ok(a.lower&&a.lower.insightCount>=1,width+': insights or recent activities missing');
+  if(width<=1050){
+   assert.ok(Math.abs(a.lower.width-a.lower.parentWidth)<=4,width+': recent activity panel must fill mobile/tablet column '+JSON.stringify(a.lower));
+   assert.ok(Math.abs(a.lower.firstColumnWidth-a.lower.parentWidth)<=4,width+': sections/insights must fill mobile/tablet column');
+  }
   if(a.lower.activityCount){
    assert.ok(a.lower.slack>=0&&a.lower.slack<=34,width+': recent activities have trailing blank space '+JSON.stringify(a.lower));
   }
