@@ -150,6 +150,11 @@ function render(){
  rendering=true;
  try{
  const d=data();
+ // Own the Reports layout at first dashboard render: Feature Hubs loads later on idle.
+ // Otherwise the old full report can temporarily occupy an entire block between hero and KPIs.
+ panel.classList.add('feature-hub-parent','reports-feature-hub');
+ const legacy=$('elara-reports-page'),legacyHost=$('panel-reports-productivity');
+ if(legacy&&legacyHost&&legacy.parentElement===panel)legacyHost.append(legacy);
  // The legacy router creates this direct child for its original report view.
  // Its content is now hosted by #panel-reports-productivity; keep no orphan heading/row.
  for(const title of panel.querySelectorAll(':scope > h1')){
