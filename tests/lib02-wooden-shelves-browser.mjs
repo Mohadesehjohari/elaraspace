@@ -59,6 +59,16 @@ try{
    await page.getByRole('button',{name:'ساختن'}).click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).bookShelves.includes('قفسه تست دوم'));
    assert.ok(await page.locator('[data-lib02-custom="قفسه تست دوم"]').isVisible(),'Custom shelf not synced');
+   await page.locator('[data-lib02-rename="رشد فردی"]').click();
+   await page.locator('.elara-dialog-field input').fill('قفسه تازه');
+   await page.getByRole('button',{name:'ذخیره'}).click();
+   await page.waitForFunction(()=>{
+    const state=JSON.parse(localStorage.getItem('elara_space_v1'));
+    return !state.bookShelves.includes('رشد فردی')&&state.bookShelves.includes('قفسه تازه')&&state.books.find(b=>b.id==='book-reading')?.customShelf==='قفسه تازه';
+   });
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForSelector('#panel-library-shelves:not(.hidden) #lib02-scene');
+   assert.ok(await page.locator('[data-lib02-custom="قفسه تازه"]').isVisible(),'Renamed shelf not persisted after refresh');
   }
   await page.screenshot({path:'browser-artifacts/lib02/shelves-'+width+'.png',fullPage:true,animations:'disabled'});
   console.log('LIB02_WIDTH_PASS '+JSON.stringify({width,...m}));
