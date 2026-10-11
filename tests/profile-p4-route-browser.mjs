@@ -49,6 +49,7 @@ for(const width of widths){
  assert.equal(routeBefore.hash,'#profile');
  assert.equal(routeBefore.drawerVisible,false,'Account page remains trapped inside Drawer');
  await page.screenshot({path:out+'/profile-'+width+'.png',fullPage:false});
+ if(width===390){await page.locator('#elara-private-profile-page').evaluate(el=>el.scrollTop=el.scrollHeight);await page.screenshot({path:out+'/profile-390-bottom.png',fullPage:false});await page.locator('#elara-private-profile-page').evaluate(el=>el.scrollTop=0)}
  const geom=await page.locator('#elara-private-profile-page').boundingBox();
  assert.ok(geom&&geom.width<=width+1,'Profile page horizontal overflow at '+width);
  const cta=page.locator('#elara-private-profile-page [data-p4-wardrobe]').last();
@@ -56,6 +57,7 @@ for(const width of widths){
  await page.waitForURL('**/#wardrobe');
  await page.locator('.p4-wardrobe-page .wardrobe-p3-tabs').waitFor({timeout:10000});
  await page.screenshot({path:out+'/wardrobe-'+width+'.png',fullPage:false});
+ if(width===390){await page.locator('.p4-wardrobe-page').evaluate(el=>el.scrollTop=el.scrollHeight);await page.screenshot({path:out+'/wardrobe-390-bottom.png',fullPage:false});await page.locator('.p4-wardrobe-page').evaluate(el=>el.scrollTop=0)}
  const wardrobeGeom=await page.locator('.p4-wardrobe-page .approved-wardrobe-window').boundingBox();
  assert.ok(wardrobeGeom&&wardrobeGeom.width<=width+1,'Wardrobe width overflow at '+width);
  const initial=await page.evaluate(()=>JSON.stringify(window.ElaraProfileSystem.readWardrobe()));
