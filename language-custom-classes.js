@@ -44,7 +44,7 @@ function estimateInto(form){
  form.querySelector('[data-class-link-field]').hidden=form.elements.type.value==='offline';syncShareField(form);
 }
 async function openEditor(c){
- const wrap=document.createElement('div');wrap.innerHTML=editorMarkup(c);const form=wrap.querySelector('form');estimateInto(form);form.addEventListener('input',()=>estimateInto(form));form.addEventListener('change',()=>estimateInto(form));
+ const wrap=document.createElement('div');wrap.innerHTML=editorMarkup(c||{});const form=wrap.querySelector('form');estimateInto(form);form.addEventListener('input',()=>estimateInto(form));form.addEventListener('change',()=>estimateInto(form));
  form.elements.title?.setAttribute('autocomplete','off');
  // Validate in capture phase: dialog.js otherwise destroys the form before validation.
  const isNew=!c?.id;
