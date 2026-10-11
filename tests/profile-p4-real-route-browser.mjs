@@ -46,7 +46,10 @@ for(const width of widths){
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid}),set:()=>{}});
   window.ElaraSocial={me:user};
   window.dispatchEvent(new Event('elara:account-ready'));
+  const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true;layer.style.pointerEvents='none'}
+  document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.documentElement.removeAttribute('data-elara-booting');
  });
+ await page.addStyleTag({content:'#cloud-layer{display:none!important}' });
  assert.ok((await page.locator('#elara-p4-private-profile').textContent()).includes('حساب دوم'),'second UID did not hydrate');
  await page.locator('#elara-p4-private-profile [data-approved-wardrobe]').first().click();
  await page.waitForURL('**/#wardrobe');
