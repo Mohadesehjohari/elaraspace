@@ -4,7 +4,7 @@
 body.elara-private-route-active #main>:not(#elara-private-route){display:none!important}
 body.elara-private-route-active #main{overflow:visible!important;min-height:calc(100dvh - 130px)}
 body.elara-private-route-active .workspace{min-width:0}
-#elara-private-route{width:100%;min-width:0;max-width:1460px;margin:0 auto;padding:14px clamp(10px,2vw,30px) 60px;direction:rtl;overflow-x:clip;color:#f9f8ff;box-sizing:border-box}
+#elara-private-route{width:100%;min-width:0;max-width:1460px;margin:0 auto;padding:96px clamp(10px,2vw,30px) 60px;direction:rtl;overflow-x:clip;color:#f9f8ff;box-sizing:border-box}
 #elara-private-route *{box-sizing:border-box}
 #elara-private-route button{cursor:pointer;font-family:inherit}
 #elara-private-route button:focus-visible{outline:3px solid #69e4ff;outline-offset:3px}
