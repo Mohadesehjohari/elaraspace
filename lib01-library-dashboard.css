@@ -1,0 +1,192 @@
+/* LIB-01 — warm, scoped library dashboard; shared sidebar/header/mobile navigation untouched. */
+html body #main #panel-books.library-feature-hub{--lib01-gold:#f9cb74;--lib01-gold-light:#ffe1a2;--lib01-border:rgba(238,185,110,.25);--lib01-text:#f8f0e7;--lib01-muted:#b4bec6;--lib01-panel:linear-gradient(145deg,rgba(4,18,27,.97),rgba(5,18,28,.93));color:var(--lib01-text)}
+html body #main #panel-books > .section-heading,
+html body #main #panel-books > #library-reading-summary,
+html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="book"]{display:none!important}
+html body.dark #main #panel-books .elara-global-hero.lib01-hero{
+ height:244px!important;min-height:244px!important;max-height:244px!important;
+ background-image:linear-gradient(90deg,rgba(2,10,18,.54) 0%,rgba(4,13,23,.10) 48%,rgba(3,12,19,.69) 100%),url('assets/ui/librairy_banner_main.webp')!important;
+ background-size:cover!important;background-position:center 66%!important;
+ display:flex!important;align-items:flex-end!important;justify-content:space-between!important;
+ gap:18px!important;padding:86px 35px 24px!important;direction:rtl!important
+}
+html body #main #panel-books .lib01-hero .lib01-hero-body{width:auto;max-width:58%;z-index:2;position:relative;text-align:right!important;direction:rtl}
+html body #main #panel-books .lib01-hero .lib01-kicker{font:700 10px/1.5 sans-serif;letter-spacing:.13em;color:var(--lib01-gold-light)}
+html body #main #panel-books .lib01-hero .lib01-hero-body h1{font-size:clamp(25px,3.5vw,47px)!important;font-weight:900;line-height:1.35;margin:4px 0!important;color:#fff!important;text-shadow:0 3px 16px #000b}
+html body #main #panel-books .lib01-hero .lib01-hero-body p{font-size:clamp(12px,1.15vw,16px);margin:0;line-height:1.9;color:#fff1d6;text-shadow:0 2px 10px #000c}
+html body #main #panel-books .lib01-hero blockquote{position:relative;z-index:2;max-width:30%;font-size:clamp(12px,1.15vw,17px);line-height:2.2;color:#fff3dd;margin:0;text-align:left!important;direction:rtl;text-shadow:0 2px 10px #000e;font-weight:700}
+html body #main #panel-books #lib01-overview{display:block;box-sizing:border-box;width:100%;max-width:100%;margin:0 0 28px;min-width:0;direction:rtl;font-family:inherit;color:var(--lib01-text)}
+#panel-books #lib01-overview *{box-sizing:border-box}
+#panel-books #lib01-overview button{font:inherit;cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .2s ease;min-width:0}
+#panel-books #lib01-overview button:focus-visible{outline:2px solid #72eaf1;outline-offset:3px}
+#panel-books #lib01-overview .lib01-actions{display:flex;align-items:stretch;gap:12px;margin:0 0 14px;min-width:0}
+#panel-books #lib01-overview .lib01-shortcuts{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));flex:1;gap:7px;min-width:0}
+#panel-books #lib01-overview .lib01-tab,#panel-books #lib01-overview .lib01-add{border:1px solid #52616a82;border-radius:12px;background:linear-gradient(150deg,#08121d,#091b26);color:#f6f1ea;font-size:clamp(10px,.88vw,13px);font-weight:750;white-space:nowrap;padding:12px 6px;line-height:1.25;display:flex;align-items:center;justify-content:center;gap:7px;min-height:46px}
+#panel-books #lib01-overview .lib01-tab span{font-size:19px;color:#ffd07c}
+#panel-books #lib01-overview .lib01-tab.is-current{border-color:#ffe3a9;box-shadow:inset 0 0 17px #ebb35d44,0 0 12px #f4c37b25;background:linear-gradient(130deg,#ffdf9c,#d59a50);color:#25160b}
+#panel-books #lib01-overview .lib01-tab.is-current span{color:#452600}
+#panel-books #lib01-overview .lib01-add{flex:0 0 auto;min-width:142px;background:linear-gradient(130deg,#ffe1a3,#e9a454);border-color:#ffecb3;color:#2c1a0b;box-shadow:0 5px 19px #e9a4543c;font-weight:900}
+#panel-books #lib01-overview .lib01-grid{display:grid;grid-template-columns:minmax(215px,1fr) minmax(330px,1.72fr) minmax(215px,1fr);gap:12px;align-items:start}
+#panel-books #lib01-overview .lib01-col{display:grid;gap:12px;align-content:start;min-width:0}
+#panel-books #lib01-overview .lib01-card{position:relative;isolation:isolate;min-width:0;border:1px solid #4960706b;border-radius:16px;overflow:hidden;background:var(--lib01-panel);box-shadow:0 15px 34px #0006,inset 0 1px 0 #ffffff0a;color:var(--lib01-text);padding:14px;line-height:1.7}
+#panel-books #lib01-overview .lib01-card::before{content:"";height:1px;position:absolute;top:0;inset-inline:18px;background:linear-gradient(90deg,transparent,#dbb06d55,transparent);pointer-events:none}
+#panel-books #lib01-overview .lib01-card>header{display:flex;justify-content:space-between;align-items:center;gap:6px;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid #dae1de15}
+#panel-books #lib01-overview .lib01-card h2{font-size:clamp(13px,1.07vw,17px);font-weight:850;line-height:1.6;letter-spacing:0;margin:0;color:#fff5e7}
+#panel-books #lib01-overview .lib01-card header button,#panel-books #lib01-overview .lib01-card footer button,#panel-books #lib01-overview .lib01-empty button{border:0;background:transparent;color:#42e4dc;font-size:11px;padding:6px 0;font-weight:700}
+#panel-books #lib01-overview .lib01-status-main{display:grid;grid-template-columns:minmax(100px,1fr) minmax(85px,1fr);gap:6px;align-items:center;min-height:147px}
+#panel-books #lib01-overview .lib01-ring{width:100%;aspect-ratio:1;max-width:155px;margin:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;border-radius:50%;background:radial-gradient(circle at center,#07151b 0 57%,transparent 58%),conic-gradient(#afe78c calc(var(--lib01-progress)*1%),#17434a 0);box-shadow:inset 0 0 14px #000b,0 0 19px #8ef7bd22}
+#panel-books #lib01-overview .lib01-ring strong{font-size:clamp(20px,2.15vw,30px);font-weight:900;color:#fff}
+#panel-books #lib01-overview .lib01-ring small{font-size:9px;color:#b7c7be}
+#panel-books #lib01-overview dl{margin:0;display:grid;gap:7px}
+#panel-books #lib01-overview dl>div{display:flex;align-items:center;justify-content:space-between;gap:4px}
+#panel-books #lib01-overview dl dt{color:#b4c3bd;font-size:11px}
+#panel-books #lib01-overview dl dd{color:#f3f4e8;font-size:15px;font-weight:900;margin:0}
+#panel-books #lib01-overview .lib01-tasks ul{list-style:none;display:grid;gap:8px;padding:0;margin:0}
+#panel-books #lib01-overview .lib01-tasks li{display:flex;align-items:center;gap:7px;min-height:29px}
+#panel-books #lib01-overview .lib01-task-check{flex:0 0 21px;height:21px;border:1px solid #8fabb7;background:#09141e;border-radius:5px;color:#0b1722;padding:0;font-weight:bold}
+#panel-books #lib01-overview .lib01-task-check[aria-pressed="true"]{background:#30d1b2;border-color:#4ef8c6}
+#panel-books #lib01-overview .lib01-task-check:disabled{opacity:.5;cursor:not-allowed}
+#panel-books #lib01-overview .lib01-task-title{flex:1;border:0;background:transparent;text-align:right;color:#e6e7e2;font-size:11px;padding:3px;overflow-wrap:anywhere;line-height:1.5}
+#panel-books #lib01-overview .lib01-task-title.is-done{text-decoration:line-through;color:#86a7a5}
+#panel-books #lib01-overview .lib01-book-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#panel-books #lib01-overview .lib01-book{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:9px;border:1px solid #4b45435e;background:linear-gradient(160deg,#10252b,#071921);border-radius:10px;padding:9px;min-width:0;overflow:hidden}
+#panel-books #lib01-overview .lib01-book>img{width:100%;height:130px;min-height:0;object-fit:contain;filter:drop-shadow(0 5px 7px #000a)}
+#panel-books #lib01-overview .lib01-book>div{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+#panel-books #lib01-overview .lib01-book strong{font-size:11px;line-height:1.6;color:#fff;overflow-wrap:anywhere;min-height:32px}
+#panel-books #lib01-overview .lib01-book small{font-size:10px;line-height:1.5;color:#aabbbd;overflow-wrap:anywhere}
+#panel-books #lib01-overview .lib01-progress{height:6px;overflow:hidden;border-radius:10px;background:#50606669}
+#panel-books #lib01-overview .lib01-progress i{display:block;height:100%;background:linear-gradient(90deg,#2ccec3,#a0e7b0);border-radius:10px}
+#panel-books #lib01-overview .lib01-book .lib01-continue{margin-top:auto;padding:7px 5px;border-radius:7px;border:1px solid #56b1a078;background:#103e3a;color:#ccffe2;font-size:10px}
+#panel-books #lib01-overview .lib01-bookmark{position:absolute;top:5px;right:5px;border:1px solid #a584477e;background:#241e14b5;color:#ffd88b;border-radius:6px;font-size:19px;line-height:1;padding:3px 5px;z-index:1}
+#panel-books #lib01-overview .lib01-clips-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#panel-books #lib01-overview .lib01-clip{display:flex;flex-direction:column;gap:10px;min-width:0;min-height:151px;border-radius:11px;padding:12px 10px;color:#443522;background:linear-gradient(145deg,#fff8dc,#e4dba7);box-shadow:0 5px 14px #0005}
+#panel-books #lib01-overview .lib01-clip.paper-1{background:linear-gradient(145deg,#fbe6d4,#e4bfa3)}
+#panel-books #lib01-overview .lib01-clip.paper-2{background:linear-gradient(145deg,#e4ecff,#b3d0e6)}
+#panel-books #lib01-overview .lib01-clip blockquote{font-size:11px;line-height:1.8;margin:0;overflow-wrap:anywhere;flex:1;text-align:right}
+#panel-books #lib01-overview .lib01-clip p{font-size:10px;margin:0;color:#544b3e}
+#panel-books #lib01-overview .lib01-clip button{border:0;background:transparent;color:#555025;text-align:right;font-size:10px;font-weight:700;padding:0}
+#panel-books #lib01-overview .lib01-report-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-bottom:12px}
+#panel-books #lib01-overview .lib01-report-metrics>div{border-radius:9px;padding:9px 3px;background:#092432;border:1px solid #194251;text-align:center;min-width:0}
+#panel-books #lib01-overview .lib01-report-metrics strong{display:block;font-size:20px;color:#fff}
+#panel-books #lib01-overview .lib01-report-metrics small{font-size:9px;color:#b2c4ca}
+#panel-books #lib01-overview .library-daily-chart{max-width:100%;min-width:0}
+#panel-books #lib01-overview .library-daily-chart>div{min-width:0}
+#panel-books #lib01-overview .library-daily-chart b,#panel-books #lib01-overview .library-daily-chart small{font-size:9px}
+#panel-books #lib01-overview .lib01-data-note{color:#a5b7ba;font-size:10px;margin:10px 0 0;line-height:1.7}
+#panel-books #lib01-overview .lib01-focus{padding:12px}
+#panel-books #lib01-overview .lib01-focus-scene{min-height:236px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(180deg,#02080d36,#02080dac),url('assets/ui/library-card-background.webp') center/cover;overflow:hidden}
+#panel-books #lib01-overview .lib01-focus-dial{width:185px;height:185px;border-radius:50%;position:relative;background:radial-gradient(circle at center,#050b17 0 62%,transparent 64%),conic-gradient(from 20deg,#ffcc70,#8656fa,#2a9bff,#54e8fc,#080e24 87%,#ffcc70);box-shadow:0 0 21px #895eff99,inset 0 0 16px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#panel-books #lib01-overview .lib01-focus-dial strong{font:900 39px/1.2 Arial,sans-serif;direction:ltr;font-variant-numeric:tabular-nums;color:white}
+#panel-books #lib01-overview .lib01-focus-dial small{font-size:12px;color:#fff4db}
+#panel-books #lib01-overview .lib01-focus-dial button{position:absolute;bottom:-13px;width:53px;height:53px;border-radius:50%;border:2px solid #a6b2ff;background:radial-gradient(circle at 30% 20%,#ab6dff,#4c28dd 75%);color:white;font-size:21px;box-shadow:0 0 20px #8058ffad}
+#panel-books #lib01-overview .lib01-focus-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:15px}
+#panel-books #lib01-overview .lib01-focus-modes span{border:1px solid #33515e;background:#07141f;border-radius:8px;padding:9px 1px;text-align:center;font-size:9px;color:#f5e9d9;white-space:nowrap}
+#panel-books #lib01-overview .lib01-empty{min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px 9px;border:1px dashed #89744880;border-radius:12px;color:#cfcbbe}
+#panel-books #lib01-overview .lib01-empty span{color:#f4cd82;font-size:26px}
+#panel-books #lib01-overview .lib01-empty p{max-width:380px;font-size:12px;line-height:1.9;margin:8px 0}
+#panel-books #lib01-overview .lib01-bottom{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-top:12px}
+#panel-books #lib01-overview .lib01-shelves{background:linear-gradient(90deg,#061924de,#081521b4),url('assets/ui/library-card-background.webp') center/cover;min-height:154px;display:flex;align-items:center}
+#panel-books #lib01-overview .lib01-shelves>div{max-width:65%}
+#panel-books #lib01-overview .lib01-shelves p,#panel-books #lib01-overview .lib01-challenge p{color:#d0d1c8;font-size:12px;line-height:1.8}
+#panel-books #lib01-overview .lib01-shelves button,#panel-books #lib01-overview .lib01-challenge button{border:1px solid #cba35d88;border-radius:8px;background:#38271a;color:#ffe6b0;padding:8px 12px;font-size:11px}
+#panel-books #lib01-overview .lib01-challenge{min-height:154px;background:linear-gradient(145deg,#12232d,#0b1922)}
+#panel-books #lib01-overview button:hover{border-color:#ffd17d;filter:brightness(1.06)}
+#panel-books #lib01-overview button:active{transform:scale(.985)}
+.lib01-explore{display:grid;gap:12px;max-height:65vh;overflow-y:auto}
+.lib01-explore section{border:1px solid #4e6470;border-radius:12px;padding:12px}
+.lib01-explore h3{font-size:16px;margin:0;color:#f6ce83}
+.lib01-explore p{color:#bac8ce;margin:4px 0 9px}
+.lib01-explore section div{display:flex;flex-wrap:wrap;gap:6px}
+.lib01-explore button{border:1px solid #507480;background:#0c2732;color:#eee;border-radius:8px;padding:7px 9px}
+@media (max-width:1350px) and (min-width:1001px){
+ #panel-books #lib01-overview .lib01-grid{grid-template-columns:minmax(190px,.9fr) minmax(270px,1.4fr) minmax(190px,.95fr);gap:9px}
+ #panel-books #lib01-overview .lib01-card{padding:10px}
+ #panel-books #lib01-overview .lib01-book-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-books #lib01-overview .lib01-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #panel-books #lib01-overview .lib01-book>img{height:130px}
+}
+@media(max-width:1000px){
+ #panel-books #lib01-overview .lib01-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ #panel-books #lib01-overview .lib01-col-reading{grid-column:span 2;grid-row:1}
+ #panel-books #lib01-overview .lib01-col-focus{grid-column:1;grid-row:2}
+ #panel-books #lib01-overview .lib01-col-status{grid-column:2;grid-row:2}
+ #panel-books #lib01-overview .lib01-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ html body.dark #main #panel-books .elara-global-hero.lib01-hero{
+  height:270px!important;min-height:270px!important;max-height:270px!important;
+  width:calc(100% + 22px)!important;margin:0 -11px 12px!important;
+  padding:16px 15px 17px!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:flex-end!important;gap:8px!important;
+  background-position:52% 66%!important
+ }
+ html body #main #panel-books .lib01-hero .lib01-hero-body{max-width:95%;text-align:right}
+ html body #main #panel-books .lib01-hero .lib01-hero-body h1{font-size:32px!important}
+ html body #main #panel-books .lib01-hero blockquote{max-width:85%;align-self:flex-end;font-size:11px;line-height:1.6;text-align:right!important}
+ #panel-books #lib01-overview .lib01-actions{display:flex;flex-direction:column-reverse;gap:8px}
+ #panel-books #lib01-overview .lib01-add{min-width:100%;min-height:44px}
+ #panel-books #lib01-overview .lib01-shortcuts{width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ #panel-books #lib01-overview .lib01-tab{min-height:52px;padding:5px 2px;white-space:normal;font-size:10px;display:flex;flex-direction:column;gap:1px;text-align:center}
+ #panel-books #lib01-overview .lib01-tab span{font-size:17px}
+ #panel-books #lib01-overview .lib01-grid{display:flex;flex-direction:column;gap:11px}
+ #panel-books #lib01-overview .lib01-col{display:contents}
+ #panel-books #lib01-overview .lib01-status{order:1}
+ #panel-books #lib01-overview .lib01-continue-card{order:2}
+ #panel-books #lib01-overview .lib01-tasks{order:3}
+ #panel-books #lib01-overview .lib01-focus{order:4}
+ #panel-books #lib01-overview .lib01-clips{order:5}
+ #panel-books #lib01-overview .lib01-report{order:6}
+ #panel-books #lib01-overview .lib01-card{width:100%;max-width:100%;padding:12px}
+ #panel-books #lib01-overview .lib01-book-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-books #lib01-overview .lib01-book>img{height:138px}
+ #panel-books #lib01-overview .lib01-clips-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-books #lib01-overview .lib01-bottom{display:flex;flex-direction:column;gap:11px}
+ #panel-books #lib01-overview .lib01-shelves>div{max-width:85%}
+ #panel-books #lib01-overview .lib01-focus-scene{min-height:250px}
+}
+@media(max-width:360px){
+ #panel-books #lib01-overview .lib01-book>img{height:115px}
+ #panel-books #lib01-overview .lib01-clips-grid{grid-template-columns:1fr}
+ #panel-books #lib01-overview .lib01-status-main{grid-template-columns:125px 1fr}
+ #panel-books #lib01-overview .lib01-tab{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-books #lib01-overview *{transition:none!important;animation:none!important}
+}
+/* Preserve the established four launcher tiles for existing route/visual contracts.
+   They become a complementary row after the new owner dashboard, never a hidden DOM stub. */
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:11px!important;
+ width:100%;max-width:100%;min-width:0;margin:2px 0 19px!important;direction:rtl
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]::before{
+ content:"دسترسی‌های بیشتر";grid-column:1/-1;display:block;color:#f3c878;font-size:14px;font-weight:900;padding:5px 3px
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+ height:200px!important;min-height:200px!important;max-height:200px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;
+ padding:8px!important;text-align:center!important;background:linear-gradient(160deg,#0b2730,#07121e)!important;
+ border:1px solid #c49b5b67!important;border-radius:15px!important;min-width:0!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+ width:132px!important;height:132px!important;max-width:100%!important;object-fit:contain!important;flex:0 0 132px!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card>span{
+ display:flex!important;flex-direction:column!important;align-items:center!important;gap:1px!important;line-height:1.25
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:12px!important;color:#ffdea0!important}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{
+ font-size:9px!important;color:#c5c9c3!important;line-height:1.25!important;display:block!important
+}
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card>b{display:none!important}
+@media(max-width:700px){
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+  height:172px!important;min-height:172px!important;max-height:172px!important;padding:5px!important
+ }
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+  width:108px!important;height:108px!important;flex:0 0 108px!important
+ }
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:11px!important}
+ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{font-size:9px!important}
+}

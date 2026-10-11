@@ -63,6 +63,17 @@ jobs:
       - name: Existing social, home, task and product browser
         if: always()
         run: timeout 330s node tests/product-hubs-store-browser.mjs
+      - name: Diagnose identical failing suites against unmodified main (non-gating baseline)
+        if: always()
+        run: |
+          set +e
+          ELARA_TEST_URL=http://127.0.0.1:4174 timeout 360s node tests/p0-language-popup-browser.mjs > browser-artifacts/ui13/main-baseline-p0.log 2>&1
+          p0_status=$?
+          ELARA_TEST_URL=http://127.0.0.1:4174 timeout 330s node tests/product-hubs-store-browser.mjs > browser-artifacts/ui13/main-baseline-product.log 2>&1
+          hubs_status=$?
+          echo "::notice::Baseline main: P0=$p0_status ProductHubs=$hubs_status (not a candidate pass override)"
+          grep -E 'wardrobe:start|locator.evaluateAll|getComputedStyle|Wellness tiles drifted|AssertionError|TimeoutError' browser-artifacts/ui13/main-baseline-*.log | tail -20 || true
+          exit 0
       - name: Other safety contracts
         if: always()
         run: |
@@ -76,6 +87,7 @@ jobs:
           path: |
             browser-artifacts/ui13/*.png
             browser-artifacts/language-l2/*.png
+            browser-artifacts/ui13/*.log
             browser-artifacts/ui12/*.png
           if-no-files-found: warn
           retention-days: 30

@@ -6,7 +6,7 @@ const routes=[
  'language-books','language-courses','language-reports','language-tasks','language-channels','language-challenges',
  'wellness-water','wellness-sleep','wellness-exercise','wellness-weight','wellness-reports','wellness-analysis',
  'focus-pomodoro','focus-ambience','focus-room','focus-deep-work',
- 'reports-reading','reports-language','reports-fitness','reports-productivity'
+ 'reports-reading','reports-language','reports-fitness','reports-productivity','reports-today'
 ];
 function ensure(){
  const main=document.getElementById('main');if(!main)return false;

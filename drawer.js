@@ -9,7 +9,13 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home';
+  let root,panel,current='home',accountGutters=null;
+  function ensureProfileHubCSS(){
+    if(document.getElementById('elara-profile-hub-reference-css'))return;
+    const sheet=document.createElement('link');sheet.id='elara-profile-hub-reference-css';
+    sheet.rel='stylesheet';sheet.href='profile-hub-reference.css?v=20261011-p2';
+    document.head.appendChild(sheet);
+  }
 
   function ensureData(d){for(const k of ['tasks','taskLists','folders','tags','missionRewardClaims'])if(!Array.isArray(d[k]))d[k]=[];return d}
   function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
@@ -70,6 +76,19 @@
   }
   function placeMobileSection(section){
     if(!panel)return;
+    if(section==='account'&&window.matchMedia('(max-width:700px)').matches){
+      if(!accountGutters)accountGutters=[root,panel].map(el=>({
+        value:el.style.getPropertyValue('padding'),priority:el.style.getPropertyPriority('padding')
+      }));
+      root.style.setProperty('padding','0','important');
+      panel.style.setProperty('padding','0','important');
+    }else if(accountGutters){
+      [root,panel].forEach((el,i)=>{
+        if(accountGutters[i].value)el.style.setProperty('padding',accountGutters[i].value,accountGutters[i].priority);
+        else el.style.removeProperty('padding')
+      });
+      accountGutters=null;
+    }
     const mobile=window.matchMedia?.('(max-width:700px)')?.matches;
     const props=['position','inset','top','right','bottom','left','transform','width','height','max-height','margin','overflow','border-radius','align-self','justify-self'];
     if(!mobile){for(const name of props)panel.style.removeProperty(name);return}
@@ -88,6 +107,13 @@
     panel.style.setProperty('margin','0','important');
     panel.style.setProperty('overflow',section==='home'?'auto':'hidden','important');
     panel.style.setProperty('border-radius','20px','important');
+    if(section==='account'){
+      panel.style.setProperty('width','100vw','important');
+      panel.style.setProperty('height','100dvh','important');
+      panel.style.setProperty('max-height','100dvh','important');
+      panel.style.setProperty('border-radius','0','important');
+      panel.style.setProperty('overflow','hidden','important');
+    }
   }
   function show(section='home'){
     current=section;
@@ -154,9 +180,49 @@
     host.innerHTML=sectionHead('بلاک‌شده‌ها','رفع بلاک، دوستی قبلی را خودکار برنمی‌گرداند.')+'<section class="pass2-blocked-list"><div>'+(rows||'<p class="muted">فعلاً کسی مسدود نشده است.</p>')+'</div><p class="muted" data-privacy-status></p></section>';
   }
   function renderAccount(){
-    const host=$('drawer-account-area');if(!host)return;const view=profileView(),person=profile();
-    if(!view){host.innerHTML=`${sectionHead('پروفایل من','هویت و اطلاعات پروفایل خودت را اینجا مدیریت کن.')}<p class="muted">اطلاعات حساب هنوز آماده نیست.</p>`;return}
-    host.innerHTML=`${sectionHead('پروفایل من','نمای هویت، آواتار و آیتم‌های انتخابی این پروفایل.')}<section class="pass4-account-card">${window.ElaraProfileSystem.composition(view)}<p class="pass4-account-bio">${esc(person.bio||'هنوز Bio ثبت نشده است.')}</p><div class="pass4-profile-facts"><span>Level ${view.level}</span><span>${esc(view.title)}</span><span>${Number(view.xp||0).toLocaleString('fa-IR')} XP</span><span>فریم: ${esc(view.frameLabel)}</span><span>بنر: ${esc(view.bannerLabel)}</span></div><div class="pass4-account-actions"><button type="button" class="primary-button" data-profile-edit>${icon('user')} ویرایش پروفایل</button><button type="button" class="quiet-button" data-profile-avatar-gallery>${icon('user')} گالری پروفایل</button><button type="button" class="quiet-button" data-approved-wardrobe>${icon('wardrobe')} کمد</button></div><p class="muted pass4-account-note">آیتم‌های کمد فعلاً روی همین مرورگر و جدا برای UID این حساب ذخیره می‌شوند؛ همگام‌سازی و قفل سروری هنوز فعال نیست.</p></section>`;
+    const host=$('drawer-account-area');if(!host)return;
+    ensureProfileHubCSS();
+    if(window.matchMedia('(max-width:700px)').matches){
+      // Account is the only full-screen Drawer section; bypass inherited grid slots.
+      host.style.setProperty('position','absolute','important');
+      host.style.setProperty('inset','0','important');
+      host.style.setProperty('margin','0','important');
+      host.style.setProperty('width','100%','important');
+      host.style.setProperty('max-width','100%','important');
+      host.style.setProperty('height','100%','important');
+      host.style.setProperty('overflow-y','auto','important');
+      host.style.setProperty('overflow-x','hidden','important');
+      host.style.setProperty('padding','16px 8px calc(100px + env(safe-area-inset-bottom,0px))','important');
+    }else host.removeAttribute('style');
+    const system=window.ElaraProfileSystem,person=profile(),uid=system?.currentUid?.(),view=profileView();
+    if(!uid||!person?.uid||String(person.uid)!==String(uid)||!view){
+      host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+'<p class="elara-profile-hub-empty" role="status">در حال بارگذاری اطلاعات حساب…</p>';
+      return
+    }
+    if(root)root.style.setProperty('--elara-profile-hub-banner','url("'+String(view.bannerSrc||'').replace(/"/g,'%22')+'")');
+    const earned=Array.isArray(view.medals)?view.medals:[];
+    const medalRows=earned.length?earned.map(m=>'<span class="elara-profile-hub-medal" title="'+esc(m.label)+'">'+icon('ranking')+'<b>'+esc(m.label)+'</b></span>').join(''):'<span class="elara-profile-hub-no-medals">هنوز نشانی کسب نشده است.</span>';
+    const status=String(person.bio||'').trim();
+    const entry=(name,sub,iconName,attr)=>'<button type="button" class="elara-profile-hub-entry" '+attr+'>'+icon(iconName)+'<span><strong>'+esc(name)+'</strong><small>'+esc(sub)+'</small></span><span class="elara-profile-hub-chevron" aria-hidden="true">‹</span></button>';
+    host.innerHTML='<div class="elara-profile-hub" dir="rtl">'+
+      '<div class="elara-profile-hub-heading">'+sectionHead('پروفایل من','نمایش هویت، افتخارات و اطلاعات شخصی شما در Elara')+'</div>'+
+      '<div class="elara-profile-hub-hero">'+system.composition(view)+'</div>'+
+      '<div class="elara-profile-hub-medals" aria-label="نشان‌های واقعی کسب‌شده">'+medalRows+'</div>'+
+      '<button type="button" class="elara-profile-hub-status" data-profile-edit aria-label="ویرایش درباره من">'+icon('edit')+'<span dir="auto">'+esc(status||'هنوز دربارهٔ خودت چیزی ننوشته‌ای. برای ویرایش لمس کن.')+'</span></button>'+
+      '<div class="elara-profile-hub-shortcuts" aria-label="بخش‌های پروفایل">'+
+        entry('پروفایل','نمایش و ویرایش هویت','user','data-drawer-nav="account"')+
+        entry('بلاک‌شده‌ها','مدیریت حساب‌های مسدود','shield','data-drawer-nav="blocked"')+
+        entry('کمد','انتخاب آواتار، بنر و قاب','wardrobe','data-approved-wardrobe')+
+        entry('تنظیمات','حریم خصوصی، زبان و ظاهر','settings','data-drawer-nav="settings"')+
+        entry('فروشگاه','آیتم‌های ویژهٔ پروفایل','spark','data-drawer-action="store"')+
+      '</div>'+
+      '<div class="elara-profile-hub-actions">'+
+        '<button type="button" class="elara-profile-hub-edit" data-profile-edit>'+icon('edit')+'<span>ویرایش پروفایل<small>اطلاعات و شخصی‌سازی</small></span></button>'+
+        '<button type="button" data-profile-avatar-gallery>'+icon('user')+'<span>گالری پروفایل<small>تصاویر و آواتارها</small></span></button>'+
+        '<button type="button" data-approved-wardrobe>'+icon('wardrobe')+'<span>کمد<small>آواتار، قاب و بنر</small></span></button>'+
+      '</div>'+
+      '<p class="elara-profile-hub-storage">ظاهر شخصی‌سازی‌شدهٔ این حساب فعلاً روی همین مرورگر ذخیره می‌شود؛ تصاویر ابری هنوز فعال نیستند.</p>'+
+    '</div>';
   }
   function privacyRow(title,sub,control,status=''){
     return `<div class="pass2-privacy-row"><div><strong>${esc(title)}</strong><small>${esc(sub)}</small></div><div class="pass2-privacy-control">${control}${status?`<em>${esc(status)}</em>`:''}</div></div>`;

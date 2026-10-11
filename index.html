@@ -56,7 +56,7 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261010-ui15-language-rectangular-v1"></script>
+  <script defer src="boot.js?v=20261012-well01-dashboard-workout-live-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
@@ -94,6 +94,12 @@ html[data-elara-booting] #elara-boot-screen span{
       #elara-social-page .social-tabs>[role="tab"]{display:block!important;flex:0 0 92px!important;width:92px!important;min-width:92px!important;margin:0!important;align-self:flex-start!important}
     }
   </style>
+  <!-- LIB-01: scoped dashboard only; shared shell and canonical modules remain unchanged. -->
+  <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261011-lib01-v2">
+  <script defer src="lib01-library-dashboard.js?v=20261011-lib01-v2"></script>
+  <!-- REPORTS-01 isolated assets; current navigators and subreports remain canonical. -->
+  <link rel="stylesheet" href="reports-dashboard-01.css?v=20261011-reports01-v1">
+  <script defer src="reports-dashboard-01.js?v=20261011-reports01-v1"></script>
 </head>
 <body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
   <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>

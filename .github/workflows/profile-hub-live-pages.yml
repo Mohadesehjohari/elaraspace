@@ -1,0 +1,55 @@
+name: Verify Live Profile Hub P2
+on:
+  push:
+    branches: [main]
+    paths:
+      - drawer.js
+      - profile-hub-reference.css
+      - tests/profile-hub-reference-browser.mjs
+      - .github/workflows/profile-hub-live-pages.yml
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  live-hub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Match exact deployed Profile Hub JS and CSS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://mohadesehjohari.github.io/elaraspace'
+          verified=false
+          for n in $(seq 1 90); do
+            all=true
+            for file in drawer.js profile-hub-reference.css; do
+              if ! curl --fail --location --silent --show-error --max-time 15 "$base/$file?release=${GITHUB_SHA}&attempt=$n" -o "/tmp/live-$file"; then all=false;break;fi
+              if ! cmp -s "$file" "/tmp/live-$file"; then all=false;break;fi
+            done
+            if [ "$all" = true ]; then
+              verified=true;echo "LIVE_PROFILE_HUB_BYTES_VERIFIED=${GITHUB_SHA}";break
+            fi
+            sleep 8
+          done
+          if [ "$verified" != true ]; then echo '::error::Profile Hub Pages never matched this commit';exit 1;fi
+          grep -Fq 'elara-profile-hub' /tmp/live-drawer.js
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser smoke on live GitHub Pages (fixture identity)
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+          ELARA_HUB_SHOTS: artifacts/profile-hub-live
+        run: timeout 440s node tests/profile-hub-reference-browser.mjs
+      - name: Upload live screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-hub-live-${{ github.sha }}
+          path: artifacts/profile-hub-live/
+          if-no-files-found: warn
+          retention-days: 21

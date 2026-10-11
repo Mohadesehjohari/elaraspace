@@ -1,0 +1,353 @@
+/* WELL-01: scoped green/teal wellness art direction. Does not modify site navigation. */
+/* Single dynamic clearance read from the active topbar and panel geometry. */
+html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:var(--well01-header-clearance,0px)!important}
+#panel-exercise.wellness-feature-hub{position:relative;isolation:isolate;max-width:none;min-width:0;background:radial-gradient(ellipse at 85% 0%,#0e594440,transparent 37%),radial-gradient(ellipse at 10% 48%,#08476342,transparent 48%),#031525;color:#edfffa}
+#panel-exercise>.elara-global-hero,#panel-exercise>.wellness-heading,#panel-exercise>.wellness-banner,#panel-exercise>.wellness-layout,#panel-exercise>.feature-hub-hero,#panel-exercise>.feature-hub-launchers,#panel-exercise>.feature-section-tasks{display:none!important}
+#panel-exercise #well01-dashboard{display:block!important}
+.well01{--well01-green:#37e7a1;--well01-mint:#5ceccc;--well01-edge:#178c9270;--well01-bg:#062235;--well01-soft:#b4d8dd;font-family:inherit;min-width:0;width:100%;margin:0 auto;max-width:1760px;box-sizing:border-box;color:#f5fffc;line-height:1.55}
+.well01 *{box-sizing:border-box}
+.well01 button{font-family:inherit;cursor:pointer;color:inherit}
+.well01 button:focus-visible{outline:3px solid #58ffc6;outline-offset:3px}
+.well01 .well01-hero{direction:ltr;min-height:204px;display:grid;grid-template-columns:minmax(220px,1.1fr) 1fr minmax(155px,.52fr);align-items:center;gap:14px;position:relative;overflow:hidden;border:1px solid #25898db0;border-radius:22px;margin-bottom:12px;background:linear-gradient(90deg,#001419e8 0%,#00181c8c 24%,#01292a03 53%,#061c2c40 74%,#031722d1 100%),url("assets/ui/workout_banner_main.webp") center 51%/cover no-repeat;box-shadow:0 0 0 1px #054e4c70,0 12px 32px #010f1aba,inset 0 0 55px #00cda81c}
+.well01-hero-copy{grid-column:1;direction:rtl;text-align:right;position:relative;z-index:1;justify-self:stretch;padding:22px 8px 23px 27px;text-shadow:0 2px 14px #000f16}
+.well01-hero-copy small{color:#60f7d7;font-size:.67rem;letter-spacing:.17em;font-weight:800}
+.well01-hero-copy h1{font-weight:900;margin:1px 0 7px;font-size:clamp(1.65rem,2.75vw,2.95rem);letter-spacing:-.04em;line-height:1.35;color:white}
+.well01-hero-copy p{max-width:355px;margin:0 0 13px;font-size:clamp(.75rem,.9vw,.96rem);color:#e7fff7;font-weight:600}
+.well01-hero-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0!important;border-radius:22px;padding:10px 20px!important;background:linear-gradient(100deg,#00c9ba,#48f29a)!important;color:#00322d!important;font-size:.84rem;font-weight:900;min-height:39px;box-shadow:0 7px 23px #00e3ad39}
+.well01-hero-cta span{font-size:1.5rem;line-height:.6}
+.well01-quote{grid-column:3;direction:rtl;text-align:right;display:grid;gap:10px;margin:15px 18px 15px 4px;padding:15px;border:1px solid #49d2c58f;border-radius:17px;backdrop-filter:blur(9px);background:#061e2cc2;box-shadow:inset 0 0 12px #18f7b721}
+.well01-quote strong{font-size:clamp(.77rem,1vw,1.03rem);line-height:1.8;color:white}
+.well01-quote small{font-size:.73rem;color:#d5f9ec}
+.well01-shortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 12px;direction:rtl}
+.well01-shortcut{min-width:0;min-height:88px;display:flex;align-items:center;gap:9px;justify-content:space-between;text-align:right;padding:11px 12px;border:1px solid #168eab8a;border-radius:15px;background:linear-gradient(130deg,#063c48ed,#0e1c36);box-shadow:inset 0 0 15px #009dc31c,0 5px 13px #020b1860;transition:transform .16s,border-color .16s}
+.well01-shortcut:hover{transform:translateY(-2px);border-color:#52fac2}
+.well01-shortcut-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:50%;border:1px solid #39e8c5;box-shadow:inset 0 0 14px #00dfb555,0 0 14px #00eeb425;flex:none;background:#062a39}
+.well01-shortcut-icon img{max-width:75%;max-height:75%;object-fit:contain;filter:drop-shadow(0 0 4px #19f5d87e)}
+.well01-sleep .well01-shortcut-icon{border-color:#b49bff;box-shadow:inset 0 0 15px #7d6be855}
+.well01-shortcut-label{display:grid;gap:2px;min-width:0;flex:1}
+.well01-shortcut-label strong{font-size:.95rem;font-weight:900}
+.well01-shortcut-label small{font-size:.66rem;color:#c5d8e6;overflow-wrap:anywhere}
+.well01-arr{font-size:1.5rem;opacity:.87}
+.well01-features{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;direction:ltr;margin-bottom:12px}
+.well01-card{min-width:0;border:1px solid #1681a080!important;background:linear-gradient(145deg,#08263aee,#05192de9)!important;box-shadow:inset 0 0 22px #007e8060,0 7px 21px #020c1860;border-radius:17px!important;padding:12px!important;color:#effffb;direction:rtl}
+.well01-card header{display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0;margin-bottom:10px}
+.well01-card header h2{min-width:0;margin:0;font-size:.96rem;line-height:1.4;color:#f3fffd;font-weight:900;display:flex;align-items:center;gap:8px}
+.well01-card header small{font-size:.72rem;color:#c2e6df}
+.well01-title-icon{display:grid;place-items:center;border-radius:9px;width:30px;height:30px;background:#0d635e75;color:#63f9d4;font-size:1.16rem}
+.well01-task-card,.well01-plan,.well01-activity-card{min-height:233px;display:flex;flex-direction:column}
+.well01-task-list{display:grid;gap:5px;flex:1;align-content:start}
+.well01-task-row{display:flex;align-items:center;gap:7px;min-width:0;width:100%;text-align:right;background:#071d30c8;border:1px solid #26546a9e;border-radius:8px;padding:5px 7px!important;min-height:32px;font-size:.75rem}
+.well01-checkbox{border:1.5px solid #c1d8e6;border-radius:50%;flex:none;width:18px;height:18px;display:grid;place-items:center;color:#063c34;font-size:.72rem}
+.well01-task-row.is-done .well01-checkbox{background:#42e7a5;border-color:#42e7a5;font-weight:900}
+.well01-task-row.is-done .well01-task-text{opacity:.77}
+.well01-task-text{min-width:0;flex:1;overflow-wrap:anywhere}
+.well01-task-tick{font-size:1rem;color:#c1b0ff}
+.well01-empty{font-size:.77rem;color:#c0d9dd;line-height:1.8;margin:8px 0;overflow-wrap:anywhere}
+.well01-subaction{border:1px solid #178c8c85!important;border-radius:9px;min-height:30px;font-size:.75rem;background:linear-gradient(110deg,#123a4e,#0c6c60)!important;padding:5px 9px!important;margin-top:8px}
+.well01-edit{font-size:1.5rem!important;line-height:1;background:transparent!important;border:0!important;padding:0 5px!important}
+.well01-plan-body{flex:1;min-height:110px;overflow:hidden}
+.well01-plan-body>p:not(.well01-empty){font-size:.8rem;line-height:1.9;white-space:pre-line;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;margin:5px 0 8px;overflow-wrap:anywhere}
+.well01-folder{display:inline-block;font-size:.68rem;color:#62f1ba;border:1px solid #216b5c;border-radius:7px;padding:3px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.well01-plan footer{display:flex;justify-content:space-between;gap:6px;margin-top:auto;padding-top:8px;border-top:1px solid #2c677055}
+.well01-plan-link{border:1px solid #188d7a80!important;border-radius:9px;font-size:.72rem;padding:5px 7px!important;background:#0d5c5360!important;min-width:0}
+.well01-activity-card header>button{background:transparent;border:0;color:#d8fff3;font-size:1.4rem}
+.well01-activity-image{height:111px;flex:none;border-radius:11px;background:url("assets/ui/workout_banner_main.webp") center 61%/cover no-repeat;border:1px solid #287c80a0}
+.well01-activity-description{display:flex;align-items:center;gap:7px;justify-content:space-between;margin-top:7px}
+.well01-activity-description strong{font-size:.74rem;line-height:1.5}
+.well01-activity-description p{font-size:.71rem;color:#d2eff0;margin:3px 0 0}
+.well01-play{border:2px solid #37ffa6!important;border-radius:50%!important;background:linear-gradient(130deg,#06312d,#0a5a4d)!important;box-shadow:0 0 16px #19f8aa6e;min-width:43px;width:43px;height:43px;font-size:1rem}
+.well01-metrics{direction:ltr;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.well01-metric{direction:rtl;min-width:0;min-height:128px;padding:13px 14px;border:1px solid #168e9a86;border-radius:17px;background:radial-gradient(circle at 12% 8%,#08a17a2b,transparent 50%),linear-gradient(130deg,#092338,#0b2d39);box-shadow:inset 0 0 21px #08b49a15}
+.well01-metric-sleep{background:radial-gradient(circle at 15% 10%,#8d75ff27,transparent 58%),linear-gradient(125deg,#152040,#0e1d32)}
+.well01-metric-top{display:flex;gap:10px;align-items:flex-start}
+.well01-metric-icon{font-size:1.9rem;flex:none;line-height:1.25}
+.well01-metric h3{font-size:.82rem;font-weight:900;margin:0 0 2px}
+.well01-metric strong{display:block;font-size:1.17rem;line-height:1.5;white-space:normal}
+.well01-metric small{font-size:.65rem;color:#c3e4e1;display:block}
+.well01-metric-actions{display:flex;gap:7px;justify-content:flex-end;margin:3px 0 7px;min-height:28px}
+.well01-metric-actions button{padding:3px 11px!important;border:1px solid #15928f!important;background:#0d5c5866!important;border-radius:18px;font-size:.8rem;min-width:35px;min-height:29px}
+.well01-metric-water .well01-metric-actions button{font-size:1.3rem;padding:0 10px!important}
+.well01-progress{height:6px;overflow:hidden;max-width:100%;border-radius:999px;background:#43677b65}
+.well01-progress i{height:100%;display:block;border-radius:999px;background:linear-gradient(90deg,#2fc2e6,#4af3b2);box-shadow:0 0 8px #37ffd5}
+.well01-lower{direction:ltr;display:grid;grid-template-columns:.93fr 1.4fr;gap:12px;margin-bottom:12px}
+.well01-summary,.well01-reports{direction:rtl}
+.well01-summary-grid{direction:ltr;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.well01-summary-item{direction:rtl;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;border:1px solid #276a7970;background:linear-gradient(160deg,#103c50,#09273d);border-radius:11px;min-height:76px;padding:7px 2px}
+.well01-summary-item span{font-size:1.22rem;line-height:1}
+.well01-summary-item strong{font-size:1.15rem;line-height:1.6}
+.well01-summary-item small{font-size:.63rem;color:#d6edf0;line-height:1.3}
+.well01-reports header button{background:transparent;border:0;font-size:.73rem;color:#67e4c2}
+.well01-report-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;direction:ltr}
+.well01-report{direction:rtl;min-width:0;min-height:78px;display:flex;flex-direction:column;justify-content:start;text-align:right;border:1px solid #246e7b6e!important;border-radius:10px;padding:8px!important;background:linear-gradient(145deg,#174057b3,#0b2b3b)!important}
+.well01-report strong{font-size:.72rem;line-height:1.3}
+.well01-report small{color:#d0e6e8;font-size:.62rem}
+.well01-bars{direction:ltr;margin-top:auto;display:flex;justify-content:flex-end;align-items:end;gap:3px;height:31px}
+.well01-bars>span{flex:1;max-width:16px;min-height:2px;height:var(--bar);border-radius:3px 3px 0 0;background:linear-gradient(0deg,#1b8cbd,#43dfef)}
+.well01-bars.sleep>span{background:linear-gradient(0deg,#7561d9,#bd99ff)}
+.well01-bars.exercise>span{background:linear-gradient(0deg,#00a88e,#5afcb2)}
+.well01-no-data{font-size:.63rem;color:#a7cdd5;margin-top:auto}
+.well01-tip{border:1px solid #13897dba;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 19px;border-radius:17px;min-height:89px;background:linear-gradient(90deg,#053c3ada,#0016216b),url("assets/ui/health-fitness-card-background.webp") center 55%/cover no-repeat;box-shadow:inset 0 0 22px #12c79d24}
+.well01-tip div{display:grid;gap:4px}
+.well01-tip small{font-weight:800;font-size:.76rem}
+.well01-tip strong{font-size:1rem}
+.well01-tip>span{font-size:.64rem;max-width:270px;color:#c7dfd9;line-height:1.6}
+@media(max-width:1260px){.well01-shortcut-icon{width:40px;height:40px}.well01-shortcut{padding:9px;gap:6px}.well01-shortcut-label strong{font-size:.85rem}.well01-features{grid-template-columns:repeat(2,minmax(0,1fr))}.well01-lower{grid-template-columns:1fr}.well01-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+ #panel-exercise.wellness-feature-hub{padding:8px!important}
+ .well01{width:100%}
+ .well01 .well01-hero{min-height:236px;grid-template-columns:minmax(0,1.08fr) .32fr minmax(0,.7fr);gap:2px;background-position:53% center}
+ .well01-hero-copy{padding:17px 2px 15px 11px}
+ .well01-hero-copy h1{font-size:clamp(1.47rem,5.8vw,2.35rem)}
+ .well01-hero-copy p{font-size:.73rem;max-width:210px;line-height:1.8}
+ .well01-hero-copy small{font-size:.56rem}
+ .well01-hero-cta{padding:8px 10px!important;min-height:34px;font-size:.73rem;line-height:1.5}
+ .well01-quote{margin:12px 6px 12px 2px;padding:8px;backdrop-filter:blur(5px)}
+ .well01-quote strong{font-size:.7rem}
+ .well01-quote small{font-size:.63rem}
+ .well01-shortcuts{gap:6px;margin-bottom:10px}
+ .well01-shortcut{min-height:77px;flex-direction:column;justify-content:center;gap:3px;padding:5px 3px;text-align:center}
+ .well01-shortcut-icon{width:36px;height:36px}
+ .well01-shortcut-label strong{font-size:.74rem;line-height:1.1}
+ .well01-shortcut-label small,.well01-arr{display:none}
+ .well01-features,.well01-metrics{gap:8px;margin-bottom:10px}
+ .well01-card{padding:10px!important}
+ .well01-card header h2{font-size:.85rem}
+ .well01-task-card,.well01-plan,.well01-activity-card{min-height:230px}
+ .well01-task-row{font-size:.7rem;min-height:28px}
+ .well01-metric{padding:10px;min-height:128px}
+ .well01-summary-grid{gap:5px}
+ .well01-summary-item strong{font-size:.99rem}
+ .well01-report-grid{gap:6px}
+ .well01-report{padding:6px!important}
+ .well01-tip{padding:12px;flex-wrap:wrap}
+}
+@media(max-width:420px){
+ .well01 .well01-hero{min-height:228px;grid-template-columns:minmax(0,1.35fr) .25fr minmax(0,.58fr);border-radius:14px}
+ .well01-hero-copy h1{font-size:1.44rem}
+ .well01-hero-copy p{font-size:.69rem}
+ .well01-quote strong{font-size:.6rem}
+ .well01-quote{padding:5px;border-radius:10px;margin-right:5px}
+ .well01-shortcut{min-height:69px;border-radius:12px}
+ .well01-shortcut-icon{width:31px;height:31px}
+ .well01-shortcut-label strong{font-size:.69rem}
+ .well01-features{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .well01-title-icon{width:24px;height:24px;font-size:1rem}
+ .well01-card header h2{font-size:.77rem}
+ .well01-plan-body>p:not(.well01-empty){font-size:.72rem}
+ .well01-plan-link,.well01-subaction{font-size:.64rem!important;padding:4px!important}
+ .well01-task-row{font-size:.65rem}
+ .well01-metric-icon{font-size:1.55rem}
+ .well01-metric strong{font-size:1rem}
+ .well01-report-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .well01-summary-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .well01-summary-item{padding:4px 1px;min-height:71px}
+ .well01-summary-item span{font-size:1rem}
+ .well01-summary-item small{font-size:.55rem}
+ .well01-tip>span{max-width:100%}
+}
+@media(max-width:350px){
+ .well01-quote{display:none}
+ .well01 .well01-hero{grid-template-columns:minmax(0,1fr) .45fr}
+ .well01-features{gap:6px}
+ .well01-task-card,.well01-plan,.well01-activity-card{min-height:242px}
+ .well01-card header h2{font-size:.7rem}
+ .well01-task-row{font-size:.62rem}
+}
+/* Individual, lightweight neon glyphs rather than duplicated purple artwork. */
+.well01-shortcut-icon svg{height:29px;width:29px;max-width:77%;max-height:77%;filter:drop-shadow(0 0 5px currentColor)}
+.well01-water .well01-shortcut-icon{color:#4fe8ff;border-color:#11b8e7}
+.well01-sleep .well01-shortcut-icon{color:#b6a4ff;border-color:#8a79ff}
+.well01-weight .well01-shortcut-icon{color:#55d8ff;border-color:#22b3f1}
+.well01-exercise .well01-shortcut-icon{color:#4bffaa;border-color:#1ce4a8}
+.well01-analysis .well01-shortcut-icon{color:#50ffa4;border-color:#13dc7e}
+#panel-wellness-exercise .well01-legacy-editors{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#panel-wellness-exercise .well01-legacy-editors:empty{display:none}
+#panel-wellness-exercise .well01-legacy-editors>button{border:1px solid #21bb9a!important;background:#075850a8!important;color:#e6fff5!important;min-height:34px;border-radius:10px;padding:6px 12px;font-size:.75rem}
+
+/* Independent wellness route framing and reliable Back hit targets below fixed topbar. */
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden){box-sizing:border-box;position:relative;min-height:calc(100vh - 110px);padding-top:86px!important;background:radial-gradient(circle at 80% 12%,#0a70513b,transparent 46%),radial-gradient(circle at 5% 55%,#12698625,transparent 44%),#041b2c!important;color:#eafff8}
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden) > .feature-subpage-head{position:relative!important;isolation:isolate;z-index:10;margin:0 0 16px!important;min-height:130px;border:1px solid #208c838f;border-radius:19px!important;padding:18px 22px!important;background:linear-gradient(90deg,#001b23e3,#063b36c9 55%,#00243377),url("assets/ui/workout_banner_main.webp") center 58%/cover no-repeat!important;box-shadow:0 8px 25px #00121c86,inset 0 0 25px #28dabc28;color:#edfff8}
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden) > .feature-subpage-head h1{color:#f5fff9}
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden) > .feature-subpage-head p{color:#c2f5e4}
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden) .feature-back{position:relative!important;z-index:12!important;flex:none;min-height:42px!important;min-width:90px;padding:9px 16px!important;border:1px solid #43ebbb!important;border-radius:12px!important;background:#0a6259ed!important;color:#f3fff9!important;cursor:pointer;touch-action:manipulation}
+html body #main > .panel[id^="panel-wellness-"]:not(.hidden) .elara-card{border-color:#198d8a9a;box-shadow:inset 0 0 16px #14b98e22;background:linear-gradient(145deg,#08293ae8,#061b30e8)}
+#panel-wellness-exercise .well01-legacy-editors .well01-delete-note{border-color:#d8998c!important;background:#532e2db9!important}
+#panel-wellness-exercise .well01-legacy-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0;color:#e9fff6}
+#panel-wellness-exercise .well01-legacy-preview article{min-width:0;border:1px solid #2fbfa177;border-radius:13px;padding:12px;background:linear-gradient(130deg,#073b3aad,#092338)}
+#panel-wellness-exercise .well01-legacy-preview strong{font-size:.86rem}
+#panel-wellness-exercise .well01-legacy-preview p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;font-size:.78rem;color:#bcece0}
+@media(max-width:700px){
+ html body #main > .panel[id^="panel-wellness-"]:not(.hidden){padding-top:89px!important}
+ html body #main > .panel[id^="panel-wellness-"]:not(.hidden) > .feature-subpage-head{padding:15px!important;min-height:126px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+ html body #main > .panel[id^="panel-wellness-"]:not(.hidden) .feature-back{min-height:44px!important}
+ #panel-wellness-exercise .well01-legacy-preview{grid-template-columns:1fr}
+ .well01 .well01-hero{background-position:43% center}
+}
+
+/* Avoid the extra full-width site banner: wellness already renders its own single hero. */
+html body #main #panel-exercise > .elara-global-hero,
+html body #main #panel-exercise > .feature-hub-hero,
+html body #main #panel-exercise [data-elara-page-hero="exercise"]{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important}
+@media(max-width:700px){.well01 .well01-hero{background-position:72% center}}
+
+/* The desktop fixed topbar must not cover the single wellness hero or its title. */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+
+
+/* WELL-01 fidelity pass — scoped exclusively to the canonical #well01-dashboard. */
+html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margin-top:0;min-width:0}
+#panel-exercise #well01-dashboard{position:relative;isolation:isolate;overflow:visible}
+#panel-exercise #well01-dashboard .well01-hero{
+ min-height:clamp(245px,17vw,312px);grid-template-columns:minmax(280px,1.08fr) minmax(130px,1fr) minmax(190px,.62fr);
+ background-position:center 55%;border-radius:21px;
+ background-image:linear-gradient(90deg,#001419c9 0%,#001a2180 27%,transparent 53%,#03172294 100%),url("assets/ui/workout_banner_main.webp");
+}
+#panel-exercise #well01-dashboard .well01-hero-copy{padding:26px 12px 26px 34px;align-self:center;max-width:490px}
+#panel-exercise #well01-dashboard .well01-hero-copy h1{font-size:clamp(2.15rem,3.05vw,3.5rem);line-height:1.22;margin:4px 0 11px}
+#panel-exercise #well01-dashboard .well01-hero-copy p{font-size:clamp(.85rem,1vw,1.08rem);line-height:1.9}
+#panel-exercise #well01-dashboard .well01-quote{max-width:230px;justify-self:end;text-align:center;padding:18px;margin:16px 17px}
+#panel-exercise #well01-dashboard .well01-shortcut{min-height:100px;gap:11px;border-radius:16px;padding:12px 14px}
+#panel-exercise #well01-dashboard .well01-shortcut-icon{width:55px;height:55px;flex:none}
+#panel-exercise #well01-dashboard .well01-shortcut-icon svg{width:33px;height:33px}
+#panel-exercise #well01-dashboard .well01-features{gap:12px}
+#panel-exercise #well01-dashboard .well01-task-card,
+#panel-exercise #well01-dashboard .well01-plan,
+#panel-exercise #well01-dashboard .well01-activity-card{min-height:264px}
+#panel-exercise #well01-dashboard .well01-task-row{min-height:37px;font-size:.82rem}
+#panel-exercise #well01-dashboard .well01-task-list:has(.well01-empty){align-content:center}
+#panel-exercise #well01-dashboard .well01-task-list .well01-empty{text-align:center}
+#panel-exercise #well01-dashboard .well01-plan-body{display:flex;flex-direction:column;justify-content:center;min-height:120px}
+#panel-exercise #well01-dashboard .well01-plan-body:has(>p:not(.well01-empty)){justify-content:flex-start}
+#panel-exercise #well01-dashboard .well01-plan-empty{min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;border:1px dashed #2b987c70;border-radius:12px;background:radial-gradient(circle,#0e67502e,transparent 70%);padding:13px}
+#panel-exercise #well01-dashboard .well01-plan-empty>span{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:#0d5547a6;color:#59efbc;font-size:1.75rem;box-shadow:0 0 18px #16d9a92b}
+#panel-exercise #well01-dashboard .well01-plan-empty p{font-size:.78rem;margin:0;color:#eafff8}
+#panel-exercise #well01-dashboard .well01-plan-empty small{font-size:.69rem;color:#acd8cc}
+#panel-exercise #well01-dashboard .well01-activity-image{height:140px;background-position:center 65%}
+#panel-exercise #well01-dashboard .well01-play{min-width:51px;width:51px;height:51px;flex:none}
+#panel-exercise #well01-dashboard .well01-metric{min-height:157px;padding:16px}
+#panel-exercise #well01-dashboard .well01-metric-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#0c626181;filter:drop-shadow(0 0 10px #20d8b855)}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-icon{background:#4f409073}
+#panel-exercise #well01-dashboard .well01-metric strong{font-size:1.38rem}
+#panel-exercise #well01-dashboard .well01-metric-actions button{min-height:37px;min-width:37px}
+#panel-exercise #well01-dashboard .well01-progress{height:8px;margin-top:6px}
+#panel-exercise #well01-dashboard .well01-summary-item{min-height:95px}
+#panel-exercise #well01-dashboard .well01-report{min-height:98px}
+#panel-exercise #well01-dashboard .well01-bars{height:43px}
+#panel-exercise #well01-dashboard .well01-tip{min-height:110px}
+@media (min-width:701px){
+ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}
+ #panel-exercise #well01-dashboard .well01-hero{background-position:center 55%}
+}
+@media (min-width:701px) and (max-width:1260px){
+ #panel-exercise #well01-dashboard .well01-hero{grid-template-columns:minmax(210px,1fr) 1fr minmax(150px,.62fr)}
+ #panel-exercise #well01-dashboard .well01-shortcut{min-height:93px}
+ #panel-exercise #well01-dashboard .well01-shortcut-icon{width:42px;height:42px}
+}
+@media(max-width:700px){
+ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-bottom:calc(110px + env(safe-area-inset-bottom))!important}
+ #panel-exercise #well01-dashboard .well01-hero{min-height:255px;grid-template-columns:minmax(0,1.2fr) minmax(0,.45fr) minmax(0,.9fr);background-position:56% 50%;margin-top:0}
+ #panel-exercise #well01-dashboard .well01-hero-copy{padding:18px 5px 20px 16px;align-self:center}
+ #panel-exercise #well01-dashboard .well01-hero-copy h1{font-size:clamp(1.45rem,5vw,2rem)}
+ #panel-exercise #well01-dashboard .well01-hero-copy p{font-size:.78rem;line-height:1.8}
+ #panel-exercise #well01-dashboard .well01-quote{max-width:145px;padding:10px;margin:10px}
+ #panel-exercise #well01-dashboard .well01-shortcuts{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+ #panel-exercise #well01-dashboard .well01-shortcut{min-height:84px;padding:9px 3px;gap:4px}
+ #panel-exercise #well01-dashboard .well01-shortcut-icon{height:38px;width:38px}
+ #panel-exercise #well01-dashboard .well01-features{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-exercise #well01-dashboard .well01-card{padding:11px!important}
+ #panel-exercise #well01-dashboard .well01-task-card,#panel-exercise #well01-dashboard .well01-plan,#panel-exercise #well01-dashboard .well01-activity-card{min-height:252px}
+ #panel-exercise #well01-dashboard .well01-task-row{min-height:35px;font-size:.72rem}
+ #panel-exercise #well01-dashboard .well01-activity-image{height:120px}
+ #panel-exercise #well01-dashboard .well01-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-exercise #well01-dashboard .well01-metric{min-height:140px;padding:11px}
+ #panel-exercise #well01-dashboard .well01-metric-icon{width:34px;height:38px}
+ #panel-exercise #well01-dashboard .well01-metric strong{font-size:1.06rem}
+ #panel-exercise #well01-dashboard .well01-summary-item{min-height:78px}
+ #panel-exercise #well01-dashboard .well01-report{min-height:110px}
+}
+@media(max-width:430px){
+ #panel-exercise #well01-dashboard .well01-hero{min-height:245px;grid-template-columns:minmax(0,1.32fr) minmax(0,.2fr) minmax(0,.95fr);background-position:61% center}
+ #panel-exercise #well01-dashboard .well01-hero-copy h1{font-size:1.45rem}
+ #panel-exercise #well01-dashboard .well01-hero-copy p{font-size:.72rem}
+ #panel-exercise #well01-dashboard .well01-quote{padding:7px;margin:5px;max-width:102px}
+ #panel-exercise #well01-dashboard .well01-quote strong{font-size:.66rem}
+ #panel-exercise #well01-dashboard .well01-shortcuts{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+ #panel-exercise #well01-dashboard .well01-shortcut{min-height:88px;padding:8px 2px;flex-direction:column;justify-content:center;gap:4px}
+ #panel-exercise #well01-dashboard .well01-shortcut-label strong{font-size:.73rem;line-height:1.25;text-align:center}
+ #panel-exercise #well01-dashboard .well01-shortcut-icon{width:37px;height:37px}
+ 
+ #panel-exercise #well01-dashboard .well01-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ #panel-exercise #well01-dashboard .well01-summary-item{min-height:82px}
+ #panel-exercise #well01-dashboard .well01-card header h2{font-size:.81rem}
+ #panel-exercise #well01-dashboard .well01-plan-empty{min-height:117px;padding:7px}
+ #panel-exercise #well01-dashboard .well01-plan-empty>span{width:38px;height:38px}
+ #panel-exercise #well01-dashboard .well01-plan-empty small{font-size:.6rem}
+}
+@media(max-width:355px){
+ #panel-exercise #well01-dashboard .well01-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #panel-exercise #well01-dashboard .well01-features{grid-template-columns:minmax(0,1fr)}
+ #panel-exercise #well01-dashboard .well01-card header h2{font-size:.9rem}
+ #panel-exercise #well01-dashboard .well01-hero{grid-template-columns:minmax(0,1fr) .4fr}
+ #panel-exercise #well01-dashboard .well01-quote{display:none}
+}
+
+/* Visual QA follow-up: the shared mobile shell already offsets the topbar.
+   Do not add a second 86px padding above WELL-01. */
+@media(max-width:700px){
+ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}
+ #panel-exercise #well01-dashboard .well01-hero{margin-top:0!important}
+}
+
+/* Owner WELL-01 measured shell target: remove duplicated desktop panel offset.
+   The shared topbar/search remain in their own flow and keep their hit targets. */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+@media(max-width:700px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+/* Dedicated exercise registration presentation; no global dialog overrides. */
+.wellness-workout-overlay{position:fixed;inset:0;z-index:2147482000;background:#010917b5;backdrop-filter:blur(7px);display:grid;place-items:center;padding:18px;overflow-y:auto;overscroll-behavior:contain}
+.wellness-workout-dialog{direction:rtl;width:min(740px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;border-radius:24px;border:1px solid #3bd8ef;box-shadow:0 0 26px #00ddeb66,0 30px 90px #000c;background:linear-gradient(160deg,#082f4a,#04162c);color:#f4fffe}
+.wellness-workout-form{display:block!important;padding:0!important;direction:rtl}
+.wellness-workout-cover{min-height:165px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:21px 28px;background:linear-gradient(90deg,#052438a0,#06182eaf),url("assets/ui/workout_banner_main.webp") center 56%/cover;border-bottom:1px solid #46c7d17d}
+.wellness-workout-cover>div{text-align:right;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wellness-workout-cover h2{font-size:1.85rem;margin:0;color:white}.wellness-workout-cover p{width:100%;margin:0;color:#c4e8ed;font-size:.86rem}.wellness-workout-symbol{width:59px;height:59px;display:grid;place-items:center;flex:none;border:2px solid #18f7ab;border-radius:50%;background:#063b42;color:#34f8bd;box-shadow:0 0 18px #0af9bb80}.wellness-workout-symbol svg{height:36px;width:36px}
+.wellness-workout-back{border:1px solid #83b6cf!important;border-radius:13px;background:#123653!important;width:45px;height:45px;font-size:1.5rem}
+.wellness-workout-fields{padding:20px 28px 24px;display:grid;gap:15px}
+.wellness-workout-fields label{display:grid;gap:8px!important;font-size:.93rem!important;color:white!important}
+.wellness-workout-fields label>span{font-weight:700;color:#e7fafd}
+.wellness-workout-fields input,.wellness-workout-fields select,.wellness-workout-fields textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;background:#04172d!important;border:1.5px solid #20d9e5!important;box-shadow:inset 0 0 10px #034550;color:#f5ffff!important;border-radius:14px!important;padding:13px 16px!important;font:inherit!important;min-height:51px;outline-offset:2px}
+.wellness-workout-fields textarea{resize:vertical;min-height:85px}
+.wellness-workout-pair{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+/* Override legacy .wellness-editor label:first-child spanning both columns. */
+.wellness-workout-form .wellness-workout-pair>label:first-child{grid-column:auto}
+.wellness-workout-fields [hidden]{display:none!important}
+.wellness-workout-footer{display:flex;gap:12px;margin-top:4px}
+.wellness-workout-save,.wellness-workout-cancel{flex:1;min-height:53px;border-radius:15px!important;border:1px solid #6e5bee!important;font-weight:800;font-size:1.15rem}
+.wellness-workout-save{background:linear-gradient(105deg,#03e5d0,#51f4a1)!important;border-color:#4cfde1!important;color:#03262a!important;box-shadow:0 0 18px #16e8cb75}
+.wellness-workout-cancel{background:#161e4b!important;color:#fff!important}
+.wellness-workout-save:disabled{opacity:.6;pointer-events:none}
+.wellness-workout-error{color:#ffbdbd;background:#501b2d;padding:10px;border-radius:9px;font-size:.83rem}
+@media(max-width:700px){
+ .wellness-workout-overlay{padding:0;display:block}
+ .wellness-workout-dialog{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;border:0;border-radius:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom)}
+ .wellness-workout-cover{min-height:clamp(190px,23dvh,240px);align-items:flex-start;background-position:57% center;padding:calc(24px + env(safe-area-inset-top)) 20px 20px;flex-direction:row-reverse}
+ .wellness-workout-cover>div{align-self:flex-end;margin-bottom:8px}
+ .wellness-workout-cover h2{font-size:clamp(1.7rem,7vw,2.5rem)}
+ .wellness-workout-back{border-radius:50%;width:50px;height:50px;flex:none}
+ .wellness-workout-fields{margin:12px 12px 16px;padding:20px 17px calc(28px + env(safe-area-inset-bottom));gap:16px;border:1px solid #30c7dd;border-radius:18px;background:linear-gradient(150deg,#08253ea8,#03152af0);box-shadow:0 0 18px #1ef0dd37}
+ .wellness-workout-pair{grid-template-columns:1fr}
+ .wellness-workout-fields input,.wellness-workout-fields select,.wellness-workout-fields textarea{min-height:56px;font-size:1.03rem!important}
+ .wellness-workout-footer{padding-bottom:env(safe-area-inset-bottom)}
+}
+
+/* Chromium correction: search/header ends around 55px at 1440; 8px let it overlap.
+   Keep a 6px clear gap after the actual topbar rather than hiding the header. */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+
+/* Measured final topbar clearance (Chromium 1440: bottom=66; mobile 390: bottom=96). */
+@media(min-width:701px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+@media(max-width:700px){html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){}}
+
+/* Visible focus and keyboard-safe controls only within the WELL-01 workout dialog. */
+.wellness-workout-fields input:focus-visible,.wellness-workout-fields select:focus-visible,.wellness-workout-fields textarea:focus-visible{outline:2px solid #6af9dc;outline-offset:2px}
+.wellness-workout-form{margin:0}
+.wellness-workout-error:not([hidden]){display:block}
+@media(max-width:430px) and (min-width:356px){#panel-exercise #well01-dashboard .well01-shortcuts{grid-template-columns:repeat(5,minmax(0,1fr))}#panel-exercise #well01-dashboard .well01-shortcut-label strong{font-size:.73rem;white-space:nowrap}#panel-exercise #well01-dashboard .well01-shortcut-icon{width:34px;height:34px}}
