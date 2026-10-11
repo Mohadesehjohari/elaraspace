@@ -67,6 +67,9 @@ for(const width of widths){
   try{await window.ElaraLoadSocial?.()}catch{}
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:account.uid}),set:()=>{}});
   window.ElaraSocial={me:{...account},friends:[]};
+  document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');
+  document.documentElement.removeAttribute('data-elara-booting');
+  const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}
   window.ElaraPrivateRoutes.render();
  },user());
  try{await page.locator('#elara-private-route .wardrobe-p3-tabs').waitFor({state:'visible',timeout:12000})}catch(error){
