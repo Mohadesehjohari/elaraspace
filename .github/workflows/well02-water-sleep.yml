@@ -33,11 +33,12 @@ jobs:
           set -eu
           node --check boot.js
           node --check well02-wellness-pages.js
+          node --check well01-wellness-dashboard.js
           node --check tests/well02-water-sleep-browser.mjs
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
           test -s assets/ui/health-fitness-card-background.webp
-          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js|well01-wellness-dashboard.js)$'; then
+          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js|approved-wellness.js )$'; then
             echo "::error::Protected shared modules were touched"; exit 1
           fi
       - name: Install Playwright Chromium
@@ -106,7 +107,8 @@ jobs:
             curl -fLsS -H "Cache-Control: no-cache" "$base/boot.js?well02=$GITHUB_SHA" -o /tmp/well02-live-boot.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well02-wellness-pages.js?well02=$GITHUB_SHA" -o /tmp/well02-live.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well02-wellness-pages.css?well02=$GITHUB_SHA" -o /tmp/well02-live.css || true
-            if cmp -s boot.js /tmp/well02-live-boot.js && cmp -s well02-wellness-pages.js /tmp/well02-live.js && cmp -s well02-wellness-pages.css /tmp/well02-live.css; then
+            curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well02=$GITHUB_SHA" -o /tmp/well01-live-updated.js || true
+            if cmp -s boot.js /tmp/well02-live-boot.js && cmp -s well02-wellness-pages.js /tmp/well02-live.js && cmp -s well02-wellness-pages.css /tmp/well02-live.css && cmp -s well01-wellness-dashboard.js /tmp/well01-live-updated.js; then
               echo "PAGES_DEPLOYED_SHA=$GITHUB_SHA"
               exit 0
             fi
