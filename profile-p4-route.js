@@ -38,11 +38,23 @@ function open({push=true}={}){
 function hide(){if(!screen||screen.hidden)return;screen.hidden=true;document.body.classList.remove('p4-private-profile-open');owner=null;window.scrollTo({top:scrollY,behavior:'instant'})}
 function back(){if(history.state?.elaraP4Profile){history.back();return}location.hash=origin||'#home';hide()}
 function goBackThen(action){hide();history.replaceState({...history.state,elaraP4Profile:false},'',origin);action()}
-function sync(){if(location.hash===route){if(!screen||screen.hidden)open({push:false});else if(owner!==uid())populate()}else hide()}
-window.ElaraP4Routes={openProfile:()=>open(),closeProfile:back,openWardrobe:()=>{location.hash='#wardrobe'}};
+function sync(){
+ if(location.hash===route){
+  if(!screen||screen.hidden)open({push:false});else if(owner!==uid())populate();
+ }else hide();
+ if(location.hash==='#wardrobe'){
+  const current=document.querySelector('.approved-wardrobe');
+  if(!current||current.hidden)window.ElaraWardrobeUI?.open?.();
+  const root=document.querySelector('.approved-wardrobe');
+  if(root){root.classList.add('p4-wardrobe-route');root.querySelector('.approved-wardrobe-window')?.setAttribute('aria-modal','false')}
+ }else document.querySelector('.approved-wardrobe.p4-wardrobe-route')?.classList.remove('p4-wardrobe-route')
+}
+window.ElaraP4Routes={openProfile:()=>open(),closeProfile:back,openWardrobe:()=>{origin=location.hash||'#home';location.hash='#wardrobe';sync()}};
 window.addEventListener('hashchange',sync);window.addEventListener('popstate',sync);
 for(const name of ['elara:profile-saved','elara:wardrobe-changed','elara:account-ready','elara:social-updated'])window.addEventListener(name,()=>{if(screen&&!screen.hidden){if(owner!==uid())owner=uid();populate()}});
 document.addEventListener('click',ev=>{
+ const wardrobeEntry=ev.target.closest('[data-p4-wardrobe]');
+ if(wardrobeEntry){ev.preventDefault();ev.stopImmediatePropagation();origin=location.hash||'#home';location.hash='#wardrobe';sync();return}
  const entry=ev.target.closest('[data-p4-private-profile]');
  if(!entry)return;ev.preventDefault();ev.stopImmediatePropagation();open();
 },true);
