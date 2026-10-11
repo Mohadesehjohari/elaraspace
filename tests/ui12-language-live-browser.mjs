@@ -71,6 +71,36 @@ try{
   const liveClassOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(liveClassOverflow<=2,'L1 production classes horizontal overflow '+width+': '+liveClassOverflow);
   await page.screenshot({path:out+'/live-classes-'+width+'.png',fullPage:true,animations:'disabled'});
+
+  // Isolated fixture against the REAL published GitHub Pages app, not a local server.
+  await page.locator('#panel-language-courses .l1-main-cta').click();
+  await page.waitForSelector('#elara-dialog-root .lf-class-editor',{timeout:15000});
+  await page.screenshot({path:out+'/live-classes-popup-new-'+width+'.png',animations:'disabled'});
+  const popup=page.locator('#elara-dialog-root .lf-class-editor');
+  const save=page.locator('#elara-dialog-root .elara-dialog-actions .primary-button').last();
+  await save.click();
+  assert.equal(await popup.count(),1,'Live invalid Save closed the class Popup @'+width);
+  assert.equal(await popup.locator('.lf-editor-error:not([hidden])').count(),1,'Missing live inline form validation @'+width);
+  await popup.locator('input[name="title"]').fill('Live QA isolated class');
+  await popup.locator('input[name="weekday"]').first().check();
+  await save.click();
+  await page.waitForFunction(()=>!document.querySelector('#elara-dialog-root .lf-class-editor'),null,{timeout:12000});
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').languageClasses?.some(x=>x.title==='Live QA isolated class'),null,{timeout:12000});
+  assert.equal(await page.locator('.language-personal-classes .language-class-card').count(),1,'Live class did not render after Save @'+width);
+  await page.screenshot({path:out+'/live-classes-personal-'+width+'.png',fullPage:true,animations:'disabled'});
+  await page.locator('.language-personal-classes [data-class-edit]').first().click();
+  await page.waitForSelector('#elara-dialog-root .lf-class-editor',{timeout:12000});
+  assert.equal(await popup.locator('input[name="title"]').inputValue(),'Live QA isolated class','Live Edit did not restore saved title @'+width);
+  await page.screenshot({path:out+'/live-classes-popup-edit-'+width+'.png',animations:'disabled'});
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(()=>!document.querySelector('#elara-dialog-root .lf-class-editor'),null,{timeout:12000});
+  for(const type of ['online','offline','linked']){
+    await page.locator('[data-lf-class-filter="'+type+'"]').click();
+    assert.equal(await page.locator('[data-lf-class-filter="'+type+'"]').getAttribute('aria-pressed'),'true','Live type filter not active: '+type);
+  }
+  await page.locator('[data-lf-class-filter="all"]').click();
+  console.log('LANG_FIDELITY_LIVE_POPUP_PASS '+width+' true origin + isolated fixture create/invalid/edit/filters');
+
   await page.locator('#panel-language-courses [data-class-back]').click();
   await page.waitForSelector('#panel-language:not(.hidden)');
   await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));
