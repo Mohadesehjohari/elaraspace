@@ -36,6 +36,18 @@ function ensureChrome(){
 }
 function render(){if(!ensureChrome())return;renderShelves();renderClips();applyShelf()}
 async function newShelf(){const value=await window.ElaraDialog.prompt(t('اسم قفسهٔ جدید را بنویس.','Name your new shelf.'),{title:t('قفسه جدید','New shelf'),placeholder:t('مثلاً شب‌های بارانی','e.g. Rainy nights'),maxLength:60,confirmText:t('ساختن','Create')});const name=String(value||'').trim();if(!name)return;const s=read();if(s.bookShelves.includes(name)){toast(t('این قفسه از قبل هست.','That shelf already exists.'));return}s.bookShelves.push(name);commit(s);activeShelf=name}
+async function renameShelf(oldName){
+ const existing=String(oldName||'').trim(),current=read();
+ if(!existing||!current.bookShelves.includes(existing))return;
+ const requested=await window.ElaraDialog.prompt(t('نام جدید قفسه را بنویس.','Enter the new shelf name.'),{title:t('ویرایش نام قفسه','Rename shelf'),value:existing,maxLength:60,confirmText:t('ذخیره','Save')});
+ const name=String(requested||'').trim().slice(0,60);if(!name||name===existing)return;
+ const fresh=read();if(!fresh.bookShelves.includes(existing))return;
+ if(fresh.bookShelves.includes(name)){toast(t('این نام قبلاً استفاده شده است.','That shelf name already exists.'));return}
+ fresh.bookShelves=fresh.bookShelves.map(x=>x===existing?name:x);
+ fresh.books=fresh.books.map(b=>b.customShelf===existing?{...b,customShelf:name}:b);
+ if(activeShelf===existing)activeShelf=name;
+ commit(fresh);toast(t('نام قفسه به‌روزرسانی شد.','Shelf renamed.'));
+}
 async function manageBook(bookId){const s=read(),book=s.books.find(b=>b.id===bookId);if(!book)return;let pending=book.coverData||'',remote=book.coverUrl||'';
  const form=document.createElement('form');form.className='library-manage-book';form.dataset.elaraI18n='off';form.innerHTML='<div class="library-cover-editor"><img data-library-cover-preview src="'+esc(pending||remote||'assets/ui/icon-library-open-book.webp')+'" alt=""><div><strong data-elara-ugc dir="auto">'+esc(book.title)+'</strong><label class="quiet-button library-file-button">'+t('آپلود جلد','Upload cover')+'<input name="cover" type="file" accept="image/*" hidden></label><button type="button" class="quiet-button" data-library-remove-cover>'+t('حذف جلد','Remove cover')+'</button></div></div><label>'+t('قفسهٔ اختصاصی','Custom shelf')+'<select name="customShelf">'+shelfOptions(book.customShelf||'')+'</select></label><p role="status" data-library-manage-status></p>';
  form.elements.cover.onchange=async()=>{try{pending=await compress(form.elements.cover.files[0]);remote='';form.querySelector('[data-library-cover-preview]').src=pending}catch(e){form.querySelector('[data-library-manage-status]').textContent=e.message}};
@@ -64,5 +76,5 @@ document.addEventListener('submit',async e=>{if(!e.target.matches('[data-library
 window.addEventListener('elara:state-committed',()=>setTimeout(render,0));window.addEventListener('elara:locale-changed',()=>{document.querySelector('.library-enhancement-tools')?.remove();setTimeout(render,0)});window.addEventListener('hashchange',()=>setTimeout(render,90));document.addEventListener('click',e=>{if(e.target.closest('[data-elara-tab="books"]'))setTimeout(render,90)});
 const start=()=>{render();const list=document.getElementById('book-list');if(list)new MutationObserver(applyShelf).observe(list,{childList:true})};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-window.ElaraLibraryEnhancements={render,read,newShelf,manageBook,searchBooks};
+window.ElaraLibraryEnhancements={render,read,newShelf,renameShelf,manageBook,searchBooks};
 })();
