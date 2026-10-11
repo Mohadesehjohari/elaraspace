@@ -119,3 +119,12 @@ html body #main #panel-blog .blog-hero.elara-global-hero{position:relative!impor
 }
 @media(max-width:560px){#panel-blog .blog-grid{grid-template-columns:1fr}#panel-blog .blog-card-cover{aspect-ratio:2.05}#panel-blog .blog-top-controls{gap:4px}#panel-blog .blog-cats button{font-size:.66rem}#panel-blog .blog-hero .blog-quote{width:34%;font-size:.54rem}}
 @media(max-width:359px){html body #main #panel-blog .blog-hero.elara-global-hero{height:254px!important;min-height:254px!important;max-height:254px!important;padding:14px 10px!important}#panel-blog .blog-hero .blog-hero-content{width:62%}#panel-blog .blog-hero .blog-quote{width:33%}#panel-blog .blog-hero h1{font-size:1.25rem!important}#panel-blog .blog-hero p{font-size:.6rem!important}#panel-blog .blog-hero .blog-main-btn{font-size:.58rem!important}}
+
+/* Keep the canonical global banner controller owner without a second hero on subviews. */
+html body #main #panel-blog .blog-hero.elara-global-hero.is-subview-hero{display:none!important}
+#panel-blog .blog-preview-layer{margin-top:16px;border:1px solid #d18a78;border-radius:15px;background:#081c38;box-shadow:0 16px 40px #0007}
+#panel-blog .blog-preview-layer .blog-reader-inner{padding:14px}
+#panel-blog .blog-form-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+#panel-blog .blog-form [hidden]{display:none!important}
+#panel-blog .blog-quote br{display:block}
+@media(min-width:1201px){#panel-blog .blog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
