@@ -97,8 +97,13 @@ function ensureLegacyEditors(s){
  const hdr=document.querySelector('#panel-wellness-exercise .wellness-plans > header');if(!hdr)return;
  let bar=hdr.querySelector('.well01-legacy-editors');
  if(!bar){bar=document.createElement('div');bar.className='well01-legacy-editors';hdr.append(bar)}
- bar.innerHTML=(String(s.workoutPlanNote||'').trim()?'':'<button class="quiet-button" type="button" data-wellness-plan-edit="workout">'+tx('ویرایش برنامه تمرینی','Edit training plan')+'</button>')+
- (String(s.nutritionPlanNote||'').trim()?'':'<button class="quiet-button" type="button" data-wellness-plan-edit="nutrition">'+tx('ویرایش برنامه تغذیه','Edit nutrition plan')+'</button>');
+ const workout=String(s.workoutPlanNote||'').trim(),nutrition=String(s.nutritionPlanNote||'').trim();
+ bar.innerHTML=(workout?'<button class="quiet-button well01-delete-note" type="button" data-wellness-plan-delete="workout">'+tx('حذف یادداشت تمرین','Delete training note')+'</button>':'<button class="quiet-button" type="button" data-wellness-plan-edit="workout">'+tx('ویرایش برنامه تمرینی','Edit training plan')+'</button>')+
+ (nutrition?'<button class="quiet-button well01-delete-note" type="button" data-wellness-plan-delete="nutrition">'+tx('حذف یادداشت تغذیه','Delete nutrition note')+'</button>':'<button class="quiet-button" type="button" data-wellness-plan-edit="nutrition">'+tx('ویرایش برنامه تغذیه','Edit nutrition plan')+'</button>');
+ let preview=hdr.nextElementSibling;
+ if(!preview?.classList.contains('well01-legacy-preview')){preview=document.createElement('div');preview.className='well01-legacy-preview';hdr.insertAdjacentElement('afterend',preview)}
+ preview.innerHTML='<article><strong>'+tx('برنامه تمرینی','Workout plan')+'</strong><p id="wellness-workout-plan" data-elara-ugc dir="auto">'+esc(workout||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>'+
+ '<article><strong>'+tx('برنامه تغذیه','Nutrition plan')+'</strong><p id="wellness-nutrition-plan" data-elara-ugc dir="auto">'+esc(nutrition||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>';
 }
 function render(){
  const panel=document.getElementById(panelId);if(!panel)return;
