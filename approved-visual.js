@@ -12,7 +12,7 @@ const assetAvatar=(group,n,shape=wardrobe().shape||'circle')=>profileSystem()?.a
 const bannerList=()=>profileSystem()?.BANNERS||[];
 const frames=()=>profileSystem()?.FRAMES||[];
 const icon=(name)=>window.ElaraIcons?.icon?.(name,{className:'elara-visual-icon'})||`<span class="elara-visual-icon" aria-hidden="true"></span>`;
-let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null;
+let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null,wardrobeOwnerUid=null;
 const LANGUAGE_BOOKS_KEY='elara_language_books_v2';
 const LANGUAGE_BOOKS_MIGRATION='elara_language_books_v2_migrated_';
 const currentLanguageUid=()=>String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'').trim();
@@ -131,7 +131,7 @@ function refreshHome(){if(window.ElaraReferenceHome)return;
 function wardrobeWindow(){
  if(!document.getElementById('elara-wardrobe-reference-css')){const link=document.createElement('link');link.id='elara-wardrobe-reference-css';link.rel='stylesheet';link.href='wardrobe-reference.css?v=p3-20261011';document.head.append(link)}
  if(windowRoot)return;windowRoot=document.createElement('div');windowRoot.className='approved-wardrobe';windowRoot.hidden=true;
- windowRoot.innerHTML=`<button type="button" class="approved-wardrobe-scrim" data-close-wardrobe aria-label="بستن کمد"></button><section class="approved-wardrobe-window" role="dialog" aria-modal="true" aria-labelledby="wardrobe-title" tabindex="-1"><header><button class="quiet-button" type="button" data-back-wardrobe aria-label="بازگشت">←</button><div><h2 id="wardrobe-title"><img class="wardrobe-title-art" src="assets/ui/icon_wardrobe_hanger.webp" alt="" decoding="async"> کمد فضایی من</h2><p class="muted">آیتم قفل‌شده را می‌توانی ببینی و Preview کنی، اما تا رسیدن به سطح لازم قابل Equip نیست.</p></div><button class="quiet-button" type="button" data-close-wardrobe>×</button></header><div id="wardrobe-main"></div></section>`;document.body.append(windowRoot)
+ windowRoot.innerHTML=`<button type="button" class="approved-wardrobe-scrim" data-close-wardrobe aria-label="بستن کمد"></button><section class="approved-wardrobe-window" role="dialog" aria-modal="true" aria-labelledby="wardrobe-title" tabindex="-1"><header><button class="quiet-button" type="button" data-back-wardrobe aria-label="بازگشت">←</button><div><h2 id="wardrobe-title"><img class="wardrobe-title-art" src="assets/ui/icon_wardrobe_hanger.webp" alt="" decoding="async"> کمد فضایی من</h2><p class="muted">انتخاب و تجهیز آواتار، بنر، قاب و آیتم‌های شخصی‌سازی. پیش‌نمایش، انتخاب را ذخیره نمی‌کند.</p></div><button class="quiet-button" type="button" data-close-wardrobe>×</button></header><div id="wardrobe-main"></div></section>`;document.body.append(windowRoot)
 }
 function item(category,id,label,src,required,chosen){
  const locked=level()<required,media=category==='banner'?`<span class="wardrobe-banner" style="background-image:url('${src}')"></span>`:`<span class="wardrobe-item-media"><span class="wardrobe-media-fallback">${icon(category==='frame'?'ranking':'user')}</span><img data-profile-asset loading="lazy" src="${src}" alt="${esc(label)}"></span>`;
@@ -146,7 +146,7 @@ function previewView(){
  return view
 }
 function drawWardrobe(){
- const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;
+ const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;if(wardrobeOwnerUid&&uid()!==wardrobeOwnerUid){closeWardrobe(true);return}
  const p=wardrobe(),group=browseGroup,curLvl=level(),view=previewView();
  const make=(kind,id,label,src,required,equipped)=>({kind,id,label,src,required,locked:curLvl<required,equipped});
  const avatarItems=group?Array.from({length:10},(_,i)=>{const n=i+1;return make('avatar',group+':'+n,'آواتار '+n,system.avatarPath(group,n,p.shape||'circle'),n,p.photoMode!=='upload'&&group===p.avatarGroup&&n===p.avatarLevel)}):[];
@@ -172,8 +172,25 @@ function drawWardrobe(){
  '<div class="wardrobe-p3-detail-actions"><button type="button" data-wardrobe-preview '+(!itemPreview?'disabled':'')+'>پیش‌نمایش</button><button type="button" data-wardrobe-clear '+(!equippedSelected?'disabled':'')+'>برداشتن تجهیز</button></div></aside></div>'+
  '<footer class="wardrobe-p3-footer"><p>تجهیز در همین مرورگر و مخصوص حساب فعال ذخیره می‌شود؛ آپلود ابری فعال نیست.</p><button type="button" class="wardrobe-p3-equip" data-wardrobe-equip '+(!enableEquip?'disabled':'')+'>'+(active?.locked?'آیتم قفل است':equippedSelected?'مجهز است':'تجهیز این آیتم')+'</button></footer>';
 }
-function showWardrobe(){wardrobeWindow();selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;showAll={avatar:false,frame:false,banner:false};drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})}
-function closeWardrobe(){if(windowRoot)windowRoot.hidden=true;selectedPreview=null}
+function showWardrobe(){
+ wardrobeWindow();const wasClosed=windowRoot.hidden;
+ wardrobeOwnerUid=uid();
+ selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
+ showAll={avatar:false,frame:false,banner:false};
+ drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;
+ if(wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
+ windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})
+}
+function closeWardrobe(fromHistory=false){
+ if(!windowRoot||windowRoot.hidden)return;
+ if(!fromHistory&&history.state?.elaraWardrobe){history.back();return}
+ windowRoot.hidden=true;selectedPreview=null;wardrobeOwnerUid=null
+}
+window.addEventListener('popstate',()=>{if(windowRoot&&!windowRoot.hidden&&!history.state?.elaraWardrobe)closeWardrobe(true)});
+window.addEventListener('elara:account-ready',()=>{if(windowRoot&&!windowRoot.hidden&&uid()!==wardrobeOwnerUid){
+ if(history.state?.elaraWardrobe)history.replaceState({...history.state,elaraWardrobe:false},'',location.href);
+ closeWardrobe(true)
+}});
 window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe};
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
