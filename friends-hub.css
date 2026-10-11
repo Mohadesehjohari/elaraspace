@@ -724,3 +724,59 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
 
 /* Seven visible Friends dashboard destinations; challenge remains reachable via Activities. */
 #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-tabs>[role="tab"][data-social-view="challenges"]{display:none!important;visibility:hidden!important}
+
+/* Chromium visual review: hero copy belongs at the RIGHT; the 390px activity
+   text must never be squeezed into an unreadable half-width column. */
+#panel-social>.elara-global-hero[data-f2-hero-tab="friends"]{position:relative!important;overflow:hidden!important}
+#panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-copy{
+ position:absolute!important;right:clamp(17px,3vw,43px)!important;left:auto!important;
+ top:50%!important;transform:translateY(-50%)!important;margin:0!important;
+ width:min(41%,465px)!important;max-width:calc(100% - 34px)!important;
+ text-align:right!important;direction:rtl!important;z-index:3!important;
+}
+#panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-copy h1{
+ font-size:clamp(1.75rem,3.05vw,2.7rem)!important;
+ background:linear-gradient(105deg,#ffd88c 4%,#ffa5ad 51%,#f876ca 96%);
+ color:transparent!important;background-clip:text!important;-webkit-background-clip:text!important;
+}
+#panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-cta{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:41px!important;
+}
+@media(max-width:700px){
+ #panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-copy{
+  right:14px!important;width:57%!important;max-width:57%!important;top:50%!important;
+ }
+ #panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-copy h1{font-size:clamp(1.25rem,6vw,1.8rem)!important}
+ #panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-copy p{font-size:10px!important;line-height:1.55!important}
+ #panel-social>.elara-global-hero[data-f2-hero-tab="friends"] .friends-f2-hero-cta{font-size:11px!important;padding:7px 10px!important;min-height:36px!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{
+  grid-column:1/-1!important;grid-row:4!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-groups{
+  grid-column:1/-1!important;grid-row:5!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{
+  grid-column:1!important;grid-row:6!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-clubs{
+  grid-column:2!important;grid-row:6!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{
+  grid-column:1/-1!important;grid-row:7!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-rank-cta{grid-row:8!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .friends-f2-activity{
+  grid-template-columns:minmax(72px,92px) minmax(0,1fr)!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .friends-f2-activity>span{
+  overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important;
+ }
+}
+@media(max-width:380px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-row:5!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-groups{grid-row:6!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1/-1!important;grid-row:7!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-clubs{grid-column:1/-1!important;grid-row:8!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-row:9!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-rank-cta{grid-row:10!important}
+}
