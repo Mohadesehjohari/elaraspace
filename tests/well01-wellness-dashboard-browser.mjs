@@ -32,6 +32,9 @@ await mkdir('browser-artifacts/well01',{recursive:true});
 for(const w of [390,1440]){
  if(baseline){
   const before=await open(w,baseline);
+  await before.evaluate(()=>window.scrollTo(0,0));
+  const beforeRect=await before.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
+  console.log('WELL01_BEFORE_GEOMETRY_'+w,JSON.stringify(beforeRect));
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
  }
@@ -66,6 +69,8 @@ for(const width of widths){
   assert.equal(await modal.locator('[name="note"]').count(),1,'one optional workout note');
   assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden','workout form locks background scrolling');
   await page.screenshot({path:'browser-artifacts/well01/workout-popup-'+width+'.png'});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.waitForTimeout(90);
   const rect=await page.evaluate(()=>({hero:document.querySelector('#well01-dashboard .well01-hero').getBoundingClientRect().top,panel:document.querySelector('#panel-exercise').getBoundingClientRect().top,topbar:document.querySelector('.topbar')?.getBoundingClientRect().bottom}));
   console.log('WELL01_GEOMETRY_'+width,JSON.stringify(rect));
   if(width===390){
