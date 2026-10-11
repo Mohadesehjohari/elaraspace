@@ -24,6 +24,16 @@ function addNoise(c,{low=6500,high=120,level=.8}={}){
  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=low;
  const g=c.createGain();g.gain.value=level;src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(master);src.start();nodes.push(src,hp,lp,g)
 }
+function seaWaves(c){
+ const src=c.createBufferSource();src.buffer=noiseBuffer(c,6);src.loop=true;
+ const low=c.createBiquadFilter();low.type='lowpass';low.frequency.value=1700;
+ const g=c.createGain();g.gain.value=.46;
+ const lfo=c.createOscillator();lfo.type='sine';lfo.frequency.value=.105;
+ const depth=c.createGain();depth.gain.value=.32;
+ lfo.connect(depth);depth.connect(g.gain);
+ src.connect(low);low.connect(g);g.connect(master);
+ src.start();lfo.start();nodes.push(src,low,g,lfo,depth)
+}
 function addTone(c,freq,level=.18,type='sine'){
  const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.value=level;o.connect(g);g.connect(master);o.start();nodes.push(o,g)
 }
@@ -36,6 +46,9 @@ async function startAudio(){
  if(cfg.mode==='rain'){addNoise(c,{low:7200,high:500,level:.95});addNoise(c,{low:2600,high:80,level:.35})}
  else if(cfg.mode==='forest'){addNoise(c,{low:1800,high:70,level:.28});chirp(c);chirpTimer=setInterval(()=>chirp(c),2800)}
  else if(cfg.mode==='tone'){addTone(c,174.61,.18,'sine');addTone(c,261.63,.11,'sine');addTone(c,349.23,.06,'triangle')}
+ else if(cfg.mode==='library'){addNoise(c,{low:970,high:60,level:.23});addTone(c,110,.04,'sine')}
+ else if(cfg.mode==='cafe'){addNoise(c,{low:3100,high:180,level:.26});addNoise(c,{low:1050,high:80,level:.18})}
+ else if(cfg.mode==='sea'){seaWaves(c)}
  playing=true;syncState()
 }
 function syncVolume(){if(master)master.gain.value=gainValue()}
@@ -45,7 +58,7 @@ function syncState(){
  root.querySelectorAll('[data-ambience-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ambienceMode===cfg.mode)));
  const play=root.querySelector('[data-ambience-play]');if(play){play.setAttribute('aria-pressed',String(playing));play.textContent=playing?t('توقف صدا','Stop sound'):t('پخش صدا','Play sound')}
  const vol=root.querySelector('[data-ambience-volume]');if(vol&&document.activeElement!==vol)vol.value=String(cfg.volume);
- const label=root.querySelector('[data-ambience-now]');if(label){const names={quiet:t('ساکت','Quiet'),rain:t('باران','Rain'),forest:t('جنگل','Forest'),tone:t('Focus Tone','Focus Tone')};label.textContent=names[cfg.mode]||names.quiet}
+ const label=root.querySelector('[data-ambience-now]');if(label){const names={quiet:t('ساکت','Quiet'),rain:t('باران','Rain'),forest:t('جنگل','Forest'),tone:t('Focus Tone','Focus Tone'),library:t('کتابخانه شب','Night library'),cafe:t('کافه دنج','Cozy café'),sea:t('دریا','Sea')};label.textContent=names[cfg.mode]||names.quiet}
 }
 function markup(){
  const cfg=read();
@@ -63,6 +76,9 @@ function markup(){
    <button type="button" data-ambience-mode="rain">🌧️ <span>${t('باران','Rain')}</span></button>
    <button type="button" data-ambience-mode="forest">🌿 <span>${t('جنگل','Forest')}</span></button>
    <button type="button" data-ambience-mode="tone">🎧 <span>Focus Tone</span></button>
+   <button type="button" data-ambience-mode="library">📚 <span>${t('کتابخانه شب','Night library')}</span></button>
+   <button type="button" data-ambience-mode="cafe">☕ <span>${t('کافه دنج','Cozy café')}</span></button>
+   <button type="button" data-ambience-mode="sea">🌊 <span>${t('دریا','Sea')}</span></button>
   </div>
   <div class="focus-ambience-controls">
    <button type="button" class="primary-button" data-ambience-play aria-pressed="false">${t('پخش صدا','Play sound')}</button>
