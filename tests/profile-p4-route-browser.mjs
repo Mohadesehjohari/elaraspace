@@ -25,7 +25,7 @@ for(const width of widths){
  const page=await ctx.newPage();page.on('pageerror',e=>errors.push(width+': '+e.message));
  await page.goto(url+'/#home',{waitUntil:'domcontentloaded'});
  await seed(page);
- await page.locator('#elara-account-menu-trigger').click();
+ await page.locator('#ref-header-account').click();
  await page.locator('.drawer-menu [data-drawer-nav="account"]').click();
  await page.waitForURL('**/#profile');
  await page.locator('#elara-private-profile-page:not([hidden]) .elara-profile-hub').waitFor({timeout:10000});
