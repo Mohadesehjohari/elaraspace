@@ -711,6 +711,14 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .friends-fidelity-place{padding:8px 4px}
 }
 @media(max-width:380px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card{grid-column:1/-1!important;grid-row:3!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-fidelity-requests{grid-column:1/-1!important;grid-row:4!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-column:1/-1!important;grid-row:5!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1/-1!important;grid-row:6!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-groups{grid-column:1/-1!important;grid-row:7!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-clubs{grid-column:1/-1!important;grid-row:8!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:1/-1!important;grid-row:9!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-rank-cta{grid-column:1/-1!important;grid-row:10!important}
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-invite-card,
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-fidelity-requests,
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities,
