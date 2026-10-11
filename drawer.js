@@ -199,6 +199,7 @@
       host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+'<p class="elara-profile-hub-empty" role="status">در حال بارگذاری اطلاعات حساب…</p>';
       return
     }
+    if(root)root.style.setProperty('--elara-profile-hub-banner','url("'+String(view.bannerSrc||'').replace(/"/g,'%22')+'")');
     const earned=Array.isArray(view.medals)?view.medals:[];
     const medalRows=earned.length?earned.map(m=>'<span class="elara-profile-hub-medal" title="'+esc(m.label)+'">'+icon('ranking')+'<b>'+esc(m.label)+'</b></span>').join(''):'<span class="elara-profile-hub-no-medals">هنوز نشانی کسب نشده است.</span>';
     const status=String(person.bio||'').trim();
