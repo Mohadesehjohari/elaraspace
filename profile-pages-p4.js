@@ -84,5 +84,11 @@
  window.addEventListener('hashchange',sync);
  const refresh=()=>{if(routes.has(location.hash)&&lastUid!==logged())sync();else if(location.hash==='#profile'&&root&&!root.hidden)showProfile()};
  ['elara:profile-saved','elara:wardrobe-changed','elara:account-ready','elara:social-updated'].forEach(e=>window.addEventListener(e,refresh));
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(sync,400),{once:true});else setTimeout(sync,400);
+ const first=window.__elaraP4InitialRoute;
+ const startup=()=>{
+  if(first&&location.hash!==first){history.replaceState({...history.state,elaraPrivateRoute:first.slice(1)},'',location.pathname+location.search+first)}
+  sync();
+  if(first)setTimeout(()=>{if(!active&&location.hash==='#home'){history.replaceState({...history.state,elaraPrivateRoute:first.slice(1)},'',location.pathname+location.search+first);sync()}},1200);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(startup,400),{once:true});else setTimeout(startup,400);
 })();
