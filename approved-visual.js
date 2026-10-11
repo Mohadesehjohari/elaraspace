@@ -222,7 +222,7 @@ function wire(){
    const q=selectedPreview,sys=profileSystem(),current=wardrobe();let patch=null;
    if(q.kind==='frame'&&current.frame===q.id)patch={frame:null};
    if(q.kind==='avatar'&&current.avatarGroup===q.group&&Number(current.avatarLevel)===q.level)patch={avatarGroup:null,avatarLevel:null};
-   if(q.kind==='banner'&&current.banner===q.id)patch={banner:sys.BANNERS[0]?.id||null};
+   if(q.kind==='banner'&&current.banner===q.id)patch={banner:null};
    if(patch){storeWardrobe(patch);selectedPreview=null;drawWardrobe()}return
   }
   if(event.target.closest('[data-wardrobe-preview]')){windowRoot?.querySelector('.wardrobe-p3-hero')?.scrollIntoView({behavior:'smooth',block:'start'});return}
