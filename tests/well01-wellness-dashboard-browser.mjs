@@ -29,6 +29,27 @@ async function open(width,url,seed=true,touch=false){
  return page;
 }
 await mkdir('browser-artifacts/well01',{recursive:true});
+if(process.env.WELL_PROFILE_CAPTURE_ONLY==='1'){
+ const publicUrl='https://mohadesehjohari.github.io/elaraspace';
+ for(const width of [1440,390]){
+  const pg=await open(width,publicUrl,false,width===390);
+  await pg.locator('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero').waitFor();
+  const cluster=pg.locator('.topbar .ref-header-account-cluster');
+  await cluster.waitFor();await pg.waitForTimeout(300);
+  await pg.screenshot({path:'browser-artifacts/well01/production-profile-idle-'+width+'.png'});
+  if(width===1440){await cluster.hover();await pg.waitForTimeout(280);await pg.screenshot({path:'browser-artifacts/well01/production-profile-hover-1440.png'});await pg.locator('#ref-header-account').click();}
+  else{const r=await pg.locator('#ref-header-account').boundingBox();await pg.touchscreen.tap(r.x+r.width/2,r.y+r.height/2);}
+  await pg.locator('.elara-private-drawer:not(.hidden)').waitFor();
+  await pg.waitForTimeout(280);
+  await pg.screenshot({path:'browser-artifacts/well01/production-profile-menu-'+width+'.png'});
+  console.log('LIVE_PROFILE_PROOF_'+width);
+  await pg.close();
+ }
+ await browser.close();
+ console.log('LIVE_PROFILE_PROOF_PASS public GitHub Pages 1440 and 390');
+ process.exit(0);
+}
+
 const beforeGeometry=new Map();
 async function geometry(page){
  return page.evaluate(()=>{
