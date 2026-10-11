@@ -86,7 +86,9 @@ for(const width of widths){
    await page.locator('.elara-private-drawer-panel').hover();
    assert.ok(await opacity()>.9,'account remains visible on mouse travel into drawer');
   }
-  await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+  if(width===1440)await page.keyboard.press('Escape');
+  else await page.locator('.elara-private-drawer [data-drawer-close]').click();
+  await drawer.waitFor({state:'hidden'});
   await page.mouse.move(12,360);await page.waitForTimeout(270);
   if(width===1440)assert.ok(await opacity()<=.15,'account fades after drawer closed');
   else assert.ok((await opacity())>=.48&&(await opacity())<.9,'touch account returns to compact form');
