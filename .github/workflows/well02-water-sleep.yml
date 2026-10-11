@@ -44,6 +44,26 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Verify WELL-01 is actually live before approving WELL-02
+        run: |
+          set -euo pipefail
+          base="https://mohadesehjohari.github.io/elaraspace"
+          for i in $(seq 1 30); do
+            curl -fsSL -H "Cache-Control: no-cache" "$base/boot.js?well01-check=$GITHUB_SHA" -o /tmp/well01-current-live-boot.js || true
+            curl -fsSL -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well01-check=$GITHUB_SHA" -o /tmp/well01-current-live.js || true
+            curl -fsSL -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.css?well01-check=$GITHUB_SHA" -o /tmp/well01-current-live.css || true
+            if cmp -s baseline/boot.js /tmp/well01-current-live-boot.js && cmp -s baseline/well01-wellness-dashboard.js /tmp/well01-current-live.js && cmp -s baseline/well01-wellness-dashboard.css /tmp/well01-current-live.css; then
+              echo "WELL01_LIVE_PAGES_BYTES_VERIFIED"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "::error::WELL-01 is not on the live Pages yet; do not release WELL-02"
+              exit 1
+            fi
+            sleep 15
+          done
+          ELARA_TEST_URL="$base" timeout 600s node tests/well01-wellness-dashboard-browser.mjs
+          echo "WELL01_LIVE_CHROMIUM_VERIFIED"
       - name: Serve candidate and main baseline
         run: |
           python3 -m http.server 4173 >/tmp/well02-current.log 2>&1 &
@@ -64,7 +84,9 @@ jobs:
         if: always()
         with:
           name: well02-water-sleep-before-after-${{ github.sha }}
-          path: browser-artifacts/well02/*.png
+          path: |
+            browser-artifacts/well02/*.png
+            browser-artifacts/well01/after-*.png
           if-no-files-found: warn
           retention-days: 30
   production-verification:
