@@ -92,7 +92,13 @@ function splitWeight(water,weightPanel){
 }
 function setupWellness(){
  const parent=$('panel-exercise');if(!parent)return;parent.classList.add('feature-hub-parent','wellness-feature-hub');
- visualHero(parent,'wellness','assets/ui/35-wellness-hero-banner.webp','حال خوب','Wellness','آب، خواب، ورزش و روندهای واقعی خودت.','Water, sleep, exercise and your real trends.');
+ const wellnessHero=visualHero(parent,'wellness','assets/ui/35-wellness-hero-banner.webp','ورزش و سلامتی','Wellness & Fitness','بدن سالم، ذهن روشن؛ مسیر سلامتی‌ات را با قدم‌های کوچک بساز.','A healthier body, a clearer mind. Every step counts.');
+ if(wellnessHero){
+  wellnessHero.querySelector('.wellness-hero-actions')?.remove();
+  const actions=document.createElement('div');actions.className='wellness-hero-actions';
+  actions.innerHTML='<button type="button" class="wellness-hero-cta" data-feature-route="wellness-exercise">'+tx('شروع یک زندگی سالم‌تر','Start a healthier life')+' <span aria-hidden="true">←</span></button><blockquote>'+tx('«سرمایهٔ واقعی تو، سلامتی توست.»','Your health is your real wealth.')+'<small>— ELARA</small></blockquote>';
+  wellnessHero.append(actions);
+ }
  const water=parent.querySelector('.wellness-water'),sleep=parent.querySelector('.wellness-sleep'),exercise=parent.querySelector('.wellness-workouts'),plans=parent.querySelector('.wellness-plans'),analysis=parent.querySelector('.wellness-analysis'),context=parent.querySelector('.wellness-profile-context');
  const wp=$('panel-wellness-water'),sp=$('panel-wellness-sleep'),ep=$('panel-wellness-exercise'),weight=$('panel-wellness-weight'),ap=$('panel-wellness-analysis'),rp=$('panel-wellness-reports');
  for(const [panel,key] of [[wp,'wellness-water'],[sp,'wellness-sleep'],[ep,'wellness-exercise'],[weight,'wellness-weight'],[ap,'wellness-analysis'],[rp,'wellness-reports']])head(panel,'exercise','WELLNESS',titles[key],['ثبت خصوصی و سادهٔ حال خوب.','A private, simple wellness space.']);
@@ -104,8 +110,8 @@ function setupWellness(){
    card('wellness-sleep','assets/ui/27-sleep-tracker-icon.webp','خواب','Sleep','ثبت و روند خواب','Sleep log and trend')+
    card('wellness-exercise','assets/ui/28-exercise-icon.webp','ورزش','Exercise','تمرین و برنامه ورزشی/تغذیه','Workouts and training/nutrition plans')+
    card('wellness-weight','assets/ui/29-weight-tracker-icon.webp','وزن','Weight','وزن فعلی و هدف شخصی','Current and target weight')+
-   card('wellness-reports','assets/ui/30-fitness-report-icon.webp','گزارش‌ها','Reports','میانبر گزارش‌های حال خوب','Wellness report shortcuts',{wide:true})+
-   card('wellness-analysis','assets/ui/09-wellness-analytics-icon..webp','تحلیل','Analysis','الگوهای ثبت‌شدهٔ واقعی','Patterns from your real logs',{wide:true}),'wellness'
+
+   card('wellness-analysis','assets/ui/09-wellness-analytics-icon..webp','تحلیل','Analysis','الگوهای ثبت‌شدهٔ واقعی','Patterns from your real logs'),'wellness'
  );sectionTasks(parent,'exercise','wellness');
 }
 function setupFocus(){
