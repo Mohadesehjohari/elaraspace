@@ -44,7 +44,11 @@ for(const width of widths){
  // From inside private profile, actual wardrobe CTA must open a *page*, not legacy overlay.
  await page.locator('#elara-private-route .elara-profile-hub-actions [data-approved-wardrobe]').click();
  await page.waitForFunction(()=>location.hash==='#wardrobe'&&document.body.classList.contains('elara-private-route-wardrobe'),null,{timeout:12000});
- await page.locator('#elara-private-route .wardrobe-p3-tabs').waitFor({state:'visible',timeout:15000});
+ try{await page.locator('#elara-private-route .wardrobe-p3-tabs').waitFor({state:'visible',timeout:15000});}catch(error){
+ const diag=await page.evaluate(()=>({hash:location.hash,body:document.body.className,host:document.querySelector('#elara-private-route')?.innerHTML.slice(0,2500),tabCount:document.querySelectorAll('.wardrobe-p3-tabs').length,root:document.querySelector('.approved-wardrobe')?.hidden,wardrobeAPI:Object.keys(window.ElaraWardrobeUI||{}),css:[...document.styleSheets].map(x=>x.href).filter(Boolean).filter(x=>/wardrobe|profile/.test(x))}));
+ console.error('P4_WARDROBE_ENTRY_DIAG '+JSON.stringify(diag));
+ await page.screenshot({path:dest+'/wardrobe-entry-timeout-'+width+'.png',fullPage:true});throw error
+}
  assert.equal(await page.locator('#elara-private-route .wardrobe-p3-tabs button').count(),5);
  assert.equal(await page.locator('.approved-wardrobe:not([hidden])').count(),0,'Wardrobe still a modal');
  const before=await page.evaluate(()=>JSON.stringify(window.ElaraProfileSystem.readWardrobe()));
