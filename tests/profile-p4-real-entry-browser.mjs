@@ -69,7 +69,10 @@ for(const width of widths){
   window.ElaraSocial={me:{...account},friends:[]};
   window.ElaraPrivateRoutes.render();
  },user());
- await page.locator('#elara-private-route .wardrobe-p3-tabs').waitFor({state:'visible',timeout:15000});
+ try{await page.locator('#elara-private-route .wardrobe-p3-tabs').waitFor({state:'visible',timeout:12000})}catch(error){
+ const diag=await page.evaluate(()=>({hash:location.hash,host:document.querySelector('#elara-private-route')?.innerHTML.slice(0,3000),uid:window.ElaraAccount?.user?.uid,route:window.ElaraPrivateRoutes?.current(),draft:window.ElaraProfileSystem?.readWardrobe?.(),ready:!!window.ElaraPrivateDrawer,css:!!document.querySelector('#elara-private-route-css')?.sheet}));
+ console.error('P4_RELOAD_DIAG '+JSON.stringify(diag));await page.screenshot({path:dest+'/wardrobe-reload-timeout-'+width+'.png',fullPage:true});throw error
+ }
  assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().banner),afterEquip,'Local equip lost on reload');
  await page.locator('#elara-private-route [data-wardrobe-tab="frame"]').click();
  await page.locator('#elara-private-route [data-wardrobe-item="frame"][data-wardrobe-id="diamond"]').click();
