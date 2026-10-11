@@ -103,6 +103,26 @@ try{
 
   await page.locator('#panel-language-courses [data-class-back]').click();
   await page.waitForSelector('#panel-language:not(.hidden)');
+
+  // L2: direct production Chromium dashboard check with isolated local storage fixtures.
+  await page.evaluate(()=>ElaraOpen('words',{history:'replace'}));
+  await page.waitForSelector('#panel-words:not(.hidden) [data-l2-leitner]',{timeout:20000});
+  assert.equal(await page.locator('#panel-words .l2-stage').count(),5,'Live L2 five boxes missing @'+width);
+  assert.equal(await page.locator('#panel-words .l2-stat').count(),4,'Live L2 statistics missing @'+width);
+  assert.equal(await page.locator('#panel-words .l2-leitner-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('lightner.webp')),true,'Live L2 artwork missing @'+width);
+  await page.screenshot({path:out+'/live-leitner-dashboard-'+width+'.png',fullPage:true,animations:'disabled'});
+  await page.locator('#panel-words [data-l2-add]').first().click();
+  assert.equal(await page.evaluate(()=>document.activeElement?.id),'word-front','Live L2 add CTA not connected to canonical form');
+  await page.locator('#word-front').fill('live leitner '+width);
+  await page.locator('#word-back').fill('معنی آزمایشی');
+  await page.locator('#word-form button[type=submit]').click();
+  await page.waitForFunction(w=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words?.some(x=>x.front==='live leitner '+w),width,{timeout:12000});
+  await page.waitForFunction(()=>document.querySelector('.l2-stat-all strong')?.textContent===Number(1).toLocaleString('fa-IR'),null,{timeout:12000});
+  await page.locator('#panel-words [data-l2-review]').first().click();
+  assert.equal(await page.evaluate(()=>document.activeElement?.id),'word-reveal','Live L2 review button did not reach canonical flashcard');
+  await page.screenshot({path:out+'/live-leitner-review-connected-'+width+'.png',animations:'disabled'});
+  console.log('L2_LIVE_LEITNER_PASS '+width+' canonical add and review routing');
+
   await page.evaluate(()=>ElaraOpen('home',{history:'replace'}));
   await page.waitForSelector('#panel-home:not(.hidden)');
   assert.equal(await page.locator('#panel-language.hidden').count(),1,'Language must become hidden on Home');
