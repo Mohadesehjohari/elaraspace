@@ -1,0 +1,86 @@
+name: BLOG-01 Dashboard Reference and Live Browser
+on:
+  pull_request:
+    paths:
+      - blog-view.js
+      - blog01-dashboard.css
+      - tests/blog-stage-browser.mjs
+      - .github/workflows/blog01-dashboard.yml
+  push:
+    branches: [main]
+    paths:
+      - blog-view.js
+      - blog01-dashboard.css
+      - tests/blog-stage-browser.mjs
+      - .github/workflows/blog01-dashboard.yml
+permissions:
+  contents: read
+jobs:
+  blog01-candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax and approved real artwork
+        run: |
+          node --check blog-view.js
+          node --check tests/blog-stage-browser.mjs
+          test -s assets/ui/weblog_banner_main.webp
+          grep -Fq 'weblog_banner_main.webp' blog-view.js
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser contract (ten reference widths)
+        run: |
+          python3 -m http.server 4173 >/tmp/blog01-http.log 2>&1 &
+          sleep 3
+          timeout 540s node tests/blog-stage-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blog01-candidate-${{ github.sha }}
+          path: browser-artifacts/blog01/*.png
+          retention-days: 20
+  blog01-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact GitHub Pages production bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          ready=false
+          for attempt in $(seq 1 90); do
+            ready=true
+            for file in blog-view.js blog01-dashboard.css assets/ui/weblog_banner_main.webp; do
+              output="/tmp/blog01-live-$(basename "$file")"
+              if ! curl -fLsS --max-time 18 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ready=false;break;fi
+            done
+            if [ "$ready" = true ]; then echo "BLOG01_LIVE_BYTES_PASS sha=$GITHUB_SHA"; break; fi
+            sleep 8
+          done
+          if [ "$ready" != true ]; then echo "::error::Blog files not yet deployed to GitHub Pages";exit 1;fi
+      - name: Install real Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run all viewport checks on deployed website
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 540s node tests/blog-stage-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blog01-LIVE-${{ github.sha }}
+          path: browser-artifacts/blog01/*.png
+          retention-days: 30

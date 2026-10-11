@@ -119,3 +119,59 @@ html body #main #panel-blog .blog-hero.elara-global-hero{position:relative!impor
 }
 @media(max-width:560px){#panel-blog .blog-grid{grid-template-columns:1fr}#panel-blog .blog-card-cover{aspect-ratio:2.05}#panel-blog .blog-top-controls{gap:4px}#panel-blog .blog-cats button{font-size:.66rem}#panel-blog .blog-hero .blog-quote{width:34%;font-size:.54rem}}
 @media(max-width:359px){html body #main #panel-blog .blog-hero.elara-global-hero{height:254px!important;min-height:254px!important;max-height:254px!important;padding:14px 10px!important}#panel-blog .blog-hero .blog-hero-content{width:62%}#panel-blog .blog-hero .blog-quote{width:33%}#panel-blog .blog-hero h1{font-size:1.25rem!important}#panel-blog .blog-hero p{font-size:.6rem!important}#panel-blog .blog-hero .blog-main-btn{font-size:.58rem!important}}
+
+/* Keep the canonical global banner controller owner without a second hero on subviews. */
+html body #main #panel-blog .blog-hero.elara-global-hero.is-subview-hero{display:none!important}
+#panel-blog .blog-preview-layer{margin-top:16px;border:1px solid #d18a78;border-radius:15px;background:#081c38;box-shadow:0 16px 40px #0007}
+#panel-blog .blog-preview-layer .blog-reader-inner{padding:14px}
+#panel-blog .blog-form-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+#panel-blog .blog-form [hidden]{display:none!important}
+#panel-blog .blog-quote br{display:block}
+@media(min-width:1201px){#panel-blog .blog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* The global header is positioned over the first hero. Subviews deliberately have
+   no large hero, so reserve the real header's hit area above Back/reader controls. */
+html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!important}
+@media(max-width:700px){
+ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:110px!important}
+}
+@media(max-width:359px){
+ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:18px!important}
+}
+
+/* Approved Elara scenery is decorative editorial placeholder artwork for the
+   five bundled articles only, never a claimed user-uploaded cover image. */
+#panel-blog .blog-card[data-blog-id="plan-week"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_city_of_stars.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="focus-reset"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="habit-small"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="read-better"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
+#panel-blog .blog-card[data-blog-id="energy-day"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
+@media(max-width:900px){
+ /* Reference mobile order: featured, authors, topics, my posts, remaining articles.
+    Do not move actual sidebars or alter the global mobile navigation. */
+ #panel-blog .blog-content-layout{display:flex;flex-direction:column;gap:12px}
+ #panel-blog .blog-feed{display:contents}
+ #panel-blog .blog-feed>section:first-child{order:1;width:100%}
+ #panel-blog .blog-side{order:2;width:100%}
+ #panel-blog .blog-feed>section:nth-child(2){order:3;width:100%}
+ #panel-blog .blog-feed>section:nth-child(n+3){order:4;width:100%}
+}
+
+@media(min-width:901px){
+ /* Reference desktop puts My Posts after the editorial sections. */
+ #panel-blog .blog-feed{display:flex;flex-direction:column;gap:12px}
+ #panel-blog .blog-feed>section:first-child{order:1}
+ #panel-blog .blog-feed>section:nth-child(2){order:3}
+ #panel-blog .blog-feed>section:nth-child(n+3){order:2}
+}
+
+/* Owner mobile reference shows two featured article cards where the viewport
+   permits; very narrow 320–375px screens fall back to the readable one-column view. */
+@media(min-width:390px) and (max-width:700px){
+ #panel-blog .blog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #panel-blog .blog-card-cover{min-height:78px;aspect-ratio:1.55}
+ #panel-blog .blog-card-copy{padding:8px}
+ #panel-blog .blog-card-copy h3{font-size:.72rem;line-height:1.65}
+ #panel-blog .blog-card-copy p{font-size:.62rem}
+ #panel-blog .blog-card-footer{font-size:.59rem}
+}
