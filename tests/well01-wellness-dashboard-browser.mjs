@@ -10,8 +10,8 @@ const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.ge
 const date=iso(new Date());
 const cloud="window.ElaraAccount={user:{uid:'well01-qa'},profile:{name:'Wellness QA',username:'wellness_qa',xp:0,profilePublic:false}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
 const social="window.ElaraSocial={me:{uid:'well01-qa',name:'Wellness QA'},friends:[],activities:[],requests:[],publishActivity:async()=>{throw Error('private wellness must not publish to social')},refresh:async()=>{}};";
-async function open(width,url,seed=true){
- const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+async function open(width,url,seed=true,touch=false){
+ const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1,hasTouch:touch,isMobile:touch});
  await page.route('**/cloud.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:cloud}));
  await page.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:social}));
 
@@ -57,6 +57,8 @@ for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
  const dash=page.locator('#well01-dashboard');
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.waitForTimeout(110);
  if([390,412,1440].includes(width)){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
@@ -70,7 +72,7 @@ for(const width of widths){
   assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
   if(beforeGeometry.has(width)){
     const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
-    assert.ok(change>=35,'hero must physically move upward at '+width+': '+change);
+    assert.ok(Math.abs(change)<=1,'WELL-PROFILE must preserve the #79 hero vertical position at '+width+': '+change);
     assert.ok(Math.abs(measure.hero.height-before.hero.height)<=1,'hero height must be preserved '+width);
     assert.ok(Math.abs(measure.hero.width-before.hero.width)<=1,'hero width must be preserved '+width);
     assert.ok(Math.abs((before.shortcut.y-measure.shortcut.y)-change)<=3,'shortcut row must move with hero '+width);
@@ -80,6 +82,56 @@ for(const width of widths){
   if(width===390||width===412)assert.ok(g.shortcuts.every(x=>Math.abs(x.top-g.shortcuts[0].top)<3),'all five shortcuts on same mobile row at '+width);
  }
 
+ if(width===390||width===1440){
+  const account=page.locator('.topbar .ref-header-account-cluster'),button=page.locator('#ref-header-account');
+  const opacity=()=>account.evaluate(el=>Number(getComputedStyle(el).opacity));
+  const drawer=page.locator('.elara-private-drawer:not(.hidden)');
+  const geom=await page.evaluate(()=>{const x=document.querySelector('.topbar .ref-header-account-cluster'),b=document.querySelector('#ref-header-account');const st=getComputedStyle(x);return {rect:x.getBoundingClientRect().toJSON(),button:b.getBoundingClientRect().toJSON(),position:st.position,events:st.pointerEvents,display:st.display};});
+  console.log('WELL_PROFILE_REAL_DOM_'+width,JSON.stringify(geom));
+  assert.ok(geom.button.height>=44&&geom.button.width>=44,'account keeps >=44px hit target');
+  assert.equal(geom.events,'auto','account remains pointer-interactive');
+  await page.waitForTimeout(280);
+  const idle=await opacity();
+  await page.screenshot({path:'browser-artifacts/well01/profile-idle-'+width+'.png'});
+  if(width===1440){
+   assert.ok(idle<=.15,'desktop account fades when idle: '+idle);
+   await account.hover();await page.waitForTimeout(270);
+   assert.ok(await opacity()>.9,'desktop account reveals on hover');
+   await page.screenshot({path:'browser-artifacts/well01/profile-hover-1440.png'});
+   await page.mouse.move(12,360);await page.waitForTimeout(280);
+   assert.ok(await opacity()<=.15,'desktop account fades again after pointer leaves');
+  }else assert.ok(idle>=.48&&idle<.9,'touch account stays discoverable: '+idle);
+  await button.click();
+  await drawer.waitFor();
+  assert.ok(await page.evaluate(()=>document.body.classList.contains('elara-private-drawer-open')),'drawer open class exists');
+  await page.waitForTimeout(270);
+  assert.ok(await opacity()>.9,'account fully visible while menu open');
+  await page.screenshot({path:'browser-artifacts/well01/profile-menu-'+width+'.png'});
+  if(width===1440){
+   await page.locator('.elara-private-drawer-panel').hover();
+   assert.ok(await opacity()>.9,'account remains visible on mouse travel into drawer');
+  }
+  if(width===1440)await page.keyboard.press('Escape');
+  else await page.locator('.elara-private-drawer [data-drawer-close]').click();
+  await drawer.waitFor({state:'hidden'});
+  await page.mouse.move(12,360);await page.waitForTimeout(270);
+  if(width===1440)assert.ok(await opacity()<=.15,'account fades after drawer closed');
+  else assert.ok((await opacity())>=.48&&(await opacity())<.9,'touch account returns to compact form');
+  if(width===1440){
+   await page.keyboard.press('Tab');await button.focus();await page.waitForTimeout(260);
+   assert.ok(await opacity()>.9,'keyboard focus-within reveals account');
+   await page.keyboard.press('Enter');await drawer.waitFor();
+   await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+   await button.focus();await page.keyboard.press('Space');await drawer.waitFor();
+   await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+  }
+  await page.evaluate(()=>window.ElaraOpen('home'));
+  await page.waitForSelector('#panel-home:not(.hidden)');
+  assert.ok(Math.abs(await opacity()-1)<.001,'account returns fully visible outside wellness');
+  await page.evaluate(()=>window.ElaraOpen('exercise'));
+  await page.waitForSelector('#panel-exercise:not(.hidden)');
+  console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
+ }
  assert.equal(await dash.locator('.well01-shortcut').count(),5,'five category shortcuts at '+width);
  assert.equal(await dash.locator('.well01-metric').count(),4,'four daily metrics at '+width);
  assert.equal(await dash.locator('.well01-report').count(),4,'four real-data report entries at '+width);
@@ -169,9 +221,24 @@ for(const width of widths){
   assert.equal(await page.evaluate(date=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).water[date],date),0,'refresh persists real state');
   await page.evaluate(()=>{window.ElaraAccount=window.ElaraAccount||{};window.ElaraAccount.user={...(window.ElaraAccount.user||{}),uid:'well01-other'};window.ElaraSocial=window.ElaraSocial||{me:{}};window.ElaraSocial.me={...(window.ElaraSocial.me||{}),uid:'well01-other'};window.dispatchEvent(new Event('elara:account-ready'))});
   await page.waitForFunction(()=>document.querySelector('.well01-metric-weight strong')?.textContent.includes('—'));
+  await page.waitForFunction(()=>!(/68[.٫]5|۶۸[.٫]۵|تمرین قدرتی سه روز/).test(document.querySelector('#well01-dashboard')?.innerText||''),{timeout:10000});
   assert.doesNotMatch(await dash.innerText(),/68[.٫]5|۶۸[.٫]۵|تمرین قدرتی سه روز/,'one account cannot read another account data');
  }
  await page.close();
 }
+
+const touch=await open(390,base,false,true);
+await touch.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero');
+const tr=await touch.locator('#ref-header-account').boundingBox();
+assert.ok(tr&&tr.width>=44&&tr.height>=44,'actual touch account >=44x44');
+await touch.touchscreen.tap(tr.x+tr.width/2,tr.y+tr.height/2);
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor();
+await touch.screenshot({path:'browser-artifacts/well01/profile-touch-open-390.png'});
+await touch.locator('.elara-private-drawer [data-drawer-close]').click();
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
+await touch.waitForTimeout(275); // allow 210ms opacity transition to settle
+const closedOpacity=await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity));
+assert.ok(closedOpacity<.9,'touch account compacts after closing');
+await touch.close();
 await browser.close();
 console.log('WELL01_PASS: ten widths, private dashboard, real stats, navigation, water persistence, account isolation');
