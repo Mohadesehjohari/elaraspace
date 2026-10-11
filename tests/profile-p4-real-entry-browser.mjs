@@ -40,7 +40,8 @@ for(const width of widths){
  await page.screenshot({path:dest+'/profile-'+width+'.png',fullPage:true});
  if(width===390||width===1440)await page.screenshot({path:dest+'/profile-'+width+'-viewport.png',fullPage:false});
  const top=await page.locator('#elara-private-route .elara-profile-hub-hero').boundingBox();
- assert.ok(top?.width>Math.min(width-39,570),'Profile hero too narrow '+width);
+ const availableWidth=await page.locator('#main').evaluate(el=>el.getBoundingClientRect().width);
+ assert.ok(top?.width>=Math.min(960,availableWidth*.79),'Profile hero too narrow for content area '+width+': '+top?.width+'/'+availableWidth);
  assert.ok(await page.locator('#elara-private-route .elara-profile-hub-actions [data-profile-edit]').isVisible(),'Edit CTA missing');
  // From inside private profile, actual wardrobe CTA must open a *page*, not legacy overlay.
  await page.locator('#elara-private-route .elara-profile-hub-actions [data-approved-wardrobe]').click();
