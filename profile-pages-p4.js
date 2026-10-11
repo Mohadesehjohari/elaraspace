@@ -76,7 +76,7 @@
   const w=event.target.closest('[data-p4-wardrobe]');if(w){event.preventDefault();navigate('wardrobe');return}
   if(event.target.closest('[data-p4-back]')){event.preventDefault();back();return}
   if(event.target.closest('[data-p4-refresh]')){sync();return}
-  const trigger=event.target.closest('.drawer-menu [data-drawer-nav="account"]');
+  const trigger=event.target.closest('.elara-private-drawer [data-drawer-nav="account"]');
   if(trigger){event.preventDefault();event.stopImmediatePropagation();navigate('profile');return}
   const tab=event.target.closest('[data-p4-identity]');if(tab){event.preventDefault();event.stopImmediatePropagation();sync();return}
  },true);
