@@ -80,7 +80,10 @@ for(const width of widths){
  assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().banner),afterEquip,'Local equip lost on reload');
  await page.locator('#elara-private-route [data-wardrobe-tab="frame"]').click();
  await page.locator('#elara-private-route [data-wardrobe-item="frame"][data-wardrobe-id="diamond"]').click();
- assert.equal(await page.locator('#elara-private-route [data-wardrobe-equip]').isEnabled(),false,'Locked frame equippable');
+ assert.equal(await page.locator('#elara-private-route [data-wardrobe-equip]').isEnabled(),true,'Level 11 account should unlock level 10 frame');
+ await page.evaluate(()=>{window.ElaraSocial.me.xp=0;window.ElaraWardrobeUI.draw()});
+ await page.locator('#elara-private-route [data-wardrobe-item="frame"][data-wardrobe-id="diamond"]').click();
+ assert.equal(await page.locator('#elara-private-route [data-wardrobe-equip]').isEnabled(),false,'Locked frame equippable for low XP');
  if(width===390)await page.screenshot({path:dest+'/wardrobe-390-locked.png',fullPage:false});
  await page.locator('#elara-private-route [data-p4-back]').click();
  await page.waitForFunction(()=>location.hash==='#profile'&&document.body.classList.contains('elara-private-route-profile'));
