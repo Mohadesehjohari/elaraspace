@@ -126,15 +126,11 @@ function setupFocus(){
 }
 function setupReports(){
  const parent=$('panel-reports'),prod=$('panel-reports-productivity');if(!parent||!prod)return;parent.classList.add('feature-hub-parent','reports-feature-hub');
- visualHero(parent,'reports','assets/ui/39-reports-hero-banner.webp','گزارش‌ها','Reports','مرکز خلاصه‌ها؛ جزئیات در صفحهٔ هر گزارش.','A summary center; details live in each report page.');
+ visualHero(parent,'reports','assets/ui/39-reports-hero-banner.webp','گزارش‌های کل','Reports Overview','مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا','An overview of your real progress across Elara.');
  head(prod,'reports','REPORTS',titles['reports-productivity'],['همهٔ نمودارهای کامل بهره‌وری.','Your full productivity analytics.']);
  const live=$('elara-reports-page');if(live)move(live,prod);
- hub(parent,
-  card('library-reports','assets/ui/32-reading-analytics-icon.webp','گزارش مطالعه','Reading Report','صفحه‌ها و پیشرفت کتاب','Pages and book progress')+
-  card('language-reports','assets/ui/25-study-report-icon.webp','گزارش زبان','Language Report','واژه، مرور و مطالعه','Vocabulary, reviews and reading')+
-  card('wellness-reports','assets/ui/30-fitness-report-icon.webp','گزارش ورزش و حال خوب','Fitness Report','آب، خواب و تمرین','Water, sleep and exercise')+
-  card('reports-productivity','assets/ui/ranking-chart-icon.webp','گزارش بهره‌وری','Productivity Report','تسک، عادت، هدف و تمرکز','Tasks, habits, goals and focus'),'reports'
- );
+ parent.querySelectorAll(':scope > .feature-hub-launchers[data-hub-kind="reports"]').forEach(node=>node.remove());
+ window.ElaraReportsDashboard?.render?.();
 }
 function setupAliases(){
  const redirects={'reports-reading':'library-reports','reports-language':'language-reports','reports-fitness':'wellness-reports'};
