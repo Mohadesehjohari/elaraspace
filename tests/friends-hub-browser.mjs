@@ -22,7 +22,7 @@ async function run(width,height){
  await page.goto(base+'/?friends-hub='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  const tabs=page.locator('#elara-social-page .social-tabs [role="tab"]');
- assert.equal(await tabs.count(),5,width+': Friends Hub must expose five principal tabs; requests stay standalone');
+ assert.equal(await tabs.count(),8,width+': F2 must expose eight Friends routes');
  const geometry=await page.evaluate(()=>{
   const nav=document.querySelector('#elara-social-page .social-tabs');
   const item=nav?.querySelector('[role="tab"]'),image=item?.querySelector('img');
@@ -33,16 +33,40 @@ async function run(width,height){
    navScrolls:nav.scrollWidth>nav.clientWidth};
  });
  assert.ok(geometry,width+': Friends nav geometry unavailable');
- assert.ok(geometry.height>=45&&geometry.height<=56,width+': artwork tiles must be compact '+JSON.stringify(geometry));
+ assert.ok(geometry.height>=(width<=700?60:45)&&geometry.height<=(width<=700?74:56),width+': F2 tab height mismatch '+JSON.stringify(geometry));
  assert.ok(geometry.art<=30,width+': icons must be compact '+JSON.stringify(geometry));
- assert.ok(geometry.width>=100,width+': tap target must be usable '+JSON.stringify(geometry));
+ assert.ok(geometry.width>=(width<=700?54:100),width+': tab width must match compact reference '+JSON.stringify(geometry));
 
- assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity']);
- assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': permanent Friend Requests card missing');
- assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': permanent Shared Requests card missing');
+ assert.deepEqual(await tabs.evaluateAll(xs=>xs.map(x=>x.dataset.socialView)),['friends','chats','groups','clubs','activity','requests','ranking','challenges']);
+ assert.equal(await page.locator('.friends-f2-kpis .friends-f2-kpi').count(),6,width+': six F2 KPIs required');
+ await page.waitForSelector('.friends-f2-friend',{timeout:10000});
+ assert.equal(await page.locator('.friends-f2-friend').count(),1,width+': authenticated friend missing');
+ await page.waitForFunction(()=>document.querySelector('[data-f2-club-count]')?.textContent.trim()!=='—',null,{timeout:8000});
+ assert.equal(await page.locator('[data-f2-club-count]').innerText(),'۱',width+': membership count incorrect');
+ const heroes=await page.evaluate(()=>{
+  const p=document.querySelector('#panel-social');if(!p)return -1;
+  return [...p.querySelectorAll('.elara-global-hero,.social-page-head')].filter(el=>{const style=getComputedStyle(el),r=el.getBoundingClientRect();return style.display!=='none'&&style.visibility!=='hidden'&&r.height>40}).length
+ });
+ assert.equal(heroes,1,width+': F2 must show one visible hero');
+ assert.equal(await page.locator('#panel-social > h1:visible').count(),0,width+': legacy Friends and Community header must not remain');
+ const pageWidth=await page.evaluate(()=>({screen:innerWidth,content:document.documentElement.scrollWidth}));
+ assert.ok(pageWidth.content<=pageWidth.screen+2,width+': F2 horizontal overflow '+JSON.stringify(pageWidth));
+ if(width>=1440){
+  const geometry=await page.evaluate(()=>{
+   const root=document.querySelector('#elara-social-page .social-reference-grid');
+   const kpi=document.querySelector('.friends-f2-kpis'),friend=document.querySelector('.friends-f2-friends');
+   const grid=root.getBoundingClientRect(),metrics=kpi.getBoundingClientRect(),friends=friend.getBoundingClientRect();
+   return {gridWidth:grid.width,kpiWidth:metrics.width,friendWidth:friends.width,columns:getComputedStyle(root).gridTemplateColumns.split(' ').length}
+  });
+  assert.equal(geometry.columns,12,width+': desktop F2 must use 12 explicit columns '+JSON.stringify(geometry));
+  assert.ok(geometry.kpiWidth>=geometry.gridWidth*.92,width+': six KPIs must span desktop grid '+JSON.stringify(geometry));
+  assert.ok(geometry.friendWidth<=geometry.gridWidth*.72,width+': Friends card should share first dashboard row '+JSON.stringify(geometry));
+ }
+ assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
+ assert.equal(await page.locator('#elara-social-page .social-collab-requests').isVisible(),true,width+': collaboration preview missing');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
  await page.waitForSelector('#elara-add-friend');
- assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing on default tab');
+ assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats tab did not mount DM');
@@ -51,8 +75,8 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-section').count(),0,width+': DM section leaked into Groups tab');
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  await page.waitForSelector('#elara-add-friend');
- assert.equal(await page.locator('.social-friends-list').isVisible(),true,width+': Friends list missing after tab switch');
- assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').isVisible(),true,width+': standalone Requests card missing decline');
+ assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing after tab switch');
+ assert.equal(await page.locator('#elara-social-page .social-requests-standalone [data-friend-action="decline"]').isVisible(),true,width+': incoming Request action missing');
  await page.locator('[data-social-route="social"][data-social-view="activity"]').click();
  await page.waitForSelector('.social-friend-activity');
  assert.match(await page.locator('.social-friend-activity').innerText(),/Deep Work/,width+': Activity tab missing real activity copy');
@@ -64,18 +88,37 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats did not remount after switching tabs');
  await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);
  const enLabels=await page.locator('#elara-social-page .social-tabs [role="tab"]').allTextContents();
- for(const label of ['Chats','Groups','Friends','Activity','Clubs'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
- assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/Friend requests/,width+': standalone Friend Requests card did not localize');
+ for(const label of ['Chats','Groups','My friends','Activity','Clubs','Requests','Ranking','Challenges'])assert.ok(enLabels.some(x=>x.includes(label)),width+': missing English tab '+label);
+ await page.locator('[data-social-route="social"][data-social-view="requests"]').click();
+ assert.match(await page.locator('#elara-social-page .social-requests-standalone').innerText(),/Friend requests/,width+': Requests tab not localized');
+ assert.equal(new URL(page.url()).searchParams.get('friendsTab'),'requests',width+': missing URL tab');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.ElaraSocialView&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ assert.equal(await page.locator('[data-social-route="social"][data-social-view="requests"]').getAttribute('aria-selected'),'true',width+': URL tab not restored');
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
- assert.match(await page.locator('.social-friends-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
+ await page.locator('[data-f2-search]').fill('not-a-real-name');
+ assert.equal(await page.locator('.friends-f2-friend:visible').count(),0,width+': friend search failed');
+ await page.locator('[data-f2-search]').fill('');
+ assert.equal(await page.locator('.friends-f2-friend:visible').count(),1,width+': friend search reset failed');
+ await page.locator('[data-f2-layout="list"]').click();
+ assert.equal(await page.locator('.friends-f2-list').evaluate(el=>el.classList.contains('is-list')),true);
+
+ await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
+ assert.match(await page.locator('.friends-f2-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
  await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': Ranking must remain a separate four-tab surface');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+2,width+': Friends Hub horizontal overflow '+JSON.stringify(overflow));
  await page.evaluate(()=>window.ElaraOpen('social',{history:'replace'}));await page.waitForTimeout(80);
  await page.screenshot({path:'browser-artifacts/friends-hub-'+width+'.png',fullPage:true});
+ if(width===390){
+  await page.evaluate(()=>{window.ElaraSocial.friends=[];window.ElaraSocial.requests=[];window.ElaraSocial.activities=[];window.dispatchEvent(new Event('elara:social-updated'))});
+  await page.waitForSelector('.friends-f2-friends .social-empty');
+  assert.match(await page.locator('.friends-f2-friends').innerText(),/No friends yet|هنوز دوستی نداری/,width+': zero-friends empty state should be truthful');
+  await page.screenshot({path:'browser-artifacts/friends-f2-empty-390.png',fullPage:true});
+ }
  await page.close();
 }
-for(const width of [320,375,390,430,768,1440,1648])await run(width,width<800?844:1000);
+for(const width of [320,360,375,390,412,430,768,1440,1648])await run(width,width<800?844:1000);
 await browser.close();
-console.log('FRIENDS_COMPACT_NAV_PASS browser geometry, full-site overflow, tabs and ranking isolation across seven widths');
+console.log('FRIENDS_F2_PASS nine widths single hero, six KPIs, service previews, navigation, search, Ranking isolation');
