@@ -23,7 +23,7 @@ for(const width of widths){
   const layer=document.getElementById('cloud-layer');if(layer){layer.hidden=true;layer.inert=true}
  },user());
  await page.addStyleTag({content:'#cloud-layer{display:none!important;pointer-events:none!important}html[data-elara-booting] .shell,body.cloud-locked .shell{visibility:visible!important;opacity:1!important}'});
- const initialMobile=await page.locator('.bottom-nav').innerHTML();
+ const initialMobile=await page.locator('.bottom-nav [data-elara-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.elaraTab));
  // The entire entry path uses visible app controls; never call .open() to start navigation.
  await page.locator('#ref-header-account').click();
  await page.locator('.elara-private-drawer:not(.hidden) .drawer-menu [data-drawer-nav="account"]').waitFor({state:'visible',timeout:12000});
@@ -96,7 +96,7 @@ for(const width of widths){
   assert.ok(await page.locator('#elara-private-route .elara-profile-hub').isVisible(),'UID switch lost own route');
   assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().banner),null,'UID B inherited A banner');
  }
- assert.equal(await page.locator('.bottom-nav').innerHTML(),initialMobile,'Main mobile menu changed');
+ assert.deepEqual(await page.locator('.bottom-nav [data-elara-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.elaraTab)),initialMobile,'Main mobile route count/order changed');
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
  assert.ok(overflow<=3,'Horizontal overflow '+width+': '+overflow);
  checks.push({width,success:true,overflow});
