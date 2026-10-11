@@ -1,0 +1,53 @@
+name: Verify Live Wardrobe P3
+on:
+  push:
+    branches: [main]
+    paths:
+      - approved-visual.js
+      - wardrobe-reference.css
+      - tests/wardrobe-reference-browser.mjs
+      - .github/workflows/wardrobe-live-pages.yml
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  live-wardrobe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact deployed wardrobe JS and CSS
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://mohadesehjohari.github.io/elaraspace'
+          match=false
+          for n in $(seq 1 100); do
+            all=true
+            for file in approved-visual.js wardrobe-reference.css; do
+              if ! curl -fsSL --max-time 15 "$base/$file?release=${GITHUB_SHA}&attempt=$n" -o "/tmp/wardrobe-live-$file"; then all=false;break;fi
+              if ! cmp -s "$file" "/tmp/wardrobe-live-$file"; then all=false;break;fi
+            done
+            if [ "$all" = true ]; then echo "LIVE_WARDROBE_BYTES_VERIFIED=${GITHUB_SHA}";match=true;break;fi
+            sleep 8
+          done
+          if [ "$match" != true ]; then echo '::error::Wardrobe JS/CSS did not appear on GitHub Pages';exit 1;fi
+          grep -Fq 'window.ElaraWardrobeUI=' /tmp/wardrobe-live-approved-visual.js
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Live-site wardrobe browser smoke (fixture identity)
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+          ELARA_WARDROBE_SHOTS: artifacts/wardrobe-live
+        run: timeout 540s node tests/wardrobe-reference-browser.mjs
+      - name: Upload live screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wardrobe-live-${{ github.sha }}
+          path: artifacts/wardrobe-live/
+          if-no-files-found: warn
+          retention-days: 21
