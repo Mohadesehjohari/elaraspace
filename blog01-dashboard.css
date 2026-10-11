@@ -164,3 +164,14 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
  #panel-blog .blog-feed>section:nth-child(2){order:3}
  #panel-blog .blog-feed>section:nth-child(n+3){order:2}
 }
+
+/* Owner mobile reference shows two featured article cards where the viewport
+   permits; very narrow 320–375px screens fall back to the readable one-column view. */
+@media(min-width:390px) and (max-width:700px){
+ #panel-blog .blog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #panel-blog .blog-card-cover{min-height:78px;aspect-ratio:1.55}
+ #panel-blog .blog-card-copy{padding:8px}
+ #panel-blog .blog-card-copy h3{font-size:.72rem;line-height:1.65}
+ #panel-blog .blog-card-copy p{font-size:.62rem}
+ #panel-blog .blog-card-footer{font-size:.59rem}
+}
