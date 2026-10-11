@@ -562,6 +562,11 @@
   function focusBreakMinutes(){const n=Math.round(Number($('focus-break-duration')?.value||5));return Math.max(1,Math.min(60,Number.isFinite(n)?n:5))}
   function focusSessionCount(){const n=Math.round(Number($('focus-session-count')?.value||1));return Math.max(1,Math.min(8,Number.isFinite(n)?n:1))}
   function focusAutoBreak(){return !!$('focus-auto-break')?.checked}
+  function focusContext(){
+    const raw=$('focus01-mode')?.value||'',mode=['reading','writing','deep','meditation'].includes(raw)?raw:'';
+    const selected=$('focus01-target')?.selectedOptions?.[0],kind=selected?.dataset.kind||'',id=String(selected?.dataset.id||'').slice(0,100);
+    return{mode,linkedKind:['book','task'].includes(kind)?kind:'',linkedId:['book','task'].includes(kind)?id:''};
+  }
   const focusT=(faText,enText)=>window.ElaraI18n?.t?.(faText,enText)||faText;
   function focusControls(disabled){document.querySelectorAll('[data-focus-preset],#focus-duration,#focus-tag,#focus-break-duration,#focus-session-count,#focus-auto-break,[data-phase2-create][data-phase2-target="focus-tag"]').forEach(el=>el.disabled=disabled)}
   function renderFocusHistory(){
@@ -580,19 +585,20 @@
   function finishFocus(active){
     clearInterval(focusInterval);focusInterval=null;const state=focusState(),current=state.activeFocus;
     if(!current||current.id!==active.id)return;
+    const mode=['reading','writing','deep','meditation'].includes(current.mode)?current.mode:'',linkedKind=['book','task'].includes(current.linkedKind)?current.linkedKind:'',linkedId=String(current.linkedId||'').slice(0,100);
     const kind=active.kind==='break'?'break':'focus',sessionCount=Math.max(1,Math.min(8,Math.round(Number(active.sessionCount)||1))),sessionIndex=Math.max(1,Math.min(sessionCount,Math.round(Number(active.sessionIndex)||1))),focusMin=Math.max(1,Math.min(180,Math.round(Number(active.focusDurationMin)||(kind==='focus'?Number(active.durationMin):25)||25))),breakMin=Math.max(1,Math.min(60,Math.round(Number(active.breakMin)||5))),autoBreak=!!active.autoBreak,tag=String(active.tag||'').trim().slice(0,60),sequenceId=String(active.sequenceId||active.id||makeId()).slice(0,100);
     if(kind==='break'){
       state.activeFocus=null;
-      state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,waiting:'focus'}:null;
+      state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,mode,linkedKind,linkedId,waiting:'focus'}:null;
       writeState(state);notify(focusT(sessionIndex<sessionCount?`استراحت تموم شد؛ جلسهٔ ${fa(sessionIndex+1)} آماده‌ست. 🌿`:'چرخهٔ تمرکز تموم شد. دمت گرم 🌿','Break complete — '+(sessionIndex<sessionCount?'session '+(sessionIndex+1)+' is ready. 🌿':'focus cycle complete. Nice work 🌿')));
       updateFocusDisplay();renderFocusHistory();return;
     }
     const minutes=Math.max(1,Math.min(180,Math.round(Number(active.durationMin)||focusMin))),fresh=!state.focusSessions.some(s=>s.id===active.id);
-    if(fresh){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:minutes,tag,completed:true,sequenceId,sessionIndex,sessionCount});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
+    if(fresh){state.focusSessions.push({id:active.id,startedAt:active.startedAt,endedAt:Date.now(),durationMin:minutes,tag,mode,linkedKind,linkedId,completed:true,sequenceId,sessionIndex,sessionCount});state.focusSessions=state.focusSessions.slice(-2000);state.xp=Number(state.xp||0)+15}
     if(sessionIndex<sessionCount&&autoBreak){
-      const now=Date.now();state.activeFocus={id:makeId(),kind:'break',durationMin:breakMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,startedAt:now,endAt:now+breakMin*60000,remainingSec:breakMin*60,status:'running'};state.focusPlanProgress=null;
+      const now=Date.now();state.activeFocus={id:makeId(),kind:'break',durationMin:breakMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,mode,linkedKind,linkedId,startedAt:now,endAt:now+breakMin*60000,remainingSec:breakMin*60,status:'running'};state.focusPlanProgress=null;
     }else{
-      state.activeFocus=null;state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,waiting:'focus'}:null;
+      state.activeFocus=null;state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,mode,linkedKind,linkedId,waiting:'focus'}:null;
     }
     writeState(state);
     notify(focusT(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
@@ -628,7 +634,8 @@ function toggleFocus(){
     if(a?.status==='running'){a.remainingSec=Math.max(0,Math.ceil((Number(a.endAt)-Date.now())/1000));a.endAt=0;a.status='paused';writeState(state);clearInterval(focusInterval);focusInterval=null;updateFocusDisplay();return}
     if(a?.status==='paused'){a.endAt=Date.now()+Math.max(1,Number(a.remainingSec)||1)*1000;a.status='running';writeState(state);clearInterval(focusInterval);focusInterval=setInterval(updateFocusDisplay,250);updateFocusDisplay();return}
     const p=state.focusPlanProgress,focusMin=p?.focusMin||focusSelectedMinutes(),breakMin=p?.breakMin||focusBreakMinutes(),sessionCount=p?.sessionCount||focusSessionCount(),sessionIndex=p?.sessionIndex||1,autoBreak=p?!!p.autoBreak:focusAutoBreak(),tag=p?.tag??($('focus-tag')?.value||''),sequenceId=p?.sequenceId||makeId(),id=makeId(),startedAt=Date.now();
-    state.focusPlanProgress=null;state.activeFocus={id,kind:'focus',durationMin:focusMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,startedAt,endAt:startedAt+focusMin*60000,remainingSec:focusMin*60,status:'running'};writeState(state);clearInterval(focusInterval);focusInterval=setInterval(updateFocusDisplay,250);updateFocusDisplay();
+    const context=p?{mode:p.mode||'',linkedKind:p.linkedKind||'',linkedId:p.linkedId||''}:focusContext();
+    state.focusPlanProgress=null;state.activeFocus={id,kind:'focus',durationMin:focusMin,focusDurationMin:focusMin,breakMin,sessionIndex,sessionCount,autoBreak,sequenceId,tag,mode:context.mode,linkedKind:context.linkedKind,linkedId:context.linkedId,startedAt,endAt:startedAt+focusMin*60000,remainingSec:focusMin*60,status:'running'};writeState(state);clearInterval(focusInterval);focusInterval=setInterval(updateFocusDisplay,250);updateFocusDisplay();
   }
 async function resetFocus(){
     const state=focusState(),active=state.activeFocus,progress=state.focusPlanProgress;
