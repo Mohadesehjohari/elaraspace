@@ -22,6 +22,7 @@ try{
   await page.waitForSelector('#panel-words:not(.hidden) .l2-start-review:not([disabled])');
   await page.locator('#panel-words .l2-start-review').click();
   await page.waitForSelector('#panel-words.l3-review-active [data-l3-toolbar]',{timeout:10000});
+  assert.equal(await page.locator('#panel-words.l3-review-active > :not(.l3-toolbar):not(.flashcard):visible').count(),0,'Unrelated route widgets leaked into focused review @'+width);
   const background=await page.locator('#panel-words').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(background,width<=700?/lightner_words_backgroud_mobile\.webp/:/lightner_words_backgroud_pc\.webp/,'Wrong L3 image at '+width+': '+background);
   assert.equal(await page.locator('#word-reveal:visible').count(),1,'Canonical reveal control not visible');
