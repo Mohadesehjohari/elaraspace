@@ -27,6 +27,7 @@ for(const width of widths){
  // The entire entry path uses visible app controls; never call .open() to start navigation.
  await page.locator('#ref-header-account').click();
  await page.locator('.elara-private-drawer:not(.hidden) .drawer-menu [data-drawer-nav="account"]').waitFor({state:'visible',timeout:12000});
+ if(width===390||width===1440)await page.screenshot({path:dest+'/actual-account-menu-'+width+'.png',fullPage:false});
  await page.locator('.elara-private-drawer:not(.hidden) .drawer-menu [data-drawer-nav="account"]').click();
  await page.waitForFunction(()=>location.hash==='#profile'&&document.body.classList.contains('elara-private-route-profile'),null,{timeout:12000});
  await page.locator('#elara-private-route .elara-profile-hub-hero .elara-profile-composition').waitFor({state:'visible',timeout:15000});
