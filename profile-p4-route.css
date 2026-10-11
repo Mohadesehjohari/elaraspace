@@ -1,0 +1,20 @@
+/* P4 standalone private account. No edits to global navigation or social #page. */
+#elara-p4-private-profile[hidden]{display:none!important}
+#elara-p4-private-profile{position:fixed;z-index:110;top:70px;right:0;bottom:0;left:clamp(0px,14vw,240px);overflow:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at 52% 0%,#173576aa,#020b24 75%);color:white;padding:20px clamp(12px,3vw,34px) 42px}
+#elara-p4-private-profile .p4-private-wrap{max-width:1260px;margin:0 auto;min-width:0}
+#elara-p4-private-profile .p4-private-top{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+#elara-p4-private-profile .p4-private-top>div{flex:1}
+#elara-p4-private-profile .p4-private-top h1{font-size:clamp(23px,3vw,32px);margin:0}
+#elara-p4-private-profile .p4-private-top p{color:#b4c8f4;margin:7px 0 0}
+#elara-p4-private-profile button[data-p4-back]{min-width:96px;min-height:45px;border:1px solid #628dd8;border-radius:12px;background:#0b2347;color:#fff;font:inherit;cursor:pointer}
+#elara-p4-private-profile .elara-profile-hub{width:100%;max-width:none;display:grid;gap:15px}
+#elara-p4-private-profile .p4-route-state{padding:30px;border:1px solid #345d9b;border-radius:14px;background:#091c3c}
+#elara-p4-private-profile .elara-profile-hub-actions button{min-height:60px}
+@media(max-width:700px){
+ #elara-p4-private-profile{top:60px;left:0;bottom:calc(72px + env(safe-area-inset-bottom,0px));padding:12px 9px 35px}
+ #elara-p4-private-profile .p4-private-top{gap:8px}
+ #elara-p4-private-profile .p4-private-top h1{font-size:22px}
+ #elara-p4-private-profile .p4-private-top p{font-size:11px}
+ #elara-p4-private-profile button[data-p4-back]{min-width:76px;padding:5px}
+ #elara-p4-private-profile .elara-profile-hub{gap:10px}
+}
