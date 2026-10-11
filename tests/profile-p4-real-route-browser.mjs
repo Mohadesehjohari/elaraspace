@@ -36,7 +36,7 @@ for(const width of widths){
  assert.ok(!(await page.locator('#elara-p4-private-profile').evaluate(el=>el.scrollWidth>el.clientWidth+3)),'profile overflow '+width);
  if(width===390||width===1440)await page.screenshot({path:out+'/profile-'+width+'.png',fullPage:false});
  await page.reload({waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>!!window.ElaraP4Routes&&!!window.ElaraProfileSystem,{timeout:20000});
+ await page.waitForFunction(()=>!!window.ElaraP4Routes&&!!window.ElaraProfileSystem&&!!window.ElaraAccount,{timeout:20000});
  // A user session mock cannot survive reload; auth gate must not display another account's private data.
  await page.locator('#elara-p4-private-profile').waitFor({timeout:10000});
  assert.equal(new URL(page.url()).hash,'#profile');
