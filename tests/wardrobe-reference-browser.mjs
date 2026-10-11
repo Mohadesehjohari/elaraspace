@@ -36,6 +36,8 @@ for(const width of widths){
  assert.equal(await page.locator('[data-wardrobe-tab]').count(),5,'Five tabs');
  assert.equal(await page.locator('[data-wardrobe-tab="banner"]').getAttribute('aria-selected'),'true');
  assert.ok(await page.locator('.wardrobe-ref-hero .elara-profile-composition').isVisible());
+ await page.waitForFunction(()=>[...document.querySelectorAll('.wardrobe-ref-grid img')].every(img=>img.complete&&img.naturalWidth>0),{timeout:12000})
+  .catch(async()=>{throw Error('Wardrobe artwork did not load at '+width+': '+JSON.stringify(await page.locator('.wardrobe-ref-grid img').evaluateAll(xs=>xs.map(x=>({src:x.src,complete:x.complete,naturalWidth:x.naturalWidth})))));});
  await page.screenshot({path:dir+'/wardrobe-'+width+'.png'});
  if(width===390||width===1648)await page.locator('.wardrobe-reference-main').screenshot({path:dir+'/wardrobe-'+width+'-full.png',timeout:30000});
  const storageKey=await page.evaluate(()=>window.ElaraProfileSystem.key(window.__wardrobeMock.uid));
@@ -61,6 +63,12 @@ for(const width of widths){
    await page.evaluate(()=>window.ElaraWardrobeUI.close());
    await page.evaluate(()=>window.ElaraWardrobeUI.open());
    assert.ok(await page.locator('.wardrobe-ref-hero .elara-profile-composition').isVisible(),'Equipped profile not rendered after reopen');
+   const aStored=await page.evaluate(key=>localStorage.getItem(key),storageKey);
+   await page.evaluate(()=>{window.__wardrobeMock.uid='wardrobe-p3-account-B'});
+   await page.evaluate(()=>{window.ElaraWardrobeUI.close();window.ElaraWardrobeUI.open()});
+   const bStored=await page.evaluate(()=>localStorage.getItem(window.ElaraProfileSystem.key(window.__wardrobeMock.uid)));
+   assert.notEqual(aStored,bStored,'Wardrobe inventory must remain UID-scoped');
+   assert.equal(bStored,null,'Uninitialized second account inherited first account equipment');
   }
  }
  if(width===430){
