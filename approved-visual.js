@@ -12,7 +12,7 @@ const assetAvatar=(group,n,shape=wardrobe().shape||'circle')=>profileSystem()?.a
 const bannerList=()=>profileSystem()?.BANNERS||[];
 const frames=()=>profileSystem()?.FRAMES||[];
 const icon=(name)=>window.ElaraIcons?.icon?.(name,{className:'elara-visual-icon'})||`<span class="elara-visual-icon" aria-hidden="true"></span>`;
-let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null,wardrobeOwnerUid=null;
+let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null,wardrobeOwnerUid=null,wardrobeOverflow=null;
 const LANGUAGE_BOOKS_KEY='elara_language_books_v2';
 const LANGUAGE_BOOKS_MIGRATION='elara_language_books_v2_migrated_';
 const currentLanguageUid=()=>String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'').trim();
@@ -174,6 +174,7 @@ function drawWardrobe(){
 }
 function showWardrobe(){
  wardrobeWindow();const wasClosed=windowRoot.hidden;
+ if(wasClosed)wardrobeOverflow={body:document.body.style.overflow,html:document.documentElement.style.overflow};
  wardrobeOwnerUid=uid();
  selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
  showAll={avatar:false,frame:false,banner:false};
@@ -184,7 +185,8 @@ function showWardrobe(){
 function closeWardrobe(fromHistory=false){
  if(!windowRoot||windowRoot.hidden)return;
  if(!fromHistory&&history.state?.elaraWardrobe){history.back();return}
- windowRoot.hidden=true;selectedPreview=null;wardrobeOwnerUid=null
+ windowRoot.hidden=true;selectedPreview=null;wardrobeOwnerUid=null;
+ if(wardrobeOverflow){document.body.style.overflow=wardrobeOverflow.body;document.documentElement.style.overflow=wardrobeOverflow.html;wardrobeOverflow=null}
 }
 window.addEventListener('popstate',()=>{if(windowRoot&&!windowRoot.hidden&&!history.state?.elaraWardrobe)closeWardrobe(true)});
 window.addEventListener('elara:account-ready',()=>{if(windowRoot&&!windowRoot.hidden&&uid()!==wardrobeOwnerUid){
