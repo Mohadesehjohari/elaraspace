@@ -30,6 +30,7 @@ async function run(width,height){
  await page.waitForFunction(()=>window.ElaraBlog&&document.querySelector('#panel-blog:not(.hidden) .blog-card')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
  await page.waitForFunction(()=>document.querySelectorAll('#panel-blog .blog-card').length===6);
  await page.waitForFunction(()=>document.documentElement.dataset.elaraBlogBannerReady!==undefined,null,{timeout:25000});
+ if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/blog01/after-'+width+'.png',fullPage:true});
  assert.equal(await page.locator('#panel-blog .blog-card').count(),6,width+': real editorial plus official content');
  assert.equal(await page.locator('#panel-blog .blog-hero').count(),1,width+': exactly one blog hero');
  assert.equal(await page.locator('#panel-blog [data-blog-id="published:admin-productivity"]').count(),1);
@@ -105,7 +106,7 @@ await page.locator('[data-blog-filter="focus"]').click();
  await page.evaluate(()=>window.ElaraBlog.navigate('home'));
  await page.waitForSelector('#panel-blog .blog-quick');
  await page.screenshot({path:'browser-artifacts/blog01/dashboard-'+width+'.png',fullPage:true});
- if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/blog01/after-'+width+'.png',fullPage:true});
+
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
  assert.ok(overflow<=2,width+': horizontal overflow '+overflow);
  const extraErrors=issues.filter(x=>/blog|uncaught|syntaxerror/i.test(x));
