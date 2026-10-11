@@ -37,7 +37,8 @@ try{
   },{fixture,history});
   await page.goto(origin+'/?reports01='+width+'#reports',{waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>window.ElaraReportsDashboard&&document.querySelector('#panel-reports #elara-reports-overview .elara-reports-kpis')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:40000});
-  await page.evaluate(()=>window.ElaraOpen('reports',{history:'replace'}));
+  await page.waitForFunction(()=>window.ElaraAccount?.user?.uid==='reports-fixture-01',null,{timeout:30000});
+  await page.evaluate(()=>{window.ElaraOpen('reports',{history:'replace'});window.ElaraReportsDashboard.render()});
   await page.waitForSelector('#panel-reports:not(.hidden) .elara-reports-main');
   const stats=await page.evaluate(()=>{const p=document.getElementById('panel-reports'),d=window.ElaraReportsDashboard.data(),hero=p.querySelector('.elara-reports-hero'),styles=hero&&getComputedStyle(hero);return{
    kpis:p.querySelectorAll('.elara-reports-kpi').length,sections:p.querySelectorAll('.elara-reports-section').length,hero:p.querySelectorAll('.elara-reports-hero').length,
