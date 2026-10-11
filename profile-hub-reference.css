@@ -190,3 +190,13 @@
  .elara-profile-hub-heading .drawer-section-head>div{text-align:center}
  .elara-profile-hub-heading [data-drawer-nav="home"]{right:0;top:9px}
 }
+
+@media(min-width:701px){
+ .elara-private-drawer[data-mobile-section="account"] .drawer-profile-head{
+  background-image:linear-gradient(180deg,#04132b38,#04122bcf),var(--elara-profile-hub-banner,none)!important;
+  background-position:center!important;background-size:cover!important
+ }
+ .elara-private-drawer[data-mobile-section="account"] .drawer-menu{
+  background:linear-gradient(180deg,#061933dc,#06132d),var(--elara-profile-hub-banner,none) center bottom/cover no-repeat
+ }
+}
