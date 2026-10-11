@@ -14,6 +14,7 @@ on:
       - social-clubs-ui.js
       - feature-hubs-shell.js
       - tests/ui13-language-owner-browser.mjs
+      - tests/l2-language-leitner-browser.mjs
       - tests/ui12-language-reference-browser.mjs
       - tests/p0-language-popup-browser.mjs
       - .github/workflows/ui13-language.yml
@@ -53,6 +54,8 @@ jobs:
           curl -fLsS http://127.0.0.1:4173/ui13-language-routes.js >/dev/null
       - name: Nine-width owner art and route screenshots, classmate dialog
         run: timeout 420s node tests/ui13-language-owner-browser.mjs
+      - name: L2 nine-width canonical Leitner dashboard
+        run: timeout 240s node tests/l2-language-leitner-browser.mjs
       - name: UI12 canonical state and full route matrix
         run: timeout 420s node tests/ui12-language-reference-browser.mjs
       - name: Full P0 Language, Tasks, Profile, and Leitner
@@ -83,6 +86,7 @@ jobs:
           name: ui13-owner-comparison-${{ github.sha }}
           path: |
             browser-artifacts/ui13/*.png
+            browser-artifacts/language-l2/*.png
             browser-artifacts/ui13/*.log
             browser-artifacts/ui12/*.png
           if-no-files-found: warn

@@ -471,3 +471,86 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
 #elara-dialog-root .elara-dialog-panel:has(.lf-class-editor) .elara-dialog-head>.elara-dialog-back{
  left:auto;right:0
 }
+
+
+
+/* L2 dedicated Leitner dashboard — canonical word storage and review controls remain in app.js. */
+#panel-words:has(.l2-leitner-shell)>.section-heading{display:none!important}
+#panel-words .l2-leitner-shell{display:grid;gap:14px;min-width:0;direction:rtl;color:#eff8ff}
+#panel-words .l2-leitner-hero{display:flex;align-items:center;position:relative;isolation:isolate;overflow:hidden;min-height:242px;border-radius:21px;border:1px solid #376eec;padding:28px clamp(17px,2.3vw,34px);background:linear-gradient(270deg,#04152bf0 0%,#041b32e6 39%,#07143355 72%,#03142c36),url('assets/ui/lightner.webp') 58% center/cover no-repeat;box-shadow:inset 0 0 0 1px #5e9fff21,0 16px 42px #0007}
+#panel-words .l2-leitner-copy{display:grid;justify-items:start;gap:10px;max-width:min(58%,660px);min-width:0}
+#panel-words .l2-eyebrow{color:#a98cff;font-size:11px;letter-spacing:.14em;font-weight:850}
+#panel-words .l2-leitner-copy h1{margin:0;color:#fff;font-size:clamp(26px,2.7vw,44px);text-shadow:0 0 16px #5964ff70}
+#panel-words .l2-leitner-copy p{margin:0;color:#c9e0ff;font-size:clamp(12px,1vw,15px);line-height:1.95;max-width:520px}
+#panel-words .l2-hero-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:7px}
+#panel-words .l2-hero-actions button,#panel-words .l2-leitner-bottom button{font:inherit;font-weight:850;font-size:13px;min-height:44px;padding:9px 18px;border-radius:12px;cursor:pointer}
+#panel-words .l2-start-review,#panel-words .l2-leitner-bottom button{border:1px solid #fcacfc;color:#fff;background:linear-gradient(95deg,#f9708c,#c249fa 55%,#495fff);box-shadow:0 0 19px #8d40e556}
+#panel-words .l2-add-word{border:1px solid #59c8ff;color:#b6f7ff;background:#08335abe}
+#panel-words .l2-leitner-shell button:disabled{opacity:.55;box-shadow:none;cursor:not-allowed}
+#panel-words .l2-leitner-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+#panel-words .l2-stat{display:flex;align-items:center;gap:11px;min-width:0;padding:13px 16px;background:linear-gradient(145deg,#0b2a4a,#07162b);border:1px solid #265b90;border-radius:15px}
+#panel-words .l2-stat>span{display:grid;place-items:center;flex:0 0 44px;height:44px;background:#1b194aba;border:1px solid #7157ea;border-radius:12px;color:#d3a9ff;font-size:26px;font-weight:bold}
+#panel-words .l2-stat-due>span{background:#52361b90;border-color:#eb9137;color:#ffc46c}
+#panel-words .l2-stat-new>span{background:#073d3bba;border-color:#1baf9c;color:#49ffce}
+#panel-words .l2-stat-learned>span{background:#102d6c;border-color:#316fe2;color:#7cb3ff}
+#panel-words .l2-stat>div{display:grid;gap:3px;min-width:0}
+#panel-words .l2-stat small{font-size:12px;color:#bbd6f0}
+#panel-words .l2-stat strong{font-size:clamp(22px,2vw,31px);line-height:1.2;color:#fff}
+#panel-words .l2-leitner-boxes,#panel-words .l2-leitner-bottom{padding:18px;border:1px solid #285e92;border-radius:18px;background:linear-gradient(160deg,#061c35,#07152d)}
+#panel-words .l2-leitner-boxes>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:17px}
+#panel-words .l2-leitner-boxes>header h2,#panel-words .l2-leitner-bottom h2{margin:4px 0;font-size:clamp(17px,1.7vw,23px);color:#fff}
+#panel-words .l2-leitner-boxes>header p,#panel-words .l2-leitner-bottom p{margin:0;color:#afc9e1;font-size:12px;line-height:1.8}
+#panel-words .l2-leitner-boxes>header>strong{color:#b5eaff;background:#09274e;padding:8px 13px;border-radius:999px;border:1px solid #296aa2;font-size:12px}
+#panel-words .l2-five-boxes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;direction:rtl}
+#panel-words .l2-stage{display:grid;justify-items:center;align-content:start;min-width:0;gap:5px;padding:16px 9px;background:linear-gradient(170deg,#09224b,#07142c);border:1px solid #3b64ac;border-radius:16px}
+#panel-words .l2-stage-orb{display:grid;place-items:center;width:61px;height:61px;border-radius:50%;background:#4416819e;border:3px solid #a447fa;box-shadow:0 0 15px #8d45ff60;color:#fff;font-size:24px;font-weight:900}
+#panel-words .l2-stage-2 .l2-stage-orb{border-color:#3084ff;background:#0d387e;box-shadow:0 0 15px #227bff60}
+#panel-words .l2-stage-3 .l2-stage-orb{border-color:#04daff;background:#064b6b;box-shadow:0 0 15px #12c6e967}
+#panel-words .l2-stage-4 .l2-stage-orb{border-color:#21ebae;background:#07503c;box-shadow:0 0 15px #06cf9970}
+#panel-words .l2-stage-5 .l2-stage-orb{border-color:#ffd259;background:#62430b;box-shadow:0 0 15px #ffc32d73}
+#panel-words .l2-stage h3{margin:5px 0 0;font-size:13px;color:#e0ecff}
+#panel-words .l2-stage strong{font-size:22px;line-height:1.1;color:#fff}
+#panel-words .l2-stage small{font-size:11px;color:#a8bed9}
+#panel-words .l2-stage-meter{width:100%;height:5px;border-radius:99px;background:#142e4c;margin-top:8px;overflow:hidden}
+#panel-words .l2-stage-meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#17cbf2,#9665ff)}
+#panel-words .l2-leitner-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:linear-gradient(130deg,#09223c,#101e54)}
+#panel-words .l2-leitner-bottom>div{min-width:0;flex:1 1 220px}
+#panel-words #word-form.l2-word-form{margin-top:18px;border:1px solid #2c73a5;border-radius:16px;background:linear-gradient(135deg,#082344,#071a34);padding:18px}
+#panel-words .l2-canonical-review{margin-top:14px;border:1px solid #336bdd;border-radius:20px;background:linear-gradient(165deg,#0d2456,#07152f);padding:25px;min-height:255px}
+#panel-words #word-list{margin-top:15px;min-width:0;overflow-wrap:anywhere}
+#panel-words .l2-leitner-shell button:focus-visible{outline:3px solid #9eefff;outline-offset:3px}
+@media(max-width:850px){
+ #panel-words .l2-leitner-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-words .l2-five-boxes{gap:7px}
+ #panel-words .l2-stage{padding:12px 5px}
+ #panel-words .l2-stage-orb{width:48px;height:48px;font-size:19px}
+}
+@media(max-width:700px){
+ #panel-words .l2-leitner-shell{gap:10px}
+ #panel-words .l2-leitner-hero{min-height:320px;padding:20px 14px;background-position:45% center!important}
+ #panel-words .l2-leitner-copy{max-width:100%;align-content:end;height:100%;background:linear-gradient(90deg,#031225cc,#05162b9c);padding:12px;border-radius:13px}
+ #panel-words .l2-leitner-copy h1{font-size:28px}
+ #panel-words .l2-leitner-copy p{font-size:12px}
+ #panel-words .l2-hero-actions{width:100%}
+ #panel-words .l2-hero-actions button{flex:1 1 130px}
+ #panel-words .l2-stat{padding:11px;gap:9px}
+ #panel-words .l2-stat>span{flex-basis:37px;height:37px;font-size:22px}
+ #panel-words .l2-stat strong{font-size:23px}
+ #panel-words .l2-leitner-boxes,#panel-words .l2-leitner-bottom{padding:12px}
+ #panel-words .l2-five-boxes{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+ #panel-words .l2-stage{padding:10px 3px;border-radius:11px}
+ #panel-words .l2-stage-orb{width:36px;height:36px;font-size:16px;border-width:2px}
+ #panel-words .l2-stage h3{font-size:10px}
+ #panel-words .l2-stage strong{font-size:17px}
+ #panel-words .l2-stage small{font-size:9px}
+ #panel-words .l2-leitner-bottom button{width:100%}
+ #panel-words #word-form.l2-word-form{padding:12px}
+}
+@media(max-width:355px){
+ #panel-words .l2-stat{padding:8px;gap:6px}
+ #panel-words .l2-stat>span{flex-basis:30px;height:30px;font-size:19px}
+ #panel-words .l2-stat small{font-size:10px}
+ #panel-words .l2-five-boxes{gap:3px}
+ #panel-words .l2-stage h3{font-size:9px}
+ #panel-words .l2-stage-orb{width:29px;height:29px}
+}
