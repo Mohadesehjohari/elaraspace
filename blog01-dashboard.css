@@ -156,3 +156,11 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
  #panel-blog .blog-feed>section:nth-child(2){order:3;width:100%}
  #panel-blog .blog-feed>section:nth-child(n+3){order:4;width:100%}
 }
+
+@media(min-width:901px){
+ /* Reference desktop puts My Posts after the editorial sections. */
+ #panel-blog .blog-feed{display:flex;flex-direction:column;gap:12px}
+ #panel-blog .blog-feed>section:first-child{order:1}
+ #panel-blog .blog-feed>section:nth-child(2){order:3}
+ #panel-blog .blog-feed>section:nth-child(n+3){order:2}
+}
