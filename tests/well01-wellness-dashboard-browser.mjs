@@ -77,6 +77,12 @@ for(const width of widths){
   const modal=page.locator('.wellness-workout-dialog[role="dialog"][aria-modal="true"]');
   await modal.waitFor();
   assert.equal(await modal.locator('[name="note"]').count(),1,'one optional workout note');
+  if(width===1440){
+   const pair=await page.evaluate(()=>({type:document.querySelector('.wellness-workout-pair [name="type"]').getBoundingClientRect().toJSON(),name:document.querySelector('.wellness-workout-pair [name="customType"]').getBoundingClientRect().toJSON(),footer:document.querySelector('.wellness-workout-footer').getBoundingClientRect().toJSON(),dialog:document.querySelector('.wellness-workout-dialog').getBoundingClientRect().toJSON()}));
+   console.log('WELL01_DESKTOP_MODAL',JSON.stringify({typeY:pair.type.y,nameY:pair.name.y,footerBottom:pair.footer.bottom,dialogBottom:pair.dialog.bottom}));
+   assert.ok(Math.abs(pair.type.y-pair.name.y)<=3,'desktop type and custom name are in the same row');
+   assert.ok(pair.footer.bottom<=900,'desktop save and cancel are visible without scrolling at 900px height');
+  }
   assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden','workout form locks background scrolling');
   await page.screenshot({path:'browser-artifacts/well01/workout-popup-'+width+'.png'});
   await page.evaluate(()=>window.scrollTo(0,0));
