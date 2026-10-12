@@ -184,18 +184,50 @@ async function editor(kind,id){
  if(write({[key]:id?current[key].map(x=>x.id===id?row:x):[...current[key],row]}))message('ثبت شد.')
 }
 async function planEditor(kind){
- if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return;
- const prefix=kind==='nutrition'?'nutrition':'workout',key=prefix+'PlanNote',titleKey=prefix+'PlanTitle',current=read(),form=document.createElement('div');
- form.className='wellness-plan-editor wellness-green-plan-editor';
- form.innerHTML='<label>نام برنامه<input name="title" maxlength="80" dir="auto" value="'+esc(current[titleKey]||(kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی'))+'"></label>'
- +'<label>توضیحات و یادداشت برنامه<textarea name="note" maxlength="5000" rows="5" dir="auto">'+esc(current[key]||'')+'</textarea></label>'
- +'<p class="muted">برای نوشتن یادداشت یا چک‌لیست‌های جداگانه از پوشه‌های همین برنامه استفاده کنید. اطلاعات در فضای خصوصی حساب می‌ماند.</p>'
- +'<section class="wellness-plan-editor-folders"><h3>پوشه‌های این برنامه</h3>'+planFolderMarkup(current,kind)+'</section>';
+ if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');
+ if(!window.ElaraDialog?.open)return;
+ const prefix=kind==='nutrition'?'nutrition':'workout',key=prefix+'PlanNote',titleKey=prefix+'PlanTitle',foldersKey=planFolderKey(kind),original=read();
+ const form=document.createElement('div');form.className='wellness-plan-editor wellness-green-plan-editor wellness-full-plan-editor';
+ let folders=planFolders(original,kind).map(x=>({...x,checklist:Array.isArray(x.checklist)?x.checklist.map(y=>({...y})):[]})),selectedId=folders[0]?.id||'',tab='note';
+ form.innerHTML='<label>نام برنامه<input name="title" maxlength="80" dir="auto" value="'+esc(original[titleKey]||(kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی'))+'"></label>'
+ +'<label>توضیحات برنامه<textarea name="note" maxlength="5000" rows="4" dir="auto">'+esc(original[key]||'')+'</textarea></label>'
+ +'<section class="wellness-plan-editor-folders"><div class="wellness-plan-folders-heading"><h3>پوشه‌ها</h3><button type="button" data-plan-new-folder>+ پوشه جدید</button></div>'
+ +'<div class="wellness-plan-workspace"><div class="wellness-plan-folder-navigation"></div><div class="wellness-plan-folder-detail"></div></div></section>'
+ +'<p class="muted">یادداشت و چک‌لیست هر پوشه فقط در فضای خصوصی حساب ذخیره می‌شوند.</p>';
+ const nav=form.querySelector('.wellness-plan-folder-navigation'),detail=form.querySelector('.wellness-plan-folder-detail');
+ const selected=()=>folders.find(x=>x.id===selectedId);
+ function collect(){
+  const folder=selected();if(!folder)return;
+  const title=detail.querySelector('[data-plan-folder-title]'),note=detail.querySelector('[data-plan-folder-note]');
+  if(title)folder.title=title.value.trim().slice(0,80)||folder.title;
+  if(note)folder.note=note.value.slice(0,5000);
+  const rows=detail.querySelectorAll('[data-plan-item-index]');rows.forEach(x=>{const i=Number(x.dataset.planItemIndex);if(folder.checklist[i]){folder.checklist[i].done=!!x.checked}});
+ }
+ function paint(){
+  nav.innerHTML=folders.length?folders.map(x=>'<div class="wellness-plan-folder-row '+(x.id===selectedId?'active':'')+'"><button type="button" data-plan-select="'+esc(x.id)+'">📁 <span dir="auto">'+esc(x.title)+'</span></button><button type="button" data-plan-remove="'+esc(x.id)+'" aria-label="حذف پوشه" title="حذف پوشه">🗑</button></div>').join(''):'<p class="muted">هنوز پوشه‌ای وجود ندارد.</p>';
+  const folder=selected();if(!folder){detail.innerHTML='<p class="muted">برای نوت‌برداری یا ساخت چک‌لیست، یک پوشه بسازید.</p>';return}
+  detail.innerHTML='<label>نام پوشه<input data-plan-folder-title maxlength="80" dir="auto" value="'+esc(folder.title)+'"></label>'
+   +'<div class="wellness-folder-tabs" role="tablist"><button type="button" data-plan-tab="note" aria-selected="'+(tab==='note')+'" class="'+(tab==='note'?'selected':'')+'">📝 یادداشت</button><button type="button" data-plan-tab="checklist" aria-selected="'+(tab==='checklist')+'" class="'+(tab==='checklist'?'selected':'')+'">☑ چک‌لیست</button></div>'
+   +'<label '+(tab==='note'?'':'hidden')+'>یادداشت<textarea data-plan-folder-note maxlength="5000" rows="7" dir="auto">'+esc(folder.note||'')+'</textarea></label>'
+   +(tab==='checklist'?'<div class="wellness-checklist-add"><input data-plan-new-item maxlength="220" placeholder="آیتم چک‌لیست جدید"><button type="button" data-plan-add-item>+ افزودن</button></div><div class="wellness-plan-item-list">'+(folder.checklist.length?folder.checklist.map((item,i)=>'<div class="wellness-folder-item"><label><input type="checkbox" data-plan-item-index="'+i+'" '+(item.done?'checked':'')+'><span dir="auto">'+esc(item.text)+'</span></label><button type="button" data-plan-remove-item="'+i+'" aria-label="حذف آیتم">×</button></div>').join(''):'<p class="muted">چک‌لیست خالی است.</p>')+'</div>':'');
+ }
+ function addItem(){const input=detail.querySelector('[data-plan-new-item]'),value=input?.value.trim().slice(0,220),folder=selected();if(!value||!folder||folder.checklist.length>=100)return;collect();folder.checklist.push({id:crypto.randomUUID?.()||String(Date.now()),text:value,done:false});paint()}
+ paint();
+ form.addEventListener('click',async e=>{
+  const fresh=e.target.closest('[data-plan-new-folder]');if(fresh){collect();const id=crypto.randomUUID?.()||('folder-'+Date.now());folders.unshift({id,title:'پوشه جدید',note:'',checklist:[],updatedAt:Date.now()});selectedId=id;tab='note';paint();detail.querySelector('[data-plan-folder-title]')?.focus();return}
+  const selection=e.target.closest('[data-plan-select]');if(selection){collect();selectedId=selection.dataset.planSelect;tab='note';paint();return}
+  const remove=e.target.closest('[data-plan-remove]');if(remove){if(!confirm('این پوشه و یادداشت‌ها و چک‌لیست آن حذف شوند؟'))return;collect();folders=folders.filter(x=>x.id!==remove.dataset.planRemove);if(selectedId===remove.dataset.planRemove)selectedId=folders[0]?.id||'';paint();return}
+  const tabButton=e.target.closest('[data-plan-tab]');if(tabButton){collect();tab=tabButton.dataset.planTab;paint();return}
+  if(e.target.closest('[data-plan-add-item]')){addItem();return}
+  const deleteItem=e.target.closest('[data-plan-remove-item]');if(deleteItem){collect();selected().checklist.splice(Number(deleteItem.dataset.planRemoveItem),1);paint()}
+ });
+ form.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-plan-new-item]')){e.preventDefault();addItem()}});
  const ok=await window.ElaraDialog.open({title:kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی',content:form,wide:true,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});
  if(ok!==true)return;
+ collect();
  const title=form.querySelector('[name="title"]').value.trim().slice(0,80),note=form.querySelector('[name="note"]').value.trim().slice(0,5000);
  if(!title)return message('نام برنامه را وارد کنید.');
- if(write({[key]:note,[titleKey]:title}))message('برنامه ذخیره شد.')
+ if(write({[key]:note,[titleKey]:title,[foldersKey]:folders.filter(x=>x.title.trim()).slice(0,60)}))message('برنامه و پوشه‌ها ذخیره شدند.');
 }
 
 function relocateFocus(){const tasks=$('elara-home-tasks')?.closest('.elara-card'),focus=$('elara-home-focus')?.closest('.elara-card');if(tasks&&focus&&!tasks.contains(focus)){focus.classList.add('wellness-inline-focus');tasks.append(focus)}}
