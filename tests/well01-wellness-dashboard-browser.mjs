@@ -127,7 +127,36 @@ for(const width of widths){
   }
   await page.evaluate(()=>window.ElaraOpen('home'));
   await page.waitForSelector('#panel-home:not(.hidden)');
-  assert.ok(Math.abs(await opacity()-1)<.001,'account returns fully visible outside wellness');
+  assert.ok(Math.abs(await opacity()-1)<.001,'Home keeps account fully visible');
+  await page.screenshot({path:'browser-artifacts/well01/account-home-'+width+'.png'});
+  const routes=[['tasks','panel-tasks'],['books','panel-books'],['settings','panel-settings'],['reports','panel-reports']];
+  for(const [route,id] of routes){
+   await page.evaluate(route=>window.ElaraOpen(route),route);
+   await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
+   await page.mouse.move(12,360);await page.waitForTimeout(260);
+   const current=await opacity();
+   if(width===1440)assert.ok(current<=.15,route+' desktop should fade account: '+current);
+   else assert.ok(current>=.48&&current<.9,route+' mobile keeps avatar discoverable: '+current);
+   if(route==='tasks'){
+    await page.screenshot({path:'browser-artifacts/well01/account-tasks-idle-'+width+'.png'});
+    if(width===1440){
+     await account.hover();await page.waitForTimeout(260);
+     assert.ok(await opacity()>.9,'Tasks account reveals on hover');
+     await page.screenshot({path:'browser-artifacts/well01/account-tasks-hover-1440.png'});
+    }
+    await button.click();await drawer.waitFor();await page.waitForTimeout(260);
+    assert.ok(await opacity()>.9,'Tasks account remains open at '+width);
+    await page.screenshot({path:'browser-artifacts/well01/account-tasks-drawer-'+width+'.png'});
+    if(width===1440){await page.locator('.elara-private-drawer-panel').hover();assert.ok(await opacity()>.9,'Tasks drawer mouse travel stays open');}
+    await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+    await page.mouse.move(12,360);await page.waitForTimeout(270);
+    if(width===1440)assert.ok(await opacity()<=.15,'Tasks account fades after close');
+   }
+  }
+  await page.evaluate(()=>window.ElaraOpen('home'));
+  await page.waitForSelector('#panel-home:not(.hidden)');
+  await page.waitForTimeout(275);
+  assert.ok(Math.abs(await opacity()-1)<.001,'Home account restores after non-home navigation');
   await page.evaluate(()=>window.ElaraOpen('exercise'));
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
@@ -237,6 +266,18 @@ await touch.screenshot({path:'browser-artifacts/well01/profile-touch-open-390.pn
 await touch.locator('.elara-private-drawer [data-drawer-close]').click();
 await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
 await touch.waitForTimeout(275); // allow 210ms opacity transition to settle
+await touch.evaluate(()=>window.ElaraOpen('tasks'));
+await touch.waitForSelector('#panel-tasks:not(.hidden)');
+const tasksAvatar=await touch.locator('#ref-header-account').boundingBox();
+assert.ok(tasksAvatar&&tasksAvatar.width>=44&&tasksAvatar.height>=44,'Tasks avatar touch target is at least 44x44');
+await touch.touchscreen.tap(tasksAvatar.x+tasksAvatar.width/2,tasksAvatar.y+tasksAvatar.height/2);
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor();
+await touch.screenshot({path:'browser-artifacts/well01/account-tasks-touch-open-390.png'});
+await touch.locator('.elara-private-drawer [data-drawer-close]').click();
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
+await touch.evaluate(()=>window.ElaraOpen('home'));
+await touch.waitForSelector('#panel-home:not(.hidden)');
+assert.ok(Math.abs(await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity))-1)<.001,'Home touch account fully restores');
 const closedOpacity=await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity));
 assert.ok(closedOpacity<.9,'touch account compacts after closing');
 await touch.close();
