@@ -1,0 +1,60 @@
+name: Freedom R28 Notebook Reference QA
+on:
+  push:
+    branches:
+      - freedom-r28-fullscreen-private-notebook-20261012
+  pull_request:
+    paths:
+      - 'freedom-r28-notebook.js'
+      - 'freedom-r28-notebook.css'
+      - 'freedom-dashboard-r2026.js'
+      - 'freedom-enhancements.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
+      - 'tests/freedom-r28-browser.mjs'
+      - '.github/workflows/freedom-r28-notebook.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  r28-notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and exact theme assets
+        run: |
+          node --check boot.js
+          node --check freedom-r28-notebook.js
+          node --check freedom-dashboard-r2026.js
+          node --check freedom-enhancements.js
+          node --check tests/freedom-r28-browser.mjs
+          node - <<'NODE'
+          const fs=require('fs'),m=require('./deploy/production-manifest.json');
+          for(const p of ['freedom-r28-notebook.css','freedom-r28-notebook.js','assets/ui/Misty Mountain Lake at Dawn.webp','assets/ui/Celestial Mirror Lake at Night.webp','assets/ui/Sunlit Botanical Shadows on Parchment.webp','assets/ui/Lavender Moonrise Over Misty Meadows.webp']){
+            if(!m.required.includes(p)||!m.files.includes(p)||!fs.existsSync(p)||!fs.statSync(p).size)throw Error('Missing R28 asset '+p);
+          }
+          NODE
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-freedom-r28.log 2>&1 &
+          sleep 2
+      - name: Test fullscreen UI, save/reload and custom uploads
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 420s node tests/freedom-r28-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freedom-r28-fullscreen-screenshots
+          path: browser-artifacts/freedom-r28-fullscreen-*.png
+          if-no-files-found: warn
+          retention-days: 14
