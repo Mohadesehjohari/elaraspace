@@ -86,6 +86,13 @@ async function run(width,height){
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
  assert.equal(await page.locator('#elara-social-page .social-collab-requests').count(),0,width+': dashboard must not duplicate collaboration requests');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
+
+ const formDiagnostic=await page.evaluate(()=>{
+   let el=document.querySelector('#elara-add-friend'),parents=[];
+   while(el&&parents.length<6){const s=getComputedStyle(el),r=el.getBoundingClientRect();parents.push({tag:el.tagName,cls:el.className,display:s.display,visibility:s.visibility,opacity:s.opacity,w:r.width,h:r.height});el=el.parentElement}
+   return parents;
+ });
+ assert.ok(formDiagnostic[0]?.h>0&&formDiagnostic[0]?.w>0,width+': Friends add form collapsed '+JSON.stringify(formDiagnostic));
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
