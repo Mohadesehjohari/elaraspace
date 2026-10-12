@@ -14,7 +14,7 @@ const seed={version:1,theme:'dark',xp:0,tasks:[
 const page=await(await chromium.launch({headless:true})).newPage({viewport:{width:1280,height:900}});
 await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraAccount={user:null,profile:{name:'QA',username:'qa',xp:0}};document.body.classList.add('cloud-ready');document.body.classList.remove('cloud-locked');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));"}));
 await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.ElaraSocial={me:null,friends:[],requests:[],activities:[],refresh:async()=>{}};"}));
-await page.addInitScript(data=>localStorage.setItem('elara_space_v1',JSON.stringify(data)),seed);
+await page.addInitScript(data=>{if(sessionStorage.getItem('elara-qa-daily-rounds-seeded')==='1')return;sessionStorage.setItem('elara-qa-daily-rounds-seeded','1');localStorage.setItem('elara_space_v1',JSON.stringify(data))},seed);
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 const row=id=>page.locator('#task-list .astra-task-row[data-key="'+id+'"]');
 const progress=async id=>page.evaluate(([taskId,day])=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return s.tasks.find(t=>t.id===taskId)?.dailyProgress?.[day]??0},[id,date]);
