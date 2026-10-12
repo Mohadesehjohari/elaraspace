@@ -119,8 +119,8 @@ try {
   await page.locator('.page-settings-form [name=bio]').fill('معرفی اختصاصی پیج');
   await page.locator('.page-settings-form [name=cover][value=castle]').check();
   assert.equal(await page.locator('.page-settings-interest-grid [name=interests]').count(),12,width+': select interests list');
-  await page.locator('.page-settings-form [name=interests][value="مطالعه"]').check();
-  await page.locator('.page-settings-form [name=interests][value="نجوم"]').check();
+  await page.locator('.page-settings-interest:has([name=interests][value="مطالعه"]) > span').click();
+  await page.locator('.page-settings-interest:has([name=interests][value="نجوم"]) > span').click();
   await page.locator('.page-settings-form [name=otherInterests]').fill('بازی‌های رومیزی، جهان‌های خیالی');
   await page.locator('.elara-dialog-actions .primary-button').last().click();
   await page.waitForFunction(()=>document.querySelector('.page-id-name-row h2')?.textContent==='نام اختصاصی پیج');
