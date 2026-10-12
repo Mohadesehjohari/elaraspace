@@ -119,12 +119,12 @@ function hideDuplicateHero(panel){
 }
 /* Account reveal input modality on visible non-Home panels only; no navigation side effects. */
 const setWellProfileMode=mode=>{
- if(document.querySelector('#main > [id^="panel-"]:not(.hidden)')&&!document.querySelector('#panel-home:not(.hidden)'))document.body.dataset.wellProfileInput=mode;
+ if(document.querySelector('#main > [id^="panel-"]:not(#panel-home):not(.hidden)'))document.body.dataset.wellProfileInput=mode;
 };
 document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')setWellProfileMode('pointer')},{passive:true});
 document.addEventListener('pointerdown',()=>setWellProfileMode('pointer'),{passive:true});
 document.addEventListener('keydown',e=>{if(['Tab','Enter',' ','Escape','ArrowDown','ArrowUp'].includes(e.key))setWellProfileMode('keyboard')},true);
-window.addEventListener('elara:open',()=>{if(document.querySelector('#panel-home:not(.hidden)'))delete document.body.dataset.wellProfileInput});
+window.addEventListener('elara:open',()=>{if(!document.querySelector('#main > [id^="panel-"]:not(#panel-home):not(.hidden)'))delete document.body.dataset.wellProfileInput});
 function render(){
  const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);
  let host=panel.querySelector(':scope > #well01-dashboard');
