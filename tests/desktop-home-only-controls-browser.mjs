@@ -26,7 +26,7 @@ async function withoutDesktopRules(page, selector) {
   return page.evaluate(selector => {
     const sheet = [...document.querySelectorAll('link[rel="stylesheet"]')]
       .find(link => link.href.includes('desktop-home-only-controls-20261012.css'));
-    assertSheet(sheet);
+    if (!sheet) throw new Error('Desktop Home-only CSS did not load');
     const visibleNow = () => {
       const el = document.querySelector(selector);
       if (!el) return false;
@@ -43,9 +43,6 @@ async function withoutDesktopRules(page, selector) {
     sheet.disabled = false;
     return { withStyles, withoutStyles };
   }, selector);
-}
-function assertSheet(sheet) {
-  if (!sheet) throw new Error('Home-only CSS did not load');
 }
 
 async function route(page, name) {
