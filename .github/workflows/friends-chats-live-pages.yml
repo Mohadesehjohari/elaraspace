@@ -6,6 +6,8 @@ on:
       - 'social-messaging-ui.js'
       - 'friends-chats-redesign.css'
       - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
       - 'tests/friends-dm-ui-browser.mjs'
       - '.github/workflows/friends-chats-live-pages.yml'
   workflow_dispatch:
