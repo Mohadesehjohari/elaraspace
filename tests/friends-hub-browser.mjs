@@ -126,7 +126,11 @@ async function run(width,height){
  });
  assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),0,width+': real club filter must hide mismatched rows '+JSON.stringify(clubFilterProof));
  await page.locator('[data-club-f3-search]').fill('');
- assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),1,width+': club search should restore actual records');
+ const restored=await page.evaluate(()=>{
+  const root=document.querySelector('.club-f3'),inp=root?.querySelector('[data-club-f3-search]'),row=root?.querySelector('[data-club-f3-results] [data-club-tile]');
+  return {input:inp?.value,k:root?.querySelector('[data-club-f3-kind]')?.value,mode:root?.querySelector('[data-club-f3-mode]')?.value,hidden:row?.hidden,style:row?.getAttribute('style'),display:row?getComputedStyle(row).display:null,panels:document.querySelectorAll('.club-f3').length};
+ });
+ assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),1,width+': club search should restore actual records '+JSON.stringify(restored));
 
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
