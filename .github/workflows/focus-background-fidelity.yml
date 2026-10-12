@@ -1,0 +1,84 @@
+name: FOCUS-01 Approved Background Fidelity
+on:
+  pull_request:
+    paths:
+      - index.html
+      - focus-room-fidelity.css
+      - lib01-library-dashboard.css
+      - tests/focus-background-fidelity-browser.mjs
+      - .github/workflows/focus-background-fidelity.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - focus-room-fidelity.css
+      - lib01-library-dashboard.css
+      - tests/focus-background-fidelity-browser.mjs
+      - .github/workflows/focus-background-fidelity.yml
+permissions:
+  contents: read
+jobs:
+  focus-candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source asset and syntax
+        run: |
+          test -s assets/ui/bg_focus_room.webp
+          node --check tests/focus-background-fidelity-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
+          npx playwright install --with-deps chromium
+      - name: Run focus, Pomodoro and library browser checks
+        run: |
+          python3 -m http.server 4173 >/tmp/focus-bg-http.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/focus-background-fidelity-browser.mjs
+          timeout 300s node tests/pomodoro-sessions-browser.mjs
+          timeout 420s node tests/library-dashboard-lib01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus-bg-candidate
+          path: browser-artifacts/**/*.png
+          retention-days: 20
+  focus-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact published focus CSS, library CSS, index and WebP
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 80); do
+            ok=true
+            for file in index.html focus-room-fidelity.css lib01-library-dashboard.css assets/ui/bg_focus_room.webp; do
+              output="/tmp/focus-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?sha=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "FOCUS_BG_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::Live bytes do not match merge";exit 1;fi
+      - name: Chromium screenshot and ten-width production check
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/focus-background-fidelity-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus-bg-live
+          path: browser-artifacts/focus-bg/*.png
+          retention-days: 30
