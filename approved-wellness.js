@@ -5,8 +5,8 @@ const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const today=()=>iso(new Date()),uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const storageKey=()=>`elara_private_wellness_v1_${uid()}`;
-const defaults=()=>({weight:'',targetWeight:'',goal:2000,glass:250,water:{},sleep:[],workouts:[],cycles:[],workoutPlanNote:'',nutritionPlanNote:'',workoutPlanFolders:[],nutritionPlanFolders:[]});
-function read(){if(!uid())return defaults();try{const value=JSON.parse(localStorage.getItem(storageKey())||'{}');return {...defaults(),...value,targetWeight:value.targetWeight??'',water:value.water&&typeof value.water==='object'?value.water:{},sleep:Array.isArray(value.sleep)?value.sleep:[],workouts:Array.isArray(value.workouts)?value.workouts:[],cycles:Array.isArray(value.cycles)?value.cycles:[],workoutPlanNote:String(value.workoutPlanNote||'').slice(0,5000),nutritionPlanNote:String(value.nutritionPlanNote||'').slice(0,5000),workoutPlanFolders:Array.isArray(value.workoutPlanFolders)?value.workoutPlanFolders:[],nutritionPlanFolders:Array.isArray(value.nutritionPlanFolders)?value.nutritionPlanFolders:[]}}catch{return defaults()}}
+const defaults=()=>({weight:'',targetWeight:'',goal:2000,glass:250,water:{},sleep:[],workouts:[],cycles:[],workoutPlanNote:'',nutritionPlanNote:'',workoutPlanTitle:'',nutritionPlanTitle:'',workoutPlanFolders:[],nutritionPlanFolders:[]});
+function read(){if(!uid())return defaults();try{const value=JSON.parse(localStorage.getItem(storageKey())||'{}');return {...defaults(),...value,targetWeight:value.targetWeight??'',water:value.water&&typeof value.water==='object'?value.water:{},sleep:Array.isArray(value.sleep)?value.sleep:[],workouts:Array.isArray(value.workouts)?value.workouts:[],cycles:Array.isArray(value.cycles)?value.cycles:[],workoutPlanNote:String(value.workoutPlanNote||'').slice(0,5000),nutritionPlanNote:String(value.nutritionPlanNote||'').slice(0,5000),workoutPlanTitle:String(value.workoutPlanTitle||'').slice(0,80),nutritionPlanTitle:String(value.nutritionPlanTitle||'').slice(0,80),workoutPlanFolders:Array.isArray(value.workoutPlanFolders)?value.workoutPlanFolders:[],nutritionPlanFolders:Array.isArray(value.nutritionPlanFolders)?value.nutritionPlanFolders:[]}}catch{return defaults()}}
 function write(patch){if(!uid()){message('برای ذخیرهٔ داده‌های خصوصی ابتدا وارد حساب شو.');return false}try{localStorage.setItem(storageKey(),JSON.stringify({...read(),...patch}));refresh();window.dispatchEvent(new CustomEvent('elara:wellness-saved',{detail:patch}));return true}catch{message('ذخیرهٔ اطلاعات روی این دستگاه انجام نشد.');return false}}
 function message(s){const el=$('wellness-status');if(el)el.textContent=s}
 function profileSex(){const p=window.ElaraSocial?.me||window.ElaraAccount?.profile||{},privateProfile=window.ElaraProfileSystem?.readPrivate?.()||{},raw=String(p.sex||p.gender||privateProfile.sex||'').toLowerCase();if(['woman','female','f','زن'].includes(raw))return'female';if(['man','male','m','مرد'].includes(raw))return'male';if(raw)return'other';return''}
@@ -31,7 +31,7 @@ function lineChart(values,label){
  const width=350,height=100,left=18,right=8,top=12,bottom=22,max=Math.max(10,...values,1),usableW=width-left-right,usableH=height-top-bottom;
  const pts=values.map((v,i)=>({x:left+i*(usableW/6),y:top+(1-Math.min(max,Number(v)||0)/max)*usableH,v:Number(v)||0,date:days()[i]}));
  const poly=pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
- const labels=pts.map((p,i)=>`<text x="${p.x.toFixed(1)}" y="96" text-anchor="middle">${new Date(p.date+'T12:00:00').toLocaleDateString('fa-IR',{weekday:'narrow'})}</text>`).join('');
+ const labels=pts.map((p,i)=>`<text x="${p.x.toFixed(1)}" y="96" text-anchor="middle">${new Date(p.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'})}</text>`).join('');
  const circles=pts.map(p=>`<circle class="point" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4"><title>${esc(p.date)} · ${fmt(p.v)} ساعت</title></circle>`).join('');
  return `<div class="wellness-sleep-line" role="img" aria-label="${esc(label)}"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"><line class="axis" x1="${left}" x2="${width-right}" y1="${height-bottom}" y2="${height-bottom}"/><polyline class="line" points="${poly}"/>${circles}${labels}</svg></div>`;
 }
@@ -161,10 +161,19 @@ async function editor(kind,id){
 }
 async function planEditor(kind){
  if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return;
- const key=kind==='nutrition'?'nutritionPlanNote':'workoutPlanNote',current=read(),form=document.createElement('div');form.className='wellness-plan-editor';form.innerHTML=`<label>${kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی'}<textarea name="note" maxlength="5000" rows="10" data-elara-ugc dir="auto" placeholder="${kind==='nutrition'?'وعده‌ها، خریدها، نکته‌های شخصی…':'تمرین‌ها، ست‌ها، روزها یا هر چیزی که می‌خواهی یادت بماند…'}">${esc(current[key]||'')}</textarea></label><small class="muted">این یادداشت فقط در فضای خصوصی حساب خودت نگه‌داری می‌شود.</small>`;
- const ok=await window.ElaraDialog.open({title:kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی',content:form,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});if(ok!==true)return;
- const note=String(form.querySelector('[name="note"]').value||'').trim().slice(0,5000);if(write({[key]:note}))message(note?'برنامه ذخیره شد.':'یادداشت برنامه پاک شد.')
+ const prefix=kind==='nutrition'?'nutrition':'workout',key=prefix+'PlanNote',titleKey=prefix+'PlanTitle',current=read(),form=document.createElement('div');
+ form.className='wellness-plan-editor wellness-green-plan-editor';
+ form.innerHTML='<label>نام برنامه<input name="title" maxlength="80" dir="auto" value="'+esc(current[titleKey]||(kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی'))+'"></label>'
+ +'<label>توضیحات و یادداشت برنامه<textarea name="note" maxlength="5000" rows="5" dir="auto">'+esc(current[key]||'')+'</textarea></label>'
+ +'<p class="muted">برای نوشتن یادداشت یا چک‌لیست‌های جداگانه از پوشه‌های همین برنامه استفاده کنید. اطلاعات در فضای خصوصی حساب می‌ماند.</p>'
+ +'<section class="wellness-plan-editor-folders"><h3>پوشه‌های این برنامه</h3>'+planFolderMarkup(current,kind)+'</section>';
+ const ok=await window.ElaraDialog.open({title:kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی',content:form,wide:true,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});
+ if(ok!==true)return;
+ const title=form.querySelector('[name="title"]').value.trim().slice(0,80),note=form.querySelector('[name="note"]').value.trim().slice(0,5000);
+ if(!title)return message('نام برنامه را وارد کنید.');
+ if(write({[key]:note,[titleKey]:title}))message('برنامه ذخیره شد.')
 }
+
 function relocateFocus(){const tasks=$('elara-home-tasks')?.closest('.elara-card'),focus=$('elara-home-focus')?.closest('.elara-card');if(tasks&&focus&&!tasks.contains(focus)){focus.classList.add('wellness-inline-focus');tasks.append(focus)}}
 function wire(){
  panel();relocateFocus();refresh();
