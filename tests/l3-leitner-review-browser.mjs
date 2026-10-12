@@ -34,6 +34,8 @@ try{
   await page.locator('#word-reveal').click();
   assert.equal(await page.locator('#flash-back:not(.hidden)').count(),1,'Reveal meaning did not work');
   assert.equal(await page.locator('#word-remembered:visible').count(),1,'Canonical known button missing');
+  assert.equal(await page.locator('#word-forgot:visible').count(),1,'Canonical forgot button missing');
+  if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-review-revealed-'+width+'.png',fullPage:false,animations:'disabled'});
   await page.locator('#word-remembered').click();
   await page.waitForFunction(front=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return s.words?.some(w=>w.front===front&&w.box===2&&w.due>'2020-01-01')},beforeWord,{timeout:10000});
   const scored=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words));
@@ -45,6 +47,12 @@ try{
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'Review horizontal overflow '+width+': '+overflow);
   if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-review-'+width+'.png',fullPage:true,animations:'disabled'});
+  if(width===390||width===1440){
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+5),'Underlying app leaked beyond full-screen review');
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.waitForSelector('#l3-review-scene .l3-story-card-slot .flashcard',{timeout:20000});
+    assert.equal(new URL(page.url()).hash,'#leitner-review','Direct review URL must restore after refresh');
+  }
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'),null,{timeout:9000});
   assert.equal(new URL(page.url()).hash,'#words','Escape must return to dashboard route @'+width);
