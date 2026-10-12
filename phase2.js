@@ -494,7 +494,26 @@
     }
   }
   function renderTaskStateGroups(s,date){
-    const archive=$('task-checked-archive'),list=$('task-list');if(!list)return;
+    const list=$('task-list');if(!list)return;
+    // Keep the completed archive strictly in sync with persisted completion, including
+    // the final daily repeat (3/3) and records completed through a decision panel.
+    let archive=$('task-checked-archive');
+    if(!archive){
+      archive=document.createElement('section');archive.id='task-checked-archive';
+      archive.className='elara-card task-checked-archive';
+      archive.innerHTML='<header><div><h2>کارهای تیک‌خورده</h2><small>کارهای کامل‌شده</small></div><span data-task-archive-count>۰</span></header><div data-task-archive-list></div>';
+      list.insertAdjacentElement('afterend',archive);
+    }
+    const records=s.tasks.filter(t=>taskDone(t,date)&&(!t.recurrenceRule||applies(t,date)));
+    const archiveList=archive.querySelector('[data-task-archive-list]');
+    const count=archive.querySelector('[data-task-archive-count]');
+    if(count)count.textContent=fa(records.length);
+    archive.hidden=records.length===0;
+    const snapshot=records.map(t=>String(t.id)+':'+String(t.doneAt||'')+':'+String(t.text||'')).join('|');
+    if(archiveList&&archiveList.dataset.taskSnapshot!==snapshot){
+      archiveList.dataset.taskSnapshot=snapshot;
+      archiveList.innerHTML=records.map(t=>'<article class="task-archive-row" data-task-archive-id="'+esc(t.id)+'"><button type="button" class="check-button task-archive-undo" data-phase2-action="undo-task" data-id="'+esc(t.id)+'" data-task-date="'+esc(date)+'" aria-pressed="true" aria-label="بازگرداندن '+esc(t.text||'تسک')+'">✓</button><div><strong dir="auto">'+esc(t.text||'تسک')+'</strong><small>تکمیل · '+esc(t.recurrenceRule?date:(t.doneAt||date))+'</small></div><div><button type="button" class="mini-button" data-phase2-action="edit-task" data-id="'+esc(t.id)+'">ویرایش</button><button type="button" class="mini-button danger" data-phase2-action="delete-task" data-id="'+esc(t.id)+'">حذف</button></div></article>').join('');
+    }
     let container=$('task-status-groups');
     if(!container){container=document.createElement('div');container.id='task-status-groups';(archive||list).insertAdjacentElement('afterend',container)}
     const section=(key,title)=>{

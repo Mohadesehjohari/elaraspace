@@ -152,3 +152,13 @@ html body #task-composer-shell #task-daily-target-options:not(.hidden){
 html body #task-composer-shell #task-recurrence-options:not(.hidden){
   display:block!important;visibility:visible!important;
 }
+
+/* A completed task retains the blue streak-style control and readable title. */
+html body #panel-tasks #task-checked-archive .task-archive-row strong,
+html body #panel-tasks #task-checked-archive .task-archive-row strong *{
+  text-decoration:none!important;text-decoration-line:none!important;
+}
+html body #panel-tasks #task-checked-archive .task-archive-undo[aria-pressed="true"]{
+  color:#fff!important;background:radial-gradient(circle at 40% 20%,#a2f5ff,#148ff0 65%,#095dbb)!important;
+  border-color:#a7f4ff!important;box-shadow:0 0 12px #2dc8ff90!important;
+}
