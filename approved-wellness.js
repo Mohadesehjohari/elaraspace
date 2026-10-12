@@ -77,12 +77,8 @@ function sleepMarkup(old){
 function planFolderKey(kind){return kind==='nutrition'?'nutritionPlanFolders':'workoutPlanFolders'}
 function planFolders(s,kind){return (Array.isArray(s[planFolderKey(kind)])?s[planFolderKey(kind)]:[]).filter(x=>x&&x.id&&x.title).slice(0,60)}
 function planFolderMarkup(s,kind){const rows=planFolders(s,kind),legacy=String(kind==='nutrition'?s.nutritionPlanNote:s.workoutPlanNote||'').trim();return '<div class="wellness-plan-folder-list">'+(legacy?'<button type="button" class="wellness-plan-folder legacy" data-wellness-plan-edit="'+kind+'"><span>📝</span><strong>'+esc(tx('یادداشت قبلی','Previous note'))+'</strong><small>'+esc(legacy.slice(0,90))+'</small></button>':'')+rows.map(x=>'<button type="button" class="wellness-plan-folder" data-wellness-plan-folder="'+esc(kind)+'" data-folder-id="'+esc(x.id)+'"><span>📁</span><strong data-elara-ugc dir="auto">'+esc(x.title)+'</strong><small data-elara-ugc dir="auto">'+esc(String(x.note||'').slice(0,90)||tx('برای دیدن برنامه باز کن','Open to view plan'))+'</small></button>').join('')+'</div><button type="button" class="quiet-button wellness-plan-folder-add" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه جدید','New folder')+'</button>'}
-async function planFolderEditor(kind,folderId=''){
- if(!uid())return message(tx('برای ثبت اطلاعات ابتدا وارد حساب شو.','Sign in to save private notes.'));const s=read(),key=planFolderKey(kind),rows=planFolders(s,kind),old=rows.find(x=>x.id===folderId)||{},form=document.createElement('div');form.className='wellness-plan-editor wellness-plan-folder-editor';form.innerHTML='<label>'+tx('نام پوشه','Folder name')+'<input name="title" maxlength="80" data-elara-ugc dir="auto" value="'+esc(old.title||'')+'" placeholder="'+esc(kind==='nutrition'?tx('مثلاً وعده‌های هفتگی','e.g. Weekly meals'):tx('مثلاً انعطاف','e.g. Flexibility'))+'"></label><label>'+tx('برنامه / نوت','Plan / note')+'<textarea name="note" maxlength="5000" rows="10" data-elara-ugc dir="auto" placeholder="'+esc(tx('برنامه‌ات را سریع اینجا بنویس…','Write your plan here…'))+'">'+esc(old.note||'')+'</textarea></label>';
- const ok=await window.ElaraDialog.open({title:old.id?tx('برنامه پوشه','Folder plan'):tx('پوشه جدید','New folder'),content:form,wide:true,actions:[...(old.id?[{label:tx('حذف پوشه','Delete folder'),value:'delete',kind:'danger'}]:[]),{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره','Save'),value:true,kind:'primary'}]});if(ok===false||ok==null)return;if(ok==='delete'){const yes=await window.ElaraDialog.confirm(tx('این پوشه و نوت داخلش حذف شود؟','Delete this folder and its note?'),{title:tx('حذف پوشه','Delete folder'),confirmText:tx('حذف','Delete'),danger:true});if(yes)write({[key]:rows.filter(x=>x.id!==old.id)});return}
- const title=String(form.querySelector('[name=title]').value||'').trim().slice(0,80),note=String(form.querySelector('[name=note]').value||'').trim().slice(0,5000);if(!title)return message(tx('برای پوشه یک نام بنویس.','Give the folder a name.'));const row={id:old.id||crypto.randomUUID?.()||('plan-'+Date.now()),title,note,updatedAt:Date.now()},next=old.id?rows.map(x=>x.id===old.id?row:x):[row,...rows];if(write({[key]:next}))message(tx('برنامه ذخیره شد.','Plan saved.'))
-}
-function refresh(){
+function planFolderEditor(kind,folderId=''){return planEditor(kind,folderId)}
+ function refresh(){
  const host=$('panel-exercise');if(!host)return;const s=read(),date=today(),amount=Number(s.water[date]||0),glass=num(s.glass,50,1000),goal=num(s.goal,250,10000),count=Math.round(amount/glass),pct=Math.min(100,goal?amount/goal*100:0);
  $('wellness-water-total').textContent=`${fmt(count)} لیوان`;
  $('wellness-water-amount').textContent=`${fmt(amount)} / ${fmt(goal)} ml`;
@@ -167,13 +163,65 @@ async function editor(kind,id){
  const key=kind==='sleep'?'sleep':kind==='workout'?'workouts':'cycles',current=read(),newId=id||crypto.randomUUID?.()||String(Date.now()),row=kind==='workout'?normalizeWorkout(inputs,old,newId):kind==='cycle'?normalizeCycle(inputs,old,newId):{...old,...inputs,id:newId};if(kind==='sleep'&&!sleepMinutes(row))return message('بازهٔ خواب باید بین یک دقیقه تا ۲۴ ساعت باشد.');
  if(write({[key]:id?current[key].map(x=>x.id===id?row:x):[...current[key],row]}))message('ثبت شد.')
 }
-async function planEditor(kind){
- if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return;
- const key=kind==='nutrition'?'nutritionPlanNote':'workoutPlanNote',current=read(),form=document.createElement('div');form.className='wellness-plan-editor';form.innerHTML=`<label>${kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی'}<textarea name="note" maxlength="5000" rows="10" data-elara-ugc dir="auto" placeholder="${kind==='nutrition'?'وعده‌ها، خریدها، نکته‌های شخصی…':'تمرین‌ها، ست‌ها، روزها یا هر چیزی که می‌خواهی یادت بماند…'}">${esc(current[key]||'')}</textarea></label><small class="muted">این یادداشت فقط در فضای خصوصی حساب خودت نگه‌داری می‌شود.</small>`;
- const ok=await window.ElaraDialog.open({title:kind==='nutrition'?'برنامه تغذیه':'برنامه تمرینی',content:form,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});if(ok!==true)return;
- const note=String(form.querySelector('[name="note"]').value||'').trim().slice(0,5000);if(write({[key]:note}))message(note?'برنامه ذخیره شد.':'یادداشت برنامه پاک شد.')
+async function planEditor(kind,folderId=''){
+ if(!uid())return message('برای ذخیره برنامه وارد حساب شوید.');
+ const nutrition=kind==='nutrition',prefix=nutrition?'nutrition':'workout',data=read(),titleKey=prefix+'PlanTitle',noteKey=prefix+'PlanNote',metaKey=prefix+'PlanMeta',key=prefix+'PlanFolders';
+ const meta=data[metaKey]&&typeof data[metaKey]==='object'?data[metaKey]:{};
+ const newId=()=>crypto.randomUUID?.()||('plan-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+ let folders=planFolders(data,kind).map(x=>({...x,items:Array.isArray(x.items)?x.items.filter(t=>t&&t.text).map(t=>({...t})).slice(0,80):[]}));
+ let selected=folders.find(x=>x.id===folderId)?.id||folders[0]?.id||'',mode='note';
+ const form=document.createElement('div');form.dir='rtl';form.className='wellness-plan-designer';
+ const days=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+ form.innerHTML=`<div class="wellness-design-intro"><label><span>نام برنامه</span><input name="planTitle" maxlength="90" value="${esc(data[titleKey]||'')}" placeholder="${nutrition?'برنامه تغذیه من':'برنامه تمرینی من'}"></label><label><span>توضیحات برنامه</span><textarea name="planNote" maxlength="5000" rows="3" placeholder="اهداف و جزئیات برنامه را بنویسید...">${esc(data[noteKey]||'')}</textarea></label>
+ <div class="wellness-design-days"><strong>زمان‌بندی برنامه</strong><div>${days.map((d,i)=>`<button type="button" data-plan-day="${i}" aria-pressed="${Array.isArray(meta.days)&&meta.days.includes(i)}" class="${Array.isArray(meta.days)&&meta.days.includes(i)?'selected':''}">${d}</button>`).join('')}</div></div>
+ <div class="wellness-design-settings">${nutrition?`
+ <label>هدف کالری روزانه<input name="target" type="number" min="0" max="10000" value="${esc(meta.target??2000)}"></label>
+ <label>سبک تغذیه<select name="style">${['متعادل','گیاه‌خواری','پروتئین بالا','سفارشی'].map(x=>`<option ${meta.style===x?'selected':''}>${x}</option>`).join('')}</select></label>
+ <label>تعداد وعده<select name="frequency">${[3,4,5,6].map(x=>`<option value="${x}" ${String(meta.frequency||5)===String(x)?'selected':''}>${fmt(x)} وعده</option>`).join('')}</select></label>`:`
+ <label>مدت جلسه (دقیقه)<input name="target" type="number" min="1" max="1440" value="${esc(meta.target??30)}"></label>
+ <label>شدت تمرین<select name="style">${['سبک','متوسط','زیاد','سفارشی'].map(x=>`<option ${meta.style===x?'selected':''}>${x}</option>`).join('')}</select></label>
+ <label>تمرکز برنامه<select name="frequency">${['تناسب اندام','افزایش قدرت','انعطاف‌پذیری','کاهش وزن','سفارشی'].map(x=>`<option ${meta.frequency===x?'selected':''}>${x}</option>`).join('')}</select></label>`}</div></div>
+ <section class="wellness-design-folders"><header><h3>▣ پوشه‌ها</h3><button type="button" data-folder-new>＋ پوشه جدید</button></header><div class="wellness-design-workspace"><nav class="wellness-design-folder-list" aria-label="فهرست پوشه‌ها"></nav><div class="wellness-design-folder-detail"></div></div></section>
+ <p class="wellness-design-private">🔒 اطلاعات این برنامه فقط در فضای خصوصی حساب شما در همین مرورگر ذخیره می‌شود.</p>`;
+ const list=form.querySelector('.wellness-design-folder-list'),detail=form.querySelector('.wellness-design-folder-detail');
+ const active=()=>folders.find(f=>f.id===selected);
+ function collect(){
+  const f=active();if(!f)return;
+  const note=detail.querySelector('[data-folder-note]');if(note)f.note=note.value.slice(0,5000);
+  const entries=detail.querySelectorAll('[data-plan-item]');
+  if(entries.length)f.items=[...entries].map(el=>({id:el.dataset.planItem,text:el.querySelector('[data-item-text]').value.slice(0,180),done:el.querySelector('[data-item-done]').checked})).filter(x=>x.text.trim());
+ }
+ function renderList(){
+  list.innerHTML=folders.length?folders.map(f=>`<div class="wellness-design-folder-row ${selected===f.id?'selected':''}"><button type="button" data-folder-open="${esc(f.id)}" aria-current="${selected===f.id?'true':'false'}">📁 <span data-elara-ugc dir="auto">${esc(f.title)}</span></button><button type="button" data-folder-rename="${esc(f.id)}" aria-label="ویرایش پوشه ${esc(f.title)}">✎</button><button type="button" data-folder-remove="${esc(f.id)}" aria-label="حذف پوشه ${esc(f.title)}">🗑</button></div>`).join(''):'<p class="wellness-design-empty">پوشه‌ای ندارید. پوشه جدید بسازید.</p>';
+ }
+ function renderDetail(){
+  const f=active();if(!f){detail.innerHTML='<p class="wellness-design-empty">برای یادداشت یا چک‌لیست یک پوشه انتخاب کنید.</p>';return}
+  detail.innerHTML=`<h4>📁 <span data-elara-ugc dir="auto">${esc(f.title)}</span></h4><div class="wellness-design-tabs" role="tablist"><button type="button" role="tab" data-folder-mode="note" aria-selected="${mode==='note'}">✎ یادداشت</button><button type="button" role="tab" data-folder-mode="checklist" aria-selected="${mode==='checklist'}">☑ چک‌لیست</button></div>
+  ${mode==='note'?`<label class="wellness-design-note">یادداشت این پوشه<textarea data-folder-note rows="7" maxlength="5000" placeholder="اینجا یادداشت کنید...">${esc(f.note||'')}</textarea></label>`:
+  `<div class="wellness-design-checklist"><div class="wellness-design-add-item"><input data-new-item maxlength="180" aria-label="مورد جدید" placeholder="مورد جدید را وارد کنید..."><button type="button" data-item-add>＋ افزودن</button></div><ul>${(f.items||[]).map(t=>`<li data-plan-item="${esc(t.id)}"><label><input type="checkbox" data-item-done ${t.done?'checked':''}><input type="text" data-item-text maxlength="180" aria-label="متن مورد" value="${esc(t.text)}"></label><button type="button" data-item-remove="${esc(t.id)}" aria-label="حذف مورد">×</button></li>`).join('')}</ul></div>`}`;
+ }
+ function render(){renderList();renderDetail()}
+ render();
+ form.addEventListener('click',async e=>{
+  const day=e.target.closest('[data-plan-day]');if(day){day.classList.toggle('selected');day.setAttribute('aria-pressed',String(day.classList.contains('selected')));return}
+  if(e.target.closest('[data-folder-new]')){collect();if(folders.length>=60)return;const f={id:newId(),title:'پوشه جدید',note:'',items:[]};folders.unshift(f);selected=f.id;mode='note';render();return}
+  const open=e.target.closest('[data-folder-open]');if(open){collect();selected=open.dataset.folderOpen;mode='note';render();return}
+  const rename=e.target.closest('[data-folder-rename]');if(rename){collect();const f=folders.find(x=>x.id===rename.dataset.folderRename);if(!f)return;const input=await window.ElaraDialog.prompt('نام جدید پوشه را وارد کنید.',{title:'تغییر نام پوشه',value:f.title,maxLength:80});if(input==null)return;const title=String(input).trim().slice(0,80);if(title)f.title=title;render();return}
+  const remove=e.target.closest('[data-folder-remove]');if(remove){collect();const f=folders.find(x=>x.id===remove.dataset.folderRemove);if(!f)return;if(!await window.ElaraDialog.confirm('پوشه «'+f.title+'» و همه یادداشت‌ها و تیک‌های آن حذف شوند؟',{title:'حذف پوشه',confirmText:'حذف',danger:true}))return;folders=folders.filter(x=>x.id!==f.id);if(selected===f.id)selected=folders[0]?.id||'';render();return}
+  const tab=e.target.closest('[data-folder-mode]');if(tab){collect();mode=tab.dataset.folderMode;renderDetail();return}
+  if(e.target.closest('[data-item-add]')){const f=active(),input=detail.querySelector('[data-new-item]'),title=input?.value.trim();if(!f||!title)return;collect();if(f.items.length>=80)return;f.items.push({id:newId(),text:title.slice(0,180),done:false});renderDetail();detail.querySelector('[data-new-item]')?.focus();return}
+  const del=e.target.closest('[data-item-remove]');if(del){const f=active();collect();if(!f)return;f.items=f.items.filter(t=>t.id!==del.dataset.itemRemove);renderDetail();return}
+ });
+ form.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-new-item]')){e.preventDefault();detail.querySelector('[data-item-add]')?.click()}});
+ const ok=await window.ElaraDialog.open({title:nutrition?'برنامه تغذیه':'برنامه تمرینی',content:form,wide:true,actions:[{label:'انصراف',value:false},{label:'ذخیره',value:true,kind:'primary'}]});
+ if(ok!==true)return;
+ collect();const title=form.querySelector('[name=planTitle]').value.trim().slice(0,90),note=form.querySelector('[name=planNote]').value.trim().slice(0,5000);
+ const target=Number(form.querySelector('[name=target]').value);
+ if(!Number.isFinite(target)||target<(nutrition?0:1)||target>(nutrition?10000:1440)){message('مقدار هدف معتبر نیست.');return}
+ const patch={[titleKey]:title,[noteKey]:note,[key]:folders.filter(x=>x.title?.trim()).map(f=>({id:f.id,title:String(f.title).trim().slice(0,80),note:String(f.note||'').slice(0,5000),items:(f.items||[]).filter(t=>t.text?.trim()).slice(0,80).map(t=>({id:t.id,text:String(t.text).slice(0,180),done:!!t.done})),updatedAt:Date.now()})),[metaKey]:{target,style:form.querySelector('[name=style]').value,frequency:form.querySelector('[name=frequency]').value,days:[...form.querySelectorAll('[data-plan-day].selected')].map(el=>Number(el.dataset.planDay))}};
+ if(write(patch))message('برنامه و پوشه‌های آن ذخیره شدند.');
 }
-function relocateFocus(){const tasks=$('elara-home-tasks')?.closest('.elara-card'),focus=$('elara-home-focus')?.closest('.elara-card');if(tasks&&focus&&!tasks.contains(focus)){focus.classList.add('wellness-inline-focus');tasks.append(focus)}}
+ function relocateFocus(){const tasks=$('elara-home-tasks')?.closest('.elara-card'),focus=$('elara-home-focus')?.closest('.elara-card');if(tasks&&focus&&!tasks.contains(focus)){focus.classList.add('wellness-inline-focus');tasks.append(focus)}}
 function wire(){
  panel();relocateFocus();refresh();
  window.addEventListener('elara:open',e=>{if(e.detail?.tab==='home'){relocateFocus();home()}if(e.detail?.tab==='exercise')refresh()});
