@@ -49,7 +49,9 @@ try{
   assert.equal(stats.kpis,6,width+': exactly six KPI');
   assert.equal(stats.sections,6,width+': exactly six section routes');
   assert.equal(stats.hero,1,width+': only one Reports hero');
-  assert.match(stats.background,/39-reports-hero-banner\.webp/,width+': real banner asset');
+  const heroAsset=await page.evaluate(async()=>{const img=new Image();img.src=new URL('assets/ui/reports_all.webp',location.href).href;await img.decode();return {width:img.naturalWidth,height:img.naturalHeight}});
+  assert.ok(heroAsset.width>100&&heroAsset.height>30,width+': reports_all.webp failed to load');
+  assert.match(stats.background,/reports_all\.webp/,width+': real banner asset');
   assert.equal(stats.hiddenLegacy,0,width+': remove legacy Reports launcher shortcuts');
   assert.equal(stats.taskCount,2,width+': deduped completions');
   assert.equal(stats.focusMinutes,25,width+': only completed focus');
@@ -78,7 +80,7 @@ try{
   await page.locator('#panel-home .ref-hero-reports').click();
   await page.waitForSelector('#panel-reports:not(.hidden) .elara-reports-kpis');
   if(width<=700)assert.equal(await page.locator('.bottom-nav [data-elara-nav-kind="main"]').count(),7,width+': seven mobile destinations preserved');
-  if([390,1440,1648].includes(width))await page.screenshot({path:'browser-artifacts/reports01/reports-'+width+'.png',fullPage:true});
+  if([390,430,768,1024,1440].includes(width))await page.screenshot({path:'browser-artifacts/reports01/reports-'+width+'.png',fullPage:true});
   assert.ok(!errors.some(x=>/reports-dashboard-01/.test(x)),width+': Reports module JavaScript exception '+errors.join(' | '));
   console.log('REPORTS01_PASS width='+width+' '+JSON.stringify(stats));
   await context.close();
