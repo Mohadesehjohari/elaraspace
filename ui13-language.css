@@ -615,8 +615,8 @@ html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behav
 .l3-story-actions button{width:100%;min-height:90px;padding:14px 16px;border-radius:22px;font:900 clamp(16px,2vw,23px) Tahoma,Arial,sans-serif;color:#fff;cursor:pointer}
 .l3-story-actions .l3-prev-action{background:linear-gradient(115deg,#103a82,#0c2251);border:2px solid #378dff;display:flex;align-items:center;justify-content:space-around;gap:12px}
 .l3-prev-action span{font-size:28px}
-.l3-story-actions #word-remembered{background:linear-gradient(125deg,#078662,#02674e);border:2px solid #1df5a5;box-shadow:0 0 25px #0ee28d56}
-.l3-story-actions #word-forgot{background:linear-gradient(125deg,#a2354f,#6a1534);border:2px solid #ff728b;box-shadow:0 0 25px #ff4e7461}
+.l3-story-actions #word-remembered{background:linear-gradient(125deg,#05a776,#026c53)!important;border:2px solid #1df5a5!important;box-shadow:0 0 25px #0ee28d56}
+.l3-story-actions #word-forgot{background:linear-gradient(125deg,#d94765,#7c1838)!important;border:2px solid #ff728b!important;box-shadow:0 0 25px #ff4e7461}
 .l3-story-scene button.hidden{display:none!important}
 .l3-story-scene button:disabled{opacity:.45;cursor:not-allowed}
 .l3-story-scene button:focus-visible{outline:3px solid #fff;outline-offset:4px}
@@ -629,7 +629,7 @@ html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behav
 .l3-story-finished .l3-story-new{color:#43ffcb}
 @media(max-width:700px){
  .l3-story-scene{background:linear-gradient(180deg,#020b20b2,#07133338 55%,#020924ae),url('assets/ui/lightner_words_backgroud_mobile.webp') center top/cover no-repeat,#030c25}
- .l3-story-container{width:100%;padding:calc(12px + env(safe-area-inset-top)) 15px calc(24px + env(safe-area-inset-bottom));gap:13px;min-height:100dvh}
+ .l3-story-container{width:100%;padding:calc(12px + env(safe-area-inset-top)) 15px calc(18px + env(safe-area-inset-bottom));gap:8px;min-height:100dvh}
  .l3-story-top{min-height:52px}
  .l3-story-top button{min-height:48px;min-width:48px}
  .l3-story-brand{font-size:29px}.l3-story-brand small{font-size:8px;letter-spacing:2px}.l3-story-mark{font-size:36px}
@@ -638,7 +638,7 @@ html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behav
  .l3-story-intro p{font-size:clamp(13px,3.8vw,18px)}
  .l3-story-progress{margin-top:3px;gap:3px}.l3-story-progress i{height:10px}
  .l3-story-meta{gap:8px}.l3-story-meta span{font-size:12px;padding:9px 11px}
- .l3-story-frame{min-height:clamp(340px,46dvh,580px);flex:1 0 360px;max-height:none;border-radius:26px;padding:53px 13px 25px;margin:1px auto 0;background:linear-gradient(180deg,#03153460,#030b2940 65%,#04112d9a),url('assets/ui/lightner_words_backgroud_mobile.webp') center/cover no-repeat}
+ .l3-story-frame{min-height:clamp(290px,39dvh,470px);flex:1 0 300px;max-height:none;border-radius:26px;padding:53px 13px 25px;margin:1px auto 0;background:linear-gradient(180deg,#03153460,#030b2940 65%,#04112d9a),url('assets/ui/lightner_words_backgroud_mobile.webp') center/cover no-repeat}
  .l3-story-speak{top:12px;right:12px;width:49px;height:49px;font-size:21px}
  .l3-story-card-slot .flashcard{gap:22px;padding:10px 3px!important}
  .l3-story-card-slot #flash-front{font-size:clamp(43px,11.5vw,78px)}
@@ -647,7 +647,7 @@ html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behav
  .l3-story-actions .l3-prev-action{grid-column:1;grid-row:1}
  .l3-story-actions>[data-l3-known-slot]{grid-column:2;grid-row:1}
  .l3-story-actions>[data-l3-forgot-slot]{grid-column:1/-1;grid-row:2}
- .l3-story-actions button{min-height:70px;font-size:clamp(14px,4vw,21px);padding:11px 8px}
+ .l3-story-actions button{min-height:62px;font-size:clamp(14px,4vw,21px);padding:10px 8px}
  .l3-story-history strong{font-size:clamp(44px,11vw,75px)}
 }
 @media(prefers-reduced-motion:reduce){.l3-story-scene *{animation:none!important;transition:none!important}}
