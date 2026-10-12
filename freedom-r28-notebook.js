@@ -6,7 +6,7 @@ const themes=[
  {id:'paper',title:'کاغذ روشن',sub:'ساده و دلنشین',file:'Sunlit Botanical Shadows on Parchment.webp'},
  {id:'lavender',title:'یاسی آرام',sub:'لطافت و رؤیایی',file:'Lavender Moonrise Over Misty Meadows.webp'},
  {id:'forest',title:'صبح مه‌آلود',sub:'طبیعت و تمرکز',file:'Misty Mountain Lake at Dawn.webp'}];
-const esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[k]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[k]));
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';
 const getState=()=>{try{const v=JSON.parse(localStorage.getItem(STORE)||'{}');v.diaryEntries=Array.isArray(v.diaryEntries)?v.diaryEntries:[];return v}catch{return {diaryEntries:[]}}};
 const rowId=()=>crypto.randomUUID?.()||'entry-'+Date.now().toString(36)+Math.random().toString(36).slice(2);
