@@ -273,9 +273,9 @@ function enhancePageFidelity(root,state,uid,viewingOther,target){
  }
  // Back must remain clickable below the sticky app header and clear of the cover/avatar overlap.
  const backButton=panel?.querySelector(':scope > .page-hero [data-page-back-feed]');
- if(backButton)root.prepend(backButton);
  const identity=socialPageIdentity(state,uid,viewingOther,target);
  if(identity)root.insertAdjacentHTML('afterbegin',identity);
+ if(backButton){const actions=root.querySelector('.page-id-actions');if(actions)actions.prepend(backButton);else root.prepend(backButton)}
  const strip=root.querySelector('.page-story-strip');
  if(strip&&!viewingOther){
   strip.querySelector('.ref-empty')?.remove();
