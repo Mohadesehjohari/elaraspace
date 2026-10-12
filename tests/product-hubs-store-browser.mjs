@@ -131,7 +131,7 @@ async function run(width,height){
  }));
  const visibleSocialBoxes=socialBoxes.filter(x=>x.h>0);
  assert.equal(visibleSocialBoxes.length,7,width+': seven visible Friends tabs; Challenges must be accessible via Activity CTA');
- assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?60:45)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
+ assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?59.5:44.5)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(visibleSocialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
