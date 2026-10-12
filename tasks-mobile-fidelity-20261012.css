@@ -711,6 +711,12 @@
   }
 
 }
+/* Explicit compact metadata size: override existing multi-class important rules. */
+@media(max-width:850px){
+  html body.dark #panel-tasks #task-list .astra-task-row .item-meta.astra-task-core-meta>span{
+    font-size:10px!important;line-height:1.25!important;
+  }
+}
 @media(min-width:701px) and (max-width:1024px){
   .task-composer-window{max-width:calc(100vw - 36px)!important}
 }
