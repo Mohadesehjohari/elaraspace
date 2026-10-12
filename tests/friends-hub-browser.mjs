@@ -154,7 +154,22 @@ async function run(width,height){
 
  await page.locator('[data-social-route="social"][data-social-view="friends"]').click();
  assert.match(await page.locator('.friends-f2-list').innerText(),/سینا/,width+': UGC/person name must not be translated');
- await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
+ const rankErrors=[];page.on('pageerror',error=>rankErrors.push(error.message));
+ await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));
+ try{
+  await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs',{timeout:12000});
+ }catch(error){
+  const debug=await page.evaluate(()=>({
+   url:location.href,hash:location.hash,lang:document.documentElement.lang,
+   panels:[...document.querySelectorAll('.panel')].filter(el=>{let s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'}).slice(0,12).map(el=>({id:el.id,cls:el.className})),
+   ranking:document.querySelector('#elara-ranking-page')&&{outer:document.querySelector('#elara-ranking-page').outerHTML.slice(0,400),display:getComputedStyle(document.querySelector('#elara-ranking-page')).display},
+   account:{hasSocial:!!window.ElaraSocial,hasRouter:!!window.ElaraOpen,hasView:!!window.ElaraSocialView},
+   socialTabs:document.querySelectorAll('#elara-social-page [role="tab"]').length,
+   booting:document.documentElement.hasAttribute('data-elara-booting')
+  }));
+  console.error('LIVE_RANKING_DIAGNOSTIC '+JSON.stringify({width,debug,rankErrors}));
+  throw error;
+ }
  assert.equal(await page.locator('#elara-ranking-page .social-tabs [role="tab"]').count(),4,width+': Ranking must remain a separate four-tab surface');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+2,width+': Friends Hub horizontal overflow '+JSON.stringify(overflow));
