@@ -64,13 +64,14 @@ function renderDiary(r){
  if(filter!=='همه')rows=rows.filter(x=>(x.tags||[]).some(t=>String(t).toLowerCase().includes(filter==='روزانه'?'روز':filter)));
  host.innerHTML=rows.length?rows.slice(0,5).map(x=>{
   const title=topic(x,'خاطره خصوصی'),body=String(x.body||'');
-  return '<article class="fd-diary-entry"><img src="'+A+'free_notes.webp" alt="" loading="lazy">'+
+  return '<article class="fd-diary-entry"><img data-r28-cover="'+esc(x.diaryBackgroundKey||'')+'" src="'+(x.diaryTheme&&window.ElaraFreedomNotebookR28?window.ElaraFreedomNotebookR28.themeAsset(x.diaryTheme):A+'free_notes.webp')+'" alt="" loading="lazy">'+
   '<button type="button" class="fd-diary-copy" data-fd-diary-id="'+esc(x.id)+'"><strong dir="auto">'+esc(title)+'</strong>'+
   '<small dir="auto">'+esc(body.slice(0,110))+(body.length>110?'…':'')+'</small></button>'+
   '<div class="fd-diary-meta"><time>'+esc(when(x.updatedAt||x.createdAt))+'</time><span>'+esc((x.tags||[])[0]||'خصوصی')+'</span></div>'+
   '<button type="button" class="fd-diary-menu" data-fd-diary-id="'+esc(x.id)+'" aria-label="نمایش، ویرایش یا حذف خاطره">⋮</button></article>';
  }).join(''):'<p class="fd-empty">در این دسته هنوز خاطره‌ای ثبت نکرده‌ای. با دکمهٔ بالا خاطرهٔ تازه بنویس.</p>';
  r.querySelectorAll('[data-fd-filter]').forEach(b=>{b.classList.toggle('is-active',b.dataset.fdFilter===filter);b.setAttribute('aria-pressed',String(b.dataset.fdFilter===filter))});
+ queueMicrotask(()=>window.ElaraFreedomNotebookR28?.decorate?.());
 }
 function renderDreams(r,d){
  const host=r.querySelector('[data-fd-dream-list]');if(!host)return;
