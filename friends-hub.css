@@ -1044,3 +1044,241 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
 /* Keep reference tab order physically left-to-right, while Persian labels stay RTL. */
 #elara-social-page.social-reference.social-friends-page .social-tabs{direction:ltr!important}
 #elara-social-page.social-reference.social-friends-page .social-tabs>[role="tab"]{direction:rtl!important}
+
+
+/* Clubs reference pass 2026-10-12: atmospheric, accessible layout even with zero live clubs.
+   All podium slots are decoration only; club identities, counts and scoring are backend-only. */
+#elara-social-page.social-reference.social-friends-page[data-social-tab="clubs"] .club-f3{
+ --f3-cyan:#24dafa;--f3-edge:#1978ad;--f3-gold:#ffd478;--f3-violet:#a47bff;
+ color:#eaf3ff;font-feature-settings:"kern";
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-summary{
+ min-height:67px;padding:12px 16px;margin-bottom:13px;
+ border:1px solid #237bab;border-radius:15px;
+ background:linear-gradient(118deg,#03152cf5,#0b2951ec 50%,#09152efa);
+ box-shadow:inset 0 1px #76dbff3a,0 10px 28px #001329a0;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-summary span{
+ display:inline-flex;align-items:center;gap:8px;padding:6px 12px;
+ border:1px solid #246087;border-radius:40px;background:#07284b7c;
+ font-size:13px;font-weight:750;color:#e2f3ff;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-summary span b{
+ color:#2feaff;font-size:19px;text-shadow:0 0 11px #00d7ff68
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-gradient-button{
+ border:1px solid #ef96e6!important;
+ background:linear-gradient(105deg,#ffbc63 0%,#fc6e91 42%,#6536ff 100%)!important;
+ color:#fff!important;box-shadow:0 0 12px #f15ca46b,0 0 18px #673cff55!important;
+ text-shadow:0 1px 2px #201637;margin-inline-start:auto;
+ transition:filter .2s,transform .2s!important;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-gradient-button:not(:disabled):hover{
+ filter:brightness(1.17);transform:translateY(-1px)
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-layout{
+ gap:13px;align-items:start;grid-auto-flow:row
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-panel{
+ background:linear-gradient(153deg,#092c50f2,#03152fef 65%,#061529ef)!important;
+ border:1px solid var(--f3-edge)!important;border-radius:17px!important;
+ box-shadow:inset 0 1px 0 #72d9ff25,0 8px 28px #000b24b0,0 0 16px #088fe018!important;
+ padding:14px!important;overflow:hidden;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-panel>header{
+ position:relative;border-bottom:1px solid #1b527d;padding:2px 0 13px;margin-bottom:13px;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-panel h2{
+ font-size:clamp(15px,1.25vw,21px)!important;font-weight:900!important;
+ color:#f8fbff!important;text-shadow:0 0 12px #5aafff61!important;line-height:1.5
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-panel:is(.club-f3-mine,.club-f3-tasks,.club-f3-catalogue,.club-f3-popular) h2:first-letter{
+ color:var(--f3-cyan);
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-ranking{
+ position:relative;isolation:isolate;min-height:485px;
+ background:linear-gradient(180deg,#070f31a8 0%,#0a1246a2 30%,#091538e6 100%),url('assets/ui/friends-ranking-bg.webp') center 35%/cover no-repeat!important;
+ border-color:#9779e7!important;box-shadow:0 0 27px #763ffe3f,inset 0 0 36px #794aff24!important
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-ranking:before{
+ content:"";position:absolute;z-index:-1;inset:48px 0 0;pointer-events:none;
+ background:radial-gradient(ellipse 56% 58% at 52% 56%,#ffc05d26,transparent 70%),
+ radial-gradient(ellipse 80% 72% at 50% 68%,#793ffd46,transparent 72%);
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-ranking>header{
+ border-color:#8856b65c
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-caption{
+ color:#d3dafa;font-size:12px;line-height:1.7;text-shadow:0 1px 7px #02092d;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant{
+ direction:ltr;display:grid;grid-template-columns:1fr 1.17fr 1fr;
+ align-items:end;gap:7px;min-height:318px;margin:14px 0 0;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot{
+ min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ position:relative;height:230px;filter:drop-shadow(0 0 15px #55a3ff62)
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot span{
+ width:min(100%,105px);aspect-ratio:1;display:grid;place-items:center;
+ border-radius:50%;font-size:58px;font-weight:700;color:#d0ecff;
+ border:3px solid #83c9ff;box-shadow:0 0 0 6px #050f3480,0 0 28px #3a8fff9c,inset 0 0 20px #3063b8bd;
+ background:radial-gradient(circle at 40% 33%,#6ab0ff80,#0a1d4edc 64%,#050b2a);
+ text-shadow:0 0 15px currentColor;z-index:2;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot i{
+ display:block;position:relative;width:100%;height:104px;margin-top:-12px;
+ border:2px solid #7aafff;border-bottom:3px solid #7aafff;border-radius:15px 15px 5px 5px;
+ background:linear-gradient(180deg,#31559b9e,#091b4ff2 85%);
+ box-shadow:inset 0 10px 16px #add8ff24,0 0 28px #337cff9a;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot i:after{
+ content:"";position:absolute;left:7px;right:7px;bottom:8px;height:3px;
+ background:#9cbfff;box-shadow:0 0 13px #80aaff
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold{
+ height:307px;filter:drop-shadow(0 0 21px #ffb149a0)
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold span{
+ width:min(100%,128px);color:#ffdb70;border-color:#ffd078;
+ background:radial-gradient(circle at 42% 25%,#fbb64e8c,#613a24a8 58%,#17112f);
+ box-shadow:0 0 0 6px #1b122b8a,0 0 38px #ffb849bb,inset 0 0 22px #ffbe68bd;
+ font-size:78px
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold i{
+ height:145px;border-color:#fabe62;background:linear-gradient(#b3782fba,#3f2443f5 86%);
+ box-shadow:inset 0 10px 21px #fff2a53a,0 0 35px #ffae4baf
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold i:after{background:#fbd178;box-shadow:0 0 17px #ffba4a}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-bronze{filter:drop-shadow(0 0 15px #ed8c75a5)}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-bronze span{
+ color:#ffc6a7;border-color:#ffac77;
+ background:radial-gradient(circle at 40% 25%,#db734c99,#38234f 67%,#090f2f);
+ box-shadow:0 0 0 6px #180b278a,0 0 28px #f68b72ab,inset 0 0 18px #cf674aa1;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-bronze i{
+ border-color:#f59474;background:linear-gradient(#863d59b8,#22123dec);
+ box-shadow:0 0 27px #f3947791;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-vacant-label{
+ position:relative;margin:13px auto 1px!important;padding:9px 13px;text-align:center;
+ border:1px solid #8b77d78f;border-radius:25px;background:#060d2dcc;
+ color:#ebdfff;font-size:12px;line-height:1.6;width:fit-content;max-width:100%
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-ranking .club-f3-podium{
+ min-height:340px;align-items:end;margin-top:20px
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank{
+ position:relative;min-height:235px!important;border-radius:70px 70px 10px 10px!important;
+ background:linear-gradient(180deg,#254978c0,#07163c)!important;
+ box-shadow:inset 0 0 27px #67a6fb48,0 0 19px #346fff9b!important;
+ border:2px solid #93caff!important;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank:nth-child(1){
+ min-height:312px!important;background:linear-gradient(175deg,#b66c2abb,#311832ee)!important;
+ border-color:#ffca6a!important;box-shadow:inset 0 0 32px #ffcf595e,0 0 30px #ffb84cab!important;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank:nth-child(3){
+ background:linear-gradient(165deg,#753b57c4,#1b1439ec)!important;border-color:#ff9c79!important;
+ box-shadow:inset 0 0 25px #f78c5c60,0 0 19px #f783667a!important;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank .club-f3-art{
+ width:min(100%,104px);height:104px;border-radius:50%;border-width:3px;
+ box-shadow:0 0 0 4px #091331af,0 0 20px currentColor!important
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-rank-no{font-size:26px!important}
+#elara-social-page[data-social-tab="clubs"] .club-f3-rank-list .club-f3-rank{
+ border:1px solid #1b5b92;border-radius:12px;background:#041e41b9;
+ min-height:49px;padding:7px 11px
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-tasks{min-height:260px}
+#elara-social-page[data-social-tab="clubs"] .club-f3-mine{min-height:230px}
+#elara-social-page[data-social-tab="clubs"] .club-f3-popular{min-height:240px}
+#elara-social-page[data-social-tab="clubs"] .club-f3-catalogue{min-height:280px}
+#elara-social-page[data-social-tab="clubs"] .club-f3-tile{
+ border-color:#236a9e!important;border-radius:12px;
+ background:linear-gradient(112deg,#0e3155cc,#031a37f5)!important;
+ box-shadow:inset 0 1px #8edaff19;min-height:60px;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-tile .club-f3-art{
+ border-radius:11px;border-color:#638fff;box-shadow:inset 0 0 16px #4761ff33,0 0 13px #00baff34
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-tile strong{
+ font-size:14px;color:#fff;text-shadow:0 0 7px #368bff51
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-tile small{color:#c3daf1}
+#elara-social-page[data-social-tab="clubs"] .club-f3-empty{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+ min-height:108px;margin:8px 0!important;padding:16px 10px!important;
+ background:linear-gradient(145deg,#061c40ac,#0d2346a9),url('assets/ui/banner_city_of_stars.webp') center 55%/cover;
+ border:1px solid #28669b!important;border-radius:13px!important;
+ color:#d5e5fb!important;text-shadow:0 1px 8px #000;
+ line-height:1.7;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-empty-star{
+ font-size:30px;line-height:1;color:#65ddff;text-shadow:0 0 12px #1db6ff,0 0 22px #9057ff
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-mine .club-f3-empty{
+ min-height:133px;background-image:linear-gradient(135deg,#041b36af,#071a3aaa),url('assets/ui/banner_moon_lake.webp')
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-popular .club-f3-empty{
+ min-height:155px;background-image:linear-gradient(125deg,#041534c4,#0f1240ad),url('assets/ui/banner_dream_tree.webp')
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-filters input,
+#elara-social-page[data-social-tab="clubs"] .club-f3-filters select{
+ min-height:44px;background:#041630d9!important;border:1px solid #237cb6!important;
+ color:#e7f6ff!important;box-shadow:inset 0 1px #6be1ff18;
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-error{
+ display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;
+ padding:11px 15px;border-radius:12px;border:1px solid #c85a8a;
+ background:linear-gradient(115deg,#3e163677,#111d41de);
+ font-size:12px;line-height:1.6
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-error>span:first-child{
+ font-size:18px;color:#ffc1ad
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-error>span:nth-child(2){flex:1;min-width:150px}
+#elara-social-page[data-social-tab="clubs"] .club-f3-error button{
+ padding:7px 13px;border:1px solid #ef8ebd;border-radius:8px;
+ color:#ffe6ef;background:#401d52;font:inherit;font-weight:700;cursor:pointer
+}
+#elara-social-page[data-social-tab="clubs"] .club-f3-invite{background:linear-gradient(135deg,#09264bd9,#111244ef)!important}
+#elara-social-page[data-social-tab="clubs"] .club-f3-invite .club-f3-gradient-button{min-width:0}
+@media(min-width:1051px){
+ #elara-social-page[data-social-tab="clubs"] .club-f3-ranking{grid-column:7/13;grid-row:1/span 2}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-tasks{grid-column:4/7;grid-row:1}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-mine{grid-column:1/4;grid-row:1}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-popular{grid-column:4/7;grid-row:2/span 2}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-catalogue{grid-column:7/13;grid-row:3/span 2}
+}
+@media(max-width:1050px){
+ #elara-social-page[data-social-tab="clubs"] .club-f3-ranking{min-height:390px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant{min-height:280px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-panel{min-height:0}
+}
+@media(max-width:700px){
+ #elara-social-page[data-social-tab="clubs"] .club-f3-summary{padding:9px 10px;gap:6px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-summary span{font-size:11px;padding:6px 9px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-summary .club-f3-gradient-button{min-height:40px!important;min-width:140px;margin:0}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-ranking{min-height:360px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant{min-height:225px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot{height:155px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold{height:220px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot span{max-width:82px;font-size:38px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold span{max-width:100px;font-size:54px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot i{height:72px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold i{height:100px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank{min-height:173px!important}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank:nth-child(1){min-height:212px!important}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank .club-f3-art{height:52px;width:52px;font-size:29px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank strong{font-size:11px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-podium .club-f3-rank small{font-size:10px}
+}
+@media(max-width:380px){
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant{gap:3px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-ranking{min-height:340px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-cards{grid-template-columns:1fr 1fr}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot span{max-width:70px}
+ #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold span{max-width:86px}
+}
