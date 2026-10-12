@@ -207,7 +207,11 @@
     "assets/ui/47-friend-activity-icon..webp",
     "assets/ui/48-friend-requests-icon.webp",
     "avatar-3d.js",
-    "avatar-3d.css"
+    "avatar-3d.css",
+    "freedom-dashboard-r2026.js",
+    "freedom-dashboard-r2026.css",
+    "assets/ui/Celestial Crystal Spellbook Icon.webp",
+    "assets/ui/freedom-card-bg.webp"
   ],
   "files": [
     ".htaccess",
@@ -512,6 +516,10 @@
     "assets/ui/45-groups-icon.webp",
     "assets/ui/46-clubs-icon..webp",
     "assets/ui/47-friend-activity-icon..webp",
-    "assets/ui/48-friend-requests-icon.webp"
+    "assets/ui/48-friend-requests-icon.webp",
+    "freedom-dashboard-r2026.js",
+    "freedom-dashboard-r2026.css",
+    "assets/ui/Celestial Crystal Spellbook Icon.webp",
+    "assets/ui/freedom-card-bg.webp"
   ]
 }
