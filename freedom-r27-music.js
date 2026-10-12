@@ -116,6 +116,7 @@ const install=()=>{
  media.__r27=true;media.openMusic=openMusic;
 };
 install();window.addEventListener('elara:open',install);
+queueMicrotask(()=>window.ElaraFreedomDashboardR26?.refresh?.());
 const observer=new MutationObserver(()=>{install();ensureProfileAudio()});
 observer.observe(document.documentElement,{childList:true,subtree:true});
 document.addEventListener('DOMContentLoaded',()=>{install();ensureProfileAudio()},{once:true});
