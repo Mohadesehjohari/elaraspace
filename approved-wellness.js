@@ -177,7 +177,29 @@ async function planEditor(kind){
  if(!uid()||!window.ElaraDialog?.open)return message(tx('ابتدا وارد حساب شوید.','Sign in first.'));
  const prefix=kind==='nutrition'?'nutrition':'workout',noteKey=prefix+'PlanNote',titleKey=prefix+'PlanTitle',state=read();
  const form=document.createElement('div');form.className='wellness-plan-editor wellness-plan-green-editor';
- form.innerHTML='<label>'+tx('نام برنامه','Program name')+'<input name="title" maxlength="80" dir="auto" value="'+esc(state[titleKey]|| (kind==='nutrition'?'برنامه تغذیه من':'برنامه تمرینی من'))+'"></label><label>'+tx('توضیحات و یادداشت برنامه','Program notes')+'<textarea name="note" maxlength="5000" rows="6" dir="auto">'+esc(state[noteKey]||'')+'</textarea></label><p class="muted">'+tx('پوشه‌ها را از قسمت پوشه‌های برنامه می‌توانی اضافه، ویرایش یا حذف کنی.','Manage folders below the program card.')+'</p>';
+ form.innerHTML='<label>'+tx('نام برنامه','Program name')+'<input name="title" maxlength="80" dir="auto" value="'+esc(state[titleKey]|| (kind==='nutrition'?'برنامه تغذیه من':'برنامه تمرینی من'))+'"></label><label>'+tx('توضیحات و یادداشت برنامه','Program notes')+'<textarea name="note" maxlength="5000" rows="5" dir="auto">'+esc(state[noteKey]||'')+'</textarea></label><section class="wellness-program-folder-section"><header><h3>'+tx('پوشه‌ها','Folders')+'</h3><button type="button" class="quiet-button" data-program-add-folder>+ '+tx('پوشه جدید','New folder')+'</button></header><div class="wellness-program-folder-rows" aria-live="polite"></div><small class="muted">'+tx('هر پوشه می‌تواند یادداشت و چک‌لیست با موارد تیک‌دار داشته باشد.','Each folder can hold notes and a checklist.')+'</small></section>';
+ const rows=form.querySelector('.wellness-program-folder-rows');
+ function renderFolders(){
+  rows.replaceChildren();
+  const folders=planFolders(read(),kind);
+  if(!folders.length){const empty=document.createElement('p');empty.className='muted';empty.textContent=tx('هنوز پوشه‌ای نساخته‌ای.','No folders yet.');rows.append(empty)}
+  folders.forEach(folder=>{
+    const line=document.createElement('div');line.className='wellness-program-folder-row';
+    const open=document.createElement('button');open.type='button';open.className='wellness-program-folder-open';open.textContent='📁 '+folder.title;
+    const count=(folder.items||[]).length;open.title=count?count+' '+tx('مورد چک‌لیست','checklist items'):tx('یادداشت پوشه','Folder note');
+    open.addEventListener('click',async()=>{await planFolderEditor(kind,folder.id);renderFolders()});
+    const edit=document.createElement('button');edit.type='button';edit.textContent='✎';edit.setAttribute('aria-label',tx('ویرایش پوشه','Edit folder')+' '+folder.title);
+    edit.addEventListener('click',async()=>{await planFolderEditor(kind,folder.id);renderFolders()});
+    const del=document.createElement('button');del.type='button';del.textContent='🗑';del.className='wellness-program-folder-delete';del.setAttribute('aria-label',tx('حذف پوشه','Delete folder')+' '+folder.title);
+    del.addEventListener('click',async()=>{
+      const accepted=await window.ElaraDialog.confirm(tx('پوشه و یادداشت و چک‌لیست آن حذف شوند؟','Delete this folder and its contents?'),{title:tx('حذف پوشه','Delete folder'),confirmText:tx('حذف','Delete'),danger:true});
+      if(accepted){const fresh=read(),key=planFolderKey(kind);write({[key]:planFolders(fresh,kind).filter(x=>x.id!==folder.id)});renderFolders()}
+    });
+    line.append(open,edit,del);rows.append(line)
+  });
+ }
+ form.querySelector('[data-program-add-folder]').addEventListener('click',async()=>{await planFolderEditor(kind);renderFolders()});
+ renderFolders();
  const ok=await window.ElaraDialog.open({title:kind==='nutrition'?tx('برنامه تغذیه','Nutrition plan'):tx('برنامه تمرینی','Training plan'),content:form,wide:true,actions:[{label:tx('انصراف','Cancel'),value:false},{label:tx('ذخیره','Save'),value:true,kind:'primary'}]});
  if(ok!==true)return;
  const title=form.querySelector('[name="title"]').value.trim().slice(0,80),note=form.querySelector('[name="note"]').value.trim().slice(0,5000);
