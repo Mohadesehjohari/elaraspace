@@ -1,0 +1,55 @@
+name: Freedom R27 Owner Reference Gate
+on:
+  push:
+    branches:
+      - freedom-r27-reference-modals-upload-20261012
+  pull_request:
+    paths:
+      - 'freedom-dashboard-r2026.js'
+      - 'freedom-enhancements.js'
+      - 'freedom-r27-polish.css'
+      - 'freedom-r27-music.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
+      - 'tests/freedom-r27-browser.mjs'
+      - '.github/workflows/freedom-r27-owner.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  freedom-r27:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS syntax, asset and manifest gate
+        run: |
+          node --check boot.js
+          node --check freedom-dashboard-r2026.js
+          node --check freedom-enhancements.js
+          node --check freedom-r27-music.js
+          node --check tests/freedom-r27-browser.mjs
+          node -e "let m=require('./deploy/production-manifest.json');for(let f of ['freedom-r27-polish.css','freedom-r27-music.js']){if(!m.required.includes(f)||!m.files.includes(f))process.exit(1)}"
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve preview
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-freedom-r27.log 2>&1 &
+          sleep 2
+      - name: Reference positioning and working modals on seven widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 360s node tests/freedom-r27-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freedom-r27-owner-screenshots
+          path: browser-artifacts/freedom-r27-*.png
+          if-no-files-found: warn
+          retention-days: 14
