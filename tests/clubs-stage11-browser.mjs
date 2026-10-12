@@ -94,7 +94,6 @@ const m=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.s
 await page.screenshot({path:'browser-artifacts/clubs-stage11-390.png',fullPage:true});await page.close();
 
 const desktop=await open(1440,1000);const dm=await desktop.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(dm.scroll<=dm.w+2,'1440 club horizontal overflow '+JSON.stringify(dm));await desktop.screenshot({path:'browser-artifacts/clubs-stage11-1440.png',fullPage:true});await desktop.close();
-await browser.close();
 
 const emptyPhone=await open(390,844);
 await emptyPhone.evaluate(async()=>{
@@ -125,4 +124,5 @@ assert.ok(emptyWideSize.sw<=emptyWideSize.w+2,'1440 empty clubs horizontal overf
 await emptyWide.screenshot({path:'browser-artifacts/clubs-reference-empty-1440.png',fullPage:true});
 await emptyWide.close();
 
+await browser.close();
 console.log('CLUBS_STAGE11_PASS level6 owner assistant invite mission poll vote 390/1440');
