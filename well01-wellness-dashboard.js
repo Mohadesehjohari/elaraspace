@@ -52,12 +52,13 @@ function tasks(){
 function planSummary(s,kind){
  const prefix=kind==='workout'?'workout':'nutrition';
  const note=String(s[prefix+'PlanNote']||'').trim();
+ const personalName=String(s[prefix+'PlanName']||'').trim().slice(0,80);
  const folders=s[prefix+'PlanFolders'].filter(x=>x&&x.id&&x.title);
  const first=folders[0];
  const mainText=note||String(first?.note||'').trim();
  const title=kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan');
  const icon=kind==='workout'?'🏋️':'🌿',label=kind==='workout'?tx('ایجاد برنامه تمرینی','Create training plan'):tx('ایجاد برنامه تغذیه','Create nutrition plan');
- return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
+ return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(personalName?'<strong class="well01-custom-plan-name" data-elara-ugc dir="auto">'+esc(personalName)+'</strong>':'')+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
 }
 function activity(s){
  const rows=s.workouts.filter(x=>x.date===today()),total=workoutOf(s,today()),last=rows[rows.length-1],type=last?(last.type==='ورزش دیگر'?last.customType||last.type:last.type):'';
@@ -103,8 +104,8 @@ function ensureLegacyEditors(s){
  (nutrition?'<button class="quiet-button well01-delete-note" type="button" data-wellness-plan-delete="nutrition">'+tx('حذف یادداشت تغذیه','Delete nutrition note')+'</button>':'<button class="quiet-button" type="button" data-wellness-plan-edit="nutrition">'+tx('ویرایش برنامه تغذیه','Edit nutrition plan')+'</button>');
  let preview=hdr.nextElementSibling;
  if(!preview?.classList.contains('well01-legacy-preview')){preview=document.createElement('div');preview.className='well01-legacy-preview';hdr.insertAdjacentElement('afterend',preview)}
- preview.innerHTML='<article><strong>'+tx('برنامه تمرینی','Workout plan')+'</strong><p id="wellness-workout-plan" data-elara-ugc dir="auto">'+esc(workout||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>'+
- '<article><strong>'+tx('برنامه تغذیه','Nutrition plan')+'</strong><p id="wellness-nutrition-plan" data-elara-ugc dir="auto">'+esc(nutrition||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>';
+ preview.innerHTML='<article><strong>'+esc(s.workoutPlanName||tx('برنامه تمرینی','Workout plan'))+'</strong><p id="wellness-workout-plan" data-elara-ugc dir="auto">'+esc(workout||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>'+
+ '<article><strong>'+esc(s.nutritionPlanName||tx('برنامه تغذیه','Nutrition plan'))+'</strong><p id="wellness-nutrition-plan" data-elara-ugc dir="auto">'+esc(nutrition||tx('هنوز برنامه‌ای ننوشتی','No plan written yet'))+'</p></article>';
 }
 let wellnessHeroObserver=null;
 function hideDuplicateHero(panel){
