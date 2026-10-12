@@ -1,0 +1,96 @@
+name: Ranking Gold Chromium / Live QA
+on:
+  pull_request:
+    paths:
+      - 'ranking-gold-20261012.js'
+      - 'ranking-gold-20261012.css'
+      - 'social-view.js'
+      - 'boot.js'
+      - 'global-page-banner-20261009.js'
+      - 'tests/ranking-gold-browser.mjs'
+      - '.github/workflows/ranking-gold-20261012.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ranking-gold-20261012.js'
+      - 'ranking-gold-20261012.css'
+      - 'social-view.js'
+      - 'boot.js'
+      - 'global-page-banner-20261009.js'
+      - 'tests/ranking-gold-browser.mjs'
+      - '.github/workflows/ranking-gold-20261012.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax validation
+        run: |
+          node --check ranking-gold-20261012.js
+          node --check social-view.js
+          node --check boot.js
+          node --check global-page-banner-20261009.js
+          node --check tests/ranking-gold-browser.mjs
+          grep -F 'ranking_banner_main.webp' ranking-gold-20261012.js
+          grep -F 'ranking-gold-20261012.css' boot.js
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-ranking-candidate.log 2>&1 &
+          sleep 2
+          curl -fLsS http://127.0.0.1:4173/ranking-gold-20261012.js > /dev/null
+      - name: Capture previous main at 390 and 1440
+        if: github.event_name == 'pull_request'
+        run: |
+          git clone --depth 1 --branch main "https://github.com/$GITHUB_REPOSITORY.git" /tmp/ranking-main
+          python3 -m http.server 4174 --directory /tmp/ranking-main >/tmp/elara-ranking-baseline.log 2>&1 &
+          sleep 2
+          ELARA_BASELINE=1 ELARA_TEST_URL=http://127.0.0.1:4174 node tests/ranking-gold-browser.mjs
+      - name: Chromium ten widths on candidate
+        run: ELARA_TEST_URL=http://127.0.0.1:4173 node tests/ranking-gold-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ranking-gold-before-after-chromium
+          path: browser-artifacts/
+          if-no-files-found: warn
+          retention-days: 20
+  live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Wait for GitHub Pages to serve new view and hero
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://mohadesehjohari.github.io/elaraspace/ranking-gold-20261012.js"
+          for n in $(seq 1 40); do
+            if curl -fsSL -H 'Cache-Control: no-cache' "$url?retry=$n" | grep -q 'Ranking Gold 2026'; then
+              echo "PAGES_ASSET_LIVE $url"; exit 0
+            fi
+            echo "Waiting for Pages $n/40"; sleep 12
+          done
+          echo "::error::GitHub Pages has not deployed Ranking Gold"; exit 1
+      - name: Run same ten-width contract on actual production
+        run: ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace node tests/ranking-gold-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ranking-gold-production-chromium
+          path: browser-artifacts/
+          if-no-files-found: warn
+          retention-days: 20
