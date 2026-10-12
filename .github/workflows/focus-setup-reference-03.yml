@@ -1,0 +1,86 @@
+name: FOCUS-03 Owner Reference Setup Fidelity
+on:
+  pull_request:
+    paths:
+      - index.html
+      - focus-setup-reference-03.js
+      - focus-setup-reference-03.css
+      - tests/focus-setup-reference-03-browser.mjs
+      - .github/workflows/focus-setup-reference-03.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - focus-setup-reference-03.js
+      - focus-setup-reference-03.css
+      - tests/focus-setup-reference-03-browser.mjs
+      - .github/workflows/focus-setup-reference-03.yml
+permissions:
+  contents: read
+jobs:
+  focus03-candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JS and original owner artwork
+        run: |
+          test -s assets/ui/bg_focus_room.webp
+          node --check focus-setup-reference-03.js
+          node --check tests/focus-setup-reference-03-browser.mjs
+      - name: Install headless Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Real DOM reference ring, timer and responsive snapshots
+        run: |
+          python3 -m http.server 4173 >/tmp/focus03-http.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/focus-setup-reference-03-browser.mjs
+          timeout 240s node tests/focus-two-mode-browser.mjs
+          timeout 330s node tests/focus-background-fidelity-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus03-candidate
+          path: browser-artifacts/focus03/*.png
+          retention-days: 20
+  focus03-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify published exact CSS, JS, index and focus image
+        run: |
+          set -euo pipefail
+          good=false
+          for attempt in $(seq 1 85); do
+            good=true
+            for file in index.html focus-setup-reference-03.css focus-setup-reference-03.js assets/ui/bg_focus_room.webp; do
+              output="/tmp/focus03-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?sha=$GITHUB_SHA&n=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then good=false;break;fi
+            done
+            if [ "$good" = true ]; then echo "FOCUS03_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$good" != true ]; then echo "::error::Published bytes do not match merged SHA";exit 1;fi
+      - name: Install headless Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Verify real Pages setup screen at seven viewports
+        run: ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/focus-setup-reference-03-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus03-live
+          path: browser-artifacts/focus03/*.png
+          retention-days: 30

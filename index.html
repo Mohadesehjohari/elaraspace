@@ -56,7 +56,7 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-profile-nonhome-autohide-live-v1"></script>
+  <script defer src="boot.js?v=20261012-freedom-r27-live-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
@@ -98,10 +98,16 @@ html[data-elara-booting] #elara-boot-screen span{
   <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261011-lib01-v2">
   <!-- FOCUS-01: approved room scene on canonical Pomodoro route; no timer replacement. -->
   <link rel="stylesheet" href="focus-room-fidelity.css?v=20261012-focus-bg-v1">
+  <link rel="stylesheet" href="focus-two-mode.css?v=20261012-focus-two-modes-v1">
+  <script defer src="focus-two-mode.js?v=20261012-focus-two-modes-v1"></script>
   <script defer src="lib01-library-dashboard.js?v=20261011-lib01-v2"></script>
   <!-- REPORTS-01 isolated assets; current navigators and subreports remain canonical. -->
   <link rel="stylesheet" href="reports-dashboard-01.css?v=20261012-reports-fidelity-v1">
   <script defer src="reports-dashboard-01.js?v=20261012-reports-fidelity-v1"></script>
+  <!-- Tasks mobile CSS loads last via boot.js to prevent later themes overriding compact layout. -->
+  <!-- FOCUS-03 reference setup only; immersive remains unchanged. -->
+  <link rel="stylesheet" href="focus-setup-reference-03.css?v=20261012-owner-final-v2">
+  <script defer src="focus-setup-reference-03.js?v=20261012-owner-final-v2"></script>
 </head>
 <body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
   <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>

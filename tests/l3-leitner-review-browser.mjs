@@ -40,10 +40,24 @@ try{
   await page.waitForFunction(front=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return s.words?.some(w=>w.front===front&&w.box===2&&w.due>'2020-01-01')},beforeWord,{timeout:10000});
   const scored=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words));
   await page.locator('[data-l3-prev]').click();
-  assert.equal(await page.locator('#l3-review-scene.l3-preview [data-l3-history-front]').textContent(),beforeWord,'Previous word history does not match');
-  assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words)),scored,'Read-only previous word mutated scoring');
-  await page.locator('[data-l3-current]').click();
-  assert.equal(await page.locator('#l3-review-scene.l3-preview').count(),0,'Return to current word failed');
+  assert.equal(await page.locator('#l3-review-scene #flash-front').textContent(),beforeWord,'Previous word was not re-asked');
+  assert.equal(await page.locator('#l3-review-scene #flash-back.hidden').count(),1,'Previous word must hide its meaning and ask again');
+  assert.equal(await page.locator('#l3-review-scene #word-remembered.hidden').count(),1,'Previous word answer buttons must reset');
+  assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words)),scored,'Revisiting alone must not mutate scoring');
+  await page.locator('#word-reveal').click();
+  await page.locator('#word-forgot').click();
+  await page.waitForFunction(front=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return s.words?.some(w=>w.front===front&&w.box===1)},beforeWord,{timeout:10000});
+  const voiceButtons=page.locator('.l3-voice-options [data-l3-voice]');
+  assert.deepEqual(await voiceButtons.evaluateAll(nodes=>nodes.map(el=>el.dataset.l3Voice)),['en-US','en-GB'],'Both pronunciations must be offered');
+  assert.equal(await page.locator('.l3-story-logo').count(),1,'Use the main Elara logo');
+  assert.equal(await page.locator('.l3-story-notice').count(),0,'Decorative nonfunctional icon should be removed');
+  await page.locator('[data-l3-focus]').click();
+  assert.equal(await page.locator('[data-l3-focus]').getAttribute('aria-pressed'),'true','Focus mode must start');
+  await page.waitForTimeout(1150);
+  const timer=await page.locator('[data-l3-timer]').textContent();
+  assert.match(timer,/^00:00:0[1-9]$/,'Focus timer should advance every second');
+  await page.locator('[data-l3-pause]').click();
+  assert.equal(await page.locator('[data-l3-focus]').getAttribute('aria-pressed'),'false','Focus mode must pause');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'Review horizontal overflow '+width+': '+overflow);
   if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-review-'+width+'.png',fullPage:true,animations:'disabled'});
@@ -57,6 +71,26 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'),null,{timeout:9000});
   assert.equal(new URL(page.url()).hash,'#words','Escape must return to dashboard route @'+width);
   assert.equal(await page.locator('#panel-words .flashcard').count(),1,'Review card must return to original canonical panel @'+width);
+  if(width===390||width===1440){
+   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+   await page.waitForSelector('#panel-language .ui12-leitner-card, #panel-language .ui12-board',{timeout:9000});
+   const reviewNow=page.locator('#panel-language [data-ui12-route="leitner-review"]');
+   assert.equal(await reviewNow.count(),1,'Language landing review-now must point directly to story');
+   await reviewNow.click();
+   await page.waitForSelector('#l3-review-scene .l3-story-frame',{timeout:10000});
+   assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Language review now did not navigate to story');
+   assert.equal(await page.locator('.l3-voice-options [data-l3-voice]').count(),2,'Voice buttons must survive re-entry');
+   const longWord='Unaccustomed';
+   await page.locator('#flash-front').evaluate((el,word)=>{el.textContent=word},longWord);
+   await page.waitForTimeout(40);
+   const wordSize=await page.locator('#flash-front').evaluate(el=>({width:el.getBoundingClientRect().width,parent:el.parentElement.getBoundingClientRect().width,font:parseFloat(getComputedStyle(el).fontSize)}));
+   assert.ok(wordSize.width<=wordSize.parent+2,'Long words must not overflow card '+JSON.stringify(wordSize));
+   const heights=await page.locator('#l3-review-scene .l3-story-frame').evaluate(el=>({card:el.getBoundingClientRect().height,view:innerHeight}));
+   assert.ok(heights.card<heights.view*.80,'Story card too tall relative to viewport: '+JSON.stringify(heights));
+   await page.keyboard.press('Escape');
+   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'));
+  }
+
   assert.deepEqual(errors.filter(e=>!/favicon|network/i.test(e)),[],'L3 runtime errors at '+width);
   console.log('L3_REVIEW_WIDTH_PASS '+width);
   await context.close();

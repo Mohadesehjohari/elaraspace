@@ -1,0 +1,416 @@
+/* FOCUS-03 — normal Pomodoro screen only. Immersive/fullscreen remains FOCUS-02.
+   The canonical output/button still belong to phase2.js; all data displayed is real. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro:not(.hidden){
+  color:#fff9ed;
+  min-height:980px;
+  padding:clamp(12px,1.55vw,25px);
+  background-image:linear-gradient(180deg,rgba(2,9,18,.17) 0%,rgba(1,8,16,.29) 43%,rgba(1,8,18,.64) 100%),url("assets/ui/bg_focus_room.webp");
+  background-size:cover,cover;
+  background-position:center center,center top;
+  border-color:#dfb36a43;
+  border-radius:24px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head{
+  width:100%;max-width:none;min-height:170px;box-sizing:border-box;
+  margin:0 0 10px;padding:20px 18px;
+  border:none;border-radius:18px;
+  background:linear-gradient(90deg,#01070a00,#02081240 70%,#02081264);
+  box-shadow:none;backdrop-filter:none
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head h1{
+  color:#fff9f2;font-size:clamp(30px,3.2vw,46px);
+  font-weight:900;line-height:1.16;text-shadow:0 4px 22px #000b
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head p{
+  color:#f7e5d4;font-size:clamp(12px,1.4vw,17px);text-shadow:0 3px 10px #000
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .elara-focus-view-actions{
+  margin:-54px 0 20px;z-index:5
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #elara-focus-expand{
+  min-height:37px;padding:6px 15px;border-color:#e3b8759c;
+  box-shadow:0 4px 18px #0009;background:#06121fcc
+}
+/* Reference desktop: settings at left, vivid dial in center, real stats/current task at right. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-card{
+  position:relative;z-index:2;width:100%;max-width:none;margin:0;
+  padding:8px 0 0;box-sizing:border-box;
+  display:grid;direction:ltr;
+  grid-template-columns:minmax(224px,.92fr) minmax(296px,1.15fr) minmax(232px,.94fr);
+  grid-template-rows:minmax(330px,auto) minmax(88px,auto) auto;
+  grid-template-areas:"settings dial side" "settings modes side" "settings hint side";
+  gap:12px clamp(12px,1.5vw,24px);
+  align-items:start;justify-items:stretch;
+  background:transparent;border:none;box-shadow:none;backdrop-filter:none
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-card > *{min-width:0;direction:rtl}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-config{
+  grid-area:settings;display:flex;flex-direction:column;gap:13px;
+  align-self:stretch;min-height:447px;
+  background:linear-gradient(170deg,rgba(3,13,23,.93),rgba(3,13,23,.86));
+  border:1px solid #dcb77964;border-radius:17px;
+  padding:clamp(14px,1.5vw,22px);box-shadow:0 12px 38px #0008;
+  backdrop-filter:blur(8px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-settings-title{
+  margin:0 0 2px;border-bottom:1px solid #ffffff17;padding-bottom:12px;
+  color:#ffe1a0;font-size:clamp(16px,1.45vw,21px);line-height:1.35
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config label{
+  color:#f3f0e8;font-weight:700;font-size:clamp(11px,.92vw,14px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config input,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config select{
+  max-width:100%;color:#f9f6f0;background:#061623;border-color:#42627a;border-radius:9px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config .focus-presets{
+  display:flex;flex-wrap:wrap;gap:5px;min-width:0
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config .focus-presets button{
+  min-width:31px;border:1px solid #334d69;background:#0a2230;color:#e8ddce;border-radius:7px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config .focus-cycle-config{
+  grid-column:auto;width:100%;box-sizing:border-box;
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+  border-color:#315371;background:#051725d0;border-radius:12px;padding:9px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config .focus-auto-break{grid-column:1/-1}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+  grid-area:dial;position:relative;z-index:1;
+  align-self:start;justify-self:center;
+  box-sizing:border-box;
+  width:clamp(285px,27.8vw,370px);height:clamp(285px,27.8vw,370px);
+  max-width:100%;margin:0 auto;
+  display:grid;place-items:center;isolation:isolate;
+  direction:ltr;border:0;border-radius:50%;
+  color:#fff;
+  font-family:Arial,"Segoe UI",Tahoma,sans-serif;
+  font-weight:900;font-size:clamp(50px,5.4vw,77px);line-height:1;
+  letter-spacing:-.065em;font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  padding:0 7px 18px 0;
+  text-shadow:0 4px 20px #000d,0 0 18px #ffffff24;
+  background:
+    radial-gradient(circle closest-side,#060e1a 0 82%,#080e1d 84%,transparent 85.5%),
+    conic-gradient(from -50deg,#ffde8d 0%,#ffb969 13%,#a548f1 27%,#674cff 41%,#3691ff 56%,#51d9fd 72%,#6aa9ff 84%,#ffdb8c 100%);
+  box-shadow:0 0 20px #4259ff96,0 0 44px #6431fb42,0 0 0 3px #0a1528b8,inset 0 0 23px #0009
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display::before{
+  content:"";position:absolute;inset:4px;pointer-events:none;border-radius:50%;
+  background:conic-gradient(from -90deg,rgba(255,251,214,.94) calc(var(--focus-elapsed,0) * 1turn),transparent 0);
+  -webkit-mask:radial-gradient(circle closest-side,transparent 75%,#000 77%,#000 81%,transparent 83%);
+  mask:radial-gradient(circle closest-side,transparent 75%,#000 77%,#000 81%,transparent 83%);
+  opacity:.75
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display::after{
+  content:"";position:absolute;top:4px;left:50%;width:15px;height:15px;border-radius:50%;
+  transform:translateX(-50%);pointer-events:none;
+  background:#fff5bd;box-shadow:0 0 14px 5px #fff4ba83,0 0 26px #ffb879
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #focus-status{
+  grid-area:dial;z-index:3;align-self:start;justify-self:center;
+  position:relative;transform:translateY(clamp(185px,17vw,225px));
+  width:max-content;max-width:75%;padding:2px 7px;text-align:center;
+  background:transparent;color:#fff4e1;
+  font-size:clamp(12px,1.25vw,17px);font-weight:750;
+  text-shadow:0 2px 8px #000,0 0 15px #000
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .timer-actions{
+  grid-area:dial;direction:ltr;z-index:4;
+  align-self:end;justify-self:center;
+  width:max-content;margin:0;
+  display:flex;align-items:center;justify-content:center;gap:clamp(15px,1.8vw,25px);
+  transform:translateY(0px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
+  order:2;position:relative;display:grid;place-items:center;
+  width:82px;height:82px;min-width:82px;min-height:82px;padding:0;
+  border:2px solid #d0c1ff;border-radius:50%;
+  color:transparent;font-size:0;
+  background:radial-gradient(circle at 28% 20%,#b9a6ff 0%,#7763ff 24%,#4e42ef 57%,#7529ea 80%,#502bd7 100%);
+  box-shadow:inset 0 0 17px #b7b5ff70,0 0 0 4px #1a1d3480,0 0 21px #765aff,0 5px 27px #0009;
+  cursor:pointer;transition:transform .15s,box-shadow .15s
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start::before{
+  content:"▶";position:absolute;inset:0;display:grid;place-items:center;
+  padding-left:4px;color:#fff;font-family:Arial,sans-serif;
+  font-size:35px;line-height:1;text-shadow:0 0 10px #fff9
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start[data-focus-running="true"]::before{
+  content:"❚❚";padding-left:0;font-size:30px;letter-spacing:-.08em
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start:hover{
+  transform:scale(1.06);box-shadow:0 0 30px #8470ff,0 6px 27px #0009
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start:focus-visible,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-reset:focus-visible{
+  outline:3px solid #fff3b1;outline-offset:4px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-reset{
+  order:1;position:relative;width:54px;height:54px;min-width:54px;min-height:54px;padding:0;
+  border:1px solid #f7e6c39f;border-radius:50%;font-size:0;color:transparent;
+  background:#081621db;box-shadow:inset 0 0 11px #ffffff18,0 5px 18px #0009
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-reset::before{
+  content:"↻";color:#fff;position:absolute;inset:0;display:grid;place-items:center;
+  font:400 34px/1 Arial,sans-serif
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-ref-settings-jump{
+  order:3;display:grid;place-items:center;width:54px;height:54px;min-width:54px;
+  padding:0;border:1px solid #f7e6c39f;border-radius:50%;background:#081621dc;
+  color:#fff;font:400 28px/1 Arial,sans-serif;box-shadow:0 5px 18px #0009;cursor:pointer
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-ref-hint{
+  grid-area:hint;justify-self:center;align-self:end;margin:16px 0 0;max-width:390px;
+  color:#f6e9d7bd;font-size:11px;line-height:1.4;text-align:center;text-shadow:0 1px 5px #000
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{
+  grid-area:modes;align-self:end;width:100%;min-width:0;margin:4px 0 0;gap:9px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button{
+  min-width:0;min-height:82px;display:grid;gap:5px;
+  background:#03121de8;border:1px solid #526677b3;border-radius:13px;
+  box-shadow:0 8px 19px #0006
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button[aria-pressed="true"]{
+  border:2px solid #ffe18a;background:linear-gradient(160deg,#624012cf,#17120feb);
+  box-shadow:0 0 15px #ffc061a9,inset 0 0 15px #d79a2e26
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button b{
+  font-size:clamp(10px,.92vw,13px);line-height:1.2
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-ref-side{
+  grid-area:side;display:grid;gap:12px;min-width:0;align-self:stretch
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-history-card{
+  min-width:0;box-sizing:border-box;color:#faf5e9;
+  background:linear-gradient(155deg,#03121ee9,#061620ea);
+  border:1px solid #3a5d6d8c;border-radius:17px;box-shadow:0 12px 32px #0009;
+  backdrop-filter:blur(5px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-side .focus-ref-glass{padding:14px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass header,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom .focus-history-card h2{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:0 0 13px;padding:0 0 10px;border-bottom:1px solid #52758336
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass h2{
+  margin:0;color:#ffefc2;font-size:clamp(13px,1.15vw,17px);font-weight:850
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body{
+  display:grid;grid-template-columns: minmax(92px,.85fr) minmax(98px,1.2fr);gap:10px;align-items:center
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress{
+  width:min(100%,160px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle closest-side,#061720 72%,transparent 73%),conic-gradient(#ffdc8b var(--focus-today-progress,0%),#006a7b 0%);
+  box-shadow:0 0 14px #00daef22,inset 0 0 14px #000a;direction:rtl
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress > div{
+  display:grid;justify-items:center;gap:4px;text-align:center
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress strong{font-size:clamp(24px,2vw,33px);color:#fff}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress small{font-size:clamp(9px,.78vw,11px);color:#d5ddd7}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dl{min-width:0;margin:0;display:grid;gap:11px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dl div{
+  display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dt{
+  color:#dce4e9;font-size:clamp(10px,.8vw,12px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dd{
+  margin:0;color:#ffdc86;font-weight:800;font-size:clamp(11px,.9vw,14px)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task label{
+  display:block;margin:0 0 8px;color:#c5d3dc;font-size:11px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task select{
+  display:block;box-sizing:border-box;width:100%;min-width:0;min-height:39px;
+  color:#f4ede3;background:#0b2433;border:1px solid #37586c;border-radius:9px;padding:7px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task-name{
+  min-height:23px;line-height:1.6;margin:9px 0;font-size:12px;color:#e2e8e2;overflow-wrap:anywhere
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task-open,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass header button,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-link{
+  background:#0b2532b9;border:1px solid #735f4278;border-radius:9px;padding:7px 10px;
+  color:#ffe3a2;font-size:12px;cursor:pointer
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-ref-bottom{
+  display:grid;grid-template-columns:1.28fr 1fr .96fr;gap:13px;
+  width:100%;margin-top:14px;direction:rtl
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > *{min-width:0;padding:14px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main{
+  display:flex;gap:12px;align-items:center;min-width:0
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main img{
+  display:block;width:90px;height:82px;object-fit:contain;border-radius:9px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main div{display:grid;gap:8px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main strong{font-size:13px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main small{font-size:11px;line-height:1.6;color:#c3d3d9}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-link{margin-top:12px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom .focus-history-card{
+  width:100%;margin:0;color:#f2eee1;background:#051421e8
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom .focus-history{max-height:160px;overflow-y:auto}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom .focus-history-row{
+  font-size:11px;border-bottom:1px solid #ffffff17;padding:7px 0
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-reading{
+  display:grid;gap:4px;margin-top:16px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-reading strong{color:#92f5be;font-size:22px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-reading span,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goals p{color:#b4c6d2;font-size:11px;line-height:1.6}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track{
+  width:100%;height:9px;overflow:hidden;border-radius:20px;background:#18303b;margin-top:11px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track span{
+  display:block;width:0;height:100%;border-radius:20px;
+  background:linear-gradient(90deg,#18d7dc,#8ce3bb,#ffdf85);transition:width .24s ease
+}
+/* Intermediate desktop / tablet */
+@media(max-width:1230px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-card{
+  grid-template-columns:minmax(225px,.88fr) minmax(280px,1.12fr);
+  grid-template-rows:minmax(300px,auto) auto auto auto;
+  grid-template-areas:"settings dial" "settings modes" "side side" "hint hint"
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-ref-side{
+  grid-template-columns:1fr 1fr;align-self:auto
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+  width:clamp(275px,32vw,335px);height:clamp(275px,32vw,335px)
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #focus-status{
+  transform:translateY(clamp(205px,24vw,250px))
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-ref-bottom{grid-template-columns:1fr 1fr}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goals{grid-column:1/-1}
+}
+/* Real phone: dominant dial above modes, settings, live stats and history. */
+@media(max-width:760px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro:not(.hidden){
+  padding:10px;min-height:0;background-position:center,59% top
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head{
+  min-height:165px;padding:16px 10px;margin:0
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head h1{font-size:31px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .elara-focus-view-actions{margin:-18px 0 10px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-card{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:300px auto auto auto auto;
+  grid-template-areas:"dial" "modes" "settings" "side" "hint";
+  gap:17px;padding:0 2px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+  width:min(286px,78vw);height:min(286px,78vw);
+  margin:0 auto;font-size:clamp(46px,13vw,64px)
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #focus-status{
+  transform:translateY(min(174px,46vw));font-size:13px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .timer-actions{
+  transform:translateY(-18px);gap:20px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
+  width:76px;height:76px;min-width:76px;min-height:76px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-ref-settings-jump,
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-reset{
+  width:49px;height:49px;min-width:49px;min-height:49px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{
+  grid-template-columns:repeat(4,minmax(0,1fr));margin:0;gap:6px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button{
+  min-height:81px;padding:5px 2px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button b{font-size:11px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-config{
+  min-height:0;width:100%;padding:16px
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-ref-side{
+  grid-template-columns:minmax(0,1fr)
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body{
+  grid-template-columns:minmax(100px,.85fr) minmax(0,1.3fr)
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-ref-hint{margin:0 0 8px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-ref-bottom{grid-template-columns:minmax(0,1fr);gap:10px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goals{grid-column:auto}
+}
+@media(max-width:360px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button span{font-size:20px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button b{font-size:10px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config .focus-cycle-config{grid-template-columns:1fr 1fr}
+}
+/* FOCUS-02 immersive behavior is explicitly left alone. */
+body.elara-focus-fullscreen #panel-focus-pomodoro .focus-ref-side,
+body.elara-focus-fullscreen #panel-focus-pomodoro .focus-ref-bottom,
+body.elara-focus-fullscreen #panel-focus-pomodoro .focus-ref-settings-jump{display:none!important}
+@media(prefers-reduced-motion:reduce){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #timer-start,
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track span{transition:none}
+}
+
+/* Reserve the overlap space for the actual floating Play button. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{margin-top:44px}
+@media(max-width:760px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{margin-top:18px}
+}
+
+/* Reference hero: gold focus title on the scene's left, back/navigation on right. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head > div:not(.focus-ref-owner-title){display:none}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title{
+ position:absolute;top:12px;left:clamp(12px,1.5vw,25px);right:auto;
+ width:min(55%,515px);direction:rtl;text-align:left;
+ margin:0;padding:7px 0;z-index:2;pointer-events:none
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title h1{
+ margin:0 0 9px;color:#fff9f1;font-size:clamp(29px,3vw,45px);
+ font-weight:900;line-height:1.22;text-shadow:0 4px 14px #000c
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title h1 span{
+ font-family:Arial,sans-serif;color:#ffdd89;
+ font-size:1.13em;filter:drop-shadow(0 0 8px #f3b74c80)
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title p{
+ margin:0;color:#fff5e0;line-height:1.7;font-size:clamp(11px,1.25vw,15px);
+ text-shadow:0 2px 9px #000d
+}
+body.elara-focus-fullscreen #panel-focus-pomodoro .focus-ref-owner-title{display:none!important}
+/* True session history in the bottom column — nothing seeded or fabricated. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-actual-sessions{padding:14px;min-height:198px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row{
+ display:flex;direction:rtl;align-items:center;gap:8px;padding:8px 0;
+ border-bottom:1px solid #ffffff16;font-size:12px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row:last-child{border-bottom:0}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-check{
+ display:grid;place-items:center;width:23px;height:23px;flex:0 0 23px;
+ background:#0bcbbb;color:#022222;border-radius:50%;font-weight:900
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row div{display:grid;gap:3px;flex:1;min-width:0}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row strong{font-size:12px;color:#f4f8ed}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row small{font-size:10px;color:#baceda}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row b{white-space:nowrap;color:#9ef9dc;font-size:12px}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-empty{font-size:12px;line-height:1.7;color:#bdc6cb;padding:13px 2px}
+@media(max-width:760px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title{
+  top:12px;left:8px;width:65%;text-align:left
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title h1{font-size:clamp(23px,7vw,33px)}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title p{font-size:11px}
+}
+
+/* FOCUS-03 screenshot polish: keep desktop hero clear of the actual global search bar. */
+@media(min-width:761px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title{
+  top:74px;
+ }
+}

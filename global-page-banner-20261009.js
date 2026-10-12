@@ -7,13 +7,13 @@ const routeArt=Object.freeze({
  language:['language_banner_main.webp','یادگیری زبان'],
  books:['librairy_banner_main.webp','کتابخانه'],
  exercise:['workout_banner_main.webp','ورزش و سلامتی'],
- ranking:['ranking_banner_main.webp?v=20261012-gold1','رتبه‌بندی'],
+ ranking:['ranking_banner_main.webp?v=20261012-gold2','رتبه‌بندی'],
  social:['36-friends-hero-banner.webp','دوستان'],
  freedom:['41-freedom-hero-banner.webp','آزادی'],
  reports:['39-reports-hero-banner.webp','گزارش‌ها'],
  page:['38-my-page-hero-banner.webp','صفحهٔ من'],
  blog:['weblog_banner_main.webp','وبلاگ'],
- store:[null,'فروشگاه'],
+ store:['shop_senter.webp','فروشگاه'],
  goals:['goals-target-background.webp','هدف‌ها'],
  habits:['daily-streak-background.webp','عادت‌ها'],
  focus:['banner_moon_lake.webp','تمرکز']
@@ -77,7 +77,7 @@ function update(){
       else candidate.removeAttribute('aria-hidden');
     });
   }
-  // Store deliberately keeps its existing cosmic artwork and product identity.
+  // Store uses the owner-approved real hero asset, without adding a second banner.
   if(art)hero.style.setProperty('--elara-page-art','url("'+ROOT+art+'")');
  }
 }

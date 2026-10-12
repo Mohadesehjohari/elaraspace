@@ -136,7 +136,7 @@ function setupAliases(){
  const redirects={'reports-reading':'library-reports','reports-language':'language-reports','reports-fitness':'wellness-reports'};
  window.addEventListener('elara:open',e=>{const target=redirects[e.detail?.tab];if(target)queueMicrotask(()=>window.ElaraOpen?.(target,{history:'replace'}));const label=titles[e.detail?.tab];if(label&&$('page-title'))$('page-title').textContent=tx(label[0],label[1])});
 }
-function openRoute(route){if(route==='words')window.ElaraOpen?.('words');else window.ElaraOpen?.(route,{history:'push'})}
+function openRoute(route){if(route==='words')window.ElaraOpen?.('words');else window.ElaraOpen?.(route==='focus-room'?'focus-pomodoro':route,{history:'push'})}
 function bind(){
  document.addEventListener('click',e=>{
   const add=e.target.closest('[data-section-task-add]');if(add){e.preventDefault();window.ElaraTasks?.reset?.();window.ElaraTasks?.openComposer?.({date:window.ElaraSchedule?.today?.(),sourceGroup:add.dataset.sectionTaskAdd});return}

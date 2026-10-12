@@ -1,0 +1,51 @@
+name: PAGE R5 Wardrobe Identity Gate
+on:
+  push:
+    branches:
+      - feat/page-r5-identity-wardrobe-20261012
+  pull_request:
+    paths:
+      - page-view.js
+      - page-fidelity-release5.css
+      - tests/page-fidelity-r5-browser.mjs
+      - .github/workflows/page-fidelity-r5.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  page-r5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static validation and assets
+        run: |
+          node --check page-view.js
+          node --check tests/page-fidelity-r5-browser.mjs
+          test -s assets/ui/38-my-page-hero-banner.webp
+          test -s assets/ui/banner1.webp
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve current branch
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-page-r5-http.log 2>&1 &
+          sleep 2
+      - name: Full-shell QA 320 to 1648 widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 290s node tests/page-fidelity-r5-browser.mjs
+      - name: Keep media uploads disabled
+        run: timeout 120s node tests/media-deferred-browser.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-r5-reference-390-1440
+          path: browser-artifacts/page-r5-*.png
+          if-no-files-found: warn
+          retention-days: 14

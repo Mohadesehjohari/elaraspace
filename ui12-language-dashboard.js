@@ -75,7 +75,7 @@ function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
   '<div class="ui12-leitner-art"><div class="ui12-leitner-scene" role="img" aria-label="'+tx('تصویر فضای یادگیری لایتنر','Illustrated Leitner learning scene')+'"></div><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" role="group" aria-label="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+' '+tx('واژه','words')+'"><b>'+num(i+1)+'</b><small><span>'+num(count)+'</span> '+tx('واژه','words')+'</small></div>').join('')+'</div>'+
-  button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
+  button(m.due.length?'leitner-review':'words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
   '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
 }
 function renderTasks(m){
@@ -152,7 +152,7 @@ function init(){
  if(started)return;started=true;
  document.addEventListener('click',e=>{
  const jump=e.target.closest('[data-ui12-jump]');if(jump&&jump.closest('#panel-language')){e.preventDefault();const id=jump.dataset.ui12Jump;document.querySelectorAll('#panel-language .ui12-shortcut').forEach(el=>el.classList.toggle('is-active',el===jump));const routes={leitner:'words',books:'language-books',classes:'language-courses',channels:'language-channels',tasks:'language-tasks',challenges:'language-challenges',report:'language-reports'};if(id==='overview')document.querySelector('#panel-language .ui12-hero')?.scrollIntoView({block:'start'});else route(routes[id]);return}
- const open=e.target.closest('[data-ui12-route]');if(open&&open.closest('#panel-language')){e.preventDefault();route(open.dataset.ui12Route);return}
+ const open=e.target.closest('[data-ui12-route]');if(open&&open.closest('#panel-language')){e.preventDefault();if(open.dataset.ui12Route==='leitner-review'){route('words');requestAnimationFrame(()=>window.ElaraLanguageDestinations?.l3Enter?.(true));}else route(open.dataset.ui12Route);return}
  const create=e.target.closest('[data-ui12-new-class]');if(create&&create.closest('#panel-language')){e.preventDefault();if(window.ElaraLanguageClasses?.openEditor)void window.ElaraLanguageClasses.openEditor({});else route('language-courses');return}
  const button=e.target.closest('[data-ui12-range]');if(button&&button.closest('#panel-language')){e.preventDefault();range=button.dataset.ui12Range;renderReport(metrics())}
  });
