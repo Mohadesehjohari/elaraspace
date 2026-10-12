@@ -287,3 +287,37 @@ body.focus-v2-immersive-open{overflow:hidden!important}
  #panel-focus-pomodoro.focus-v2-preview .focus-v2-mode strong{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.focus-v2-immersive *,#panel-focus-pomodoro .focus-v2-enter{transition:none!important;animation:none!important}}
+
+/* FOCUS-02 refinement: desktop modes on the settings side, unobstructed fullscreen. */
+.focus-v2-immersive{z-index:120000!important}
+.focus-v2-mode-panel{
+ background:linear-gradient(140deg,#041421ed,#07131edc);
+ border:1px solid #d5ae695c;border-radius:19px;
+ padding:15px;
+ margin-bottom:14px;
+ box-shadow:0 14px 36px #0008;
+}
+.focus-v2-mode-panel h2{
+ margin:0 0 10px;
+ font-size:17px;color:#ffe1a0
+}
+.focus-v2-mode-panel .focus-v2-modes{margin-top:0;gap:7px}
+.focus-v2-mode-panel .focus-v2-mode{min-height:88px;border-radius:10px;gap:7px}
+.focus-v2-mode-panel .focus-v2-mode span{font-size:24px}
+.focus-v2-mode-panel .focus-v2-mode strong{font-size:11px}
+#panel-focus-pomodoro #timer-display[role="button"]{
+ cursor:pointer;outline-offset:5px
+}
+#panel-focus-pomodoro #timer-display[role="button"]:focus-visible{outline:3px solid #ffe9a2}
+@media(min-width:900px){
+ .focus-v2-stage>.focus-v2-modes{display:none!important}
+ .focus-v2-aside>.focus-v2-mode-panel{display:block}
+}
+@media(max-width:899px){
+ .focus-v2-aside>.focus-v2-mode-panel{display:none!important}
+ body.focus-v2-immersive-open .bottom-nav,
+ body.focus-v2-immersive-open .elara-mobile-dock,
+ body.focus-v2-immersive-open .elara-desktop-dock,
+ body.focus-v2-immersive-open [class*="mobile-bottom"],
+ body.focus-v2-immersive-open [class*="bottom-nav"]{visibility:hidden!important;pointer-events:none!important}
+}
