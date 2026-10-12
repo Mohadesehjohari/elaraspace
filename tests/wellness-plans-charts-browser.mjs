@@ -34,7 +34,7 @@ for(const width of [390,1440]){
    await sub.locator('[name=newItem]').fill('آیتم قابل تیک');
    await sub.locator('[data-folder-add-item]').click();
    await sub.locator('.elara-dialog-actions .primary-button').click();
-   await sub.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-panel:has(.wellness-plan-green-editor)').length===1);
    await dialog.locator('.wellness-program-folder-open').waitFor();
    await dialog.locator('.elara-dialog-actions .primary-button').click();
    await dialog.waitFor({state:'hidden'});
@@ -46,7 +46,7 @@ for(const width of [390,1440]){
    await folder.locator('[data-folder-mode=checklist]').click();
    await folder.locator('.wellness-folder-item input[type=checkbox]').check();
    await folder.locator('.elara-dialog-actions .primary-button').click();
-   await folder.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-panel:has(.wellness-plan-green-editor)').length===1);
    await reopened.locator('.elara-dialog-actions .primary-button').click();
    await page.waitForFunction(({key,kind})=>JSON.parse(localStorage.getItem(key)||'{}')[kind+'PlanFolders']?.[0]?.items?.[0]?.done===true,{key,kind});
    assert.match(await page.locator('#well01-dashboard').innerText(),new RegExp(title));
