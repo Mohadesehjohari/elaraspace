@@ -13,7 +13,7 @@ const classes=()=>list(state().languageClasses);
 const words=()=>list(state().words);
 const validImg=v=>/^data:image\/(?:png|webp|jpeg);base64,/i.test(String(v||''))&&String(v).length<=360000||/^https:\/\/covers\.openlibrary\.org\//i.test(String(v||''))?String(v):'';
 let range='week',queued=false,started=false;
-const route=r=>{if(r==='tasks'){window.ElaraOpen?.('tasks',{history:'push'});return}window.ElaraOpen?.(r,{history:'push'})};
+const route=r=>{if(r==='leitner-review'){window.ElaraOpen?.('words',{history:'push'});window.ElaraLanguageDestinations?.l3Enter?.(true);return}if(r==='tasks'){window.ElaraOpen?.('tasks',{history:'push'});return}window.ElaraOpen?.(r,{history:'push'})};
 function languageTasks(s,day){
  const api=window.ElaraTasks, due=t=>window.ElaraSchedule?.taskDue?.(t,day)!==false;
  return list(s.tasks).filter(t=>t?.sourceGroup==='language'&&due(t)).sort((a,b)=>Number(api?.taskDone?.(a,day)||false)-Number(api?.taskDone?.(b,day)||false)||(Number(a.priority)||4)-(Number(b.priority)||4));
@@ -75,7 +75,7 @@ function renderLeitner(m){
  const boxes=[1,2,3,4,5].map(n=>m.w.filter(x=>Number(x.box||1)===n).length);
  $('ui12-leitner').querySelector('[data-ui12-body]').innerHTML=
   '<div class="ui12-leitner-art"><div class="ui12-leitner-scene" role="img" aria-label="'+tx('تصویر فضای یادگیری لایتنر','Illustrated Leitner learning scene')+'"></div><p>'+tx('پنج جعبه، یک مسیر یادگیری','Five boxes, one learning journey')+'</p><div class="ui12-boxes" aria-label="'+tx('تعداد واقعی واژه‌ها در هر یک از پنج جعبه','Real word counts in each of five boxes')+'">'+boxes.map((count,i)=>'<div class="ui12-box ui12-box-'+(i+1)+'" role="group" aria-label="'+tx('جعبه ','Box ')+num(i+1)+': '+num(count)+' '+tx('واژه','words')+'"><b>'+num(i+1)+'</b><small><span>'+num(count)+'</span> '+tx('واژه','words')+'</small></div>').join('')+'</div>'+
-  button('words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
+  button(m.due.length?'leitner-review':'words',tx(m.due.length?'مرور کردن حالا':'رفتن به جعبه لایتنر',m.due.length?'Review now':'Open Leitner'),'ui12-gold')+'</div>'+
   '<div class="ui12-leitner-meta"><span><b>'+num(m.w.length)+'</b>'+tx('کل کلمات','Total words')+'</span><span><b>'+num(m.due.length)+'</b>'+tx('در انتظار مرور','Due to review')+'</span><span><b>'+num(boxes[4])+'</b>'+tx('جعبه پنجم','In box five')+'</span></div>';
 }
 function renderTasks(m){
