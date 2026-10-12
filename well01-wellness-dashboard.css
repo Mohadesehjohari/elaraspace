@@ -496,6 +496,7 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
 }
 .elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-body,
 .elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-body{padding:16px 18px!important}
+.wellness-plan-designer{display:block!important;grid-template-columns:none!important;padding:0!important}
 .wellness-plan-designer,.wellness-sleep-editor{color:#eafff6;font:inherit}
 .wellness-plan-designer *,.wellness-sleep-editor *{box-sizing:border-box}
 .wellness-plan-designer label,.wellness-sleep-editor label{display:grid;gap:7px;color:#e2fff5;font-size:.88rem;font-weight:700;min-width:0}
