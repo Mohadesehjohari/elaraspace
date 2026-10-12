@@ -167,10 +167,9 @@ function homeStructure(){
  installViewAllArtwork();
 }
 function libraryFocus(){
- const books=$('panel-books'),source=$('panel-focus'),timer=source?.querySelector('.focus-card')||books?.querySelector('.focus-card');if(!books||!timer)return;
- let section=$('ref-library-focus');if(!section){section=element('section','elara-card ref-library-focus','ref-library-focus');section.innerHTML=`<header><h2>${art(UI_ASSETS.library,'elara-card-art ref-library-heading-art','')} فضای تمرکز و پومودورو</h2><span class="muted">جلسه‌ها و زمان‌سنج فعلی</span></header>`;books.append(section)}
- if(timer.parentElement!==section)section.append(timer);
- const heading=source?.querySelector('.section-heading');if(heading)heading.hidden=true;
+ // FOCUS-03 now owns the single canonical timer from the initial HTML.
+ // Clean up a stale old Library focus wrapper, but never relocate the real timer.
+ const legacy=$('ref-library-focus');if(legacy)legacy.remove();
 }
 function renderTasks(){const host=$('elara-home-tasks');if(!host)return;const s=read(),raw=arr(s.tasks).filter(t=>due(t)),items=raw.map(t=>window.ElaraTasks?.taskView(t,selected())||t).sort((a,b)=>Number(!!a.linkedTask)-Number(!!b.linkedTask)||(Number(a.priority)||4)-(Number(b.priority)||4)),all=raw,completed=all.filter(t=>done(t)).length;
  const empty='امروز سبک و آزاده 😎 یه کار کوچیک اضافه کن و استارت بزن.',footer='',sourceClass=t=>{const g=String(t?.sourceGroup||'');return ['goal','exercise','language','book','focus','habit'].includes(g)?' source-'+g:''};
