@@ -52,6 +52,8 @@ try{
    assert.equal(reading.length,3,'Status change or bookmark deleted books');
    assert.equal(reading.find(x=>x.id==='book-reading').currentPage,45,'Book case changed page count');
    await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>!!window.ElaraOpen&&!!window.ElaraLibraryShelvesLIB02,null,{timeout:30000});
+   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
    await page.waitForFunction(()=>!!document.querySelector('#panel-library-shelves:not(.hidden) #lib02-scene [data-lib02-bookmark="book-reading"]'),null,{timeout:30000});
    assert.equal(await page.locator('[data-lib02-bookmark="book-reading"]').getAttribute('aria-pressed'),'true','Bookmark did not survive refresh');
    await page.locator('[data-lib02-new-shelf]').click();
@@ -67,6 +69,8 @@ try{
     return !state.bookShelves.includes('رشد فردی')&&state.bookShelves.includes('قفسه تازه')&&state.books.find(b=>b.id==='book-reading')?.customShelf==='قفسه تازه';
    });
    await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>!!window.ElaraOpen&&!!window.ElaraLibraryShelvesLIB02,null,{timeout:30000});
+   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
    await page.waitForSelector('#panel-library-shelves:not(.hidden) #lib02-scene');
    assert.ok(await page.locator('[data-lib02-custom="قفسه تازه"]').isVisible(),'Renamed shelf not persisted after refresh');
   }
