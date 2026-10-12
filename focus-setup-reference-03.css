@@ -407,3 +407,10 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-empty{font-si
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title h1{font-size:clamp(23px,7vw,33px)}
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title p{font-size:11px}
 }
+
+/* FOCUS-03 screenshot polish: keep desktop hero clear of the actual global search bar. */
+@media(min-width:761px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-owner-title{
+  top:74px;
+ }
+}
