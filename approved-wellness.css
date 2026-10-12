@@ -43,3 +43,10 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 #panel-wellness-sleep:not(.hidden) .wellness-sleep-line .point{fill:#3cffc1!important;stroke:#08745c!important}
 #panel-wellness-sleep:not(.hidden) .wellness-entry button,#panel-wellness-sleep:not(.hidden) button.primary-button{accent-color:#24e9a4}
 @media(max-width:700px){#panel-wellness-sleep:not(.hidden) .wellness-sleep-line{max-width:100%;max-height:138px!important}}
+
+/* Entire program/sleep dialogs turn emerald only when they contain Wellness form. */
+.elara-dialog-panel:has(.wellness-green-form){border:1px solid #16d99d!important;background:linear-gradient(155deg,#042a29,#021c21)!important;box-shadow:0 20px 80px #001810c9,0 0 22px #0be6a945!important;color:#e9fff7}
+.elara-dialog-panel:has(.wellness-green-form) :is(.elara-dialog-header,.elara-dialog-actions){border-color:#187961!important;background:#052820!important}
+.elara-dialog-panel:has(.wellness-green-form) .elara-dialog-actions button.primary-button{background:linear-gradient(110deg,#04b886,#35f2af)!important;color:#04251b!important}
+.elara-dialog-panel:has(.wellness-green-form) :is(button,input,textarea,select):focus-visible{outline-color:#35f8c2}
+@media(prefers-reduced-motion:reduce){.elara-dialog-panel:has(.wellness-green-form) *{animation-duration:0s!important;transition-duration:0s!important}}
