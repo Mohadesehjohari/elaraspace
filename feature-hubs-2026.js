@@ -126,7 +126,7 @@ function setupFocus(){
 }
 function setupReports(){
  const parent=$('panel-reports'),prod=$('panel-reports-productivity');if(!parent||!prod)return;parent.classList.add('feature-hub-parent','reports-feature-hub');
- visualHero(parent,'reports','assets/ui/39-reports-hero-banner.webp','گزارش‌های کل','Reports Overview','مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا','An overview of your real progress across Elara.');
+ visualHero(parent,'reports','assets/ui/reports_all.webp','گزارش‌های کل','Reports Overview','مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا','An overview of your real progress across Elara.');
  head(prod,'reports','REPORTS',titles['reports-productivity'],['همهٔ نمودارهای کامل بهره‌وری.','Your full productivity analytics.']);
  const live=$('elara-reports-page');if(live)move(live,prod);
  parent.querySelectorAll(':scope > .feature-hub-launchers[data-hub-kind="reports"]').forEach(node=>node.remove());
