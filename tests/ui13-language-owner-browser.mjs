@@ -62,17 +62,24 @@ try{
     await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
     await page.waitForSelector('#panel-language:not(.hidden)');
   }
-  await page.waitForFunction(()=>document.querySelector('link[href*="ui13-language.css"]')?.sheet&&getComputedStyle(document.querySelector('#ui12-leitner .ui12-leitner-scene')).backgroundImage.includes('lightner.webp'),null,{timeout:20000});
-  const hero=await page.locator('#panel-language .ui12-hero').evaluate(e=>getComputedStyle(e).backgroundImage);
-  assert.match(hero,/language_banner_main\.webp/,'Language hero not owner image');
-  const parentArt=await page.locator('#ui12-leitner .ui12-leitner-art').evaluate(e=>getComputedStyle(e).backgroundImage);
-  assert.equal(parentArt,'none','Leitner must draw its scenic art once, not on both parent and child');
-  const scene=await page.locator('#ui12-leitner .ui12-leitner-scene').evaluate(el=>({
-    image:getComputedStyle(el).backgroundImage,
-    height:el.getBoundingClientRect().height,
-    width:el.getBoundingClientRect().width
-   }));
-   assert.ok(scene.image.includes('lightner.webp')&&scene.height>=55&&scene.width>=120,'Leitner owner scene missing at '+width+': '+JSON.stringify(scene));
+  // Wait for a connected, laid-out image node as one atomic browser snapshot.
+  // UI12 asynchronously rebuilds this node; a detached handle reports empty CSS/zero rect.
+  const sceneHandle=await page.waitForFunction(()=>{
+    const child=document.querySelector('#ui12-leitner .ui12-leitner-scene');
+    const parent=document.querySelector('#ui12-leitner .ui12-leitner-art');
+    const hero=document.querySelector('#panel-language .ui12-hero');
+    if(!child?.isConnected||!parent?.isConnected||!hero?.isConnected)return false;
+    const scene={image:getComputedStyle(child).backgroundImage,height:child.getBoundingClientRect().height,width:child.getBoundingClientRect().width};
+    const ownerHero=getComputedStyle(hero).backgroundImage;
+    const parentArt=getComputedStyle(parent).backgroundImage;
+    if(!ownerHero.includes('language_banner_main.webp')||parentArt!=='none'||!scene.image.includes('lightner.webp')||scene.height<55||scene.width<120)return false;
+    return {scene,ownerHero,parentArt};
+  },null,{timeout:20000});
+  const styles=await sceneHandle.jsonValue();
+  assert.match(styles.ownerHero,/language_banner_main\.webp/,'Language hero not owner image');
+  assert.equal(styles.parentArt,'none','Leitner must draw its scenic art once, not on both parent and child');
+  const scene=styles.scene;
+  assert.ok(scene.image.includes('lightner.webp')&&scene.height>=55&&scene.width>=120,'Leitner owner scene missing at '+width+': '+JSON.stringify(scene));
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=2,'UI13 viewport overflow '+width+': '+overflow);
   if(width<=700){assert.equal(await page.locator('.bottom-nav [data-elara-nav-kind="main"]').count(),7,'Global seven-button navigation changed')}
