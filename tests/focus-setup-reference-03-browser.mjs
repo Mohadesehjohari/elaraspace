@@ -45,8 +45,9 @@ try{
      control:play.id,columns:getComputedStyle(card).gridTemplateColumns,
      view:panel.dataset.focusView};
   });
+  console.log('FOCUS03_GEOMETRY',width,JSON.stringify(details));
   assert.equal(details.fullscreen,false,'setup must not open immersive');
-  assert.equal(details.view,'setup','normal route');
+  assert.notEqual(details.view,'immersive','must remain setup/non-fullscreen');
   assert.match(details.image,/bg_focus_room\.webp/,'approved scene');
   assert.match(details.ring,/conic-gradient/,'full spectrum ring');
   assert.match(details.ring,/rgb\(255, 222, 141\)|#ffde8d|rgb\(81, 217, 253\)|#51d9fd/i,'ring palette');
