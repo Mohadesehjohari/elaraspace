@@ -26,16 +26,18 @@ function clubF3Tile(c,owned,cls=''){
  return '<button class="club-f3-tile '+cls+'" type="button" data-club-open="'+esc(c.id)+'" data-club-owned="'+(owned?'1':'0')+'" data-club-tile data-title="'+esc((c.title||'').toLocaleLowerCase())+'" data-kind="'+esc(c.kind||'general')+'" data-mode="'+esc(c.membershipMode||'invite')+'"><span class="club-f3-art club-f3-art-'+esc(c.kind||'general')+'">'+clubF3Icon(c.kind)+'</span><span class="club-f3-text"><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+modeLabel(c.membershipMode)+'</small><small>'+clubF3Num(c.memberCount)+' '+t('عضو','members')+(owned?' · '+roleLabel(c.role):'')+'</small></span><b aria-hidden="true">←</b></button>';
 }
 const clubF3Panel=(name,cls,inner)=>'<section class="club-f3-panel '+cls+'"><header><h2>'+name+'</h2></header>'+inner+'</section>';
+const clubF3Editing=()=>!!document.activeElement?.closest?.('.club-f3-filters');
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
  if(!isClubsTab(root)){root.querySelector('.social-clubs-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
+ if(clubF3Editing())return;
  let section=root.querySelector('.social-clubs-section');
  if(!section){section=document.createElement('section');section.className='social-clubs-section club-f3';section.dataset.elaraI18n='off';grid.append(section)}
  const mine=++token;
- section.innerHTML='<p class="club-f3-loading" role="status">'+t('در حال دریافت اطلاعات باشگاه‌ها…','Loading clubs…')+'</p>';
+ if(!section.querySelector('.club-f3-layout')) section.innerHTML='<p class="club-f3-loading" role="status">'+t('در حال دریافت اطلاعات باشگاه‌ها…','Loading clubs…')+'</p>';
  const result=await Promise.allSettled([service.list(),service.invites(),service.discover()]);
- if(mine!==token||!section.isConnected)return;
+ if(mine!==token||!section.isConnected||clubF3Editing())return;
  const [clubs,invites,discover]=result.map(x=>x.status==='fulfilled'&&Array.isArray(x.value)?x.value:[]);
  const ownIds=new Set(clubs.map(x=>x.id)),visible=[...clubs,...discover.filter(c=>!ownIds.has(c.id))],publicRows=discover.filter(c=>!ownIds.has(c.id));
  const ordered=[...visible].sort((a,b)=>Number(b.memberCount||0)-Number(a.memberCount||0));
@@ -44,7 +46,7 @@ async function mount(){
  '<p class="club-f3-caption">'+t('پرعضوترین باشگاه‌های قابل مشاهده — بدون امتیاز ساختگی','Accessible clubs ranked by real members — no invented scores')+'</p>'+
  (ordered.length?'<div class="club-f3-podium">'+ordered.slice(0,3).map(rankItem).join('')+'</div><div class="club-f3-rank-list">'+ordered.slice(3,7).map((c,i)=>rankItem(c,i+3)).join('')+'</div>':clubF3Empty('باشگاهی برای رتبه‌بندی پیدا نشد.','No clubs to rank.')));
  const postSets=await Promise.allSettled(clubs.slice(0,4).map(c=>service.posts(c.id)));
- if(mine!==token||!section.isConnected)return;
+ if(mine!==token||!section.isConnected||clubF3Editing())return;
  const posts=postSets.flatMap((r,i)=>r.status==='fulfilled'&&Array.isArray(r.value)?r.value.map(p=>({...p,club:clubs[i]})):[]).sort((a,b)=>Number(b.ms||0)-Number(a.ms||0));
  const postEntry=p=>'<button type="button" class="club-f3-post" data-club-open="'+esc(p.club.id)+'" data-club-owned="1"><b>✦</b><span><strong>'+esc(p.title||postLabel(p.kind))+'</strong><small>'+esc(p.club.title)+' · '+postLabel(p.kind)+'</small></span><span aria-hidden="true">‹</span></button>';
  const missions=posts.filter(x=>['mission','challenge','reminder','result'].includes(x.kind)).slice(0,4);
