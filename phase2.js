@@ -86,11 +86,11 @@
     const key=completionKey(task.id,date);ensureCompletionHistory(state);state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>x.key!==key);
   };
   const completedTodayCount=(state,date=today())=>ensureCompletionHistory(state).filter(x=>x.date===date).length;
-  const taskDailyTarget=task=>{const n=Math.round(Number(task?.dailyTarget)||1);return Math.max(1,Math.min(24,Number.isFinite(n)?n:1))};
-  const taskDailyProgress=(task,date=today())=>{const target=taskDailyTarget(task),map=task?.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:null,explicit=!!map&&Object.prototype.hasOwnProperty.call(map,date),raw=explicit?Number(map[date]):0;if(!explicit&&target>1){const legacy=task?.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task?.completed;if(legacy)return target}return Math.max(0,Math.min(target,Number.isFinite(raw)?Math.round(raw):0))};
+  const taskDailyTarget=(task,date=today())=>{const override=task?.recurrenceRule&&task?.occurrenceOverrides?.[date];const value=override?.dailyTarget??task?.dailyTarget;const n=Math.round(Number(value)||1);return Math.max(1,Math.min(24,Number.isFinite(n)?n:1))};
+  const taskDailyProgress=(task,date=today())=>{const target=taskDailyTarget(task,date),map=task?.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:null,explicit=!!map&&Object.prototype.hasOwnProperty.call(map,date),raw=explicit?Number(map[date]):0;if(!explicit&&target>1){const legacy=task?.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task?.completed;if(legacy)return target}return Math.max(0,Math.min(target,Number.isFinite(raw)?Math.round(raw):0))};
   const hasExplicitDailyProgress=(task,date=today())=>!!(task?.dailyProgress&&typeof task.dailyProgress==='object'&&Object.prototype.hasOwnProperty.call(task.dailyProgress,date));
   const legacyTaskDone=(task,date=today())=>task.recurrenceRule?dateList(task.occurrenceDone).includes(date):!!task.completed;
-  const taskDone=(task,date=today())=>taskDailyTarget(task)>1?(hasExplicitDailyProgress(task,date)?taskDailyProgress(task,date)>=taskDailyTarget(task):legacyTaskDone(task,date)):legacyTaskDone(task,date);
+  const taskDone=(task,date=today())=>taskDailyTarget(task,date)>1?(hasExplicitDailyProgress(task,date)?taskDailyProgress(task,date)>=taskDailyTarget(task,date):legacyTaskDone(task,date)):legacyTaskDone(task,date);
   const taskView=(task,date=today())=>{
     if(!task.recurrenceRule||!applies(task,date))return task;
     const o=task.occurrenceOverrides&&typeof task.occurrenceOverrides==='object'?task.occurrenceOverrides[date]:null;
@@ -321,7 +321,7 @@
     });
     const taskRowHtml=t=>{
       const v=taskView(t,now),done=taskDone(t,now),scheduled=window.ElaraSchedule.taskDue(t,now),p=priorityMeta[String(v.priority)]||priorityMeta['4'];
-      const target=taskDailyTarget(v),count=taskDailyProgress(t,now),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||'شخصی',locked=!!t.sourceCompletionLocked,checkItems=(Array.isArray(v.checklist)?v.checklist:Array.isArray(t.checklist)?t.checklist:[]).filter(x=>x&&String(x.text||x.title||'').trim()).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+      const target=taskDailyTarget(t,now),count=taskDailyProgress(t,now),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||'شخصی',locked=!!t.sourceCompletionLocked,checkItems=(Array.isArray(v.checklist)?v.checklist:Array.isArray(t.checklist)?t.checklist:[]).filter(x=>x&&String(x.text||x.title||'').trim()).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
       const overdue=!t.recurrenceRule&&!done&&!!t.date&&t.date<now,statusText=done?'انجام شد':target>1&&count>0?`در حال انجام · ${fa(count)}/${fa(target)}`:overdue?'عقب‌افتاده':scheduled?'در انتظار':'زمان‌بندی نشده',statusClass=done?'is-done':overdue?'is-overdue':target>1&&count>0?'is-progress':'is-pending';
       const scheduleText=t.recurrenceRule?recurrenceLabel(t.recurrenceRule).replace(/^تکرار:\s*/,''):(t.date?labelDate(t.date)+(v.time?' · '+v.time:''):'');
       return `<li tabindex="0" data-key="${esc(t.id)}" class="item astra-task-row priority-${esc(v.priority||'4')} ${source?.className||''} ${done?'done':''}" data-task-source="${esc(v.sourceGroup||t.sourceGroup||'personal')}"><button class="check-button" type="button" data-phase2-action="toggle-task" data-id="${esc(t.id)}" aria-pressed="${done}" ${locked?'disabled':''} data-task-date="${esc(now)}" aria-label="${locked?'وضعیت از بخش '+esc(t.sourceLabel||'مربوطه')+' مدیریت می‌شود':scheduled?(target>1?(done?'کم‌کردن یک نوبت':'ثبت نوبت '+fa(Math.min(target,count+1))+' از '+fa(target)):(done?'بازگرداندن':'تکمیل')):'برای امروز برنامه‌ریزی نشده'} ${esc(v.text||t.text)}">${done?'<img class="elara-check-art" src="assets/ui/task-complete-user-blue.webp" alt="" decoding="async">':''}</button><div class="item-content"><button class="task-summary-button" type="button" data-phase2-action="view-task" data-id="${esc(t.id)}" aria-label="نمایش جزئیات ${esc(v.text||t.text)}"><span class="item-title" data-elara-ugc dir="auto">${esc(v.text||t.text)}</span>${target>1?`<b class="task-round-count">${fa(count)}/${fa(target)}</b>`:""}</button>${target>1&&count>0?`<button type="button" class="task-round-back" data-task-round-back="${esc(t.id)}" data-task-date="${esc(now)}" title="برگشت یک نوبت" aria-label="برگشت یک نوبت">↶</button>`:""}<div class="item-meta astra-task-core-meta">${v.folder?`<span class="astra-folder-chip">${esc(v.folder)}</span>`:''}${v.tag?`<span class="astra-tag-chip">#${esc(v.tag)}</span>`:''}<span class="priority-badge ${p.className}">P${esc(v.priority||'4')}</span>${v.list?`<span class="astra-list-chip">${esc(v.list)}</span>`:''}${scheduleText?`<span class="astra-time-chip">◷ ${esc(v.time||scheduleText)}</span>`:''}${v.date?`<span class="astra-days-left">${daysBetween(now,v.date)===0?'امروز':daysBetween(now,v.date)>0?fa(daysBetween(now,v.date))+' روز مانده':fa(-daysBetween(now,v.date))+' روز گذشته'}</span>`:''}${t.collabSpaceId?`<span class="astra-shared-chip">🤝 مشترک</span>`:''}</div>${v.shortDescription?`<p class="task-short-description">${esc(v.shortDescription)}</p>`:''}</div>${checkItems.length?`<div class="task-checklist-preview" aria-label="زیرآیتم‌های تسک">${checkItems.map(item=>`<div class="task-checklist-preview-item ${item.done?'done':''}"><button type="button" class="check-button task-checklist-preview-check" data-task-check-toggle data-task-id="${esc(t.id)}" data-check-id="${esc(item.id)}" aria-pressed="${item.done}" aria-label="${item.done?'بازگرداندن':'تکمیل'} ${esc(item.text||item.title||'')}">${item.done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="task-checklist-preview-copy"><b>${esc(item.text||item.title||'')}</b>${item.description?`<small>${esc(item.description)}</small>`:''}</div><button type="button" class="mini-button task-checklist-preview-edit" data-task-check-edit data-task-id="${esc(t.id)}" data-check-id="${esc(item.id)}">ویرایش</button></div>`).join('')}</div>`:''}<span class="astra-task-category ${source?.className||''}">${esc(kind)}</span><span class="astra-task-status ${statusClass}" title="${esc(scheduleText)}">${esc(statusText)}</span><span class="astra-task-xp ${t.linkedTask?'is-source':''}">${t.linkedTask?esc(t.sourceLabel||'مرتبط'):'+۱۰ XP'}</span><details class="astra-task-more"><summary aria-label="گزینه‌های تسک" aria-expanded="false"><span aria-hidden="true">⋮</span></summary><div class="item-actions"><button class="mini-button" type="button" data-phase2-action="edit-task" data-id="${esc(t.id)}">ویرایش</button><button class="mini-button" type="button" data-phase2-action="${t.collabSpaceId?'shared-task':'share-task'}" data-id="${esc(t.id)}">${t.collabSpaceId?'آمار مشترک':'مشترک با دوست'}</button><button class="mini-button danger" type="button" data-phase2-action="delete-task" data-id="${esc(t.id)}">حذف</button></div></details></li>`;
@@ -386,7 +386,7 @@
     if(action==='toggle-task'){showTaskDecision(id,now);return}
     if(action==='undo-task'){
       if(task.sourceCompletionLocked)return;
-      if(taskDailyTarget(task)>1){
+      if(taskDailyTarget(task,now)>1){
         task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
         task.dailyProgress[now]=Math.max(0,taskDailyProgress(task,now)-1);
       }
@@ -397,7 +397,7 @@
     }
     if(action==='commit-task'){
       if(task.sourceCompletionLocked){notify(`این مورد از بخش ${task.sourceLabel||'مربوطه'} ثبت شده و وضعیتش از همان بخش مدیریت می‌شود.`);return}
-      const target=taskDailyTarget(task);
+      const target=taskDailyTarget(task,now);
       if(task.recurrenceRule&&!applies(task,now)){notify('این تسک برای این تاریخ برنامه‌ریزی نشده.');return}
       if(target>1){
         task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
@@ -421,7 +421,7 @@
           if(complete){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
           else removeCompletion(state,task,oldDate||now);
         }
-        window.ElaraLinkedTasks?.syncSourcesFromTasks(state,now);writeState(state);renderTasks();
+        window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state,now);writeState(state);renderTasks();
         notify(complete?`همهٔ ${fa(target)} نوبت انجام شد.`:`نوبت ${fa(count)} از ${fa(target)} ثبت شد.`);
         return;
       }
@@ -464,7 +464,7 @@
     if(!row){void taskAction('commit-task',id,date);return}
     if(document.querySelector('.elara-task-decision[data-task-for="'+CSS.escape(String(id))+'"]')){closeTaskDecision();return}
     closeTaskDecision();
-    const total=taskDailyTarget(t),count=taskDailyProgress(t,date);
+    const total=taskDailyTarget(t,date),count=taskDailyProgress(t,date);
     const box=document.createElement('div');box.className='elara-task-decision';
     box.setAttribute('role','group');box.setAttribute('aria-label','تصمیم درباره تسک');
     box.innerHTML='<small>'+(total>1?'پیشرفت فعلی '+fa(count)+'/'+fa(total)+' · ':'')+'کدوم وضعیت؟</small><div>'+
@@ -599,7 +599,7 @@
   function scheduleTaskSurfaceDecorate(){if(taskSurfaceQueued)return;taskSurfaceQueued=true;requestAnimationFrame(decorateTaskSurfaces)}
   async function editTaskDailyTarget(id){
     const state=ensureState(readState()),task=state.tasks.find(x=>String(x.id)===String(id));if(!task)return;
-    const current=taskDailyTarget(task),raw=await window.ElaraDialog.prompt(surfaceTx('تعداد دفعات انجام این تسک در یک روز را وارد کن.','How many times should this task be completed per day?'),{title:surfaceTx('تکرار در روز','Repeat per day'),label:surfaceTx('تعداد دفعات (۱ تا ۲۴)','Times per day (1–24)'),value:String(current),maxLength:2,confirmText:surfaceTx('ذخیره','Save')});
+    const current=taskDailyTarget(task,taskOccurrenceDate),raw=await window.ElaraDialog.prompt(surfaceTx('تعداد دفعات انجام این تسک در یک روز را وارد کن.','How many times should this task be completed per day?'),{title:surfaceTx('تکرار در روز','Repeat per day'),label:surfaceTx('تعداد دفعات (۱ تا ۲۴)','Times per day (1–24)'),value:String(current),maxLength:2,confirmText:surfaceTx('ذخیره','Save')});
     if(raw==null)return;const n=Math.round(Number(String(raw).trim()));if(!Number.isFinite(n)||n<1||n>24){notify(surfaceTx('عدد باید بین ۱ تا ۲۴ باشد.','Enter a number from 1 to 24.'));return}
     task.dailyTarget=n;if(task.sourceManaged)task.sourceUserEdited=true;
     task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};

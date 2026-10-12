@@ -94,6 +94,9 @@ jobs:
       - name: Test public GitHub Pages using real Chromium
         run: |
           ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/tasks-mobile-fidelity-browser.mjs
+      - name: Verify daily multi-round task counter and persistence
+        run: |
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 240s node tests/task-daily-rounds-browser.mjs
       - name: Upload actual live Chromium screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -30,7 +30,10 @@ function setCompleted(state,task,value,date=''){
  if(before!==task.completed&&Number(task.dailyTarget)>1){
   const day=validDate(date)?date:(validDate(task.date)?task.date:today());
   task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
-  task.dailyProgress[day]=task.completed?Math.min(24,Number(task.dailyTarget)):0;
+  const target=Math.min(24,Math.max(1,Number(task.occurrenceOverrides?.[day]?.dailyTarget??task.dailyTarget)||1));
+  const partial=Number(task.dailyProgress[day]);
+  // A source refresh must not erase a partial 1/3, 2/3 completion.
+  if(task.completed||!(partial>0&&partial<target))task.dailyProgress[day]=task.completed?target:0;
  }
  if(task.completed){if(validDate(date))task.doneAt=date;else if(!validDate(task.doneAt))task.doneAt=null;if(validDate(task.doneAt))recordHistory(state,task,task.doneAt)}
  else{task.doneAt=null;if(validDate(oldDate))removeHistory(state,task,oldDate)}
