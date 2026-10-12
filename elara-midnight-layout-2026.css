@@ -619,7 +619,7 @@ body.dark #panel-home.ref-home .ref-hero-reports:hover{filter:brightness(1.1)!im
  body.dark #panel-home.ref-home .ref-hero{
   background:
    linear-gradient(90deg,rgba(2,15,35,.18) 0%,rgba(2,15,35,.08) 48%,rgba(2,15,35,.68) 100%),
-   url('assets/ui/hero-landscape.webp') center 48%/cover no-repeat!important;
+   url('assets/ui/homebanner1.webp') center 48%/cover no-repeat!important;
  }
  body.dark #panel-home.ref-home .ref-hero::before{opacity:.14!important}
  body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals){margin:0!important}

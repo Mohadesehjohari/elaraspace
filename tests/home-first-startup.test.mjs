@@ -8,7 +8,7 @@ const phase2=readFileSync(new URL('phase2.js',root),'utf8');
 const home=readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
 
 const homeBootstrap=html.indexOf("if(!location.hash||location.hash==='#')history.replaceState");
-const appScript=html.indexOf('app.js?v=20261006-home-first-v10');
+const appScript=html.indexOf('<script defer src="app.js?v=');
 assert.ok(homeBootstrap>=0,'root route must normalize to #home');
 assert.ok(appScript>homeBootstrap,'root route must normalize before app.js executes');
 
