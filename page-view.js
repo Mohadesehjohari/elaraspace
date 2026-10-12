@@ -48,12 +48,13 @@ function injectFriendsCta(){const head=document.querySelector('#elara-social-pag
 
 /* Release 1 uses canonical Social/Profile models; no sample users or secondary persistence. */
 function ensurePageFidelityStyle(){
- if(document.getElementById('elara-page-fidelity-r3'))return;
+ if(document.getElementById('elara-page-fidelity-r4'))return;
  const link=document.createElement('link');link.id='elara-page-fidelity-r2';link.rel='stylesheet';link.href='page-fidelity-release2.css?v=20261012-r2';
  document.head.append(link)
  const previous=document.getElementById('elara-page-fidelity-r1');
  if(!previous){const old=document.createElement('link');old.id='elara-page-fidelity-r1';old.rel='stylesheet';old.href='page-fidelity-release1.css?v=20261012-r1';document.head.insertBefore(old,link)}
  const next=document.createElement('link');next.id='elara-page-fidelity-r3';next.rel='stylesheet';next.href='page-fidelity-release3.css?v=20261012-r3';document.head.append(next)
+ const r4=document.createElement('link');r4.id='elara-page-fidelity-r4';r4.rel='stylesheet';r4.href='page-fidelity-release4.css?v=20261012-r4';document.head.append(r4)
 }
 function pageAccount(uid){
  const profile=window.ElaraAccount?.profile||{},social=window.ElaraSocial?.me||{};
@@ -70,14 +71,35 @@ const PAGE_ART=[
  ['dawn','assets/ui/banner_new_dawn.webp','سپیدهٔ نو']
 ];
 const pageKey=uid=>'elara_social_page_settings_v1_'+String(uid);
+const PAGE_INTERESTS=[
+ ['مطالعه','Reading','📖'],['فناوری','Technology','💻'],['رشد فردی','Personal growth','✦'],
+ ['سفر','Travel','✈'],['نجوم','Astronomy','✧'],['هنر','Art','🎨'],
+ ['موسیقی','Music','♫'],['ورزش','Fitness','♧'],['نوشتن','Writing','✎'],
+ ['طبیعت','Nature','🌿'],['عکاسی','Photography','◈'],['آموزش','Learning','🎓']
+];
+function cleanPageInterests(input){
+ if(!Array.isArray(input))return [];
+ const out=[],seen=new Set();
+ for(const item of input){
+  const value=String(item||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,28);
+  const key=value.toLocaleLowerCase();
+  if(!value||seen.has(key))continue;
+  seen.add(key);out.push(value);
+  if(out.length>=8)break;
+ }
+ return out
+}
+function pageInterestSymbol(text){
+ return PAGE_INTERESTS.find(([fa,en])=>fa===text||en===text)?.[2]||'✦'
+}
 function pageSettings(uid){
- if(!uid)return {name:'',bio:'',cover:'default'};
+ if(!uid)return {name:'',bio:'',cover:'default',interests:[]};
  try{
   const p=JSON.parse(localStorage.getItem(pageKey(uid))||'{}');
   return {name:typeof p.name==='string'?p.name.trim().slice(0,60):'',
     bio:typeof p.bio==='string'?p.bio.trim().slice(0,320):'',
-    cover:PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default'};
- }catch{return {name:'',bio:'',cover:'default'}}
+    cover:PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default',interests:cleanPageInterests(p.interests)};
+ }catch{return {name:'',bio:'',cover:'default',interests:[]}}
 }
 function pageCover(uid){
  const cover=pageSettings(uid).cover;
@@ -92,6 +114,7 @@ async function openPageSettings(){
  form.innerHTML='<p class="page-settings-intro">'+t('تنظیمات صفحه اجتماعی تو — جدا از تنظیمات پروفایل شخصی.','Social Page settings — separate from private Profile settings.')+'</p>'+
   '<label>'+t('نام نمایشی صفحه','Page display name')+'<input type="text" name="name" maxlength="60" placeholder="'+esc(person.name||t('نام صفحه','Page name'))+'" value="'+esc(p.name)+'" autocomplete="off" dir="auto"></label>'+
   '<label>'+t('معرفی صفحه','Page bio')+'<textarea name="bio" rows="3" maxlength="320" data-elara-ugc dir="auto" placeholder="'+t('درباره صفحه‌ات بنویس…','Describe your Page…')+'">'+esc(p.bio)+'</textarea></label>'+
+  '<fieldset class="page-settings-interests"><legend>'+t('علاقه‌مندی‌های صفحه','Page interests')+'</legend><p>'+t('علاقه‌ها را انتخاب کن یا خودت بنویس؛ حداکثر ۸ مورد.','Select or write interests, up to eight.')+'</p><div class="page-settings-interest-grid">'+PAGE_INTERESTS.map(([fa,en,icon])=>'<label class="page-settings-interest"><input type="checkbox" name="interests" value="'+esc(fa)+'" '+(p.interests.includes(fa)?'checked':'')+'><span>'+icon+' '+esc(t(fa,en))+'</span></label>').join('')+'</div><label class="page-interests-free">'+t('علاقه‌مندی‌های دلخواه (با ویرگول جدا کن)','Other interests (comma separated)')+'<textarea name="otherInterests" rows="2" maxlength="220" dir="auto" placeholder="'+t('مثلاً: کتاب‌های فانتزی، پیاده‌روی','E.g. Fantasy books, hiking')+'">'+esc(p.interests.filter(x=>!PAGE_INTERESTS.some(([fa])=>fa===x)).join('، '))+'</textarea></label></fieldset>'+
   '<fieldset><legend>'+t('تصویر کاور صفحه','Page cover artwork')+'</legend><div class="page-settings-covers">'+PAGE_ART.map(([id,url,label])=>'<label class="page-settings-cover"><input type="radio" name="cover" value="'+id+'" '+(p.cover===id?'checked':'')+'><img src="'+url+'" alt="" loading="lazy"><span>'+label+'</span></label>').join('')+'</div></fieldset>'+
   '<p class="page-settings-storage">'+t('نام، معرفی و کاور این صفحه فعلاً فقط روی همین دستگاه و همین حساب ذخیره می‌شوند و به سایر کاربران یا دستگاه‌ها همگام‌سازی نمی‌شوند. آواتار و XP از حساب واقعی گرفته می‌شوند.','These Page settings are stored only on this device for this account; they are not shared or synced. Avatar and XP come from your real account.')+'</p>';
  const result=await window.ElaraDialog.open({title:t('تنظیمات صفحه من','My Page settings'),content:form,wide:true,actions:[{label:t('انصراف','Cancel'),value:false},{label:t('ذخیره صفحه','Save Page'),value:true,kind:'primary'}]});
@@ -100,7 +123,10 @@ async function openPageSettings(){
  const name=String(form.elements.name.value||'').trim().slice(0,60);
  const bio=String(form.elements.bio.value||'').trim().slice(0,320);
  const cover=PAGE_ART.some(([id])=>id===form.elements.cover.value)?form.elements.cover.value:'default';
- try{localStorage.setItem(pageKey(uid),JSON.stringify({name,bio,cover}));render()}
+ const selected=[...form.querySelectorAll('[name="interests"]:checked')].map(input=>input.value);
+ const extras=String(form.elements.otherInterests.value||'').split(/[,،\n]+/);
+ const interests=cleanPageInterests([...selected,...extras]);
+ try{localStorage.setItem(pageKey(uid),JSON.stringify({name,bio,cover,interests}));render()}
  catch(error){await window.ElaraDialog.alert(t('فضای ذخیره مرورگر کافی نیست.','Browser storage is unavailable.'),{title:t('خطای ذخیره','Save error')})}
 }
 let pageContentTab='all',pageStoryExpanded=false;
@@ -142,17 +168,18 @@ function pageRecentTags(state){
  return [...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5)
 }
 function pageSidebar(state,uid){
- const bookRows=pageLibraryClips(uid),tags=pageRecentTags(state);
+ const bookRows=pageLibraryClips(uid),tags=pageRecentTags(state),friends=Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends.filter(p=>p?.uid&&p.uid!==uid).slice(0,3):[];
  const clips=bookRows.map(row=>'<article class="page-side-clip"><img src="assets/ui/icon-library-open-book.webp" alt="" loading="lazy"><div><p data-elara-ugc dir="auto">«'+esc(row.text)+'»</p><small data-elara-ugc dir="auto">'+esc(row.title)+(row.page?' · '+t('صفحه','Page')+' '+esc(row.page):'')+'</small>'+(row.author?'<small data-elara-ugc dir="auto">'+esc(row.author)+'</small>':'')+'</div></article>').join('');
- const topics=tags.map(([tag,count])=>'<li><span class="page-topic-hash" dir="auto">#'+esc(tag)+'</span><small>'+num(count)+' '+t('پست در فید','posts in your feed')+'</small></li>').join('');
+ const topics=tags.map(([tag,count],i)=>'<li><span class="page-topic-number">'+num(i+1)+'</span><div><span class="page-topic-hash" dir="auto">#'+esc(tag)+'</span><small>'+num(count)+' '+t('پست در فید','posts in your feed')+'</small></div></li>').join('');
+ const friendCards=friends.map(p=>'<button type="button" class="page-known-friend" data-page-known-friend="'+esc(p.uid)+'"><span class="page-known-avatar">'+avatar(p)+'</span><span><strong data-elara-ugc dir="auto">'+esc(p.name||p.username||t('دوست','Friend'))+'</strong><small>'+t('مشاهده صفحه دوست','View friend’s Page')+'</small></span><i aria-hidden="true">↗</i></button>').join('');
  const empty=(fa,en)=>'<p class="page-side-empty">'+t(fa,en)+'</p>';
  return '<aside class="page-social-aside" aria-label="'+t('اطلاعات کناری صفحه','Page sidebar')+'">'+
   '<section class="page-side-card page-side-books"><header><h2>📖 '+t('بریده‌های کتاب من','My book clips')+'</h2><button type="button" data-page-library-open>'+t('مشاهده همه','View all')+' ←</button></header><div class="page-side-body">'+
    (clips||empty('هنوز بریده‌ای در کتابخانه این دستگاه ثبت نشده است.','No book clips saved on this device yet.'))+
    '</div><footer>'+t('این بریده‌ها خصوصی و مخصوص همین دستگاه‌اند.','Private clips on this device only.')+'</footer></section>'+
   '<section class="page-side-card page-side-topics"><header><h2>🔥 '+t('موضوعات امروز فید','Today’s feed topics')+'</h2></header><div class="page-side-body">'+(topics?'<ol class="page-topic-list">'+topics+'</ol>':empty('هنوز هشتگ معتبری در پست‌های ۲۴ ساعت اخیر فید تو نیست.','No hashtags in visible posts from the past 24 hours.'))+'</div><footer>'+t('فقط از پست‌هایی که مجاز به دیدنشان هستی.','Based only on posts you can view.')+'</footer></section>'+
-  '<section class="page-side-card page-side-friends"><header><h2>✨ '+t('پیدا کردن دوستان','Find friends')+'</h2><button type="button" data-page-friends-open>'+t('مشاهده همه','Open')+' ←</button></header><div class="page-side-body">'+
-   empty('پیشنهاد خودکار کاربران فعال نیست؛ در بخش دوستان می‌توانی با نام کاربری دقیق افراد را پیدا کنی.','Automatic people suggestions are unavailable. Find people by their exact username in Friends.')+
+  '<section class="page-side-card page-side-friends"><header><h2>✨ '+t('دوستان و آشنایان','Friends & connections')+'</h2><button type="button" data-page-friends-open>'+t('مشاهده همه','Open')+' ←</button></header><div class="page-side-body">'+
+   (friendCards||empty('برای یافتن افراد جدید، نام کاربری دقیق را در بخش دوستان جست‌وجو کن. پیشنهاد خودکار در دسترس نیست.','Find people by exact username in Friends; automatic suggestions are unavailable.'))+
    '<button type="button" class="page-find-friends" data-page-friends-open>'+t('جست‌وجوی دوست','Find a friend')+' ↗</button></div></section>'+
  '</aside>'
 }
@@ -204,11 +231,13 @@ function socialPageIdentity(state,uid,viewingOther,target){
  const saved=!viewingOther?pageSettings(uid):null;
  const name=String(saved?.name||person.name||person.displayName||person.username||identity.name||t('حساب من','My account'));
  const bio=person.profilePublic===false&&viewingOther?'':String(saved?.bio||person.bio||identity.bio||'');
+ const interests=!viewingOther?saved?.interests||[]:[];
  const hasXp=Number.isFinite(Number(person.xp))&&person.xp!==undefined&&person.xp!==null;
  const p=hasXp?window.ElaraLevels?.progress?.(Number(person.xp)||0):null;
  const progress=p&&Number.isFinite(Number(p.percent))?Math.max(0,Math.min(100,Number(p.percent))):null;
  const portrait=identity.avatarSrc?'<img src="'+esc(identity.avatarSrc)+'" alt="">':'<span>'+esc(identity.initial||name.slice(0,1))+'</span>';
  const frame=identity.frameSrc?'<img class="page-id-frame" src="'+esc(identity.frameSrc)+'" alt="">':'';
+ const chips=interests.length?'<div class="page-id-interests" aria-label="'+t('علاقه‌مندی‌ها','Interests')+'">'+interests.map(item=>'<span class="page-interest-chip">'+pageInterestSymbol(item)+' <span data-elara-ugc dir="auto">'+esc(item)+'</span></span>').join('')+'</div>':'';
  const pagePosts=(state.posts||[]).filter(row=>row.uid===person.uid).length;
  const stats=state.loading||state.error?'':('<span><strong>'+num(pagePosts)+'</strong><small>'+t('پست‌های قابل‌نمایش','Visible posts')+'</small></span>')+(!viewingOther&&Array.isArray(window.ElaraSocial?.friends)?'<span><strong>'+num(window.ElaraSocial.friends.length)+'</strong><small>'+t('دوستان','Friends')+'</small></span>':'');
  return '<section class="page-id-shell" aria-label="'+t('اطلاعات صفحه','Page identity')+'">'+
@@ -217,7 +246,7 @@ function socialPageIdentity(state,uid,viewingOther,target){
   '<div class="page-id-person"><div class="page-id-name-row"><h2 data-elara-ugc dir="auto">'+esc(name)+'</h2>'+(hasXp&&identity.title?'<span class="page-id-rank">'+esc(identity.title)+'</span>':'')+'</div>'+
   '<div class="page-id-meta">'+(person.username?'<span dir="ltr">@'+esc(person.username)+'</span>':'')+
   (hasXp?'<span>'+t('سطح','Level')+' '+num(identity.level||1)+'</span><span class="page-id-xp"><b>'+num(person.xp)+' XP</b>'+(progress!==null?'<span class="page-id-xp-track" aria-label="'+t('پیشرفت سطح','Level progress')+'"><i style="width:'+progress.toFixed(2)+'%"></i></span>':'')+'</span>':'')+'</div>'+
-  (bio?'<p class="page-id-bio" data-elara-ugc dir="auto">'+esc(bio)+'</p>':!viewingOther?'<p class="page-id-bio is-empty">'+t('معرفی صفحه‌ات را از تنظیمات صفحه اضافه کن.','Add a Page bio in Page settings.')+'</p>':'')+'</div>'+
+  (bio?'<p class="page-id-bio" data-elara-ugc dir="auto">'+esc(bio)+'</p>':!viewingOther?'<p class="page-id-bio is-empty">'+t('معرفی صفحه‌ات را از تنظیمات صفحه اضافه کن.','Add a Page bio in Page settings.')+'</p>':'')+chips+'</div>'+
   '<div class="page-id-actions">'+(!viewingOther?'<button type="button" class="page-id-edit" data-page-edit-profile>✎ '+t('ویرایش صفحه','Edit Page')+'</button>':'')+
   (stats?'<div class="page-id-stats">'+stats+'</div>':'')+'</div></section>'
 }
@@ -297,6 +326,8 @@ document.addEventListener('click',async e=>{
  if(blog){window.ElaraOpen?.('blog');return}
  const friends=e.target.closest('[data-page-friends-open]');
  if(friends){window.ElaraOpen?.('social');return}
+ const known=e.target.closest('[data-page-known-friend]');
+ if(known){const profile=window.ElaraSocial?.friends?.find(p=>p.uid===known.dataset.pageKnownFriend);if(profile)await window.ElaraPage?.viewUser?.(profile.uid,profile);return}
  const editProfile=e.target.closest('[data-page-edit-profile],[data-page-edit-cover]');
  if(editProfile){e.preventDefault();await openPageSettings();return}
  const tabButton=e.target.closest('[data-page-content]');
