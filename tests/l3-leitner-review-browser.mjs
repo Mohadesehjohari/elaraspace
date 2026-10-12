@@ -57,6 +57,20 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'),null,{timeout:9000});
   assert.equal(new URL(page.url()).hash,'#words','Escape must return to dashboard route @'+width);
   assert.equal(await page.locator('#panel-words .flashcard').count(),1,'Review card must return to original canonical panel @'+width);
+  if(width===390||width===1440){
+   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+   await page.waitForSelector('#panel-language .ui12-leitner-card, #panel-language .ui12-board',{timeout:9000});
+   const reviewNow=page.locator('#panel-language [data-ui12-route="leitner-review"]');
+   assert.equal(await reviewNow.count(),1,'Language landing review-now must point directly to story');
+   await reviewNow.click();
+   await page.waitForSelector('#l3-review-scene .l3-story-frame',{timeout:10000});
+   assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Language review now did not navigate to story');
+   const heights=await page.locator('#l3-review-scene .l3-story-frame').evaluate(el=>({card:el.getBoundingClientRect().height,view:innerHeight}));
+   assert.ok(heights.card<heights.view*.80,'Story card too tall relative to viewport: '+JSON.stringify(heights));
+   await page.keyboard.press('Escape');
+   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'));
+  }
+
   assert.deepEqual(errors.filter(e=>!/favicon|network/i.test(e)),[],'L3 runtime errors at '+width);
   console.log('L3_REVIEW_WIDTH_PASS '+width);
   await context.close();
