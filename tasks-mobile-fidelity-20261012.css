@@ -358,3 +358,22 @@
    max-height:none!important;-webkit-line-clamp:unset!important;
  }
 }
+
+/* Source-linked rows can use a distinct title wrapper without .task-summary-button.
+   Keep the same title readability contract for all source types. */
+@media(max-width:767px){
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{
+   white-space:normal!important;
+   overflow-wrap:anywhere!important;
+   word-break:normal!important;
+   text-overflow:clip!important;
+   overflow:visible!important;
+   display:block!important;
+   max-height:none!important;
+   -webkit-line-clamp:unset!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button{
+   height:auto!important;max-height:none!important;min-height:24px!important;
+   overflow:visible!important;
+ }
+}
