@@ -1,0 +1,123 @@
+/* LIB-02-R: harmonize every LIBRARY tab with warm walnut, amber and Elara midnight. */
+/* Shared palette lives only on the five library routes, never on the global shell. */
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports) {
+ --elara-library-amber:#ffdd98;
+ --elara-library-glow:#e9a852;
+ --elara-library-text:#f8f2e7;
+ --elara-library-wood:#27140d;
+ --elara-library-outline:#a8763a87;
+ --elara-library-night:#061522;
+ color:var(--elara-library-text);
+}
+/* Navigation and actions: same palette through the overview and every subpage. */
+#panel-books #lib01-overview .lib01-tab,
+#panel-books #lib01-overview .lib01-add,
+:is(#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports) .feature-back {
+ border:1px solid #9c74488f;
+ border-radius:11px;
+ color:#ffecc7;
+ background:linear-gradient(135deg,#0c202b,#141924 60%,#291b15);
+ box-shadow:inset 0 1px 0 #ffcf7e14,0 4px 17px #0007;
+}
+#panel-books #lib01-overview .lib01-tab:hover,
+:is(#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports) .feature-back:hover{
+ color:#ffe6b5;border-color:#ffe0a1;background:linear-gradient(135deg,#342118,#0d2634);
+}
+#panel-books #lib01-overview .lib01-tab.is-current,
+#panel-books #lib01-overview .lib01-add{
+ color:#322115;background:linear-gradient(130deg,#ffe5ac,#f4b968 80%,#e8a956);
+ border-color:#ffe9b4;box-shadow:0 0 18px #ffca7058,inset 0 1px 0 #fff6ca
+}
+#panel-books #lib01-overview .lib01-shortcuts {direction:rtl}
+/* Library overview, search, reports and clips share the same dark warm cards. */
+#panel-books #lib01-overview .lib01-card,
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) :is(.surface,.elara-card,.library-report-live,.library-search-launch,.library-clips-shell) {
+ border:1px solid #926f478c;
+ border-radius:15px;
+ color:#f7f1e6;
+ background:linear-gradient(158deg,#071b26f2,#0a1721f3 63%,#24160ff2);
+ box-shadow:0 11px 27px #0008,inset 0 1px #ffdd9710;
+}
+#panel-books #lib01-overview .lib01-card h2,
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) h2 {
+ color:#ffe0a1;
+}
+#panel-books #lib01-overview .lib01-card button:not(.lib01-task-check),
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) .quiet-button{
+ border-color:#a47f4b83;color:#ffe3ad;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) > .feature-subpage-head{
+ position:relative;isolation:isolate;min-height:155px;
+ background-image:linear-gradient(90deg,#02070bd9,#05121a71 55%,#090a12a0),url('assets/ui/librairy_banner_main.webp');
+ background-position:center,center 57%;background-size:cover;
+ border:1px solid #b77d4680;border-radius:17px;
+ box-shadow:0 13px 29px #0008;overflow:hidden;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) > .feature-subpage-head h1{
+ color:#fff7e8;text-shadow:0 4px 17px #000;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) > .feature-subpage-head p{
+ color:#f4dbc3;text-shadow:0 2px 7px #000;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) input,
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) select,
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) textarea{
+ border-color:#7b715d80;background:#071724;color:#f9eacf;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports) :is(button.primary-button,button[type="submit"]) {
+ background:linear-gradient(125deg,#ffe6ab,#e6aa5b)!important;
+ color:#362212!important;border-color:#ffe9b4!important;
+}
+/* Reference: three deep walnut vertical shelves with brass separators. */
+#panel-library-shelves #lib02-scene .lib02-shelf{
+ background:linear-gradient(90deg,#3d1b0c,#ad6128 2%,#28150f 6%,#100b09 9%,#22120c 91%,#a85d26 97%,#321306);
+ box-shadow:inset 0 0 29px #000c,0 14px 28px #000c,0 1px 3px #f0ad6287;
+}
+#panel-library-shelves #lib02-scene .lib02-wood{
+ background-image:
+ linear-gradient(90deg,#0c0605d1 0%,#31170e6b 8%,#1a0e0bc2 56%,#110904e7 100%),
+ repeating-linear-gradient(90deg,transparent 0 29px,#ba64200b 30px 32px,transparent 33px 59px),
+ url('assets/ui/library-card-background.webp');
+ background-size:cover,auto,cover;
+ box-shadow:inset 0 0 48px #000d,inset 0 0 12px #ec995b43;
+}
+#panel-library-shelves #lib02-scene .lib02-book{
+ background:linear-gradient(180deg,#120908bf 0%,#27100777 70%,#090503ce);
+}
+#panel-library-shelves #lib02-scene .lib02-book-progress{
+ background:#836f5d8c;height:6px
+}
+#panel-library-shelves #lib02-scene .lib02-book-progress i{
+ background:linear-gradient(90deg,#46c998,#afe6ac);
+ box-shadow:0 0 6px #92efc13c
+}
+#panel-library-shelves #lib02-scene .lib02-book-cover img{
+ border-radius:2px;filter:drop-shadow(1px 4px 3px #000c)
+}
+#panel-library-shelves #lib02-scene .lib02-hero{
+ background-image:linear-gradient(90deg,#02050a85,#05080e46 44%,#02040ba8),url('assets/ui/librairy_banner_main.webp')
+}
+#panel-library-shelves #lib02-scene .lib02-shelf-head h2,
+#panel-library-shelves #lib02-scene .lib02-personal h2{color:#fff3dc}
+/* Shelf operations and status selectors stay functional and keyboard-accessible. */
+#panel-library-shelves #lib02-scene button:focus-visible,
+:is(#panel-books,#panel-library-clips,#panel-library-search,#panel-library-reports) button:focus-visible{
+ outline:3px solid #ffde8c;outline-offset:3px
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib02-metrics>div{
+  background:linear-gradient(145deg,#0a1a25,#0f222c);
+  border-color:#9b754992
+ }
+ #panel-library-shelves #lib02-scene .lib02-mobile-picker button[aria-pressed="true"]{
+  background:linear-gradient(145deg,#30200f,#4a3015);
+  border-color:#ffe1a0;box-shadow:0 0 18px #ecb35365;
+ }
+ #panel-library-shelves #lib02-scene .lib02-shelf{width:100%;margin-inline:auto}
+ #panel-books #lib01-overview .lib01-shortcuts{gap:6px}
+}
+@media(prefers-reduced-transparency:reduce){
+ :is(#panel-library-clips,#panel-library-search,#panel-library-reports) :is(.surface,.elara-card){
+  background:#0b1b25;backdrop-filter:none
+ }
+}
