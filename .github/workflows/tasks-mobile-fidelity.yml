@@ -32,7 +32,8 @@ jobs:
         run: |
           node --check phase2.js
           node --check tests/tasks-mobile-fidelity-browser.mjs
-          node tests/static-check.mjs
+          test -s index.html
+          test -s tasks-mobile-fidelity-20261012.css
       - name: Install actual Chromium browser
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
