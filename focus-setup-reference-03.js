@@ -16,6 +16,14 @@ function addMarkup(){
   aside.innerHTML='<section class="focus-ref-glass focus-ref-stats"><header><h2>✦ '+tr('آمار امروز','Today’s stats')+'</h2></header><div class="focus-ref-stats-body"><div class="focus-ref-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div><strong data-focus-completed>۰</strong><small>'+tr('جلسه تکمیل‌شده','sessions completed')+'</small></div></div><dl><div><dt>◷ '+tr('زمان تمرکز','Focus time')+'</dt><dd data-focus-minutes>۰</dd></div><div><dt>▤ '+tr('جلسه‌ها','Sessions')+'</dt><dd data-focus-session-number>۰</dd></div><div><dt>◎ '+tr('میانگین هر جلسه','Average session')+'</dt><dd data-focus-average>—</dd></div></dl></div></section><section class="focus-ref-glass focus-ref-task"><header><h2>▣ '+tr('کار فعلی','Current task')+'</h2></header><label for="focus-ref-task-select">'+tr('از تسک‌های واقعی خود انتخاب کن','Choose from your real tasks')+'</label><select id="focus-ref-task-select" aria-label="'+tr('کار فعلی','Current task')+'"><option value="">'+tr('هنوز کاری انتخاب نشده','No task selected')+'</option></select><p class="focus-ref-task-name" data-focus-task-name>'+tr('برای این جلسه هنوز کاری انتخاب نشده است.','No task selected for this session.')+'</p><button type="button" class="focus-ref-task-open" data-feature-route="tasks">'+tr('مدیریت تسک‌ها','Manage tasks')+' ↗</button></section>';
   card.append(aside);
  }
+ const actions=card.querySelector(':scope > .timer-actions');
+ if(actions&&!actions.querySelector('.focus-ref-settings-jump')){
+  const jump=document.createElement('button');jump.type='button';jump.className='focus-ref-settings-jump';
+  jump.setAttribute('aria-label',tr('رفتن به تنظیمات پومودورو','Go to Pomodoro settings'));
+  jump.setAttribute('title',tr('تنظیمات','Settings'));jump.textContent='⚙';
+  jump.addEventListener('click',()=>card.querySelector(':scope > .focus-config')?.scrollIntoView({behavior:'smooth',block:'center'}));
+  actions.append(jump);
+ }
  const settings=card.querySelector(':scope > .focus-config');
  if(settings&&!settings.querySelector('.focus-ref-settings-title')){
   const title=document.createElement('h2');title.className='focus-ref-settings-title';title.textContent='⚙ '+tr('تنظیمات پومودورو','Pomodoro settings');settings.prepend(title);
@@ -91,7 +99,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('click',e=>{
  const button=e.target.closest('#panel-focus-pomodoro .focus-ref-task-open,#panel-focus-pomodoro [data-feature-route="focus-ambience"]');
- if(button){e.preventDefault();window.ElaraOpen?.(button.dataset.featureRoute,{history:'push'})}
+ if(button){e.preventDefault();e.stopImmediatePropagation();window.ElaraOpen?.(button.dataset.featureRoute,{history:'push'})}
 },true);
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed','elara:open'])
  window.addEventListener(ev,()=>setTimeout(init,0));
