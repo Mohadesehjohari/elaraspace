@@ -18,9 +18,33 @@ try{
   await page.addInitScript(data=>{if(!localStorage.getItem('elara_space_v1'))localStorage.setItem('elara_space_v1',JSON.stringify(data));localStorage.setItem('elara_preferences_v2',JSON.stringify({mode:'dark',language:'fa'}))},fixture);
   await page.goto(origin+'/?l3='+width+'#words',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraLanguageDestinations?.renderLeitner,null,{timeout:35000});
+  // The Language overview has two distinct CTAs; never conflate Review Now with View All.
+  if(width===390||width===1440){
+   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
+   await page.waitForSelector('#panel-language:not(.hidden) #ui12-leitner [data-ui12-route="leitner-review"]',{timeout:15000});
+   assert.equal(await page.locator('#ui12-leitner .ui12-card-head [data-ui12-route="words"]').count(),1,'View All must point to dashboard');
+   await page.locator('#ui12-leitner .ui12-card-head [data-ui12-route="words"]').click();
+   await page.waitForSelector('#panel-words:not(.hidden) .l2-leitner-shell',{timeout:10000});
+   assert.notEqual(new URL(page.url()).searchParams.get('leitner'),'review','View All opened story instead of dashboard');
+   assert.equal(await page.locator('#l3-review-scene').count(),0,'Story leaked on View All');
+   assert.equal(await page.locator('#panel-words .l2-leitner-bottom').count(),0,'Legacy bottom duplicate is still present');
+   await page.evaluate(()=>ElaraOpen('language',{history:'push'}));
+   await page.waitForSelector('#panel-language:not(.hidden) #ui12-leitner [data-ui12-route="leitner-review"]',{timeout:10000});
+   await page.locator('#ui12-leitner [data-ui12-route="leitner-review"]').click();
+   await page.waitForSelector('#l3-review-scene .l3-story-frame',{timeout:10000});
+   assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Language Review Now must open the independent story');
+   const frame=await page.locator('#l3-review-scene .l3-story-frame').boundingBox();
+   assert.ok(frame&&frame.height<(width<=430?400:450),'Story card height exceeds compact reference @'+width+': '+frame?.height);
+   await page.screenshot({path:dir+'/language-review-entry-'+width+'.png',animations:'disabled'});
+   await page.locator('#l3-review-scene [data-l3-exit]').click();
+   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'),null,{timeout:10000});
+  }
   await page.evaluate(()=>ElaraOpen('words',{history:'replace'}));
   await page.waitForSelector('#panel-words:not(.hidden) .l2-start-review:not([disabled])');
   assert.equal(await page.locator('#panel-words > .flashcard:visible, #panel-words > #word-list:visible').count(),0,'Dashboard must not expose review cards or word list @'+width);
+  assert.equal(await page.locator('#panel-words .l2-leitner-bottom').count(),0,'Legacy dashboard review block duplicated @'+width);
+  assert.equal(await page.locator('#panel-words > .feature-subpage-head:visible, #panel-words > .pass3-language-leitner:visible, #panel-words > .feature-section-tasks:visible').count(),0,'Visible legacy duplicates below the dedicated dashboard @'+width);
+  if(width===1440)console.log('L4_DASHBOARD_DOM '+JSON.stringify(await page.evaluate(()=>({panels:[...document.querySelectorAll('.panel')].filter(el=>getComputedStyle(el).display!=='none').map(el=>el.id),wordsChildren:[...document.querySelector('#panel-words').children].map(el=>({id:el.id,cls:el.className,visible:getComputedStyle(el).display!=='none'})),wordAncestors:[...document.querySelector('#panel-words').parentElement.children].map(el=>el.id||el.className).slice(0,30)}))));
   if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-dashboard-'+width+'.png',fullPage:true,animations:'disabled'});
   await page.locator('#panel-words .l2-start-review').click();
   await page.waitForSelector('body > #l3-review-scene [data-l3-card-slot] .flashcard',{timeout:10000});
