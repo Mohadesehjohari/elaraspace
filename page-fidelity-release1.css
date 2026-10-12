@@ -1,0 +1,135 @@
+/* PAGE-FIDELITY R1 — scoped social Page shell; global header, sidebar and mobile nav untouched. */
+#panel-page{--page-cyan:#25cfff;--page-stroke:#275e99;--page-ink:#f1f6ff;min-width:0}
+#panel-page .page-hero,
+#panel-page > .elara-global-hero.page-hero{
+ position:relative!important;box-sizing:border-box!important;display:flex!important;
+ align-items:flex-end!important;justify-content:flex-start!important;
+ width:100%!important;max-width:100%!important;height:clamp(178px,17vw,244px)!important;
+ min-height:178px!important;margin:0!important;padding:24px 28px!important;
+ border:1px solid #5268c2!important;border-radius:20px 20px 0 0!important;
+ color:#fff!important;text-shadow:0 2px 14px #01091c;
+ background-image:linear-gradient(270deg,rgba(3,14,34,.70),rgba(3,14,34,.11) 62%,rgba(3,14,34,.06)),var(--elara-page-cover,var(--elara-page-art,url("assets/ui/38-my-page-hero-banner.webp")))!important;
+ background-size:cover!important;background-position:center 51%!important;overflow:hidden!important;
+ box-shadow:inset 0 0 0 1px #79d8ff22,0 9px 28px #01091f77!important
+}
+#panel-page .page-hero>div:first-child{max-width:min(53%,440px);margin:0;z-index:1}
+#panel-page .page-hero small{font-size:11px;letter-spacing:.16em;color:#f4dcff}
+#panel-page .page-hero h1{font-size:clamp(20px,2.25vw,31px)!important;line-height:1.35!important;margin:5px 0!important;font-weight:900}
+#panel-page .page-hero p{font-size:clamp(11px,1vw,15px)!important;line-height:1.7;color:#f5eaff!important;max-width:370px}
+#panel-page .page-hero .page-hero-note{position:absolute;left:14px;bottom:14px;right:auto;z-index:2;max-width:none;background:transparent!important;border:0!important;padding:0!important}
+#panel-page .page-hero .page-hero-note:empty{display:none}
+#panel-page .page-cover-edit{cursor:pointer;min-height:39px;border:1px solid #5daaff;border-radius:12px;padding:7px 13px;background:#021b3bbd;color:#f6fbff;font:inherit;font-size:12px;box-shadow:0 4px 15px #0008;backdrop-filter:blur(8px)}
+#panel-page .page-cover-edit:hover,#panel-page .page-cover-edit:focus-visible{border-color:#53e4ff;outline-offset:2px}
+#panel-page #elara-page-view{min-width:0;max-width:100%;display:grid;gap:12px;direction:rtl;overflow:visible}
+#panel-page #elara-page-view *{box-sizing:border-box}
+#panel-page .page-id-shell{position:relative;z-index:1;display:grid;grid-template-columns:clamp(118px,11vw,168px) minmax(0,1fr) auto;gap:clamp(12px,2vw,28px);align-items:center;padding:18px 22px 19px;border:1px solid var(--page-stroke);border-top:0;border-radius:0 0 20px 20px;background:linear-gradient(116deg,#06172e,#08234b 52%,#071834);box-shadow:inset 0 1px #65aaff1c,0 15px 28px #01091f62;color:var(--page-ink);min-height:170px}
+#panel-page .page-id-avatar-wrap{align-self:start;position:relative;width:clamp(115px,11vw,165px);height:clamp(115px,11vw,165px);margin-top:-71px;isolation:isolate}
+#panel-page .page-id-ring{display:grid;place-items:center;width:100%;height:100%;padding:6px;border-radius:50%;background:conic-gradient(from 25deg,#ffe6a6,#8857fb,#22dbff,#ee75df,#ffe6a6);box-shadow:0 0 0 4px #071b35,0 0 0 6px #5a8ffe,0 0 25px #a25bff88;overflow:hidden}
+#panel-page .page-id-ring img,#panel-page .page-id-ring>span{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#092040;color:#fff;font-size:46px}
+#panel-page .page-id-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+#panel-page .page-id-edit-avatar{position:absolute;z-index:2;bottom:4px;left:0;width:36px;height:36px;border:1px solid #55d8fb;border-radius:50%;background:#052545;color:#fff;cursor:pointer;font-size:17px}
+#panel-page .page-id-person{min-width:0;display:grid;gap:9px;align-content:center}
+#panel-page .page-id-name-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
+#panel-page .page-id-name-row h2{margin:0;font-size:clamp(20px,2.15vw,29px);font-weight:950;line-height:1.3;overflow-wrap:anywhere}
+#panel-page .page-id-rank{padding:4px 10px;border-radius:99px;background:#152b62;border:1px solid #465caa;color:#e6eaff;font-size:11px}
+#panel-page .page-id-meta{color:#afc9e8;font-size:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#panel-page .page-id-xp{display:inline-flex;align-items:center;gap:7px;min-width:0}
+#panel-page .page-id-xp-track{display:block;width:clamp(70px,9vw,136px);height:8px;overflow:hidden;border:1px solid #315e94;border-radius:99px;background:#102944}
+#panel-page .page-id-xp-track i{display:block;height:100%;background:linear-gradient(90deg,#35d8ff,#b05cff,#ffe18c);border-radius:inherit}
+#panel-page .page-id-bio{margin:0;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;font-size:clamp(12px,1vw,14px);color:#d7e5fb}
+#panel-page .page-id-bio.is-empty{color:#819bbd;font-style:italic}
+#panel-page .page-id-actions{align-self:start;display:grid;justify-items:end;gap:12px;min-width:160px}
+#panel-page .page-id-edit{min-height:42px;padding:8px 15px;border-radius:12px;border:1px solid #04c7ff;background:linear-gradient(110deg,#092e56,#103e75);box-shadow:0 0 14px #00beff44;color:#fff;font:inherit;font-size:13px;cursor:pointer}
+#panel-page .page-id-stats{display:flex;gap:0;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+#panel-page .page-id-stats>span{display:grid;text-align:center;gap:3px;padding:0 14px;border-inline-end:1px solid #31557b}
+#panel-page .page-id-stats>span:last-child{border-inline-end:0}
+#panel-page .page-id-stats strong{font-size:17px;color:#f9fbff}
+#panel-page .page-id-stats small{font-size:11px;color:#b5c7e2}
+#panel-page .page-stories{margin:0!important;padding:13px 14px 11px!important;min-width:0;overflow:hidden;background:linear-gradient(125deg,#06192f,#071c3a)!important;border:1px solid var(--page-stroke)!important;border-radius:17px!important}
+#panel-page .page-stories>header{margin:0 4px 2px;align-items:center}
+#panel-page .page-stories>header h2{font-size:14px;font-weight:850}
+#panel-page .page-stories>header small{font-size:11px}
+#panel-page .page-story-strip{display:flex!important;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#5764a2 transparent;padding:15px 5px 5px;max-width:100%;-webkit-overflow-scrolling:touch}
+#panel-page .page-story{flex:0 0 85px;min-width:0;padding:0;background:transparent;border:0;cursor:pointer}
+#panel-page .page-story-ring{width:68px;height:68px;border-radius:50%;padding:4px;background:linear-gradient(130deg,#eed48b,#7763ef,#05cfff);box-shadow:0 0 0 2px #0b2a4c,0 0 13px #8164ee71}
+#panel-page .page-story strong{width:82px;font-size:11px}
+#panel-page .page-story small{font-size:10px}
+#panel-page .page-story-add .page-story-ring{border:2px solid #0faeff;background:radial-gradient(circle at 30% 20%,#1e4c87,#031c3c);font-size:35px;line-height:1;color:#fff}
+#panel-page .page-story-add .page-story-ring span{background:transparent!important}
+#panel-page .page-story:focus-visible{outline:2px solid #32d7ff;outline-offset:3px;border-radius:12px}
+#panel-page .page-compose-grid{gap:12px;margin:0}
+#panel-page .page-compose-grid>.elara-card{background:linear-gradient(140deg,#061b36,#0a2346)!important;border-color:var(--page-stroke)!important;border-radius:17px!important;min-width:0}
+#panel-page .page-feed{margin-top:0!important;min-width:0}
+#panel-page .page-feed>header{padding:2px 4px}
+#panel-page .page-feed>header h2{font-size:18px}
+#panel-page .page-post{min-width:0;border-color:#285889!important;background:linear-gradient(145deg,#082146,#07182e)!important;box-shadow:inset 0 1px #7cb0f419}
+#panel-page .page-post>header{min-width:0}
+#panel-page .page-post>p{overflow-wrap:anywhere}
+#panel-page .page-id-shell button:focus-visible,#panel-page .page-cover-edit:focus-visible{outline:2px solid #40e0ff;outline-offset:2px}
+#panel-page .page-id-shell button:hover{filter:brightness(1.2)}
+@media(max-width:1050px){
+ #panel-page .page-id-shell{grid-template-columns:125px minmax(0,1fr);gap:15px;align-items:start}
+ #panel-page .page-id-avatar-wrap{width:124px;height:124px}
+ #panel-page .page-id-actions{grid-column:2;min-width:0;justify-items:start;display:flex;align-items:center;flex-wrap:wrap}
+ #panel-page .page-id-stats>span{padding:0 10px}
+}
+@media(max-width:700px){
+ #panel-page .page-hero,#panel-page > .elara-global-hero.page-hero{height:clamp(155px,42vw,205px)!important;min-height:155px!important;max-height:none!important;padding:16px!important;border-radius:14px 14px 0 0!important;background-position:center 52%!important}
+ #panel-page .page-hero>div:first-child{max-width:64%;margin-bottom:6px}
+ #panel-page .page-hero h1{font-size:clamp(17px,4.5vw,22px)!important}
+ #panel-page .page-hero p{font-size:10px!important;line-height:1.45}
+ #panel-page .page-hero small{font-size:9px}
+ #panel-page .page-hero .page-hero-note{left:8px;bottom:7px}
+ #panel-page .page-cover-edit{padding:5px 7px;font-size:10px;min-height:32px}
+ #panel-page #elara-page-view{gap:10px}
+ #panel-page .page-id-shell{grid-template-columns:clamp(92px,26vw,132px) minmax(0,1fr);gap:9px 12px;padding:12px 11px 14px;min-height:0;border-radius:0 0 17px 17px}
+ #panel-page .page-id-avatar-wrap{grid-column:1;grid-row:1;width:clamp(92px,26vw,132px);height:clamp(92px,26vw,132px);margin-top:-48px}
+ #panel-page .page-id-ring{padding:4px;box-shadow:0 0 0 3px #071b35,0 0 0 4px #697ff8,0 0 14px #a25bff77}
+ #panel-page .page-id-person{grid-column:2;grid-row:1;gap:5px}
+ #panel-page .page-id-name-row{gap:4px 6px}
+ #panel-page .page-id-name-row h2{font-size:clamp(16px,4.7vw,21px)}
+ #panel-page .page-id-rank{font-size:9px;padding:3px 6px}
+ #panel-page .page-id-meta{font-size:10px;gap:5px}
+ #panel-page .page-id-xp-track{width:clamp(44px,14vw,73px);height:7px}
+ #panel-page .page-id-bio{font-size:11px;line-height:1.6}
+ #panel-page .page-id-actions{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;width:100%;gap:8px}
+ #panel-page .page-id-edit{min-height:38px;font-size:11px;padding:6px 10px}
+ #panel-page .page-id-stats>span{padding:0 8px}
+ #panel-page .page-id-stats strong{font-size:14px}
+ #panel-page .page-id-stats small{font-size:10px}
+ #panel-page .page-stories{padding:9px!important}
+ #panel-page .page-stories>header h2{font-size:13px}
+ #panel-page .page-stories>header small{font-size:9px}
+ #panel-page .page-story-strip{gap:8px;padding-top:12px}
+ #panel-page .page-story{flex-basis:70px}
+ #panel-page .page-story-ring{width:59px;height:59px}
+ #panel-page .page-story strong{width:69px;font-size:10px}
+ #panel-page .page-story-add .page-story-ring{font-size:30px}
+ #panel-page .page-compose-grid{grid-template-columns:minmax(0,1fr)}
+ #panel-page .page-post{padding:11px!important}
+}
+@media(max-width:360px){
+ #panel-page .page-id-shell{grid-template-columns:86px minmax(0,1fr);gap:8px}
+ #panel-page .page-id-avatar-wrap{width:86px;height:86px}
+ #panel-page .page-id-name-row h2{font-size:16px}
+ #panel-page .page-id-stats{gap:0}
+ #panel-page .page-id-stats>span{padding:0 7px}
+ #panel-page .page-hero>div:first-child{max-width:61%}
+ #panel-page .page-cover-edit{font-size:9px}
+}
+body.light #panel-page .page-id-shell,body.light #panel-page .page-stories,body.light #panel-page .page-compose-grid>.elara-card,body.light #panel-page .page-post{background:#f4f8ff!important;border-color:#8fb6d9!important;color:#132849!important}
+body.light #panel-page .page-id-shell .page-id-bio,body.light #panel-page .page-id-shell .page-id-meta,body.light #panel-page .page-id-stats strong{color:#264a78}
+body.light #panel-page .page-id-shell .page-id-rank{color:#e5efff}
+@media(prefers-reduced-motion:no-preference){#panel-page .page-id-edit,#panel-page .page-cover-edit,#panel-page .page-story{transition:border-color .18s,filter .18s,transform .18s}#panel-page .page-story:hover{transform:translateY(-2px)}}
+
+/* Target-page Back is kept clear of the overlapping avatar's hitbox. */
+#panel-page .page-hero.is-target-page .page-target-back{position:absolute!important;inset-inline-start:16px;top:13px;bottom:auto;margin:0!important;z-index:3;max-width:46%;min-height:40px!important;white-space:normal;line-height:1.4}
+@media(max-width:700px){#panel-page .page-hero.is-target-page .page-target-back{inset-inline-start:8px;top:8px;max-width:45%;font-size:11px!important;min-height:34px!important;padding:6px!important}}
+
+/* The reference places the portrait physically on the LEFT even in Persian RTL; keep text RTL. */
+#panel-page .page-id-shell{direction:ltr}
+#panel-page .page-id-shell>.page-id-person,#panel-page .page-id-shell>.page-id-actions,#panel-page .page-id-avatar-wrap{direction:rtl}
+#panel-page .page-id-avatar-wrap{justify-self:start}
+
+/* Desktop topbar is fixed; keep the panorama entirely below the global header. */
+@media (min-width:701px){html body #main #panel-page > .elara-global-hero.page-hero{margin-top:62px!important}}

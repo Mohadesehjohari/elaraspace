@@ -1,0 +1,51 @@
+name: PAGE R1 visual and functional browser gate
+on:
+  push:
+    branches:
+      - feat/page-fidelity-social-r1-20261012
+  pull_request:
+    paths:
+      - page-view.js
+      - page-fidelity-release1.css
+      - tests/page-fidelity-r1-browser.mjs
+      - .github/workflows/page-fidelity-r1.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  page-r1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static syntax and contract
+        run: |
+          node --check page-view.js
+          node --check tests/page-fidelity-r1-browser.mjs
+          node --input-type=module --check < elara-page.js
+          test -s assets/ui/38-my-page-hero-banner.webp
+      - name: Set up Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve current branch
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-page-r1-http.log 2>&1 &
+          sleep 2
+      - name: Real full-shell UI, fixtures, and ten widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 240s node tests/page-fidelity-r1-browser.mjs
+      - name: Existing media-deferred and text-post contract
+        run: timeout 150s node tests/media-deferred-browser.mjs
+      - name: Upload Chromium screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-r1-reference-390-1440
+          path: browser-artifacts/page-r1-*.png
+          if-no-files-found: warn
+          retention-days: 14
