@@ -92,8 +92,25 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-focus-pomodoro .focus-card').count(),1,width+': Pomodoro must live on dedicated route');
  assert.equal(await page.locator('#panel-books .focus-card').count(),0,width+': Pomodoro leaked back into Library');
  await page.evaluate(()=>ElaraOpen('reports',{history:'replace'}));await page.waitForSelector('#panel-reports:not(.hidden)');
- assert.equal(await page.locator('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card').count(),4,width+': Reports hub launcher count');
- await freedomTiles('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card','Reports');
+ // REPORTS-01 owns the visible summary and intentionally removes old launcher cards.
+ // Assert current dashboard, real metrics and a working detail/back route.
+ const reportsOverview=page.locator('#panel-reports #elara-reports-overview');
+ if(await reportsOverview.isVisible()){
+  const kpis=reportsOverview.locator('.elara-reports-kpi');
+  assert.equal(await kpis.count(),6,width+': REPORTS-01 six visible KPI tiles required');
+  assert.ok(await kpis.first().isVisible(),width+': REPORTS-01 KPI not visible');
+  assert.ok(await page.locator('#panel-reports .elara-reports-hero').isVisible(),width+': REPORTS-01 hero not visible');
+  const reportGeo=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(reportGeo.scroll<=reportGeo.screen+2,width+': REPORTS-01 horizontal overflow '+JSON.stringify(reportGeo));
+  await reportsOverview.locator('[data-reports-route="reports-today"]').first().click();
+  await page.waitForSelector('#panel-reports-today:not(.hidden)');
+  assert.ok(await page.locator('#panel-reports-today').isVisible(),width+': REPORTS-01 detail link failed');
+  await page.locator('#panel-reports-today [data-reports-route="reports"]').first().click();
+  await page.waitForSelector('#panel-reports:not(.hidden)');
+ } else {
+  assert.equal(await page.locator('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card').count(),4,width+': Reports hub launcher count');
+  await freedomTiles('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card','Reports');
+ }
  assert.equal(await page.locator('#panel-reports-productivity #elara-reports-page').count(),1,width+': full report not extracted');
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
