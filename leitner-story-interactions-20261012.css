@@ -17,7 +17,7 @@
 .l3-study-clock>button:disabled{opacity:.5;cursor:not-allowed}
 .l3-story-frame{isolation:isolate;touch-action:pan-y}
 .l3-story-card-slot .flashcard{position:relative;z-index:2;transition:transform .22s cubic-bezier(.2,.85,.35,1),filter .18s;will-change:transform}
-.l3-story-scene.l3-drag-yes .flashcard,.l3-story-scene.l3-drag-no .flashcard{transform:translate3d(var(--l3-drag,0px),0,0) rotate(calc(var(--l3-drag,0px) / 35));transition:none}
+.l3-story-scene.l3-drag-yes .flashcard,.l3-story-scene.l3-drag-no .flashcard{transform:translate3d(var(--l3-drag,0px),0,0) rotate(3deg);transition:none}
 .l3-swipe-cue{position:absolute;inset-block:18%;display:grid;place-items:center;width:37%;z-index:1;opacity:0;border-radius:22px;font-size:clamp(18px,2vw,27px);font-weight:900;pointer-events:none;transition:opacity .13s}
 .l3-swipe-yes{right:4%;color:#8bffe0;background:#00a47158;border:2px solid #28f5a1;box-shadow:0 0 27px #00e98c62}
 .l3-swipe-no{left:4%;color:#ffd6e0;background:#c7274c58;border:2px solid #ff6785;box-shadow:0 0 27px #ff49636c}
@@ -62,3 +62,5 @@
 @media(prefers-reduced-motion:reduce){
  .l3-story-scene .flashcard,.l3-swipe-cue{transition:none!important}
 }
+
+.l3-story-scene.l3-drag-no .flashcard{transform:translate3d(var(--l3-drag,0px),0,0) rotate(-3deg)}
