@@ -5,6 +5,8 @@ on:
       - 'phase2.js'
       - 'tasks-mobile-fidelity-20261012.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
+      - 'tests/task-daily-rounds-browser.mjs'
+      - 'linked-tasks.js'
       - '.github/workflows/tasks-mobile-fidelity.yml'
   push:
     branches: [main]
@@ -12,6 +14,8 @@ on:
       - 'phase2.js'
       - 'tasks-mobile-fidelity-20261012.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
+      - 'tests/task-daily-rounds-browser.mjs'
+      - 'linked-tasks.js'
       - '.github/workflows/tasks-mobile-fidelity.yml'
   workflow_dispatch:
 permissions:
