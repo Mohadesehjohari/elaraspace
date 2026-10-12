@@ -5,6 +5,8 @@ on:
       - index.html
       - lib02-wooden-shelves.js
       - lib02-wooden-shelves.css
+      - library-walnut-theme-20261012.css
+      - library-enhancements.js
       - tests/lib02-wooden-shelves-browser.mjs
       - .github/workflows/lib02-wooden-shelves.yml
   push:
@@ -13,6 +15,8 @@ on:
       - index.html
       - lib02-wooden-shelves.js
       - lib02-wooden-shelves.css
+      - library-walnut-theme-20261012.css
+      - library-enhancements.js
       - tests/lib02-wooden-shelves-browser.mjs
       - .github/workflows/lib02-wooden-shelves.yml
 permissions:
@@ -36,7 +40,7 @@ jobs:
       - name: Install Chromium and jsdom
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Canonical reading model
         run: node tests/reading-stability.test.cjs
       - name: Wooden bookcases and original operations at ten widths
@@ -55,7 +59,7 @@ jobs:
   lib02-live:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,7 +71,7 @@ jobs:
           ok=false
           for attempt in $(seq 1 80); do
             ok=true
-            for file in index.html lib02-wooden-shelves.js lib02-wooden-shelves.css; do
+            for file in index.html lib02-wooden-shelves.js lib02-wooden-shelves.css library-walnut-theme-20261012.css library-enhancements.js; do
               output="/tmp/lib02-$(basename "$file")"
               if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
             done
