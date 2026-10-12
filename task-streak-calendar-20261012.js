@@ -73,6 +73,10 @@
   selected=date;
   // "All tasks" includes source tasks; "today" is relative to the chosen occurrence date.
   window.ElaraTasks?.selectCategory?.('all');
+  // Calendar means all tasks for this one date, independent of the previous search or folder chips.
+  for(const key of ['task-search','task-list-filter','task-folder-filter','task-tag-filter','task-priority-filter']){
+   const input=document.getElementById(key);if(input)input.value='';
+  }
   const filter=document.getElementById('task-filter');
   if(filter)filter.value='today';
   const input=document.getElementById('task-occurrence-date');
