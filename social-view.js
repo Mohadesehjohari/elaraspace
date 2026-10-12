@@ -37,7 +37,7 @@ function applyFriendFilters(){
 }
 function f2Hero(root,tab){
  const titles={friends:['دوستان الارا','با همراهان هم‌مسیرت، دنیای بزرگ‌تری بساز.'],chats:['گفت‌وگوهایی فراتر از فاصله‌ها','گفت‌وگوهای واقعی و مجاز خودت را دنبال کن.'],groups:['گروه‌ها','با همراهان هم‌مسیرت رشد کن.'],clubs:['باشگاه‌ها','مسیر بزرگ‌تری با اعضای واقعی باشگاهت بساز.'],activity:['فعالیت دوستان','لحظه‌هایی که دوستانت اجازه داده‌اند ببینی.'],requests:['درخواست‌ها','دعوت‌ها و درخواست‌های واقعی خودت.'],challenges:['چالش‌ها، همراهی و رشد واقعی','با دوستانت در چالش‌های مجاز همراه شو.']};
- const [title,subtitle]=titles[tab]||titles.friends,action=tab==='friends'?'<button type="button" class="friends-f2-hero-cta" data-f2-ranking>'+tt('رفتن به رتبه‌بندی','View ranking')+' ←</button>':tab==='clubs'?'<button type="button" class="friends-f2-hero-cta" data-club-create '+(!window.ElaraSocialClubsUI?.canCreateClub?.()?'disabled title="'+tt('ساخت باشگاه از سطح شش فعال می‌شود','Club creation requires level 6')+'"':'')+'>'+tt('ساخت باشگاه','Create club')+' ＋</button>':'';
+ const [title,subtitle]=titles[tab]||titles.friends,action=tab==='friends'?'<button type="button" class="friends-f2-hero-cta" data-f2-ranking>'+tt('رفتن به رتبه‌بندی','View ranking')+' ←</button>':tab==='clubs'?'<button type="button" class="friends-f2-hero-cta" data-club-f3-launch '+(!window.ElaraSocialClubsUI?.canCreateClub?.()?'disabled title="'+tt('ساخت باشگاه از سطح شش فعال می‌شود','Club creation requires level 6')+'"':'')+'>'+tt('ساخت باشگاه','Create club')+' ＋</button>':'';
  const html='<div class="friends-f2-hero-copy"><small>ELARA SPACE · FRIENDS</small><h1>'+tt(title,tab==='friends'?'Elara Friends':(socialTabs.find(x=>x[0]===tab)?.[2]||'Friends'))+'</h1><p>'+tt(subtitle,'Connect and grow with your real friends.')+'</p>'+action+'</div>';
  const panel=$('panel-social'),external=panel?.querySelector(':scope > .elara-global-hero');
  if(external){if(external.dataset.f2HeroTab!==tab){external.innerHTML=html;external.dataset.f2HeroTab=tab}panel.dataset.f2SingleHero='true'}
@@ -168,7 +168,8 @@ function render(){
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
 }
 document.addEventListener('click',e=>{
- if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
+ if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
+  if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
  const requestMode=e.target.closest('[data-f2-requests-mode]');if(requestMode){friendRequestMode=requestMode.dataset.f2RequestsMode==='outgoing'?'outgoing':'incoming';render();return}
  const layout=e.target.closest('[data-f2-layout]');if(layout){friendLayout=layout.dataset.f2Layout;applyFriendFilters();document.querySelectorAll('[data-f2-layout]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.f2Layout===friendLayout)));return}
  if(e.target.closest('[data-f2-all-friends]')){document.getElementById('f2-friend-search')?.focus();return}
