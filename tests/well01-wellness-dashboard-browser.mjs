@@ -135,6 +135,10 @@ for(const width of widths){
    await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
    await page.mouse.move(12,360);await page.waitForTimeout(260);
    const current=await opacity();
+   console.log('ACCOUNT_NONHOME_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>{
+    const target=document.querySelector('.topbar .ref-header-account-cluster');
+    return {hash:location.hash,panelNames:[...document.querySelectorAll('#main > [id^="panel-"]:not(.hidden)')].map(x=>x.id),visibleAny:!!document.querySelector('#main > [id^="panel-"]:not(#panel-home):not(.hidden)'),bodyClasses:document.body.className,matched:document.body.matches('body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden))'),opacity:getComputedStyle(target).opacity};
+   })));
    if(width===1440)assert.ok(current<=.15,route+' desktop should fade account: '+current);
    else assert.ok(current>=.48&&current<.9,route+' mobile keeps avatar discoverable: '+current);
    if(route==='tasks'){
