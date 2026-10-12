@@ -173,7 +173,17 @@ document.addEventListener('keydown',e=>{
  if(e.key!=='Escape'||!immersive)return;
  e.preventDefault();e.stopPropagation();exit();
 },true);
-window.addEventListener('elara:open',e=>{if(e.detail?.tab!=='focus-pomodoro')exit();setTimeout(install,40)});
+let priorRoute=location.hash.replace(/^#/,'')||'home';
+window.addEventListener('elara:open',e=>{
+ const route=e.detail?.tab;
+ if(route==='focus-room'&&priorRoute==='books'){
+  // Library entry enters the regular Pomodoro setup; shared presence remains gated.
+  queueMicrotask(()=>window.ElaraOpen?.('focus-pomodoro',{history:'replace'}));
+ }
+ if(route!=='focus-pomodoro')exit();
+ if(route)priorRoute=route;
+ setTimeout(install,40);
+});
 for(const event of ['elara:state-committed','elara:hydrate','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(sync,0));
 window.addEventListener('elara:data-changed',()=>setTimeout(sync,0));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(install,40);setTimeout(install,500)},{once:true});
