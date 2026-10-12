@@ -56,8 +56,9 @@ try{
   assert.equal(model.kind,'focus','canonical timer not running');
   assert.equal(model.overlayTime,model.baseTime,'immersive time diverged from canonical timer');
   assert.ok(model.scroll<=model.width+1,'immersive horizontal overflow '+JSON.stringify(model));
+  if(width<=430)assert.equal(await page.evaluate(()=>document.querySelector('#elara-focus-immersive')?.contains(document.elementFromPoint(20,innerHeight-45))),true,'mobile dock must not overlap immersive view');
   assert.equal(await page.locator('#elara-focus-immersive .focus-v2-setting').count(),3,'immersive should have only essential settings');
-  assert.equal(await page.locator('#elara-focus-immersive .focus-v2-mode').count(),4,'four visual modes in immersive scene');
+  assert.equal(await page.locator('#elara-focus-immersive .focus-v2-mode:visible').count(),4,'four visual modes in immersive scene');
   await page.locator('#elara-focus-immersive .focus-v2-pause').click();
   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).activeFocus?.status==='paused');
   await page.locator('#elara-focus-immersive .focus-v2-pause').click();
@@ -67,7 +68,7 @@ try{
   assert.ok((await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).activeFocus)),'exit must not stop session');
   if(width===390||width===1440) {
     await page.locator('.focus-v2-enter').click();
-    await page.screenshot({path:'browser-artifacts/focus02/'+(base.startsWith('https:')?'live':'candidate')+'-immersive-'+width+'.png',fullPage:true});
+    await page.screenshot({path:'browser-artifacts/focus02/'+(base.startsWith('https:')?'live':'candidate')+'-immersive-'+width+'.png',fullPage:false});
     await page.locator('[data-focus-v2-exit]').click();
     await page.screenshot({path:'browser-artifacts/focus02/'+(base.startsWith('https:')?'live':'candidate')+'-preview-'+width+'.png',fullPage:true});
   }
