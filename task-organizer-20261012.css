@@ -1,0 +1,70 @@
+/* Task list and folder organizer, status hierarchy, and owner-supplied blue check. */
+#panel-tasks.org-directory-mode #task-list,#panel-tasks.org-directory-mode #task-empty,#panel-tasks.org-directory-mode #task-board-view,#panel-tasks.org-directory-mode #task-checked-archive,#panel-tasks.org-directory-mode #task-status-groups{display:none!important}
+#panel-tasks .task-organizer[hidden]{display:none!important}
+#panel-tasks .task-organizer{direction:rtl;width:100%;margin:10px 0 22px;border:1px solid #28618b;border-radius:18px;padding:14px;background:linear-gradient(140deg,#082345,#041329);color:#e9f5ff}
+#panel-tasks .task-organizer>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 13px}
+#panel-tasks .task-organizer>header h2{font-size:1rem;font-weight:900;margin:0}
+#panel-tasks .task-organizer>header small{color:#9fbeda;font-size:.7rem}
+#panel-tasks .task-organizer>header>div:last-child,.org-folder-tools,.org-list-tools{display:flex;gap:8px;flex-wrap:wrap}
+#panel-tasks .task-organizer button:not(.org-task-row button){cursor:pointer;border:1px solid #309ed4;background:#0b355c;color:#b9ecff;border-radius:9px;padding:6px 12px;font:inherit;font-size:.72rem}
+#panel-tasks .task-organizer button:hover{filter:brightness(1.16)}
+#panel-tasks .org-tree{display:grid;gap:9px}
+#panel-tasks .org-folder{border:1px solid #2b638e;border-radius:14px;background:#071e3b;overflow:hidden}
+#panel-tasks .org-folder>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px;color:#fff}
+#panel-tasks .org-folder>summary::-webkit-details-marker,#panel-tasks .org-list>summary::-webkit-details-marker{display:none}
+#panel-tasks .org-folder>summary>span:first-child{font-size:1.3rem;color:#56c9ff}
+#panel-tasks .org-folder>summary>strong{font-size:.91rem}
+#panel-tasks .org-folder>summary>small{margin-inline-start:auto;font-size:.7rem;color:#9cc8e9}
+#panel-tasks .org-folder>summary>i,#panel-tasks .org-list>summary>i{font-style:normal;transition:transform .2s}
+#panel-tasks .org-folder[open]>summary>i,#panel-tasks .org-list[open]>summary>i{transform:rotate(180deg)}
+#panel-tasks .org-folder-body{padding:10px;display:grid;gap:8px;border-top:1px solid #245176}
+#panel-tasks .org-list{border:1px solid #307799;border-radius:10px;background:#081b34;overflow:hidden}
+#panel-tasks .org-list>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px}
+#panel-tasks .org-list>summary>span{color:#58dbef;font-size:1.1rem}
+#panel-tasks .org-list>summary>div{display:grid;min-width:0;flex:1}
+#panel-tasks .org-list>summary strong{font-size:.82rem;color:#effaff}
+#panel-tasks .org-list>summary small{font-size:.67rem;color:#9eb8d0;overflow:hidden;text-overflow:ellipsis}
+#panel-tasks .org-list>summary b{color:#7eddf2;font-size:.68rem}
+#panel-tasks .org-list-body{padding:9px;display:grid;gap:5px;border-top:1px solid #225176}
+#panel-tasks .org-no-list{display:grid;gap:5px;padding:9px;border:1px dashed #335b7d;border-radius:8px}
+#panel-tasks .org-task-row{display:flex;align-items:center;gap:8px;min-height:40px;padding:5px 8px;background:#092543;border-radius:8px}
+#panel-tasks .org-task-row>span{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.76rem}
+#panel-tasks .org-task-row>small{color:#9ce4ff;font-size:.64rem}
+#panel-tasks .org-task-row>button[data-org-toggle]{padding:0!important;width:29px;height:29px;min-width:29px;display:grid;place-items:center;border:1px solid #3e9bd3!important;border-radius:50%!important;background:#071d39!important}
+#panel-tasks .org-task-row>button img{width:29px;height:29px;object-fit:contain}
+#panel-tasks .org-empty{padding:8px;font-size:.7rem;color:#a7c5dc}
+.org-edit-modal{width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 30px);overflow:auto;border:1px solid #3488c1;border-radius:16px;background:#081b35;color:white;padding:18px;box-shadow:0 25px 80px #000a}
+.org-edit-modal::backdrop{background:#010710bc}
+.org-edit-modal form{display:grid;gap:14px}
+.org-edit-modal form>header,.org-edit-modal footer{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.org-edit-modal label{display:grid;gap:6px;font-size:.77rem}
+.org-edit-modal :is(input,textarea,select){width:100%;border:1px solid #2e749e;border-radius:8px;padding:9px;background:#05162b;color:#fff;font:inherit}
+.org-edit-modal button{border:1px solid #40a5da;border-radius:9px;padding:8px 14px;background:#11578b;color:#fff}
+#panel-tasks #task-checked-archive{overflow:hidden!important;border:1px solid #b68c45!important;background:#071b32!important;border-radius:13px!important;padding:0!important}
+#panel-tasks #task-checked-archive[hidden]{display:none!important}
+#panel-tasks #task-checked-archive>summary{list-style:none;display:flex!important;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;color:#ffe5a1;background:linear-gradient(90deg,#593b1733,#081b33)!important}
+#panel-tasks #task-checked-archive>summary::-webkit-details-marker{display:none}
+#panel-tasks #task-checked-archive>summary>[data-task-archive-count]{margin-inline-start:auto;border-radius:15px;border:1px solid #ad7d38;padding:2px 8px}
+#panel-tasks #task-checked-archive .task-archive-arrow{transform:rotate(0);transition:transform .2s}
+#panel-tasks #task-checked-archive[open] .task-archive-arrow{transform:rotate(180deg)}
+#panel-tasks #task-checked-archive>[data-task-archive-list]{padding:8px!important}
+#panel-tasks .task-archive-row{border:1px solid #b89447!important;background:linear-gradient(90deg,#4e361b8a,#082540)!important;color:#ffe2a1!important}
+#panel-tasks .task-archive-undo{display:grid!important;place-items:center!important;background:transparent!important;border:0!important;box-shadow:none!important;width:34px!important;height:34px!important;padding:0!important}
+#panel-tasks .task-archive-undo::after{display:none!important;content:none!important}
+#panel-tasks .task-archive-undo img.elara-uploaded-check{display:block!important;width:34px!important;height:34px!important;max-width:34px!important;object-fit:contain!important}
+#panel-tasks #task-list .astra-task-row .check-button[aria-pressed="true"]::after{display:none!important;content:none!important}
+#panel-tasks #task-list .astra-task-row .check-button[aria-pressed="true"]{background:url('assets/ui/task-complete-user-blue.webp') center/contain no-repeat!important;border:0!important;box-shadow:0 0 10px #34c6ff85!important}
+#panel-tasks .astra-task-row .task-summary-button::before,#panel-tasks .astra-task-row .task-summary-button::after{display:none!important;content:none!important}
+#panel-tasks .astra-task-row .astra-task-status.is-pending{background:#48360999!important;color:#ffdf79!important;border-color:#bd8b26!important}
+#panel-tasks .astra-task-row .astra-task-status.is-overdue{background:#4c1024c4!important;color:#ffa6a6!important;border-color:#fa5166!important}
+#panel-tasks .astra-task-row .astra-task-status.is-done{background:#094b39!important;color:#7ff5b3!important;border-color:#25ac78!important}
+#panel-tasks .astra-task-row .priority-badge.priority-red{color:#ff687e!important;background:#3f1428!important}
+#panel-tasks .astra-task-row .priority-badge.priority-yellow{color:#ffe288!important;background:#403518!important}
+#panel-tasks .astra-task-row .priority-badge.priority-blue{color:#7dd8ff!important;background:#0b2f56!important}
+#panel-tasks .astra-task-row .astra-days-left{color:#d0d9ec!important}
+#panel-home .owner-home-goals .ref-goal-step[aria-pressed="true"]{background:radial-gradient(circle at 38% 35%,#ffeabb,#e9b844 66%,#b6791d)!important;border:2px solid #ffdc7d!important;box-shadow:0 0 8px #ffd163!important}
+#panel-home .owner-home-goals .ref-goal-step[aria-pressed="true"] img{display:none!important}
+#panel-home .owner-home-goals .ref-goal-step[aria-pressed="true"]::after{display:grid!important;content:"✓"!important;place-items:center!important;color:#613509!important;font-weight:900}
+#panel-home .ref-habit-mark.done{background:radial-gradient(circle at 38% 35%,#edd2ff,#9d63ed 65%,#652aaa)!important;border:2px solid #cba3ff!important;box-shadow:0 0 8px #aa63ff!important}
+#panel-home .ref-habit-mark.done img{display:none!important}
+#panel-home .ref-habit-mark.done::after{display:grid!important;content:"✓"!important;place-items:center!important;color:#36106f!important;font-weight:900}

@@ -19,6 +19,7 @@
     data.theme = raw.theme === 'light' ? 'light' : 'dark';
     data.xp = Number.isFinite(Number(raw.xp)) ? Math.max(0,Math.min(9999999,Math.floor(Number(raw.xp)))) : 0;
     data.taskLists = uniqueNames(raw.taskLists);
+    data.taskListDetails=Object.fromEntries(Object.entries(raw.taskListDetails&&typeof raw.taskListDetails==='object'&&!Array.isArray(raw.taskListDetails)?raw.taskListDetails:{}).filter(([key])=>data.taskLists.includes(key)).map(([key,v])=>[key,{description:asText(v?.description,2000),folder:asText(v?.folder,60)}]));
     data.folders = uniqueNames(raw.folders);
     data.tags = uniqueNames(raw.tags);
     data.bookShelves = uniqueNames(raw.bookShelves);
