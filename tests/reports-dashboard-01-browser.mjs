@@ -21,7 +21,7 @@ const fixture={
  ],books:[{id:'book-1',title:'کتاب آزمایشی',shelf:'reading',totalPages:100,currentPage:8,readingLogs:[{date:today,timestamp:now-200000,fromPage:0,toPage:8,pagesRead:8}]}],folders:[],tags:[],taskLists:[]
 };
 const history=[{type:'wordsReviewed',value:1,date:today,at:now-50000,id:''},{type:'wordsReviewed',value:1,date:today,at:now-50000,id:''}];
-const leitner=[{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'malformed',date:today,minutes:999}];
+const leitner=[{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'malformed',date:'invalid-date',minutes:999}];
 await mkdir('browser-artifacts/reports01',{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
@@ -56,7 +56,7 @@ try{
   assert.match(stats.background,/reports_all\.webp/,width+': real banner asset');
   assert.equal(stats.hiddenLegacy,0,width+': remove legacy Reports launcher shortcuts');
   if(stats.taskCount!==2)console.error('REPORTS_L5_TASK_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({completionHistory:JSON.parse(localStorage.getItem('elara_space_v1')||'{}').taskCompletionHistory,events:window.ElaraReportsDashboard.data().events.filter(e=>e.kind==='tasks'),keys:window.ElaraReportsDashboard.data().current.filter(e=>e.kind==='tasks').map(e=>e.label)}))));
-  assert.equal(stats.taskCount,2,width+': deduped completions');
+  assert.equal(stats.taskCount,3,width+': two original completions plus one language-study task from one deduped journal record');
   assert.equal(stats.focusMinutes,29,width+': count validated Leitner minutes once alongside completed focus');
   assert.equal(stats.words,1,width+': duplicate review not counted');
   assert.equal(stats.reading,8,width+': canonical reading log');
@@ -64,7 +64,7 @@ try{
   assert.ok(stats.scroll<=stats.viewport+4,width+': document horizontal overflow '+JSON.stringify(stats));
   assert.equal(await page.locator('#panel-reports .elara-reports-periods button').count(),4);
   await page.locator('#panel-reports [data-reports-days="7"]').click();
-  assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.tasks),1,width+': weekly filter did not narrow completions');
+  assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.tasks),2,width+': weekly filter excludes old completion and includes one generated study task');
   await page.locator('#panel-reports [data-reports-days="365"]').click();
   assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().n),365,width+': annual filter');
   await page.locator('#panel-reports [data-reports-days="90"]').click();
