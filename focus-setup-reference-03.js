@@ -125,7 +125,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 new MutationObserver(()=>{
  const p=panel();
  if(p&&!p.dataset.focusRefReady&&p.querySelector(':scope > .focus-card > .focus-config'))init();
- else if(p&&p.querySelector(':scope > .elara-focus-mode-options'))init();
+ else if(p&&(p.querySelector(':scope > .elara-focus-mode-options')||
+   p.querySelector(':scope > .feature-subpage-head:not(:has(.focus-ref-owner-title))')))init();
 }).observe(document.documentElement,{childList:true,subtree:true});
 setInterval(()=>{if(!panel()?.classList.contains('hidden'))update()},1000);
 window.ElaraFocusReference03={refresh:init};

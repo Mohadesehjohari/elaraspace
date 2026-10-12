@@ -4,6 +4,9 @@ on:
     paths:
       - index.html
       - focus-setup-reference-03.js
+      - phase2.js
+      - reference-home-shell-2026.js
+      - tests/focus-owner-first-paint-browser.mjs
       - focus-setup-reference-03.css
       - tests/focus-setup-reference-03-browser.mjs
       - .github/workflows/focus-setup-reference-03.yml
@@ -32,6 +35,8 @@ jobs:
           test -s assets/ui/bg_focus_room.webp
           node --check focus-setup-reference-03.js
           node --check tests/focus-setup-reference-03-browser.mjs
+          node --check tests/focus-owner-first-paint-browser.mjs
+          node --check phase2.js
       - name: Install headless Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -41,6 +46,7 @@ jobs:
           python3 -m http.server 4173 >/tmp/focus03-http.log 2>&1 &
           sleep 3
           timeout 420s node tests/focus-setup-reference-03-browser.mjs
+          timeout 180s node tests/focus-owner-first-paint-browser.mjs
           timeout 240s node tests/focus-two-mode-browser.mjs
           timeout 330s node tests/focus-background-fidelity-browser.mjs
       - uses: actions/upload-artifact@v4
