@@ -343,3 +343,18 @@
    overflow-x:auto!important;overflow-y:hidden!important;
  }
 }
+
+
+/* Readable titles take priority over fixed row height:
+   a normal short title remains an 82px card; longer Persian titles may wrap. */
+@media(max-width:767px){
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content>.task-summary-button{
+   min-height:24px!important;height:auto!important;max-height:none!important;
+   overflow:visible!important;align-items:flex-start!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button .item-title{
+   display:block!important;white-space:normal!important;text-overflow:clip!important;
+   overflow:visible!important;overflow-wrap:anywhere!important;word-break:normal!important;
+   max-height:none!important;-webkit-line-clamp:unset!important;
+ }
+}
