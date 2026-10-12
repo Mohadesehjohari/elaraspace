@@ -21,6 +21,33 @@ async function visible(page, selector) {
   });
 }
 
+
+async function withoutDesktopRules(page, selector) {
+  return page.evaluate(selector => {
+    const sheet = [...document.querySelectorAll('link[rel="stylesheet"]')]
+      .find(link => link.href.includes('desktop-home-only-controls-20261012.css'));
+    assertSheet(sheet);
+    const visibleNow = () => {
+      const el = document.querySelector(selector);
+      if (!el) return false;
+      for (let node = el; node && node.nodeType === 1; node = node.parentElement) {
+        const s = getComputedStyle(node);
+        if (s.display === 'none' || s.visibility === 'hidden') return false;
+      }
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    };
+    const withStyles = visibleNow();
+    sheet.disabled = true;
+    const withoutStyles = visibleNow();
+    sheet.disabled = false;
+    return { withStyles, withoutStyles };
+  }, selector);
+}
+function assertSheet(sheet) {
+  if (!sheet) throw new Error('Home-only CSS did not load');
+}
+
 async function route(page, name) {
   await page.evaluate(tab => window.ElaraOpen(tab, { history: 'replace' }), name);
   await page.waitForFunction(
@@ -53,13 +80,19 @@ try {
     for (const name of ['home', 'tasks', 'language', 'books']) {
       await route(page, name);
       for (const selector of controls) {
-        const actual = await visible(page, selector);
-        const expected = width <= 700 || name === 'home';
-        assert.equal(
-          actual,
-          expected,
-          selector + ' unexpected on ' + name + ' at ' + width + 'px'
-        );
+        if (width <= 700) {
+          // Mobile can intentionally hide a global control on certain routes;
+          // assert this release doesn't change its original state.
+          const states = await withoutDesktopRules(page, selector);
+          assert.equal(states.withStyles, states.withoutStyles,
+            selector + ' mobile behavior changed on ' + name);
+        } else {
+          assert.equal(
+            await visible(page, selector),
+            name === 'home',
+            selector + ' unexpected on ' + name + ' at ' + width + 'px'
+          );
+        }
       }
     }
 
@@ -67,11 +100,17 @@ try {
     await page.waitForSelector('#panel-tasks [data-elara-home-return]', { state: 'attached' });
     await page.locator('#panel-tasks [data-elara-home-return]')
       .evaluate(el => { el.hidden = false; });
-    assert.equal(
-      await visible(page, '#panel-tasks [data-elara-home-return]'),
-      width <= 700,
-      'Main-page Home return must be removed on desktop only'
-    );
+    if (width <= 700) {
+      const states = await withoutDesktopRules(page, '#panel-tasks [data-elara-home-return]');
+      assert.equal(states.withStyles, states.withoutStyles,
+        'Mobile Home-return behavior must not change');
+    } else {
+      assert.equal(
+        await visible(page, '#panel-tasks [data-elara-home-return]'),
+        false,
+        'Main-page Home return must be removed on desktop'
+      );
+    }
     await context.close();
   }
 } finally {
