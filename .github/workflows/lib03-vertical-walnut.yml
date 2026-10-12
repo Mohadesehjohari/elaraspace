@@ -1,0 +1,69 @@
+name: LIB-03 Vertical Walnut Owner Fidelity
+on:
+  pull_request:
+    paths: [index.html, library-vertical-reference-03.css, .github/workflows/lib03-vertical-walnut.yml]
+  push:
+    branches: [main]
+    paths: [index.html, library-vertical-reference-03.css, .github/workflows/lib03-vertical-walnut.yml]
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check original imagery and structural scope
+        run: |
+          test -s assets/ui/librairy_banner_main.webp
+          test -s assets/ui/library-card-background.webp
+          grep -q 'library-vertical-reference-03.css' index.html
+          grep -q 'lib02-shelf' library-vertical-reference-03.css
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Real canonical wooden shelves and library regressions
+        run: |
+          python3 -m http.server 4173 >/tmp/lib03.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/lib02-wooden-shelves-browser.mjs
+          timeout 300s node tests/library-dashboard-lib01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib03-candidate
+          path: browser-artifacts/**/*.png
+          retention-days: 20
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deployed exact CSS and index
+        run: |
+          set -euo pipefail
+          done=false
+          for i in $(seq 1 80); do
+            done=true
+            for f in index.html library-vertical-reference-03.css; do
+              curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$f?sha=$GITHUB_SHA&attempt=$i" -o "/tmp/lib03-$(basename "$f")" || { done=false;break; }
+              cmp -s "$f" "/tmp/lib03-$(basename "$f")" || { done=false;break; }
+            done
+            if [ "$done" = true ]; then echo "LIB03_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$done" != true ]; then echo "::error::Production bytes mismatch";exit 1;fi
+      - name: Verify public shelves at ten responsive widths
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/lib02-wooden-shelves-browser.mjs
