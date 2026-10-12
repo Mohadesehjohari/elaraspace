@@ -48,11 +48,12 @@ function injectFriendsCta(){const head=document.querySelector('#elara-social-pag
 
 /* Release 1 uses canonical Social/Profile models; no sample users or secondary persistence. */
 function ensurePageFidelityStyle(){
- if(document.getElementById('elara-page-fidelity-r2'))return;
+ if(document.getElementById('elara-page-fidelity-r3'))return;
  const link=document.createElement('link');link.id='elara-page-fidelity-r2';link.rel='stylesheet';link.href='page-fidelity-release2.css?v=20261012-r2';
  document.head.append(link)
  const previous=document.getElementById('elara-page-fidelity-r1');
  if(!previous){const old=document.createElement('link');old.id='elara-page-fidelity-r1';old.rel='stylesheet';old.href='page-fidelity-release1.css?v=20261012-r1';document.head.insertBefore(old,link)}
+ const next=document.createElement('link');next.id='elara-page-fidelity-r3';next.rel='stylesheet';next.href='page-fidelity-release3.css?v=20261012-r3';document.head.append(next)
 }
 function pageAccount(uid){
  const profile=window.ElaraAccount?.profile||{},social=window.ElaraSocial?.me||{};
@@ -102,7 +103,7 @@ async function openPageSettings(){
  try{localStorage.setItem(pageKey(uid),JSON.stringify({name,bio,cover}));render()}
  catch(error){await window.ElaraDialog.alert(t('فضای ذخیره مرورگر کافی نیست.','Browser storage is unavailable.'),{title:t('خطای ذخیره','Save error')})}
 }
-let pageContentTab='all';
+let pageContentTab='all',pageStoryExpanded=false;
 function pageTab(root,tab='all'){
  pageContentTab=['all','posts','statuses'].includes(tab)?tab:'all';
  root.querySelectorAll('[data-page-content]').forEach(b=>{const active=b.dataset.pageContent===pageContentTab;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
@@ -112,8 +113,88 @@ function pageTab(root,tab='all'){
  if(compose){
   const post=compose.querySelector('[data-page-post-form]'),status=compose.querySelector('[data-page-story-form]');
   if(post)post.hidden=pageContentTab==='statuses';
-  if(status)status.hidden=pageContentTab==='posts';
+  if(status)status.hidden=pageContentTab==='posts'||!pageStoryExpanded;
  }
+}
+
+
+/* R3 sidebar derives only from content the current user can already access.
+   Private book clips stay on the owner's device, visible only on their own page. */
+function pageLibraryClips(uid){
+ if(!uid||uid!==window.ElaraAccount?.user?.uid)return [];
+ try{
+  const raw=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');
+  const books=Array.isArray(raw.books)?raw.books:[],clips=Array.isArray(raw.bookClips)?raw.bookClips:[];
+  return clips.filter(x=>x&&String(x.text||'').trim()).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0)).slice(0,3).map(c=>{
+   const book=books.find(b=>String(b.id)===String(c.bookId));
+   return {text:String(c.text).slice(0,210),title:String(book?.title||t('بریده شخصی','Personal clip')).slice(0,85),
+     author:String(book?.author||'').slice(0,72),page:c.page!=null?String(c.page).slice(0,8):''}
+  })
+ }catch{return []}
+}
+function pageRecentTags(state){
+ const threshold=Date.now()-86400000,counts=new Map();
+ for(const post of state.posts||[]){
+  const stamp=Number(post.createdMs)||0;if(!stamp||stamp<threshold||stamp>Date.now()+60000)continue;
+  const tags=new Set([...String(post.text||'').matchAll(/#([\p{L}\p{N}_]{2,32})/gu)].map(m=>m[1].toLocaleLowerCase()));
+  for(const tag of tags)counts.set(tag,(counts.get(tag)||0)+1)
+ }
+ return [...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5)
+}
+function pageSidebar(state,uid){
+ const bookRows=pageLibraryClips(uid),tags=pageRecentTags(state);
+ const clips=bookRows.map(row=>'<article class="page-side-clip"><img src="assets/ui/icon-library-open-book.webp" alt="" loading="lazy"><div><p data-elara-ugc dir="auto">«'+esc(row.text)+'»</p><small data-elara-ugc dir="auto">'+esc(row.title)+(row.page?' · '+t('صفحه','Page')+' '+esc(row.page):'')+'</small>'+(row.author?'<small data-elara-ugc dir="auto">'+esc(row.author)+'</small>':'')+'</div></article>').join('');
+ const topics=tags.map(([tag,count])=>'<li><span class="page-topic-hash" dir="auto">#'+esc(tag)+'</span><small>'+num(count)+' '+t('پست در فید','posts in your feed')+'</small></li>').join('');
+ const empty=(fa,en)=>'<p class="page-side-empty">'+t(fa,en)+'</p>';
+ return '<aside class="page-social-aside" aria-label="'+t('اطلاعات کناری صفحه','Page sidebar')+'">'+
+  '<section class="page-side-card page-side-books"><header><h2>📖 '+t('بریده‌های کتاب من','My book clips')+'</h2><button type="button" data-page-library-open>'+t('مشاهده همه','View all')+' ←</button></header><div class="page-side-body">'+
+   (clips||empty('هنوز بریده‌ای در کتابخانه این دستگاه ثبت نشده است.','No book clips saved on this device yet.'))+
+   '</div><footer>'+t('این بریده‌ها خصوصی و مخصوص همین دستگاه‌اند.','Private clips on this device only.')+'</footer></section>'+
+  '<section class="page-side-card page-side-topics"><header><h2>🔥 '+t('موضوعات امروز فید','Today’s feed topics')+'</h2></header><div class="page-side-body">'+(topics?'<ol class="page-topic-list">'+topics+'</ol>':empty('هنوز هشتگ معتبری در پست‌های ۲۴ ساعت اخیر فید تو نیست.','No hashtags in visible posts from the past 24 hours.'))+'</div><footer>'+t('فقط از پست‌هایی که مجاز به دیدنشان هستی.','Based only on posts you can view.')+'</footer></section>'+
+  '<section class="page-side-card page-side-friends"><header><h2>✨ '+t('پیدا کردن دوستان','Find friends')+'</h2><button type="button" data-page-friends-open>'+t('مشاهده همه','Open')+' ←</button></header><div class="page-side-body">'+
+   empty('پیشنهاد خودکار کاربران فعال نیست؛ در بخش دوستان می‌توانی با نام کاربری دقیق افراد را پیدا کنی.','Automatic people suggestions are unavailable. Find people by their exact username in Friends.')+
+   '<button type="button" class="page-find-friends" data-page-friends-open>'+t('جست‌وجوی دوست','Find a friend')+' ↗</button></div></section>'+
+ '</aside>'
+}
+function enhancePageR3(root,state,uid,viewingOther){
+ const compose=root.querySelector('.page-compose-grid'),feed=root.querySelector('.page-feed');
+ if(!feed)return;
+ if(!viewingOther&&compose){
+  const post=compose.querySelector('[data-page-post-form]'),status=compose.querySelector('[data-page-story-form]');
+  const person=pageAccount(uid);
+  if(post){
+   post.classList.add('page-composer-post','is-collapsed');
+   const lead=document.createElement('div');lead.className='page-composer-lead';
+   lead.innerHTML='<span class="page-composer-avatar">'+avatar(person)+'</span><button type="button" data-page-write-post class="page-composer-write">'+t('امروز چه در ذهن تو می‌گذرد؟','What’s on your mind today?')+'</button>';
+   post.insertBefore(lead,post.querySelector('textarea'));
+   const h=post.querySelector('h2');if(h)h.textContent=t('نوشتن پست','Write a post');
+   const area=post.querySelector('textarea');if(area)area.placeholder=t('امروز چه در ذهن تو می‌گذرد؟','What’s on your mind today?');
+   const controls=post.querySelector('.page-media-picker');
+   if(controls)controls.insertAdjacentHTML('afterbegin','<div class="page-composer-extras"><button type="button" disabled title="'+t('آپلود عکس هنوز فعال نیست','Image uploading is unavailable')+'">▧ '+t('تصویر (به‌زودی)','Image (soon)')+'</button><button type="button" data-page-add-story>☺ '+t('وضعیت','Status')+'</button></div>');
+  }
+  if(status){
+   status.classList.add('page-composer-status');
+   status.hidden=!pageStoryExpanded||pageContentTab==='posts';
+  }
+  const actions=root.querySelector('.page-id-actions');
+  if(actions)actions.insertAdjacentHTML('afterbegin','<button type="button" class="page-create-post" data-page-write-post>＋ '+t('نوشتن پست','Write post')+'</button>');
+ }
+ const grid=document.createElement('div');grid.className='page-social-grid';
+ const content=document.createElement('div');content.className='page-social-main';
+ if(compose)content.append(compose);
+ const cards=[...feed.querySelectorAll(':scope > .page-post')];
+ if(cards.length){
+  const list=document.createElement('div');list.className='page-post-grid';
+  cards.forEach(card=>list.append(card));feed.append(list)
+ }
+ content.append(feed);grid.append(content);
+ if(!viewingOther)grid.insertAdjacentHTML('beforeend',pageSidebar(state,uid));
+ root.append(grid);
+ const tabs=root.querySelector('.page-content-tabs');
+ if(tabs){
+  tabs.insertAdjacentHTML('beforeend','<button type="button" data-page-jump="library-clips">❝ '+t('بریده کتاب','Book clips')+'</button><button type="button" data-page-jump="blog">▤ '+t('وبلاگ','Blog')+'</button>');
+ }
+ pageTab(root,pageContentTab)
 }
 
 function socialPageIdentity(state,uid,viewingOther,target){
@@ -190,6 +271,7 @@ function render(){
  const storyTitle=viewingOther?t('استاتوس‌های ','Statuses from ')+'<span data-elara-ugc dir="auto">'+esc(targetName)+'</span>':t('استاتوس‌ها','Statuses'),feedTitle=viewingOther?t('پست‌های ','Posts from ')+'<span data-elara-ugc dir="auto">'+esc(targetName)+'</span>':t('پست‌های من و دوستان','Posts from you & friends');
  root.innerHTML='<section class="page-hero '+(viewingOther?'is-target-page':'')+'"><div><small>ELARA · PAGE</small><h1>'+heroTitle+'</h1><p>'+heroCopy+'</p>'+back+'</div><div class="page-hero-note">'+(viewingOther?t('Privacy هر پست و استاتوس همچنان اعمال می‌شود.','Each post and status still follows its privacy setting.'):t('انتشار متن فعال است؛ بخش تصاویر در فاز بعد فعال می‌شود.','Text posts are available; images are coming in the next phase.'))+'</div></section>'+compose+'<section class="elara-card page-stories"><header><h2>'+storyTitle+'</h2><small>'+t('بعد از ۲۴ ساعت برای دیگران نمایش داده نمی‌شوند.','They disappear for others after 24 hours.')+'</small></header><div class="page-story-strip">'+(stories||'<p class="ref-empty">'+t('استاتوسی برای نمایش نیست.','No statuses to show.')+'</p>')+'</div></section><section class="page-feed"><header><h2>'+feedTitle+'</h2><button type="button" class="quiet-button" data-page-refresh>'+t('تازه‌سازی','Refresh')+'</button></header>'+(state.loading?'<p class="ref-empty">'+t('در حال بارگذاری…','Loading…')+'</p>':state.error?'<p class="ref-empty">'+esc(state.error)+'</p>':posts||'<p class="ref-empty">'+t('هنوز پستی نیست.','No posts yet.')+'</p>')+'</section>';
   enhancePageFidelity(root,state,uid,viewingOther,target);
+  enhancePageR3(root,state,uid,viewingOther);
   if(!viewingOther){
     const pages=officialPages.filter(row=>(row.locale==='en'?'en':'fa')===officialLocale());
     if(pages.length){
@@ -200,13 +282,21 @@ function render(){
   }
 }
 function clearMediaPreview(form){const url=form.dataset.mediaPreviewUrl;if(url)URL.revokeObjectURL(url);delete form.dataset.mediaPreviewUrl;form.elements.media.value='';form.querySelector('[data-page-media-preview]').innerHTML='';form.querySelector('[data-page-media-remove]').classList.add('hidden')}
-async function submit(form,kind){const api=window.ElaraPage;if(!api)return;const button=form.querySelector('button[type=submit]'),file=form.elements.media?.files?.[0]||null;button.disabled=true;try{if(!String(form.elements.text.value||'').trim()&&!file)throw Error(t('متن یا تصویر اضافه کن.','Add text or an image.'));if(kind==='story')await api.createStory(form.elements.text.value,form.elements.visibility.value,file);else await api.createPost(form.elements.text.value,form.elements.visibility.value,file);clearMediaPreview(form);form.reset()}catch(error){await window.ElaraDialog?.alert?.(String(error?.message||error),{title:t('انتشار انجام نشد','Could not publish')})}finally{button.disabled=false;render()}}
+async function submit(form,kind){const api=window.ElaraPage;if(!api)return;const button=form.querySelector('button[type=submit]'),file=form.elements.media?.files?.[0]||null;button.disabled=true;try{if(!String(form.elements.text.value||'').trim()&&!file)throw Error(t('متن یا تصویر اضافه کن.','Add text or an image.'));if(kind==='story')await api.createStory(form.elements.text.value,form.elements.visibility.value,file);else await api.createPost(form.elements.text.value,form.elements.visibility.value,file);clearMediaPreview(form);form.reset()}catch(error){await window.ElaraDialog?.alert?.(String(error?.message||error),{title:t('انتشار انجام نشد','Could not publish')})}finally{button.disabled=false;if(kind==='story')pageStoryExpanded=false;render()}}
 document.addEventListener('change',e=>{if(!e.target.matches('[data-page-media-input]'))return;e.target.value='';return; // No media requests while Firebase Storage is unavailable.
 const form=e.target.form,file=e.target.files?.[0];if(!form||!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>=5*1024*1024){e.target.value='';void window.ElaraDialog?.alert?.(t('فقط JPEG، PNG یا WebP کمتر از ۵ مگابایت مجاز است.','Use JPEG, PNG or WebP under 5 MB.'),{title:t('تصویر نامعتبر','Invalid image')});return}const prev=form.dataset.mediaPreviewUrl;if(prev)URL.revokeObjectURL(prev);const url=URL.createObjectURL(file);form.dataset.mediaPreviewUrl=url;form.querySelector('[data-page-media-preview]').innerHTML='<img src="'+esc(url)+'" alt="">';form.querySelector('[data-page-media-remove]').classList.remove('hidden')});
 document.addEventListener('submit',e=>{if(e.target.matches('[data-page-story-form]')){e.preventDefault();void submit(e.target,'story')}else if(e.target.matches('[data-page-post-form]')){e.preventDefault();void submit(e.target,'post')}});
 document.addEventListener('click',async e=>{
  const addStory=e.target.closest('[data-page-add-story]');
- if(addStory){const field=document.querySelector('#panel-page [data-page-story-form] textarea');field?.closest('form')?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
+ if(addStory){pageStoryExpanded=true;pageContentTab='all';render();const field=document.querySelector('#panel-page [data-page-story-form] textarea');field?.closest('form')?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
+ const writePost=e.target.closest('[data-page-write-post]');
+ if(writePost){const form=document.querySelector('#panel-page [data-page-post-form]');form?.classList.remove('is-collapsed');const field=form?.querySelector('textarea');field?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
+ const library=e.target.closest('[data-page-library-open],[data-page-jump="library-clips"]');
+ if(library){window.ElaraOpen?.('library-clips');return}
+ const blog=e.target.closest('[data-page-jump="blog"]');
+ if(blog){window.ElaraOpen?.('blog');return}
+ const friends=e.target.closest('[data-page-friends-open]');
+ if(friends){window.ElaraOpen?.('social');return}
  const editProfile=e.target.closest('[data-page-edit-profile],[data-page-edit-cover]');
  if(editProfile){e.preventDefault();await openPageSettings();return}
  const tabButton=e.target.closest('[data-page-content]');

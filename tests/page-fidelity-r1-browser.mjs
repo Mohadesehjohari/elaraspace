@@ -47,7 +47,7 @@ try {
   });
   assert.ok(geometry.avatarTop<geometry.heroBottom&&geometry.avatarTop>geometry.heroBottom-135,width+': avatar must overlap banner '+JSON.stringify(geometry));
   if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/page-r1-'+width+'.png',fullPage:true});
-  await page.locator('[data-page-add-story]').click();
+  await page.locator('[data-page-add-story]').first().click();
   assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-page-story-form]')!==null),true,width+': add status focus');
   await page.evaluate(()=>{window.__privateEditorOpened=0;window.ElaraProfileEdit={open:async()=>{window.__privateEditorOpened++}}});
   await page.locator('[data-page-edit-profile]').last().click();
@@ -55,6 +55,7 @@ try {
   assert.match(await page.locator('.elara-dialog-head').last().innerText(),/تنظیمات صفحه من/,width+': R1 regression must now use Page editor');
   assert.equal(await page.evaluate(()=>window.__privateEditorOpened),0,width+': private Profile must not launch from Page');
   await page.locator('.elara-dialog-actions .quiet-button').last().click();
+  await page.locator('[data-page-write-post]').first().click();
   await page.locator('[data-page-post-form] textarea').fill('متن پست در تست رابط');
   await page.locator('[data-page-post-form] button[type=submit]').click();
   await page.waitForFunction(()=>window.__pageOps.includes('post'));
