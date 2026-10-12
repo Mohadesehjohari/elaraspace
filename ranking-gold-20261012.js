@@ -98,6 +98,7 @@
    const podium=item('rg-podium-card','قهرمانان رقابت','🏆',
       '<div class="rg-podium-kicker">'+tx('سکوی واقعی دوستان · امتیاز کل XP، نه فصل','Verified friends podium · all-time XP, not seasonal XP')+'</div>' +
       '<div class="rg-podium">' + podiumPlace(ranked[1],2)+podiumPlace(ranked[0],1)+podiumPlace(ranked[2],3)+'</div>' +
+      '<div class="rg-podium-footer"><button type="button" class="rg-view-all" data-rg-scroll="leaderboard">'+tx('مشاهده جدول کامل ←','View full leaderboard →')+'</button></div>' +
       (!ranked.length?'<div class="rg-podium-warning">'+tx('برای دیدن قهرمانان، ابتدا وارد حساب شو و دوستان واقعی اضافه کن.','Sign in and add real friends to see competitors.')+'</div>':''),'');
    const mine=item('rg-my-card','رتبه من','♙',rankSummary(ranked,me),tx('بر اساس XP واقعی دوستان','Based on actual friends XP'));
    const prize=item('rg-rewards-card','جوایز این فصل','🎁',rewards(),tx('پس از اعلام رسمی فعال می‌شود','Awaiting official announcement'));
@@ -139,6 +140,7 @@
  document.addEventListener('click',event=>{
    const filter=event.target.closest('[data-rg-filter]');
    if(filter){active=filter.dataset.rgFilter;render();return}
+   if(event.target.closest('[data-rg-scroll="leaderboard"]')){document.querySelector('#elara-ranking-page .rg-leaderboard-card')?.scrollIntoView({block:'start',behavior:'smooth'});return}
    const route=event.target.closest('[data-rg-route]');
    if(route){window.ElaraOpen?.(route.dataset.rgRoute);return}
    const about=event.target.closest('[data-rg-about]');
