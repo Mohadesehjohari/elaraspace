@@ -40,6 +40,15 @@ try{
     }
     if([390,1440,1648].includes(width)){
       await page.screenshot({path:'browser-artifacts/freedom-after-'+width+'.png',fullPage:true});
+      if(process.env.ELARA_BEFORE_URL){
+        const old=await browser.newPage({viewport:{width,height:width<=700?850:950}});
+        await old.route('**/cloud.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:cloud}));
+        await old.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:social}));
+        await old.goto(process.env.ELARA_BEFORE_URL+'/?before='+width+'#freedom',{waitUntil:'domcontentloaded'});
+        await old.waitForSelector('#panel-freedom .freedom-root',{timeout:35000});
+        await old.screenshot({path:'browser-artifacts/freedom-before-'+width+'.png',fullPage:true});
+        await old.close();
+      }
     }
     if(width===390){
       await page.locator('#panel-freedom [data-fd-new-diary]').first().click();
