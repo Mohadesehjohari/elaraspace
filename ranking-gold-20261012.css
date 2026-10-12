@@ -438,3 +438,18 @@ html body #panel-ranking #elara-ranking-page.ranking-gold{display:block!importan
  #panel-ranking .ranking-gold .rg-podium-base>b{font-size:.68rem!important}
  #panel-ranking .ranking-gold .rg-podium-base>small{font-size:.56rem!important}
 }
+
+/* The hero CTA retains a crisp directional arrow in both RTL and LTR fonts. */
+#panel-ranking .ranking-gold-hero .rg-hero-cta>span{
+ display:inline-grid!important;place-items:center!important;
+ position:relative!important;width:24px!important;height:24px!important;
+ min-width:24px!important;border-radius:50%!important;
+ background:#14223a!important;color:transparent!important;
+ font-size:0!important;line-height:0!important;
+}
+#panel-ranking .ranking-gold-hero .rg-hero-cta>span::after{
+ content:"\203A"!important;position:absolute!important;inset:0!important;
+ display:grid!important;place-items:center!important;
+ font:900 22px/1 Arial,sans-serif!important;color:#ffe5a7!important;
+ transform:translateX(1px)!important;
+}
