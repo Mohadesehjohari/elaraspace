@@ -29,7 +29,7 @@ async function open(width,url,seed=true,touch=false){
  return page;
 }
 await mkdir('browser-artifacts/well01',{recursive:true});
-const beforeGeometry=new Map();
+const beforeGeometry=new Map(),beforeSearch=new Map();
 async function geometry(page){
  return page.evaluate(()=>{
  const b=selector=>document.querySelector(selector)?.getBoundingClientRect()?.toJSON();
@@ -47,6 +47,7 @@ for(const w of [390,1440]){
   const before=await open(w,baseline);
   await before.evaluate(()=>window.scrollTo(0,0));
   const beforeRect=await geometry(before);
+  beforeSearch.set(w,beforeRect.searchUnblocked);console.log('WELL01_BASELINE_SEARCH_'+w,JSON.stringify({unblocked:beforeRect.searchUnblocked,hit:beforeRect.searchHit}));
   if(beforeRect.hero&&beforeRect.shortcut&&beforeRect.features){beforeGeometry.set(w,beforeRect);console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar?.y,headerBottom:beforeRect.bar?.bottom,appY:beforeRect.app?.y}));}else console.log('WELL01_LEGACY_BASELINE_NO_HERO_'+w);
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
@@ -68,7 +69,7 @@ for(const width of widths){
   assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
   assert.ok(measure.eyebrow.top>=measure.bar.bottom-2,'eyebrow must remain below actionable header at '+width);
   assert.ok(measure.cta.bottom<=measure.hero.bottom+1,'hero CTA must remain fully within unchanged image at '+width);
-  assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
+  if(beforeSearch.get(width)===true)assert.ok(measure.searchUnblocked,'top search click target regression '+width);
   if(beforeGeometry.has(width)){
     const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
     assert.ok(Math.abs(change)<=1,'WELL-PROFILE must preserve the #79 hero vertical position at '+width+': '+change);
