@@ -659,3 +659,97 @@ html.l3-story-open body>.elara-desktop-dock,
 html.l3-story-open body>[data-elara-main-nav]{display:none!important}
 html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:hidden!important}
 .l3-story-scene{height:100dvh!important}
+
+/* L4: dashboard stays a dashboard; review is a separate compact story.
+   Preserve original word handlers, mobile navigation, and the two review-only artworks. */
+#panel-words:has(.l2-leitner-shell){font-family:Vazirmatn,Tahoma,Arial,sans-serif;scroll-margin-top:20px}
+#panel-words .l2-leitner-shell{gap:12px}
+#panel-words .l2-leitner-hero{min-height:215px;border-color:#3487cd;background-image:linear-gradient(270deg,#04152bf4,#041b32d9 42%,#07143328 80%),url('assets/ui/lightner.webp');box-shadow:0 0 0 1px #3487cd33,0 12px 30px #0007}
+#panel-words .l2-leitner-copy h1{font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-weight:900;letter-spacing:-.028em}
+#panel-words .l2-leitner-boxes{padding:18px 20px 22px;border-color:#2265af;background:linear-gradient(110deg,#092048,#041931 65%,#101847)}
+#panel-words .l2-five-boxes{position:relative;gap:9px}
+#panel-words .l2-five-boxes::before{content:"";position:absolute;left:8%;right:8%;top:34px;height:2px;background:linear-gradient(90deg,#7f3ff9,#2684ff,#1cd5eb,#13d5a7,#f4c457);opacity:.65;pointer-events:none}
+#panel-words .l2-stage{position:relative;border:0;background:transparent;box-shadow:none;padding:8px 4px}
+#panel-words .l2-stage-orb{width:70px;height:70px;box-shadow:0 0 24px #9349fc7b;background:#32165dbf}
+#panel-words .l2-stage h3{font-weight:800;font-size:13px}
+#panel-words .l2-stage-meter{height:6px;margin-top:5px;border:1px solid #285984aa;background:#0a2445}
+#panel-words .l2-leitner-recent{border:1px solid #266392;border-radius:17px;background:linear-gradient(115deg,#061c35,#0b1741);padding:17px 19px}
+#panel-words .l2-leitner-recent>header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+#panel-words .l2-leitner-recent h2{margin:2px 0;font-size:clamp(16px,1.6vw,22px);font-weight:850}
+#panel-words .l2-leitner-recent>header>span{font-size:12px;color:#b0d5ff}
+#panel-words .l2-recent-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#panel-words .l2-recent-row{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;border:1px solid #225482;background:#091e3b;border-radius:11px}
+#panel-words .l2-recent-icon{color:#b879ff}
+#panel-words .l2-recent-row strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;direction:auto}
+#panel-words .l2-recent-row small{margin-inline-start:auto;color:#a9cdff;white-space:nowrap;font-size:11px}
+#panel-words .l2-recent-empty{margin:0;color:#b8cee9;font-size:13px}
+#l3-review-scene{font-family:Vazirmatn,Tahoma,Arial,sans-serif;background-image:linear-gradient(180deg,#020d2499,#02133255 45%,#020c279d),url('assets/ui/lightner_words_backgroud_pc.webp');}
+#l3-review-scene .l3-story-container{width:min(1240px,calc(100% - 44px));min-height:100dvh;padding:12px 14px 22px;gap:7px}
+#l3-review-scene .l3-story-top{min-height:57px}
+#l3-review-scene .l3-story-logo{display:block;width:clamp(125px,13vw,184px);height:56px;object-fit:contain;filter:drop-shadow(0 0 10px #8e5cfd77)}
+#l3-review-scene .l3-story-intro>div{gap:9px}
+#l3-review-scene .l3-story-intro h1{font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-weight:900;font-size:clamp(26px,3vw,38px);letter-spacing:-.035em}
+#l3-review-scene .l3-story-intro p{margin:1px 0 0;font-size:clamp(13px,1.2vw,18px)}
+#l3-review-scene .l3-story-progress{margin-top:4px;gap:5px}
+#l3-review-scene .l3-story-progress i{height:11px}
+#l3-review-scene .l3-story-counter{font-size:clamp(16px,1.6vw,21px);margin:1px 0}
+#l3-review-scene .l3-story-meta{gap:8px}
+#l3-review-scene .l3-story-meta span{padding:6px 16px;font-size:clamp(12px,1.1vw,15px)}
+#l3-review-scene .l3-story-frame{width:min(920px,100%);height:clamp(305px,40dvh,410px);min-height:0;max-height:none;flex:0 1 auto;margin:3px auto 0;padding:42px 25px 23px;border-radius:25px;background-image:linear-gradient(180deg,#0319419e,#03143872 67%,#04142f9b),url('assets/ui/lightner_words_backgroud_pc.webp')}
+#l3-review-scene .l3-story-card-slot{min-height:0;flex:1}
+#l3-review-scene .l3-story-card-slot .flashcard{gap:12px;padding:5px!important;min-height:0}
+#l3-review-scene .l3-story-card-slot #flash-front{font:750 clamp(42px,5.6vw,86px)/1.16 Georgia,'Times New Roman',serif}
+#l3-review-scene .l3-story-card-slot #flash-back{font-family:Vazirmatn,Tahoma,sans-serif;font-size:clamp(19px,2vw,29px)}
+#l3-review-scene .l3-story-card-slot #word-reveal{font-family:Vazirmatn,Tahoma,sans-serif;min-height:57px;font-size:clamp(17px,1.5vw,23px)}
+#l3-review-scene .l3-story-actions{width:min(920px,100%);gap:12px;margin:3px auto 0}
+#l3-review-scene .l3-story-actions button{min-height:68px;border-radius:16px;padding:9px 14px;font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-size:clamp(15px,1.6vw,19px)}
+#l3-review-scene .l3-story-actions>[data-l3-forgot-slot]{grid-column:1;grid-row:1}
+#l3-review-scene .l3-story-actions .l3-prev-action{grid-column:2;grid-row:1}
+#l3-review-scene .l3-story-actions>[data-l3-known-slot]{grid-column:3;grid-row:1}
+#l3-review-scene .l3-story-new{font-size:clamp(13px,1.3vw,17px)}
+#l3-review-scene .l3-story-speak{width:48px;height:48px;top:12px;right:12px}
+@media(min-width:701px) and (max-height:760px){
+ #l3-review-scene .l3-story-frame{height:clamp(245px,38dvh,320px)}
+ #l3-review-scene .l3-story-container{padding-top:7px;padding-bottom:10px;gap:4px}
+ #l3-review-scene .l3-story-top{min-height:44px}
+ #l3-review-scene .l3-story-logo{height:45px}
+ #l3-review-scene .l3-story-actions button{min-height:60px}
+}
+@media(max-width:700px){
+ #panel-words .l2-leitner-hero{min-height:225px;padding:13px;background-position:center!important}
+ #panel-words .l2-leitner-copy{padding:13px;gap:7px;align-content:end}
+ #panel-words .l2-leitner-stats{gap:8px}
+ #panel-words .l2-leitner-boxes{padding:14px 9px}
+ #panel-words .l2-five-boxes{gap:3px}
+ #panel-words .l2-five-boxes::before{top:21px}
+ #panel-words .l2-stage{padding:7px 1px}
+ #panel-words .l2-stage-orb{width:36px;height:36px}
+ #panel-words .l2-recent-list{grid-template-columns:1fr}
+ #panel-words .l2-leitner-recent{padding:14px 12px}
+ #l3-review-scene{background-image:linear-gradient(180deg,#020b20a8,#07133330 55%,#020924b6),url('assets/ui/lightner_words_backgroud_mobile.webp');}
+ #l3-review-scene .l3-story-container{width:100%;min-height:100dvh;padding:calc(8px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));gap:6px}
+ #l3-review-scene .l3-story-top{min-height:47px}
+ #l3-review-scene .l3-story-logo{width:128px;height:45px}
+ #l3-review-scene .l3-story-intro h1{font-size:clamp(23px,7vw,32px)}
+ #l3-review-scene .l3-story-intro p{font-size:clamp(12px,3.4vw,16px)}
+ #l3-review-scene .l3-story-progress{margin-top:1px;gap:3px}
+ #l3-review-scene .l3-story-progress i{height:9px}
+ #l3-review-scene .l3-story-counter{font-size:17px}
+ #l3-review-scene .l3-story-meta span{padding:6px 9px;font-size:11px}
+ #l3-review-scene .l3-story-frame{height:clamp(265px,35dvh,380px);min-height:0;max-height:none;flex:1 1 auto;padding:44px 11px 16px;border-radius:22px;background-image:linear-gradient(180deg,#03153465,#030b294b 65%,#04112dac),url('assets/ui/lightner_words_backgroud_mobile.webp')}
+ #l3-review-scene .l3-story-card-slot .flashcard{gap:12px;padding:5px 3px!important}
+ #l3-review-scene .l3-story-card-slot #flash-front{font-size:clamp(39px,11vw,69px)}
+ #l3-review-scene .l3-story-card-slot #flash-back{font-size:clamp(18px,5vw,27px)}
+ #l3-review-scene .l3-story-card-slot #word-reveal{min-height:54px;font-size:17px}
+ #l3-review-scene .l3-story-actions{grid-template-columns:1fr 1fr;gap:8px}
+ #l3-review-scene .l3-story-actions .l3-prev-action{grid-column:1;grid-row:1}
+ #l3-review-scene .l3-story-actions>[data-l3-known-slot]{grid-column:2;grid-row:1}
+ #l3-review-scene .l3-story-actions>[data-l3-forgot-slot]{grid-column:1/-1;grid-row:2}
+ #l3-review-scene .l3-story-actions button{min-height:55px;padding:8px 5px;border-radius:14px;font-size:clamp(14px,4vw,18px)}
+ #l3-review-scene .l3-story-speak{width:42px;height:42px;top:10px;right:10px}
+}
+@media(max-width:360px) and (max-height:730px){
+ #l3-review-scene .l3-story-frame{height:250px;flex:0 1 auto}
+ #l3-review-scene .l3-story-intro p{font-size:12px}
+ #l3-review-scene .l3-story-actions button{min-height:50px}
+}
