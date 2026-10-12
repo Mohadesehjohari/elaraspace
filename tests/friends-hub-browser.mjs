@@ -25,7 +25,7 @@ async function run(width,height){
  assert.equal(await tabs.count(),8,width+': F2 must expose eight Friends routes');
  const geometry=await page.evaluate(()=>{
   const nav=document.querySelector('#elara-social-page .social-tabs');
-  const item=nav?.querySelector('[role="tab"]'),image=item?.querySelector('img');
+  const item=nav?.querySelector('[role="tab"]'),image=item?.querySelector('svg.social-tab-svg');
   const selected=nav?.querySelector('[aria-selected="true"]');
   if(!nav||!item||!image||!selected)return null;
   return {height:item.getBoundingClientRect().height,art:image.getBoundingClientRect().height,
@@ -86,6 +86,13 @@ async function run(width,height){
  assert.equal(await page.locator('#elara-social-page .social-requests-standalone').isVisible(),true,width+': friend request preview missing');
  assert.equal(await page.locator('#elara-social-page .social-collab-requests').count(),0,width+': dashboard must not duplicate collaboration requests');
  assert.equal(await page.locator('[data-social-route="social"][data-social-view="friends"]').getAttribute('aria-selected'),'true');
+
+ const formDiagnostic=await page.evaluate(()=>{
+   let el=document.querySelector('#elara-add-friend'),parents=[];
+   while(el&&parents.length<6){const s=getComputedStyle(el),r=el.getBoundingClientRect();parents.push({tag:el.tagName,cls:el.className,display:s.display,visibility:s.visibility,opacity:s.opacity,w:r.width,h:r.height});el=el.parentElement}
+   return parents;
+ });
+ assert.ok(formDiagnostic[0]?.h>0&&formDiagnostic[0]?.w>0,width+': Friends add form collapsed '+JSON.stringify(formDiagnostic));
  await page.waitForSelector('#elara-add-friend');
  assert.equal(await page.locator('.friends-f2-list').isVisible(),true,width+': Friends list missing on default tab');
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
@@ -108,6 +115,23 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="clubs"]').click();
  await page.waitForSelector('.social-clubs-section');
  assert.match(await page.locator('.social-clubs-section').innerText(),/کلاب تست/,width+': Clubs tab did not mount club service data');
+ assert.equal(await page.locator('.social-clubs-section.club-f3').count(),1,width+': bespoke Clubs F3 dashboard is missing');
+ assert.equal(await page.locator('.club-f3-podium .club-f3-rank').count(),1,width+': real accessible club must render in podium; do not add fake placeholders');
+ assert.equal(await page.locator('.club-f3-podium').isVisible(),true,width+': club podium must be visible');
+ assert.ok(await page.locator('.club-f3-tasks').isVisible(),width+': real club missions panel must render even when empty');
+ await page.locator('[data-club-f3-search]').fill('not-an-existing-club');
+ const clubFilterProof=await page.evaluate(()=>{
+   const root=document.querySelector('.club-f3'),inp=root?.querySelector('[data-club-f3-search]'),row=root?.querySelector('[data-club-f3-results] [data-club-tile]');
+   return {query:inp?.value,rows:root?.querySelectorAll('[data-club-f3-results] [data-club-tile]').length,rootCount:document.querySelectorAll('.club-f3').length,title:row?.dataset.title,hidden:row?.hidden,style:row?.getAttribute('style'),display:row?getComputedStyle(row).display:null,noResults:root?.querySelector('[data-club-f3-no-results]')?.hidden};
+ });
+ assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),0,width+': real club filter must hide mismatched rows '+JSON.stringify(clubFilterProof));
+ await page.locator('[data-club-f3-search]').fill('');
+ const restored=await page.evaluate(()=>{
+  const root=document.querySelector('.club-f3'),inp=root?.querySelector('[data-club-f3-search]'),row=root?.querySelector('[data-club-f3-results] [data-club-tile]');
+  return {input:inp?.value,k:root?.querySelector('[data-club-f3-kind]')?.value,mode:root?.querySelector('[data-club-f3-mode]')?.value,hidden:row?.hidden,style:row?.getAttribute('style'),display:row?getComputedStyle(row).display:null,panels:document.querySelectorAll('.club-f3').length};
+ });
+ assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),1,width+': club search should restore actual records '+JSON.stringify(restored));
+
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-section').isVisible(),true,width+': Chats did not remount after switching tabs');
