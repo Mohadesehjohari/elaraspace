@@ -57,8 +57,32 @@ async function run(width,height){
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
  assert.equal(await page.locator('#panel-language-books [data-language-block="books"]').count(),1,width+': language books not extracted');
  await page.evaluate(()=>ElaraOpen('exercise',{history:'replace'}));await page.waitForSelector('#panel-exercise:not(.hidden)');
- assert.equal(await page.locator('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card').count(),6,width+': Wellness hub launcher count');
- await freedomTiles('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card','Wellness');
+ // WELL-01 intentionally hides legacy Freedom launchers in favor of the visible,
+ // accessible dashboard. Check the actual live surface and real navigation instead
+ // of measuring hidden legacy elements (height=0).
+ const newWellness=page.locator('#panel-exercise #well01-dashboard');
+ if(await newWellness.isVisible()){
+  const geometry=await page.locator('#panel-exercise #well01-dashboard .well01-shortcut').evaluateAll(xs=>xs.map(x=>{
+   const rect=x.getBoundingClientRect(),style=getComputedStyle(x);
+   return {w:rect.width,h:rect.height,visible:style.display!=='none'&&style.visibility!=='hidden',route:x.dataset.featureRoute||'',top:rect.top};
+  }));
+  assert.equal(geometry.length,5,width+': WELL-01 five route shortcuts required');
+  assert.ok(geometry.every(x=>x.visible&&x.w>=44&&x.h>=44&&x.route.startsWith('wellness-')),
+   width+': WELL-01 visible accessible shortcuts failed '+JSON.stringify(geometry));
+  assert.ok(await newWellness.locator('.well01-hero').isVisible(),width+': WELL-01 hero hidden');
+  assert.ok(await newWellness.locator('.well01-metrics').isVisible(),width+': WELL-01 metrics hidden');
+  const vw=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(vw.scroll<=vw.inner+2,width+': WELL-01 horizontal overflow '+JSON.stringify(vw));
+  await newWellness.locator('.well01-shortcut[data-feature-route="wellness-water"]').click();
+  await page.waitForSelector('#panel-wellness-water:not(.hidden)');
+  assert.ok(await page.locator('#panel-wellness-water .wellness-water').isVisible(),width+': WELL-01 water navigation did not open actual tracker');
+  await page.evaluate(()=>ElaraOpen('exercise',{history:'replace'}));
+  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
+ } else {
+  // Backward-compatible contract for deployments that still use the legacy hub.
+  assert.equal(await page.locator('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card').count(),6,width+': Wellness hub launcher count');
+  await freedomTiles('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card','Wellness');
+ }
  assert.equal(await page.locator('#panel-exercise>.feature-section-tasks[data-section-task-shelf="exercise"]').count(),1,width+': Wellness section task shelf missing');
  assert.equal(await page.locator('#panel-wellness-water .wellness-water').count(),1,width+': water tracker not extracted');
  assert.equal(await page.locator('#panel-wellness-weight #wellness-weight').count(),1,width+': weight route missing');
