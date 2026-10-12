@@ -144,6 +144,22 @@
    const about=event.target.closest('[data-rg-about]');
    if(about){const note=about.parentElement.querySelector('.rg-hero-about');if(note){note.hidden=!note.hidden;about.setAttribute('aria-expanded',String(!note.hidden))}}
  });
+ function start() {
+   const root=$('elara-ranking-page');
+   if(!root)return;
+   render(root);
+   let pending=false;
+   new MutationObserver(()=>{
+     if(root.querySelector(':scope > .rg-tabs'))return;
+     if(pending)return;
+     pending=true;
+     queueMicrotask(()=>{pending=false;if(!root.querySelector(':scope > .rg-tabs'))render(root)});
+   }).observe(root,{childList:true});
+ }
  window.ElaraRankingGold={render};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>render(),{once:true});else render();
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+ window.addEventListener('elara:open',e=>{
+   if(e.detail?.tab==='ranking')queueMicrotask(()=>{const root=$('elara-ranking-page');if(root&&!root.querySelector(':scope > .rg-tabs'))render(root)});
+ });
 })();
