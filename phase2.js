@@ -459,7 +459,7 @@
     const btn=document.querySelector('#task-list [data-phase2-action="toggle-task"][data-id="'+CSS.escape(String(id))+'"],#panel-home [data-ref-task="'+CSS.escape(String(id))+'"]');
     const row=btn?.closest('.astra-task-row,.ref-task-row');
     if(!row){void taskAction('commit-task',id,date);return}
-    if(row.querySelector('.elara-task-decision')){closeTaskDecision();return}
+    if(document.querySelector('.elara-task-decision[data-task-for="'+CSS.escape(String(id))+'"]')){closeTaskDecision();return}
     closeTaskDecision();
     const total=taskDailyTarget(t),count=taskDailyProgress(t,date);
     const box=document.createElement('div');box.className='elara-task-decision';
@@ -469,7 +469,16 @@
       '<button type="button" data-task-decision="later" data-id="'+esc(id)+'" data-day="'+esc(date)+'">◷ بعداً انجام می‌دم</button>'+
       '<button type="button" data-task-decision="declined" data-id="'+esc(id)+'" data-day="'+esc(date)+'">× انجام نمی‌دم</button>'+
       '<button type="button" data-task-decision="cancel">بستن</button></div>';
-    row.append(box);
+    // Render in a fixed anchored portal: the compact task row itself clips overflow.
+    box.dataset.taskFor=String(id);
+    const rect=row.getBoundingClientRect();
+    const width=Math.min(Math.max(280,rect.width),Math.max(260,innerWidth-16));
+    box.style.setProperty('position','fixed','important');
+    box.style.setProperty('z-index','2147483000','important');
+    box.style.setProperty('width',width+'px','important');
+    box.style.setProperty('left',Math.max(8,Math.min(rect.left,innerWidth-width-8))+'px','important');
+    box.style.setProperty('top',Math.max(8,Math.min(innerHeight-170,rect.bottom+5))+'px','important');
+    document.body.append(box);
   }
   async function chooseTaskDecision(b){
     const choice=b.dataset.taskDecision,id=b.dataset.id,date=b.dataset.day||today();closeTaskDecision();
@@ -518,6 +527,17 @@
     if($('task-filter'))$('task-filter').value='all';
     ensureTaskCategoryNav();renderTasks();
   }
+  document.addEventListener('change',event=>{
+    if(event.target.id==='task-daily-target-enabled'){
+      const enabled=event.target.checked,input=$('task-daily-target'),options=$('task-daily-target-options');
+      if(options){options.classList.toggle('hidden',!enabled);options.style.setProperty('display',enabled?'flex':'none','important')}
+      if(input)input.disabled=!enabled;
+    }
+    if(event.target.id==='task-recurrence'){
+      const shown=event.target.checked,options=$('task-recurrence-options');
+      if(options){options.classList.toggle('hidden',!shown);options.style.setProperty('display',shown?'block':'none','important')}
+    }
+  },true);
   document.addEventListener('click',event=>{
     // Capture Home and canonical Tasks checks before any legacy toggle listener.
     const check=event.target.closest('#task-list [data-phase2-action="toggle-task"],#panel-home [data-ref-task]');

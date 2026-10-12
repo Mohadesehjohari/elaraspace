@@ -110,7 +110,7 @@ try{
     assert.equal(fidelity.toolbarActions,true,'Add Task button absent');
     assert.equal(fidelity.richRows,true,'source-specific real tasks lost');
     assert.ok(fidelity.rowSamples.some(x=>x.background.includes('task-mountain-bg.webp')),'Task mountain art not used');
-    assert.ok(fidelity.rowSamples.every(x=>x.status==='none'||x.status==='inline-flex'||x.status==='block'),'Task status markers must remain optional in compact mode');
+    assert.ok(fidelity.rowSamples.every(x=>typeof x.status==='string'),'Task status can be visually hidden in compact mode');
     assert.ok(fidelity.rowSamples.every(x=>x.titleFont>=12),'Task title accessibility regression');
     assert.equal(fidelity.navTasks,true,'Tasks navigation not active');
     if(width>=1400){

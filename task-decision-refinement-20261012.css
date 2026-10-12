@@ -138,3 +138,17 @@ html body #panel-home.ref-home .ref-task-row:has(.elara-task-decision)>.elara-ta
 }
 /* Home widget source children keep room for the three-choice menu without increasing idle height. */
 html body #panel-home.ref-home .ref-task-list:has(.elara-task-decision){overflow-y:auto!important}
+
+/* A visible anchored decision panel must not be clipped by the fixed-height task rows. */
+html body>.elara-task-decision{
+  display:flex!important;position:fixed!important;z-index:2147483000!important;
+  max-width:calc(100vw - 16px)!important;flex:none!important;visibility:visible!important;
+  opacity:1!important;pointer-events:auto!important;
+}
+/* Daily repetition controls remain editable when the checkbox enables them. */
+html body #task-composer-shell #task-daily-target-options:not(.hidden){
+  display:flex!important;visibility:visible!important;min-height:40px!important;
+}
+html body #task-composer-shell #task-recurrence-options:not(.hidden){
+  display:block!important;visibility:visible!important;
+}
