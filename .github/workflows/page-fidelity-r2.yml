@@ -1,0 +1,52 @@
+name: PAGE R2 Reference Mobile and Settings Gate
+on:
+  push:
+    branches:
+      - feat/page-r2-reference-mobile-settings-20261012
+  pull_request:
+    paths:
+      - 'page-view.js'
+      - 'page-fidelity-release2.css'
+      - 'tests/page-fidelity-r2-browser.mjs'
+      - '.github/workflows/page-fidelity-r2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  page-r2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, safety and real artwork
+        run: |
+          node --check page-view.js
+          node --check tests/page-fidelity-r2-browser.mjs
+          node --input-type=module --check < elara-page.js
+          test -s assets/ui/38-my-page-hero-banner.webp
+          test -s assets/ui/banner_city_of_stars.webp
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-page-r2-http.log 2>&1 &
+          sleep 2
+      - name: Page reference, 10 widths, Page-only settings
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 240s node tests/page-fidelity-r2-browser.mjs
+      - name: Media still deferred, text posting intact
+        run: timeout 120s node tests/media-deferred-browser.mjs
+      - name: Capture mobile and desktop references
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-r2-390-1440-chromium
+          path: browser-artifacts/page-r2-*.png
+          if-no-files-found: warn
+          retention-days: 14
