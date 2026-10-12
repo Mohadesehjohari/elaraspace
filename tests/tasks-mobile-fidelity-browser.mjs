@@ -52,7 +52,7 @@ async function measure(page,width){
   const toolbar=document.getElementById('astra-task-toolbar');
   return {width,viewport:innerWidth,docWidth:document.documentElement.scrollWidth,
    rowHeights:rectangle.map(x=>Math.round(x.height)),averageHeight:Math.round(rectangle.reduce((s,x)=>s+x.height,0)/rectangle.length),
-   titleFont:parseFloat(getComputedStyle(title).fontSize),metaFont:parseFloat(getComputedStyle(metadata).fontSize),
+   titleFont:parseFloat(getComputedStyle(title).fontSize),titleWhiteSpace:getComputedStyle(title).whiteSpace,metaFont:parseFloat(getComputedStyle(metadata).fontSize),
    heroHeight:Math.round(hero.getBoundingClientRect().height),toolbarHeight:Math.round(toolbar.getBoundingClientRect().height),
    chipsWidth:Math.round(chips.getBoundingClientRect().width),
    filtersExpanded:Boolean(filter?.open),isRTL:getComputedStyle(rows[0]).direction==='rtl',
@@ -105,6 +105,7 @@ try {
   if(width<=430){
    assert.ok(state.averageHeight<=100,'rows too tall '+JSON.stringify(state));
    assert.ok(state.titleFont>=14,'title unreadable '+width);
+   assert.notEqual(state.titleWhiteSpace,'nowrap','long Persian titles should wrap '+width);
    assert.ok(state.metaFont<=12,'metadata too large '+width);
    assert.ok(state.heroHeight<=145,'hero too tall '+width);
    assert.equal(state.filtersExpanded,false,'advanced filters should start collapsed '+width);
