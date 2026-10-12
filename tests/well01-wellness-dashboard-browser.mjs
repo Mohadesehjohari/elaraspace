@@ -295,6 +295,10 @@ await touch.evaluate(()=>window.ElaraOpen('home'));
 await touch.waitForSelector('#panel-home:not(.hidden)');
 assert.ok(Math.abs(await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity))-1)<.001,'Home touch account fully restores');
 const closedOpacity=await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity));
+console.log('ACCOUNT_TOUCH_CLOSED',JSON.stringify(await touch.evaluate(()=>{
+ const cluster=document.querySelector('.ref-header-account-cluster'),button=document.querySelector('#ref-header-account');
+ return {opacity:getComputedStyle(cluster).opacity,mode:document.body.dataset.wellProfileInput,classes:document.body.className,focus:document.activeElement?.outerHTML.slice(0,150),focusVisible:cluster.matches(':has(:focus-visible)'),buttonFocusVisible:button?.matches(':focus-visible'),characterPanel:!!document.querySelector('#ref-equipped-character-panel:not([hidden])'),drawerOpen:document.body.classList.contains('elara-private-drawer-open'),htmlPanel:document.querySelector('#panel-exercise')?.className};
+})));
 assert.ok(closedOpacity<.9,'touch account compacts after closing');
 await touch.close();
 await browser.close();
