@@ -417,3 +417,14 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:none;
  }
 }
+
+/* WELLNESS GREEN: do not change shared navbar or other page themes. */
+#panel-exercise #well01-dashboard .well01-shortcut.well01-sleep{background:linear-gradient(130deg,#072d31,#074b3d);border-color:#169c7a}
+#panel-exercise #well01-dashboard .well01-metric-sleep{background:linear-gradient(130deg,#082b2b,#075345);border-color:#1d8f72}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-icon{color:#35f6b2;background:#0b5a45}
+#panel-exercise #well01-dashboard .well01-donut{--ring-color:#28ebb0;position:relative;flex:0 0 82px;width:82px;height:82px;border-radius:50%;background:conic-gradient(var(--ring-color) calc(var(--well01-pct)*1%),#1d4e45 0);display:grid;place-items:center;box-shadow:0 0 15px #08dc9950}
+#panel-exercise #well01-dashboard .well01-donut-center{width:70%;height:70%;border-radius:50%;background:#06292c;display:flex;align-items:center;justify-content:center;padding:2px;text-align:center}
+#panel-exercise #well01-dashboard .well01-donut-center strong{font-size:.73rem;line-height:1.5;overflow-wrap:anywhere}
+#panel-exercise #well01-dashboard .well01-metric-top{align-items:center}
+#panel-exercise #well01-dashboard .well01-bars.sleep>span{background:linear-gradient(#0ca876,#3bf7bb)}
+@media(max-width:700px){#panel-exercise #well01-dashboard .well01-donut{width:62px;height:62px;flex-basis:62px}#panel-exercise #well01-dashboard .well01-donut-center strong{font-size:.6rem}}
