@@ -88,6 +88,10 @@ try {
    await page.goto(base+'/#ranking',{waitUntil:'domcontentloaded',timeout:60000});
    await page.waitForSelector('#elara-ranking-page.ranking-gold .rg-card',{timeout:30000});
    await page.reload({waitUntil:'domcontentloaded',timeout:60000});
+   // Each reload now intentionally lands on Home; reenter Ranking via the real SPA route.
+   assert.equal(new URL(page.url()).hash,'#home','Reload must return Home '+width);
+   await page.waitForFunction(()=>typeof window.ElaraOpen==='function',null,{timeout:30000});
+   await page.evaluate(()=>window.ElaraOpen('ranking',{history:'replace'}));
    await revealGuestVisual(page);
    await page.waitForSelector('#elara-ranking-page.ranking-gold .rg-card',{timeout:30000});
    assert.equal(await page.locator('.rg-hero-copy').count(),1,'Only one ranking hero copy');

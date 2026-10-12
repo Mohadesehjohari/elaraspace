@@ -25,11 +25,19 @@ try {
       const initial = await page.evaluate(() => ({
         boot: document.documentElement.hasAttribute('data-elara-booting'),
         visibleSkeleton: getComputedStyle(document.getElementById('elara-boot-screen')).display !== 'none',
-        shellHidden: getComputedStyle(document.querySelector('.shell')).visibility === 'hidden'
+        shellHidden: getComputedStyle(document.querySelector('.shell')).visibility === 'hidden',
+        homeReady: !!window.ElaraReferenceHome && !!window.ElaraNavigation,
+        marked: performance.getEntriesByName('elara-home-visible','mark').length > 0
       }));
-      assert.equal(initial.boot, true, route + ': initial boot flag missing');
-      assert.equal(initial.visibleSkeleton, true, route + ': initial skeleton missing');
-      assert.equal(initial.shellHidden, true, route + ': fallback shell flashed before the initial paint');
+      // A fast cached boot can complete before DOMContentLoaded. Both states are valid,
+      // but an incomplete shell must never flash behind a missing skeleton.
+      if(initial.boot){
+        assert.equal(initial.visibleSkeleton,true,route+': missing startup skeleton');
+        assert.equal(initial.shellHidden,true,route+': fallback shell flashed before Home was ready');
+      }else{
+        assert.equal(initial.visibleSkeleton,false,route+': skeleton stayed visible after release');
+        assert.equal(initial.homeReady&&initial.marked,true,route+': early reveal lacked Home owners');
+      }
       assert.equal(await page.locator('#elara-boot-failure').count(), 0, 'Old permanent error panel still exists');
       assert.equal(await page.locator('#elara-boot-status').count(), 0, 'Old "new Elara" message still exists');
 
