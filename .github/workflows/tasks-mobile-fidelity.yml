@@ -1,0 +1,104 @@
+name: TASKS MOBILE FIDELITY - Chromium
+on:
+  pull_request:
+    paths:
+      - 'phase2.js'
+      - 'tasks-mobile-fidelity-20261012.css'
+      - 'tests/tasks-mobile-fidelity-browser.mjs'
+      - '.github/workflows/tasks-mobile-fidelity.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'phase2.js'
+      - 'tasks-mobile-fidelity-20261012.css'
+      - 'tests/tasks-mobile-fidelity-browser.mjs'
+      - '.github/workflows/tasks-mobile-fidelity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check canonical JavaScript and QA script
+        run: |
+          node --check phase2.js
+          node --check tests/tasks-mobile-fidelity-browser.mjs
+          test -s index.html
+          test -s tasks-mobile-fidelity-20261012.css
+      - name: Install actual Chromium browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve original baseline and candidate
+        run: |
+          git worktree add --detach /tmp/elara-tasks-baseline 3706c91ce6979758277332e53f0927c2371f1003
+          python3 -m http.server 4173 --directory . >/tmp/tasks-candidate.log 2>&1 &
+          python3 -m http.server 4174 --directory /tmp/elara-tasks-baseline >/tmp/tasks-baseline.log 2>&1 &
+          sleep 3
+          curl --fail http://127.0.0.1:4173/tasks-mobile-fidelity-20261012.css -o /dev/null
+          curl --fail http://127.0.0.1:4174/phase2.js -o /dev/null
+      - name: Nine viewport checks, saving tasks, persistence and real before-after screenshots
+        run: timeout 540s node tests/tasks-mobile-fidelity-browser.mjs
+      - name: Upload real Chromium screenshots and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasks-mobile-candidate-chromium
+          path: browser-artifacts/tasks-mobile-fidelity/
+          retention-days: 30
+          if-no-files-found: warn
+
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify GitHub Pages exact released CSS and index bytes
+        run: |
+          set -euo pipefail
+          ready=false
+          for attempt in $(seq 1 65); do
+            ready=true
+            for file in index.html tasks-mobile-fidelity-20261012.css phase2.js; do
+              curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?sha=$GITHUB_SHA&retry=$attempt" -o "/tmp/qa-$(basename "$file")" || { ready=false;break; }
+              cmp -s "$file" "/tmp/qa-$(basename "$file")" || { ready=false;break; }
+            done
+            if [ "$ready" = true ]; then echo "TASKS_MOBILE_PAGES_LIVE_EXACT_BYTES_PASS $GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ready" != true ]; then echo "::error::Public Pages bytes not updated";exit 1;fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve original baseline for browser screenshot
+        run: |
+          git worktree add --detach /tmp/elara-tasks-baseline 3706c91ce6979758277332e53f0927c2371f1003
+          python3 -m http.server 4174 --directory /tmp/elara-tasks-baseline >/tmp/tasks-baseline.log 2>&1 &
+          sleep 3
+      - name: Test public GitHub Pages using real Chromium
+        run: |
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 540s node tests/tasks-mobile-fidelity-browser.mjs
+      - name: Upload actual live Chromium screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasks-mobile-live-chromium
+          path: browser-artifacts/tasks-mobile-fidelity/
+          retention-days: 30
+          if-no-files-found: warn
