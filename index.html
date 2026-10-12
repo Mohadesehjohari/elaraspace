@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261012-home-first-recovery-v2 -->
+<!-- deploy-refresh: 20261012-home-entry-perf-v1 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -16,8 +16,6 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
 #elara-boot-screen *{box-sizing:border-box}
 #elara-boot-screen .elara-skel-app{min-height:100vh;display:grid;grid-template-columns:200px minmax(0,1fr);direction:ltr}
 #elara-boot-screen .elara-skel-aside{padding:27px 20px;border-right:1px solid #28415a;background:#06172f;direction:rtl;display:flex;flex-direction:column;gap:22px}
-#elara-boot-screen .elara-skel-logo{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:900;letter-spacing:.08em}
-#elara-boot-screen .elara-skel-logo img{width:44px;height:44px;object-fit:contain}
 #elara-boot-screen .elara-skel-nav{display:grid;gap:15px;margin-top:12px}
 #elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{display:block;background:linear-gradient(105deg,#142b48 9%,#244369 26%,#142b48 43%);background-size:240% 100%;animation:elaraSkelPulse 1.55s ease-in-out infinite;border-radius:11px}
 #elara-boot-screen .elara-skel-nav .elara-skel-line{height:34px;width:88%}
@@ -49,8 +47,8 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261012-home-first-recovery-v2">
   <link rel="preload" as="style" href="reference-home-shell-2026.css?v=20261012-home-first-recovery-v2">
   <link rel="preload" as="style" href="elara-midnight-layout-2026.css?v=20261012-home-first-recovery-v2">
-  <link rel="preload" as="image" href="assets/ui/hero-landscape.webp" fetchpriority="high">
-  <link rel="preload" as="image" href="assets/ui/brand-elara-app-mark.webp" fetchpriority="high">
+  <!-- Preload only the image visible on Home; other art loads with its destination. -->
+  <link rel="preload" as="image" href="assets/ui/homebanner1.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20261005-task-system-v8">
   <script defer src="dialog.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="schedule.js?v=20261004-p0-section-tasks-v118"></script>
@@ -60,7 +58,13 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="reading.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="notifications.js?v=20261004-p0-section-tasks-v118"></script>
   <script>
-  if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
+  // A normal entry or browser reload starts on Home. Explicit shared deep links
+  // remain usable on first navigation; in-app route changes never trigger this.
+  (()=>{const type=performance.getEntriesByType('navigation')[0]?.type||'navigate';
+    if(!location.hash||location.hash==='#'||type==='reload'||type==='back_forward'){
+      history.replaceState({...(history.state||{}),elaraTab:'home',elaraDepth:0},'',location.pathname+location.search+'#home');
+    }
+  })();
   </script>
   <script defer src="app.js?v=20261006-home-first-v10"></script>
   <script defer src="library-enhancements.js?v=20261004-p0-section-tasks-v118"></script>
@@ -71,7 +75,7 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-home-first-recovery-v2"></script>
+  <script defer src="boot.js?v=20261012-home-entry-perf-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
@@ -95,7 +99,7 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
       if(root.hasAttribute('data-elara-booting'))showApp();
       const body=document.body;
       if(!document.querySelector('[data-elara-account-gate-ready]')&&body&&!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline'))forceLocal('html-startup-timeout');
-    },8500);
+    },4800);
     window.addEventListener('error',event=>{
       const src=String(event.target?.src||'');
       if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showApp();forceLocal('boot-script-load-error')}
@@ -128,9 +132,9 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="focus-setup-reference-03.js?v=20261012-owner-final-v2"></script>
 </head>
 <body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
-  <div id="elara-boot-screen" role="status" aria-label="در حال آماده‌سازی سایت الارا">
+  <div id="elara-boot-screen" role="status" aria-label="در حال بارگذاری">
     <div class="elara-skel-app">
-      <aside class="elara-skel-aside" aria-hidden="true"><div class="elara-skel-logo"><img src="assets/ui/brand-elara-app-mark.webp" width="44" height="44" alt=""> ELARA SPACE</div><div class="elara-skel-nav"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div></aside>
+      <aside class="elara-skel-aside" aria-hidden="true"><div class="elara-skel-nav"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div></aside>
       <div class="elara-skel-main"><div class="elara-skel-top" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div><div class="elara-skel-hero" aria-hidden="true"><span class="elara-skel-line"></span></div><div class="elara-skel-cards" aria-hidden="true"><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span></div></div>
     </div>
     <div class="elara-skel-mobile-nav" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div>
