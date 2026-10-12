@@ -105,10 +105,16 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.rows.every(x=>!x.strike.includes('line-through')),'Task title struck through');
  }
  if(kind==='after'&&width>=320&&width<=700){
-  assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Mobile hero overlaps topbar: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
-  assert.ok(m.mobileBrand?.w>=35,'Elara real wordmark missing from phone header: '+route+' '+width);
-  assert.ok(m.mobileSearch?.w>100,'Mobile second-row search missing: '+route+' '+width);
-  assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Mobile search extends over image: '+JSON.stringify({route,width,search:m.mobileSearch,hero:m.hero}));
+  if(route==='tasks'){
+   // Tasks mobile intentionally omits the global wordmark, search and profile header.
+   assert.ok(m.hero&&m.hero.y>=-2&&m.hero.y<=8,'Tasks hero should start at top: '+JSON.stringify({route,width,hero:m.hero}));
+   assert.ok(!m.header||m.header.h===0,'Tasks mobile global header should be hidden: '+JSON.stringify(m.header));
+  }else{
+   assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Home hero overlaps header: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
+   assert.ok(m.mobileBrand?.w>=35,'Home mobile brand absent: '+width);
+   assert.ok(m.mobileSearch?.w>100,'Home mobile search absent: '+width);
+   assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Home mobile search extends over hero: '+width);
+  }
  }
  if(kind==='after'&&route==='home'&&width>=1001){
   const font=parseFloat(m.headline?.fontSize||'0');

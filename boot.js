@@ -109,7 +109,7 @@
       // A direct deep link also needs its own CSS before reveal. Normal entry
       // still waits only for Home; this avoids hiding Library launchers on tablets.
       const firstRouteStyles=initialRoute==='home'?homePaintStyles:
-        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',...(routeStyles[initialRoute]||[])])];
+        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',...(initialRoute==='tasks'?['task-blue-compact-20261012.css','task-organizer-20261012.css','task-mobile-inline-20261012.css']:[]),...(routeStyles[initialRoute]||[])])];
       await Promise.race([
         Promise.all(firstRouteStyles.map(name=>mountStyle(name))),
         delay(initialRoute==='home'?180:2000)
