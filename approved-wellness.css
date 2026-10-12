@@ -29,3 +29,42 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 .wellness-sleep-line{max-height:145px;max-width:560px;margin-inline:auto}
 .wellness-sleep-line svg{width:100%;height:125px}
 @media(max-width:700px){.wellness-plan-green-editor{gap:12px}.wellness-sleep-line svg{height:115px}}
+
+/* Scoped green modal skin: sleep, workout/nutrition plans, folder editors. */
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor),
+#elara-dialog-root .elara-dialog-panel:has(.wellness-plan-green-editor){
+ border:1px solid #16da9f!important;background:linear-gradient(150deg,#052723,#071c29)!important;color:#ecfff9;
+ box-shadow:0 20px 80px #000b,0 0 28px #06d69134!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-head,
+#elara-dialog-root .elara-dialog-panel:has(.wellness-plan-green-editor) .elara-dialog-head{
+ background:linear-gradient(110deg,#06392f,#062222)!important;border-bottom:1px solid #158967
+}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-head h2,
+#elara-dialog-root .elara-dialog-panel:has(.wellness-plan-green-editor) .elara-dialog-head h2{color:#effff9}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .primary-button,
+#elara-dialog-root .elara-dialog-panel:has(.wellness-plan-green-editor) .primary-button{background:linear-gradient(115deg,#0bab7c,#2cf8ae)!important;color:#041a18!important;border-color:#29f6b0!important}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor{direction:rtl;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor label{display:grid;gap:8px;min-width:0;grid-column:auto}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor label:first-child{grid-column:1/-1}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor input{background:#082a27;border:1px solid #237f6d;color:#eafff9;padding:13px;border-radius:11px;min-width:0;width:100%;box-sizing:border-box;color-scheme:dark}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor input:focus-visible{outline:2px solid #35f8a6;outline-offset:2px}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor small{grid-column:1/-1}
+.wellness-program-folder-section{display:grid;gap:9px;padding:12px;border:1px solid #146e59;border-radius:14px;background:#082b2888;min-width:0}
+.wellness-program-folder-section>header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wellness-program-folder-section h3{margin:0}
+.wellness-program-folder-rows{display:grid;gap:8px}
+.wellness-program-folder-row{display:grid;grid-template-columns:minmax(0,1fr) 46px 46px;align-items:center;gap:8px}
+.wellness-program-folder-row button{min-height:44px;border:1px solid #287965;border-radius:10px;background:#082e28;color:#edfff9;cursor:pointer}
+.wellness-program-folder-row button:focus-visible{outline:2px solid #32efad}
+.wellness-program-folder-row .wellness-program-folder-open{text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:10px 14px}
+.wellness-program-folder-row .wellness-program-folder-delete{color:#ffa1a1;border-color:#9c5959}
+#panel-wellness-water,#panel-wellness-sleep,#panel-wellness-exercise,#panel-wellness-weight,#panel-wellness-analysis,#panel-wellness-reports{--elara-accent:#20eaa4;--wellness-green:#20eaa4}
+#panel-wellness-sleep .wellness-sleep,#panel-wellness-exercise .wellness-plans{background:linear-gradient(145deg,#052e2b,#08232d);border-color:#1d9277}
+#panel-wellness-sleep .wellness-sleep-line .line{stroke:#20eaa4}
+#panel-wellness-sleep .wellness-sleep-line .point{fill:#31f2a9;stroke:#052a24}
+@media(max-width:700px){
+ #elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor{grid-template-columns:1fr}
+ #elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-editor) .wellness-sleep-editor label{grid-column:1/-1}
+ .wellness-program-folder-section{padding:10px}
+}
