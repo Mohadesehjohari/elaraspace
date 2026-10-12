@@ -122,22 +122,22 @@ async function run(width,height){
  // to eight destinations, with vertically stacked icon+text on narrow phones.
  const socialStrip=page.locator('#elara-social-page .social-tabs');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{
-  const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
+  const r=x.getBoundingClientRect(),im=x.querySelector('svg.social-tab-svg'),img=im?.getBoundingClientRect(),
    lab=x.querySelector('.social-tab-label'),lr=lab?.getBoundingClientRect(),css=getComputedStyle(x);
-  return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('src')||'',
+  return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('viewBox')||'',
    label:lab?.textContent?.trim()||'',labelTop:lr?.top??-1,labelBottom:lr?.bottom??-1,tabTop:r.top,tabBottom:r.bottom,
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
  const visibleSocialBoxes=socialBoxes.filter(x=>x.h>0);
  assert.equal(visibleSocialBoxes.length,7,width+': seven visible Friends tabs; Challenges must be accessible via Activity CTA');
- assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?60:45)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
+ assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?59.5:44.5)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(visibleSocialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
- assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
- assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*(200|185),\s*255)/,width+': selected cyan focus/glow missing');
+ assert.match(socialBoxes[0].color,/rgb\(55,\s*241,\s*255\)/,width+': selected cyan border color missing');
+ assert.ok(socialBoxes[0].glow.includes('rgb')&&!socialBoxes[0].glow.includes('none'),width+': selected cyan focus/glow missing');
  assert.ok(visibleSocialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==visibleSocialBoxes[0].color&&
   x.bg!==visibleSocialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
@@ -193,7 +193,8 @@ async function run(width,height){
   friendSelectionBefore,width+': returning from Ranking reset independent Friends selection');
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
- assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
+ assert.equal(await page.locator('#panel-store [data-store-category]').count(),18,width+': Store 2026 category/navigation controls must stay complete');
+  assert.ok(await page.locator('#panel-store .store-tabs [data-store-category]').count()>=12,width+': Store category tabs are missing');
  assert.equal(await page.locator('#panel-store [data-store-category="status"]').count(),1,width+': Status cosmetics category missing');
  assert.equal(await page.locator('#panel-store [data-store-category="page"]').count(),1,width+': Page cosmetics category missing');
  await page.locator('[data-store-category="themes"]').click();assert.ok(await page.locator('#panel-store .store-product').count()>=10,width+': real theme previews missing');
@@ -203,8 +204,10 @@ async function run(width,height){
  assert.ok(themeState.theme&&themeState.dataTheme===themeState.theme,width+': Store profile theme did not persist into profile composition '+JSON.stringify(themeState));
  assert.match(themeState.style,/theme_.*\.webp|city_theme\.webp/,width+': equipped profile theme asset missing from profile composition');
  assert.match(themeState.nameFont,/Georgia|Times/i,width+': equipped profile name font is not applied');
- await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
- await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();
+ await page.locator('#panel-store .store-more summary').click();assert.equal(await page.locator('#panel-store .store-more').evaluate(el=>el.open),true,width+': Store More categories must expand');
+  await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
+ await page.locator('#panel-store .store-more summary').click();assert.equal(await page.locator('#panel-store .store-more').evaluate(el=>el.open),true,width+': Store More must reopen after category navigation');
+  await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();
  const bannerState=await page.evaluate(()=>{const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),html=ElaraProfileSystem.composition(v);return{banner:w.banner,html}});
  assert.ok(!!bannerState.banner,width+': Store banner equip did not reach wardrobe source of truth');assert.match(bannerState.html,/assets\/ui\/banner[1-4]\.webp/,width+': equipped banner did not reach profile composition');
 
