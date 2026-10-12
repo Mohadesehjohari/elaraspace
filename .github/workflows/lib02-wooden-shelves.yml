@@ -1,0 +1,93 @@
+name: LIB-02 Wooden Shelves Reference + Live
+on:
+  pull_request:
+    paths:
+      - index.html
+      - lib02-wooden-shelves.js
+      - lib02-wooden-shelves.css
+      - library-walnut-theme-20261012.css
+      - library-enhancements.js
+      - tests/lib02-wooden-shelves-browser.mjs
+      - .github/workflows/lib02-wooden-shelves.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - lib02-wooden-shelves.js
+      - lib02-wooden-shelves.css
+      - library-walnut-theme-20261012.css
+      - library-enhancements.js
+      - tests/lib02-wooden-shelves-browser.mjs
+      - .github/workflows/lib02-wooden-shelves.yml
+permissions:
+  contents: read
+jobs:
+  lib02-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and approved library assets
+        run: |
+          node --check lib02-wooden-shelves.js
+          node --check tests/lib02-wooden-shelves-browser.mjs
+          test -s assets/ui/librairy_banner_main.webp
+          test -s assets/ui/library-card-background.webp
+      - name: Install Chromium and jsdom
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
+          npx playwright install chromium
+      - name: Existing reading and linked-task integration diagnostic
+        continue-on-error: true
+        run: node tests/reading-stability.test.cjs
+      - name: Wooden bookcases and original operations at ten widths
+        run: |
+          python3 -m http.server 4173 >/tmp/lib02-server.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/lib02-wooden-shelves-browser.mjs
+          timeout 300s node tests/library-stage4-browser.mjs
+          timeout 300s node tests/library-dashboard-lib01-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib02-candidate
+          path: browser-artifacts/**/*.png
+          retention-days: 20
+  lib02-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for exact published LIB-02 files
+        run: |
+          set -euo pipefail
+          ok=false
+          for attempt in $(seq 1 80); do
+            ok=true
+            for file in index.html lib02-wooden-shelves.js lib02-wooden-shelves.css library-walnut-theme-20261012.css library-enhancements.js; do
+              output="/tmp/lib02-$(basename "$file")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
+            done
+            if [ "$ok" = true ]; then echo "LIB02_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$ok" != true ]; then echo "::error::LIB-02 Pages bytes do not match release";exit 1;fi
+      - name: Real published shelves browser at ten widths
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/lib02-wooden-shelves-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib02-live
+          path: browser-artifacts/lib02/*.png
+          retention-days: 30
