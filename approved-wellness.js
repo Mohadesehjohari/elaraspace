@@ -170,7 +170,7 @@ async function planEditor(kind,folderId=''){
  const newId=()=>crypto.randomUUID?.()||('plan-'+Date.now()+'-'+Math.random().toString(36).slice(2));
  let folders=planFolders(data,kind).map(x=>({...x,items:Array.isArray(x.items)?x.items.filter(t=>t&&t.text).map(t=>({...t})).slice(0,80):[]}));
  let selected=folders.find(x=>x.id===folderId)?.id||folders[0]?.id||'',mode='note';
- const form=document.createElement('div');form.dir='rtl';form.className='wellness-plan-designer';
+ const form=document.createElement('div');form.dir='rtl';form.className='wellness-plan-editor wellness-plan-designer';
  const days=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
  form.innerHTML=`<div class="wellness-design-intro"><label><span>نام برنامه</span><input name="planTitle" maxlength="90" value="${esc(data[titleKey]||'')}" placeholder="${nutrition?'برنامه تغذیه من':'برنامه تمرینی من'}"></label><label><span>توضیحات برنامه</span><textarea name="planNote" maxlength="5000" rows="3" placeholder="اهداف و جزئیات برنامه را بنویسید...">${esc(data[noteKey]||'')}</textarea></label>
  <div class="wellness-design-days"><strong>زمان‌بندی برنامه</strong><div>${days.map((d,i)=>`<button type="button" data-plan-day="${i}" aria-pressed="${Array.isArray(meta.days)&&meta.days.includes(i)}" class="${Array.isArray(meta.days)&&meta.days.includes(i)?'selected':''}">${d}</button>`).join('')}</div></div>
