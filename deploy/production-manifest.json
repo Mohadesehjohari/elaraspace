@@ -214,7 +214,13 @@
     "assets/ui/Celestial Crystal Spellbook Icon.webp",
     "assets/ui/freedom-card-bg.webp",
     "freedom-r27-music.js",
-    "freedom-r27-polish.css"
+    "freedom-r27-polish.css",
+    "freedom-r28-notebook.js",
+    "freedom-r28-notebook.css",
+    "assets/ui/Misty Mountain Lake at Dawn.webp",
+    "assets/ui/Celestial Mirror Lake at Night.webp",
+    "assets/ui/Sunlit Botanical Shadows on Parchment.webp",
+    "assets/ui/Lavender Moonrise Over Misty Meadows.webp"
   ],
   "files": [
     ".htaccess",
@@ -527,6 +533,12 @@
     "assets/ui/Celestial Crystal Spellbook Icon.webp",
     "assets/ui/freedom-card-bg.webp",
     "freedom-r27-music.js",
-    "freedom-r27-polish.css"
+    "freedom-r27-polish.css",
+    "freedom-r28-notebook.js",
+    "freedom-r28-notebook.css",
+    "assets/ui/Misty Mountain Lake at Dawn.webp",
+    "assets/ui/Celestial Mirror Lake at Night.webp",
+    "assets/ui/Sunlit Botanical Shadows on Parchment.webp",
+    "assets/ui/Lavender Moonrise Over Misty Meadows.webp"
   ]
 }
