@@ -357,3 +357,9 @@ body.elara-focus-fullscreen #panel-focus-pomodoro .focus-ref-settings-jump{displ
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #timer-start,
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track span{transition:none}
 }
+
+/* Reserve the overlap space for the actual floating Play button. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{margin-top:44px}
+@media(max-width:760px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options{margin-top:18px}
+}
