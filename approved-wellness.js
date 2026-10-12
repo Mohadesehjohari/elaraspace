@@ -186,6 +186,7 @@ function wire(){
    const go=e.target.closest('[data-wellness-home]');if(go){window.ElaraOpen?.('exercise');return}
  });
  window.addEventListener('elara:profile-private-changed',refresh);
+ window.addEventListener('elara:wellness-saved',refresh);
 }
 window.ElaraWellnessTest={defaults,lineChart,sleepMinutes,normalizeWorkout,normalizeCycle,weeklyAnalysis};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
