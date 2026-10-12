@@ -67,7 +67,7 @@ try {
    const imageWidth=png.readUInt32BE(16);
    assert.ok(imageWidth<=width+2,width+': full-page screenshot overflow width='+imageWidth);
   }
-  await page.locator('[data-page-add-story]').click();
+  await page.locator('[data-page-add-story]').first().click();
   assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-page-story-form]')!==null),true,width+': add status focus');
 
   // Must launch the separate Page settings, never the private Profile editor.
@@ -94,6 +94,7 @@ try {
   await page.locator('[data-page-content=all]').click();
   assert.equal(await page.locator('.page-feed').isVisible(),true,width+': all filter');
 
+  await page.locator('[data-page-write-post]').first().click();
   await page.locator('[data-page-post-form] textarea').fill('متن پست در تست رابط');
   await page.locator('[data-page-post-form] button[type=submit]').click();
   await page.waitForFunction(()=>window.__pageOps.includes('post'));
