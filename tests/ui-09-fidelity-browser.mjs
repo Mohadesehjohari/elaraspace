@@ -196,7 +196,9 @@ try{
   if(width===430){
    const first=t.page.locator('#task-list>.astra-task-row .check-button[data-phase2-action="toggle-task"]').first();
    const countBefore=await t.page.locator('#task-list>.astra-task-row').count();
-   await first.click();await t.page.waitForTimeout(250);
+   await first.click();
+   const decision=t.page.locator('.elara-task-decision [data-task-decision="done"]').first();
+   await decision.waitFor({timeout:8000});await decision.click();await t.page.waitForTimeout(300);
    const archive=t.page.locator('#task-checked-archive .task-archive-row');
    assert.ok(await archive.count()>=1,'Completed Task not moved to the Completed section');
    const decoration=await archive.first().locator('strong').first().evaluate(el=>getComputedStyle(el).textDecorationLine);
@@ -209,7 +211,7 @@ try{
     const startXp=Number(state.xp||0);
     state.tasks.push({id:'ui09_past_occurrence',text:'بازبینی روز گذشته',sourceGroup:'personal',priority:'4',date:iso,createdAt:Date.now(),recurrenceRule:{frequency:'daily',interval:1,startDate:iso},occurrenceDone:[],completed:false});
     localStorage.setItem(key,JSON.stringify(state));
-    await window.ElaraTasks.taskAction('toggle-task','ui09_past_occurrence',iso);
+    await window.ElaraTasks.taskAction('commit-task','ui09_past_occurrence',iso);
     const next=JSON.parse(localStorage.getItem(key));
     return {past:iso,done:next.tasks.find(t=>t.id==='ui09_past_occurrence')?.occurrenceDone||[],xpGain:Number(next.xp||0)-startXp};
    });

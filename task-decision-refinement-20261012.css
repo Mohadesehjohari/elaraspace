@@ -114,7 +114,7 @@ html body #panel-tasks .task-status-group article button{
   gap:2px 5px!important;padding:5px 6px!important;
  }
  html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{flex:1 1 calc(100% - 95px)!important}
- html body #panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{font-size:12px!important}
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{font-size:14px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
  html body #panel-tasks#panel-tasks #task-list .astra-task-core-meta{max-height:15px!important}
  html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-category{display:none!important}
  html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.task-round-back{order:2!important}
