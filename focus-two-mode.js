@@ -30,9 +30,10 @@ function install(){
   const modes=document.createElement('div');modes.className='elara-focus-mode-options';
   modes.innerHTML=[['📖',t('مطالعه','Reading')],['✎',t('نوشتن','Writing')],['◈',t('کار عمیق','Deep work')],['✧',t('مدیتیشن','Meditation')]].map(([icon,name],i)=>'<button type="button" data-elara-focus-mode="'+i+'" aria-pressed="'+(i===0)+'"><span>'+icon+'</span><b>'+name+'</b></button>').join('');
   panel.querySelector('.focus-card')?.after(modes);
-  const exit=document.createElement('button');exit.type='button';exit.id='elara-focus-exit';exit.hidden=true;exit.textContent='← '+t('بازگشت به تنظیمات','Back to setup');panel.prepend(exit);
+  if(!panel.querySelector('#elara-focus-exit')){const exit=document.createElement('button');exit.type='button';exit.id='elara-focus-exit';exit.hidden=true;exit.textContent='← '+t('بازگشت به تنظیمات','Back to setup');panel.prepend(exit)}
   bar.querySelector('button').textContent=t('تمام‌صفحه','Full screen');
  }
+ const duplicates=panel?.querySelectorAll('#elara-focus-exit')||[];duplicates.forEach((node,i)=>{if(i)node.remove()});
  const source=$('#lib01-overview .lib01-focus-dial button[data-lib01-route]');
  if(source){source.removeAttribute('data-lib01-route');source.dataset.lib01FocusInline='';source.setAttribute('title',t('شروع یا مکث تایمر همین‌جا','Start or pause timer here'))}
  sync();
