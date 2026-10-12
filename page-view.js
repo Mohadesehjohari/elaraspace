@@ -55,7 +55,7 @@ function ensurePageFidelityStyle(){
  if(!previous){const old=document.createElement('link');old.id='elara-page-fidelity-r1';old.rel='stylesheet';old.href='page-fidelity-release1.css?v=20261012-r1';document.head.insertBefore(old,link)}
  const next=document.createElement('link');next.id='elara-page-fidelity-r3';next.rel='stylesheet';next.href='page-fidelity-release3.css?v=20261012-r3';document.head.append(next)
  const r4=document.createElement('link');r4.id='elara-page-fidelity-r4';r4.rel='stylesheet';r4.href='page-fidelity-release4.css?v=20261012-r4';document.head.append(r4)
- const r5=document.createElement('link');r5.id='elara-page-fidelity-r5';r5.rel='stylesheet';r5.href='page-fidelity-release5.css?v=20261012-r5';document.head.append(r5)
+ const r5=document.createElement('link');r5.id='elara-page-fidelity-r5';r5.rel='stylesheet';r5.href='page-fidelity-release5.css?v=20261012-r6-gallery';document.head.append(r5)
 }
 function pageAccount(uid){
  const profile=window.ElaraAccount?.profile||{},social=window.ElaraSocial?.me||{};
@@ -100,13 +100,19 @@ function pageCornerOptions(){
  return [{id:'default',label:t('منظره فضایی الارا','Elara space panorama'),path:'assets/ui/banner_city_of_stars.webp',required:1},
   ...(P?.BANNERS||[]).map(x=>({id:'wardrobe:'+x.id,label:x.label,path:x.path,required:x.required,locked:!P.canEquipBanner(x.id,lv)}))];
 }
+function validPageCornerPhoto(value){
+ return typeof value==='string'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,500000}$/.test(value)?value:''
+}
+function pageCornerChoices(settings){
+ return [...pageCornerOptions(),...(settings?.cornerPhoto?[{id:'gallery',label:t('عکس دلخواه گالری','Your gallery banner'),path:settings.cornerPhoto,required:1}]:[])]
+}
 function safePageCorner(value){
  const options=pageCornerOptions();
  return options.some(x=>x.id===value&&!x.locked)?value:'default'
 }
 function pageCornerImage(uid){
- const choice=pageSettings(uid).corner;
- return pageCornerOptions().find(x=>x.id===choice&&!x.locked)?.path||'assets/ui/banner_city_of_stars.webp'
+ const p=pageSettings(uid),choice=p.corner;
+ return choice==='gallery'&&p.cornerPhoto?p.cornerPhoto:pageCornerOptions().find(x=>x.id===choice&&!x.locked)?.path||'assets/ui/banner_city_of_stars.webp'
 }
 function pageAvatarChoices(uid){
  const P=pageWardrobe();if(!P)return [];
@@ -120,11 +126,12 @@ function renderPageBannerWardrobe(){
  if(!wrap||wrap.querySelector('.page-wardrobe-banner'))return;
  const uid=window.ElaraAccount?.user?.uid;
  if(!uid)return;
- const options=pageCornerOptions(),picked=pageSettings(uid).corner;
+ const settings=pageSettings(uid),options=pageCornerChoices(settings),picked=settings.corner;
  const panel=document.createElement('section');panel.className='page-wardrobe-banner';panel.dataset.pageWardrobeBanner='';
  panel.innerHTML='<header><div><h3>🌌 '+t('بنر صفحه','Page banner')+'</h3><small>'+t('منظرهٔ گوشه کارت صفحه من؛ جدا از بنر پروفایل شخصی','Decorative corner of My Page, separate from private Profile cover')+'</small></div></header>'+
  '<div class="page-wardrobe-banner-grid">'+options.map(x=>'<button type="button" data-page-corner-pick="'+esc(x.id)+'" '+(x.locked?'disabled':'')+' aria-pressed="'+String(x.id===picked)+'"><img src="'+esc(x.path)+'" alt="" loading="lazy"><span>'+esc(x.label)+(x.locked?' · '+t('قفل','Locked')+' '+num(x.required):'')+'</span></button>').join('')+'</div>'+
- '<p>'+t('ذخیره فقط روی همین دستگاه و حساب انجام می‌شود.','Saved for this account on this device only.')+'</p>';
+ '<label class="page-wardrobe-banner-upload">'+t('＋ آپلود بنر دلخواه از گالری (PNG / JPG / WebP، تا ۵ مگابایت)','＋ Upload your own banner (PNG / JPG / WebP, up to 5 MB)')+'<input type="file" data-page-corner-file accept="image/jpeg,image/png,image/webp"></label>'+
+ '<p>'+t('عکس روی دستگاه فشرده و فقط در همین مرورگر برای حساب تو ذخیره می‌شود؛ به سرور فرستاده نمی‌شود.','The image is resized and saved only in this browser for your account; it is not sent to a server.')+'</p>';
  wrap.append(panel)
 }
 function beginPageWardrobeObserver(){
@@ -138,20 +145,20 @@ function beginPageWardrobeObserver(){
 }
 
 function pageSettings(uid){
- if(!uid)return {name:'',bio:'',cover:'default',coverPhoto:'',corner:'default',interests:[]};
+ if(!uid)return {name:'',bio:'',cover:'default',coverPhoto:'',corner:'default',cornerPhoto:'',interests:[]};
  try{
   const p=JSON.parse(localStorage.getItem(pageKey(uid))||'{}');
   return {name:typeof p.name==='string'?p.name.trim().slice(0,60):'',
     bio:typeof p.bio==='string'?p.bio.trim().slice(0,320):'',
-    cover:p.cover==='gallery'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto||'')?'gallery':PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default',coverPhoto:typeof p.coverPhoto==='string'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto)?p.coverPhoto:'',corner:safePageCorner(p.corner),interests:cleanPageInterests(p.interests)};
- }catch{return {name:'',bio:'',cover:'default',coverPhoto:'',corner:'default',interests:[]}}
+    cover:p.cover==='gallery'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto||'')?'gallery':PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default',coverPhoto:typeof p.coverPhoto==='string'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto)?p.coverPhoto:'',corner:p.corner==='gallery'&&validPageCornerPhoto(p.cornerPhoto)?'gallery':safePageCorner(p.corner),cornerPhoto:validPageCornerPhoto(p.cornerPhoto),interests:cleanPageInterests(p.interests)};
+ }catch{return {name:'',bio:'',cover:'default',coverPhoto:'',corner:'default',cornerPhoto:'',interests:[]}}
 }
-async function pageCoverFromFile(file){
+async function pageCoverFromFile(file,width=1240,height=320,maxChars=950000){
  if(!file||!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error(t('فقط عکس PNG / JPG / WebP تا ۵ مگابایت مجاز است.','Use PNG, JPG or WebP under 5 MB.'));
  const url=URL.createObjectURL(file);
  try{
   const image=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error(t('عکس قابل پردازش نیست.','Image could not be read.')));img.src=url});
-  const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=320;
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
   const g=canvas.getContext('2d');if(!g)throw Error(t('پردازش تصویر ممکن نیست.','Image processing is unavailable.'));
   const aspect=canvas.width/canvas.height,w=image.naturalWidth,h=image.naturalHeight;
   if(!w||!h)throw Error(t('اندازهٔ تصویر نامعتبر است.','Image dimensions are invalid.'));
@@ -159,7 +166,7 @@ async function pageCoverFromFile(file){
   if(w/h>aspect){sw=h*aspect;sx=(w-sw)/2}else{sh=w/aspect;sy=(h-sh)/2}
   g.drawImage(image,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
   const data=canvas.toDataURL('image/webp',.7);
-  if(!/^data:image\/webp;base64,/.test(data)||data.length>950000)throw Error(t('عکس پس از فشرده‌سازی هنوز بزرگ است. تصویر دیگری انتخاب کن.','Compressed cover is too large; select another image.'));
+  if(!/^data:image\/webp;base64,/.test(data)||data.length>maxChars)throw Error(t('عکس پس از فشرده‌سازی هنوز بزرگ است. تصویر دیگری انتخاب کن.','Compressed cover is too large; select another image.'));
   return data
  }finally{URL.revokeObjectURL(url)}
 }
@@ -170,7 +177,7 @@ function pageCover(uid){
 async function openPageSettings(){
  const uid=window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid;
  if(!uid||!window.ElaraAccount?.user){await window.ElaraDialog?.alert?.(t('برای ویرایش صفحه ابتدا وارد حساب شو.','Sign in to edit your Page.'));return}
- const person=pageAccount(uid),p=pageSettings(uid),P=pageWardrobe(),wardrobe=P?.readWardrobe?.(uid)||{},avatars=pageAvatarChoices(uid),corners=pageCornerOptions();
+ const person=pageAccount(uid),p=pageSettings(uid),P=pageWardrobe(),wardrobe=P?.readWardrobe?.(uid)||{},avatars=pageAvatarChoices(uid),corners=pageCornerChoices(p);
  const form=document.createElement('form');
  form.className='page-settings-form';form.dataset.elaraI18n='off';
  form.innerHTML='<p class="page-settings-intro">'+t('تنظیمات صفحه اجتماعی تو — جدا از تنظیمات پروفایل شخصی.','Social Page settings — separate from private Profile settings.')+'</p>'+
@@ -183,7 +190,8 @@ async function openPageSettings(){
   '<fieldset><legend>'+t('تصویر کاور صفحه','Page cover artwork')+'</legend><div class="page-settings-covers">'+PAGE_ART.map(([id,url,label])=>'<label class="page-settings-cover"><input type="radio" name="cover" value="'+id+'" '+(p.cover===id?'checked':'')+'><img src="'+url+'" alt="" loading="lazy"><span>'+label+'</span></label>').join('')+'</div></fieldset>'+
   '<label class="page-settings-gallery page-cover-gallery">'+t('یا عکس کاور از گالری دستگاه (فشرده و فقط محلی)','Or choose a cover from your device (compressed, local only)')+'<input type="file" name="pageCoverFile" accept="image/jpeg,image/png,image/webp"></label>'+
   '<fieldset class="page-settings-corner"><legend>'+t('بنر گوشه صفحه از کمد','Wardrobe corner banner')+'</legend><p>'+t('این منظره در گوشه کارت هویت، درست زیر آواتار قرار می‌گیرد.','This scene appears in the identity card corner beneath your avatar.')+'</p><div class="page-settings-corner-grid">'+corners.map(x=>'<label class="page-settings-cover"><input type="radio" name="corner" value="'+esc(x.id)+'" '+(p.corner===x.id?'checked':'')+' '+(x.locked?'disabled':'')+'><img src="'+esc(x.path)+'" alt="" loading="lazy"><span>'+esc(x.label)+(x.locked?' · '+t('قفل تا سطح','Locked until level')+' '+num(x.required):'')+'</span></label>').join('')+'</div></fieldset>'+
-  '<p class="page-settings-storage">'+t('نام، بیو، علاقه‌مندی‌ها، کاور و بنر گوشه صفحه فقط روی همین دستگاه و حساب ذخیره می‌شوند؛ آواتار انتخابی هم از کمد واقعی حساب خوانده می‌شود. هیچ تصویری به سرور آپلود نمی‌شود.','Page identity, interests, cover, and corner art stay on this device. Your avatar uses the real wardrobe, and photo uploads to servers are unavailable.')+'</p>';
+  '<label class="page-settings-gallery page-corner-gallery">'+t('یا بنر دلخواه برای گوشه کارت هویت از گالری انتخاب کن (تا ۵ مگابایت)','Or upload your own identity-corner banner (up to 5 MB)')+'<input type="file" name="pageCornerFile" accept="image/jpeg,image/png,image/webp"></label>'+
+  '<p class="page-settings-storage">'+t('نام، بیو، علاقه‌مندی‌ها، کاور و بنر گوشه صفحه فقط روی همین دستگاه و حساب ذخیره می‌شوند؛ آواتار انتخابی هم از کمد واقعی حساب خوانده می‌شود. هیچ تصویری به سرور آپلود نمی‌شود.','Page identity, interests, cover and corner banner are saved only in this browser for this account; photos are not uploaded to a server.')+'</p>';
  const result=await window.ElaraDialog.open({title:t('تنظیمات صفحه من','My Page settings'),content:form,wide:true,actions:[{label:t('انصراف','Cancel'),value:false},{label:t('ذخیره صفحه','Save Page'),value:true,kind:'primary'}]});
  if(result!==true)return;
  if(uid!==(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid))return void window.ElaraDialog.alert(t('حساب تغییر کرد؛ تنظیمات ذخیره نشد.','Account changed; nothing was saved.'));
@@ -191,7 +199,8 @@ async function openPageSettings(){
  const bio=String(form.elements.bio.value||'').trim().slice(0,320);
  let cover=PAGE_ART.some(([id])=>id===form.elements.cover.value)?form.elements.cover.value:p.cover==='gallery'?'gallery':'default';
  let coverPhoto=cover==='gallery'?p.coverPhoto:'';
- const corner=safePageCorner(form.elements.corner?.value||'default');
+ let corner=form.elements.corner?.value==='gallery'&&p.cornerPhoto?'gallery':safePageCorner(form.elements.corner?.value||'default');
+ let cornerPhoto=p.cornerPhoto;
  const selected=[...form.querySelectorAll('[name="interests"]:checked')].map(input=>input.value);
  const extras=String(form.elements.otherInterests.value||'').split(/[,،\n]+/);
  const interests=cleanPageInterests([...selected,...extras]);
@@ -212,7 +221,8 @@ async function openPageSettings(){
   if(uid!==(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid))throw Error(t('حساب تغییر کرد؛ تنظیمات ذخیره نشد.','The account changed; nothing was saved.'));
   // Validate and stage before mutating. Keep page cosmetics private to the UID.
   if(form.elements.pageCoverFile?.files?.length){coverPhoto=await pageCoverFromFile(form.elements.pageCoverFile.files[0]);cover='gallery'}
-  const payload=JSON.stringify({name,bio,cover,coverPhoto,corner,interests});
+  if(form.elements.pageCornerFile?.files?.length){cornerPhoto=await pageCoverFromFile(form.elements.pageCornerFile.files[0],720,400,500000);corner='gallery'}
+  const payload=JSON.stringify({name,bio,cover,coverPhoto,corner,cornerPhoto,interests});
   if(avatarPatch)P.writeWardrobe(avatarPatch);
   localStorage.setItem(pageKey(uid),payload);
   render();renderPageBannerWardrobe()
@@ -409,6 +419,23 @@ async function submit(form,kind){const api=window.ElaraPage;if(!api)return;const
 document.addEventListener('change',e=>{if(!e.target.matches('[data-page-media-input]'))return;e.target.value='';return; // No media requests while Firebase Storage is unavailable.
 const form=e.target.form,file=e.target.files?.[0];if(!form||!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>=5*1024*1024){e.target.value='';void window.ElaraDialog?.alert?.(t('فقط JPEG، PNG یا WebP کمتر از ۵ مگابایت مجاز است.','Use JPEG, PNG or WebP under 5 MB.'),{title:t('تصویر نامعتبر','Invalid image')});return}const prev=form.dataset.mediaPreviewUrl;if(prev)URL.revokeObjectURL(prev);const url=URL.createObjectURL(file);form.dataset.mediaPreviewUrl=url;form.querySelector('[data-page-media-preview]').innerHTML='<img src="'+esc(url)+'" alt="">';form.querySelector('[data-page-media-remove]').classList.remove('hidden')});
 document.addEventListener('submit',e=>{if(e.target.matches('[data-page-story-form]')){e.preventDefault();void submit(e.target,'story')}else if(e.target.matches('[data-page-post-form]')){e.preventDefault();void submit(e.target,'post')}});
+document.addEventListener('change',async e=>{
+ const fileInput=e.target.closest?.('[data-page-corner-file]');
+ if(!fileInput)return;
+ const uid=window.ElaraAccount?.user?.uid,file=fileInput.files?.[0];
+ if(!uid||!file)return;
+ fileInput.disabled=true;
+ try{
+  const cornerPhoto=await pageCoverFromFile(file,720,400,500000);
+  if(uid!==window.ElaraAccount?.user?.uid)throw Error(t('حساب تغییر کرده؛ عکس ذخیره نشد.','Account changed; image was not saved.'));
+  const data=JSON.stringify({...pageSettings(uid),corner:'gallery',cornerPhoto});
+  localStorage.setItem(pageKey(uid),data);
+  render();
+  document.querySelector('.page-wardrobe-banner')?.remove();
+  renderPageBannerWardrobe();
+ }catch(error){await window.ElaraDialog?.alert?.(String(error?.message||error),{title:t('آپلود محلی بنر انجام نشد','Local banner upload failed')})}
+ finally{fileInput.disabled=false;fileInput.value=''}
+});
 document.addEventListener('click',async e=>{
  const addStory=e.target.closest('[data-page-add-story]');
  if(addStory){pageStoryExpanded=true;pageContentTab='all';render();const field=document.querySelector('#panel-page [data-page-story-form] textarea');field?.closest('form')?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
@@ -425,7 +452,7 @@ document.addEventListener('click',async e=>{
  const pageBannerPick=e.target.closest('[data-page-corner-pick]');
  if(pageBannerPick){
   const uid=window.ElaraAccount?.user?.uid;if(!uid||pageBannerPick.disabled)return;
-  const id=safePageCorner(pageBannerPick.dataset.pageCornerPick);
+  const current=pageSettings(uid),id=pageBannerPick.dataset.pageCornerPick==='gallery'&&current.cornerPhoto?'gallery':safePageCorner(pageBannerPick.dataset.pageCornerPick);
   try{localStorage.setItem(pageKey(uid),JSON.stringify({...pageSettings(uid),corner:id}));render();document.querySelector('.page-wardrobe-banner')?.remove();renderPageBannerWardrobe()}
   catch(error){await window.ElaraDialog?.alert?.(String(error?.message||error))}return
  }
