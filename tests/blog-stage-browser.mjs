@@ -28,10 +28,11 @@ async function run(width,height){
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
  await page.goto(base+'/?blogtest='+width+'#blog',{waitUntil:'domcontentloaded',timeout:40000});
  await page.waitForFunction(()=>window.ElaraBlog&&document.querySelector('#panel-blog:not(.hidden) .blog-card')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
- await page.waitForFunction(()=>document.querySelectorAll('#panel-blog .blog-card').length===6);
+ await page.waitForFunction(()=>document.querySelectorAll('#panel-blog .blog-card').length===1);
  await page.waitForFunction(()=>document.documentElement.dataset.elaraBlogBannerReady!==undefined,null,{timeout:25000});
  if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/blog01/after-'+width+'.png',fullPage:true});
- assert.equal(await page.locator('#panel-blog .blog-card').count(),6,width+': real editorial plus official content');
+ assert.equal(await page.locator('#panel-blog .blog-card').count(),1,width+': only one authorized official QA article, zero bundled demo articles');
+ assert.deepEqual(await page.evaluate(()=>window.ElaraBlog.articles),[],width+': no seeded articles exported');
  assert.equal(await page.locator('#panel-blog .blog-hero').count(),1,width+': exactly one blog hero');
  assert.equal(await page.locator('#panel-blog [data-blog-id="published:admin-productivity"]').count(),1);
  assert.equal(await page.locator('.sidebar [data-elara-tab="blog"]').count(),1,width+': blog navigation missing');
@@ -43,15 +44,15 @@ async function run(width,height){
 }));
 assert.ok(geometry.every(x=>x.cover>=x.card-4&&x.height>60),width+': full-width cover required '+JSON.stringify(geometry));
 await page.locator('[data-blog-filter="focus"]').click();
- assert.equal(await page.locator('#panel-blog .blog-card').count(),1,width+': focus category must filter');
+ assert.equal(await page.locator('#panel-blog .blog-card').count(),0,width+': empty focus category must not fabricate articles');
  await page.locator('[data-blog-filter="technology"]').click();
  assert.equal(await page.locator('#panel-blog .blog-card').count(),0,width+': empty technology category must not fabricate content');
  assert.match(await page.locator('#panel-blog .blog-empty').first().innerText(),/مقاله‌ای|article/i);
  await page.locator('[data-blog-filter="all"]').click();
  const search=page.locator('[data-blog-search]');
- await search.fill('مطالعه');
+ await search.fill('مقاله ادمین');
  assert.equal(new URL(page.url()).searchParams.get('blogView'),'search',width+': real search route');
- assert.ok(await page.locator('#panel-blog .blog-card').count()>0,width+': search must find actual reading result');
+ assert.equal(await page.locator('#panel-blog .blog-card').count(),1,width+': search must find authorized official QA article');
  await search.fill('');
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForSelector('#panel-blog [data-blog-search]',{timeout:30000});
@@ -59,7 +60,7 @@ await page.locator('[data-blog-filter="focus"]').click();
  await page.locator('#panel-blog .blog-card').first().locator('[data-blog-open]').click();
  await page.waitForSelector('#panel-blog .blog-article-detail');
  assert.ok(new URL(page.url()).searchParams.get('blogView')==='article',width+': article deep link');
- assert.equal(await page.locator('#panel-blog .blog-article-detail> .blog-reader-inner > section').count(),3,width+': original article text retained');
+ assert.equal(await page.locator('#panel-blog .blog-article-detail> .blog-reader-inner > section').count(),2,width+': official article text retained');
  assert.equal(await page.locator('.elara-dialog-root:not(.hidden) .blog-article-detail').count(),0,width+': not a dialog');
  const mark=page.locator('#panel-blog .blog-article-detail [data-blog-bookmark]');
  await mark.click();assert.equal(await mark.getAttribute('aria-pressed'),'true',width+': bookmark saved');
@@ -113,7 +114,26 @@ await page.locator('[data-blog-filter="focus"]').click();
  assert.deepEqual(extraErrors,[],width+': blog runtime errors');
  await page.close();
 }
+// Empty official feed must not resurrect hard-coded promotional/demo articles.
+async function checkEmptyOfficialFeed(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ try{
+  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloud}));
+  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
+  await page.goto(base+'/?blogempty='+width+'#blog',{waitUntil:'domcontentloaded',timeout:40000});
+  await page.waitForFunction(()=>window.ElaraBlog&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
+  await page.evaluate(async()=>{window.ElaraPublicContent.listBlogArticles=async()=>[];await window.ElaraBlog.reloadPublished();});
+  await page.waitForFunction(()=>document.querySelectorAll('#panel-blog .blog-card').length===0);
+  assert.equal(await page.locator('#panel-blog .blog-card').count(),0,width+': no invented articles with empty official feed');
+  assert.match(await page.locator('#panel-blog .blog-feed .blog-empty').first().innerText(),/هنوز مقاله|No articles/i);
+  assert.equal(await page.locator('#panel-blog [data-blog-category="reading"] small').innerText(),'0 مقاله',width+': genuine zero count');
+  assert.ok(await page.locator('#panel-blog .blog-quick').count()===1,width+': writing controls retained');
+  if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/blog01/empty-'+width+'.png',fullPage:true});
+ }finally{await page.close()}
+}
+
 for(const [w,h] of [[390,844],[1440,900]])await captureProductionBefore(w,h);
 for(const [w,h] of [[320,760],[360,790],[375,812],[390,844],[412,915],[430,932],[768,1024],[1024,800],[1440,900],[1648,940]])await run(w,h);
+for(const [w,h] of [[390,844],[1440,900]])await checkEmptyOfficialFeed(w,h);
 await browser.close();
-console.log('BLOG_FIDELITY_02_PASS: 10 widths, cover geometry, bookmark/share, search/deep-links, UID-scoped drafts and saved preview');
+console.log('BLOG_DEMO_REMOVAL_PASS: 10 widths, no hardcoded demo articles, official feed, bookmarks, local drafts, deep links and empty states');
