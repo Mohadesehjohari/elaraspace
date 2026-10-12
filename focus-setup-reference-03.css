@@ -120,7 +120,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .timer-actio
   align-self:end;justify-self:center;
   width:max-content;margin:0;
   display:flex;align-items:center;justify-content:center;gap:clamp(15px,1.8vw,25px);
-  transform:translateY(42px)
+  transform:translateY(0px)
 }
 body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
   order:2;position:relative;display:grid;place-items:center;
@@ -315,7 +315,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track sp
   transform:translateY(min(206px,56vw));font-size:13px
  }
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .timer-actions{
-  transform:translateY(24px);gap:20px
+  transform:translateY(-18px);gap:20px
  }
  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
   width:76px;height:76px;min-width:76px;min-height:76px
