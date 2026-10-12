@@ -17,6 +17,7 @@ async function open(width){
  await page.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.goto(base+'/?store-reference-qa=1#store',{waitUntil:'domcontentloaded',timeout:45000});
  await page.waitForFunction(()=>window.ElaraStore&&document.querySelectorAll('#panel-store .store-product').length>=30&&document.querySelector('#panel-store .elara-global-hero')&&getComputedStyle(document.querySelector('#panel-store .elara-global-hero')).backgroundImage.includes('shop_senter.webp'),null,{timeout:30000});
+ await page.waitForFunction(()=>window.ElaraProfileSystem?.currentUid?.()==='store-test',null,{timeout:15000});
  return {context,page,errors}
 }
 async function screenshotBefore(width){
@@ -74,6 +75,7 @@ for(const width of widths){
  assert.equal(await first.locator('[data-store-wish]').getAttribute('aria-pressed'),'true',width+': favorite not persisted');
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraStore&&document.querySelectorAll('#panel-store .store-product').length>=35,null,{timeout:30000});
+ await page.waitForFunction(()=>window.ElaraProfileSystem?.currentUid?.()==='store-test',null,{timeout:15000});
  assert.equal(await page.locator('#panel-store .store-product[data-store-kind="avatar"][data-store-id="female:1"] [data-store-wish]').getAttribute('aria-pressed'),'true',width+': wishlist lost on refresh');
  assert.equal(await page.evaluate(()=>window.ElaraProfileSystem.readWardrobe().frame),'bronze',width+': wardrobe lost on refresh');
  assert.equal(errors.length,0,width+': new browser errors '+errors.join(' | '));
