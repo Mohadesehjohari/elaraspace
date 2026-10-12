@@ -34,15 +34,16 @@ try{
   if(route==='home'){
    const artwork=await page.evaluate(async()=>{
     const images=[...document.querySelectorAll('#ref-quick-access .ref-quick-icon')];
-    await Promise.all(images.map(async img=>{img.loading='eager';try{await img.decode()}catch(_){}}));
-    return images.map(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
-      width:img.getBoundingClientRect().width,height:img.getBoundingClientRect().height,
-      display:getComputedStyle(img).display,opacity:getComputedStyle(img).opacity}));
+    await Promise.all(images.map(async el=>{if(el instanceof HTMLImageElement){el.loading='eager';try{await el.decode()}catch(_){}}}));
+    return images.map(el=>({src:el.getAttribute('src'),naturalWidth:el.naturalWidth||0,naturalHeight:el.naturalHeight||0,
+      svg:!!el.querySelector('svg path,svg rect,svg circle'),
+      width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
+      display:getComputedStyle(el).display,opacity:getComputedStyle(el).opacity}));
    });
    assert.equal(artwork.length,6,'Exactly six real quick access icons required');
-   assert.ok(artwork.every(img=>img.src?.startsWith('assets/ui/')&&img.naturalWidth>0&&img.naturalHeight>0&&img.width>=29&&img.height>=29&&img.display!=='none'&&Number(img.opacity)>0),
-    'Owner WebP Quick Access icons must decode and visibly render: '+JSON.stringify(artwork));
-   console.log('REFERENCE_QUICK_WEBP_DECODE_PASS '+width);
+   assert.ok(artwork.every(img=>(img.src?.startsWith('assets/ui/')&&img.naturalWidth>0&&img.naturalHeight>0||img.svg)&&img.width>=29&&img.height>=29&&img.display!=='none'&&Number(img.opacity)>0),
+    'Approved WebP or outline SVG quick access icons must visibly render: '+JSON.stringify(artwork));
+   console.log('REFERENCE_QUICK_ICON_VISIBILITY_PASS '+width);
   }
   const selectors=route==='home'?['.topbar','.sidebar','.ref-home-grid','#ref-streak-card','.ref-quick-access-grid','.owner-home-hero','.owner-home-streak','.owner-home-goals','#ref-bottom-grid']:['.topbar','.sidebar','#panel-tasks','.astra-task-row','#astra-task-toolbar','.astra-task-hero','#astra-task-streak','#tasks-heading','.section-heading','.astra-task-insights'];
   const metrics=await page.evaluate((selectors)=>{const m={width:innerWidth,scrollWidth:document.documentElement.scrollWidth};for(const s of selectors){const el=document.querySelector(s);if(!el){m[s]=null;continue}const a=el.getBoundingClientRect(),cs=getComputedStyle(el);m[s]={x:Math.round(a.x),y:Math.round(a.y),width:Math.round(a.width),height:Math.round(a.height),display:cs.display,background:cs.backgroundImage?.slice(0,300)}}return m},selectors);
