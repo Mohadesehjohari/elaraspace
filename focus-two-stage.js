@@ -35,6 +35,7 @@ function addPreview(){
  const panel=$('#panel-focus-pomodoro'),card=panel?.querySelector('.focus-card');
  if(!panel||!card||!$('#timer-start')||!$('#focus-duration'))return false;
  panel.classList.add('focus-v2-preview');
+ const dial=$('#timer-display');if(dial){dial.setAttribute('role','button');dial.setAttribute('tabindex','0');dial.setAttribute('aria-label',t('باز کردن جلسهٔ تمام‌صفحه','Open immersive focus session'));}
  const actions=card.querySelector('.timer-actions');
  if(actions&&!actions.querySelector('[data-focus-v2-enter]')){
   const b=document.createElement('button');
@@ -149,13 +150,13 @@ function install(){
  try{if(addPreview())overlay();sync()}finally{installing=false}
 }
 document.addEventListener('click',e=>{
- const b=e.target.closest?.('[data-focus-v2-inline-start],[data-focus-v2-library-mode],[data-focus-v2-mode],[data-focus-v2-enter],[data-focus-v2-exit],[data-focus-v2-pause],[data-focus-v2-reset],[data-focus-v2-inc],[data-focus-v2-dec]');
+ const b=e.target.closest?.('#panel-focus-pomodoro #timer-display,[data-focus-v2-inline-start],[data-focus-v2-library-mode],[data-focus-v2-mode],[data-focus-v2-enter],[data-focus-v2-exit],[data-focus-v2-pause],[data-focus-v2-reset],[data-focus-v2-inc],[data-focus-v2-dec]');
  if(!b)return;
  e.preventDefault();e.stopPropagation();
  if(b.hasAttribute('data-focus-v2-inline-start')){runCanonical();return}
  if(b.dataset.focusV2LibraryMode){selectMode(b.dataset.focusV2LibraryMode,true);return}
  if(b.dataset.focusV2Mode){selectMode(b.dataset.focusV2Mode);return}
- if(b.hasAttribute('data-focus-v2-enter')){enter();return}
+ if(b.id==='timer-display'||b.hasAttribute('data-focus-v2-enter')){enter();return}
  if(b.hasAttribute('data-focus-v2-exit')){exit();return}
  if(b.hasAttribute('data-focus-v2-pause')){runCanonical();return}
  if(b.hasAttribute('data-focus-v2-reset')){$('#timer-reset')?.click();setTimeout(sync,20);return}
@@ -168,6 +169,7 @@ document.addEventListener('change',e=>{
  if(source&&!source.disabled){source.checked=input.checked;source.dispatchEvent(new Event('change',{bubbles:true}))}sync();
 },true);
 document.addEventListener('keydown',e=>{
+ if((e.key==='Enter'||e.key===' ')&&e.target.id==='timer-display'&&!immersive){e.preventDefault();enter();return}
  if(e.key!=='Escape'||!immersive)return;
  e.preventDefault();e.stopPropagation();exit();
 },true);
