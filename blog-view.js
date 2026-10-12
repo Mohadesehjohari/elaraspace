@@ -2,15 +2,11 @@
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lang=()=>document.documentElement.lang==='en'?'en':'fa';
 const tx=(fa,en)=>lang()==='en'?en:fa;
-const articles=[
- {id:'plan-week',cat:'planning',min:6,fa:{title:'هفته‌ات را سبک ولی دقیق بچین',desc:'یک روش ساده برای اینکه برنامه‌ریزی به لیست آرزوها تبدیل نشود.',body:['اول سه نتیجهٔ مهم هفته را بنویس؛ نه سی کار ریز.','هر نتیجه را به یک قدم ۲۰ تا ۴۵ دقیقه‌ای تبدیل کن و فقط همان قدم بعدی را وارد تسک‌ها کن.','برای کارهای غیرضروری یک لیست «بعداً» داشته باش تا برنامهٔ امروز خفه نشود.']},en:{title:'Plan a lighter, sharper week',desc:'A simple way to stop planning from becoming a wish list.',body:['Write the three outcomes that matter most this week—not thirty tiny tasks.','Turn each outcome into one 20–45 minute next action and put only that next action in Tasks.','Keep a Later list for non-essential work so Today stays breathable.']}},
- {id:'focus-reset',cat:'focus',min:5,fa:{title:'وقتی تمرکزت پخش شده، از صفر ریست کن',desc:'ریست کوتاه پنج‌دقیقه‌ای قبل از Pomodoro بعدی.',body:['همهٔ تب‌های غیرضروری را ببند و فقط یک مقصد روی صفحه نگه دار.','یک جمله بنویس: «تا پایان این جلسه فقط …».','تایمر را کوتاه‌تر از حد معمول شروع کن؛ شروع دوباره مهم‌تر از طول جلسه است.']},en:{title:'Reset when your focus is scattered',desc:'A five-minute reset before the next Pomodoro.',body:['Close every unnecessary tab and leave one destination on screen.','Write one sentence: “Until this session ends, I only …”.','Start with a shorter timer than usual; restarting matters more than session length.']}},
- {id:'habit-small',cat:'habits',min:7,fa:{title:'عادت را آن‌قدر کوچک کن که بهانه جا نشود',desc:'چطور نسخهٔ حداقلی عادت را طراحی کنی و زنجیره را زنده نگه داری.',body:['حداقل موفقیت را تعریف کن: یک صفحه، پنج حرکت، یک لیوان آب.','بعد از انجام حداقل، ادامه دادن اختیاری است؛ این کار مقاومت شروع را کم می‌کند.','اگر سه روز پشت سر هم حداقل را انجام دادی، اندازهٔ عادت را خیلی کم بالا ببر.']},en:{title:'Make the habit too small to dodge',desc:'Design a minimum version that keeps the chain alive.',body:['Define the minimum win: one page, five reps, one glass of water.','After the minimum, continuing is optional; this lowers starting resistance.','After three consistent days, increase the habit only a little.']}},
- {id:'read-better',cat:'reading',min:8,fa:{title:'کمتر بخوان، بیشتر به خاطر بسپار',desc:'سه حرکت برای مطالعه‌ای که بعداً واقعاً یادت بماند.',body:['قبل از فصل یک سؤال مشخص بساز تا ذهنت دنبال جواب بگردد.','بعد از هر بخش، بدون نگاه‌کردن دو خط از حافظه بنویس.','یک بریده یا یادداشت را به Book Clips بفرست تا بعداً راحت‌تر برگردی.']},en:{title:'Read less, remember more',desc:'Three moves that make reading stick.',body:['Create one concrete question before the chapter so your mind looks for an answer.','After each section, write two lines from memory without looking back.','Save one quote or note to Book Clips so you can revisit it later.']}},
- {id:'energy-day',cat:'wellbeing',min:6,fa:{title:'روزت را با انرژی مدیریت کن، نه فقط با ساعت',desc:'کارهای سنگین را وقتی بگذار که مغزت واقعاً توانش را دارد.',body:['دو بازه‌ای را که معمولاً انرژی بیشتری داری پیدا کن.','کار عمیق را به یکی از همان بازه‌ها بده و کارهای سبک را به زمان افت انرژی منتقل کن.','خواب، آب و تمرین را به‌عنوان سیگنال ببین، نه عدد برای قضاوت خودت.']},en:{title:'Manage energy, not only hours',desc:'Put demanding work where your brain can actually carry it.',body:['Find the two windows when your energy is usually strongest.','Place deep work in one of those windows and move shallow work to lower-energy time.','Treat sleep, water and exercise as signals—not numbers to judge yourself with.']}}
-];
+// Owner requested removing the five bundled demonstration/editorial articles.
+// Only authorized published content from ElaraPublicContent may appear in the public feed.
+const articles=[];
 
-/* BLOG-01: standalone visual and navigation owner, reusing canonical editorial articles and official feed. */
+/* BLOG-01: standalone visual and navigation owner, rendering official public content only. */
 const catDefs=[
  ['all','همه','All','✦'],['reading','مطالعه','Reading','📖'],
  ['habits','رشد فردی','Growth','🌱'],['lifestyle','سبک زندگی','Lifestyle','☕'],
@@ -34,7 +30,7 @@ function publishedForLocale(){
   [locale]:{title:String(x.title||''),desc:String(x.excerpt||''),body:bodyParts(x.body)}
  }));
 }
-const allArticles=()=>[...articles,...publishedForLocale()];
+const allArticles=()=>publishedForLocale();
 const articleCopy=a=>a[lang()]||a.fa||a.en||{title:'',desc:'',body:[]};
 function mode(){return new URLSearchParams(location.search).get('blogView')||'home'}
 function param(name){return new URLSearchParams(location.search).get(name)||''}
@@ -79,7 +75,7 @@ function topicGrid(){
 function dashboard(){
  const visible=rows(),featuredCount=window.innerWidth<=1200?2:3,first=visible.slice(0,featuredCount),rest=visible.slice(featuredCount);
  const featured='<section class="blog-block">'+sectionHeader(tx('مقاله‌های پیشنهادی','Featured articles'),'🌟',tx('مشاهده همه ←','View all ←'),'all')+
- (first.length?'<div class="blog-grid">'+first.map(card).join('')+'</div>':emptyState('مقاله‌ای در این دسته یا جست‌وجو پیدا نشد.','No articles in this category or search.'))+'</section>';
+ (first.length?'<div class="blog-grid">'+first.map(card).join('')+'</div>':emptyState('هنوز مقاله‌ای برای نمایش وجود ندارد.','No articles are available to show yet.'))+'</section>';
  const more=rest.length?'<section class="blog-block">'+sectionHeader(tx('مقاله‌های بیشتر','More articles'),'✧',tx('مشاهده همه ←','View all ←'),'all')+'<div class="blog-grid'+(rest.length===2?' blog-grid-two':'')+'">'+rest.map(card).join('')+'</div></section>':'';
  return hero()+'<div class="blog-frame"><section class="blog-top-controls">'+categories()+'<div class="blog-personal-links"><button type="button" data-blog-route="my">'+tx('بلاگ من','My blog')+'</button><button type="button" data-blog-route="published">'+tx('منتشرشده‌ها','Published')+'</button><button type="button" data-blog-route="drafts">'+tx('پیش‌نویس‌ها','Drafts')+'</button></div></section>'+
  quick()+'<label class="blog-search"><span aria-hidden="true">⌕</span><input data-blog-search type="search" value="'+esc(query)+'" placeholder="'+tx('جست‌وجو در مقاله‌ها…','Search articles…')+'" aria-label="'+tx('جست‌وجو در مقاله‌ها','Search articles')+'"></label>'+
