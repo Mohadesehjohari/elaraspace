@@ -35,7 +35,7 @@ function install(){
  if(r.querySelector('.fd-dashboard')){root=r;return}
  root=r;p.classList.add('freedom-r26-page');
  const markup='<section class="fd-dashboard" dir="rtl" aria-label="داشبورد آزادی">'+
- '<div class="fd-features" aria-label="بخش‌های آزادی">'+cards.map(tile).join('')+'</div>'+
+ '<div class="fd-features" aria-label="بخش‌های آزادی">'+cards.map(tile).join('')+'</div><p class="fd-swipe-cue">← برای دیدن بخش‌های بیشتر، کارت‌ها را به چپ بکش</p>'+
  '<div class="fd-main">'+
  '<div class="fd-right">'+
   '<section class="fd-panel fd-inspiration"><header><h2>☀ الهام امروز</h2><button type="button" data-fd-quote-edit>ویرایش</button></header><blockquote data-fd-quote></blockquote></section>'+
