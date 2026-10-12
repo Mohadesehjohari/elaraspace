@@ -1,0 +1,50 @@
+name: PAGE R4 Reference Sidebar and Interests
+on:
+  push:
+    branches:
+      - feat/page-r4-reference-layout-interests-20261012
+  pull_request:
+    paths:
+      - page-view.js
+      - page-fidelity-release4.css
+      - tests/page-fidelity-r4-browser.mjs
+      - .github/workflows/page-fidelity-r4.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  page-r4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax and design prerequisites
+        run: |
+          node --check page-view.js
+          node --check tests/page-fidelity-r4-browser.mjs
+          test -s assets/ui/38-my-page-hero-banner.webp
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve branch
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-page-r4-http.log 2>&1 &
+          sleep 2
+      - name: Full shell right rail and UID-private interests in ten widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 285s node tests/page-fidelity-r4-browser.mjs
+      - name: No fake media upload requests
+        run: timeout 120s node tests/media-deferred-browser.mjs
+      - name: Preserve 390px and 1440px screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-r4-390-1440
+          path: browser-artifacts/page-r4-*.png
+          if-no-files-found: warn
+          retention-days: 14
