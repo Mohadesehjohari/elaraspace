@@ -40,9 +40,10 @@ try{
   await page.locator('#word-reveal').click();
   const before=await page.locator('#flash-front').textContent();
   const target=page.locator('#l3-review-scene [data-l3-drag-surface]');
-  const box=await target.boundingBox();assert.ok(box);
-  await page.mouse.move(box.x+box.width*.49,box.y+box.height*.52);
-  await page.mouse.down();await page.mouse.move(box.x+box.width*.49+Math.min(175,box.width*.31),box.y+box.height*.56,{steps:8});
+  const box=await target.boundingBox(),frontBox=await page.locator('#flash-front').boundingBox();assert.ok(box&&frontBox);
+  const startX=frontBox.x+frontBox.width*.5,startY=frontBox.y+frontBox.height*.5;
+  await page.mouse.move(startX,startY);
+  await page.mouse.down();await page.mouse.move(startX+Math.min(175,box.width*.31),startY+14,{steps:8});
   assert.equal(await page.locator('.l3-story-scene.l5-drag-yes').count(),1,'whole-card drag state '+width);
   const transform=await target.evaluate(e=>getComputedStyle(e).transform);
   assert.notEqual(transform,'none','whole frame must tilt '+width);
