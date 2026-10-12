@@ -1,0 +1,100 @@
+/* Tasks mobile fidelity — scoped layout only. Existing task events and state remain untouched. */
+@media (max-width: 767px) {
+  #panel-tasks{min-width:0!important;width:100%!important;overflow-x:clip!important;padding-inline:10px!important}
+  #panel-tasks .astra-task-hero,#panel-tasks #astra-task-hero{min-height:94px!important;max-height:140px!important;padding:10px 12px!important;overflow:hidden!important}
+  #panel-tasks .astra-task-hero *,#panel-tasks #astra-task-hero *{max-width:100%}
+  #panel-tasks #astra-task-toolbar{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important;margin:8px 0 10px!important;min-width:0!important}
+  #panel-tasks #astra-task-chips{display:flex!important;flex:1 1 100%!important;min-width:0!important;max-width:100%!important;overflow-x:auto!important;overscroll-behavior-inline:contain;scrollbar-width:none;gap:5px!important;padding:2px 0!important;flex-wrap:nowrap!important}
+  #panel-tasks #astra-task-chips::-webkit-scrollbar{display:none}
+  #panel-tasks #astra-task-chips button{min-width:max-content!important;min-height:30px!important;height:30px!important;padding:4px 11px!important;font-size:11px!important;line-height:1.2!important;border-radius:999px!important;white-space:nowrap!important}
+  #panel-tasks #elara-task-page-actions{display:flex!important;flex:1 1 auto!important;min-width:0!important;align-items:center!important;gap:5px!important;flex-wrap:wrap!important}
+  #panel-tasks #elara-task-page-actions button{min-height:35px!important;max-height:38px!important;padding:5px 9px!important;font-size:11px!important}
+  #panel-tasks .task-occurrence-date{display:flex!important;align-items:center!important;gap:5px!important;min-width:0!important;font-size:10px!important}
+  #panel-tasks .task-occurrence-date input{width:122px!important;max-width:38vw!important;min-width:0!important;height:34px!important;font-size:11px!important;padding:3px 5px!important}
+  #panel-tasks .task-occurrence-date button{min-height:32px!important;padding:3px 6px!important;font-size:10px!important}
+  #panel-tasks #task-list{display:grid!important;gap:6px!important;min-width:0!important;margin:0!important;padding:0!important}
+  #panel-tasks #task-list>.astra-task-row{
+    box-sizing:border-box!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;align-content:center!important;
+    width:100%!important;min-width:0!important;min-height:76px!important;height:auto!important;max-height:none!important;
+    gap:3px 6px!important;padding:7px 9px!important;border-radius:13px!important;
+    box-shadow:0 1px 9px #0005!important;
+  }
+  #panel-tasks #task-list>.astra-task-row>.check-button{
+    order:0!important;flex:0 0 32px!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+    padding:2px!important;margin:0!important;border-radius:8px!important
+  }
+  #panel-tasks #task-list>.astra-task-row>.item-content{
+    order:1!important;flex:1 1 calc(100% - 80px)!important;width:auto!important;min-width:0!important;
+    display:grid!important;gap:3px!important;padding:0!important;margin:0!important
+  }
+  #panel-tasks #task-list>.astra-task-row .task-summary-button{min-width:0!important;line-height:1.35!important}
+  #panel-tasks #task-list>.astra-task-row .item-title{
+    display:block!important;font-size:15px!important;line-height:1.4!important;font-weight:800!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+  }
+  #panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta{
+    display:flex!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:4px!important;
+    min-width:0!important;min-height:18px!important;overflow-x:auto!important;scrollbar-width:none;
+  }
+  #panel-tasks #task-list>.astra-task-row .astra-task-core-meta::-webkit-scrollbar{display:none}
+  #panel-tasks #task-list>.astra-task-row .astra-task-core-meta>span{
+    flex:0 0 auto!important;min-height:17px!important;max-width:115px!important;
+    padding:2px 5px!important;font-size:10px!important;font-weight:650!important;line-height:1.1!important
+  }
+  #panel-tasks #task-list>.astra-task-row>.astra-task-more{order:2!important;flex:0 0 32px!important;width:32px!important;min-height:32px!important;margin:0!important}
+  #panel-tasks #task-list>.astra-task-row>.astra-task-more>summary{width:32px!important;min-height:32px!important;display:grid!important;place-items:center!important}
+  #panel-tasks #task-list>.astra-task-row::after{content:"";order:3!important;flex-basis:100%!important;height:0!important}
+  #panel-tasks #task-list>.astra-task-row>.astra-task-category,
+  #panel-tasks #task-list>.astra-task-row>.astra-task-status,
+  #panel-tasks #task-list>.astra-task-row>.astra-task-xp{
+    position:static!important;grid-area:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    min-width:0!important;max-width:40%!important;width:auto!important;height:20px!important;min-height:20px!important;
+    padding:2px 7px!important;margin:0!important;font-size:10px!important;line-height:1.1!important;border-radius:999px!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+  }
+  #panel-tasks #task-list>.astra-task-row>.astra-task-category{order:4!important}
+  #panel-tasks #task-list>.astra-task-row>.astra-task-status{order:5!important}
+  #panel-tasks #task-list>.astra-task-row>.astra-task-xp{order:6!important}
+  #panel-tasks #task-list>.astra-task-row>.task-checklist-preview{order:7!important;flex-basis:100%!important}
+  #panel-tasks #task-list>.astra-task-row .task-short-description{font-size:10px!important;line-height:1.3!important;margin:0!important;display:-webkit-box!important;-webkit-line-clamp:1!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+  #panel-tasks .list-toolbar{gap:6px!important;margin:8px 0!important}
+  #panel-tasks .list-toolbar .filters{gap:5px!important;min-width:0!important;flex-wrap:wrap!important}
+  #panel-tasks .list-toolbar input,#panel-tasks .list-toolbar select{height:35px!important;min-height:35px!important;font-size:11px!important;min-width:0!important}
+  /* Real composer form, not a copy: existing validation, submit and recurrence controls stay wired. */
+  #task-composer-shell{position:fixed!important;inset:0!important;z-index:99990!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px 10px calc(12px + env(safe-area-inset-bottom))!important;background:#020a20c9!important;backdrop-filter:blur(10px)}
+  #task-composer-shell[hidden]{display:none!important}
+  #task-composer-shell .task-composer-window{
+    box-sizing:border-box!important;direction:rtl!important;width:min(100%,520px)!important;max-width:100%!important;
+    max-height:calc(100dvh - 24px - env(safe-area-inset-bottom))!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+    padding:15px!important;border-radius:22px!important;border:1px solid #ab63ffba!important;
+    background:radial-gradient(ellipse at 20% 0%,#5632bb55,transparent 40%),linear-gradient(145deg,#0c1e46f7,#06142ef8 75%)!important;
+    box-shadow:0 0 0 1px #3c97ff44,0 0 28px #8c4aff44,0 20px 65px #000c!important;
+    scrollbar-width:thin!important;scrollbar-color:#665cb7 transparent
+  }
+  #task-composer-shell .task-composer-window>header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:0 0 10px!important}
+  #task-composer-shell .task-composer-window>header h2{font-size:21px!important;margin:0!important;color:#f3f4ff!important}
+  #task-composer-shell [data-composer-close]{width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;border:1px solid #9a68ff!important;border-radius:11px!important;font-size:24px!important}
+  #task-composer-shell .task-date-shortcuts{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;margin-bottom:10px!important}
+  #task-composer-shell .task-date-shortcuts button{min-width:0!important;min-height:36px!important;padding:5px 4px!important;font-size:11px!important;border:1px solid #7868e3!important;border-radius:11px!important;background:#171e58c9!important;color:#edf2ff!important}
+  #task-composer-shell #task-form{display:grid!important;gap:9px!important;min-width:0!important;margin:0!important;padding:12px!important;border-radius:17px!important;background:linear-gradient(155deg,#111d50ab,#04132dbb)!important;border:1px solid #568cff91!important;box-shadow:inset 0 1px 18px #2355b522!important}
+  #task-composer-shell #task-form .form-title{font-size:17px!important;margin:0!important}
+  #task-composer-shell #task-form label{font-size:11px!important;line-height:1.4!important}
+  #task-composer-shell #task-form :is(input,select,textarea){box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:37px!important;height:37px!important;padding:6px 9px!important;font-size:12px!important;border-radius:10px!important;border:1px solid #4074b6!important;background:#07172fdc!important;color:#eef3ff!important}
+  #task-composer-shell #task-form .form-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:7px!important;align-items:center!important}
+  #task-composer-shell #task-title{font-size:14px!important;min-height:42px!important;height:42px!important;border-color:#a65bff!important}
+  #task-composer-shell #task-submit{min-height:42px!important;height:42px!important;padding:6px 13px!important;border-radius:11px!important;font-size:13px!important;color:white!important;background:linear-gradient(105deg,#ff72ab,#a32fff 55%,#456bff)!important;box-shadow:0 0 16px #ab42ff55!important}
+  #task-composer-shell #task-form .form-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  #task-composer-shell #task-form .form-grid>div{min-width:0!important;display:grid!important;gap:4px!important}
+  #task-composer-shell #task-form :is(details,fieldset){min-width:0!important;max-width:100%!important}
+  #task-composer-shell #task-form :is(summary,button){touch-action:manipulation}
+}
+@media(max-width:359px){
+  #panel-tasks #task-list>.astra-task-row{padding-inline:6px!important;gap:3px 4px!important}
+  #panel-tasks #task-list>.astra-task-row .item-title{font-size:14px!important}
+  #panel-tasks #task-list>.astra-task-row .astra-task-core-meta>span{font-size:9px!important}
+  #task-composer-shell .task-composer-window{padding:9px!important}
+  #task-composer-shell #task-form{padding:9px!important}
+}
+@media(min-width:768px) and (max-width:1024px){
+ #task-composer-shell .task-composer-window{max-height:calc(100dvh - 36px)!important;overflow-y:auto!important}
+}
