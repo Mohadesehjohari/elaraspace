@@ -204,3 +204,11 @@ html body #panel-ranking #elara-ranking-page.ranking-gold{display:block!importan
  #panel-ranking .ranking-gold .rg-podium-base>small{font-size:.56rem!important;min-height:2.6em!important}
  #panel-ranking .ranking-gold .rg-podium-base>b{font-size:.69rem!important}
 }
+
+@media(min-width:1101px){
+ #panel-ranking .ranking-gold .rg-leaderboard-card{grid-column:span 6!important}
+ #panel-ranking .ranking-gold .rg-clubs-card,
+ #panel-ranking .ranking-gold .rg-friends-card{grid-column:span 3!important}
+ #panel-ranking .ranking-gold .rg-clubs-card .rg-empty,
+ #panel-ranking .ranking-gold .rg-friends-card .rg-empty{padding:10px!important}
+}
