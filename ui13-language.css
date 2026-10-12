@@ -554,95 +554,100 @@ html body #main #panel-books .elara-global-hero{background-position:center 68%!i
  #panel-words .l2-stage h3{font-size:9px}
  #panel-words .l2-stage-orb{width:29px;height:29px}
 }
-/* L3 isolated Leitner word-review scene. The canonical app.js controls and data persist unchanged. */
-#panel-words.l3-review-active{
- position:relative;isolation:isolate;min-width:0;min-height:100dvh;
- padding:clamp(18px,3vw,38px) clamp(12px,3.5vw,42px) calc(44px + env(safe-area-inset-bottom))!important;
- border-radius:22px;border:1px solid #314ff0;
- background:linear-gradient(180deg,#0210269a,#030e2d50 55%,#031129ce),
- url('assets/ui/lightner_words_backgroud_pc.webp') center top/cover no-repeat!important;
- color:#eff5ff;box-shadow:inset 0 0 60px #0b38bc30
-}
-#panel-words.l3-review-active>.l2-leitner-shell,
-#panel-words.l3-review-active>#word-form,
-#panel-words.l3-review-active>#word-list,
-#panel-words.l3-review-active>.section-heading{display:none!important}
-#panel-words .l3-toolbar{display:none}
-#panel-words.l3-review-active .l3-toolbar{
- width:min(980px,100%);margin:0 auto 24px;display:grid;gap:15px;
- background:linear-gradient(120deg,#051838d8,#05102ccc);
- border:1px solid #447de0;border-radius:21px;padding:clamp(12px,2vw,20px);
- box-shadow:0 0 25px #2867e32e
-}
-#panel-words .l3-toolbar-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px}
-#panel-words .l3-toolbar button{
- font:inherit;cursor:pointer;min-height:43px;border:1px solid #397cc8;border-radius:12px;
- color:#eaf6ff;background:#061c40ed;padding:8px 15px
-}
-#panel-words .l3-toolbar button:focus-visible,#panel-words.l3-review-active .flashcard button:focus-visible{outline:3px solid #72dcff;outline-offset:3px}
-#panel-words .l3-toolbar button:disabled{opacity:.42;cursor:not-allowed}
-#panel-words .l3-review-name{font-weight:900;font-size:clamp(15px,1.6vw,22px);color:#fff;text-align:center}
-#panel-words .l3-review-progress{display:grid;gap:10px;text-align:center}
-#panel-words .l3-review-progress strong{font-size:clamp(14px,1.4vw,20px);color:#eaf3ff}
-#panel-words .l3-track{width:100%;height:12px;background:#0b214b;border:1px solid #3050a1;border-radius:100px;overflow:hidden}
-#panel-words .l3-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#20caff,#3d83ff,#7144ff);border-radius:inherit;transition:width .3s}
-#panel-words .l3-history-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-#panel-words .l3-history-card[hidden],
-#panel-words .l3-history-actions [hidden]{display:none!important}
-#panel-words.l3-history-open .flashcard{display:none!important}
-#panel-words .l3-history-card{display:grid;gap:16px;justify-items:center;text-align:center;padding:clamp(25px,5vw,55px);border:1px solid #7657ff;border-radius:21px;background:#041536c9;min-height:300px}
-#panel-words .l3-history-card small{font-size:13px;color:#a6c5ff}
-#panel-words .l3-history-card strong{font-family:Georgia,'Times New Roman',serif;font-size:clamp(38px,6vw,72px);color:#fff;text-shadow:0 0 19px #786affaa;overflow-wrap:anywhere}
-#panel-words .l3-history-card p{font-size:clamp(18px,2.6vw,27px);color:#fee39d;overflow-wrap:anywhere}
-#panel-words.l3-review-active .flashcard{
- display:grid;justify-items:center;align-content:center;gap:24px;min-width:0;
- width:min(870px,100%);min-height:clamp(420px,55vh,650px);
- margin:0 auto;padding:clamp(22px,4.5vw,62px)!important;
- border:2px solid #7771fc;border-radius:30px;
- background:linear-gradient(180deg,#0619429e,#07143d72 65%,#07112a90),
- url('assets/ui/lightner_words_backgroud_pc.webp') center/cover no-repeat!important;
- box-shadow:inset 0 0 0 1px #3fc0ff69,0 0 45px #6342ff52!important;
- text-align:center;color:#fff;overflow:hidden
-}
-#panel-words.l3-review-active .flashcard #word-count{
- display:block;color:#b7cfff;font-size:clamp(13px,1.1vw,16px);font-weight:800
-}
-#panel-words.l3-review-active .flashcard #flash-front{
- font-family:Georgia,'Times New Roman',serif;direction:auto;font-weight:750;
- font-size:clamp(46px,6vw,93px);line-height:1.3;color:#fff;overflow-wrap:anywhere;
- text-shadow:0 0 21px #9389ffc2
-}
-#panel-words.l3-review-active .flashcard #flash-back{
- font-size:clamp(20px,2.5vw,31px);font-weight:800;line-height:1.8;color:#ffe28e
-}
-#panel-words.l3-review-active .flashcard .timer-actions{
- display:flex;justify-content:center;flex-wrap:wrap;gap:13px;width:100%;max-width:750px
-}
-#panel-words.l3-review-active .flashcard .timer-actions button{font:inherit;font-weight:900;font-size:clamp(14px,1.25vw,20px);min-height:61px;min-width:min(100%,180px);flex:1 1 165px;border-radius:16px;padding:12px 18px;cursor:pointer}
-#panel-words.l3-review-active #word-reveal{background:linear-gradient(115deg,#182b60,#393456);color:#ffe188;border:1px solid #e8bf63;box-shadow:0 0 18px #f7c75236}
-#panel-words.l3-review-active #word-remembered{background:linear-gradient(110deg,#0c7d66,#02ab76);color:#f2fff9;border:1px solid #29ffb5;box-shadow:0 0 20px #00cda84d}
-#panel-words.l3-review-active #word-forgot{background:linear-gradient(110deg,#772441,#c43756);color:#fff;border:1px solid #ff7b9b;box-shadow:0 0 20px #ef4b7550}
-#panel-words.l3-review-active .flashcard .hidden{display:none!important}
-@media(max-width:700px){
- #panel-words.l3-review-active{
-  min-height:100dvh;border-radius:17px;
-  background:linear-gradient(180deg,#03122e85,#030d2e60 55%,#03102dbc),
-  url('assets/ui/lightner_words_backgroud_mobile.webp') center top/cover no-repeat!important
- }
- #panel-words.l3-review-active .l3-toolbar{padding:12px;gap:10px;margin-bottom:13px}
- #panel-words .l3-toolbar-top .l3-go-back{min-height:40px;padding:7px 10px}
- #panel-words .l3-review-name{order:3;flex-basis:100%}
- #panel-words.l3-review-active .flashcard{
-  min-height:min(560px,68dvh);border-radius:26px;padding:24px 17px!important;gap:18px;
-  background:linear-gradient(180deg,#06163d88,#09103766 65%,#030f28ae),
-  url('assets/ui/lightner_words_backgroud_mobile.webp') center/cover no-repeat!important
- }
- #panel-words.l3-review-active .flashcard #flash-front{font-size:clamp(43px,12vw,75px)}
- #panel-words.l3-review-active .flashcard .timer-actions button{min-height:58px;flex:1 1 100%}
-}
 
-/* In review mode, isolate the scene from pre-existing route injections and widgets. */
-#panel-words.l3-review-active>:not(.l3-toolbar):not(.flashcard){display:none!important}
-@media(max-width:700px){
- #panel-words.l3-review-active{padding-bottom:calc(155px + env(safe-area-inset-bottom))!important}
+/* L3: two distinct destinations. #words is the word-free dashboard; #leitner-review is a full-screen story. */
+#panel-words:not(.l2-adding-word) > #word-form,
+#panel-words > .flashcard,
+#panel-words > #word-list{display:none!important}
+#panel-words.l2-adding-word > #word-form{display:flex!important}
+html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behavior:none}
+.l3-story-scene,.l3-story-scene *{box-sizing:border-box}
+.l3-story-scene{
+ position:fixed;inset:0;z-index:2147481500;overflow-y:auto;overscroll-behavior:contain;
+ background:linear-gradient(180deg,#020d24a1,#02133270 48%,#020c27bd),
+ url('assets/ui/lightner_words_backgroud_pc.webp') center/cover no-repeat,#020e25;
+ color:#f8f9ff;direction:rtl;font-family:Tahoma,Arial,sans-serif;
 }
+.l3-story-container{width:min(1410px,calc(100% - 56px));min-height:100%;margin:0 auto;padding:24px 12px 35px;display:flex;flex-direction:column;align-items:stretch;gap:13px}
+.l3-story-top{display:flex;align-items:center;justify-content:space-between;min-height:68px;direction:ltr}
+.l3-story-top button,.l3-story-history button{
+ border:1px solid #3075c9;background:#071c40c9;color:#ecf7ff;font:inherit;
+ border-radius:14px;padding:10px 15px;min-width:52px;min-height:50px;cursor:pointer
+}
+.l3-story-back{font-size:27px!important}
+.l3-story-brand{display:flex;gap:6px;align-items:baseline;font-family:Georgia,serif;color:#f4e9ff;font-size:40px;text-shadow:0 0 18px #a372ff}
+.l3-story-brand small{font:700 10px Tahoma,sans-serif;letter-spacing:5px;color:#b9a3fe}
+.l3-story-mark{font-size:54px;line-height:1;color:#54edff}
+.l3-story-notice{border:1px solid #5284dd;border-radius:50%;padding:11px;font-size:25px;color:#8accff}
+.l3-story-intro>div{display:flex;gap:12px;align-items:center;justify-content:center}
+.l3-story-intro h1{font-size:clamp(27px,3vw,46px);line-height:1.15;margin:0;font-weight:900;color:#fff}
+.l3-story-symbol{color:#83dbff;font-size:34px}
+.l3-story-intro p{color:#b8c6ff;text-align:center;margin:8px 0 0;font-size:clamp(14px,1.7vw,23px)}
+.l3-story-progress{display:flex;gap:5px;direction:ltr;width:100%;margin-top:13px}
+.l3-story-progress i{display:block;flex:1;height:12px;min-width:0;border-radius:12px;background:#1d3066bb;border:1px solid #5871d0aa;box-shadow:inset 0 0 6px #0005}
+.l3-story-progress i.is-done{background:linear-gradient(90deg,#27aeff,#6355fa);box-shadow:0 0 12px #3a83ff9e}
+.l3-story-counter{text-align:center;font-size:clamp(16px,2.1vw,24px);font-weight:900;margin:2px 0 3px;color:#fff}
+.l3-story-meta{display:flex;justify-content:center;gap:15px;flex-wrap:wrap}
+.l3-story-meta span{border:1px solid #3182dacc;border-radius:15px;background:#05244cc2;color:#c0dcff;padding:10px 22px;font-size:clamp(12px,1.5vw,18px)}
+.l3-story-frame{
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:min(1100px,100%);min-height:410px;flex:1 0 410px;max-height:660px;margin:8px auto 6px;
+ padding:50px 32px 32px;border:2px solid #7c6cfa;border-radius:32px;overflow:hidden;
+ background:linear-gradient(180deg,#0319418f,#03143866 70%,#04142f92),
+ url('assets/ui/lightner_words_backgroud_pc.webp') center/cover no-repeat;
+ box-shadow:inset 0 0 0 1px #36b8ff7e,0 0 36px #504bff4b;
+}
+.l3-story-speak{position:absolute;top:18px;right:18px;background:#102a63ba;border:1px solid #5a95f0;border-radius:50%;color:#eff6ff;font-size:23px;width:56px;height:56px;cursor:pointer}
+.l3-story-new{color:#a7c0ff;font-size:clamp(14px,1.8vw,20px);font-weight:700}
+.l3-story-card-slot{width:100%;height:100%;flex:1;display:flex;align-items:center;justify-content:center}
+.l3-story-card-slot .flashcard{
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+ width:100%;height:100%;background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:12px 10px!important;margin:0!important;text-align:center;overflow:hidden;
+}
+.l3-story-card-slot #word-count{display:none}
+.l3-story-card-slot #flash-front{color:#fff;font:750 clamp(49px,7vw,105px)/1.25 Georgia,'Times New Roman',serif;overflow-wrap:anywhere;text-shadow:0 0 23px #bdacff}
+.l3-story-card-slot #flash-back{color:#ffe18a;font-size:clamp(21px,2.9vw,34px);font-weight:900;line-height:1.5;overflow-wrap:anywhere}
+.l3-story-card-slot .timer-actions{width:min(440px,100%);display:flex;justify-content:center}
+.l3-story-card-slot #word-reveal{width:100%;min-height:72px;background:#1c294eac;border:2px solid #ffdc75;border-radius:22px;color:#ffe38f;font:900 clamp(18px,2vw,26px) Tahoma,Arial,sans-serif;box-shadow:0 0 27px #f8b95738;cursor:pointer}
+.l3-story-actions{width:min(1100px,100%);display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:2px auto 0;direction:ltr}
+.l3-story-actions>div{min-width:0;direction:rtl}
+.l3-story-actions button{width:100%;min-height:90px;padding:14px 16px;border-radius:22px;font:900 clamp(16px,2vw,23px) Tahoma,Arial,sans-serif;color:#fff;cursor:pointer}
+.l3-story-actions .l3-prev-action{background:linear-gradient(115deg,#103a82,#0c2251);border:2px solid #378dff;display:flex;align-items:center;justify-content:space-around;gap:12px}
+.l3-prev-action span{font-size:28px}
+.l3-story-actions #word-remembered{background:linear-gradient(125deg,#078662,#02674e);border:2px solid #1df5a5;box-shadow:0 0 25px #0ee28d56}
+.l3-story-actions #word-forgot{background:linear-gradient(125deg,#a2354f,#6a1534);border:2px solid #ff728b;box-shadow:0 0 25px #ff4e7461}
+.l3-story-scene button.hidden{display:none!important}
+.l3-story-scene button:disabled{opacity:.45;cursor:not-allowed}
+.l3-story-scene button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.l3-story-history[hidden]{display:none!important}
+.l3-story-history{width:100%;height:100%;display:flex;flex-direction:column;gap:24px;justify-content:center;align-items:center;text-align:center}
+.l3-story-history small{color:#b3ccff;font-size:15px}
+.l3-story-history strong{font:800 clamp(50px,7vw,98px) Georgia,serif;text-shadow:0 0 20px #9989ff;overflow-wrap:anywhere}
+.l3-story-history p{font-size:clamp(22px,2.7vw,34px);color:#ffe08b}
+.l3-preview .l3-story-card-slot{display:none}
+.l3-story-finished .l3-story-new{color:#43ffcb}
+@media(max-width:700px){
+ .l3-story-scene{background:linear-gradient(180deg,#020b20b2,#07133338 55%,#020924ae),url('assets/ui/lightner_words_backgroud_mobile.webp') center top/cover no-repeat,#030c25}
+ .l3-story-container{width:100%;padding:calc(12px + env(safe-area-inset-top)) 15px calc(24px + env(safe-area-inset-bottom));gap:13px;min-height:100dvh}
+ .l3-story-top{min-height:52px}
+ .l3-story-top button{min-height:48px;min-width:48px}
+ .l3-story-brand{font-size:29px}.l3-story-brand small{font-size:8px;letter-spacing:2px}.l3-story-mark{font-size:36px}
+ .l3-story-notice{font-size:18px;padding:8px}
+ .l3-story-intro h1{font-size:clamp(26px,7vw,36px)}
+ .l3-story-intro p{font-size:clamp(13px,3.8vw,18px)}
+ .l3-story-progress{margin-top:3px;gap:3px}.l3-story-progress i{height:10px}
+ .l3-story-meta{gap:8px}.l3-story-meta span{font-size:12px;padding:9px 11px}
+ .l3-story-frame{min-height:clamp(340px,46dvh,580px);flex:1 0 360px;max-height:none;border-radius:26px;padding:53px 13px 25px;margin:1px auto 0;background:linear-gradient(180deg,#03153460,#030b2940 65%,#04112d9a),url('assets/ui/lightner_words_backgroud_mobile.webp') center/cover no-repeat}
+ .l3-story-speak{top:12px;right:12px;width:49px;height:49px;font-size:21px}
+ .l3-story-card-slot .flashcard{gap:22px;padding:10px 3px!important}
+ .l3-story-card-slot #flash-front{font-size:clamp(43px,11.5vw,78px)}
+ .l3-story-card-slot #word-reveal{min-height:64px}
+ .l3-story-actions{grid-template-columns:1fr 1fr;gap:10px}
+ .l3-story-actions .l3-prev-action{grid-column:1;grid-row:1}
+ .l3-story-actions>[data-l3-known-slot]{grid-column:2;grid-row:1}
+ .l3-story-actions>[data-l3-forgot-slot]{grid-column:1/-1;grid-row:2}
+ .l3-story-actions button{min-height:70px;font-size:clamp(14px,4vw,21px);padding:11px 8px}
+ .l3-story-history strong{font-size:clamp(44px,11vw,75px)}
+}
+@media(prefers-reduced-motion:reduce){.l3-story-scene *{animation:none!important;transition:none!important}}
