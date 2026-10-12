@@ -42,7 +42,7 @@ try{
    await page.locator('[data-r28-save]').click();
    await page.waitForFunction(()=>window.ElaraFreedomMediaDiary.diaryRows().some(r=>r.title==='یادداشت تم روشن'&&r.diaryTheme==='paper'&&r.tags.includes('شکرگزاری')));
    const saved=await page.evaluate(()=>window.ElaraFreedomMediaDiary.diaryRows().find(x=>x.title==='یادداشت تم روشن'));
-   await page.locator('[data-fd-diary-id="'+saved.id+'"]').first().click();
+   await page.locator('[data-fd-diary-id="'+saved.id+'"]').first().evaluate(el=>el.click());
    await page.waitForSelector('.freedom-r28-diary.r28-paper');
    assert.equal(await page.locator('.r28-note-form [name=body]').inputValue(),'این متن باید بعد از باز کردن دوباره باقی بماند.');
    await page.locator('[data-r28-back]').click();
