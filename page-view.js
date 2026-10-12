@@ -163,7 +163,7 @@ function enhancePageR3(root,state,uid,viewingOther){
   const post=compose.querySelector('[data-page-post-form]'),status=compose.querySelector('[data-page-story-form]');
   const person=pageAccount(uid);
   if(post){
-   post.classList.add('page-composer-post');
+   post.classList.add('page-composer-post','is-collapsed');
    const lead=document.createElement('div');lead.className='page-composer-lead';
    lead.innerHTML='<span class="page-composer-avatar">'+avatar(person)+'</span><button type="button" data-page-write-post class="page-composer-write">'+t('امروز چه در ذهن تو می‌گذرد؟','What’s on your mind today?')+'</button>';
    post.insertBefore(lead,post.querySelector('textarea'));
@@ -290,7 +290,7 @@ document.addEventListener('click',async e=>{
  const addStory=e.target.closest('[data-page-add-story]');
  if(addStory){pageStoryExpanded=true;pageContentTab='all';render();const field=document.querySelector('#panel-page [data-page-story-form] textarea');field?.closest('form')?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
  const writePost=e.target.closest('[data-page-write-post]');
- if(writePost){const field=document.querySelector('#panel-page [data-page-post-form] textarea');field?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
+ if(writePost){const form=document.querySelector('#panel-page [data-page-post-form]');form?.classList.remove('is-collapsed');const field=form?.querySelector('textarea');field?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
  const library=e.target.closest('[data-page-library-open],[data-page-jump="library-clips"]');
  if(library){window.ElaraOpen?.('library-clips');return}
  const blog=e.target.closest('[data-page-jump="blog"]');
