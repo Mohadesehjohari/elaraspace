@@ -70,8 +70,16 @@
       const script=document.createElement('script');
       script.async=false;
       script.src=assetUrl(name);
-      script.onload=()=>resolve();
-      script.onerror=()=>{rememberOptionalFailure(name,new Error('script load failed'));console.error('Elara module unavailable:',name);resolve()};
+      let settled=false;
+      const finish=error=>{
+        if(settled)return;
+        settled=true;clearTimeout(timeout);
+        if(error){rememberOptionalFailure(name,error);console.warn('Elara module unavailable:',name,error.message);script.remove()}
+        resolve();
+      };
+      const timeout=setTimeout(()=>finish(new Error('script load timeout')),6500);
+      script.onload=()=>finish();
+      script.onerror=()=>finish(new Error('script load failed'));
       document.head.append(script);
     }));
     await Promise.all(pending);
@@ -246,6 +254,7 @@
     if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:2600});
     else setTimeout(run,1800)
   };
-  if(document.readyState==='complete')startCloud();else window.addEventListener('load',startCloud,{once:true});
+  // Window load waits for images and background styles; account initialization should not.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startCloud,{once:true});else startCloud();
 })();
 
