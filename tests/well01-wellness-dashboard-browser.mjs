@@ -127,7 +127,8 @@ for(const width of widths){
   }
   await page.evaluate(()=>window.ElaraOpen('home'));
   await page.waitForSelector('#panel-home:not(.hidden)');
-  assert.ok(Math.abs(await opacity()-1)<.001,'account returns fully visible outside wellness');
+  assert.ok(Math.abs(await opacity()-1)<.001,'Home keeps account fully visible');
+  await page.screenshot({path:'browser-artifacts/well01/account-home-'+width+'.png'});
   await page.evaluate(()=>window.ElaraOpen('exercise'));
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
@@ -227,8 +228,55 @@ for(const width of widths){
  await page.close();
 }
 
+// Isolated cross-page account behavior: do not alter the seeded private Wellness test session.
+for(const width of [390,1440]){
+ const page=await open(width,base,false);
+ const account=page.locator('.topbar .ref-header-account-cluster'),button=page.locator('#ref-header-account');
+ const opacity=()=>account.evaluate(el=>Number(getComputedStyle(el).opacity));
+ const drawer=page.locator('.elara-private-drawer:not(.hidden)');
+ await page.evaluate(()=>window.ElaraOpen('home'));
+ await page.waitForSelector('#panel-home:not(.hidden)');
+ assert.ok(Math.abs(await opacity()-1)<.001,'Home account remains fully visible at '+width);
+ await page.screenshot({path:'browser-artifacts/well01/account-home-'+width+'.png'});
+ for(const [route,id] of [['tasks','panel-tasks'],['books','panel-books'],['settings','panel-settings'],['reports','panel-reports']]){
+  await page.evaluate(route=>window.ElaraOpen(route),route);
+  await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
+  await page.mouse.move(12,360);
+  await page.evaluate(()=>document.activeElement?.blur?.());
+  await page.waitForTimeout(275);
+  const current=await opacity();
+  console.log('ACCOUNT_NONHOME_ROUTE_'+width,route,current);
+  if(width===1440)assert.ok(current<=.15,route+' desktop idle account fades');
+  else assert.ok(current>=.48&&current<.9,route+' touch-size account remains visible');
+  if(route==='tasks'){
+   const before=await account.boundingBox();
+   await page.screenshot({path:'browser-artifacts/well01/account-tasks-idle-'+width+'.png'});
+   if(width===1440){
+    await account.hover();await page.waitForTimeout(270);
+    assert.ok(await opacity()>.9,'Tasks account reveals on pointer hover');
+    await page.screenshot({path:'browser-artifacts/well01/account-tasks-hover-1440.png'});
+   }
+   await button.click();await drawer.waitFor();await page.waitForTimeout(265);
+   assert.ok(await opacity()>.9,'Tasks account remains shown while menu open');
+   await page.screenshot({path:'browser-artifacts/well01/account-tasks-drawer-'+width+'.png'});
+   if(width===1440){await page.locator('.elara-private-drawer-panel').hover();assert.ok(await opacity()>.9,'Account remains visible on mouse travel to menu');}
+   await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+   const after=await account.boundingBox();
+   assert.ok(Math.abs(before.x-after.x)<=1&&Math.abs(before.y-after.y)<=1,'Account remains geometrically fixed after fade');
+  }
+ }
+ await page.evaluate(()=>window.ElaraOpen('home'));
+ await page.waitForSelector('#panel-home:not(.hidden)');
+ await page.waitForTimeout(280);
+ assert.ok(Math.abs(await opacity()-1)<.001,'Home account fully restores after visiting other pages');
+ await page.close();
+}
+
 const touch=await open(390,base,false,true);
 await touch.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero');
+// This QA helper booted at #home then opened exercise without updating its URL;
+// synchronize the hash to the real #exercise production route before testing the drawer.
+await touch.evaluate(()=>history.replaceState({...history.state,elaraTab:'exercise'},'',location.pathname+location.search+'#exercise'));
 const tr=await touch.locator('#ref-header-account').boundingBox();
 assert.ok(tr&&tr.width>=44&&tr.height>=44,'actual touch account >=44x44');
 await touch.touchscreen.tap(tr.x+tr.width/2,tr.y+tr.height/2);
@@ -237,8 +285,32 @@ await touch.screenshot({path:'browser-artifacts/well01/profile-touch-open-390.pn
 await touch.locator('.elara-private-drawer [data-drawer-close]').click();
 await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
 await touch.waitForTimeout(275); // allow 210ms opacity transition to settle
+await touch.evaluate(()=>window.ElaraOpen('tasks'));
+await touch.waitForSelector('#panel-tasks:not(.hidden)');
+const tasksAvatar=await touch.locator('#ref-header-account').boundingBox();
+assert.ok(tasksAvatar&&tasksAvatar.width>=44&&tasksAvatar.height>=44,'Tasks avatar touch target is at least 44x44');
+await touch.touchscreen.tap(tasksAvatar.x+tasksAvatar.width/2,tasksAvatar.y+tasksAvatar.height/2);
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor();
+await touch.screenshot({path:'browser-artifacts/well01/account-tasks-touch-open-390.png'});
+await touch.locator('.elara-private-drawer [data-drawer-close]').click();
+await touch.locator('.elara-private-drawer:not(.hidden)').waitFor({state:'hidden'});
+await touch.evaluate(()=>window.ElaraOpen('home'));
+await touch.waitForSelector('#panel-home:not(.hidden)');
+assert.ok(Math.abs(await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity))-1)<.001,'Home touch account fully restores');
 const closedOpacity=await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity));
-assert.ok(closedOpacity<.9,'touch account compacts after closing');
+console.log('ACCOUNT_TOUCH_CLOSED',JSON.stringify(await touch.evaluate(()=>{
+ const cluster=document.querySelector('.ref-header-account-cluster'),button=document.querySelector('#ref-header-account');
+ return {opacity:getComputedStyle(cluster).opacity,mode:document.body.dataset.wellProfileInput,classes:document.body.className,focus:document.activeElement?.outerHTML.slice(0,150),focusVisible:cluster.matches(':has(:focus-visible)'),buttonFocusVisible:button?.matches(':focus-visible'),characterPanel:!!document.querySelector('#ref-equipped-character-panel:not([hidden])'),drawerOpen:document.body.classList.contains('elara-private-drawer-open'),htmlPanel:document.querySelector('#panel-exercise')?.className};
+})));
+// Existing account navigation may restore Home after closing the drawer.
+// The fade must follow the *active* route, not an earlier QA navigation.
+const active=await touch.evaluate(()=>[...document.querySelectorAll('#main > [id^="panel-"]:not(.hidden)')].map(x=>x.id));
+if(active.includes('panel-home'))assert.ok(Math.abs(closedOpacity-1)<.001,'Home account remains fully visible after drawer close');
+else assert.ok(closedOpacity<.9,'non-Home touch account compacts after drawer close');
+await touch.evaluate(()=>window.ElaraOpen('tasks'));
+await touch.waitForSelector('#panel-tasks:not(.hidden)');
+await touch.waitForTimeout(280);
+assert.ok((await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity)))<.9,'touch account compacts after navigating to Tasks');
 await touch.close();
 await browser.close();
 console.log('WELL01_PASS: ten widths, private dashboard, real stats, navigation, water persistence, account isolation');

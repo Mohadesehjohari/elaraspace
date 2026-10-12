@@ -374,46 +374,47 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
 }
 
 
-/* WELL-PROFILE-AUTOHIDE | Only the active Wellness page.
+/* ACCOUNT-AUTOHIDE | All active app panels except Home.
    Preserve the original account cluster box, hit targets, order and #79 hero position.
-   Private drawer lives under body; open state MUST keep this control visible. */
+   Private drawer lives under body; open state MUST keep this control visible.
+   Exclude Home explicitly and require a visible main panel to prevent startup flicker. */
 @media (min-width:701px) and (hover:hover) and (pointer:fine){
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
   opacity:.07;
   pointer-events:auto;
   transition:opacity 210ms ease;
  }
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:hover,
- body[data-well-profile-input="keyboard"]:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:focus-within,
- body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster:hover,
+ body[data-well-profile-input="keyboard"]:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster:focus-within,
+ body.elara-private-drawer-open:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
   opacity:1;
  }
 }
 /* Touch: avatar/character control always remains discoverable and tappable. */
 @media (max-width:700px), (hover:none), (pointer:coarse){
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
   opacity:.72;
   pointer-events:auto;
   transition:opacity 210ms ease;
  }
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
   opacity:.12;
   transition:opacity 210ms ease;
  }
- body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:has(:focus-visible),
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
+ body.elara-private-drawer-open:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body[data-well-profile-input="keyboard"]:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster:has(:focus-visible),
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
   opacity:1;
  }
- body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy,
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account:focus-visible .ref-account-copy{
+ body.elara-private-drawer-open:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy,
+ body[data-well-profile-input="keyboard"]:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account:focus-visible .ref-account-copy{
   opacity:1;
  }
 }
 @media (prefers-reduced-motion:reduce){
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
- body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
   transition:none;
  }
 }
