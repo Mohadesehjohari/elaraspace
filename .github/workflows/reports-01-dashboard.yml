@@ -7,6 +7,7 @@ on:
       - feature-hubs-shell.js
       - reports-dashboard-01.js
       - reports-dashboard-01.css
+      - assets/ui/reports_all.webp
       - tests/reports-dashboard-01-browser.mjs
       - tests/reports-01-compact-browser.mjs
       - .github/workflows/reports-01-dashboard.yml
@@ -18,6 +19,7 @@ on:
       - feature-hubs-shell.js
       - reports-dashboard-01.js
       - reports-dashboard-01.css
+      - assets/ui/reports_all.webp
       - tests/reports-dashboard-01-browser.mjs
       - tests/reports-01-compact-browser.mjs
       - .github/workflows/reports-01-dashboard.yml
@@ -42,7 +44,7 @@ jobs:
           node --check feature-hubs-shell.js
           node --check tests/reports-dashboard-01-browser.mjs
           node --check tests/reports-01-compact-browser.mjs
-          test -s assets/ui/39-reports-hero-banner.webp
+          test -s assets/ui/reports_all.webp
       - name: Install Playwright Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
@@ -85,7 +87,7 @@ jobs:
           ok=false
           for attempt in $(seq 1 80); do
             ok=true
-            for file in index.html reports-dashboard-01.js reports-dashboard-01.css feature-hubs-2026.js feature-hubs-shell.js; do
+            for file in index.html reports-dashboard-01.js reports-dashboard-01.css feature-hubs-2026.js feature-hubs-shell.js assets/ui/reports_all.webp; do
               output="/tmp/reports01-$(basename "$file")"
               if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$file?commit=$GITHUB_SHA&attempt=$attempt" -o "$output" || ! cmp -s "$file" "$output"; then ok=false;break;fi
             done
