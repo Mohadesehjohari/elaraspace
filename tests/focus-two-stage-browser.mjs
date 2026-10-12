@@ -14,8 +14,23 @@ async function pageFor(width,hash){
  await p.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth}));
  await p.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
  await p.addInitScript(x=>localStorage.setItem('elara_space_v1',JSON.stringify(x)),fixture());
+ p.on('pageerror',error=>console.log('FOCUS02_PAGEERROR width='+width+' '+error.message));
  await p.goto(base+'/?focus02='+width+'#'+hash,{waitUntil:'domcontentloaded',timeout:40000});
- await p.waitForFunction(()=>!!window.ElaraFocusJourney&&!!window.ElaraFeatureHubs&&!!document.querySelector('#panel-focus-pomodoro .focus-v2-enter')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:32000});
+ try{
+  await p.waitForFunction(()=>!!window.ElaraFocusJourney&&!!window.ElaraFeatureHubs&&!!document.querySelector('#panel-focus-pomodoro .focus-v2-enter')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:12000});
+ }catch(err){
+  console.log('FOCUS02_BOOT_DIAGNOSTIC '+JSON.stringify(await p.evaluate(()=>({
+   url:location.href,ready:document.readyState,booting:document.documentElement.hasAttribute('data-elara-booting'),
+   journey:!!window.ElaraFocusJourney,hubs:!!window.ElaraFeatureHubs,open:!!window.ElaraOpen,
+   card:!!document.querySelector('#panel-focus-pomodoro .focus-card'),
+   enters:document.querySelectorAll('.focus-v2-enter').length,
+   statuses:document.querySelector('#focus-status')?.textContent,
+   modal:!!document.querySelector('#elara-focus-immersive'),
+   cloud:document.body.className,
+   scripts:[...document.scripts].filter(x=>/focus-two-stage/.test(x.src)).map(x=>x.src)
+  }))));
+  throw err;
+ }
  await p.evaluate(route=>window.ElaraOpen(route,{history:'replace'}),hash);
  return [ctx,p];
 }
