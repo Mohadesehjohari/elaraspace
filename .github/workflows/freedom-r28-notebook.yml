@@ -1,0 +1,41 @@
+name: Freedom R28 Notebook Chromium
+on:
+  push:
+    branches:
+      - freedom-r28-fullscreen-notebook-20261012
+  pull_request:
+    paths:
+      - 'freedom-r28-*'
+      - 'tests/freedom-r28-browser.mjs'
+      - 'boot.js'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and theme assets
+        run: |
+          node --check freedom-r28-notebook.js
+          node --check tests/freedom-r28-browser.mjs
+          node --check boot.js
+          for file in 'Misty Mountain Lake at Dawn.webp' 'Celestial Mirror Lake at Night.webp' 'Sunlit Botanical Shadows on Parchment.webp' 'Lavender Moonrise Over Misty Meadows.webp'; do test -s "assets/ui/$file"; done
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/r28-http.log 2>&1 &
+          sleep 2
+      - name: Fullscreen responsive and persistence gate
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 360s node tests/freedom-r28-browser.mjs
