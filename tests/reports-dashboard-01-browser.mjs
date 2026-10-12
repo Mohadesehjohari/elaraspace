@@ -55,6 +55,7 @@ try{
   assert.ok(heroAsset.width>100&&heroAsset.height>30,width+': reports_all.webp failed to load');
   assert.match(stats.background,/reports_all\.webp/,width+': real banner asset');
   assert.equal(stats.hiddenLegacy,0,width+': remove legacy Reports launcher shortcuts');
+  if(stats.taskCount!==2)console.error('REPORTS_L5_TASK_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({completionHistory:JSON.parse(localStorage.getItem('elara_space_v1')||'{}').taskCompletionHistory,events:window.ElaraReportsDashboard.data().events.filter(e=>e.kind==='tasks'),keys:window.ElaraReportsDashboard.data().current.filter(e=>e.kind==='tasks').map(e=>e.label)}))));
   assert.equal(stats.taskCount,2,width+': deduped completions');
   assert.equal(stats.focusMinutes,29,width+': count validated Leitner minutes once alongside completed focus');
   assert.equal(stats.words,1,width+': duplicate review not counted');
