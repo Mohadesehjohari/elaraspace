@@ -527,6 +527,11 @@
     if($('task-filter'))$('task-filter').value='all';
     ensureTaskCategoryNav();renderTasks();
   }
+  document.addEventListener('submit',event=>{
+    if(event.target?.id==='task-form'){
+      event.preventDefault();event.stopImmediatePropagation();submitTask();
+    }
+  },true);
   document.addEventListener('change',event=>{
     if(event.target.id==='task-daily-target-enabled'){
       const enabled=event.target.checked,input=$('task-daily-target'),options=$('task-daily-target-options');

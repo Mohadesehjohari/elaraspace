@@ -199,6 +199,12 @@ try{
    await first.click();
    const decision=t.page.locator('.elara-task-decision [data-task-decision="done"]').first();
    await decision.waitFor({timeout:8000});await decision.click();await t.page.waitForTimeout(300);
+   console.log('UI09_POST_DECISION '+JSON.stringify(await t.page.evaluate(()=>{
+      const first=document.querySelector('#task-list .astra-task-row'),s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');
+      return {record:s.tasks?.find(x=>x.id==='ui09_0'),archive:document.querySelectorAll('#task-checked-archive .task-archive-row').length,
+        firstId:first?.dataset.key,firstCheck:first?.querySelector('.check-button')?.getAttribute('aria-pressed'),
+        errors:window.__elaraOptionalFailureDetails||{}};
+   })));
    const archive=t.page.locator('#task-checked-archive .task-archive-row');
    assert.ok(await archive.count()>=1,'Completed Task not moved to the Completed section');
    const decoration=await archive.first().locator('strong').first().evaluate(el=>getComputedStyle(el).textDecorationLine);
