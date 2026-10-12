@@ -657,7 +657,7 @@ function refreshAll(){syncSelectors();if(routeActive('tasks'))renderTasks();if(r
       const create=event.target.closest('[data-phase2-create]');if(create){event.preventDefault();event.stopImmediatePropagation();await inlineCreate(create.dataset.phase2Create,create.dataset.phase2Target);return}
       const all=event.target.closest('[data-weekdays-all]');if(all){event.preventDefault();event.stopImmediatePropagation();document.querySelectorAll(`input[name="${all.dataset.weekdaysAll}-weekday"]`).forEach(x=>x.checked=true);return}
       const preset=event.target.closest('[data-focus-preset]');if(preset){event.preventDefault();event.stopImmediatePropagation();if(!$('focus-duration')?.disabled){$('focus-duration').value=preset.dataset.focusPreset;updateFocusDisplay()}return}
-      if(event.target.closest('#timer-start')){event.preventDefault();event.stopImmediatePropagation();toggleFocus();return}
+      if(event.target.closest('#timer-start')){event.preventDefault();event.stopImmediatePropagation();toggleFocus();window.dispatchEvent(new CustomEvent('elara:focus-toggle'));return}
       if(event.target.closest('#timer-reset')){event.preventDefault();event.stopImmediatePropagation();await resetFocus();return}
       if(event.target.closest('#task-cancel')){event.preventDefault();event.stopImmediatePropagation();resetTaskForm();return}
       if(event.target.closest('#habit-cancel')){event.preventDefault();event.stopImmediatePropagation();resetHabitForm();return}
