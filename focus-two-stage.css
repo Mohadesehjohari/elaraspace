@@ -1,0 +1,323 @@
+/* FOCUS-02: responsive preview + immersive scene over canonical Pomodoro.
+   Style overrides are isolated, and no focus/XP state is computed in CSS. */
+#panel-focus-pomodoro.focus-v2-preview:not(.hidden){
+  min-height:clamp(670px,66vw,920px);
+  padding:clamp(12px,2vw,28px);
+  background-position:center,center 45%;
+  background-image:linear-gradient(180deg,#04080f2a 0%,#06131b25 32%,#040c16a8 100%),url("assets/ui/bg_focus_room.webp");
+}
+#panel-focus-pomodoro.focus-v2-preview > .feature-subpage-head{
+  padding:clamp(14px,2.2vw,30px);
+  max-width:min(1120px,100%);
+  margin-inline:auto;
+  background:linear-gradient(90deg,#030c1966,#040d1330);
+  border:0;
+  box-shadow:none;
+}
+#panel-focus-pomodoro .focus-v2-preview-caption{
+  position:relative;z-index:2;
+  text-align:center;margin:6px auto 18px;
+  color:#ffebbd;
+  font-size:clamp(12px,1vw,14px);
+  text-shadow:0 2px 8px #000;
+}
+#panel-focus-pomodoro.focus-v2-preview > .focus-card{
+  width:min(1110px,100%);
+  grid-template-columns:minmax(300px,.85fr) minmax(340px,1.15fr);
+  grid-template-areas:"settings status" "settings dial" "settings actions" "settings modes" "hint hint";
+  gap:10px clamp(18px,2.8vw,48px);
+  align-items:center;
+  background:transparent;
+  border:0;padding:clamp(10px,1.8vw,22px);
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-card .focus-config{
+  align-self:stretch;
+  background:linear-gradient(155deg,#041321ed,#06111dde);
+  border:1px solid #f5cc7996;
+  border-radius:21px;
+  box-shadow:0 12px 38px #0007,inset 0 1px #fff1;
+  padding:clamp(16px,2vw,28px);
+  gap:18px;
+}
+#panel-focus-pomodoro.focus-v2-preview #focus-status{
+  background:#04121c9c;
+  border-radius:30px;
+  padding:6px 18px;
+  font-size:14px;
+}
+#panel-focus-pomodoro.focus-v2-preview #timer-display{
+  width:clamp(250px,27vw,360px);
+  height:clamp(250px,27vw,360px);
+  background:radial-gradient(circle at 50% 48%,#070b17 0 62%,transparent 64%),conic-gradient(from 0deg,#ffeba4,#ffa94e 16%,#9b4ef2 30%,#7341ea 43%,#3275ff 59%,#65cfff 72%,#091523 88%,#fff0b1 100%);
+  border:2px solid #ffe6a585;
+  box-shadow:0 0 28px #5e81ff77,0 0 50px #f7a75240,inset 0 0 34px #010510;
+}
+#panel-focus-pomodoro.focus-v2-preview #timer-start{display:none!important}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-enter{
+  min-width:min(270px,100%);
+  min-height:55px;
+  border:1px solid #c8c6ff;
+  border-radius:44px;
+  background:linear-gradient(105deg,#348dff,#653cf9 54%,#ad55dc);
+  color:white;
+  font-size:16px;font-weight:900;
+  box-shadow:0 0 24px #6149ff97,0 13px 33px #0009;
+  cursor:pointer;
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-enter:hover,
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-enter:focus-visible{filter:brightness(1.18)}
+#panel-focus-pomodoro.focus-v2-preview .timer-actions{gap:10px;flex-wrap:wrap;justify-content:center}
+#panel-focus-pomodoro.focus-v2-preview #timer-reset{min-height:45px}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-preview-modes{
+  grid-area:modes;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  min-width:0;
+  margin:8px 0 0;
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-mode{
+  border:1px solid #426480;
+  border-radius:13px;
+  background:linear-gradient(160deg,#061523d4,#07101cbb);
+  min-width:0;min-height:78px;padding:8px 4px;
+  color:#fff1da;display:grid;place-content:center;gap:3px;cursor:pointer;
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-mode[aria-pressed="true"]{
+  border-color:#ffe08a;box-shadow:0 0 15px #fbc65975,inset 0 0 18px #e7a63327;
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-mode span{font-size:24px}
+#panel-focus-pomodoro.focus-v2-preview .focus-v2-mode strong{font-size:11px}
+#panel-focus-pomodoro.focus-v2-preview .focus-card > .muted{
+  color:#fcf0d8;text-shadow:0 1px 8px #0008;
+  font-size:11px;
+}
+#panel-focus-pomodoro.focus-v2-preview .focus-cycle-config{background:#071625a9;border-color:#3c526a}
+#panel-focus-pomodoro.focus-v2-preview .focus-history-card{
+  width:min(1080px,100%);
+  background:#06121ce0;
+}
+#panel-books #lib01-overview .lib01-focus .lib01-focus-scene{
+  background-image:linear-gradient(180deg,#030a1530,#030a15a3),url("assets/ui/bg_focus_room.webp");
+  min-height:238px;
+}
+#panel-books #lib01-overview .lib01-focus .lib01-focus-dial [data-focus-v2-inline-start]{
+  position:absolute;bottom:-14px;
+  inset-inline-start:50%;transform:translateX(50%);
+  width:55px;height:55px;min-width:55px;
+  border-radius:50%;border:2px solid #d2c6ff;
+  background:radial-gradient(circle at 20% 10%,#b77aff,#462cf8 70%);
+  box-shadow:0 0 19px #694fff9c;
+  color:white;font-size:23px;cursor:pointer;
+}
+#panel-books #lib01-overview .lib01-focus .lib01-focus-modes button{
+  width:100%;border:1px solid #33515e;background:#07141f;color:#f5e9d9;
+  border-radius:8px;padding:9px 2px;min-height:40px;cursor:pointer;
+  font-weight:700;font-size:10px;
+}
+#panel-books #lib01-overview .lib01-focus .lib01-focus-modes button:hover,
+#panel-books #lib01-overview .lib01-focus .lib01-focus-modes button:focus-visible{
+  border-color:#f0c87d;color:#ffdb88;
+}
+#panel-books #lib01-overview .lib01-focus .lib01-data-note{color:#b7d2d9}
+.focus-v2-immersive[hidden]{display:none!important}
+body.focus-v2-immersive-open{overflow:hidden!important}
+.focus-v2-immersive{
+  position:fixed;inset:0;z-index:8000;
+  box-sizing:border-box;
+  direction:rtl;
+  overflow:auto;overscroll-behavior:contain;
+  padding:clamp(14px,2vw,30px);
+  background-color:#05111b;
+  background-image:linear-gradient(180deg,#03061160 0%,#06111d13 35%,#050b19d9 100%),url("assets/ui/bg_focus_room.webp");
+  background-position:center,center 44%;
+  background-size:cover,cover;
+  color:#faf8ff;
+  font-family:inherit;
+}
+.focus-v2-immersive *{box-sizing:border-box}
+.focus-v2-top{
+  width:min(1350px,100%);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+.focus-v2-back{color:#aeefff;background:#03101ea9;border:1px solid #5b7695;border-radius:30px;padding:11px 19px;font-weight:800;cursor:pointer}
+.focus-v2-brand{font:800 clamp(22px,3vw,36px)/1.2 Georgia,serif;color:#e7d9ff;text-shadow:0 0 13px #863eff,0 3px 8px #000}
+.focus-v2-brand small{font:700 12px sans-serif;letter-spacing:.16em;color:#ffd993}
+.focus-v2-top-title{flex:1;text-align:right;min-width:260px}
+.focus-v2-top-title h1{font-size:clamp(24px,3vw,46px);line-height:1.2;margin:0;text-shadow:0 4px 16px #000}
+.focus-v2-top-title p{font-size:clamp(12px,1.4vw,17px);color:#fff0db;margin:8px 0 0;text-shadow:0 3px 12px #000}
+.focus-v2-layout{
+  direction:ltr;
+  width:min(1330px,100%);margin:clamp(12px,2.5vw,30px) auto 0;
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.76fr);
+  gap:clamp(16px,2.3vw,34px);
+  align-items:start;
+}
+.focus-v2-stage{direction:rtl;display:grid;justify-items:center;min-width:0;gap:18px}
+.focus-v2-disc{
+  --disc:clamp(270px,29vw,390px);
+  position:relative;width:var(--disc);height:var(--disc);
+  max-width:100%;
+  padding:11px;
+  border-radius:50%;
+  background:conic-gradient(from 0deg,#fff1ae 0%,#ffc36c 16%,#e185d7 30%,#684dff 45%,#3590ff 61%,#64d4fc 75%,#101323 88%,#ffe4a1 100%);
+  box-shadow:0 0 26px #5d88ff90,0 0 60px #9f57ff4b,0 12px 55px #000b;
+}
+.focus-v2-timer{
+  width:100%;height:100%;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+  background:radial-gradient(circle at 44% 35%,#111d34,#080d19 68%);
+  border:6px solid #080c15;
+  text-shadow:0 3px 15px #000;
+}
+.focus-v2-timer strong{font:900 clamp(54px,7vw,88px)/1 Arial,sans-serif;font-variant-numeric:tabular-nums;direction:ltr}
+.focus-v2-timer span{font-size:clamp(13px,1.7vw,20px);font-weight:800;text-align:center;max-width:82%}
+.focus-v2-pause{
+  position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);
+  min-width:81px;min-height:72px;padding:8px 15px;
+  border:2px solid #eadbff;border-radius:48px;
+  background:linear-gradient(130deg,#337dff,#823af1 58%,#bd57e4);
+  color:#fff;font-size:18px;font-weight:900;
+  box-shadow:0 0 25px #7650ff,0 8px 20px #0009;
+  cursor:pointer;
+}
+.focus-v2-quick{display:flex;justify-content:space-between;align-items:center;width:min(440px,100%);gap:14px;margin-top:12px}
+.focus-v2-quick button{padding:10px 15px;border:1px solid #92a7c5;color:white;border-radius:30px;background:#051320d1;cursor:pointer}
+.focus-v2-quick span{font-size:12px;color:#d6e9e0}
+.focus-v2-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;margin-top:12px}
+.focus-v2-modes .focus-v2-mode{
+  min-width:0;
+  min-height:118px;
+  border:1px solid #58749b;border-radius:16px;
+  color:#fff;
+  background:linear-gradient(170deg,#020e1a6b,#030917e2),url("assets/ui/bg_focus_room.webp") center/cover;
+  padding:12px 5px;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  cursor:pointer;text-shadow:0 2px 7px #000;
+}
+.focus-v2-modes .focus-v2-mode[data-focus-v2-mode="writing"]{background-color:#0d0a26;background-position:center,35% center}
+.focus-v2-modes .focus-v2-mode[data-focus-v2-mode="deep"]{background-color:#0d0b27;background-position:center,65% center}
+.focus-v2-modes .focus-v2-mode[data-focus-v2-mode="meditation"]{background-color:#081c30;background-position:center,75% center}
+.focus-v2-modes .focus-v2-mode[aria-pressed="true"]{border:2px solid #ffdd80;box-shadow:0 0 16px #ffdc7d88,inset 0 0 20px #ffdb634a}
+.focus-v2-modes .focus-v2-mode span{font-size:31px}
+.focus-v2-modes .focus-v2-mode strong{font-size:clamp(10px,1.1vw,14px)}
+.focus-v2-aside{direction:rtl;min-width:0}
+.focus-v2-settings,.focus-v2-progress{
+  background:linear-gradient(140deg,#041421ed,#07131edc);
+  border:1px solid #e2b76870;
+  border-radius:21px;
+  padding:clamp(14px,2.1vw,24px);
+  box-shadow:0 14px 44px #0009;
+  backdrop-filter:blur(8px);
+}
+.focus-v2-settings h2,.focus-v2-progress h2{margin:0 0 17px;font-size:clamp(17px,1.6vw,23px);color:#ffe1a0}
+.focus-v2-setting{
+  min-height:58px;padding:7px 11px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border-bottom:1px solid #51708b5c;
+}
+.focus-v2-setting label{font-size:clamp(12px,1vw,15px);color:#e8e9fa}
+.focus-v2-setting>div{display:flex;align-items:center;gap:10px}
+.focus-v2-setting button{
+  width:35px;height:35px;min-width:35px;display:grid;place-items:center;
+  font-size:22px;border:1px solid #4f6682;border-radius:12px;
+  background:#10283a;color:white;cursor:pointer;
+}
+.focus-v2-setting button:disabled,.focus-v2-auto input:disabled{opacity:.4;cursor:not-allowed}
+.focus-v2-setting output{min-width:35px;text-align:center;font-size:19px;font-weight:800;color:#fff}
+.focus-v2-auto{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0;color:#edeafb;font-size:13px}
+.focus-v2-auto input{width:20px;height:20px;accent-color:#f3ca77}
+.focus-v2-lock{font-size:12px;color:#dbc8a3}
+.focus-v2-main{
+  width:100%;min-height:55px;border:1px solid #ffe1ac;border-radius:15px;
+  background:linear-gradient(100deg,#467bff,#8535f7,#ffdc80);
+  color:white;font-weight:900;font-size:17px;cursor:pointer;
+  box-shadow:0 0 22px #9271ff83;
+}
+.focus-v2-progress{
+  max-width:1330px;margin:clamp(18px,2.5vw,30px) auto 14px;padding:16px 20px;
+}
+.focus-v2-progress header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.focus-v2-progress header h2{margin:0}
+.focus-v2-progress header span{font-size:11px;color:#cdd7dc}
+.focus-v2-metrics{margin-top:15px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.focus-v2-metrics>div{border:1px solid #385878;background:#081b2aca;border-radius:15px;min-height:78px;display:grid;place-content:center;text-align:center}
+.focus-v2-metrics strong{font-size:clamp(22px,3vw,38px);font-weight:900}
+.focus-v2-metrics small{font-size:12px;color:#dcdfec}
+@media(min-width:900px){
+ .focus-v2-immersive{left:200px;top:0;right:0;bottom:0}
+}
+@media(max-width:899px){
+ #panel-focus-pomodoro.focus-v2-preview > .focus-card{
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"status" "dial" "actions" "modes" "settings" "hint";
+ }
+ #panel-focus-pomodoro.focus-v2-preview .focus-config{width:100%;max-width:560px;justify-self:center}
+ #panel-focus-pomodoro.focus-v2-preview .focus-v2-preview-modes{width:100%;max-width:560px;justify-self:center}
+ .focus-v2-layout{grid-template-columns:1fr;gap:16px}
+ .focus-v2-stage{gap:14px}
+ .focus-v2-disc{--disc:clamp(260px,72vw,370px)}
+ .focus-v2-top-title{flex-basis:100%;order:3;min-width:0;text-align:center}
+ .focus-v2-top{justify-content:space-between}
+ .focus-v2-progress{margin-bottom:30px}
+}
+@media(max-width:480px){
+ .focus-v2-immersive{padding:18px 13px 30px;background-position:center,59% top}
+ .focus-v2-top{gap:8px}
+ .focus-v2-top-title{margin:7px auto 0}
+ .focus-v2-top-title h1{font-size:29px}
+ .focus-v2-top-title p{font-size:12px}
+ .focus-v2-layout{margin-top:20px}
+ .focus-v2-disc{--disc:min(76vw,320px)}
+ .focus-v2-timer strong{font-size:clamp(44px,12vw,66px)}
+ .focus-v2-pause{min-width:72px;min-height:63px;font-size:15px}
+ .focus-v2-modes{gap:7px;margin-top:6px}
+ .focus-v2-modes .focus-v2-mode{min-height:91px;border-radius:12px;gap:8px}
+ .focus-v2-modes .focus-v2-mode span{font-size:24px}
+ .focus-v2-modes .focus-v2-mode strong{font-size:10px}
+ .focus-v2-settings{padding:14px 11px}
+ .focus-v2-setting{min-height:56px;padding:8px 6px}
+ .focus-v2-metrics{gap:6px}
+ .focus-v2-metrics>div{padding:8px 3px;min-height:72px}
+ .focus-v2-metrics small{font-size:10px}
+ #panel-focus-pomodoro.focus-v2-preview > .focus-card{padding:6px}
+ #panel-focus-pomodoro.focus-v2-preview #timer-display{width:min(310px,calc(100vw - 75px));height:min(310px,calc(100vw - 75px))}
+ #panel-focus-pomodoro.focus-v2-preview .focus-v2-preview-modes{gap:5px}
+ #panel-focus-pomodoro.focus-v2-preview .focus-v2-mode{min-height:66px}
+ #panel-focus-pomodoro.focus-v2-preview .focus-v2-mode strong{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.focus-v2-immersive *,#panel-focus-pomodoro .focus-v2-enter{transition:none!important;animation:none!important}}
+
+/* FOCUS-02 refinement: desktop modes on the settings side, unobstructed fullscreen. */
+.focus-v2-immersive{z-index:120000!important}
+.focus-v2-mode-panel{
+ background:linear-gradient(140deg,#041421ed,#07131edc);
+ border:1px solid #d5ae695c;border-radius:19px;
+ padding:15px;
+ margin-bottom:14px;
+ box-shadow:0 14px 36px #0008;
+}
+.focus-v2-mode-panel h2{
+ margin:0 0 10px;
+ font-size:17px;color:#ffe1a0
+}
+.focus-v2-mode-panel .focus-v2-modes{margin-top:0;gap:7px}
+.focus-v2-mode-panel .focus-v2-mode{min-height:88px;border-radius:10px;gap:7px}
+.focus-v2-mode-panel .focus-v2-mode span{font-size:24px}
+.focus-v2-mode-panel .focus-v2-mode strong{font-size:11px}
+#panel-focus-pomodoro #timer-display[role="button"]{
+ cursor:pointer;outline-offset:5px
+}
+#panel-focus-pomodoro #timer-display[role="button"]:focus-visible{outline:3px solid #ffe9a2}
+@media(min-width:900px){
+ .focus-v2-stage>.focus-v2-modes{display:none!important}
+ .focus-v2-aside>.focus-v2-mode-panel{display:block}
+}
+@media(max-width:899px){
+ .focus-v2-aside>.focus-v2-mode-panel{display:none!important}
+ body.focus-v2-immersive-open .bottom-nav,
+ body.focus-v2-immersive-open .elara-mobile-dock,
+ body.focus-v2-immersive-open .elara-desktop-dock,
+ body.focus-v2-immersive-open [class*="mobile-bottom"],
+ body.focus-v2-immersive-open [class*="bottom-nav"]{visibility:hidden!important;pointer-events:none!important}
+}

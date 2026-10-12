@@ -67,8 +67,17 @@ function reportCard(bs){
  return '<section class="lib01-card lib01-report"><header><h2>▥ '+t('گزارش مطالعه','Reading report')+'</h2><button type="button" data-lib01-route="library-reports">'+t('جزئیات','Details')+' ←</button></header><div class="lib01-report-metrics"><div><strong>'+num(s.today)+'</strong><small>'+t('صفحه امروز','Pages today')+'</small></div><div><strong>'+num(s.week)+'</strong><small>'+t('این هفته','This week')+'</small></div><div><strong>'+num(s.month)+'</strong><small>'+t('این ماه','This month')+'</small></div></div>'+(window.ElaraReading?.chart?.(bs)||'')+'<p class="lib01-data-note">'+t('نمودار فقط از تاریخچه واقعی صفحات خوانده‌شده ساخته شده است.','Chart uses recorded reading logs, not estimates.')+'</p></section>';
 }
 function focusCard(){
+ const data=state(),current=data?.activeFocus,paused=current?.status==='paused';
  const timer=$('#timer-display')?.textContent?.trim()||'25:00';
- return '<section class="lib01-card lib01-focus"><header><h2>✹ '+t('اتاق تمرکز','Focus room')+'</h2><button type="button" data-lib01-route="focus-pomodoro">'+t('ورود به اتاق','Enter room')+' ↗</button></header><div class="lib01-focus-scene"><div class="lib01-focus-dial"><strong data-lib01-timer>'+esc(timer)+'</strong><small>'+t('پومودورو','Pomodoro')+'</small><button type="button" data-lib01-route="focus-pomodoro" aria-label="'+t('باز کردن پومودورو','Open Pomodoro')+'">▶</button></div></div><div class="lib01-focus-modes"><span>📖 '+t('مطالعه','Reading')+'</span><span>✎ '+t('نوشتن','Writing')+'</span><span>◈ '+t('کار عمیق','Deep work')+'</span><span>☼ '+t('مدیتیشن','Meditation')+'</span></div><p class="lib01-data-note">'+t('تنظیم و شروع تایمر در اتاق تمرکز انجام می‌شود.','Configure and start your actual timer in the focus room.')+'</p></section>';
+ const action=current?(paused?t('ادامه','Resume'):t('مکث','Pause')):t('شروع تمرکز در همین صفحه','Start here');
+ const icon=current?(paused?'▶':'Ⅱ'):'▶';
+ return '<section class="lib01-card lib01-focus"><header><h2>✹ '+t('اتاق تمرکز','Focus room')+'</h2><button type="button" data-lib01-route="focus-pomodoro">'+t('تنظیمات و نمای بزرگ','Open full setup')+' ↗</button></header>'+
+ '<div class="lib01-focus-scene"><div class="lib01-focus-dial"><strong data-lib01-timer>'+esc(timer)+'</strong><small>'+t(current?'جلسهٔ فعال':'پومودورو',current?'Active session':'Pomodoro')+'</small>'+
+ '<button type="button" data-focus-v2-inline-start aria-label="'+action+'" aria-pressed="'+(!!current&&current.status==='running')+'" title="'+action+'">'+icon+'</button></div></div>'+
+ '<div class="lib01-focus-modes">'+[
+ ['reading','📖','مطالعه','Reading'],['writing','✎','نوشتن','Writing'],['deep','♡','کار عمیق','Deep work'],['meditation','✧','مدیتیشن','Meditation']
+ ].map(([id,ic,fa,en])=>'<button type="button" data-focus-v2-library-mode="'+id+'" aria-label="'+t(fa,en)+' — '+t('باز کردن تنظیمات','Open setup')+'">'+ic+' '+t(fa,en)+'</button>').join('')+'</div>'+
+ '<p class="lib01-data-note">'+t('دکمهٔ پخش، تایمر واقعی را همین‌جا شروع یا متوقف می‌کند. برای تنظیمات روی «ورود» بزن.','Play controls your real timer here without leaving the library. Open setup for options.')+'</p></section>';
 }
 function shelvesCard(s,bs){
  const shelves=Array.isArray(s.bookShelves)?s.bookShelves:[];
