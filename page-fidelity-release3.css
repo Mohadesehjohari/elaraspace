@@ -1,0 +1,119 @@
+/* PAGE R3. Scoped to #page: global header/sidebar and seven-item navigation unchanged. */
+#panel-page #elara-page-view{gap:9px!important}
+#panel-page .page-social-grid{direction:ltr;display:grid;grid-template-columns:minmax(0,1fr) clamp(270px,23vw,330px);align-items:start;gap:12px;min-width:0;width:100%}
+#panel-page .page-social-main{direction:rtl;display:grid;gap:11px;align-content:start;min-width:0}
+#panel-page .page-social-aside{direction:rtl;display:grid;gap:12px;min-width:0}
+#panel-page .page-side-card{border:1px solid #236296;border-radius:17px;background:linear-gradient(155deg,#08254a 0%,#061b39 55%,#041429 100%);box-shadow:inset 0 1px #91c6fe18,0 9px 23px #0003;min-width:0;padding:12px;color:#f1f6ff;overflow:hidden}
+#panel-page .page-side-card header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;margin:0 0 9px;padding-bottom:9px;border-bottom:1px solid #255989}
+#panel-page .page-side-card header h2{margin:0;font-size:clamp(12px,1vw,15px);font-weight:850;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+#panel-page .page-side-card header button{border:0;background:transparent;color:#b6d9ff;cursor:pointer;white-space:nowrap;font:inherit;font-size:10px;padding:5px 2px}
+#panel-page .page-side-card header button:hover{color:#55e2ff}
+#panel-page .page-side-body{display:grid;gap:9px;min-width:0}
+#panel-page .page-side-empty{margin:0;background:linear-gradient(140deg,#0b2a52,#051936);border:1px solid #2c5286;border-radius:12px;color:#b7d0ed;padding:15px 11px;font-size:12px;line-height:1.9}
+#panel-page .page-side-card footer{font-size:10px;color:#a5bfdf;margin-top:9px;line-height:1.5}
+#panel-page .page-side-clip{display:grid;grid-template-columns:59px minmax(0,1fr);align-items:center;gap:10px;min-width:0;padding:9px;border:1px solid #28609d;border-radius:11px;background:linear-gradient(125deg,#12284e,#102449);overflow:hidden}
+#panel-page .page-side-clip img{width:58px;height:67px;object-fit:contain;border:1px solid #416b9d;border-radius:8px;background:#142d52}
+#panel-page .page-side-clip>div{min-width:0}
+#panel-page .page-side-clip p{font-size:12px;color:#f1f4ff;line-height:1.75;margin:0 0 6px;white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#panel-page .page-side-clip small{display:block;font-size:10px;color:#a5bfe3;overflow-wrap:anywhere}
+#panel-page .page-topic-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;list-style:none;margin:0;padding:0}
+#panel-page .page-topic-list li{display:grid;align-content:center;gap:5px;min-height:64px;padding:9px 10px;border:1px solid #296092;border-radius:12px;background:#09264a;min-width:0}
+#panel-page .page-topic-hash{font-size:13px;font-weight:750;color:#f0f5ff;overflow-wrap:anywhere}
+#panel-page .page-topic-list small{color:#9fbad9;font-size:10px}
+#panel-page .page-find-friends{display:block;width:100%;min-height:38px;background:linear-gradient(120deg,#064e73,#183b7c);border:1px solid #25c9f7;border-radius:11px;color:#fff;font:inherit;font-weight:800;font-size:12px;cursor:pointer}
+#panel-page .page-find-friends:hover{filter:brightness(1.18)}
+#panel-page .page-create-post{min-height:41px;border:1px solid #20d6ff;border-radius:12px;padding:7px 16px;background:linear-gradient(105deg,#0bc3f1,#514beb 65%,#8f4fff);box-shadow:0 0 15px #16aeff4c;color:#fff;font:inherit;font-weight:850;font-size:12px;cursor:pointer;white-space:nowrap}
+#panel-page .page-create-post:hover{filter:brightness(1.14)}
+#panel-page .page-id-actions{display:grid!important;grid-template-columns:auto auto;grid-template-rows:auto auto;gap:10px!important;align-items:center;justify-items:end}
+#panel-page .page-id-actions .page-create-post{grid-column:2;grid-row:1}
+#panel-page .page-id-actions .page-id-edit{grid-column:1;grid-row:1}
+#panel-page .page-id-actions .page-id-stats{grid-column:1/-1;grid-row:2}
+#panel-page .page-content-tabs{max-width:100%;width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;justify-content:stretch;gap:5px}
+#panel-page .page-content-tabs button{white-space:nowrap;flex:1 0 auto;min-width:80px;padding:8px 13px}
+#panel-page .page-content-tabs button[data-page-jump]{color:#d7e5fa}
+#panel-page .page-compose-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;min-width:0}
+#panel-page .page-compose-grid .page-post-compose{grid-column:1!important;grid-row:auto!important;display:grid;gap:8px;min-width:0;padding:13px!important}
+#panel-page .page-post-compose h2{display:none}
+#panel-page .page-composer-lead{display:flex;align-items:center;gap:9px;min-width:0}
+#panel-page .page-composer-avatar{display:grid;place-items:center;flex:none;width:42px;height:42px;padding:2px;border-radius:50%;background:linear-gradient(35deg,#17cefc,#a14df7,#ffd66a)}
+#panel-page .page-composer-avatar>img,#panel-page .page-composer-avatar>span{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#0b2b54;display:grid;place-items:center;color:#fff}
+#panel-page .page-composer-write{flex:1 1 auto;min-width:0;min-height:41px;padding:8px 12px;text-align:right;color:#a8bedf;background:#0a2446;border:1px solid #28598c;border-radius:10px;font:inherit;font-size:13px;cursor:text}
+#panel-page .page-post-compose>textarea{min-height:53px!important;max-height:130px!important;resize:vertical;box-sizing:border-box!important;padding:9px 12px!important;border-color:#245990!important;background:#081e3d!important;color:#f1f7ff!important;font-size:12px!important}
+#panel-page .page-post-compose>.page-media-picker{margin:0!important;padding:0!important}
+#panel-page .page-post-compose .page-media-deferred{display:none!important}
+#panel-page .page-composer-extras{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0}
+#panel-page .page-composer-extras button{border:1px solid #245a8e;border-radius:9px;background:linear-gradient(115deg,#082b52,#082044);color:#d4ecff;padding:8px 11px;font:inherit;font-size:11px;min-height:36px;cursor:pointer}
+#panel-page .page-composer-extras button:disabled{opacity:.63;cursor:not-allowed}
+#panel-page .page-composer-extras button:not(:disabled):hover{border-color:#2cdbfb}
+#panel-page .page-post-compose>div:not(.page-media-picker){border-top:1px solid #224773;padding-top:9px;margin-top:0!important;justify-content:flex-end}
+#panel-page .page-post-compose select{min-height:37px;border:1px solid #285987;border-radius:9px;color:#daeaff;background:#081d3d}
+#panel-page .page-post-compose [type=submit],#panel-page .page-story-compose [type=submit]{min-width:120px;min-height:39px!important;border-radius:10px;font-weight:850;box-shadow:0 0 14px #6051ff44}
+#panel-page .page-composer-status{grid-column:1!important;grid-row:auto!important;display:grid;gap:9px;padding:13px!important;margin-top:9px!important}
+#panel-page .page-composer-status[hidden]{display:none!important}
+#panel-page .page-composer-status h2{font-size:13px}
+#panel-page .page-composer-status textarea{min-height:70px!important;resize:vertical}
+#panel-page .page-feed{min-width:0}
+#panel-page .page-feed>header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#panel-page .page-feed>header h2{margin:0;font-size:14px}
+#panel-page .page-feed .page-post-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:start;min-width:0}
+#panel-page .page-post-grid .page-post{padding:11px!important;min-width:0;margin:0!important;border:1px solid #286599!important;border-radius:15px;background:linear-gradient(155deg,#09274b,#071b39)!important}
+#panel-page .page-post-grid .page-post>header{display:flex;align-items:center;gap:8px;min-width:0}
+#panel-page .page-post-grid .page-post>header>div{flex:1;min-width:0}
+#panel-page .page-post-grid .page-post>header strong{font-size:12px;overflow-wrap:anywhere}
+#panel-page .page-post-grid .page-post>header small{font-size:10px;color:#aac4df}
+#panel-page .page-post-grid .page-post>p{font-size:12px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}
+#panel-page .page-post-grid .page-post-actions{display:flex;flex-wrap:wrap;gap:4px;max-width:48%}
+#panel-page .page-post-grid .page-post-actions button{font-size:10px;min-width:0;padding:5px 7px}
+#panel-page .page-post-grid .page-engagement{display:flex;align-items:center;gap:14px;border-top:1px solid #285487;padding-top:9px}
+#panel-page .page-post-grid .page-engagement button{font-size:12px}
+#panel-page .page-post-grid .page-post .page-media img{width:100%;height:auto;max-height:250px;object-fit:cover;border-radius:10px}
+#panel-page .page-social-aside button:focus-visible,#panel-page .page-composer-write:focus-visible,#panel-page .page-create-post:focus-visible,#panel-page .page-content-tabs button:focus-visible{outline:2px solid #4fe1ff;outline-offset:2px}
+@media(min-width:1580px){#panel-page .page-feed .page-post-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1150px){
+ #panel-page .page-social-grid{grid-template-columns:minmax(0,1fr) 268px;gap:9px}
+ #panel-page .page-id-actions{grid-template-columns:auto!important;grid-template-rows:auto auto auto!important;justify-items:end!important}
+ #panel-page .page-id-actions .page-id-edit,#panel-page .page-id-actions .page-create-post,#panel-page .page-id-actions .page-id-stats{grid-column:1;grid-row:auto}
+ #panel-page .page-feed .page-post-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:1000px){
+ #panel-page .page-social-grid{grid-template-columns:minmax(0,1fr)!important}
+ #panel-page .page-social-aside{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #panel-page .page-side-friends{grid-column:1/-1}
+ #panel-page .page-id-actions{justify-items:start!important}
+}
+@media(max-width:700px){
+ #panel-page .page-social-grid{gap:10px}
+ #panel-page .page-id-actions{grid-column:1/-1!important;grid-row:2!important;display:flex!important;flex-flow:row wrap!important;justify-content:space-between!important;align-items:center!important;gap:7px!important}
+ #panel-page .page-id-actions .page-id-edit{min-height:37px!important}
+ #panel-page .page-create-post{min-height:37px;font-size:11px;padding:6px 10px}
+ #panel-page .page-id-actions .page-id-stats{flex:1 1 100%!important;justify-content:flex-start!important}
+ #panel-page .page-stories{margin-top:0!important}
+ #panel-page .page-content-tabs{overflow-x:auto!important;flex-wrap:nowrap!important;justify-content:flex-start!important;padding:5px!important}
+ #panel-page .page-content-tabs button{min-width:86px!important;min-height:40px!important;padding:8px 10px!important;font-size:11px!important;flex:0 0 auto!important}
+ #panel-page .page-compose-grid .page-post-compose{padding:9px!important}
+ #panel-page .page-composer-avatar{width:38px;height:38px}
+ #panel-page .page-composer-write{min-height:39px;font-size:12px}
+ #panel-page .page-post-compose>textarea{min-height:47px!important}
+ #panel-page .page-composer-extras{gap:5px}
+ #panel-page .page-composer-extras button{min-height:35px;padding:7px 9px;font-size:10px}
+ #panel-page .page-feed .page-post-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+ #panel-page .page-social-aside{grid-template-columns:minmax(0,1fr)}
+ #panel-page .page-side-friends{grid-column:auto}
+ #panel-page .page-side-card{padding:11px;border-radius:14px}
+ #panel-page .page-side-card header h2{font-size:13px}
+ #panel-page .page-topic-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:359px){
+ #panel-page .page-post-compose>div:not(.page-media-picker){justify-content:space-between}
+ #panel-page .page-post-compose [type=submit]{min-width:95px}
+ #panel-page .page-id-actions .page-id-edit{font-size:10px}
+ #panel-page .page-id-actions .page-create-post{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#panel-page .page-social-grid *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+body.light #panel-page .page-side-card,body.light #panel-page .page-post-grid .page-post{background:#f3f7ff!important;border-color:#88b4d6!important;color:#14345c}
+body.light #panel-page .page-side-empty{background:#e3efff;color:#234e7d}
+body.light #panel-page .page-topic-list li{background:#e3efff}
+body.light #panel-page .page-topic-hash{color:#1c3b68}
+body.light #panel-page .page-side-clip{background:#eaf3ff}
+body.light #panel-page .page-side-clip p{color:#1c345e}
+body.light #panel-page .page-composer-write,body.light #panel-page .page-post-compose>textarea{background:#f6faff!important;color:#1c365b!important}
