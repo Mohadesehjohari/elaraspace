@@ -148,13 +148,13 @@ function render(){
   if(route==='social'){f2Hero(root,tab);if(tab==='friends'){applyFriendFilters();void f2Extras()}}
   const tabStrip=root.querySelector('.social-tabs');
   if(tabStrip){
-   tabStrip.style.setProperty('display',route==='social'&&tab==='friends'?'grid':'flex','important');
+   tabStrip.style.setProperty('display',route==='social'?'grid':'flex','important');
    tabStrip.style.setProperty('flex-direction','row','important');
    tabStrip.style.setProperty('flex-wrap','nowrap','important');
-   tabStrip.style.setProperty('overflow-x','auto','important');
+   tabStrip.style.setProperty('overflow-x',route==='social'?'hidden':'auto','important');
    tabStrip.style.setProperty('overflow-y','hidden','important');
    tabStrip.style.setProperty('justify-content','flex-start','important');
-   tabStrip.style.setProperty('white-space','nowrap','important');
+   tabStrip.style.setProperty('white-space',route==='social'?'normal':'nowrap','important');
   }
   root.querySelectorAll('[data-avatar-shell].social-podium-avatar').forEach(shell=>{
    const featured=!!shell.closest('.place-1'),mobile=window.matchMedia?.('(max-width:700px)').matches;
