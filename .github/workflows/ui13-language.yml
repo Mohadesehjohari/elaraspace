@@ -15,6 +15,7 @@ on:
       - feature-hubs-shell.js
       - tests/ui13-language-owner-browser.mjs
       - tests/l2-language-leitner-browser.mjs
+      - tests/l3-leitner-review-browser.mjs
       - tests/ui12-language-reference-browser.mjs
       - tests/p0-language-popup-browser.mjs
       - .github/workflows/ui13-language.yml
@@ -38,7 +39,7 @@ jobs:
         run: |
           set -eu
           for file in boot.js ui12-language-dashboard.js ui13-language-routes.js language-custom-classes.js social-clubs-ui.js feature-hubs-shell.js; do node --check "$file"; done
-          for file in language_banner_main.webp librairy_banner_main.webp weblog_banner_main.webp workout_banner_main.webp daily-banner-bg_main.webp lightner.webp; do test -s "assets/ui/$file"; done
+          for file in language_banner_main.webp librairy_banner_main.webp weblog_banner_main.webp workout_banner_main.webp daily-banner-bg_main.webp lightner.webp lightner_words_backgroud_pc.webp lightner_words_backgroud_mobile.webp; do test -s "assets/ui/$file"; done
           if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|reference-home-shell-2026.css)$'; then
             echo "::error::Protected backend/Home/global navigation modified"; exit 1
           fi
@@ -56,6 +57,8 @@ jobs:
         run: timeout 420s node tests/ui13-language-owner-browser.mjs
       - name: L2 nine-width canonical Leitner dashboard
         run: timeout 240s node tests/l2-language-leitner-browser.mjs
+      - name: L3 ten-width real Leitner word-review scene
+        run: timeout 240s node tests/l3-leitner-review-browser.mjs
       - name: UI12 canonical state and full route matrix
         run: timeout 420s node tests/ui12-language-reference-browser.mjs
       - name: Full P0 Language, Tasks, Profile, and Leitner
@@ -87,6 +90,7 @@ jobs:
           path: |
             browser-artifacts/ui13/*.png
             browser-artifacts/language-l2/*.png
+            browser-artifacts/language-l3/*.png
             browser-artifacts/ui13/*.log
             browser-artifacts/ui12/*.png
           if-no-files-found: warn

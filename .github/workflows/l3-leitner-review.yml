@@ -1,0 +1,42 @@
+name: L3 Leitner Review Scoped
+on:
+  pull_request:
+    paths:
+      - ui13-language-routes.js
+      - ui13-language.css
+      - tests/l3-leitner-review-browser.mjs
+      - .github/workflows/l3-leitner-review.yml
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Scoped syntax and exact owner assets
+        run: |
+          node --check ui13-language-routes.js
+          node --check tests/l3-leitner-review-browser.mjs
+          test -s assets/ui/lightner_words_backgroud_pc.webp
+          test -s assets/ui/lightner_words_backgroud_mobile.webp
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/l3-http.log 2>&1 &
+          sleep 3
+      - name: Ten-width L3 review behaviors
+        run: timeout 230s node tests/l3-leitner-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l3-review-${{ github.sha }}
+          path: browser-artifacts/language-l3/*.png
+          if-no-files-found: warn
+          retention-days: 30
