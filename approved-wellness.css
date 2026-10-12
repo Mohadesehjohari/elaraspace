@@ -33,3 +33,9 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 .wellness-sleep-line svg{max-height:150px}
 #panel-wellness-sleep .wellness-sleep-line{max-width:540px}
 @media(max-width:700px){.wellness-sleep-line{max-width:100%}.wellness-green-plan-editor{padding:4px}.wellness-checklist-add{flex-wrap:wrap}}
+
+/* Green sleep popup fields — dialog shell remains managed by ElaraDialog. */
+.wellness-sleep-green-form{direction:rtl;padding:14px;border:1px solid #199c76;border-radius:16px;background:linear-gradient(135deg,#083c30,#05251f);color:#ecfff7}
+.wellness-sleep-green-form label{display:grid;gap:8px;color:#e9fff5}
+.wellness-sleep-green-form input{background:#052820!important;color:#effff6!important;border:1px solid #39a787!important;border-radius:12px!important;padding:10px!important;color-scheme:dark}
+.wellness-sleep-line svg text{fill:#c1e5d3}
