@@ -139,13 +139,6 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
  html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:18px!important}
 }
 
-/* Approved Elara scenery is decorative editorial placeholder artwork for the
-   five bundled articles only, never a claimed user-uploaded cover image. */
-#panel-blog .blog-card[data-blog-id="plan-week"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_city_of_stars.webp") center/cover no-repeat}
-#panel-blog .blog-card[data-blog-id="focus-reset"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
-#panel-blog .blog-card[data-blog-id="habit-small"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
-#panel-blog .blog-card[data-blog-id="read-better"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_dream_tree.webp") center/cover no-repeat}
-#panel-blog .blog-card[data-blog-id="energy-day"] .blog-card-cover{background:linear-gradient(0deg,#06162960,#0616291a),url("assets/ui/banner_moon_lake.webp") center/cover no-repeat}
 @media(max-width:900px){
  /* Reference mobile order: featured, authors, topics, my posts, remaining articles.
     Do not move actual sidebars or alter the global mobile navigation. */
@@ -211,16 +204,6 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
 #panel-blog .blog-card-cover{display:block!important;position:relative!important;width:100%!important;min-height:0!important;height:auto!important;aspect-ratio:1.72!important;background-size:cover!important;background-position:center!important;border:0!important;overflow:hidden!important}
 #panel-blog .blog-card-cover::before{background:linear-gradient(0deg,#051b35a8,transparent 45%);opacity:1}
 #panel-blog .blog-card-cover img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
-#panel-blog .blog-card[data-blog-id="plan-week"] .blog-card-cover,
-#panel-blog .blog-card[data-blog-id="focus-reset"] .blog-card-cover,
-#panel-blog .blog-card[data-blog-id="habit-small"] .blog-card-cover,
-#panel-blog .blog-card[data-blog-id="read-better"] .blog-card-cover,
-#panel-blog .blog-card[data-blog-id="energy-day"] .blog-card-cover{background-size:cover!important;background-position:center!important}
-#panel-blog .blog-card[data-blog-id="plan-week"] .blog-art-mark,
-#panel-blog .blog-card[data-blog-id="focus-reset"] .blog-art-mark,
-#panel-blog .blog-card[data-blog-id="habit-small"] .blog-art-mark,
-#panel-blog .blog-card[data-blog-id="read-better"] .blog-art-mark,
-#panel-blog .blog-card[data-blog-id="energy-day"] .blog-art-mark{display:none!important}
 #panel-blog .blog-card-tag{inset-block-start:10px;inset-inline-start:10px;inset-inline-end:auto;background:#0b2249e9;border-color:#e69b72b5;font-size:.73rem;padding:4px 10px;backdrop-filter:blur(7px)}
 #panel-blog .blog-card-save{position:absolute;z-index:4;top:9px;left:10px;display:grid;place-items:center;width:34px;height:35px;background:#08162ccf;border:1px solid #7795bd88;color:#fff;border-radius:10px;backdrop-filter:blur(9px);font-size:1.05rem}
 #panel-blog .blog-card-save[aria-pressed="true"]{background:#4e2951e9;border-color:#f7b27d;color:#ffce94}
@@ -247,11 +230,6 @@ html body #main #panel-blog:has(.is-subview-hero) .blog-frame{padding-top:80px!i
 #panel-blog .blog-my-card button{min-height:28px;font-size:.7rem;margin-top:4px}
 #panel-blog .blog-reader{max-width:990px}
 #panel-blog .blog-reader-banner{height:clamp(185px,25vw,310px);background-size:cover;background-position:center}
-#panel-blog .blog-article-detail[data-blog-article="plan-week"] .blog-reader-banner{background-image:linear-gradient(0deg,#081d38b0,#06173012),url("assets/ui/banner_city_of_stars.webp")}
-#panel-blog .blog-article-detail[data-blog-article="focus-reset"] .blog-reader-banner,
-#panel-blog .blog-article-detail[data-blog-article="energy-day"] .blog-reader-banner{background-image:linear-gradient(0deg,#081d38b0,#06173012),url("assets/ui/banner_moon_lake.webp")}
-#panel-blog .blog-article-detail[data-blog-article="habit-small"] .blog-reader-banner,
-#panel-blog .blog-article-detail[data-blog-article="read-better"] .blog-reader-banner{background-image:linear-gradient(0deg,#081d38b0,#06173012),url("assets/ui/banner_dream_tree.webp")}
 #panel-blog .blog-reader-banner img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 #panel-blog .blog-reader-inner{max-width:760px;padding:26px clamp(12px,2vw,30px)}
 #panel-blog .blog-reader-inner h1{font-size:clamp(1.7rem,3vw,2.45rem)!important}
