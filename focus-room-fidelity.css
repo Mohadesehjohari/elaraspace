@@ -11,7 +11,7 @@
   color: #f9f4ed;
   background-color: #081320;
   background-image:
-    linear-gradient(180deg,rgba(3,8,16,.24) 0%,rgba(3,8,16,.42) 38%,rgba(3,9,20,.76) 77%,#06121f 100%),
+    linear-gradient(180deg,rgba(3,8,16,.15) 0%,rgba(3,8,16,.28) 38%,rgba(3,9,20,.53) 77%,#06121fd9 100%),
     url("assets/ui/bg_focus_room.webp");
   background-size: cover,cover;
   background-position: center center,center 38%;
@@ -23,7 +23,7 @@
   z-index: 1;
   margin: 0 0 clamp(14px,2.3vw,30px);
   padding: clamp(12px,2vw,24px);
-  background: linear-gradient(90deg,#05111dbb,#05111d42);
+  background: linear-gradient(90deg,#05111d8f,#05111d26);
   border: 1px solid #dbb57045;
   border-radius: 19px;
   box-shadow: 0 12px 32px #0006;
@@ -59,11 +59,11 @@
   min-width: 0;
   margin: 0 auto;
   padding: clamp(15px,2.5vw,29px);
-  border: 1px solid #f0c67864;
+  border: 1px solid transparent;
   border-radius: 24px;
-  background: linear-gradient(135deg,#06111fde,#05101ac7);
-  box-shadow: 0 20px 68px #0009,0 0 30px #eb9c2420;
-  backdrop-filter: blur(8px);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 #panel-focus-pomodoro > .focus-card > * {min-width:0;direction:rtl}
 #panel-focus-pomodoro > .focus-card #focus-status {
@@ -151,7 +151,7 @@
   backdrop-filter:blur(8px);
 }
 body.light #panel-focus-pomodoro:not(.hidden) {color:#fff}
-body.light #panel-focus-pomodoro > .focus-card,
+body.light #panel-focus-pomodoro > .focus-card {color:#fff;background:transparent}
 body.light #panel-focus-pomodoro > .focus-history-card {color:#fff;background:#061421df}
 @media(max-width:880px){
   #panel-focus-pomodoro:not(.hidden){
