@@ -193,7 +193,8 @@ async function run(width,height){
   friendSelectionBefore,width+': returning from Ranking reset independent Friends selection');
 
  await page.evaluate(()=>ElaraOpen('store',{history:'replace'}));await page.waitForSelector('#panel-store:not(.hidden) .store-tabs');
- assert.equal(await page.locator('#panel-store [data-store-category]').count(),12,width+': Store categories incomplete');
+ assert.equal(await page.locator('#panel-store [data-store-category]').count(),18,width+': Store 2026 category/navigation controls must stay complete');
+  assert.ok(await page.locator('#panel-store .store-tabs [data-store-category]').count()>=12,width+': Store category tabs are missing');
  assert.equal(await page.locator('#panel-store [data-store-category="status"]').count(),1,width+': Status cosmetics category missing');
  assert.equal(await page.locator('#panel-store [data-store-category="page"]').count(),1,width+': Page cosmetics category missing');
  await page.locator('[data-store-category="themes"]').click();assert.ok(await page.locator('#panel-store .store-product').count()>=10,width+': real theme previews missing');
