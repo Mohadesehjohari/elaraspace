@@ -129,42 +129,6 @@ for(const width of widths){
   await page.waitForSelector('#panel-home:not(.hidden)');
   assert.ok(Math.abs(await opacity()-1)<.001,'Home keeps account fully visible');
   await page.screenshot({path:'browser-artifacts/well01/account-home-'+width+'.png'});
-  const routes=[['tasks','panel-tasks'],['books','panel-books'],['settings','panel-settings'],['reports','panel-reports']];
-  for(const [route,id] of routes){
-   await page.evaluate(route=>window.ElaraOpen(route),route);
-   await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
-   await page.mouse.move(12,360);
-   // Escape may intentionally restore focus-visible to the account trigger.
-   // Verify the idle state only after keyboard focus leaves the account.
-   await page.evaluate(()=>document.activeElement?.blur?.());
-   await page.waitForTimeout(270);
-   const current=await opacity();
-   console.log('ACCOUNT_NONHOME_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>{
-    const target=document.querySelector('.topbar .ref-header-account-cluster');
-    return {hash:location.hash,panelNames:[...document.querySelectorAll('#main > [id^="panel-"]:not(.hidden)')].map(x=>x.id),visibleAny:!!document.querySelector('#main > [id^="panel-"]:not(#panel-home):not(.hidden)'),bodyClasses:document.body.className,matched:document.body.matches('body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden))'),opacity:getComputedStyle(target).opacity};
-   })));
-   if(width===1440)assert.ok(current<=.15,route+' desktop should fade account when unfocused: '+current);
-   else assert.ok(current>=.48&&current<.9,route+' mobile keeps avatar discoverable when unfocused: '+current);
-   if(route==='tasks'){
-    await page.screenshot({path:'browser-artifacts/well01/account-tasks-idle-'+width+'.png'});
-    if(width===1440){
-     await account.hover();await page.waitForTimeout(260);
-     assert.ok(await opacity()>.9,'Tasks account reveals on hover');
-     await page.screenshot({path:'browser-artifacts/well01/account-tasks-hover-1440.png'});
-    }
-    await button.click();await drawer.waitFor();await page.waitForTimeout(260);
-    assert.ok(await opacity()>.9,'Tasks account remains open at '+width);
-    await page.screenshot({path:'browser-artifacts/well01/account-tasks-drawer-'+width+'.png'});
-    if(width===1440){await page.locator('.elara-private-drawer-panel').hover();assert.ok(await opacity()>.9,'Tasks drawer mouse travel stays open');}
-    await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
-    await page.mouse.move(12,360);await page.waitForTimeout(270);
-    if(width===1440)assert.ok(await opacity()<=.15,'Tasks account fades after close');
-   }
-  }
-  await page.evaluate(()=>window.ElaraOpen('home'));
-  await page.waitForSelector('#panel-home:not(.hidden)');
-  await page.waitForTimeout(275);
-  assert.ok(Math.abs(await opacity()-1)<.001,'Home account restores after non-home navigation');
   await page.evaluate(()=>window.ElaraOpen('exercise'));
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
@@ -261,6 +225,50 @@ for(const width of widths){
   await page.waitForFunction(()=>!(/68[.٫]5|۶۸[.٫]۵|تمرین قدرتی سه روز/).test(document.querySelector('#well01-dashboard')?.innerText||''),{timeout:10000});
   assert.doesNotMatch(await dash.innerText(),/68[.٫]5|۶۸[.٫]۵|تمرین قدرتی سه روز/,'one account cannot read another account data');
  }
+ await page.close();
+}
+
+// Isolated cross-page account behavior: do not alter the seeded private Wellness test session.
+for(const width of [390,1440]){
+ const page=await open(width,base,false);
+ const account=page.locator('.topbar .ref-header-account-cluster'),button=page.locator('#ref-header-account');
+ const opacity=()=>account.evaluate(el=>Number(getComputedStyle(el).opacity));
+ const drawer=page.locator('.elara-private-drawer:not(.hidden)');
+ await page.evaluate(()=>window.ElaraOpen('home'));
+ await page.waitForSelector('#panel-home:not(.hidden)');
+ assert.ok(Math.abs(await opacity()-1)<.001,'Home account remains fully visible at '+width);
+ await page.screenshot({path:'browser-artifacts/well01/account-home-'+width+'.png'});
+ for(const [route,id] of [['tasks','panel-tasks'],['books','panel-books'],['settings','panel-settings'],['reports','panel-reports']]){
+  await page.evaluate(route=>window.ElaraOpen(route),route);
+  await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
+  await page.mouse.move(12,360);
+  await page.evaluate(()=>document.activeElement?.blur?.());
+  await page.waitForTimeout(275);
+  const current=await opacity();
+  console.log('ACCOUNT_NONHOME_ROUTE_'+width,route,current);
+  if(width===1440)assert.ok(current<=.15,route+' desktop idle account fades');
+  else assert.ok(current>=.48&&current<.9,route+' touch-size account remains visible');
+  if(route==='tasks'){
+   const before=await account.boundingBox();
+   await page.screenshot({path:'browser-artifacts/well01/account-tasks-idle-'+width+'.png'});
+   if(width===1440){
+    await account.hover();await page.waitForTimeout(270);
+    assert.ok(await opacity()>.9,'Tasks account reveals on pointer hover');
+    await page.screenshot({path:'browser-artifacts/well01/account-tasks-hover-1440.png'});
+   }
+   await button.click();await drawer.waitFor();await page.waitForTimeout(265);
+   assert.ok(await opacity()>.9,'Tasks account remains shown while menu open');
+   await page.screenshot({path:'browser-artifacts/well01/account-tasks-drawer-'+width+'.png'});
+   if(width===1440){await page.locator('.elara-private-drawer-panel').hover();assert.ok(await opacity()>.9,'Account remains visible on mouse travel to menu');}
+   await page.keyboard.press('Escape');await drawer.waitFor({state:'hidden'});
+   const after=await account.boundingBox();
+   assert.ok(Math.abs(before.x-after.x)<=1&&Math.abs(before.y-after.y)<=1,'Account remains geometrically fixed after fade');
+  }
+ }
+ await page.evaluate(()=>window.ElaraOpen('home'));
+ await page.waitForSelector('#panel-home:not(.hidden)');
+ await page.waitForTimeout(280);
+ assert.ok(Math.abs(await opacity()-1)<.001,'Home account fully restores after visiting other pages');
  await page.close();
 }
 
