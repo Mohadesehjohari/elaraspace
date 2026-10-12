@@ -179,7 +179,7 @@ async function editor(kind,id){
  const key=kind==='sleep'?'sleep':kind==='workout'?'workouts':'cycles',current=read(),newId=id||crypto.randomUUID?.()||String(Date.now()),row=kind==='workout'?normalizeWorkout(inputs,old,newId):kind==='cycle'?normalizeCycle(inputs,old,newId):{...old,...inputs,id:newId};if(kind==='sleep'&&!sleepMinutes(row))return message('بازهٔ خواب باید بین یک دقیقه تا ۲۴ ساعت باشد.');
  if(write({[key]:id?current[key].map(x=>x.id===id?row:x):[...current[key],row]}))message('ثبت شد.')
 }
-async async function planEditor(kind){
+async function planEditor(kind){
  if(!uid())return message('برای ثبت اطلاعات ابتدا وارد حساب شو.');if(!window.ElaraDialog?.open)return;
  const nutrition=kind==='nutrition',prefix=nutrition?'nutrition':'workout',key=prefix+'PlanNote',nameKey=prefix+'PlanName',scheduleKey=prefix+'PlanSchedule',state=read(),form=document.createElement('div');
  form.className='wellness-plan-editor wellness-green-form wellness-program-editor';
