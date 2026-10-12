@@ -121,7 +121,7 @@ async function checkEmptyOfficialFeed(width,height){
   await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloud}));
   await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
   await page.goto(base+'/?blogempty='+width+'#blog',{waitUntil:'domcontentloaded',timeout:40000});
-  await page.waitForFunction(()=>window.ElaraBlog&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
+  await page.waitForFunction(()=>window.ElaraBlog&&!document.documentElement.hasAttribute('data-elara-booting')&&Boolean(window.ElaraPublicContent?.listBlogArticles),null,{timeout:30000});
   await page.evaluate(async()=>{window.ElaraPublicContent.listBlogArticles=async()=>[];await window.ElaraBlog.reloadPublished();});
   await page.waitForFunction(()=>document.querySelectorAll('#panel-blog .blog-card').length===0);
   assert.equal(await page.locator('#panel-blog .blog-card').count(),0,width+': no invented articles with empty official feed');
