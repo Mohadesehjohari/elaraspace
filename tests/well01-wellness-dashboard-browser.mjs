@@ -37,9 +37,10 @@ async function geometry(page){
  const eyebrow=b('#well01-dashboard .well01-hero-copy small'),shortcut=b('#well01-dashboard .well01-shortcuts'),features=b('#well01-dashboard .well01-features');
  const app=b('#main'),panel=b('#panel-exercise');
  const search=document.querySelector('#ref-search-input'),searchBox=search?.getBoundingClientRect();
- const cx=searchBox?searchBox.left+searchBox.width/2:0,cy=searchBox?searchBox.top+searchBox.height/2:0;
- const searchHit=searchBox?document.elementFromPoint(cx,cy):null;
- return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
+ const activeSearch=!!searchBox&&searchBox.width>=20&&searchBox.height>=18;
+ const cx=activeSearch?searchBox.left+searchBox.width/2:0,cy=activeSearch?searchBox.top+searchBox.height/2:0;
+ const searchHit=activeSearch?document.elementFromPoint(cx,cy):null;
+ return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!activeSearch||(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
  });
 }
 for(const w of [390,1440]){
