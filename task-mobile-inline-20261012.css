@@ -1,0 +1,65 @@
+/* Compact horizontal task rows, mobile hero tight to top, and navigable folder/list labels. */
+#panel-tasks #task-list>.astra-task-row .task-summary-button::before,#panel-tasks #task-list>.astra-task-row .task-summary-button::after,#panel-tasks #task-list>.astra-task-row::before{display:none!important;content:none!important;background-image:none!important}
+#panel-tasks #task-list>.astra-task-row{box-sizing:border-box!important;display:grid!important;grid-template-columns:30px minmax(90px,1.3fr) minmax(75px,.6fr) minmax(115px,1fr) 30px!important;grid-template-rows:auto!important;align-items:center!important;gap:5px!important;min-height:53px!important;padding:6px 9px!important;margin:0 0 5px!important}
+#panel-tasks #task-list>.astra-task-row>.check-button{grid-column:1!important;grid-row:1!important;width:27px!important;height:27px!important;align-self:center!important;border-radius:50%!important}
+#panel-tasks #task-list>.astra-task-row>.item-content{grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;gap:2px!important;padding:0!important}
+#panel-tasks #task-list>.astra-task-row .task-summary-button{display:flex!important;align-items:center!important;gap:6px!important;min-height:23px!important}
+#panel-tasks #task-list>.astra-task-row .task-summary-button .item-title{display:block!important;font-size:.77rem!important;line-height:1.3!important;white-space:normal!important;overflow:hidden!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important}
+#panel-tasks #task-list>.astra-task-row .item-meta.astra-task-core-meta{display:none!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-category,#panel-tasks #task-list>.astra-task-row>.astra-task-xp{display:none!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-status{box-sizing:border-box!important;grid-column:3!important;grid-row:1!important;position:static!important;justify-self:center!important;align-self:center!important;min-width:0!important;max-width:100%!important;min-height:24px!important;height:auto!important;padding:3px 6px!important;font-size:.61rem!important;white-space:nowrap!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links{grid-column:4!important;grid-row:1!important;display:flex!important;min-width:0!important;max-width:100%!important;overflow:hidden!important;gap:3px!important;align-items:center!important;justify-content:flex-start!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>*{box-sizing:border-box!important;flex-shrink:0!important;max-width:70px!important;border:1px solid #27678a!important;border-radius:6px!important;padding:3px 5px!important;font-size:.57rem!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#bedff8!important;background:#071e39!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>button{cursor:pointer!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>button:hover{color:#85eaff!important;border-color:#29b6f6!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority.p1{color:#ff8293!important;border-color:#c43f56!important;background:#3b1328!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority.p2{color:#ffe188!important;border-color:#9d7723!important;background:#392f1a!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority.p3{color:#8accff!important;border-color:#366caa!important;background:#142f50!important}
+#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority.p4{color:#a2bdcf!important;border-color:#3e5b70!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-more{grid-column:5!important;grid-row:1!important;justify-self:end!important;align-self:center!important;position:relative!important;inset:auto!important;width:28px!important;height:28px!important}
+#panel-tasks #task-list>.astra-task-row>.item-content .task-round-back{min-width:24px!important;min-height:24px!important;font-size:1rem!important;padding:1px 4px!important}
+#panel-tasks #task-list>.astra-task-row>.task-checklist-preview{grid-column:2/5!important;grid-row:2!important;min-width:0!important;margin:0!important}
+#panel-tasks .task-board-card>.elara-task-cross-links,.feature-section-task-row>.elara-task-cross-links{display:inline-flex!important;gap:5px!important;min-width:0!important;flex-wrap:wrap!important}
+#panel-tasks .task-board-card>.elara-task-cross-links button,.feature-section-task-row>.elara-task-cross-links button{border:1px solid #3479a7!important;border-radius:7px!important;background:#082841!important;color:#b0e9ff!important;padding:3px 8px!important;font-size:.66rem!important}
+#panel-tasks .task-board-card>.elara-task-cross-links span,.feature-section-task-row>.elara-task-cross-links span{font-size:.64rem!important}
+#panel-tasks #task-checked-archive .task-archive-row .elara-uploaded-check{height:34px!important;width:34px!important;object-fit:contain!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-status.is-pending{background:#5c4318!important;border-color:#bd9138!important;color:#ffe4a2!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-status.is-progress{background:#12385b!important;color:#83d8ff!important;border-color:#36b2e9!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-status.is-overdue{background:#55202b!important;border-color:#f3546b!important;color:#ffa6b1!important}
+#panel-tasks #task-list>.astra-task-row>.astra-task-status.is-done{background:#164c34!important;border-color:#45c883!important;color:#a7ffd6!important}
+@media(max-width:700px){
+ html body .workspace:has(#panel-tasks:not(.hidden))>.topbar{display:none!important;visibility:hidden!important}
+ html body .workspace:has(#panel-tasks:not(.hidden)),html body .workspace:has(#panel-tasks:not(.hidden)) #main{margin-top:0!important;padding-top:0!important}
+ html body #main>#panel-tasks:not(.hidden){box-sizing:border-box!important;width:100%!important;min-width:0!important;margin:0!important;padding:0 7px calc(90px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important}
+ html body #panel-tasks:not(.hidden)>.elara-global-hero{box-sizing:border-box!important;margin-top:0!important;margin-bottom:0!important;border-radius:0 0 13px 13px!important}
+ html body #panel-tasks #astra-task-hero{margin-top:0!important;margin-bottom:4px!important;min-height:79px!important;max-height:106px!important;padding:5px 8px!important}
+ html body #panel-tasks #astra-task-hero .task-streak-summary{gap:5px!important}
+ html body #panel-tasks #astra-task-hero .task-streak-summary>img{width:37px!important;height:45px!important}
+ html body #panel-tasks #task-category-nav{margin:3px 0 4px!important;padding:3px!important}
+ html body #panel-tasks #astra-task-toolbar{margin-top:2px!important;margin-bottom:4px!important;gap:3px!important}
+ html body #panel-tasks #astra-task-chips{min-height:30px!important;margin:0!important}
+ html body #panel-tasks #elara-task-page-actions{gap:4px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row{box-sizing:border-box!important;display:grid!important;grid-template-columns:25px minmax(88px,1fr) 65px minmax(55px,.65fr) 26px!important;grid-template-rows:auto!important;gap:3px!important;align-items:center!important;align-content:center!important;width:100%!important;min-width:0!important;min-height:52px!important;max-height:none!important;height:auto!important;padding:4px 5px!important;margin:0 0 4px!important;flex-wrap:initial!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row::after{content:none!important;display:none!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button{grid-column:1!important;grid-row:1!important;order:initial!important;flex:initial!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;padding:0!important;align-self:center!important;border-radius:50%!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{grid-column:2!important;grid-row:1!important;order:initial!important;flex:initial!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;width:auto!important;gap:1px!important;padding:0!important;margin:0!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button{display:flex!important;min-height:20px!important;max-height:none!important;height:auto!important;padding:0!important;gap:4px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button .item-title{display:block!important;max-height:2.7em!important;font-size:11px!important;line-height:1.35!important;white-space:normal!important;overflow:hidden!important;overflow-wrap:anywhere!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content>.item-meta.astra-task-core-meta{display:none!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-category,html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-xp{display:none!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{grid-column:3!important;grid-row:1!important;order:initial!important;position:static!important;inset:auto!important;flex:initial!important;width:auto!important;max-width:100%!important;min-width:0!important;min-height:21px!important;height:23px!important;padding:2px 3px!important;font-size:9px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links{grid-column:4!important;grid-row:1!important;order:initial!important;display:flex!important;flex:initial!important;min-width:0!important;max-width:100%!important;overflow:hidden!important;align-items:center!important;gap:2px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>*{max-width:57px!important;padding:2px 3px!important;font-size:9px!important;min-height:19px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority{order:-1!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-time,html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-days{display:none!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-more{grid-column:5!important;grid-row:1!important;order:initial!important;position:relative!important;inset:auto!important;width:26px!important;min-height:26px!important;margin:0!important;align-self:center!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.task-checklist-preview{grid-column:2/5!important;grid-row:2!important;order:initial!important;flex:initial!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-short-description{display:none!important}
+ #panel-tasks .task-organizer{padding:9px!important;margin-top:6px!important}
+ #panel-tasks .task-organizer>header{gap:6px!important}
+ #panel-tasks .task-organizer>header small{font-size:.62rem!important}
+ #panel-tasks .org-folder>summary{padding:10px!important;gap:5px!important}
+ #panel-tasks .org-folder>summary>small{font-size:.59rem!important}
+ #panel-tasks .org-list>summary{padding:8px!important}
+}
+@media(max-width:360px){html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row{grid-template-columns:25px minmax(75px,1fr) 58px minmax(45px,.55fr) 24px!important;gap:2px!important}html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{font-size:8px!important}}
