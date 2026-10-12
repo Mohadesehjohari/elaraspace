@@ -10,7 +10,18 @@ const uid=()=>window.ElaraAccount?window.ElaraAccount.user?.uid||null:window.Ela
 const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
 const dateOf=ms=>Number.isFinite(Number(ms))&&Number(ms)>0?iso(new Date(Number(ms))):null;
 const seenUnique=(xs,key)=>{const seen=new Set();return xs.filter(x=>{const k=key(x);if(!k||seen.has(k))return false;seen.add(k);return true})};
-const icon=(name)=>'<span class="elara-reports-icon" aria-hidden="true">'+name+'</span>';
+const iconPaths={
+ '◎':'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+ '▤':'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h8"/>',
+ '▣':'<path d="M4 4h16v16H4z"/><path d="M8 4v16M12 4v16M16 4v16"/>',
+ '☑':'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m7.5 12 3 3 6-7"/>',
+ '◷':'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
+ '▦':'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/>',
+ '◫':'<path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v14"/>',
+ '⌁':'<path d="M2 12h3l2-6 4 12 3-9 2 3h6"/>',
+ '✧':'<path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/>'
+};
+const icon=name=>'<span class="elara-reports-icon" aria-hidden="true">'+(iconPaths[name]?'<svg viewBox="0 0 24 24" focusable="false">'+iconPaths[name]+'</svg>':name)+'</span>';
 const periodOptions=[['7','هفتگی'],['30','ماهانه'],['90','سه‌ماهه'],['365','سالانه']];
 let days=30,rendering=false;
 function bucket(date,n){if(n===365)return date.slice(0,7)+'-01';if(n===90){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()-(d.getDay()+1)%7);return iso(d)}return date}
@@ -163,7 +174,7 @@ function render(){
  }
  let hero=panel.querySelector(':scope > .feature-hub-hero, :scope > .elara-global-hero');
  if(!hero){hero=document.createElement('section');hero.className='feature-hub-hero';hero.dataset.hubHero='reports';panel.prepend(hero)}
- hero.dataset.hubHero='reports';hero.dataset.elaraPageHero='reports';hero.classList.add('feature-hub-hero','elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p></div>';
+ hero.dataset.hubHero='reports';hero.dataset.elaraPageHero='reports';hero.classList.add('feature-hub-hero','elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small><i class="elara-reports-hero-dot" aria-hidden="true"></i>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p><span class="elara-reports-hero-tag">نمای زنده از فعالیت‌های ثبت‌شده شما</span></div>';
  let root=$('elara-reports-overview');if(!root){root=document.createElement('div');root.id='elara-reports-overview';root.className='elara-reports-dashboard';panel.append(root)}
  root.innerHTML=topKpis(d)+
  '<div class="elara-reports-main"><section class="elara-reports-panel elara-reports-trends"><header><div><h2>▥ روند کلی پیشرفت</h2><p>نمای کلی فعالیت‌های شما در سراسر الارا</p></div><div class="elara-reports-periods" role="group" aria-label="بازه گزارش">'+periodOptions.map(o=>'<button type="button" data-reports-days="'+o[0]+'" aria-pressed="'+(Number(o[0])===days)+'">'+o[1]+'</button>').join('')+'</div></header>'+trend(d)+'</section>'+summary(d)+'</div>'+
