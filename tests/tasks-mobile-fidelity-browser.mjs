@@ -91,6 +91,15 @@ try {
   const {page,context,errors}=await setup(width,candidate);
   const state=await measure(page,width);
   reports.widths.push(state);
+  if(width===320){
+   await page.screenshot({path:out+'/debug-after-320.png',fullPage:false});
+   const debug=await page.evaluate(()=>{
+    const row=document.querySelector('#task-list>.astra-task-row');
+    const dims=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {cls:e.className,tag:e.tagName,x:r.x,y:r.y,w:r.width,h:r.height,display:s.display,minHeight:s.minHeight,margin:s.margin,padding:s.padding,order:s.order,position:s.position}};
+    return {row:dims(row),nodes:[...row.children].map(dims)};
+   });
+   console.log('TASKS_DEBUG_320 '+JSON.stringify(debug));
+  }
   assert.equal(state.isRTL,true,'RTL lost '+width);
   assert.ok(state.docWidth<=state.viewport+1,'horizontal overflow '+JSON.stringify(state));
   if(width<=430){
