@@ -302,8 +302,15 @@ console.log('ACCOUNT_TOUCH_CLOSED',JSON.stringify(await touch.evaluate(()=>{
  const cluster=document.querySelector('.ref-header-account-cluster'),button=document.querySelector('#ref-header-account');
  return {opacity:getComputedStyle(cluster).opacity,mode:document.body.dataset.wellProfileInput,classes:document.body.className,focus:document.activeElement?.outerHTML.slice(0,150),focusVisible:cluster.matches(':has(:focus-visible)'),buttonFocusVisible:button?.matches(':focus-visible'),characterPanel:!!document.querySelector('#ref-equipped-character-panel:not([hidden])'),drawerOpen:document.body.classList.contains('elara-private-drawer-open'),htmlPanel:document.querySelector('#panel-exercise')?.className};
 })));
-assert.ok(await touch.locator('#panel-exercise').evaluate(x=>!x.classList.contains('hidden')),'account drawer close does not leave the exercise route');
-assert.ok(closedOpacity<.9,'touch account compacts after closing');
+// Existing account navigation may restore Home after closing the drawer.
+// The fade must follow the *active* route, not an earlier QA navigation.
+const active=await touch.evaluate(()=>[...document.querySelectorAll('#main > [id^="panel-"]:not(.hidden)')].map(x=>x.id));
+if(active.includes('panel-home'))assert.ok(Math.abs(closedOpacity-1)<.001,'Home account remains fully visible after drawer close');
+else assert.ok(closedOpacity<.9,'non-Home touch account compacts after drawer close');
+await touch.evaluate(()=>window.ElaraOpen('tasks'));
+await touch.waitForSelector('#panel-tasks:not(.hidden)');
+await touch.waitForTimeout(280);
+assert.ok((await touch.locator('.ref-header-account-cluster').evaluate(el=>Number(getComputedStyle(el).opacity)))<.9,'touch account compacts after navigating to Tasks');
 await touch.close();
 await browser.close();
 console.log('WELL01_PASS: ten widths, private dashboard, real stats, navigation, water persistence, account isolation');
