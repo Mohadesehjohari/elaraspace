@@ -50,3 +50,9 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 .elara-dialog-panel:has(.wellness-green-form) .elara-dialog-actions button.primary-button{background:linear-gradient(110deg,#04b886,#35f2af)!important;color:#04251b!important}
 .elara-dialog-panel:has(.wellness-green-form) :is(button,input,textarea,select):focus-visible{outline-color:#35f8c2}
 @media(prefers-reduced-motion:reduce){.elara-dialog-panel:has(.wellness-green-form) *{animation-duration:0s!important;transition-duration:0s!important}}
+
+/* Every dedicated Wellness subsection, scoped by its own panel ID. */
+#main > [id^="panel-wellness-"]:not(.hidden){--elara-accent:#13e9a8;--wellness-accent:#13e9a8;color-scheme:dark}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(.elara-card,.wellness-entry){border-color:color-mix(in srgb,#11c595 45%,#173942)}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(.primary-button,.wellness-positive){background:linear-gradient(110deg,#06b783,#34edb0);color:#052920}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(button,input,select,textarea):focus-visible{outline:2px solid #39eaba;outline-offset:2px}
