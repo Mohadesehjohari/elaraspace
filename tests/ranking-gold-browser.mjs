@@ -55,6 +55,13 @@ try {
    for(const name of ['rg-podium-card','rg-my-card','rg-rewards-card','rg-leaderboard-card','rg-clubs-card','rg-friends-card','rg-countdown-card','rg-weekly-card'])assert.ok(state.cards.some(x=>x.includes(name)),'Required panel '+name+' '+width);
    const asset=await page.evaluate(async()=>{const res=await fetch('assets/ui/ranking_banner_main.webp',{cache:'no-store'});return {status:res.status,type:res.headers.get('content-type')}});
    assert.equal(asset.status,200,'WebP available '+width);
+   if(width===320 || width===390 || width===1440){
+     const debug=await page.locator('[data-rg-filter="friends"]').evaluate(el=>{
+       const parents=[];let p=el;while(p&&parents.length<8){const s=getComputedStyle(p);parents.push({tag:p.tagName,id:p.id,cls:String(p.className).slice(0,100),display:s.display,visibility:s.visibility,rect:p.getBoundingClientRect().toJSON()});p=p.parentElement}return parents
+     });
+     console.log('RANKING_VISIBILITY_DEBUG '+width+' '+JSON.stringify(debug));
+     await page.screenshot({path:'browser-artifacts/ranking-debug-'+width+'.png',fullPage:true});
+   }
    await page.locator('[data-rg-filter="friends"]').click();
    assert.equal(await page.locator('.rg-tabs [aria-selected=true]').getAttribute('data-rg-filter'),'friends');
    assert.ok(await page.locator('.rg-friends-card').count(),'Friends tab real data container');
