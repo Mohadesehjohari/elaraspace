@@ -62,7 +62,7 @@ function l3Due(){let d;try{d=JSON.parse(localStorage.getItem('elara_space_v1')||
 function l3Build(){
  if(l3.scene)return l3.scene;
  const scene=document.createElement('main');scene.id='l3-review-scene';scene.className='l3-story-scene';scene.setAttribute('aria-label',tx('مرور واژه‌های لایتنر','Leitner word review'));
- scene.innerHTML='<div class="l3-story-container"><header class="l3-story-top"><button type="button" data-l3-exit class="l3-story-back" aria-label="'+tx('بازگشت به داشبورد','Back to dashboard')+'">←</button><div class="l3-story-brand"><span class="l3-story-mark" aria-hidden="true">✧</span><b>Elara</b><small>SPACE</small></div><span class="l3-story-notice" aria-hidden="true">✦</span></header><div class="l3-story-intro"><div><span class="l3-story-symbol" aria-hidden="true">▣</span><h1>'+tx('جعبه لایتنر','Leitner box')+'</h1></div><p>'+tx('مرور واژه‌ها به صورت مرحله‌ای و متمرکز','Focused, step-by-step vocabulary review')+'</p></div><div class="l3-story-progress" data-l3-segments aria-label="'+tx('پیشرفت مرور','Review progress')+'"></div><p class="l3-story-counter" data-l3-counter role="status"></p><div class="l3-story-meta"><span>◎ '+tx('حالت تمرکز','Focus mode')+'</span><span>▱ '+tx('جعبه‌های لایتنر','Leitner boxes')+'</span></div><section class="l3-story-frame"><button class="l3-story-speak" type="button" data-l3-speak aria-label="'+tx('تلفظ کلمه','Pronounce word')+'">♫</button><span class="l3-story-new">✦ '+tx('لغت جدید','New word')+'</span><div class="l3-story-card-slot" data-l3-card-slot></div><div class="l3-story-history" data-l3-history hidden><small>'+tx('کلمهٔ قبلی · فقط برای مشاهده','Previous word · read only')+'</small><strong data-l3-history-front dir="auto"></strong><p data-l3-history-back dir="auto"></p><button type="button" data-l3-current>'+tx('بازگشت به کلمه فعلی','Current word')+' →</button></div></section><div class="l3-story-actions"><button type="button" data-l3-prev disabled class="l3-prev-action"><span>←</span><b>'+tx('بازگشت به کلمه قبلی','Previous word')+'</b></button><div data-l3-forgot-slot></div><div data-l3-known-slot></div></div></div>';
+ scene.innerHTML='<div class="l3-story-container"><header class="l3-story-top"><button type="button" data-l3-exit class="l3-story-back" aria-label="'+tx('بازگشت به داشبورد','Back to dashboard')+'">←</button><div class="l3-story-brand"><img class="l3-story-logo" src="assets/ui/logo.webp" alt="Elara Space"></div><span class="l3-story-notice" aria-hidden="true">✦</span></header><div class="l3-story-intro"><div><span class="l3-story-symbol" aria-hidden="true">▣</span><h1>'+tx('جعبه لایتنر','Leitner box')+'</h1></div><p>'+tx('مرور واژه‌ها به صورت مرحله‌ای و متمرکز','Focused, step-by-step vocabulary review')+'</p></div><div class="l3-story-progress" data-l3-segments aria-label="'+tx('پیشرفت مرور','Review progress')+'"></div><p class="l3-story-counter" data-l3-counter role="status"></p><div class="l3-story-meta"><span>◎ '+tx('حالت تمرکز','Focus mode')+'</span><span>▱ '+tx('جعبه‌های لایتنر','Leitner boxes')+'</span></div><section class="l3-story-frame"><button class="l3-story-speak" type="button" data-l3-speak aria-label="'+tx('تلفظ کلمه','Pronounce word')+'">♫</button><span class="l3-story-new" data-l3-label>✦ '+tx('لغت جدید','New word')+'</span><div class="l3-story-card-slot" data-l3-card-slot></div><div class="l3-story-history" data-l3-history hidden><small>'+tx('کلمهٔ قبلی · فقط برای مشاهده','Previous word · read only')+'</small><strong data-l3-history-front dir="auto"></strong><p data-l3-history-back dir="auto"></p><button type="button" data-l3-current>'+tx('بازگشت به کلمه فعلی','Current word')+' →</button></div></section><div class="l3-story-actions"><button type="button" data-l3-prev disabled class="l3-prev-action"><span>←</span><b>'+tx('بازگشت به کلمه قبلی','Previous word')+'</b></button><div data-l3-forgot-slot></div><div data-l3-known-slot></div></div></div>';
  document.body.append(scene);l3.scene=scene;
  return scene;
 }
@@ -74,6 +74,7 @@ function l3Sync(){
  if(seg){const parts=Math.min(Math.max(l3.total,1),30);if(seg.children.length!==parts){seg.replaceChildren();for(let i=0;i<parts;i++)seg.append(document.createElement('i'))}
   [...seg.children].forEach((el,i)=>el.classList.toggle('is-done',i<Math.round(done/total*parts)))}
  const prev=scene.querySelector('[data-l3-prev]');if(prev)prev.disabled=!l3.history.length;
+ const active=l3Due()[0],label=scene.querySelector('[data-l3-label]');if(label)label.textContent=active?('✦ '+(Number(active.box||1)===1?tx('لغت جدید','New word'):tx('جعبه ','Box ')+num(active.box))):tx('مرور کامل شد','Review complete');
  const completed=scene.querySelector('.l3-story-frame');completed?.classList.toggle('l3-story-finished',remaining===0&&!l3.preview);
 }
 function l3Enter(push=true){
@@ -81,7 +82,7 @@ function l3Enter(push=true){
  const panel=$('panel-words');let flash=panel?.querySelector('.flashcard');if(!flash)return;
  const scene=l3Build();l3.total=l3Due().length;l3.history=[];l3.preview=false;l3.historyIndex=0;l3.scrollY=window.scrollY;
  l3.focus=document.activeElement;l3.flash=flash;l3.original=flash.parentNode;
- l3.actions=flash.querySelector('.timer-actions');l3.forgot=$('word-forgot');l3.known=$('word-remembered');
+ l3.actions=flash.querySelector('.timer-actions');l3.forgot=$('word-forgot');l3.known=$('word-remembered');l3.forgotText=l3.forgot?.textContent;if(l3.forgot)l3.forgot.textContent=tx('بلد نبودم','Did not know');
  scene.querySelector('[data-l3-card-slot]').append(flash);
  scene.querySelector('[data-l3-forgot-slot]').append(l3.forgot);
  scene.querySelector('[data-l3-known-slot]').append(l3.known);
@@ -91,7 +92,7 @@ function l3Enter(push=true){
 }
 function l3Exit(navigate=true){
  if(!l3.scene)return;
- if(l3.actions){l3.actions.append(l3.forgot,l3.known)}
+ if(l3.actions){if(l3.forgot&&l3.forgotText!=null)l3.forgot.textContent=l3.forgotText;l3.actions.append(l3.forgot,l3.known)}
  if(l3.flash&&l3.original)l3.original.insertBefore(l3.flash,l3.original.querySelector('#word-list'));
  l3.scene.remove();l3.scene=null;l3.flash=null;l3.actions=null;l3.forgot=null;l3.known=null;l3.history=[];l3.preview=false;
  document.documentElement.classList.remove('l3-story-open');document.body.classList.remove('l3-story-open');
@@ -137,7 +138,7 @@ function renderLeitner(){
  card('learned',tx('جعبه پنجم','Fifth box'),boxes[4],'★')+'</section>'+
  '<section class="l2-leitner-boxes"><header><div><span class="l2-eyebrow">YOUR LEARNING PATH</span><h2>'+tx('مسیر پیشرفت لایتنر','Your Leitner journey')+'</h2><p>'+tx('هر واژه بر اساس نتیجهٔ مرور در جعبهٔ مناسب قرار می‌گیرد.','Each word moves between boxes based on your actual reviews.')+'</p></div><strong>'+num(all)+' '+tx('واژه','words')+'</strong></header><div class="l2-five-boxes">'+
  boxes.map((count,i)=>'<article class="l2-stage l2-stage-'+(i+1)+'"><div class="l2-stage-orb">'+num(i+1)+'</div><h3>'+tx('جعبه ','Box ')+num(i+1)+'</h3><strong>'+num(count)+'</strong><small>'+tx('واژه','words')+'</small><div class="l2-stage-meter"><i style="width:'+(all?Math.min(100,Math.round(count/all*100)):0)+'%"></i></div></article>').join('')+'</div></section>'+
- '<section class="l2-leitner-bottom"><div><h2>'+tx('مرور مرحله‌به‌مرحله','Focused step-by-step review')+'</h2><p>'+tx('کلمات سررسیدشده را یکی‌یکی مرور کن. معنی را ببین و سپس پاسخ خودت را ثبت کن.','Review due words one by one, reveal the meaning, then record your answer.')+'</p></div><button type="button" data-l2-review '+(!due.length?'disabled':'')+'>'+tx(due.length?'ورود به مرور کلمات':'واژهٔ سررسیدشده‌ای نیست',due.length?'Enter word review':'No words due')+' <span aria-hidden="true">←</span></button></section>';
+ '<section class="l2-leitner-recent"><header><div><span class="l2-eyebrow">RECENT VOCABULARY</span><h2>'+tx('آخرین واژه‌های اضافه‌شده','Recently added words')+'</h2></div><span>'+num(Math.min(words.length,4))+' '+tx('واژه','words')+'</span></header><div class="l2-recent-list">'+(words.slice(-4).reverse().map(w=>'<div class="l2-recent-row"><span class="l2-recent-icon" aria-hidden="true">▣</span><strong dir="auto">'+esc(w.front)+'</strong><small>'+tx('جعبه ','Box ')+num(w.box||1)+'</small></div>').join('')||'<p class="l2-recent-empty">'+tx('هنوز واژه‌ای اضافه نکرده‌ای.','No words added yet.')+'</p>')+'</div></section>';
  const form=$('word-form');if(form){form.classList.add('l2-word-form');form.setAttribute('aria-label',tx('افزودن واژه به سیستم اصلی','Add word to canonical Leitner'))}
  const flash=panel.querySelector('.flashcard');if(flash)flash.classList.add('l2-canonical-review');
 }
