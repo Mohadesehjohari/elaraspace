@@ -74,8 +74,15 @@ function sync(){
  syncPending=false;let scene=$('#l3-review-scene');
  // Restore a direct review deep link after asynchronous auth/data hydration.
  // The original route initializer can run before the canonical flashcard exists.
- if(!scene&&location.hash==='#words'&&new URLSearchParams(location.search).get('leitner')==='review'&&$('#panel-words .flashcard')){
-  window.ElaraLanguageDestinations?.l3Enter?.(false);scene=$('#l3-review-scene');
+ if(!scene&&new URLSearchParams(location.search).get('leitner')==='review'&&$('#panel-words .flashcard')){
+  // The host bootstrap sometimes restores #home during reload even with the review
+  // deep-link marker intact; reassert only the explicit review destination.
+  if(location.hash!=='#words'&&document.body.classList.contains('cloud-ready')){
+   window.ElaraOpen?.('words',{history:'replace'});
+   const u=new URL(location.href);u.searchParams.set('leitner','review');u.hash='#words';
+   history.replaceState(history.state,'',u);
+  }
+  if(location.hash==='#words'){window.ElaraLanguageDestinations?.l3Enter?.(false);scene=$('#l3-review-scene')}
  }
  if(scene)addStory(scene);
  else{active=null;drag=null;clearTimeout(transitionTimer)}
