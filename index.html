@@ -61,7 +61,8 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   // A normal entry or browser reload starts on Home. Explicit shared deep links
   // remain usable on first navigation; in-app route changes never trigger this.
   (()=>{const type=performance.getEntriesByType('navigation')[0]?.type||'navigate';
-    if(!location.hash||location.hash==='#'||type==='reload'||type==='back_forward'){
+    if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
+    else if(type==='reload'||type==='back_forward'){
       history.replaceState({...(history.state||{}),elaraTab:'home',elaraDepth:0},'',location.pathname+location.search+'#home');
     }
   })();
