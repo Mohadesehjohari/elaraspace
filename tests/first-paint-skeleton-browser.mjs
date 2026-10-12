@@ -43,12 +43,13 @@ try {
         stage: window.__elaraBootStage,
         skeletonHidden: getComputedStyle(document.getElementById('elara-boot-screen')).display === 'none',
         shellVisible: getComputedStyle(document.querySelector('.shell')).visibility !== 'hidden',
+        authGate: document.body.classList.contains('cloud-locked') || !!document.querySelector('[data-elara-account-gate-ready]'),
         home: !!document.querySelector('#panel-home'),
         tasks: !!document.querySelector('#panel-tasks')
       }));
       assert.ok(['home', 'tasks', 'secondary'].includes(first.stage), route + ': invalid initial stage');
       assert.equal(first.skeletonHidden, true, route + ': skeleton not dismissed');
-      assert.equal(first.shellVisible, true, route + ': application remained hidden');
+      assert.equal(first.shellVisible || first.authGate, true, route + ': neither app nor legitimate login gate is visible');
       assert.equal(first.home && first.tasks, true, route + ': core Home or Tasks DOM missing');
 
       await page.waitForFunction(() => window.__elaraBootStage === 'tasks' ||
