@@ -47,8 +47,10 @@ for(const w of [390,1440]){
   const before=await open(w,baseline);
   await before.evaluate(()=>window.scrollTo(0,0));
   const beforeRect=await geometry(before);
-  beforeGeometry.set(w,beforeRect);
-  console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar.y,headerBottom:beforeRect.bar.bottom,appY:beforeRect.app.y}));
+  if(beforeRect.hero&&beforeRect.shortcut&&beforeRect.features){
+   beforeGeometry.set(w,beforeRect);
+   console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar?.y,headerBottom:beforeRect.bar?.bottom,appY:beforeRect.app?.y}));
+  }else console.log('WELL_HERO_TOP_BASELINE_UNAVAILABLE_'+w,'Baseline shell has no WELL-01 hero; preserve current geometry with independent assertions.');
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
  }
@@ -216,6 +218,9 @@ for(const width of widths){
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workouts.length),2,'browser Back must not save draft');
 
    assert.match(await dash.locator('.well01-activity-card').innerText(),/صخره‌نوردی/,'dashboard refresh after workout save');
+   assert.equal(await dash.locator('.well01-metric-exercise .well01-donut').count(),1,'exercise progress ring visible after logging');
+   const ratio=await dash.locator('.well01-metric-exercise .well01-donut').evaluate(el=>getComputedStyle(el).getPropertyValue('--well01-pct').trim());
+   assert.ok(Number(ratio)>0,'exercise ring must use logged minutes');
   }else{
    await page.keyboard.press('Escape');
    await modal.waitFor({state:'hidden'});

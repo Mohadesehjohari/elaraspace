@@ -12,3 +12,47 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 
 /* Horizontal quick-note cards */
 .wellness-plans{grid-column:1/-1!important;overflow:hidden}.wellness-plans>header{align-items:flex-start!important}.wellness-plan-quick-add{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.wellness-plan-strip{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:12px 2px 8px;scrollbar-width:thin}.wellness-plan-note-card{flex:0 0 210px;min-height:145px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;text-align:start;gap:5px;padding:13px;border:1px solid color-mix(in srgb,var(--elara-accent) 24%,var(--border));border-radius:16px;background:color-mix(in srgb,var(--surface2) 91%,var(--elara-accent) 9%);color:var(--text);cursor:pointer}.wellness-plan-note-card:hover{border-color:var(--elara-accent);transform:translateY(-2px)}.wellness-plan-note-card>span{font-size:1.45rem}.wellness-plan-note-card>small{color:var(--muted);font-size:.66rem}.wellness-plan-note-card>strong{font-size:.9rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wellness-plan-note-card>p{margin:3px 0 0;color:var(--muted);font-size:.72rem;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.wellness-plan-note-card.add{justify-content:center;align-items:center;text-align:center;border-style:dashed;background:transparent}.wellness-plan-note-card.add>span{font-size:2rem}.wellness-plan-note-card.add>strong{white-space:normal}@media(max-width:700px){.wellness-plan-quick-add{width:100%;justify-content:flex-start}.wellness-plan-note-card{flex-basis:178px;min-height:132px}.wellness-plans>header{flex-wrap:wrap}}
+
+/* WELLNESS GREEN — scoped dialog controls, including nested plan folders and sleep. */
+.wellness-green-form{direction:rtl;color:#e7fff6;display:grid;gap:15px;background:linear-gradient(145deg,#041d1e,#082d2a);border:1px solid #1cca98;border-radius:16px;padding:18px}
+.wellness-green-form label{display:flex;flex-direction:column;gap:7px;font-weight:600}
+.wellness-green-form input,.wellness-green-form textarea,.wellness-green-form select{box-sizing:border-box;min-width:0;width:100%;background:#092927;color:#f1fff9;border:1px solid #41796f;border-radius:10px;padding:12px;font:inherit;accent-color:#0de6a4}
+.wellness-green-form :is(input,textarea,select,button):focus-visible{outline:2px solid #35f8c2;outline-offset:2px}
+.wellness-folder-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.wellness-folder-tabs button,.wellness-check-add button{min-height:44px;border:1px solid #318b77;border-radius:10px;color:#d9fff1;background:#07342f;cursor:pointer}
+.wellness-folder-tabs button[aria-selected=true]{border-color:#31ffc1;background:#075540;box-shadow:0 0 10px #25d99a55}
+.wellness-green-form [hidden]{display:none!important}
+.wellness-check-items{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.wellness-check-items li{display:grid;grid-template-columns:26px minmax(0,1fr) 44px;align-items:center;gap:8px}
+.wellness-check-items input[type=checkbox]{min-width:22px;width:22px;height:22px}
+.wellness-check-items button{min-height:44px;color:#ff9696;border:1px solid #825858;background:#361c21;border-radius:10px}
+.wellness-check-add{display:flex;gap:7px}.wellness-check-add button{flex:none;padding:0 14px}
+.wellness-program-days>div{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.wellness-program-days label{flex-direction:row;align-items:center;gap:5px;padding:8px;border:1px solid #3b8b78;border-radius:9px;font-size:.8rem}
+.wellness-program-days input{width:17px;height:17px}.wellness-program-config{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wellness-program-help{margin:0;color:#a3d5c9}
+.wellness-sleep-line{max-width:440px;width:100%;margin-inline:auto}
+.wellness-sleep-line svg{max-height:155px}
+@media(max-width:700px){.wellness-green-form{padding:12px}.wellness-program-config{grid-template-columns:1fr}.wellness-check-add{flex-wrap:wrap}.wellness-check-add button{width:100%}}
+
+/* Sleep subsection only: compact chart with green palette and accessible controls. */
+#panel-wellness-sleep:not(.hidden) :is(.elara-card,.wellness-entry,.wellness-chart,.wellness-sleep-line){border-color:#15856c!important}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line{max-width:420px!important;max-height:175px!important;margin-inline:auto}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line svg{width:100%;max-height:154px}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line .line{stroke:#25eca9!important}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line .point{fill:#3cffc1!important;stroke:#08745c!important}
+#panel-wellness-sleep:not(.hidden) .wellness-entry button,#panel-wellness-sleep:not(.hidden) button.primary-button{accent-color:#24e9a4}
+@media(max-width:700px){#panel-wellness-sleep:not(.hidden) .wellness-sleep-line{max-width:100%;max-height:138px!important}}
+
+/* Entire program/sleep dialogs turn emerald only when they contain Wellness form. */
+.elara-dialog-panel:has(.wellness-green-form){border:1px solid #16d99d!important;background:linear-gradient(155deg,#042a29,#021c21)!important;box-shadow:0 20px 80px #001810c9,0 0 22px #0be6a945!important;color:#e9fff7}
+.elara-dialog-panel:has(.wellness-green-form) :is(.elara-dialog-header,.elara-dialog-actions){border-color:#187961!important;background:#052820!important}
+.elara-dialog-panel:has(.wellness-green-form) .elara-dialog-actions button.primary-button{background:linear-gradient(110deg,#04b886,#35f2af)!important;color:#04251b!important}
+.elara-dialog-panel:has(.wellness-green-form) :is(button,input,textarea,select):focus-visible{outline-color:#35f8c2}
+@media(prefers-reduced-motion:reduce){.elara-dialog-panel:has(.wellness-green-form) *{animation-duration:0s!important;transition-duration:0s!important}}
+
+/* Every dedicated Wellness subsection, scoped by its own panel ID. */
+#main > [id^="panel-wellness-"]:not(.hidden){--elara-accent:#13e9a8;--wellness-accent:#13e9a8;color-scheme:dark}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(.elara-card,.wellness-entry){border-color:color-mix(in srgb,#11c595 45%,#173942)}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(.primary-button,.wellness-positive){background:linear-gradient(110deg,#06b783,#34edb0);color:#052920}
+#main > [id^="panel-wellness-"]:not(.hidden) :is(button,input,select,textarea):focus-visible{outline:2px solid #39eaba;outline-offset:2px}
