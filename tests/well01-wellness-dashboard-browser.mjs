@@ -215,7 +215,7 @@ for(const width of widths){
   await sleepModal.waitFor({state:'hidden'});
   await dash.locator('.well01-shortcut[data-feature-route="wellness-sleep"]').click();
   await page.waitForSelector('#panel-wellness-sleep:not(.hidden)');
-  assert.match(await page.locator('#wellness-sleep-chart').innerText(),/Mon|Tue|Wed|Thu|Fri|Sat|Sun/,'English short weekday labels');
+  assert.match((await page.locator('#wellness-sleep-chart .wellness-sleep-line svg text').allTextContents()).join(' '),/Mon|Tue|Wed|Thu|Fri|Sat|Sun/,'English short weekday labels');
   await page.locator('#panel-wellness-sleep .feature-subpage-head [data-feature-route="exercise"]').click();
   await page.waitForSelector('#panel-exercise:not(.hidden)');
  }
