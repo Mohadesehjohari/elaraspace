@@ -1,0 +1,149 @@
+/* Freedom R27 – owner reference fidelity. Scoped to the Freedom page and its two dialogs. */
+@media (min-width:701px){
+ html body .workspace:has(#panel-freedom.freedom-r26-page:not(.hidden)){position:relative!important}
+ html body .workspace:has(#panel-freedom.freedom-r26-page:not(.hidden)) > .topbar.ref-topbar{
+  position:absolute!important;z-index:25!important;inset:0 0 auto 0!important;top:0!important;
+  margin:0!important;background:linear-gradient(180deg,#06152be0,#06152b9c)!important;
+  backdrop-filter:blur(10px)!important
+ }
+ html body #main #panel-freedom.freedom-r26-page{padding-top:0!important}
+ html body #main #panel-freedom.freedom-r26-page .freedom-hero{margin-top:0!important;border-top-left-radius:0!important;border-top-right-radius:0!important}
+}
+#panel-freedom .fd-panel > header{flex-direction:row-reverse!important}
+#panel-freedom .fd-panel > header h2{flex:0 1 auto;min-width:0}
+#panel-freedom .fd-panel > header .fd-action{flex:none;background:linear-gradient(115deg,#ad45f8 0%,#6750fa 47%,#d251ee 100%)!important;border:1px solid #e1a5ff!important;box-shadow:0 0 18px #9852fa80, inset 0 1px #fff5!important}
+#panel-freedom .fd-community{flex-direction:row-reverse!important}
+#panel-freedom .fd-community .fd-action{background:linear-gradient(115deg,#9862ff,#bc38f0 55%,#5281ff)!important;box-shadow:0 0 17px #8b5aff77!important}
+#panel-freedom .fd-wide-button{background:linear-gradient(102deg,#0d315f,#4727ad 65%,#914de8)!important;color:#f2e9ff!important;border:1px solid #574dce!important}
+#panel-freedom .fd-diary .fd-filters button.is-active{background:linear-gradient(110deg,#326ff9,#7855fa,#b843ee)!important}
+#panel-freedom .fd-tile.is-selected{background:linear-gradient(140deg,#0c1c44,#271451,#101a43)!important}
+#panel-freedom .fd-tile:focus-visible,#panel-freedom .fd-panel button:focus-visible{outline:2px solid #e6c0ff!important;outline-offset:2px}
+#panel-freedom .freedom-subpage-shell .freedom-subpage-add{background:linear-gradient(130deg,#4f80f9,#9f4bff,#ea4ce4)!important}
+#panel-freedom .freedom-subpage-shell .freedom-subpage-head{border:1px solid #7e49c786!important}
+#panel-freedom .freedom-subpage-shell [data-f-sub-list]{min-height:200px}
+#panel-freedom .freedom-sub-card:focus-visible,#panel-freedom .freedom-subpage-add:focus-visible{outline:2px solid #fff!important;outline-offset:3px}
+#panel-freedom .fd-subdiary{display:grid;gap:10px}
+#panel-freedom .fd-subdiary-row{width:100%;min-height:80px;display:grid;grid-template-columns:72px 1fr;gap:15px;align-items:center;padding:10px 14px;
+ color:#fff;background:linear-gradient(120deg,#07192f,#102251);border:1px solid #385389;border-radius:15px;text-align:right;cursor:pointer}
+#panel-freedom .fd-subdiary-row img{width:72px;height:60px;object-fit:contain}
+#panel-freedom .fd-subdiary-row span{display:grid;gap:6px;min-width:0}
+#panel-freedom .fd-subdiary-row b{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#panel-freedom .fd-subdiary-row small{color:#bcb3e4}
+#panel-freedom .freedom-sub-card img{object-fit:cover}
+/* Dream modal */
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form){
+ position:relative;max-width:700px!important;width:min(700px,calc(100vw - 26px))!important;max-height:min(95dvh,920px)!important;
+ overflow:auto!important;direction:rtl;color:#f6f0ff;
+ border:1px solid #ad6dfc!important;border-radius:30px!important;
+ background:radial-gradient(circle at 51% -12%,#7146b451,transparent 50%),linear-gradient(145deg,#121b49,#090f2c 65%,#20113c)!important;
+ box-shadow:0 0 0 1px #cf90ff30,0 28px 90px #000b,0 0 35px #ad47fe5d!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form)::before{
+ content:"";position:absolute;inset:0 0 auto;height:115px;pointer-events:none;z-index:0;
+ background:linear-gradient(0deg,#101736c4,#161d49a9),url("assets/ui/banner_moon_lake.webp") 50% 35%/cover
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-head{
+ position:relative;z-index:1;background:transparent!important;border:0!important;padding:18px 23px 8px!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-head h2{color:#fff!important;font-size:24px!important;text-shadow:0 0 12px #974fff}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-kicker{color:#d1baff!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-body{position:relative;z-index:1;padding:10px 24px 4px!important}
+#elara-dialog-root .freedom-r27-dream-form{display:grid!important;grid-template-columns:1fr!important;gap:11px!important}
+#elara-dialog-root .freedom-r27-dream-form>label,#elara-dialog-root .freedom-r27-dream-form .freedom-dream-grid label{display:grid!important;gap:7px!important;color:#f1eaff!important;font-weight:800!important;font-size:14px!important}
+#elara-dialog-root .freedom-r27-dream-form input:not([type=file]),#elara-dialog-root .freedom-r27-dream-form textarea,#elara-dialog-root .freedom-r27-dream-form select{
+ width:100%!important;min-width:0!important;background:linear-gradient(110deg,#0d193e,#131b44)!important;
+ border:1px solid #7e75db!important;border-radius:14px!important;color:#f7f4ff!important;
+ box-shadow:inset 0 0 8px #5968d73b,0 0 9px #4146c749!important;padding:12px 15px!important;
+ font:inherit!important;outline-offset:2px!important
+}
+#elara-dialog-root .freedom-r27-dream-form textarea{resize:vertical;min-height:82px}
+#elara-dialog-root .freedom-r27-dream-form input:focus-visible,#elara-dialog-root .freedom-r27-dream-form textarea:focus-visible{
+ border-color:#da90ff!important;box-shadow:0 0 16px #9461ff80!important
+}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dream-intro{min-height:140px!important;border:1px solid #8272ce!important;border-radius:18px!important}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dream-intro img{object-fit:cover!important}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dream-intro p{padding:48px 16px 18px!important;font-size:15px!important;text-align:right!important}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dream-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:15px!important}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dialog-upload{display:block!important;position:relative;cursor:pointer}
+#elara-dialog-root .freedom-r27-dream-form .freedom-dialog-upload span{
+ width:100%;min-height:52px!important;border-radius:999px!important;
+ border:1px solid #fca5ff!important;color:white!important;font-weight:900;
+ background:linear-gradient(110deg,#cf47f5,#7056ff 50%,#e377f8)!important;
+ box-shadow:0 0 22px #b24dff90,inset 0 1px #fff8!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-actions{
+ position:relative;z-index:1;display:flex!important;flex-direction:row-reverse!important;
+ justify-content:center!important;gap:14px!important;padding:16px 24px 22px!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-actions button{min-width:150px!important;border-radius:15px!important;min-height:46px!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-actions .primary-button{
+ background:linear-gradient(115deg,#fa6ec8,#9c50f6,#635bf6)!important;box-shadow:0 0 22px #c44ff36c!important
+}
+/* Music modal: explicit local audio upload + Apple Preview */
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog){
+ width:min(720px,calc(100vw - 26px))!important;max-width:720px!important;max-height:93dvh!important;overflow:auto!important;
+ border:1px solid #695cff!important;border-radius:26px!important;
+ background:radial-gradient(circle at 50% 2%,#2a2c7d86,transparent 51%),linear-gradient(155deg,#09162e,#11143b 65%,#250f3b)!important;
+ box-shadow:0 0 0 1px #a54ef744,0 22px 86px #000b,0 0 38px #8045ff4d!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-head{
+ border:0!important;background:linear-gradient(180deg,#1b195285,#10183b6b)!important;text-align:center!important;padding:22px!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-head h2{font-size:23px!important;color:#fff!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-head>div{flex:1!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-kicker{color:#c680ff!important;letter-spacing:3px!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-body{padding:8px 25px 10px!important}
+#elara-dialog-root .freedom-r27-music-dialog{display:grid;gap:13px;direction:rtl;color:#f2efff}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-lead{text-align:center;margin:0 0 3px;font-size:13px;color:#c2b7ef}
+#elara-dialog-root .freedom-r27-music-dialog .r27-audio-options{background:linear-gradient(120deg,#15214b,#101c43);border:1px solid #415da2;border-radius:15px;padding:14px}
+#elara-dialog-root .freedom-r27-music-dialog .r27-audio-options label{display:flex;align-items:center;gap:11px;cursor:pointer}
+#elara-dialog-root .freedom-r27-music-dialog .r27-audio-options label span{display:grid;gap:3px;flex:1}
+#elara-dialog-root .freedom-r27-music-dialog .r27-audio-options label small{color:#b3b8dc;font-size:11px}
+#elara-dialog-root .freedom-r27-music-dialog [data-r27-search]{display:grid;grid-template-columns:1fr auto;gap:9px}
+#elara-dialog-root .freedom-r27-music-dialog input[type=search]{min-width:0;min-height:53px;border:1px solid #714ed3!important;border-radius:15px!important;
+ padding:12px 15px;background:#0f173c!important;color:#fff!important;box-shadow:0 0 10px #8944ed40!important}
+#elara-dialog-root .freedom-r27-music-dialog [data-r27-search] button,
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-upload,
+#elara-dialog-root .freedom-r27-music-dialog [data-r27-set]{
+ color:#fff;background:linear-gradient(120deg,#a33df0,#5a68fe 58%,#d648db)!important;border:1px solid #b777fb!important;
+ border-radius:13px;padding:8px 13px;box-shadow:0 0 12px #8150f96b;cursor:pointer
+}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-upload{
+ display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;width:100%;font-weight:900;
+ cursor:pointer;border-radius:16px;position:relative
+}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-upload input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-upload b{font-size:27px;line-height:1}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-hint{font-size:11px;color:#b0bde4;line-height:1.7;margin:-7px 0 4px}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-placeholder{
+ min-height:115px;display:grid;place-content:center;text-align:center;gap:8px;padding:14px;
+ color:#c7c0e8;border:1px solid #203778;border-radius:15px;background:radial-gradient(circle at center,#2a197a66,#0a1939)
+}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-placeholder strong{font-size:20px;color:#bb75ff}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;
+ padding:10px;border-radius:14px;border:1px solid #27427b;background:#0e2044;margin:7px 0}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-row>img{width:52px;height:52px;object-fit:cover;border-radius:10px}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-row>div{display:grid;gap:4px;min-width:0}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-row strong,#elara-dialog-root .freedom-r27-music-dialog .r27-music-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-row audio{grid-column:1/-1;width:100%;height:37px}
+#elara-dialog-root .freedom-r27-music-dialog [data-r27-current]{min-height:0}
+#elara-dialog-root .freedom-r27-music-dialog .r27-music-upload-status{margin:0;font-size:12px;color:#c7def6}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-actions{flex-direction:row-reverse!important;justify-content:space-between!important;padding:14px 25px 20px!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-actions button{min-width:115px!important;border-radius:14px!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-actions .primary-button{background:linear-gradient(115deg,#615aff,#dd47ef)!important}
+@media(max-width:700px){
+ html body .workspace:has(#panel-freedom.freedom-r26-page:not(.hidden)) > .topbar.ref-topbar{margin-bottom:0!important}
+ html body #main #panel-freedom.freedom-r26-page{padding-top:0!important}
+ #panel-freedom .fd-main .fd-panel > header{gap:6px}
+ #elara-dialog-root .freedom-r27-dream-form .freedom-dream-grid{grid-template-columns:1fr!important}
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-body,
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r27-music-dialog) .elara-dialog-body{padding:10px 14px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r27-dream-form) .elara-dialog-actions button{min-width:0!important;flex:1}
+ #elara-dialog-root .freedom-r27-music-dialog .r27-music-row{grid-template-columns:45px minmax(0,1fr)}
+ #elara-dialog-root .freedom-r27-music-dialog .r27-music-row [data-r27-set]{grid-column:1/-1}
+ #elara-dialog-root .freedom-r27-music-dialog [data-r27-search]{grid-template-columns:1fr}
+ #elara-dialog-root .freedom-r27-music-dialog .r27-music-row>img{width:45px;height:45px}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-freedom .fd-action,#elara-dialog-root .freedom-r27-music-dialog button{transition:none!important}
+}
