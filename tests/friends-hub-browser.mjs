@@ -120,7 +120,11 @@ async function run(width,height){
  assert.equal(await page.locator('.club-f3-podium').isVisible(),true,width+': club podium must be visible');
  assert.ok(await page.locator('.club-f3-tasks').isVisible(),width+': real club missions panel must render even when empty');
  await page.locator('[data-club-f3-search]').fill('not-an-existing-club');
- assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),0,width+': real club filter must hide mismatched rows');
+ const clubFilterProof=await page.evaluate(()=>{
+   const root=document.querySelector('.club-f3'),inp=root?.querySelector('[data-club-f3-search]'),row=root?.querySelector('[data-club-f3-results] [data-club-tile]');
+   return {query:inp?.value,rows:root?.querySelectorAll('[data-club-f3-results] [data-club-tile]').length,rootCount:document.querySelectorAll('.club-f3').length,title:row?.dataset.title,hidden:row?.hidden,style:row?.getAttribute('style'),display:row?getComputedStyle(row).display:null,noResults:root?.querySelector('[data-club-f3-no-results]')?.hidden};
+ });
+ assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),0,width+': real club filter must hide mismatched rows '+JSON.stringify(clubFilterProof));
  await page.locator('[data-club-f3-search]').fill('');
  assert.equal(await page.locator('[data-club-f3-results] [data-club-tile]:visible').count(),1,width+': club search should restore actual records');
 
