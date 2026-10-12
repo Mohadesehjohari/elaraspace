@@ -76,7 +76,7 @@ function immersiveMarkup(){
  '<div class="focus-v2-quick"><button type="button" data-focus-v2-reset>↻ '+t('بازنشانی','Reset')+'</button><span data-focus-v2-today-chip></span></div>'+
  '<div class="focus-v2-modes" aria-label="'+t('حالت‌های تمرکز','Focus modes')+'">'+modeButtons()+'</div>'+
  '</div>'+
- '<aside class="focus-v2-aside"><section class="focus-v2-settings">'+
+ '<aside class="focus-v2-aside"><section class="focus-v2-mode-panel"><h2>✧ '+t('حالت تمرکز','Focus modes')+'</h2><div class="focus-v2-modes">'+modeButtons()+'</div></section><section class="focus-v2-settings">'+
  '<h2>⚙ '+t('تنظیمات تایمر','Timer settings')+'</h2>'+
  [['focus-duration','مدت تمرکز','Focus duration'],['focus-break-duration','استراحت کوتاه','Short break'],['focus-session-count','تعداد چرخه‌ها','Cycles']].map(([id,fa,en])=>
  '<div class="focus-v2-setting"><label for="focus-v2-'+id+'">'+t(fa,en)+'</label><div><button type="button" data-focus-v2-dec="'+id+'" aria-label="'+t('کاهش','Decrease')+' '+t(fa,en)+'">−</button><output id="focus-v2-'+id+'" data-focus-v2-value="'+id+'">25</output><button type="button" data-focus-v2-inc="'+id+'" aria-label="'+t('افزایش','Increase')+' '+t(fa,en)+'">+</button></div></div>').join('')+
