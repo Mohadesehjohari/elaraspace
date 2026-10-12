@@ -11,6 +11,8 @@ on:
       - well01-wellness-dashboard.js
       - well01-wellness-dashboard.css
       - approved-wellness.js
+      - approved-wellness.css
+      - tests/wellness-plans-charts-browser.mjs
       - tests/well01-wellness-dashboard-browser.mjs
       - .github/workflows/well01-wellness-dashboard.yml
   workflow_dispatch:
@@ -37,6 +39,7 @@ jobs:
           node --check approved-wellness.js
           node --check well01-wellness-dashboard.js
           node --check tests/well01-wellness-dashboard-browser.mjs
+          node --check tests/wellness-plans-charts-browser.mjs
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
           test -s assets/ui/health-fitness-card-background.webp
@@ -57,7 +60,9 @@ jobs:
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
           ELARA_BASELINE_URL: http://127.0.0.1:4174
-        run: timeout 600s node tests/well01-wellness-dashboard-browser.mjs
+        run: |
+          timeout 300s node tests/wellness-plans-charts-browser.mjs
+          timeout 600s node tests/well01-wellness-dashboard-browser.mjs
       - name: Existing private wellness notes
         if: always()
         run: timeout 240s node tests/wellness-notes-browser.mjs
@@ -85,10 +90,11 @@ jobs:
           for i in $(seq 1 45); do
             curl -fLsS -H "Cache-Control: no-cache" "$base/index.html?well01=$GITHUB_SHA" -o /tmp/well01-live-index.html || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/approved-wellness.js?well01=$GITHUB_SHA" -o /tmp/well01-live-editor.js || true
+            curl -fLsS -H "Cache-Control: no-cache" "$base/approved-wellness.css?well01=$GITHUB_SHA" -o /tmp/well01-live-wellness.css || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/boot.js?well01=$GITHUB_SHA" -o /tmp/well01-live-boot.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.js || true
             curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.css?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.css || true
-            if cmp -s index.html /tmp/well01-live-index.html && cmp -s approved-wellness.js /tmp/well01-live-editor.js && cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
+            if cmp -s index.html /tmp/well01-live-index.html && cmp -s approved-wellness.js /tmp/well01-live-editor.js && cmp -s approved-wellness.css /tmp/well01-live-wellness.css && cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
               echo "GitHub Pages contains exact main release files: $GITHUB_SHA"
               exit 0
             fi
@@ -107,6 +113,7 @@ jobs:
         run: |
           timeout 600s node tests/well01-wellness-dashboard-browser.mjs
           timeout 240s node tests/wellness-notes-browser.mjs
+          timeout 300s node tests/wellness-plans-charts-browser.mjs
           echo "LIVE_VERIFIED $GITHUB_SHA"
       - uses: actions/upload-artifact@v4
         if: always()

@@ -1,0 +1,70 @@
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
+const browser=await chromium.launch({headless:true});
+const cloud="window.ElaraAccount={user:{uid:'wellness-plans-qa'},profile:{name:'QA'}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
+const social="window.ElaraSocial={me:{uid:'wellness-plans-qa',name:'QA'},friends:[],activities:[],requests:[],publishActivity:async()=>{throw Error('Private wellness content must never publish')},refresh:async()=>{}};";
+const key='elara_private_wellness_v1_wellness-plans-qa';
+for(const width of [390,1440]){
+ const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+ await page.route('**/cloud.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:cloud}));
+ await page.route('**/elara-social.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:social}));
+ await page.goto(base+'/?wellness-plans-check='+width+'#home',{waitUntil:'domcontentloaded',timeout:35000});
+ await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraWell01&&!document.documentElement.hasAttribute('data-elara-booting'),{timeout:35000});
+ await page.evaluate(()=>window.ElaraOpen('exercise'));
+ await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
+ const day=await page.evaluate(()=>{let d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')});
+ await page.evaluate(({key,day})=>{
+   localStorage.setItem(key,JSON.stringify({sleep:[{id:'test-sleep',date:day,bed:'23:00',wake:'07:00'}],workouts:[{id:'test-workout',date:day,type:'یوگا',minutes:45}],water:{}}));
+   window.dispatchEvent(new Event('elara:wellness-saved'));window.ElaraWell01.render()
+ },{key,day});
+ await page.waitForFunction(()=>document.querySelectorAll('.well01-data-ring').length===2);
+ const rings=await page.locator('.well01-data-ring').evaluateAll(nodes=>nodes.map(el=>({value:Number(el.getAttribute('aria-valuenow')),progress:getComputedStyle(el).backgroundImage})));
+ assert.equal(rings.length,2);assert.ok(rings.every(x=>x.value>0),'sleep and workout ring update after saved records '+JSON.stringify(rings));
+ for(const [kind,title] of [['workout','برنامه تمرینی صبحگاهی'],['nutrition','برنامه تغذیه سالم']]){
+   await page.locator('[data-well01-plan-edit="'+kind+'"]').first().click();
+   const dialog=page.locator('.elara-dialog-panel:has(.wellness-plan-green-editor)').last();
+   await dialog.waitFor();
+   await dialog.locator('[name=title]').fill(title);
+   await dialog.locator('[name=note]').fill('توضیحات اختصاصی برنامه');
+   await dialog.locator('[data-program-add-folder]').click();
+   const sub=page.locator('.elara-dialog-panel:has(.wellness-plan-green-editor)').last();
+   await sub.locator('[name=title]').fill('پوشه تست');
+   await sub.locator('[data-folder-mode=checklist]').click();
+   await sub.locator('[name=newItem]').fill('آیتم قابل تیک');
+   await sub.locator('[data-folder-add-item]').click();
+   await sub.locator('.elara-dialog-actions .primary-button').click();
+   await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-panel:has(.wellness-plan-green-editor)').length===1);
+   await dialog.locator('.wellness-program-folder-open').waitFor();
+   await dialog.locator('.elara-dialog-actions .primary-button').click();
+   await dialog.waitFor({state:'hidden'});
+   await page.waitForFunction(({key,kind,title})=>{let s=JSON.parse(localStorage.getItem(key)||'{}');return s[kind+'PlanTitle']===title&&s[kind+'PlanFolders']?.[0]?.items?.[0]?.text==='آیتم قابل تیک'},{key,kind,title});
+   await page.locator('[data-well01-plan-edit="'+kind+'"]').first().click();
+   const reopened=page.locator('.elara-dialog-panel:has(.wellness-plan-green-editor)').last();
+   await reopened.locator('.wellness-program-folder-open').click();
+   const folder=page.locator('.elara-dialog-panel:has(.wellness-plan-green-editor)').last();
+   await folder.locator('[data-folder-mode=checklist]').click();
+   await folder.locator('.wellness-folder-item input[type=checkbox]').check();
+   await folder.locator('.elara-dialog-actions .primary-button').click();
+   await page.waitForFunction(()=>document.querySelectorAll('.elara-dialog-panel:has(.wellness-plan-green-editor)').length===1);
+   await reopened.locator('.elara-dialog-actions .primary-button').click();
+   await page.waitForFunction(({key,kind})=>JSON.parse(localStorage.getItem(key)||'{}')[kind+'PlanFolders']?.[0]?.items?.[0]?.done===true,{key,kind});
+   assert.match(await page.locator('#well01-dashboard').innerText(),new RegExp(title));
+ }
+ await page.evaluate(()=>window.ElaraOpen('wellness-sleep'));
+ await page.waitForSelector('#panel-wellness-sleep:not(.hidden) .wellness-sleep-line');
+ const labels=await page.locator('#panel-wellness-sleep .wellness-sleep-line svg text').allTextContents();
+ assert.ok(labels.length===7&&labels.every(x=>/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/.test(x)),'sleep chart weekday abbreviations: '+labels.join(','));
+ const chart=await page.locator('#panel-wellness-sleep .wellness-sleep-line').boundingBox();
+ assert.ok(chart?.height<=155,'sleep chart compact at width '+width);
+ await page.locator('#panel-wellness-sleep [data-wellness-add=sleep]').click();
+ await page.locator('.elara-dialog-panel:has(.wellness-sleep-editor)').waitFor();
+ const green=await page.locator('.elara-dialog-panel:has(.wellness-sleep-editor)').evaluate(el=>getComputedStyle(el).borderColor);
+ assert.ok(green.includes('22, 218, 159'),'sleep dialog must use green border: '+green);
+ await page.keyboard.press('Escape');
+ const extent=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
+ assert.ok(extent.scroll<=extent.width+1,'horizontal scroll '+JSON.stringify(extent));
+ await page.close();
+}
+await browser.close();
+console.log('WELLNESS_PLANS_CHARTS_PASS: program names, folders, notes/checklists, persisted ticks, sleep/workout rings and abbreviated sleep weekdays');

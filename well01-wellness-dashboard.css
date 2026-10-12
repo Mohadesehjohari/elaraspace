@@ -417,3 +417,12 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:none;
  }
 }
+
+/* Registered-data emerald progress rings and unified sleep colors. */
+#panel-exercise #well01-dashboard .well01-metric-sleep,#panel-exercise #well01-dashboard .well01-sleep{background:radial-gradient(circle at 15% 10%,#0ae9a922,transparent 60%),linear-gradient(125deg,#082d29,#081d2c)}
+#panel-exercise #well01-dashboard .well01-bars.sleep>span{background:linear-gradient(0deg,#059d80,#37f9ab)}
+#panel-exercise #well01-dashboard .well01-sleep .well01-shortcut-icon{color:#53f9b5;border-color:#00cb99}
+#panel-exercise #well01-dashboard .well01-data-ring{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;margin:5px auto 7px;background:conic-gradient(#29efa9 0 var(--well01-ring-progress),#15463f var(--well01-ring-progress) 100%);box-shadow:0 0 14px #08e6a53d;position:relative}
+#panel-exercise #well01-dashboard .well01-data-ring:before{content:"";position:absolute;inset:7px;background:#071f28;border-radius:inherit}
+#panel-exercise #well01-dashboard .well01-data-ring strong{position:relative;font-size:.82rem;text-align:center;max-width:73px;line-height:1.4}
+@media(max-width:700px){#panel-exercise #well01-dashboard .well01-data-ring{width:64px;height:64px}#panel-exercise #well01-dashboard .well01-data-ring strong{font-size:.66rem}}
