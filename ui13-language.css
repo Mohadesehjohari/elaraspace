@@ -659,3 +659,31 @@ html.l3-story-open body>.elara-desktop-dock,
 html.l3-story-open body>[data-elara-main-nav]{display:none!important}
 html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:hidden!important}
 .l3-story-scene{height:100dvh!important}
+
+/* Iteration 2026-10-12: compact review scene, distinct from the dashboard. */
+#panel-words:has(>.l2-leitner-shell)>:not(.l2-leitner-shell){display:none!important}
+#panel-words.l2-adding-word:has(>.l2-leitner-shell)>#word-form{display:flex!important}
+.l3-story-scene{font-family:Vazirmatn,"IRANSans",Tahoma,Arial,sans-serif!important}
+.l3-story-container{width:min(1200px,calc(100% - 40px));max-height:100dvh;min-height:0;height:100dvh;padding:12px 12px 16px;gap:7px}
+.l3-story-top{min-height:45px}
+.l3-story-brand{font-size:32px}
+.l3-story-frame{width:min(780px,100%);min-height:0;max-height:none;flex:1 1 auto;margin:1px auto;padding:20px 24px 18px;border-radius:26px}
+.l3-story-card-slot .flashcard{gap:12px!important}
+.l3-story-actions{margin:2px auto 0;gap:12px;width:min(860px,100%)}
+.l3-story-actions button{min-height:64px}
+.l3-story-scene h1{font-weight:900;letter-spacing:-.025em}
+@media(max-width:700px){
+ .l3-story-container{width:100%;height:100dvh;max-height:100dvh;min-height:0;padding:calc(6px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));gap:5px}
+ .l3-story-top{min-height:40px}
+ .l3-story-brand{font-size:26px}
+ .l3-story-frame{min-height:0;max-height:none;flex:1 1 auto;margin:0 auto;padding:28px 10px 12px;border-radius:23px}
+ .l3-story-card-slot .flashcard{gap:9px!important}
+ .l3-story-actions{margin:0 auto;gap:6px}
+ .l3-story-actions button{min-height:52px;font-size:clamp(13px,3.8vw,18px);padding:7px 6px}
+ .l3-story-speak{width:43px;height:43px;top:9px;right:9px}
+}
+@media(max-height:750px){
+ .l3-story-container{gap:4px}
+ .l3-story-frame{padding-top:10px;padding-bottom:8px}
+ .l3-story-actions button{min-height:45px}
+}
