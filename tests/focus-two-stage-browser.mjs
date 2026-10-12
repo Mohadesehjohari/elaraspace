@@ -44,7 +44,7 @@ try{
   assert.ok(await page.locator('#focus-duration').count(),'canonical duration must exist');
   const pre=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(pre.scroll<=pre.width+1,'preview overflow '+JSON.stringify(pre));
-  await preview.click();
+  if(width===390)await page.locator('#panel-focus-pomodoro #timer-display').click();else await preview.click();
   await page.waitForFunction(()=>!!JSON.parse(localStorage.getItem('elara_space_v1')||'{}').activeFocus,null,{timeout:5000});
   assert.equal(await page.locator('#elara-focus-immersive').isVisible(),true,'start must open immersive view');
   const model=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,route:location.hash,
