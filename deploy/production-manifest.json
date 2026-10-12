@@ -220,7 +220,11 @@
     "assets/ui/Misty Mountain Lake at Dawn.webp",
     "assets/ui/Celestial Mirror Lake at Night.webp",
     "assets/ui/Sunlit Botanical Shadows on Parchment.webp",
-    "assets/ui/Lavender Moonrise Over Misty Meadows.webp"
+    "assets/ui/Lavender Moonrise Over Misty Meadows.webp",
+    "well01-wellness-dashboard.js",
+    "well01-wellness-dashboard.css",
+    "wellness-reference-popups-20261012.js",
+    "wellness-reference-popups-20261012.css"
   ],
   "files": [
     ".htaccess",
@@ -539,6 +543,10 @@
     "assets/ui/Misty Mountain Lake at Dawn.webp",
     "assets/ui/Celestial Mirror Lake at Night.webp",
     "assets/ui/Sunlit Botanical Shadows on Parchment.webp",
-    "assets/ui/Lavender Moonrise Over Misty Meadows.webp"
+    "assets/ui/Lavender Moonrise Over Misty Meadows.webp",
+    "well01-wellness-dashboard.js",
+    "well01-wellness-dashboard.css",
+    "wellness-reference-popups-20261012.js",
+    "wellness-reference-popups-20261012.css"
   ]
 }
