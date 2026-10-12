@@ -17,7 +17,7 @@ const names=['مرور کتاب','تمرین زبان','ورزش صبحگاهی'
 const taskSeed={
  version:1,theme:'dark',xp:0,habits:[],goals:[],books:[],words:[],folders:['کار'],tags:['مهم'],
  taskLists:['برنامه'],tasks:names.map((name,i)=>({
-  id:'mobile-visual-qa-'+i,text:name,date:today,priority:String(i%4+1),
+  id:'mobile-visual-qa-'+i,text:name,date:today,priority:String(i%4+1),sourceGroup:['language','personal','goal','habit','exercise','book'][i],
   folder:i%2?'کار':'',tag:i%2?'مهم':'',list:i%2?'برنامه':'',
   completed:false,shortDescription:'',description:'',
   recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{}
@@ -52,7 +52,8 @@ async function measure(page,width){
   const toolbar=document.getElementById('astra-task-toolbar');
   return {width,viewport:innerWidth,docWidth:document.documentElement.scrollWidth,
    rowHeights:rectangle.map(x=>Math.round(x.height)),averageHeight:Math.round(rectangle.reduce((s,x)=>s+x.height,0)/rectangle.length),
-   titleFont:parseFloat(getComputedStyle(title).fontSize),titleWhiteSpace:getComputedStyle(title).whiteSpace,metaFont:parseFloat(getComputedStyle(metadata).fontSize),
+   titleFont:parseFloat(getComputedStyle(title).fontSize),titleWhiteSpace:getComputedStyle(title).whiteSpace,
+   titleSamples:rows.map(row=>{let el=row.querySelector('.item-title');return {source:row.dataset.taskSource,value:getComputedStyle(el).whiteSpace,inlineStyle:el.getAttribute('style')||'',tag:el.tagName,cls:el.className}}),metaFont:parseFloat(getComputedStyle(metadata).fontSize),
    heroHeight:Math.round(hero.getBoundingClientRect().height),toolbarHeight:Math.round(toolbar.getBoundingClientRect().height),
    chipsWidth:Math.round(chips.getBoundingClientRect().width),
    filtersExpanded:Boolean(filter?.open),isRTL:getComputedStyle(rows[0]).direction==='rtl',
@@ -105,7 +106,7 @@ try {
   if(width<=430){
    assert.ok(state.averageHeight<=100,'rows too tall '+JSON.stringify(state));
    assert.ok(state.titleFont>=14,'title unreadable '+width);
-   assert.notEqual(state.titleWhiteSpace,'nowrap','long Persian titles should wrap '+width);
+   assert.ok(state.titleSamples.every(x=>x.value!=='nowrap'),'source-linked titles must wrap: '+JSON.stringify(state.titleSamples));
    assert.ok(state.metaFont<=12,'metadata too large '+width);
    assert.ok(state.heroHeight<=145,'hero too tall '+width);
    assert.equal(state.filtersExpanded,false,'advanced filters should start collapsed '+width);

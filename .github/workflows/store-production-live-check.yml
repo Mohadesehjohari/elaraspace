@@ -1,0 +1,58 @@
+name: Store production live verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'store-view.js'
+      - 'store-reference-2026.css'
+      - 'global-page-banner-20261009.js'
+      - 'global-page-banner-20261009.css'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/store-reference-browser.mjs'
+      - '.github/workflows/store-production-live-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-live-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for actual updated Pages files
+        run: |
+          set -euo pipefail
+          BASE='https://mohadesehjohari.github.io/elaraspace'
+          for attempt in $(seq 1 30); do
+            URL="$BASE/boot.js?store-check=$GITHUB_SHA-$attempt"
+            if curl --fail --silent --show-error --location --max-time 15 "$URL" | grep -q "20261012-store-reference-v2" &&
+               curl --fail --silent --show-error --location --max-time 15 "$BASE/store-view.js?store-check=$GITHUB_SHA-$attempt" | grep -q "elara-store-wishlist-browser-v1" &&
+               curl --fail --silent --show-error --location --max-time 15 "$BASE/store-reference-2026.css?store-check=$GITHUB_SHA-$attempt" | grep -q "store-preview-dialog"; then
+              echo "LIVE_ASSETS_VERIFIED boot, store-view and scoped CSS at attempt $attempt"
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages updated assets, attempt $attempt"
+            sleep 10
+          done
+          echo 'Published asset verification did not succeed.' >&2
+          exit 1
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify live store in Chromium across ten viewports
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: node tests/store-reference-browser.mjs
+      - name: Upload actual production Chromium screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-production-chromium
+          path: artifacts/store-reference/
+          retention-days: 14
+          if-no-files-found: ignore
