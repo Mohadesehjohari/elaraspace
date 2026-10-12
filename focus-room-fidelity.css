@@ -1,0 +1,186 @@
+/* Focus background fidelity — canonical focus route, no new timer engine.
+   The ring is decorative; displayed time and controls remain the real Pomodoro DOM. */
+#panel-focus-pomodoro:not(.hidden) {
+  position: relative;
+  isolation: isolate;
+  min-height: 780px;
+  padding: clamp(16px,2.3vw,34px);
+  border: 1px solid #aa824b64;
+  border-radius: clamp(17px,2vw,27px);
+  overflow: visible;
+  color: #f9f4ed;
+  background-color: #081320;
+  background-image:
+    linear-gradient(180deg,rgba(3,8,16,.24) 0%,rgba(3,8,16,.42) 38%,rgba(3,9,20,.76) 77%,#06121f 100%),
+    url("assets/ui/bg_focus_room.webp");
+  background-size: cover,cover;
+  background-position: center center,center 38%;
+  background-repeat: no-repeat;
+  box-shadow: 0 24px 80px #0008, inset 0 0 0 1px #ffffff12;
+}
+#panel-focus-pomodoro > .feature-subpage-head {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 clamp(14px,2.3vw,30px);
+  padding: clamp(12px,2vw,24px);
+  background: linear-gradient(90deg,#05111dbb,#05111d42);
+  border: 1px solid #dbb57045;
+  border-radius: 19px;
+  box-shadow: 0 12px 32px #0006;
+  backdrop-filter: blur(4px);
+}
+#panel-focus-pomodoro > .feature-subpage-head h1 {
+  color: #fffaf1;
+  font-size: clamp(26px,3.2vw,44px);
+  text-shadow: 0 3px 16px #000;
+}
+#panel-focus-pomodoro > .feature-subpage-head p {
+  color: #f5e7d6;
+  text-shadow: 0 2px 8px #000;
+}
+#panel-focus-pomodoro > .focus-card {
+  position: relative;
+  z-index: 1;
+  direction: ltr;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(275px,.92fr) minmax(280px,1.12fr);
+  grid-template-areas:
+    "settings status"
+    "settings dial"
+    "settings actions"
+    "hint hint";
+  justify-items: stretch;
+  align-items: center;
+  column-gap: clamp(16px,3vw,46px);
+  row-gap: 12px;
+  width: min(1040px,100%);
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  padding: clamp(15px,2.5vw,29px);
+  border: 1px solid #f0c67864;
+  border-radius: 24px;
+  background: linear-gradient(135deg,#06111fde,#05101ac7);
+  box-shadow: 0 20px 68px #0009,0 0 30px #eb9c2420;
+  backdrop-filter: blur(8px);
+}
+#panel-focus-pomodoro > .focus-card > * {min-width:0;direction:rtl}
+#panel-focus-pomodoro > .focus-card #focus-status {
+  grid-area: status;
+  color: #ffe5ac;
+  text-align:center;
+  justify-self:center;
+  font-weight:800;
+  text-shadow:0 2px 10px #000;
+}
+#panel-focus-pomodoro > .focus-card #timer-display {
+  grid-area:dial;
+  justify-self:center;
+  display:grid;
+  place-items:center;
+  box-sizing:border-box;
+  width: clamp(230px,26vw,330px);
+  height: clamp(230px,26vw,330px);
+  max-width:100%;
+  margin: 12px auto 8px;
+  border:1px solid #bde3ff77;
+  border-radius:50%;
+  color:#fff;
+  font:900 clamp(43px,5vw,64px)/1.1 Arial,Tahoma,sans-serif;
+  letter-spacing:0;
+  direction:ltr;
+  background:
+    radial-gradient(circle at 48% 43%,#080e1df5 0 61%,transparent 63%),
+    conic-gradient(from 14deg,#ffe6a1,#ffc366 16%,#934cdb 34%,#4779ff 57%,#47c4ff 70%,#061025 84%,#d5a95d);
+  box-shadow:0 0 25px #4f7fff77,inset 0 0 26px #050811,0 0 0 5px #080d1780;
+  text-shadow:0 3px 20px #000;
+  font-variant-numeric:tabular-nums;
+}
+#panel-focus-pomodoro > .focus-card .timer-actions {grid-area:actions;direction:rtl;justify-content:center;gap:13px}
+#panel-focus-pomodoro > .focus-card #timer-start {
+  min-width:120px;min-height:53px;border:1px solid #c8c4ff;
+  border-radius:40px;color:#fff;
+  background:linear-gradient(120deg,#4b89ff,#793aff 58%,#ac57e8);
+  box-shadow:0 0 22px #765bff88,0 8px 22px #0009;
+  font-weight:800;
+}
+#panel-focus-pomodoro > .focus-card #timer-reset {
+  min-height:47px;border:1px solid #e7c28399;
+  background:#0c1724cc;color:#ffe4a5;
+}
+#panel-focus-pomodoro > .focus-card .focus-config {
+  grid-area:settings;
+  direction:rtl;
+  align-self:stretch;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:13px;
+  padding:clamp(12px,2vw,20px);
+  border:1px solid #d2b57462;
+  border-radius:18px;
+  background:linear-gradient(160deg,#061521ee,#071523c7);
+}
+#panel-focus-pomodoro > .focus-card .focus-config label{color:#e7e7e7}
+#panel-focus-pomodoro > .focus-card .focus-presets,
+#panel-focus-pomodoro > .focus-card .focus-tag-row{min-width:0}
+#panel-focus-pomodoro > .focus-card .focus-presets button{min-width:34px}
+#panel-focus-pomodoro > .focus-card .focus-cycle-config {
+  grid-column:auto;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  min-width:0;
+}
+#panel-focus-pomodoro > .focus-card .focus-cycle-config .focus-auto-break{grid-column:1/-1}
+#panel-focus-pomodoro > .focus-card > .muted {
+  grid-area:hint;
+  max-width:100%;direction:rtl;
+  color:#e2d6c6;
+  text-align:center;
+}
+#panel-focus-pomodoro > .focus-history-card{
+  position:relative;z-index:1;
+  width:min(1040px,100%);
+  box-sizing:border-box;
+  margin:18px auto 0;
+  border:1px solid #d1a86955;
+  background:#061421df;
+  color:#f8f1e7;
+  backdrop-filter:blur(8px);
+}
+body.light #panel-focus-pomodoro:not(.hidden) {color:#fff}
+body.light #panel-focus-pomodoro > .focus-card,
+body.light #panel-focus-pomodoro > .focus-history-card {color:#fff;background:#061421df}
+@media(max-width:880px){
+  #panel-focus-pomodoro:not(.hidden){
+    padding:14px;
+    background-position:center center,62% top;
+  }
+  #panel-focus-pomodoro > .focus-card{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"status" "dial" "actions" "settings" "hint";
+    gap:14px;
+    padding:15px 12px;
+  }
+  #panel-focus-pomodoro > .focus-card #timer-display{
+    width:min(290px,calc(100vw - 100px));
+    height:min(290px,calc(100vw - 100px));
+    margin:8px auto;
+    font-size:clamp(38px,12vw,58px);
+  }
+  #panel-focus-pomodoro > .focus-card .focus-config{max-width:560px;justify-self:center}
+  #panel-focus-pomodoro > .feature-subpage-head{margin-bottom:18px}
+}
+@media(max-width:370px){
+  #panel-focus-pomodoro:not(.hidden){padding:8px;border-radius:15px}
+  #panel-focus-pomodoro > .feature-subpage-head{padding:12px}
+  #panel-focus-pomodoro > .focus-card .focus-presets{gap:4px}
+  #panel-focus-pomodoro > .focus-card .focus-presets button{padding:6px;min-width:31px}
+  #panel-focus-pomodoro > .focus-card .focus-cycle-config{grid-template-columns:1fr 1fr;gap:6px}
+}
+@media(prefers-reduced-transparency:reduce){
+  #panel-focus-pomodoro > .focus-card,
+  #panel-focus-pomodoro > .focus-history-card {backdrop-filter:none;background:#071322f2}
+}
