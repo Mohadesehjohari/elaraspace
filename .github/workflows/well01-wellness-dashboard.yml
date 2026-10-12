@@ -61,8 +61,8 @@ jobs:
           ELARA_TEST_URL: http://127.0.0.1:4173
           ELARA_BASELINE_URL: http://127.0.0.1:4174
         run: |
-          timeout 600s node tests/well01-wellness-dashboard-browser.mjs
           timeout 300s node tests/wellness-plans-charts-browser.mjs
+          timeout 600s node tests/well01-wellness-dashboard-browser.mjs
       - name: Existing private wellness notes
         if: always()
         run: timeout 240s node tests/wellness-notes-browser.mjs
