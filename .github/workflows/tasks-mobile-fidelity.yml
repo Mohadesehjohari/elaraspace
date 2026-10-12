@@ -1,0 +1,63 @@
+name: Tasks Mobile Fidelity - Chromium before and after
+on:
+  pull_request:
+    paths:
+      - index.html
+      - boot.js
+      - phase2.js
+      - tasks-mobile-fidelity-20261012.css
+      - tests/tasks-mobile-fidelity-browser.mjs
+      - .github/workflows/tasks-mobile-fidelity.yml
+  push:
+    branches: [ui/tasks-mobile-compact-modal-20261012]
+  workflow_dispatch:
+    paths:
+      - index.html
+      - boot.js
+      - tasks-mobile-fidelity-20261012.css
+      - tests/tasks-mobile-fidelity-browser.mjs
+permissions:
+  contents: read
+jobs:
+  tasks-mobile-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate structure and test syntax
+        run: |
+          node --check boot.js
+          node --check phase2.js
+          node --check tests/tasks-mobile-fidelity-browser.mjs
+          test -s tasks-mobile-fidelity-20261012.css
+          grep -Fq "'tasks-mobile-fidelity-20261012.css'" boot.js
+      - name: Set up Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start before and after servers
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach /tmp/elara-tasks-before "${BASE_SHA:-$(git merge-base HEAD origin/main)}"
+          ( cd /tmp/elara-tasks-before && python3 -m http.server 4174 >/tmp/tasks-before.log 2>&1 ) &
+          python3 -m http.server 4173 >/tmp/tasks-after.log 2>&1 &
+          sleep 3
+          curl -fsS http://127.0.0.1:4173/index.html >/dev/null
+          curl -fsS http://127.0.0.1:4174/index.html >/dev/null
+      - name: Nine width Chromium / actual add and reload / before-after screenshots
+        run: timeout 1000s node tests/tasks-mobile-fidelity-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasks-mobile-fidelity-screenshots
+          path: |
+            browser-artifacts/tasks-mobile-fidelity/*.png
+            browser-artifacts/tasks-mobile-fidelity/*.json
+          retention-days: 21
