@@ -28,19 +28,24 @@ async function run(width,height){
  assert.equal(await page.locator('.social-dm-row').count(),1,width+': recent DM row missing');
  assert.equal(await page.locator('.social-dm-friend').count(),1,width+': friend start-chat card missing');
  await page.locator('.social-dm-row').click();
- await page.waitForSelector('.social-chat-dialog');
+ await page.waitForSelector('.social-chat-head');
+ const search=page.locator('[data-dm-search]');
+ await search.fill('یافت نشد');
+ assert.equal(await page.locator('.social-dm-row:visible').count(),0,'Search hides mismatches');
+ await search.fill('سینا');
+ assert.equal(await page.locator('.social-dm-row:visible').count(),1,'Search finds matching chat');
+ await search.fill('');
  assert.match(await page.locator('.social-chat-messages').innerText(),/آماده‌ای/);
  let compose=page.locator('.social-chat-compose');
  const draft='پیش‌نویس ماندگار';
  await compose.locator('textarea[name="text"]').fill(draft);
  assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),'پیش‌نویس ماندگار','DM draft must persist immediately');
- await page.locator('.elara-dialog-close').click();
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  await page.locator('.social-dm-row').click();
- await page.waitForSelector('.social-chat-dialog');
+ await page.waitForSelector('.social-chat-head');
  compose=page.locator('.social-chat-compose');
  assert.equal(await compose.locator('textarea[name="text"]').inputValue(),draft,'DM draft must survive reload/navigation');
  await compose.locator('textarea[name="text"]').fill('بزن بریم 🔥');
@@ -52,9 +57,8 @@ async function run(width,height){
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+1,width+': DM UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-dm-'+width+'.png',fullPage:true});
- await page.locator('.elara-dialog-close').click();
  await page.close();
 }
 await run(390,844);await run(1440,1000);
 await browser.close();
-console.log('FRIENDS_DM_UI_PASS 390/1440 recent-list live-thread send');
+console.log('FRIENDS_CHATS_REDESIGN_PASS 390/1440 integrated-thread search draft live send');

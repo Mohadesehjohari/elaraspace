@@ -1,0 +1,60 @@
+name: Verify Live Friends Chats Redesign
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'social-messaging-ui.js'
+      - 'friends-chats-redesign.css'
+      - 'boot.js'
+      - 'tests/friends-dm-ui-browser.mjs'
+      - '.github/workflows/friends-chats-live-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live-chats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source syntax
+        run: |
+          node --check social-messaging-ui.js
+          node --check boot.js
+          node --check tests/friends-dm-ui-browser.mjs
+      - name: Wait for exact deployed assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://mohadesehjohari.github.io/elaraspace"
+          verified=false
+          for attempt in $(seq 1 100); do
+            ok=true
+            for file in social-messaging-ui.js friends-chats-redesign.css boot.js; do
+              if ! curl --fail --silent --show-error --location --max-time 15 "$base/$file?sha=$GITHUB_SHA&attempt=$attempt" --output "/tmp/chats-$file" || ! cmp -s "$file" "/tmp/chats-$file"; then
+                ok=false
+                break
+              fi
+            done
+            if [ "$ok" = true ]; then verified=true; echo "LIVE_CHATS_VERIFIED=$GITHUB_SHA"; break; fi
+            sleep 8
+          done
+          test "$verified" = true || { echo "::error::Production is not yet serving these chat files."; exit 1; }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify real published page at 390 and 1440
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 360s node tests/friends-dm-ui-browser.mjs
+      - name: Upload mobile and desktop screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: elara-chats-live
+          path: browser-artifacts/
+          if-no-files-found: warn
