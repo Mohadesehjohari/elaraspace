@@ -94,5 +94,35 @@ const m=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.s
 await page.screenshot({path:'browser-artifacts/clubs-stage11-390.png',fullPage:true});await page.close();
 
 const desktop=await open(1440,1000);const dm=await desktop.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(dm.scroll<=dm.w+2,'1440 club horizontal overflow '+JSON.stringify(dm));await desktop.screenshot({path:'browser-artifacts/clubs-stage11-1440.png',fullPage:true});await desktop.close();
+
+const emptyPhone=await open(390,844);
+await emptyPhone.evaluate(async()=>{
+ window.ElaraSocial.clubs.list=async()=>[];
+ window.ElaraSocial.clubs.discover=async()=>[];
+ window.ElaraSocial.clubs.invites=async()=>[];
+ await window.ElaraSocialClubsUI.mount();
+});
+assert.equal(await emptyPhone.locator('.club-f3-podium .club-f3-rank').count(),0,'No synthetic rankings in empty club state');
+assert.equal(await emptyPhone.locator('.club-f3-vacant-slot').count(),3,'Empty rank scene must retain three decorative podiums');
+assert.match(await emptyPhone.locator('.club-f3-vacant-label').innerText(),/هنوز باشگاهی/,'Empty rank scene must explain no real club data');
+assert.equal(await emptyPhone.locator('[data-club-f3-no-results]:visible').count(),0,'Do not duplicate empty search notice without club rows');
+const emptySize=await emptyPhone.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
+assert.ok(emptySize.sw<=emptySize.w+2,'390 empty clubs horizontal overflow '+JSON.stringify(emptySize));
+await emptyPhone.screenshot({path:'browser-artifacts/clubs-reference-empty-390.png',fullPage:true});
+await emptyPhone.close();
+const emptyWide=await open(1440,1000);
+await emptyWide.evaluate(async()=>{
+ window.ElaraSocial.clubs.list=async()=>[];
+ window.ElaraSocial.clubs.discover=async()=>[];
+ window.ElaraSocial.clubs.invites=async()=>[];
+ await window.ElaraSocialClubsUI.mount();
+});
+assert.equal(await emptyWide.locator('.club-f3-vacant-slot').count(),3,'1440 reference podium should remain when no real club exists');
+assert.ok(await emptyWide.locator('.club-f3-ranking').evaluate(el=>el.getBoundingClientRect().height>=420),'Desktop empty ranking must keep cinematic reference height');
+const emptyWideSize=await emptyWide.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
+assert.ok(emptyWideSize.sw<=emptyWideSize.w+2,'1440 empty clubs horizontal overflow '+JSON.stringify(emptyWideSize));
+await emptyWide.screenshot({path:'browser-artifacts/clubs-reference-empty-1440.png',fullPage:true});
+await emptyWide.close();
+
 await browser.close();
 console.log('CLUBS_STAGE11_PASS level6 owner assistant invite mission poll vote 390/1440');
