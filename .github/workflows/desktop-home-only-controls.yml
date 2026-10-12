@@ -10,8 +10,12 @@ on:
   push:
     branches: [main]
     paths:
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
       - 'desktop-home-only-controls-20261012.css'
       - 'tests/desktop-home-only-controls-browser.mjs'
+      - '.github/workflows/desktop-home-only-controls.yml'
   workflow_dispatch:
 permissions:
   contents: read
