@@ -687,3 +687,6 @@ html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:
  .l3-story-frame{padding-top:10px;padding-bottom:8px}
  .l3-story-actions button{min-height:45px}
 }
+
+/* Single owner scenic layer: the nested .ui12-leitner-scene already paints lightner.webp. */
+#panel-language.ui12-language .ui12-leitner-art{background-image:none!important}
