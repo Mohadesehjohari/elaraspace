@@ -24,7 +24,7 @@ try{
   if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-dashboard-'+width+'.png',fullPage:true,animations:'disabled'});
   await page.locator('#panel-words .l2-start-review').click();
   await page.waitForSelector('body > #l3-review-scene [data-l3-card-slot] .flashcard',{timeout:10000});
-  assert.equal(new URL(page.url()).hash,'#leitner-review','Review must have independent address @'+width);
+  assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Review must have independent address @'+width);
   assert.equal(await page.locator('#l3-review-scene').evaluate(el=>getComputedStyle(el).position),'fixed','Review must be a full-screen view @'+width);
   assert.equal(await page.locator('#panel-words .flashcard').count(),0,'Old dashboard card must move to review scene @'+width);
   const background=await page.locator('#l3-review-scene').evaluate(el=>getComputedStyle(el).backgroundImage);
@@ -51,7 +51,7 @@ try{
     assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+5),'Underlying app leaked beyond full-screen review');
     await page.reload({waitUntil:'domcontentloaded'});
     await page.waitForSelector('#l3-review-scene .l3-story-card-slot .flashcard',{timeout:20000});
-    assert.equal(new URL(page.url()).hash,'#leitner-review','Direct review URL must restore after refresh');
+    assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Direct review URL must restore after refresh');
   }
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>!document.querySelector('#l3-review-scene'),null,{timeout:9000});
