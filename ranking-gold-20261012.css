@@ -1,0 +1,175 @@
+/* Ranking Gold 2026 – intentionally scoped to #panel-ranking. */
+html body #panel-ranking:not(.hidden){--rg-gold:#ffd474;--rg-gold2:#f2ac36;--rg-line:rgba(246,188,87,.45);--rg-ink:#061326;margin:0!important;padding:0!important;width:100%!important;max-width:none!important;overflow:visible!important;color:#f7f2e7}
+html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar #ref-header-account,
+html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar #elara-account-menu-trigger,
+html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar .ref-account-copy{display:none!important;visibility:hidden!important;pointer-events:none!important}
+html body:has(#panel-ranking:not(.hidden)) .sidebar :is([href="#ranking"],[data-elara-tab="ranking"])[aria-current="page"]{border-color:#ffce70!important;box-shadow:inset -4px 0 #ffc963,0 0 18px #f7ab3833!important;color:#ffe6a4!important;background:linear-gradient(90deg,#76501f66,#0a2a49)!important}
+html body #main #panel-ranking>.ranking-gold-hero.elara-global-hero{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;width:calc(100% + 36px)!important;max-width:none!important;
+ height:272px!important;min-height:272px!important;max-height:none!important;
+ margin:0 -18px 12px!important;padding:72px clamp(22px,3vw,48px) 20px!important;
+ border:0!important;border-bottom:1px solid #f1ad4a77!important;border-radius:0!important;
+ background-color:#07152e!important;
+ background-image:linear-gradient(270deg,rgba(3,12,30,.92) 0%,rgba(3,12,30,.73) 29%,rgba(3,12,30,.06) 68%),var(--elara-page-art)!important;
+ background-size:cover!important;background-position:center 54%!important;
+ box-shadow:0 14px 40px #0009!important;overflow:hidden!important
+}
+#panel-ranking .ranking-gold-hero .rg-hero-copy{position:relative!important;z-index:2!important;max-width:510px!important;min-width:0!important;margin:0!important;padding:0!important;color:white!important;text-align:right!important;direction:rtl!important}
+#panel-ranking .ranking-gold-hero .rg-hero-kicker{display:block;color:#ffe7b8!important;font:800 .72rem/1.7 system-ui,sans-serif;letter-spacing:.13em!important}
+#panel-ranking .ranking-gold-hero h1{color:#fff!important;font-size:clamp(1.6rem,2.6vw,2.8rem)!important;line-height:1.35!important;margin:5px 0!important;font-weight:900!important;text-shadow:0 3px 18px #061023}
+#panel-ranking .ranking-gold-hero p{color:#fff0d3!important;font-size:1rem!important;margin:5px 0 12px!important;line-height:1.6!important;text-shadow:0 2px 10px #000}
+#panel-ranking .ranking-gold-hero .rg-hero-cta{display:inline-flex;align-items:center;gap:16px;min-height:42px;padding:8px 20px;border-radius:999px;border:1px solid #fff5c5;background:linear-gradient(135deg,#fff09b,#ffc350 60%,#e3a329);color:#37230d;font-weight:850;box-shadow:0 4px 24px #ffc54f7a;cursor:pointer}
+#panel-ranking .ranking-gold-hero .rg-hero-cta span{display:grid;place-items:center;color:#ffe3a1;background:#13223c;width:23px;height:23px;border-radius:50%;font-size:22px}
+#panel-ranking .ranking-gold-hero .rg-hero-about:not([hidden]){display:block;max-width:440px;padding:8px 12px;margin:7px 0 0!important;font-size:.74rem!important;border-radius:9px;background:#03142bcf}
+#panel-ranking .ranking-gold-hero .rg-hero-about[hidden]{display:none!important}
+html body #panel-ranking #elara-ranking-page.ranking-gold{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:transparent!important;overflow:visible!important;box-sizing:border-box!important}
+#panel-ranking .ranking-gold *{box-sizing:border-box}
+#panel-ranking .ranking-gold .rg-tabs{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:9px!important;margin:0 0 12px!important;padding:0!important;width:100%!important;max-width:100%!important;background:none!important;border:0!important;overflow:visible!important;direction:rtl!important}
+#panel-ranking .ranking-gold .rg-tabs button{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-width:0!important;min-height:49px!important;max-width:none!important;margin:0!important;padding:8px 7px!important;border:1px solid #28537d!important;border-radius:12px!important;background:linear-gradient(180deg,#0b2343,#061731)!important;color:#e1eaf7!important;font:800 clamp(.73rem,.94vw,.93rem)/1.4 system-ui,sans-serif!important;white-space:nowrap!important;cursor:pointer!important;box-shadow:inset 0 1px #ffffff0d!important}
+#panel-ranking .ranking-gold .rg-tabs button span{font-size:1.22rem;color:#bad1f5}
+#panel-ranking .ranking-gold .rg-tabs button.is-active,#panel-ranking .ranking-gold .rg-tabs button[aria-selected="true"]{color:#fff3d4!important;background:linear-gradient(130deg,#9a631e,#40290f 54%,#b77a26)!important;border-color:#ffcd65!important;box-shadow:0 0 20px #ffcb5c55,inset 0 0 0 1px #ffe6a666!important}
+#panel-ranking .ranking-gold .rg-tabs button.is-active span{color:#ffdf67;filter:drop-shadow(0 0 6px #ffd474)}
+#panel-ranking .ranking-gold .rg-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:12px!important;align-items:stretch!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important}
+#panel-ranking .ranking-gold .rg-card{position:relative!important;min-width:0!important;max-width:none!important;height:auto!important;margin:0!important;padding:15px!important;overflow:hidden!important;border:1px solid #386289!important;border-radius:16px!important;color:#f9f6ed!important;background:radial-gradient(circle at 96% 0,#17407a44,transparent 48%),linear-gradient(145deg,#091f3a 0%,#051427 100%)!important;box-shadow:inset 0 1px #ffffff12,0 9px 27px #0007!important}
+#panel-ranking .ranking-gold .rg-card-head{display:flex;gap:10px;align-items:center;min-width:0;min-height:33px;margin:0 0 12px!important;padding:0!important;border:0!important;justify-content:flex-start!important}
+#panel-ranking .ranking-gold .rg-card-head>div{min-width:0}
+#panel-ranking .ranking-gold .rg-card-head h2{margin:0!important;padding:0!important;font-size:clamp(.93rem,1.13vw,1.2rem)!important;line-height:1.4!important;font-weight:900!important;color:#fff!important}
+#panel-ranking .ranking-gold .rg-card-head small{display:block;color:#a9c0da;font-size:.67rem;line-height:1.5}
+#panel-ranking .ranking-gold .rg-card-icon{display:grid;place-items:center;font-size:1.52rem!important;flex:0 0 30px;line-height:1.2;color:#ffda75;filter:drop-shadow(0 0 5px #ffbc41a5)}
+#panel-ranking .ranking-gold .rg-podium-card{grid-column:span 7!important;min-height:328px!important;border-color:#df9d42!important;background:linear-gradient(0deg,#06132688,#05182a42),url('assets/ui/friends-ranking-bg.webp') center 47%/cover no-repeat!important}
+#panel-ranking .ranking-gold .rg-podium-kicker{display:inline-block;padding:3px 9px;background:#06172bc7;border:1px solid #ffcd6866;border-radius:8px;color:#ffe4a4;font-size:.65rem}
+#panel-ranking .ranking-gold .rg-podium{display:grid!important;grid-template-columns:1fr 1.23fr 1fr!important;gap:5px!important;min-width:0!important;align-items:end!important;padding:4px 2px 0!important;direction:ltr!important}
+#panel-ranking .ranking-gold .rg-podium-place{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0;text-align:center;direction:rtl}
+#panel-ranking .ranking-gold .rg-podium-portrait{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;min-height:101px}
+#panel-ranking .ranking-gold .rg-crown{position:relative;z-index:4;font-size:1.8rem;line-height:1;color:#ffc861;text-shadow:0 0 12px #ffd272}
+#panel-ranking .ranking-gold .rg-place-1 .rg-crown{font-size:2.7rem}
+#panel-ranking .ranking-gold .rg-podium-portrait>button{padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+#panel-ranking .ranking-gold .rg-avatar{display:grid;place-items:center;width:65px;height:65px;min-width:0;max-width:100%;border:3px solid #b5e1ff;border-radius:50%;overflow:hidden;background:#0a1a3b;box-shadow:0 0 0 3px #091425,0 0 18px #75b8ffba;color:#ffe6a6}
+#panel-ranking .ranking-gold .rg-place-1 .rg-podium-avatar,#panel-ranking .ranking-gold .rg-place-1 .rg-podium-portrait .rg-avatar{width:102px;height:102px;border-color:#ffe08b;box-shadow:0 0 0 4px #513319,0 0 30px #ffc458}
+#panel-ranking .ranking-gold .rg-portrait,#panel-ranking .ranking-gold .rg-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#panel-ranking .ranking-gold .rg-frame{pointer-events:none}
+#panel-ranking .ranking-gold .rg-place-3 .rg-avatar{border-color:#ffa462;box-shadow:0 0 16px #ff9958}
+#panel-ranking .ranking-gold .rg-podium-base{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;min-height:98px;padding:8px 2px 9px;width:100%;border:1px solid #a76a4f;border-radius:13px 13px 2px 2px;background:linear-gradient(180deg,#1a1b31ee,#20121ef2);box-shadow:0 0 23px #b66d3e62;white-space:normal;overflow-wrap:anywhere}
+#panel-ranking .ranking-gold .rg-place-1 .rg-podium-base{min-height:125px;border-color:#ffcf68;background:linear-gradient(180deg,#62451cdd,#1b1a1cee);box-shadow:0 0 30px #ffbb5766}
+#panel-ranking .ranking-gold .rg-place-2 .rg-podium-base{border-color:#80bdff;background:linear-gradient(180deg,#213957e8,#0c1a2cf0)}
+#panel-ranking .ranking-gold .rg-podium-number{font-size:2.2rem!important;color:#ffc35e;text-shadow:0 0 10px #f7b44d}
+#panel-ranking .ranking-gold .rg-place-1 .rg-podium-number{font-size:3rem!important;color:#ffdf82}
+#panel-ranking .ranking-gold .rg-place-2 .rg-podium-number{color:#a9dcff}
+#panel-ranking .ranking-gold .rg-podium-base>b{font-size:.85rem;line-height:1.25;max-width:100%}
+#panel-ranking .ranking-gold .rg-podium-base>small{color:#ffdb9a;font-size:.76rem;white-space:nowrap}
+#panel-ranking .ranking-gold .rg-podium-warning{font-size:.7rem;margin-top:6px;color:#ffe8bd;text-align:center}
+#panel-ranking .ranking-gold .rg-my-card{grid-column:span 5!important;min-height:328px!important;border-color:#2c86cb!important}
+#panel-ranking .ranking-gold .rg-rewards-card{grid-column:span 5!important;border-color:#d59b4a!important}
+#panel-ranking .ranking-gold .rg-leaderboard-card{grid-column:span 7!important}
+#panel-ranking .ranking-gold .rg-clubs-card,#panel-ranking .ranking-gold .rg-friends-card,#panel-ranking .ranking-gold .rg-countdown-card,#panel-ranking .ranking-gold .rg-weekly-card{grid-column:span 6!important}
+#panel-ranking .ranking-gold .rg-season-card{grid-column:span 12!important;min-height:220px}
+#panel-ranking .ranking-gold .rg-self-grid{display:grid;grid-template-columns:minmax(0,1fr) 125px;gap:8px;align-items:stretch;margin-bottom:13px}
+#panel-ranking .ranking-gold .rg-self-user,#panel-ranking .ranking-gold .rg-self-position{display:flex;align-items:center;min-width:0;padding:11px;border:1px solid #1f5c86;border-radius:12px;background:#061c35c9}
+#panel-ranking .ranking-gold .rg-self-position{flex-direction:column;align-items:flex-start;justify-content:center;background:#071a31;border-color:#b789428a}
+#panel-ranking .ranking-gold .rg-self-position strong{font-size:2.3rem;color:#ffd06b;line-height:1.2}
+#panel-ranking .ranking-gold .rg-self-position :is(small,span){color:#c1d2e7;font-size:.72rem}
+#panel-ranking .ranking-gold .rg-person{display:flex;align-items:center;gap:9px;min-width:0;max-width:100%;padding:0;border:0;text-align:right;background:none;color:white;cursor:pointer}
+#panel-ranking .ranking-gold .rg-person-copy{display:flex;flex-direction:column;min-width:0;text-align:right;line-height:1.4}
+#panel-ranking .ranking-gold .rg-person-copy b{color:#fff;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-ranking .ranking-gold .rg-person-copy small{color:#9dabc0;font-size:.66rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-ranking .ranking-gold .rg-row-avatar{flex:0 0 36px;width:36px;height:36px;border-width:2px}
+#panel-ranking .ranking-gold .rg-self-user .rg-row-avatar{flex-basis:59px;width:59px;height:59px;border-color:#e3bb62}
+#panel-ranking .ranking-gold .rg-progress-meta{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:.79rem;margin:8px 0}
+#panel-ranking .ranking-gold .rg-progress-meta strong{color:#fff3ca;font-size:1.04rem}
+#panel-ranking .ranking-gold .rg-progress-meta span{color:#c0cee0;font-size:.73rem}
+#panel-ranking .ranking-gold .rg-progress{width:100%;height:11px;overflow:hidden;border-radius:100px;background:#112d53;border:1px solid #2b4d71}
+#panel-ranking .ranking-gold .rg-progress i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,#f7a837,#ffe07b);box-shadow:0 0 15px #ffc760}
+#panel-ranking .ranking-gold .rg-progress-note{color:#c6d5e8;font-size:.71rem;margin:7px 0 10px;line-height:1.6}
+#panel-ranking .ranking-gold .rg-motivation{display:flex;align-items:center;gap:12px;padding:10px;margin-top:9px;border:1px solid #93682f88;border-radius:11px;background:#14304a8a}
+#panel-ranking .ranking-gold .rg-motivation>span{color:#ffca61;font-size:2.1rem}
+#panel-ranking .ranking-gold .rg-motivation p{margin:0;display:flex;flex-direction:column;gap:2px}
+#panel-ranking .ranking-gold .rg-motivation strong{color:#ffdb77}
+#panel-ranking .ranking-gold .rg-motivation small{color:#cad7e5;font-size:.7rem;line-height:1.6}
+#panel-ranking .ranking-gold .rg-reward-art{display:flex;justify-content:space-around;align-items:center;height:77px;border-radius:11px;border:1px solid #bd8b4155;background:radial-gradient(ellipse at 50% 0,#c57b2a66,transparent 68%),linear-gradient(130deg,#1b1d36,#101f32);color:#ffd069;font-size:2.5rem;text-shadow:0 0 15px #fdb43d}
+#panel-ranking .ranking-gold .rg-reward-art span:nth-child(2){font-size:1.6rem}
+#panel-ranking .ranking-gold .rg-reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0}
+#panel-ranking .ranking-gold .rg-reward-tier{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;min-width:0;min-height:83px;padding:9px 2px;border:1px solid #ae7e4f88;border-radius:10px;background:#1a2433dd;font-size:.75rem}
+#panel-ranking .ranking-gold .rg-reward-tier>span{font-size:1.45rem;color:#ffcc6d}
+#panel-ranking .ranking-gold .rg-reward-tier b{font-size:.75rem}
+#panel-ranking .ranking-gold .rg-reward-tier small{color:#b8c5d5;font-size:.63rem}
+#panel-ranking .ranking-gold .rg-disclaimer{color:#b0c2d5;font-size:.67rem;line-height:1.7;margin:6px 0 0}
+#panel-ranking .ranking-gold .rg-table{display:flex;flex-direction:column;gap:4px;width:100%;min-width:0}
+#panel-ranking .ranking-gold .rg-table-head,#panel-ranking .ranking-gold .rg-table-row{display:grid;grid-template-columns:42px minmax(105px,1.4fr) minmax(65px,1fr) minmax(75px,.85fr) 48px;align-items:center;gap:5px;padding:5px 8px;border:1px solid #204a71;border-radius:8px;min-width:0;background:#071e37d9}
+#panel-ranking .ranking-gold .rg-table-head{color:#ceddf4;font-size:.68rem;text-align:center;background:#123058}
+#panel-ranking .ranking-gold .rg-table-row{min-height:43px;color:#edf3ff}
+#panel-ranking .ranking-gold .rg-table-row:nth-child(2){background:#68501f51}
+#panel-ranking .ranking-gold .rg-table-row.rg-is-me{border-color:#f9c569aa;background:#3d311e85}
+#panel-ranking .ranking-gold .rg-rank-number{text-align:center;font-weight:900;color:#ffdc83}
+#panel-ranking .ranking-gold .rg-title{font-size:.7rem;color:#afc1d9;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;text-align:center}
+#panel-ranking .ranking-gold .rg-xp{color:#ffd46a;font-size:.75rem;white-space:nowrap;text-align:center}
+#panel-ranking .ranking-gold .rg-change{color:#a7b8c7;text-align:center}
+#panel-ranking .ranking-gold .rg-friends-list{display:flex;flex-direction:column;gap:5px}
+#panel-ranking .ranking-gold .rg-friend-item{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:7px;padding:5px 9px;border-radius:9px;border:1px solid #285178;background:#071e35}
+#panel-ranking .ranking-gold .rg-friend-item>strong{color:#ffca6d;font-size:.78rem;white-space:nowrap}
+#panel-ranking .ranking-gold .rg-small-medal{font-size:1.1rem;color:#ffcb5b;text-align:center}
+#panel-ranking .ranking-gold .rg-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:110px;padding:14px;border:1px dashed #aa945977;border-radius:12px;background:#101f34a3;text-align:center}
+#panel-ranking .ranking-gold .rg-empty>span{font-size:2.3rem;color:#ffd37e}
+#panel-ranking .ranking-gold .rg-empty p{margin:0;max-width:430px;font-size:.75rem;line-height:1.8;color:#d1d9e7}
+#panel-ranking .ranking-gold .rg-secondary-action{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:34px;margin-top:10px;padding:6px 13px;border-radius:9px;border:1px solid #ffcc76;background:#5d3b1d99;color:#ffe0a0;font-weight:850;font-size:.75rem;cursor:pointer}
+#panel-ranking .ranking-gold .rg-countdown-body{display:flex;align-items:center;gap:15px;min-height:105px;padding:12px;border:1px solid #355875;border-radius:12px;background:radial-gradient(circle at 60% 0,#4145a16d,transparent 74%),#081b36}
+#panel-ranking .ranking-gold .rg-countdown-body>span{font-size:3.2rem;color:#f9cd6e;filter:drop-shadow(0 0 6px #e7ac41)}
+#panel-ranking .ranking-gold .rg-countdown-body strong{font-size:1.1rem}
+#panel-ranking .ranking-gold .rg-countdown-body p{margin:7px 0 0;font-size:.73rem;line-height:1.8;color:#bccbe0}
+#panel-ranking .ranking-gold .rg-weekly-number{font-size:1.6rem;font-weight:900;color:#ffce62}
+#panel-ranking .ranking-gold .rg-weekly-number small{font-size:.74rem;color:#d1dcea;font-weight:500}
+#panel-ranking .ranking-gold .rg-progress-unknown i{width:0}
+#panel-ranking .ranking-gold .rg-data-footnote{font-size:.7rem;color:#a8bdcc;margin:13px 0 35px;text-align:center;line-height:1.7}
+@media(max-width:1100px){
+ #panel-ranking .ranking-gold .rg-grid{gap:10px!important}
+ #panel-ranking .ranking-gold .rg-podium-card,#panel-ranking .ranking-gold .rg-leaderboard-card{grid-column:span 12!important}
+ #panel-ranking .ranking-gold .rg-my-card,#panel-ranking .ranking-gold .rg-rewards-card{grid-column:span 6!important}
+ #panel-ranking .ranking-gold .rg-tabs{gap:5px!important}
+ #panel-ranking .ranking-gold .rg-tabs button{gap:5px!important}
+}
+@media(max-width:700px){
+ html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar.ref-topbar{height:78px!important;min-height:78px!important;max-height:78px!important;align-content:space-evenly!important;gap:2px 5px!important}
+ html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar #ref-header-search{order:5!important;flex:0 0 100%!important}
+ html body:has(#panel-ranking:not(.hidden)) .workspace>.topbar #ref-header-search input{height:33px!important;min-height:33px!important}
+ html body #main #panel-ranking>.ranking-gold-hero.elara-global-hero{height:191px!important;min-height:191px!important;max-height:191px!important;width:calc(100% + 20px)!important;margin:0 -10px 9px!important;padding:13px 13px 12px!important;background-image:linear-gradient(270deg,rgba(3,12,30,.89),rgba(3,12,30,.48) 53%,rgba(3,12,30,.06)),var(--elara-page-art)!important;background-position:55% 50%!important}
+ #panel-ranking .ranking-gold-hero .rg-hero-copy{max-width:82%!important}
+ #panel-ranking .ranking-gold-hero h1{font-size:clamp(1.15rem,4.5vw,1.56rem)!important}
+ #panel-ranking .ranking-gold-hero p{font-size:.78rem!important;line-height:1.45!important}
+ #panel-ranking .ranking-gold-hero .rg-hero-kicker{font-size:.6rem!important}
+ #panel-ranking .ranking-gold-hero .rg-hero-cta{min-height:35px;padding:6px 12px;font-size:.73rem}
+ #panel-ranking .ranking-gold .rg-tabs{display:flex!important;flex-wrap:nowrap!important;gap:7px!important;width:100%!important;min-width:0!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;padding:2px 1px 9px!important;scrollbar-width:thin;scroll-snap-type:x proximity}
+ #panel-ranking .ranking-gold .rg-tabs button{flex:0 0 auto!important;min-width:104px!important;min-height:43px!important;font-size:.76rem!important;padding:7px 11px!important;scroll-snap-align:start}
+ #panel-ranking .ranking-gold .rg-grid{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ #panel-ranking .ranking-gold .rg-grid>.rg-card{grid-column:1/-1!important;padding:11px!important;border-radius:13px!important;min-height:0!important}
+ #panel-ranking .ranking-gold .rg-podium-card{background-position:center!important}
+ #panel-ranking .ranking-gold .rg-podium{grid-template-columns:minmax(0,.9fr) minmax(0,1.15fr) minmax(0,.9fr)!important;gap:3px!important}
+ #panel-ranking .ranking-gold .rg-podium-base{min-height:90px;padding:7px 2px}
+ #panel-ranking .ranking-gold .rg-place-1 .rg-podium-base{min-height:107px}
+ #panel-ranking .ranking-gold .rg-place-1 .rg-podium-avatar,#panel-ranking .ranking-gold .rg-place-1 .rg-podium-portrait .rg-avatar{width:85px;height:85px}
+ #panel-ranking .ranking-gold .rg-podium-portrait>button .rg-avatar{width:60px;height:60px}
+ #panel-ranking .ranking-gold .rg-podium-number{font-size:1.7rem!important}
+ #panel-ranking .ranking-gold .rg-place-1 .rg-podium-number{font-size:2.4rem!important}
+ #panel-ranking .ranking-gold .rg-podium-base>b{font-size:.76rem}
+ #panel-ranking .ranking-gold .rg-podium-base>small{font-size:.65rem}
+ #panel-ranking .ranking-gold .rg-self-grid{grid-template-columns:minmax(0,1fr) 100px}
+ #panel-ranking .ranking-gold .rg-self-position strong{font-size:2rem}
+ #panel-ranking .ranking-gold .rg-card-head h2{font-size:1rem!important}
+ #panel-ranking .ranking-gold .rg-data-footnote{margin-bottom:90px}
+}
+@media(max-width:420px){
+ #panel-ranking .ranking-gold .rg-table-head{display:none!important}
+ #panel-ranking .ranking-gold .rg-table-row{grid-template-columns:29px minmax(0,1fr) 81px;gap:4px;min-height:48px}
+ #panel-ranking .ranking-gold .rg-table-row>.rg-title,#panel-ranking .ranking-gold .rg-table-row>.rg-change{display:none!important}
+ #panel-ranking .ranking-gold .rg-table-row>.rg-xp{font-size:.68rem}
+ #panel-ranking .ranking-gold .rg-podium-kicker{font-size:.57rem}
+ #panel-ranking .ranking-gold .rg-reward-grid{gap:4px}
+ #panel-ranking .ranking-gold .rg-reward-tier>b{font-size:.65rem}
+ #panel-ranking .ranking-gold .rg-podium-base>b{font-size:.69rem}
+}
+@media(min-width:701px) and (max-width:1100px){
+ #panel-ranking .ranking-gold .rg-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:no-preference){
+ #panel-ranking .ranking-gold .rg-tabs button,#panel-ranking .ranking-gold .rg-secondary-action{transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+ #panel-ranking .ranking-gold button:hover{filter:brightness(1.14)}
+}
