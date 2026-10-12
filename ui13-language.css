@@ -651,3 +651,11 @@ html.l3-story-open,body.l3-story-open{overflow:hidden!important;overscroll-behav
  .l3-story-history strong{font-size:clamp(44px,11vw,75px)}
 }
 @media(prefers-reduced-motion:reduce){.l3-story-scene *{animation:none!important;transition:none!important}}
+
+/* Keep the story truly separate from the original application's scroll tree. */
+html.l3-story-open body>.shell,
+html.l3-story-open body>.bottom-nav,
+html.l3-story-open body>.elara-desktop-dock,
+html.l3-story-open body>[data-elara-main-nav]{display:none!important}
+html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:hidden!important}
+.l3-story-scene{height:100dvh!important}
