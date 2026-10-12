@@ -1,0 +1,25 @@
+/* Desktop-only navigation cleanup: Home is the sole owner of global header controls.
+   Keep mobile (<=700px), the Home header, and nested subpage Back actions intact. */
+@media (min-width: 701px) {
+  /* Routes are switched by toggling .hidden on #panel-home, without a reload. */
+  html body:has(#main > .panel:not(.hidden)):not(:has(#panel-home:not(.hidden)))
+    .workspace > .topbar.ref-topbar
+    :is(.ref-header-account-cluster, #ref-header-account, #ref-equipped-character-toggle,
+        #ref-header-notifications, #theme-toggle, #ref-header-search) {
+    display: none !important;
+  }
+
+  /* The wardrobe popover is fixed-position and can live outside the account cluster. */
+  html body:has(#main > .panel:not(.hidden)):not(:has(#panel-home:not(.hidden)))
+    #ref-equipped-character-panel {
+    display: none !important;
+  }
+
+  /* Hide only root destination -> Home controls; keep Back inside editors/subpages. */
+  html body #main > .panel:not(.hidden) .elara-home-return,
+  html body #main > .panel:not(.hidden) > .feature-parent-back[data-feature-route="home"],
+  html body #main > .panel:not(.hidden) > .feature-hub-parent-back[data-feature-route="home"],
+  html body #main > #panel-missions:not(.hidden) .mission-back-home {
+    display: none !important;
+  }
+}
