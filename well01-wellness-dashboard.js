@@ -65,7 +65,7 @@ function activity(s){
 }
 function metric(kind,label,icon,value,sub,actions,ratio){
  const progress=Number.isFinite(ratio)?Math.max(0,Math.min(100,ratio)):0;
- return '<article class="well01-metric well01-metric-'+kind+'"><div class="well01-metric-top"><span class="well01-metric-icon">'+icon+'</span><div><h3>'+label+'</h3><strong>'+value+'</strong><small>'+sub+'</small></div></div><div class="well01-metric-actions">'+actions+'</div><div class="well01-progress"><i style="width:'+progress+'%"></i></div></article>';
+ return '<article class="well01-metric well01-metric-'+kind+'" style="--'+kind+'-progress:'+progress+'%"><div class="well01-metric-top"><span class="well01-metric-icon">'+icon+'</span><div><h3>'+label+'</h3><strong>'+value+'</strong><small>'+sub+'</small></div></div><div class="well01-metric-actions">'+actions+'</div><div class="well01-progress"><i style="width:'+progress+'%"></i></div></article>';
 }
 function metrics(s){
  const d=today(),glass=safeNum(s.glass,50,1000)||250,amount=safeNum(s.water[d]),glasses=Math.round(amount/glass),goal=safeNum(s.goal,250,10000)||2000;
