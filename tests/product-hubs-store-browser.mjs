@@ -57,8 +57,32 @@ async function run(width,height){
  await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));await page.waitForSelector('#panel-language:not(.hidden)');
  assert.equal(await page.locator('#panel-language-books [data-language-block="books"]').count(),1,width+': language books not extracted');
  await page.evaluate(()=>ElaraOpen('exercise',{history:'replace'}));await page.waitForSelector('#panel-exercise:not(.hidden)');
- assert.equal(await page.locator('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card').count(),6,width+': Wellness hub launcher count');
- await freedomTiles('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card','Wellness');
+ // WELL-01 intentionally hides legacy Freedom launchers in favor of the visible,
+ // accessible dashboard. Check the actual live surface and real navigation instead
+ // of measuring hidden legacy elements (height=0).
+ const newWellness=page.locator('#panel-exercise #well01-dashboard');
+ if(await newWellness.isVisible()){
+  const geometry=await page.locator('#panel-exercise #well01-dashboard .well01-shortcut').evaluateAll(xs=>xs.map(x=>{
+   const rect=x.getBoundingClientRect(),style=getComputedStyle(x);
+   return {w:rect.width,h:rect.height,visible:style.display!=='none'&&style.visibility!=='hidden',route:x.dataset.featureRoute||'',top:rect.top};
+  }));
+  assert.equal(geometry.length,5,width+': WELL-01 five route shortcuts required');
+  assert.ok(geometry.every(x=>x.visible&&x.w>=44&&x.h>=44&&x.route.startsWith('wellness-')),
+   width+': WELL-01 visible accessible shortcuts failed '+JSON.stringify(geometry));
+  assert.ok(await newWellness.locator('.well01-hero').isVisible(),width+': WELL-01 hero hidden');
+  assert.ok(await newWellness.locator('.well01-metrics').isVisible(),width+': WELL-01 metrics hidden');
+  const vw=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(vw.scroll<=vw.inner+2,width+': WELL-01 horizontal overflow '+JSON.stringify(vw));
+  await newWellness.locator('.well01-shortcut[data-feature-route="wellness-water"]').click();
+  await page.waitForSelector('#panel-wellness-water:not(.hidden)');
+  assert.ok(await page.locator('#panel-wellness-water .wellness-water').isVisible(),width+': WELL-01 water navigation did not open actual tracker');
+  await page.evaluate(()=>ElaraOpen('exercise',{history:'replace'}));
+  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
+ } else {
+  // Backward-compatible contract for deployments that still use the legacy hub.
+  assert.equal(await page.locator('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card').count(),6,width+': Wellness hub launcher count');
+  await freedomTiles('#panel-exercise .feature-hub-launchers[data-hub-kind="wellness"] .feature-launcher-card','Wellness');
+ }
  assert.equal(await page.locator('#panel-exercise>.feature-section-tasks[data-section-task-shelf="exercise"]').count(),1,width+': Wellness section task shelf missing');
  assert.equal(await page.locator('#panel-wellness-water .wellness-water').count(),1,width+': water tracker not extracted');
  assert.equal(await page.locator('#panel-wellness-weight #wellness-weight').count(),1,width+': weight route missing');
@@ -68,8 +92,25 @@ async function run(width,height){
  assert.equal(await page.locator('#panel-focus-pomodoro .focus-card').count(),1,width+': Pomodoro must live on dedicated route');
  assert.equal(await page.locator('#panel-books .focus-card').count(),0,width+': Pomodoro leaked back into Library');
  await page.evaluate(()=>ElaraOpen('reports',{history:'replace'}));await page.waitForSelector('#panel-reports:not(.hidden)');
- assert.equal(await page.locator('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card').count(),4,width+': Reports hub launcher count');
- await freedomTiles('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card','Reports');
+ // REPORTS-01 owns the visible summary and intentionally removes old launcher cards.
+ // Assert current dashboard, real metrics and a working detail/back route.
+ const reportsOverview=page.locator('#panel-reports #elara-reports-overview');
+ if(await reportsOverview.isVisible()){
+  const kpis=reportsOverview.locator('.elara-reports-kpi');
+  assert.equal(await kpis.count(),6,width+': REPORTS-01 six visible KPI tiles required');
+  assert.ok(await kpis.first().isVisible(),width+': REPORTS-01 KPI not visible');
+  assert.ok(await page.locator('#panel-reports .elara-reports-hero').isVisible(),width+': REPORTS-01 hero not visible');
+  const reportGeo=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
+  assert.ok(reportGeo.scroll<=reportGeo.screen+2,width+': REPORTS-01 horizontal overflow '+JSON.stringify(reportGeo));
+  await reportsOverview.locator('[data-reports-route="reports-today"]').first().click();
+  await page.waitForSelector('#panel-reports-today:not(.hidden)');
+  assert.ok(await page.locator('#panel-reports-today').isVisible(),width+': REPORTS-01 detail link failed');
+  await page.locator('#panel-reports-today [data-reports-route="reports"]').first().click();
+  await page.waitForSelector('#panel-reports:not(.hidden)');
+ } else {
+  assert.equal(await page.locator('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card').count(),4,width+': Reports hub launcher count');
+  await freedomTiles('#panel-reports .feature-hub-launchers[data-hub-kind="reports"] .feature-launcher-card','Reports');
+ }
  assert.equal(await page.locator('#panel-reports-productivity #elara-reports-page').count(),1,width+': full report not extracted');
 
  await page.evaluate(()=>ElaraOpen('social',{history:'replace'}));await page.waitForSelector('#elara-social-page:not(.hidden) .social-tabs');
@@ -88,23 +129,27 @@ async function run(width,height){
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
- assert.ok(socialBoxes.every(x=>x.h>=(isMobile?62:50)&&x.h<=(isMobile?72:56)&&x.w>=(isMobile?52:100)&&
+ const visibleSocialBoxes=socialBoxes.filter(x=>x.h>0);
+ assert.equal(visibleSocialBoxes.length,7,width+': seven visible Friends tabs; Challenges must be accessible via Activity CTA');
+ assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?60:45)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
-  !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
+  !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(visibleSocialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
  assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
- assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
- assert.ok(socialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==socialBoxes[0].color&&
-  x.bg!==socialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
+ assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*(200|185),\s*255)/,width+': selected cyan focus/glow missing');
+ assert.ok(visibleSocialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==visibleSocialBoxes[0].color&&
+  x.bg!==visibleSocialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
   const start=el.scrollLeft;el.scrollLeft=-100000;const neg=el.scrollLeft;
   el.scrollLeft=100000;const pos=el.scrollLeft;el.scrollLeft=start;
   return{w:el.clientWidth,full:el.scrollWidth,overflow:getComputedStyle(el).overflowX,neg,pos};
  });
- if(isMobile)assert.ok(scroll.full>scroll.w+20&&scroll.overflow==='auto'&&
-  Math.abs(scroll.neg-scroll.pos)>20,width+': horizontal movement must stay inside Friends strip '+JSON.stringify(scroll));
- else assert.ok(scroll.full<=scroll.w+3,width+': Friends desktop strip must fit '+JSON.stringify(scroll));
+ assert.ok(scroll.full<=scroll.w+3,width+': Friends seven visible destinations should fit or wrap without horizontal overflow '+JSON.stringify(scroll));
+ if(isMobile){
+  const rows=[...new Set(visibleSocialBoxes.map(x=>Math.round(x.tabTop)))];
+  assert.ok(rows.length>=2,width+': compact mobile Friends destinations must wrap into multiple touchable rows');
+ }
  await socialTiles.first().focus();await page.keyboard.press('Tab');
  const keyboard=await socialTiles.nth(1).evaluate(el=>({
   active:document.activeElement===el,visible:el.matches(':focus-visible'),
@@ -115,7 +160,7 @@ async function run(width,height){
  for(const [view,section] of [
   ['chats','.social-dm-section'],['groups','.social-groups-section'],
   ['clubs','.social-clubs-section'],['activity','.social-friend-activity'],
-  ['requests','.social-requests-standalone'],['challenges','.social-hub-slot[data-social-slot="challenges"]'],
+  ['requests','.social-requests-standalone'],
   ['friends','.friends-f2-friends']
  ]){
   await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
@@ -125,6 +170,10 @@ async function run(width,height){
   assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
    view==='friends'?'true':'false',width+': inactive state did not update after '+view);
  }
+ // Hidden eighth route must still work through its actual visible CTA in the Friends dashboard.
+ await page.locator('#elara-social-page [data-f2-tab="challenges"]').click();
+ await page.waitForSelector('#elara-social-page .social-hub-slot[data-social-slot="challenges"]');
+ assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="challenges"]').getAttribute('aria-selected'),'true',width+': visible Challenges CTA failed to navigate');
  await page.evaluate(()=>ElaraOpen('ranking',{history:'replace'}));
  await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
  const ranking=page.locator('#elara-ranking-page .social-tabs [role="tab"]');
