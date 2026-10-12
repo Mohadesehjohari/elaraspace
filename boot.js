@@ -2,6 +2,7 @@
 (() => {
   window.__elaraBootInProgress=true;
   const BUILD='20261012-home-first-recovery-v2';
+  // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css','home-owner-art-2026.css','global-page-banner-20261009.css','ui12-language-dashboard.css','ui13-language.css','well01-wellness-dashboard.css','freedom-dashboard-r2026.css','store-reference-2026.css','desktop-home-only-controls-20261012.css','tasks-mobile-fidelity-20261012.css','freedom-r27-polish.css','ranking-gold-20261012.css','home-reference-polish-20261012.css'];
@@ -33,17 +34,12 @@
   const primaryCss=styles.filter(name=>(!taskStyles.has(name)&&!secondaryStyles.has(name))||priorityStyles.has(name));
   primaryCss.forEach(mountStyle);
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
-  /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
-  const pageArtwork={home:'homebanner1.webp',tasks:'task-header-banner-bg.webp',language:'language_banner_main.webp',books:'librairy_banner_main.webp',exercise:'workout_banner_main.webp',ranking:'ranking_banner.webp',social:'36-friends-hero-banner.webp',freedom:'41-freedom-hero-banner.webp',reports:'39-reports-hero-banner.webp',page:'38-my-page-hero-banner.webp',blog:'weblog_banner_main.webp',store:'shop_senter.webp',goals:'goals-target-background.webp',habits:'daily-streak-background.webp',focus:'banner_moon_lake.webp'};
-  const essentialImages=[...new Set([
-    pageArtwork[initialRoute]?'assets/ui/'+pageArtwork[initialRoute]:null,
-    ...(initialRoute==='home'?['assets/ui/nav-home-active.webp','assets/ui/brand-elara-app-mark.webp','assets/ui/Glowing Neon Checkmark Orb.webp','assets/ui/streak-flame.webp','assets/ui/icon-mode-night-active.webp','assets/ui/icon-notifications-read.webp']:[])
-  ].filter(Boolean))];
-  const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=src;if(typeof img.decode==='function')img.decode().then(done,done)});
-  for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
-  const essentialArtworkReady=Promise.all(essentialImages.map(decodeImage));
+  // The Home banner is preloaded in HTML. Never decode all app icons during startup:
+  // decoding triggers extra requests and is unnecessary for the first usable frame.
   const release=()=>{
     if(!document.documentElement.hasAttribute('data-elara-booting'))return;
+    performance.mark('elara-home-visible');
+    window.__elaraHomeVisibleMs=Math.round(performance.now());
     document.documentElement.removeAttribute('data-elara-booting');
     document.documentElement.removeAttribute('data-elara-boot-failed');
     window.__elaraBootInProgress=false;
@@ -96,17 +92,23 @@
   const hardWatchdog=setTimeout(()=>{
     console.warn('Elara Home startup fallback: showing the available application.');
     revealHome();
-  },8000);
+  },3000);
   void(async()=>{
     const primaryReady=loadScriptsInOrder(criticalScripts);
     try{
-      // Home is the only route owner in the first reveal gate.
-      await Promise.race([primaryReady,delay(6500)]);
+      // Yield the first usable Home frame as soon as the core owners are available.
+      // A slow optional stylesheet can no longer add an extra 1.4s to Home.
+      await Promise.race([primaryReady,delay(1100)]);
+      if(!window.ElaraReferenceHome||!window.ElaraNavigation){
+        await Promise.race([primaryReady,delay(550)]);
+      }
       window.ElaraNavigation?.render?.();
       window.ElaraReferenceHome?.render?.();
+      const homePaintStyles=['reference-home-shell-2026.css','reference-exact-pass-2026.css',
+        'elara-midnight-layout-2026.css','home-owner-art-2026.css','home-reference-polish-20261012.css'];
       await Promise.race([
-        Promise.all([...priorityStyles].map(name=>mountStyle(name))),
-        delay(1400)
+        Promise.all(homePaintStyles.map(name=>mountStyle(name))),
+        delay(180)
       ]);
     }catch(error){
       console.warn('Elara Home startup continued with partial assets:',error);
