@@ -48,11 +48,11 @@ const page=await open(390,844);
 const clubGate=await page.evaluate(()=>({socialXp:window.ElaraSocial?.me?.xp,accountXp:window.ElaraAccount?.profile?.xp,localXp:JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp,registry:!!window.ElaraLevels,registryLevel:window.ElaraLevels?.level?.(820),uiXp:window.ElaraSocialClubsUI?.xpValue?.(),uiLevel:window.ElaraSocialClubsUI?.level?.(),allowed:window.ElaraSocialClubsUI?.canCreateClub?.(),disabled:document.querySelector('[data-club-create]')?.disabled}));
 console.log('CLUB_GATE '+JSON.stringify(clubGate));
 assert.equal(clubGate.allowed,true,'Level 12 challenge gate diagnostics: '+JSON.stringify(clubGate));
-assert.equal(await page.locator('[data-club-create]').isEnabled(),true,'Level 12 user should be able to create a club: '+JSON.stringify(clubGate));
+assert.equal(await page.locator('.club-f3-summary [data-club-create]').isEnabled(),true,'Level 12 user should be able to create a club: '+JSON.stringify(clubGate));
 assert.match(await page.locator('.social-clubs-section').innerText(),/کتاب‌بازهای شب/);
-assert.match(await page.locator('.social-club-invites').innerText(),/باشگاه تمرکز/);
+assert.match(await page.locator('.club-f3-invitations').innerText(),/باشگاه تمرکز/);
 
-await page.locator('[data-club-open="c1"]').click();
+await page.locator('.club-f3-mine [data-club-open="c1"]').click();
 await page.waitForSelector('.social-club-dashboard');
 assert.match(await page.locator('.social-club-dashboard').innerText(),/تنظیمات صاحب باشگاه/);
 await page.locator('[data-club-assistant="B"]').click();
@@ -82,7 +82,7 @@ await page.getByRole('button',{name:'بستن'}).last().click();
 await page.locator('[data-club-invite-action="accepted"]').click();
 await page.waitForFunction(()=>window.__clubState.invites.length===0&&window.__clubState.clubs.some(x=>x.id==='c9'&&x.role==='member'));
 
-await page.locator('[data-club-create]').click();
+await page.locator('.club-f3-summary [data-club-create]').click();
 await page.locator('.social-club-create input[name=title]').fill('تمرکز عمیق');
 await page.locator('.social-club-create select[name=kind]').selectOption('focus');
 await page.getByRole('button',{name:'ساختن'}).click();
