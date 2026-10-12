@@ -179,16 +179,16 @@ function showWardrobe(){
  selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
  showAll={avatar:false,frame:false,banner:false};
  drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;
- if(wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
+ if(wasClosed&&!history.state?.elaraWardrobe&&location.hash!=='#wardrobe')history.pushState({...history.state,elaraWardrobe:true},'',location.href);
  windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})
 }
 function closeWardrobe(fromHistory=false){
  if(!windowRoot||windowRoot.hidden)return;
- if(!fromHistory&&history.state?.elaraWardrobe){history.back();return}
+ if(!fromHistory&&(history.state?.elaraWardrobe||location.hash==='#wardrobe')){history.back();return}
  windowRoot.hidden=true;selectedPreview=null;wardrobeOwnerUid=null;
  if(wardrobeOverflow){document.body.style.overflow=wardrobeOverflow.body;document.documentElement.style.overflow=wardrobeOverflow.html;wardrobeOverflow=null}
 }
-window.addEventListener('popstate',()=>{if(windowRoot&&!windowRoot.hidden&&!history.state?.elaraWardrobe)closeWardrobe(true)});
+window.addEventListener('popstate',()=>{if(windowRoot&&!windowRoot.hidden&&!history.state?.elaraWardrobe&&location.hash!=='#wardrobe')closeWardrobe(true)});
 window.addEventListener('elara:account-ready',()=>{if(windowRoot&&!windowRoot.hidden&&uid()!==wardrobeOwnerUid){
  if(history.state?.elaraWardrobe)history.replaceState({...history.state,elaraWardrobe:false},'',location.href);
  closeWardrobe(true)

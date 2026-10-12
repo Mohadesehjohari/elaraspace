@@ -1,0 +1,47 @@
+name: PROFILE P4 Real UI Route Visual Gate
+on:
+  pull_request:
+    paths:
+      - index.html
+      - drawer.js
+      - approved-visual.js
+      - profile-p4-route.js
+      - profile-p4-route.css
+      - tests/profile-p4-real-route-browser.mjs
+      - .github/workflows/profile-p4-route-gate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and canonical username guards
+        run: |
+          node --check drawer.js
+          node --check approved-visual.js
+          node --check profile-p4-route.js
+          node --check tests/profile-p4-real-route-browser.mjs
+          node tests/username-runtime-regression.test.mjs
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Ten widths with actual clickable route entry
+        run: |
+          python3 -m http.server 4173 >/tmp/p4.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/profile-p4-real-route-browser.mjs
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-p4-${{ github.sha }}
+          path: artifacts/profile-p4/
+          retention-days: 30
+          if-no-files-found: warn
