@@ -1,10 +1,10 @@
 name: FOCUS-02 Library Inline and Immersive Flow
 on:
   pull_request:
-    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
   push:
     branches: [main]
-    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
 permissions:
   contents: read
 jobs:
