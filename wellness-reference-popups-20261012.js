@@ -37,7 +37,7 @@ function initialState(kind){
  // Empty accounts get useful editable suggestions without storing data until Save.
  if(!folders.length)defaultFolders[kind].forEach(title=>folders.push({id:id(),title,note:defaultNote(kind,title),checks:seedChecks(kind,title).map(text=>({id:id(),text,done:false})),updatedAt:Date.now()}));
  const merged={...meta,...old};
- if(!old.description&&s[oldNoteKey(kind)])merged.description=String(s[oldNoteKey(kind)]).slice(0,500);
+ if(!old.description&&s[oldNoteKey(kind)])merged.description=String(s[oldNoteKey(kind)]).slice(0,5000);
  return {kind,meta:merged,folders,selected:folders[0]?.id||'',tab:kind==='workout'?'note':'check',confirmDelete:false,addFolder:false,errors:''};
 }
 let active=null;
@@ -48,7 +48,7 @@ function fields(kind,m){
  const days=d.map(day=>'<button type="button" class="elwp-chip" aria-pressed="'+(m.days||[]).includes(day)+'" data-elwp-day="'+esc(day)+'">'+esc(day)+'</button>').join('');
  const select=(role,opts,value)=>'<select data-elwp-meta="'+role+'" aria-label="'+esc(role)+'">'+opts.map(x=>'<option value="'+esc(x)+'" '+(String(value)===String(x)?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select>';
  const base='<div class="elwp-text-row"><label><span>نام برنامه</span><input data-elwp-meta="name" maxlength="100" value="'+esc(m.name)+'" required placeholder="نام برنامه را بنویسید"></label>'+
- '<label class="elwp-description-label"><span>توضیحات برنامه</span><textarea data-elwp-meta="description" maxlength="500" rows="3" placeholder="هدف و توضیحات برنامه">'+esc(m.description||'')+'</textarea></label></div>';
+ '<label class="elwp-description-label"><span>توضیحات برنامه</span><textarea data-elwp-meta="description" maxlength="5000" rows="3" placeholder="هدف و توضیحات برنامه">'+esc(m.description||'')+'</textarea></label></div>';
  const timetable='<div class="elwp-days"><div class="elwp-section-title"><span>▦</span><strong>'+(isWorkout?'زمان‌بندی':'زمان‌بندی وعده‌ها')+'</strong></div><div class="elwp-chips" role="group" aria-label="زمان‌بندی برنامه">'+days+'</div></div>';
  const extras=isWorkout?'<div class="elwp-params">'+
  '<label><span>◷ مدت زمان هر جلسه</span>'+select('duration',['15','20','30','45','60','90'],m.duration)+'<small>دقیقه</small></label>'+
@@ -128,7 +128,7 @@ function openBase(title,kind){
 function close(pop=true){const a=active;if(!a||a.cleaned)return;a.cleaned=true;active=null;a.listener?.();a.overlay.remove();document.body.style.overflow=a.priorBody;document.documentElement.style.overflow=a.priorHtml;if(a.origin?.isConnected)a.origin.focus({preventScroll:true});if(pop&&history.state?.elaraWellPopup===a.marker)history.back()}
 function openPlan(kind,options={}){if(kind!=='workout'&&kind!=='nutrition')return;const a=openBase(heading[kind],kind);a.draft=initialState(kind);if(options.folderId&&a.draft.folders.some(f=>f.id===options.folderId))a.draft.selected=options.folderId;if(options.add)a.draft.addFolder=true;a.body.addEventListener('change',e=>{if(e.target.matches('[data-elwp-check]')){const f=selected(),c=f?.checks.find(x=>x.id===e.target.dataset.elwpCheck);if(c)c.done=e.target.checked}});a.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-elwp-new-check],[data-elwp-new-folder]')){e.preventDefault();const add=e.target.matches('[data-elwp-new-check]')?'add-check':'confirm-folder';a.body.querySelector('[data-elwp-action="'+add+'"]')?.click()}});redrawPlan(options.add?'[data-elwp-new-folder]':undefined)}
 function savePlan(){const a=active;if(!a||a.kind==='sleep')return;syncPlanText();const d=a.draft;const error=!d.meta.name.trim()?'نام برنامه را وارد کنید.':!d.meta.days?.length?'حداقل یک روز یا بازه انتخاب کنید.':d.folders.some(f=>!f.title.trim())?'برای تمام پوشه‌ها نام بنویسید.':'';if(error){d.errors=error;redrawPlan('[data-elwp-meta="name"]');return}if(!uid()){d.errors='برای ذخیره برنامه خصوصی وارد حساب کاربری شوید.';redrawPlan();return}
- const next=clone(d.folders.map(normalizeFolder));const patch={[folderKey(d.kind)]:next,[metaKey(d.kind)]:{...d.meta,name:d.meta.name.trim().slice(0,100),description:String(d.meta.description||'').trim().slice(0,500)},[oldNoteKey(d.kind)]:String(d.meta.description||'').trim().slice(0,500)};
+ const next=clone(d.folders.map(normalizeFolder));const patch={[folderKey(d.kind)]:next,[metaKey(d.kind)]:{...d.meta,name:d.meta.name.trim().slice(0,100),description:String(d.meta.description||'').trim().slice(0,5000)},[oldNoteKey(d.kind)]:String(d.meta.description||'').trim().slice(0,5000)};
  if(save(patch)){close();renderSleepOverview()}else{d.errors='ذخیره انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید.';redrawPlan()}}
 const qualities=['ضعیف','متوسط','خوب','عالی'],moods=['خیلی بد','بد','معمولی','خوب','عالی'];
 function sleepMinutes(r){if(!r.date||!r.bed||!r.wake)return 0;const a=Date.parse(r.date+'T'+r.bed+':00'),b=Date.parse(r.date+'T'+r.wake+':00');if(!Number.isFinite(a)||!Number.isFinite(b))return 0;const min=Math.round((b<=a?b+86400000:b)-a)/60000;return min>0&&min<=1440?min:0}
