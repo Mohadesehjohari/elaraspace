@@ -45,6 +45,7 @@ async function measure(page,host,label,width){
   const allCards=[...kpis.querySelectorAll('.elara-reports-kpi')];
   return {
    hero:h,kpis:k,header:t,main:rect(main),panel:rect(p),
+   heroBackground:getComputedStyle(hero).backgroundImage,
    gap:Number((k.top-h.bottom).toFixed(2)),
    headerToHero:t?Number((h.top-t.bottom).toFixed(2)):null,
    css:{main:css(main),panel:css(p),hero:css(hero)},
@@ -78,7 +79,7 @@ async function measure(page,host,label,width){
    mobileNav:[...document.querySelectorAll('.bottom-nav [data-elara-nav-kind="main"]')].length
   };
  });
- if([390,1440].includes(width))await page.screenshot({path:out+'/'+label+'-'+width+'.png',fullPage:true,animations:'disabled'});
+ if([390,430,768,1024,1440].includes(width))await page.screenshot({path:out+'/'+label+'-'+width+'.png',fullPage:true,animations:'disabled'});
  console.log('REPORTS01_COMPACT_GEOMETRY '+label+' '+width+' '+JSON.stringify(m));
  return m;
 }
@@ -90,6 +91,7 @@ try{
   const a=await measure(page,after,'after',width);
   assert.equal(a.legacy.length,0,width+': orphan heading still present');
   assert.deepEqual(a.heroTitles,['گزارش‌های کل'],width+': canonical banner title changed');
+  assert.ok(a.heroBackground.includes('reports_all.webp'),width+': reports_all.webp must be the reports hero');
   assert.equal(a.cards,6,width+': KPI count changed');
   assert.ok(a.sections.trend&&a.sections.today&&a.sections.sections&&a.sections.insights&&a.sections.activities,width+': reports sections missing');
   assert.ok(a.documentWidth<=a.viewport+4,width+': horizontal document overflow');
