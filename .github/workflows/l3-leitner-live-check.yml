@@ -1,0 +1,59 @@
+name: L3 Leitner Live Site Verification
+on:
+  pull_request:
+    paths:
+      - .github/workflows/l3-leitner-live-check.yml
+      - tests/l3-leitner-review-browser.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait until production has exact Leitner runtime bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://mohadesehjohari.github.io/elaraspace"
+          found=false
+          for attempt in $(seq 1 70); do
+            found=true
+            for path in app.js ui13-language-routes.js leitner-story-interactions-20261012.css; do
+              tmp="/tmp/l3-production-$(basename "$path")"
+              if ! curl -fLsS --retry 1 --max-time 20 "$origin/$path?review-live=$GITHUB_RUN_ID&attempt=$attempt" -o "$tmp" || ! cmp -s "$path" "$tmp"; then
+                found=false
+                break
+              fi
+            done
+            if [ "$found" = true ]; then
+              echo "L3_PRODUCTION_EXACT_BYTES_PASS app.js ui13-language-routes.js leitner-story-interactions-20261012.css"
+              break
+            fi
+            if (( attempt % 10 == 0 )); then echo "Waiting for production Leitner files: attempt $attempt"; fi
+            sleep 8
+          done
+          if [ "$found" != true ]; then
+            echo "::error::Production Leitner files differ from checked-out sources"
+            exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Review actual GitHub Pages with mobile and desktop Chromium
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 360s node tests/l3-leitner-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l3-live-story-${{ github.sha }}
+          path: browser-artifacts/language-l3/*.png
+          if-no-files-found: warn
+          retention-days: 14
