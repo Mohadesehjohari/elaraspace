@@ -55,9 +55,9 @@ function planSummary(s,kind){
  const folders=s[prefix+'PlanFolders'].filter(x=>x&&x.id&&x.title);
  const first=folders[0];
  const mainText=note||String(first?.note||'').trim();
- const title=kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan');
+ const title=String(s[prefix+'PlanTitle']||'').trim()||(kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan'));
  const icon=kind==='workout'?'🏋️':'🌿',label=kind==='workout'?tx('ایجاد برنامه تمرینی','Create training plan'):tx('ایجاد برنامه تغذیه','Create nutrition plan');
- return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
+ return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+esc(title)+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
 }
 function activity(s){
  const rows=s.workouts.filter(x=>x.date===today()),total=workoutOf(s,today()),last=rows[rows.length-1],type=last?(last.type==='ورزش دیگر'?last.customType||last.type:last.type):'';
@@ -65,7 +65,7 @@ function activity(s){
 }
 function metric(kind,label,icon,value,sub,actions,ratio){
  const progress=Number.isFinite(ratio)?Math.max(0,Math.min(100,ratio)):0;
- return '<article class="well01-metric well01-metric-'+kind+'"><div class="well01-metric-top"><span class="well01-metric-icon">'+icon+'</span><div><h3>'+label+'</h3><strong>'+value+'</strong><small>'+sub+'</small></div></div><div class="well01-metric-actions">'+actions+'</div><div class="well01-progress"><i style="width:'+progress+'%"></i></div></article>';
+ return '<article class="well01-metric well01-metric-'+kind+'" style="--'+kind+'-progress:'+progress+'%"><div class="well01-metric-top"><span class="well01-metric-icon">'+icon+'</span><div><h3>'+label+'</h3><strong>'+value+'</strong><small>'+sub+'</small></div></div><div class="well01-metric-actions">'+actions+'</div><div class="well01-progress"><i style="width:'+progress+'%"></i></div></article>';
 }
 function metrics(s){
  const d=today(),glass=safeNum(s.glass,50,1000)||250,amount=safeNum(s.water[d]),glasses=Math.round(amount/glass),goal=safeNum(s.goal,250,10000)||2000;
@@ -74,9 +74,9 @@ function metrics(s){
  const workout=workoutOf(s,d);
  const waterActions='<button type="button" data-wellness-water="remove" aria-label="'+tx('کم کردن یک لیوان','Remove one glass')+'">−</button><button type="button" data-wellness-water="add" aria-label="'+tx('افزودن یک لیوان','Add one glass')+'">+</button>';
  return metric('water',tx('مصرف آب','Water'),'💧',fa(glasses)+' '+tx('لیوان','glasses'),tx('هدف: ','Goal: ')+fa(Math.ceil(goal/glass))+' '+tx('لیوان','glasses'),waterActions,amount/goal*100)
- +metric('sleep',tx('خواب','Sleep'),'☾',lastSleep?unitHours(lastSleep)+' '+tx('ساعت','hours'):'—',lastSleep?tx('آخرین خواب ثبت‌شده','Last logged sleep'):tx('هنوز ثبت نشده','No log yet'),'<button type="button" data-wellness-add="sleep">+ '+tx('ثبت خواب','Log sleep')+'</button>',null)
+ +metric('sleep',tx('خواب','Sleep'),'☾',lastSleep?unitHours(lastSleep)+' '+tx('ساعت','hours'):'—',lastSleep?tx('آخرین خواب ثبت‌شده','Last logged sleep'):tx('هنوز ثبت نشده','No log yet'),'<button type="button" data-wellness-add="sleep">+ '+tx('ثبت خواب','Log sleep')+'</button>',lastSleep/480*100)
  +metric('weight',tx('وزن','Weight'),'⚖',weight+(weight==='—'?'':' '+tx('کیلوگرم','kg')),target,'<button type="button" data-feature-route="'+route('weight')+'">'+tx('مدیریت وزن','Manage')+'</button>',null)
- +metric('exercise',tx('ورزش امروز','Exercise'),'🏋',fa(workout)+' '+tx('دقیقه','min'),workout?tx('فعالیت امروز','Today’s activity'):tx('هنوز ثبت نشده','No log yet'),'<button type="button" data-wellness-add="workout">+ '+tx('ثبت ورزش','Log workout')+'</button>',null);
+ +metric('exercise',tx('ورزش امروز','Exercise'),'🏋',fa(workout)+' '+tx('دقیقه','min'),workout?tx('فعالیت امروز','Today’s activity'):tx('هنوز ثبت نشده','No log yet'),'<button type="button" data-wellness-add="workout">+ '+tx('ثبت ورزش','Log workout')+'</button>',workout/30*100);
 }
 function streak(s){
  const days=new Set([...Object.entries(s.water).filter(([d,v])=>Number(v)>0).map(([d])=>d),...s.sleep.filter(x=>sleepMinutes(x)>0).map(x=>x.date),...s.workouts.filter(x=>Number(x.minutes)>0).map(x=>x.date)]);
