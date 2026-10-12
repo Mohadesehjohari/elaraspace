@@ -1,0 +1,32 @@
+name: FOCUS-02 Library Inline and Immersive Flow
+on:
+  pull_request:
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+  push:
+    branches: [main]
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+permissions:
+  contents: read
+jobs:
+  focus-two-mode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check focus-two-mode.js
+          node --check phase2.js
+          node --check tests/focus-two-mode-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test UI state transitions
+        run: |
+          python3 -m http.server 4173 >/tmp/focus-two-mode-http.log 2>&1 &
+          sleep 3
+          timeout 330s node tests/focus-two-mode-browser.mjs
