@@ -63,3 +63,41 @@
  #panel-tasks .org-list>summary{padding:8px!important}
 }
 @media(max-width:360px){html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row{grid-template-columns:25px minmax(75px,1fr) 58px minmax(45px,.55fr) 24px!important;gap:2px!important}html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{font-size:8px!important}}
+
+/* Compact rows must not expand to 290px when a linked task carries a checklist.
+   Checklist remains fully editable inside the canonical task details dialog. */
+html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.task-checklist-preview,
+html body #panel-tasks#panel-tasks #task-list>.astra-task-row .task-checklist-preview {display:none!important;height:0!important;max-height:0!important;min-height:0!important;padding:0!important;margin:0!important}
+html body #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button .item-title{
+ font-size:clamp(13px,.85rem,15px)!important;line-height:1.35!important;
+}
+html body #panel-tasks#panel-tasks #task-list>.astra-task-row{grid-template-rows:minmax(42px,auto)!important;grid-auto-rows:min-content!important}
+@media(max-width:700px){
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button .item-title,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{
+  font-size:13px!important;line-height:1.27!important;white-space:normal!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links{
+  display:flex!important;flex-wrap:wrap!important;align-content:center!important;
+  overflow:hidden!important;max-height:62px!important;row-gap:2px!important;column-gap:2px!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-priority{order:0!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>button{order:1!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-time{display:inline-block!important;order:2!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>.elara-compact-days{display:inline-block!important;order:3!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links>*{max-width:100%!important;min-height:14px!important;padding:1px 3px!important;line-height:1.1!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row{min-height:55px!important;grid-template-rows:minmax(45px,auto)!important;padding:5px 6px!important}
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button{width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important}
+}
+/* Everywhere outside the task manager, allow a small link to its source list. */
+.feature-section-task-row>.elara-task-cross-links,
+.task-board-card>.elara-task-cross-links{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:4px!important}
+.feature-section-task-row>.elara-task-cross-links button,
+.task-board-card>.elara-task-cross-links button{border:1px solid #4089be!important;border-radius:7px!important;background:#082943!important;color:#a7e7ff!important;padding:3px 7px!important;font-size:11px!important}
+.feature-section-task-row>.elara-task-cross-links span,
+.task-board-card>.elara-task-cross-links span{font-size:10px!important;color:#aacde7!important}
+/* Home-only habits/goals checks must preserve their own colors, never the tasks icon. */
+html body #panel-home .ref-habit-mark.done>img,
+html body #panel-home .owner-home-goals .ref-goal-step[aria-pressed="true"]>img{display:none!important}
+html body #panel-home .ref-habit-mark.done::after{content:"✓"!important;display:grid!important;place-items:center!important;color:#3d1979!important;font-size:13px!important;font-weight:900!important}
+html body #panel-home .owner-home-goals .ref-goal-step[aria-pressed="true"]::after{content:"✓"!important;display:grid!important;place-items:center!important;color:#583205!important;font-size:13px!important;font-weight:900!important}
