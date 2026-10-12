@@ -127,7 +127,11 @@
       styles.filter(name=>secondaryStyles.has(name)&&!styleReady.has(name)).forEach(mountStyle);
       const taskNames=new Set(tasks);
       const rest=deferredScripts.filter(name=>!taskNames.has(name));
-      await loadScriptsInOrder(rest);
+      // Keep the network responsive: load optional routes in small ordered batches.
+      for(let i=0;i<rest.length;i+=6){
+        await loadScriptsInOrder(rest.slice(i,i+6));
+        if(i+6<rest.length)await delay(120);
+      }
       window.ElaraFeatureHubs?.refresh?.();
       window.ElaraGlobalBanners?.refresh?.();
       window.ElaraLibraryDashboardLIB01?.refresh?.();
