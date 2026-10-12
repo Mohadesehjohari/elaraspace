@@ -56,6 +56,11 @@ try {
    assert.ok(!state.profileVisible,'No account in Ranking '+width);
    assert.ok(state.overflow<=2,'No horizontal overflow '+width+': '+state.overflow);
    assert.equal(state.active,'all','Gold tab active '+width);
+   const podiumTextFit=await page.locator('.rg-podium-base').evaluateAll(bases=>bases.map(base=>({
+     width:base.clientWidth,scrollWidth:base.scrollWidth,
+     copy:[...base.querySelectorAll('b,small')].every(node=>node.getBoundingClientRect().width<=base.getBoundingClientRect().width+2)
+   })));
+   assert.ok(podiumTextFit.every(x=>x.scrollWidth<=x.width+2&&x.copy),'Podium labels must not overflow '+width+': '+JSON.stringify(podiumTextFit));
    for(const name of ['rg-podium-card','rg-my-card','rg-rewards-card','rg-leaderboard-card','rg-clubs-card','rg-friends-card','rg-countdown-card','rg-weekly-card'])assert.ok(state.cards.some(x=>x.includes(name)),'Required panel '+name+' '+width);
    const asset=await page.evaluate(async()=>{const res=await fetch('assets/ui/ranking_banner_main.webp',{cache:'no-store'});return {status:res.status,type:res.headers.get('content-type')}});
    assert.equal(asset.status,200,'WebP available '+width);
