@@ -124,6 +124,7 @@ try {
   await page.locator('[data-page-content=all]').click();
   assert.equal(await page.locator('.page-feed').isVisible(),true,width+': all filter');
 
+  await page.locator('[data-page-write-post]').first().click();
   await page.locator('[data-page-post-form] textarea').fill('متن پست در تست رابط #کتاب');
   await page.locator('[data-page-post-form] button[type=submit]').click();
   await page.waitForFunction(()=>window.__pageOps.includes('post'));
