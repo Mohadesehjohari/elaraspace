@@ -6,6 +6,9 @@ on:
       - 'tasks-mobile-fidelity-20261012.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
       - 'tests/task-daily-rounds-browser.mjs'
+      - 'tests/streak-calendar-browser.mjs'
+      - 'task-streak-calendar-20261012.js'
+      - 'task-streak-calendar-20261012.css'
       - 'linked-tasks.js'
       - '.github/workflows/tasks-mobile-fidelity.yml'
   push:
@@ -15,6 +18,9 @@ on:
       - 'tasks-mobile-fidelity-20261012.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
       - 'tests/task-daily-rounds-browser.mjs'
+      - 'tests/streak-calendar-browser.mjs'
+      - 'task-streak-calendar-20261012.js'
+      - 'task-streak-calendar-20261012.css'
       - 'linked-tasks.js'
       - '.github/workflows/tasks-mobile-fidelity.yml'
   workflow_dispatch:
@@ -101,6 +107,9 @@ jobs:
       - name: Verify daily multi-round task counter and persistence
         run: |
           ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 240s node tests/task-daily-rounds-browser.mjs
+      - name: Verify streak calendar date navigation on mobile
+        run: |
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 240s node tests/streak-calendar-browser.mjs
       - name: Upload actual live Chromium screenshots
         if: always()
         uses: actions/upload-artifact@v4
