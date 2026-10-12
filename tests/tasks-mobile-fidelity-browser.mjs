@@ -32,7 +32,7 @@ async function setup(width,base){
  page.on('pageerror',e=>errors.push(String(e.message)));
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloud}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
- await page.addInitScript(seed=>{localStorage.setItem('elara_space_v1',JSON.stringify(seed));localStorage.setItem('elara_locale_v1','fa')},taskSeed);
+ await page.addInitScript(seed=>{if(sessionStorage.getItem('tasks-mobile-qa-seeded')==='1')return;sessionStorage.setItem('tasks-mobile-qa-seeded','1');localStorage.setItem('elara_space_v1',JSON.stringify(seed));localStorage.setItem('elara_locale_v1','fa')},taskSeed);
  await page.goto(base+'/?tasks-mobile-qa='+width+'#tasks',{waitUntil:'domcontentloaded',timeout:50000});
  await page.waitForFunction(()=>Boolean(window.ElaraOpen)&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:35000});
  await page.evaluate(()=>window.ElaraOpen('tasks',{history:'replace'}));
