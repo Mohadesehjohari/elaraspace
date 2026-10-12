@@ -1,0 +1,68 @@
+name: Verify Live Friends and Clubs Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'social-view.js'
+      - 'social-clubs-ui.js'
+      - 'friends-hub.css'
+      - 'tests/friends-hub-browser.mjs'
+      - 'tests/clubs-stage11-browser.mjs'
+      - '.github/workflows/friends-neon-live-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-friends:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for exact Friends and Clubs bytes on GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://mohadesehjohari.github.io/elaraspace'
+          verified=false
+          for attempt in $(seq 1 100); do
+            all=true
+            for file in social-view.js social-clubs-ui.js friends-hub.css; do
+              if ! curl --fail --silent --show-error --location --max-time 15 "$base/$file?friends_sha=${GITHUB_SHA}&attempt=$attempt" --output "/tmp/friends-live-$file" || ! cmp -s "$file" "/tmp/friends-live-$file"; then
+                all=false
+                break
+              fi
+            done
+            if [ "$all" = true ]; then
+              verified=true
+              echo "LIVE_FRIENDS_BYTES_VERIFIED=${GITHUB_SHA}"
+              break
+            fi
+            sleep 8
+          done
+          test "$verified" = true || { echo "::error::Production Pages does not match this merged commit"; exit 1; }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser verify published Friends at nine viewports, including 390 and 1440
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 500s node tests/friends-hub-browser.mjs
+      - name: Browser verify published Clubs flows at 390 and 1440
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 240s node tests/clubs-stage11-browser.mjs
+      - name: Publish production verification screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: friends-clubs-live-${{ github.sha }}
+          path: browser-artifacts/
+          if-no-files-found: warn
+          retention-days: 21
