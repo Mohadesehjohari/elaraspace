@@ -48,6 +48,22 @@ async function run(width,height){
  await page.waitForFunction(()=>document.querySelector('.social-group-chat-dialog .social-chat-messages')?.textContent.includes('بزن بریم'));
  assert.equal(await page.locator('.social-group-members>span').count(),3,width+': group members missing');
  await page.locator('.elara-dialog-close').click();await page.waitForFunction(()=>document.querySelectorAll('.social-group-row').length===1);
+ // The groups hub must work in both narrow and wide viewports without mock group cards.
+ await page.waitForSelector('.groups-r4 .g4-hero');
+ assert.equal(await page.locator('.groups-r4 .g4-row').count(),1);
+ assert.equal(await page.locator('.groups-r4 [data-social-create-group]').count(),1);
+ await page.locator('[data-g4-search]').fill('هیچ گروهی');
+ assert.equal(await page.locator('.groups-r4 .g4-row:visible').count(),0);
+ assert.equal(await page.locator('[data-g4-no-results]:visible').count(),1);
+ await page.locator('[data-g4-search]').fill('تیم خفن‌ها');
+ assert.equal(await page.locator('.groups-r4 .g4-row:visible').count(),1);
+ await page.locator('[data-group-filter="owned"]').click();
+ assert.equal(await page.locator('[data-group-filter="owned"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('.groups-r4 .g4-row:visible').count(),1);
+ await page.locator('[data-group-filter="unread"]').click();
+ assert.equal(await page.locator('.groups-r4 .g4-row:visible').count(),0);
+ await page.locator('[data-group-filter="all"]').click();
+ assert.equal(await page.locator('.groups-r4 .g4-row:visible').count(),1);
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(overflow.sw<=overflow.w+1,width+': group UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-groups-'+width+'.png',fullPage:true});await page.close();
 }
