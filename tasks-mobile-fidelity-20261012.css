@@ -316,3 +316,30 @@
     background:linear-gradient(110deg,#ff85ad,#a337ff 56%,#3374fb)!important;
   }
 }
+
+/* Chromium diagnosed inherited TWO-COLUMN grid inside the 168px task content:
+   it measured 72.5px and made a 110.5px row despite min-height:68px. */
+@media(max-width:767px){
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:auto auto!important;grid-auto-flow:row!important;
+   align-items:center!important;justify-items:stretch!important;
+   gap:2px!important;height:auto!important;min-height:0!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content>.task-summary-button{
+   grid-column:1/-1!important;grid-row:1!important;
+   display:flex!important;align-items:center!important;
+   min-height:24px!important;height:24px!important;max-height:24px!important;
+   padding:0!important;margin:0!important;gap:5px!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button::before{
+   flex:0 0 19px!important;width:19px!important;height:19px!important;
+ }
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content>.item-meta.astra-task-core-meta{
+   grid-column:1/-1!important;grid-row:2!important;
+   display:flex!important;max-width:100%!important;min-width:0!important;
+   height:18px!important;min-height:18px!important;max-height:18px!important;
+   flex-wrap:nowrap!important;justify-content:flex-start!important;
+   overflow-x:auto!important;overflow-y:hidden!important;
+ }
+}
