@@ -159,7 +159,7 @@ try {
   assert.equal(await page.locator('[data-page-post-form]').count(),0,width+': other page cannot compose');
   assert.equal(await page.locator('[data-page-edit-profile]').count(),0,width+': cannot edit another account');
   assert.equal(await page.locator('.page-social-aside').count(),0,width+': owner-only library data never appears on another Page');
-  assert.equal(await page.locator('.page-id-interests').count(),0,width+': UID-local interests never appear on another person's Page');
+  assert.equal(await page.locator('.page-id-interests').count(),0,width+': UID-local interests never appear on another user Page');
   await page.locator('[data-page-back-feed]').click();
   await page.waitForSelector('[data-page-post-form]');
   await page.evaluate(()=>window.ElaraOpen?.('home'));
