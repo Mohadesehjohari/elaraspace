@@ -117,3 +117,8 @@ body.light #panel-page .page-topic-hash{color:#1c3b68}
 body.light #panel-page .page-side-clip{background:#eaf3ff}
 body.light #panel-page .page-side-clip p{color:#1c345e}
 body.light #panel-page .page-composer-write,body.light #panel-page .page-post-compose>textarea{background:#f6faff!important;color:#1c365b!important}
+
+/* Final reference pass: one compact prompt until the owner chooses to write. */
+#panel-page .page-post-compose.is-collapsed>textarea{display:none!important}
+#panel-page .page-post-compose:not(.is-collapsed) .page-composer-write{display:none!important}
+#panel-page .page-post-grid .page-post:only-child{grid-column:1/-1!important}
