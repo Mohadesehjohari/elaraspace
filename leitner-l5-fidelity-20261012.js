@@ -71,7 +71,13 @@ function addDashboard(host){
  host.classList.add('l5-designed');
 }
 function sync(){
- syncPending=false;const scene=$('#l3-review-scene');if(scene)addStory(scene);
+ syncPending=false;let scene=$('#l3-review-scene');
+ // Restore a direct review deep link after asynchronous auth/data hydration.
+ // The original route initializer can run before the canonical flashcard exists.
+ if(!scene&&location.hash==='#words'&&new URLSearchParams(location.search).get('leitner')==='review'&&$('#panel-words .flashcard')){
+  window.ElaraLanguageDestinations?.l3Enter?.(false);scene=$('#l3-review-scene');
+ }
+ if(scene)addStory(scene);
  else{active=null;drag=null;clearTimeout(transitionTimer)}
  const host=$('#panel-words [data-l2-leitner]');if(host)addDashboard(host);
 }
