@@ -106,9 +106,13 @@
       window.ElaraReferenceHome?.render?.();
       const homePaintStyles=['reference-home-shell-2026.css','reference-exact-pass-2026.css',
         'elara-midnight-layout-2026.css','home-owner-art-2026.css','home-reference-polish-20261012.css'];
+      // A direct deep link also needs its own CSS before reveal. Normal entry
+      // still waits only for Home; this avoids hiding Library launchers on tablets.
+      const firstRouteStyles=initialRoute==='home'?homePaintStyles:
+        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',...(routeStyles[initialRoute]||[])])];
       await Promise.race([
-        Promise.all(homePaintStyles.map(name=>mountStyle(name))),
-        delay(180)
+        Promise.all(firstRouteStyles.map(name=>mountStyle(name))),
+        delay(initialRoute==='home'?180:2000)
       ]);
     }catch(error){
       console.warn('Elara Home startup continued with partial assets:',error);
