@@ -1039,3 +1039,8 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1/-1!important;grid-row:7!important}
  #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:1/-1!important;grid-row:8!important}
 }
+
+
+/* Keep reference tab order physically left-to-right, while Persian labels stay RTL. */
+#elara-social-page.social-reference.social-friends-page .social-tabs{direction:ltr!important}
+#elara-social-page.social-reference.social-friends-page .social-tabs>[role="tab"]{direction:rtl!important}
