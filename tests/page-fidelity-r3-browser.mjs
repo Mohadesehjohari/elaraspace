@@ -59,6 +59,7 @@ try {
   if(width>=1151)assert.ok(rail.asideLeft>rail.feedLeft,width+': sidebar must be on physical RIGHT');
   if(width<=700)assert.ok(rail.asideTop>=rail.feedBottom-2,width+': mobile side cards follow main feed');
   assert.equal(await page.locator('[data-page-media-input]:not(:disabled)').count(),0,width+': no fake upload');
+  assert.equal(await page.locator('.page-post-compose.is-collapsed textarea').isVisible(),false,width+': default composer compact');
 
   const header=await page.evaluate(()=>{
     const rect=s=>document.querySelector(s)?.getBoundingClientRect();
@@ -90,6 +91,7 @@ try {
    assert.ok(imageWidth<=width+2,width+': full-page screenshot overflow width='+imageWidth);
   }
   await page.locator('[data-page-write-post]').first().click();
+  assert.equal(await page.locator('[data-page-post-form] textarea').isVisible(),true,width+': writer expands');
   assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-page-post-form]')!==null),true,width+': Write post button focuses canonical editor');
   await page.locator('[data-page-add-story]').first().click();
   assert.equal(await page.evaluate(()=>document.activeElement?.closest('[data-page-story-form]')!==null),true,width+': add status focus');
@@ -139,6 +141,7 @@ try {
   await page.waitForSelector('.page-hero.is-target-page');
   assert.equal(await page.locator('[data-page-post-form]').count(),0,width+': other page cannot compose');
   assert.equal(await page.locator('[data-page-edit-profile]').count(),0,width+': cannot edit another account');
+  assert.equal(await page.locator('.page-social-aside').count(),0,width+': owner-only library data never appears on another Page');
   await page.locator('[data-page-back-feed]').click();
   await page.waitForSelector('[data-page-post-form]');
   await page.evaluate(()=>window.ElaraOpen?.('home'));
