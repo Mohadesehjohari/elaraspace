@@ -34,3 +34,12 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 .wellness-sleep-line{max-width:440px;width:100%;margin-inline:auto}
 .wellness-sleep-line svg{max-height:155px}
 @media(max-width:700px){.wellness-green-form{padding:12px}.wellness-program-config{grid-template-columns:1fr}.wellness-check-add{flex-wrap:wrap}.wellness-check-add button{width:100%}}
+
+/* Sleep subsection only: compact chart with green palette and accessible controls. */
+#panel-wellness-sleep:not(.hidden) :is(.elara-card,.wellness-entry,.wellness-chart,.wellness-sleep-line){border-color:#15856c!important}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line{max-width:420px!important;max-height:175px!important;margin-inline:auto}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line svg{width:100%;max-height:154px}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line .line{stroke:#25eca9!important}
+#panel-wellness-sleep:not(.hidden) .wellness-sleep-line .point{fill:#3cffc1!important;stroke:#08745c!important}
+#panel-wellness-sleep:not(.hidden) .wellness-entry button,#panel-wellness-sleep:not(.hidden) button.primary-button{accent-color:#24e9a4}
+@media(max-width:700px){#panel-wellness-sleep:not(.hidden) .wellness-sleep-line{max-width:100%;max-height:138px!important}}
