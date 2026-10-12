@@ -736,7 +736,7 @@ html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:
  #l3-review-scene .l3-story-progress i{height:9px}
  #l3-review-scene .l3-story-counter{font-size:17px}
  #l3-review-scene .l3-story-meta span{padding:6px 9px;font-size:11px}
- #l3-review-scene .l3-story-frame{height:clamp(265px,35dvh,380px);min-height:0;max-height:none;flex:1 1 auto;padding:44px 11px 16px;border-radius:22px;background-image:linear-gradient(180deg,#03153465,#030b294b 65%,#04112dac),url('assets/ui/lightner_words_backgroud_mobile.webp')}
+ #l3-review-scene .l3-story-frame{height:clamp(265px,35dvh,380px);min-height:0;max-height:none;flex:0 0 auto;padding:44px 11px 16px;border-radius:22px;background-image:linear-gradient(180deg,#03153465,#030b294b 65%,#04112dac),url('assets/ui/lightner_words_backgroud_mobile.webp')}
  #l3-review-scene .l3-story-card-slot .flashcard{gap:12px;padding:5px 3px!important}
  #l3-review-scene .l3-story-card-slot #flash-front{font-size:clamp(39px,11vw,69px)}
  #l3-review-scene .l3-story-card-slot #flash-back{font-size:clamp(18px,5vw,27px)}
