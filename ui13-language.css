@@ -753,3 +753,19 @@ html.l3-story-open body{height:100dvh!important;min-height:0!important;overflow:
  #l3-review-scene .l3-story-intro p{font-size:12px}
  #l3-review-scene .l3-story-actions button{min-height:50px}
 }
+
+/* Legacy feature injectors are still mounted for application compatibility.
+   On the dedicated L2 dashboard only, visually suppress their duplicate blocks. */
+#panel-words:has(> .l2-leitner-shell)> .feature-subpage-head,
+#panel-words:has(> .l2-leitner-shell)> .pass3-language-leitner,
+#panel-words:has(> .l2-leitner-shell)> .feature-section-tasks{display:none!important}
+#l3-review-scene .l3-story-brand{display:flex;align-items:center;gap:6px}
+#l3-review-scene .l3-story-logo{width:54px;height:54px;object-fit:contain}
+#l3-review-scene .l3-story-wordmark{display:flex;align-items:baseline;gap:6px}
+#l3-review-scene .l3-story-wordmark b{font:700 clamp(27px,2.9vw,40px)/1 Georgia,serif;letter-spacing:-.04em}
+#l3-review-scene .l3-story-wordmark small{font:800 9px Vazirmatn,Tahoma,sans-serif;letter-spacing:.3em}
+@media(max-width:700px){
+ #l3-review-scene .l3-story-logo{width:43px;height:43px}
+ #l3-review-scene .l3-story-wordmark b{font-size:27px}
+ #l3-review-scene .l3-story-wordmark small{font-size:7px;letter-spacing:.13em}
+}
