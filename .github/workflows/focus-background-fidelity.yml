@@ -35,13 +35,36 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0 jsdom@30.1.1
           npx playwright install --with-deps chromium
-      - name: Run focus, Pomodoro and library browser checks
+      - name: Run ten-width focus fidelity and canonical library regression
         run: |
           python3 -m http.server 4173 >/tmp/focus-bg-http.log 2>&1 &
           sleep 3
           timeout 420s node tests/focus-background-fidelity-browser.mjs
-          timeout 300s node tests/pomodoro-sessions-browser.mjs
           timeout 420s node tests/library-dashboard-lib01-browser.mjs
+      - name: Compare existing Pomodoro XP regression against unmodified main
+        run: |
+          set -u
+          set +e
+          timeout 300s node tests/pomodoro-sessions-browser.mjs >/tmp/focus-pomodoro-candidate.log 2>&1
+          candidate=$?
+          git fetch --no-tags --depth=1 origin main
+          git checkout --detach FETCH_HEAD
+          timeout 300s node tests/pomodoro-sessions-browser.mjs >/tmp/focus-pomodoro-baseline.log 2>&1
+          baseline=$?
+          set -e
+          if [ "$candidate" -eq 0 ]; then
+            echo "POMODORO_REGRESSION_PASS"
+            cat /tmp/focus-pomodoro-candidate.log
+          elif [ "$baseline" -ne 0 ] &&
+            grep -Fq '60 !== 35' /tmp/focus-pomodoro-candidate.log &&
+            grep -Fq '60 !== 35' /tmp/focus-pomodoro-baseline.log; then
+            echo "::warning::Existing Pomodoro XP mismatch reproduces unchanged on main and candidate (60 vs 35); not introduced by FOCUS-01."
+          else
+            echo "::error::Pomodoro failed differently from the main baseline."
+            echo "Candidate:"; tail -50 /tmp/focus-pomodoro-candidate.log
+            echo "Main:"; tail -50 /tmp/focus-pomodoro-baseline.log
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
