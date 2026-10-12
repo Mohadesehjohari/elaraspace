@@ -48,20 +48,81 @@ function injectFriendsCta(){const head=document.querySelector('#elara-social-pag
 
 /* Release 1 uses canonical Social/Profile models; no sample users or secondary persistence. */
 function ensurePageFidelityStyle(){
- if(document.getElementById('elara-page-fidelity-r1'))return;
- const link=document.createElement('link');link.id='elara-page-fidelity-r1';link.rel='stylesheet';link.href='page-fidelity-release1.css?v=20261012-r1';
+ if(document.getElementById('elara-page-fidelity-r2'))return;
+ const link=document.createElement('link');link.id='elara-page-fidelity-r2';link.rel='stylesheet';link.href='page-fidelity-release2.css?v=20261012-r2';
  document.head.append(link)
+ const previous=document.getElementById('elara-page-fidelity-r1');
+ if(!previous){const old=document.createElement('link');old.id='elara-page-fidelity-r1';old.rel='stylesheet';old.href='page-fidelity-release1.css?v=20261012-r1';document.head.insertBefore(old,link)}
 }
 function pageAccount(uid){
  const profile=window.ElaraAccount?.profile||{},social=window.ElaraSocial?.me||{};
- return {...profile,...social,uid:uid||social.uid||profile.uid||''}
+ return {...social,...profile,name:(profile.name&&profile.name!=='Elara'?profile.name:social.name)||window.ElaraAccount?.user?.displayName||'',uid:uid||profile.uid||social.uid||''}
 }
+
+/* Page-only cosmetics. These are intentionally UID-local until Page Storage is available.
+   Never silently write to the private Profile editor or to a shared Firestore document. */
+const PAGE_ART=[
+ ['default','assets/ui/38-my-page-hero-banner.webp','نمای اصلی پیج'],
+ ['moon','assets/ui/banner_moon_lake.webp','دریاچهٔ ماه'],
+ ['dream','assets/ui/banner_dream_tree.webp','درخت رؤیا'],
+ ['castle','assets/ui/banner_city_of_stars.webp','شهر ستاره‌ها'],
+ ['dawn','assets/ui/banner_new_dawn.webp','سپیدهٔ نو']
+];
+const pageKey=uid=>'elara_social_page_settings_v1_'+String(uid);
+function pageSettings(uid){
+ if(!uid)return {name:'',bio:'',cover:'default'};
+ try{
+  const p=JSON.parse(localStorage.getItem(pageKey(uid))||'{}');
+  return {name:typeof p.name==='string'?p.name.trim().slice(0,60):'',
+    bio:typeof p.bio==='string'?p.bio.trim().slice(0,320):'',
+    cover:PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default'};
+ }catch{return {name:'',bio:'',cover:'default'}}
+}
+function pageCover(uid){
+ const cover=pageSettings(uid).cover;
+ return PAGE_ART.find(([id])=>id===cover)?.[1]||PAGE_ART[0][1]
+}
+async function openPageSettings(){
+ const uid=window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid;
+ if(!uid||!window.ElaraAccount?.user){await window.ElaraDialog?.alert?.(t('برای ویرایش صفحه ابتدا وارد حساب شو.','Sign in to edit your Page.'));return}
+ const person=pageAccount(uid),p=pageSettings(uid);
+ const form=document.createElement('form');
+ form.className='page-settings-form';form.dataset.elaraI18n='off';
+ form.innerHTML='<p class="page-settings-intro">'+t('تنظیمات صفحه اجتماعی تو — جدا از تنظیمات پروفایل شخصی.','Social Page settings — separate from private Profile settings.')+'</p>'+
+  '<label>'+t('نام نمایشی صفحه','Page display name')+'<input type="text" name="name" maxlength="60" placeholder="'+esc(person.name||t('نام صفحه','Page name'))+'" value="'+esc(p.name)+'" autocomplete="off" dir="auto"></label>'+
+  '<label>'+t('معرفی صفحه','Page bio')+'<textarea name="bio" rows="3" maxlength="320" data-elara-ugc dir="auto" placeholder="'+t('درباره صفحه‌ات بنویس…','Describe your Page…')+'">'+esc(p.bio)+'</textarea></label>'+
+  '<fieldset><legend>'+t('تصویر کاور صفحه','Page cover artwork')+'</legend><div class="page-settings-covers">'+PAGE_ART.map(([id,url,label])=>'<label class="page-settings-cover"><input type="radio" name="cover" value="'+id+'" '+(p.cover===id?'checked':'')+'><img src="'+url+'" alt="" loading="lazy"><span>'+label+'</span></label>').join('')+'</div></fieldset>'+
+  '<p class="page-settings-storage">'+t('نام، معرفی و کاور این صفحه فعلاً فقط روی همین دستگاه و همین حساب ذخیره می‌شوند و به سایر کاربران یا دستگاه‌ها همگام‌سازی نمی‌شوند. آواتار و XP از حساب واقعی گرفته می‌شوند.','These Page settings are stored only on this device for this account; they are not shared or synced. Avatar and XP come from your real account.')+'</p>';
+ const result=await window.ElaraDialog.open({title:t('تنظیمات صفحه من','My Page settings'),content:form,wide:true,actions:[{label:t('انصراف','Cancel'),value:false},{label:t('ذخیره صفحه','Save Page'),value:true,kind:'primary'}]});
+ if(result!==true)return;
+ if(uid!==(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid))return void window.ElaraDialog.alert(t('حساب تغییر کرد؛ تنظیمات ذخیره نشد.','Account changed; nothing was saved.'));
+ const name=String(form.elements.name.value||'').trim().slice(0,60);
+ const bio=String(form.elements.bio.value||'').trim().slice(0,320);
+ const cover=PAGE_ART.some(([id])=>id===form.elements.cover.value)?form.elements.cover.value:'default';
+ try{localStorage.setItem(pageKey(uid),JSON.stringify({name,bio,cover}));render()}
+ catch(error){await window.ElaraDialog.alert(t('فضای ذخیره مرورگر کافی نیست.','Browser storage is unavailable.'),{title:t('خطای ذخیره','Save error')})}
+}
+let pageContentTab='all';
+function pageTab(root,tab='all'){
+ pageContentTab=['all','posts','statuses'].includes(tab)?tab:'all';
+ root.querySelectorAll('[data-page-content]').forEach(b=>{const active=b.dataset.pageContent===pageContentTab;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+ const stories=root.querySelector('.page-stories'),feed=root.querySelector('.page-feed'),compose=root.querySelector('.page-compose-grid');
+ if(stories)stories.hidden=pageContentTab==='posts';
+ if(feed)feed.hidden=pageContentTab==='statuses';
+ if(compose){
+  const post=compose.querySelector('[data-page-post-form]'),status=compose.querySelector('[data-page-story-form]');
+  if(post)post.hidden=pageContentTab==='statuses';
+  if(status)status.hidden=pageContentTab==='posts';
+ }
+}
+
 function socialPageIdentity(state,uid,viewingOther,target){
  const person=viewingOther?target:pageAccount(uid);
  if(!person||!person.uid)return '';
  const identity=window.ElaraProfileSystem?.viewModel?.(person,{self:!viewingOther})||{};
- const name=String(person.name||person.displayName||person.username||identity.name||t('حساب من','My account'));
- const bio=person.profilePublic===false&&viewingOther?'':String(person.bio||identity.bio||'');
+ const saved=!viewingOther?pageSettings(uid):null;
+ const name=String(saved?.name||person.name||person.displayName||person.username||identity.name||t('حساب من','My account'));
+ const bio=person.profilePublic===false&&viewingOther?'':String(saved?.bio||person.bio||identity.bio||'');
  const hasXp=Number.isFinite(Number(person.xp))&&person.xp!==undefined&&person.xp!==null;
  const p=hasXp?window.ElaraLevels?.progress?.(Number(person.xp)||0):null;
  const progress=p&&Number.isFinite(Number(p.percent))?Math.max(0,Math.min(100,Number(p.percent))):null;
@@ -71,12 +132,12 @@ function socialPageIdentity(state,uid,viewingOther,target){
  const stats=state.loading||state.error?'':('<span><strong>'+num(pagePosts)+'</strong><small>'+t('پست‌های قابل‌نمایش','Visible posts')+'</small></span>')+(!viewingOther&&Array.isArray(window.ElaraSocial?.friends)?'<span><strong>'+num(window.ElaraSocial.friends.length)+'</strong><small>'+t('دوستان','Friends')+'</small></span>':'');
  return '<section class="page-id-shell" aria-label="'+t('اطلاعات صفحه','Page identity')+'">'+
   '<div class="page-id-avatar-wrap"><span class="page-id-ring">'+portrait+'</span>'+frame+
-  (!viewingOther?'<button type="button" class="page-id-edit-avatar" data-page-edit-profile aria-label="'+t('ویرایش عکس و پروفایل','Edit photo and profile')+'">✎</button>':'')+'</div>'+
+  (!viewingOther?'<button type="button" class="page-id-edit-avatar" data-page-edit-profile aria-label="'+t('تنظیمات صفحه من','Edit Page settings')+'">✎</button>':'')+'</div>'+
   '<div class="page-id-person"><div class="page-id-name-row"><h2 data-elara-ugc dir="auto">'+esc(name)+'</h2>'+(hasXp&&identity.title?'<span class="page-id-rank">'+esc(identity.title)+'</span>':'')+'</div>'+
   '<div class="page-id-meta">'+(person.username?'<span dir="ltr">@'+esc(person.username)+'</span>':'')+
   (hasXp?'<span>'+t('سطح','Level')+' '+num(identity.level||1)+'</span><span class="page-id-xp"><b>'+num(person.xp)+' XP</b>'+(progress!==null?'<span class="page-id-xp-track" aria-label="'+t('پیشرفت سطح','Level progress')+'"><i style="width:'+progress.toFixed(2)+'%"></i></span>':'')+'</span>':'')+'</div>'+
-  (bio?'<p class="page-id-bio" data-elara-ugc dir="auto">'+esc(bio)+'</p>':!viewingOther?'<p class="page-id-bio is-empty">'+t('بیوگرافی‌ات را از ویرایش پروفایل اضافه کن.','Add your bio in Edit Profile.')+'</p>':'')+'</div>'+
-  '<div class="page-id-actions">'+(!viewingOther?'<button type="button" class="page-id-edit" data-page-edit-profile>✎ '+t('ویرایش پروفایل','Edit profile')+'</button>':'')+
+  (bio?'<p class="page-id-bio" data-elara-ugc dir="auto">'+esc(bio)+'</p>':!viewingOther?'<p class="page-id-bio is-empty">'+t('معرفی صفحه‌ات را از تنظیمات صفحه اضافه کن.','Add a Page bio in Page settings.')+'</p>':'')+'</div>'+
+  '<div class="page-id-actions">'+(!viewingOther?'<button type="button" class="page-id-edit" data-page-edit-profile>✎ '+t('ویرایش صفحه','Edit Page')+'</button>':'')+
   (stats?'<div class="page-id-stats">'+stats+'</div>':'')+'</div></section>'
 }
 function enhancePageFidelity(root,state,uid,viewingOther,target){
@@ -93,13 +154,7 @@ function enhancePageFidelity(root,state,uid,viewingOther,target){
   hero.removeAttribute('aria-hidden');
   const person=viewingOther?target:pageAccount(uid);
   const model=window.ElaraProfileSystem?.viewModel?.(person||{},{self:!viewingOther});
-  let cover='';
-  if(!viewingOther&&uid){
-   try{const extras=JSON.parse(localStorage.getItem('elara_profile_edit_extras_v1_'+uid)||'{}');
-    if(typeof extras.customBanner==='string'&&/^data:image\/(?:webp|png|jpeg);base64,[a-z0-9+/=]+$/i.test(extras.customBanner)&&extras.customBanner.length<1000000)cover=extras.customBanner;
-   }catch{}
-  }
-  if(!cover&&model?.banner&&/^assets\/ui\/[a-z0-9_.-]+\.webp$/i.test(model.bannerSrc||''))cover=model.bannerSrc;
+  const cover=!viewingOther&&uid?pageCover(uid):'';
   if(cover)hero.style.setProperty('--elara-page-cover','url("'+cover+'")');
   else hero.style.removeProperty('--elara-page-cover');
   const note=hero.querySelector('.page-hero-note');
@@ -117,7 +172,12 @@ function enhancePageFidelity(root,state,uid,viewingOther,target){
   strip.insertAdjacentHTML('afterbegin','<button type="button" class="page-story page-story-add" data-page-add-story aria-label="'+t('افزودن وضعیت','Add status')+'"><span class="page-story-ring"><span aria-hidden="true">+</span></span><strong>'+t('افزودن وضعیت','Add status')+'</strong></button>');
  }
  const stories=root.querySelector('.page-stories'),compose=root.querySelector('.page-compose-grid');
- if(stories&&compose)root.insertBefore(stories,compose)
+ if(stories&&compose)root.insertBefore(stories,compose);
+ // Tabs operate on the genuine loaded status/post sections; no fabricated feeds.
+ const tabs=document.createElement('nav');tabs.className='page-content-tabs';tabs.setAttribute('aria-label',t('بخش‌های صفحه','Page sections'));
+ tabs.innerHTML=[['all',t('همه','All')],['posts',t('پست‌ها','Posts')],['statuses',t('وضعیت‌ها','Statuses')]].map(([id,label])=>'<button type="button" data-page-content="'+id+'" aria-pressed="false">'+label+'</button>').join('');
+ root.insertBefore(tabs,compose||root.querySelector('.page-feed'));
+ pageTab(root,pageContentTab)
 }
 
 function render(){
@@ -148,8 +208,9 @@ document.addEventListener('click',async e=>{
  const addStory=e.target.closest('[data-page-add-story]');
  if(addStory){const field=document.querySelector('#panel-page [data-page-story-form] textarea');field?.closest('form')?.scrollIntoView({behavior:'smooth',block:'center'});field?.focus({preventScroll:true});return}
  const editProfile=e.target.closest('[data-page-edit-profile],[data-page-edit-cover]');
- if(editProfile){if(window.ElaraProfileEdit?.open){try{await window.ElaraProfileEdit.open()}catch(error){void window.ElaraDialog?.alert?.(String(error?.message||error))}}else window.ElaraPrivateDrawer?.open?.('account');return}
-
+ if(editProfile){e.preventDefault();await openPageSettings();return}
+ const tabButton=e.target.closest('[data-page-content]');
+ if(tabButton){pageTab(document.getElementById('elara-page-view'),tabButton.dataset.pageContent);return}
  const official=e.target.closest('[data-official-page-open]');if(official){await openOfficialPage(official.dataset.officialPageOpen);return}
  if(e.target.closest('[data-page-refresh]')){await window.ElaraPage?.refresh?.();return}
  if(e.target.closest('[data-page-back-feed]')){await window.ElaraPage?.clearTarget?.();render();return}
