@@ -1,4 +1,7 @@
 /* Elara Friends / Groups — v4. Deliberately scoped to the groups tab. */
+/* The new hub owns its hero; avoid stacking the legacy page banner above it. */
+#panel-social:has(#elara-social-page[data-social-tab="groups"]) > .elara-global-hero[data-f2-hero-tab="groups"],
+#elara-social-page[data-social-tab="groups"] > .social-page-head{display:none!important}
 #elara-social-page[data-social-tab="groups"] .social-reference-grid>.groups-r4{
  grid-column:1/-1!important;display:block!important;width:100%!important;min-width:0!important;
  padding:0!important;margin:0!important;background:transparent!important;border:0!important;
