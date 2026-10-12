@@ -1,0 +1,54 @@
+name: Progressive First Paint Gate
+on:
+  pull_request:
+    paths:
+      - index.html
+      - boot.js
+      - lib01-library-dashboard.js
+      - tests/first-paint-skeleton-browser.mjs
+      - tests/home-entry-speed-browser.mjs
+      - .github/workflows/first-paint-skeleton.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-paint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript and boot contract
+        run: |
+          node --check boot.js
+          node --check lib01-library-dashboard.js
+          node --check tests/first-paint-skeleton-browser.mjs
+          node --check tests/home-entry-speed-browser.mjs
+          node - <<'NODE'
+          const fs = require('fs');
+          const index = fs.readFileSync('index.html', 'utf8');
+          const boot = fs.readFileSync('boot.js', 'utf8');
+          for (const contract of ['<html lang="fa" dir="rtl" data-elara-booting>', 'elara-page-owner-styles']) {
+            if (!index.includes(contract)) throw new Error('Missing boot contract: ' + contract);
+          }
+          if (index.includes('id="elara-boot-failure"') || index.includes('در حال آماده‌سازی نسخهٔ جدید الارا')) throw new Error('Legacy boot error/status still present.');
+          if (!boot.includes("window.__elaraBootStage='tasks'") || !boot.includes("window.__elaraBootStage='secondary'")) throw new Error('Progressive startup stages missing.');
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-first-paint.log 2>&1 &
+          sleep 2
+      - name: Assert route skeleton and final layout on mobile and desktop
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 420s node tests/first-paint-skeleton-browser.mjs
+      - name: Home entry and fast splash acceptance
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 180s node tests/home-entry-speed-browser.mjs

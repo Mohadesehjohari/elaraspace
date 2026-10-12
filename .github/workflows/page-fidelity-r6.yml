@@ -1,0 +1,50 @@
+name: PAGE R6 Local Banner Gallery
+on:
+  push:
+    branches:
+      - feat/page-r6-local-banner-gallery-20261012
+  pull_request:
+    paths:
+      - page-view.js
+      - page-fidelity-release5.css
+      - tests/page-fidelity-r6-browser.mjs
+      - .github/workflows/page-fidelity-r6.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  page-r6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source and unchanged main shell
+        run: |
+          node --check page-view.js
+          node --check tests/page-fidelity-r6-browser.mjs
+          test -s assets/ui/banner_city_of_stars.webp
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve branch
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-page-r6-http.log 2>&1 &
+          sleep 2
+      - name: Full-shell upload and regression at ten viewport widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 300s node tests/page-fidelity-r6-browser.mjs
+      - name: Media uploads remain deferred in social posts
+        run: timeout 120s node tests/media-deferred-browser.mjs
+      - name: Save 390px and 1440px browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-r6-gallery-390-1440
+          path: browser-artifacts/page-r6-*.png
+          if-no-files-found: warn
+          retention-days: 14

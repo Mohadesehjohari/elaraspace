@@ -141,3 +141,17 @@ body.light .page-settings-gallery{color:#244d79}
 @media(max-width:700px){
  #panel-page .page-id-shell::before{width:150px!important;height:95px!important;opacity:.6!important}
 }
+
+/* R6: local photo upload for My Page decorative corner, in wardrobe and Edit Page. */
+.approved-wardrobe .page-wardrobe-banner-upload{display:grid;gap:8px;min-width:0;padding:10px;border:1px dashed #438ac1;border-radius:12px;background:linear-gradient(130deg,#082b51,#121e46);color:#e4f4ff;font-size:12px;font-weight:750;line-height:1.6}
+.approved-wardrobe .page-wardrobe-banner-upload input{box-sizing:border-box;width:100%;min-width:0;max-width:100%;padding:8px;border:1px solid #386497;border-radius:9px;background:#061a35;color:#d8efff;font:inherit;font-size:11px}
+.approved-wardrobe .page-wardrobe-banner-upload:focus-within{border-color:#35d9fc;box-shadow:0 0 0 1px #35d9fc70}
+.approved-wardrobe .page-wardrobe-banner-upload input:disabled{opacity:.58;cursor:wait}
+.page-settings-corner-grid .page-settings-cover img[src^="data:image/webp;"]{object-fit:cover}
+.page-settings-gallery.page-corner-gallery{margin:7px 0 2px;padding:9px;border:1px dashed #4c83ba;border-radius:12px;background:linear-gradient(130deg,#082953,#141d3c)}
+.page-settings-gallery.page-corner-gallery input{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:700px){
+ .approved-wardrobe .page-wardrobe-banner-upload{font-size:11px;padding:8px}
+ .approved-wardrobe .page-wardrobe-banner-upload input{font-size:10px}
+}
+body.light .approved-wardrobe .page-wardrobe-banner-upload,body.light .page-settings-gallery.page-corner-gallery{background:#eaf3ff;color:#26486e}

@@ -53,7 +53,7 @@ async function measure(page,width){
   return {width,viewport:innerWidth,docWidth:document.documentElement.scrollWidth,
    rowHeights:rectangle.map(x=>Math.round(x.height)),averageHeight:Math.round(rectangle.reduce((s,x)=>s+x.height,0)/rectangle.length),
    titleFont:parseFloat(getComputedStyle(title).fontSize),titleWhiteSpace:getComputedStyle(title).whiteSpace,
-   titleSamples:rows.map(row=>{let el=row.querySelector('.item-title');return {source:row.dataset.taskSource,value:getComputedStyle(el).whiteSpace,inlineStyle:el.getAttribute('style')||'',tag:el.tagName,cls:el.className}}),metaFont:parseFloat(getComputedStyle(metadata).fontSize),
+   titleSamples:rows.map(row=>{let el=row.querySelector('.item-title');return {source:row.dataset.taskSource,value:getComputedStyle(el).whiteSpace,inlineStyle:el.getAttribute('style')||'',tag:el.tagName,cls:el.className}}),metaFont:metadata?parseFloat(getComputedStyle(metadata).fontSize):0,
    heroHeight:Math.round(hero.getBoundingClientRect().height),toolbarHeight:Math.round(toolbar.getBoundingClientRect().height),
    chipsWidth:Math.round(chips.getBoundingClientRect().width),
    filtersExpanded:Boolean(filter?.open),isRTL:getComputedStyle(rows[0]).direction==='rtl',

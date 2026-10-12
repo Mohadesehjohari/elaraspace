@@ -1,6 +1,6 @@
 <!doctype html>
-<!-- deploy-refresh: 20261006-fast-start-v9 -->
-<html lang="fa" dir="rtl">
+<!-- deploy-refresh: 20261012-home-entry-perf-v1 -->
+<html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,34 +8,47 @@
   <meta name="description" content="Elara Space: tasks, habits, goals and focus in one personal workspace.">
   <title>Elara Space · فضای شخصی من</title>
   <style>
-html[data-elara-booting] body{background:#07152b}
-html[data-elara-booting] .shell,
-html[data-elara-booting] .elara-desktop-dock,
-html[data-elara-booting] .elara-private-drawer,
-html[data-elara-booting] .bottom-nav{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-#elara-boot-screen{display:none}
-html[data-elara-booting] #elara-boot-screen{
- position:fixed;inset:0;z-index:2147480000;display:grid;place-items:center;overflow:hidden;
- background:radial-gradient(circle at 50% 40%,#754bff2e,transparent 34%),linear-gradient(180deg,#07152b 0%,#061127 100%)
+/* First-paint contract: keep all legacy/fallback DOM invisible until all route owners are ready. */
+html[data-elara-booting] body{margin:0;background:#07152b}
+html[data-elara-booting] :is(.shell,.elara-desktop-dock,.elara-private-drawer,.bottom-nav){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#elara-boot-screen{display:none!important}
+html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:2147480000;display:block!important;overflow:auto;background:#061328;color:#d9eafd;font:600 14px/1.6 Tahoma,Arial,sans-serif;direction:rtl}
+#elara-boot-screen *{box-sizing:border-box}
+#elara-boot-screen .elara-skel-app{min-height:100vh;display:grid;grid-template-columns:200px minmax(0,1fr);direction:ltr}
+#elara-boot-screen .elara-skel-aside{padding:27px 20px;border-right:1px solid #28415a;background:#06172f;direction:rtl;display:flex;flex-direction:column;gap:22px}
+#elara-boot-screen .elara-skel-nav{display:grid;gap:15px;margin-top:12px}
+#elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{display:block;background:linear-gradient(105deg,#142b48 9%,#244369 26%,#142b48 43%);background-size:240% 100%;animation:elaraSkelPulse 1.55s ease-in-out infinite;border-radius:11px}
+#elara-boot-screen .elara-skel-nav .elara-skel-line{height:34px;width:88%}
+#elara-boot-screen .elara-skel-nav .elara-skel-line:nth-child(even){width:70%}
+#elara-boot-screen .elara-skel-main{direction:rtl;padding:24px clamp(14px,3vw,40px) 50px;min-width:0}
+#elara-boot-screen .elara-skel-top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:22px}
+#elara-boot-screen .elara-skel-top .elara-skel-line{height:22px;width:min(38%,260px)}
+#elara-boot-screen .elara-skel-top .elara-skel-line:last-child{width:115px}
+#elara-boot-screen .elara-skel-hero{height:clamp(150px,22vw,240px);border-radius:18px;border:1px solid #29476d;padding:25px;background:linear-gradient(135deg,#122e50,#0a1a39 65%,#211e4c);display:flex;align-items:end;margin-bottom:22px}
+#elara-boot-screen .elara-skel-hero .elara-skel-line{width:min(60%,320px);height:25px}
+#elara-boot-screen .elara-skel-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#elara-boot-screen .elara-skel-block{height:160px;border:1px solid #28405e}
+#elara-boot-screen .elara-skel-block:nth-child(2){height:205px}
+@keyframes elaraSkelPulse{to{background-position-x:-240%}}
+@media(max-width:700px){
+ #elara-boot-screen .elara-skel-app{display:block}
+ #elara-boot-screen .elara-skel-aside{display:none}
+ #elara-boot-screen .elara-skel-main{padding:20px 13px 85px}
+ #elara-boot-screen .elara-skel-hero{height:160px;border-radius:12px}
+ #elara-boot-screen .elara-skel-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #elara-boot-screen .elara-skel-block{height:135px}
+ #elara-boot-screen .elara-skel-block:nth-child(2){height:175px}
+ #elara-boot-screen .elara-skel-mobile-nav{position:fixed;bottom:0;inset-inline:0;height:61px;background:#091b36;border-top:1px solid #2c456c;display:flex;justify-content:space-around;align-items:center}
+ #elara-boot-screen .elara-skel-mobile-nav .elara-skel-line{height:25px;width:35px}
 }
-html[data-elara-booting] #elara-boot-screen .elara-boot-card{
- display:grid;place-items:center;gap:14px;width:min(78vw,280px);padding:24px 20px;border:1px solid #4b659477;border-radius:24px;
- background:#0b1d38d9;box-shadow:0 24px 70px #0009,0 0 42px #744bff21
-}
-html[data-elara-booting] #elara-boot-screen img{width:76px;height:76px;object-fit:contain}
-html[data-elara-booting] #elara-boot-screen strong{font:800 18px/1.2 Arial,Tahoma,sans-serif;letter-spacing:.08em;color:#eef3ff}
-html[data-elara-booting] #elara-boot-screen span{
- width:118px;height:4px;border-radius:999px;background:linear-gradient(90deg,#754bff,#50c8ff,#754bff);background-size:200% 100%;
- animation:elaraBootPulse 1.1s linear infinite
-}
-@keyframes elaraBootPulse{to{background-position:-200% 0}}
-@media(prefers-reduced-motion:reduce){html[data-elara-booting] #elara-boot-screen span{animation:none}}
+@media(min-width:701px){#elara-boot-screen .elara-skel-mobile-nav{display:none}}
+@media(prefers-reduced-motion:reduce){#elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{animation:none}}
 </style>
-  <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261006-fast-start-v9">
-  <link rel="preload" as="style" href="reference-home-shell-2026.css?v=20261006-fast-start-v9">
-  <link rel="preload" as="style" href="elara-midnight-layout-2026.css?v=20261006-fast-start-v9">
-  <link rel="preload" as="image" href="assets/ui/hero-landscape.webp" fetchpriority="high">
-  <link rel="preload" as="image" href="assets/ui/brand-elara-app-mark.webp" fetchpriority="high">
+  <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261012-home-first-recovery-v2">
+  <link rel="preload" as="style" href="reference-home-shell-2026.css?v=20261012-home-first-recovery-v2">
+  <link rel="preload" as="style" href="elara-midnight-layout-2026.css?v=20261012-home-first-recovery-v2">
+  <!-- Preload only the image visible on Home; other art loads with its destination. -->
+  <link rel="preload" as="image" href="assets/ui/homebanner1.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20261005-task-system-v8">
   <script defer src="dialog.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="schedule.js?v=20261004-p0-section-tasks-v118"></script>
@@ -45,22 +58,31 @@ html[data-elara-booting] #elara-boot-screen span{
   <script defer src="reading.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="notifications.js?v=20261004-p0-section-tasks-v118"></script>
   <script>
-  if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
+  // A normal entry or browser reload starts on Home. Explicit shared deep links
+  // remain usable on first navigation; in-app route changes never trigger this.
+  (()=>{const type=performance.getEntriesByType('navigation')[0]?.type||'navigate';
+    if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
+    else if(type==='reload'||type==='back_forward'){
+      history.replaceState({...(history.state||{}),elaraTab:'home',elaraDepth:0},'',location.pathname+location.search+'#home');
+    }
+  })();
   </script>
-  <script defer src="app.js?v=20261006-home-first-v10"></script>
+  <script defer src="app.js?v=20261012-task-decision-v1"></script>
   <script defer src="library-enhancements.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="linked-tasks.js?v=20261005-goal-task-v10"></script>
-  <script defer src="phase2.js?v=20261009-global-banner-task-polish-v1"></script>
+  <script defer src="phase2.js?v=20261012-task-decision-v1"></script>
   <script defer src="elara-levels.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="collection-level.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-freedom-r27-live-v1"></script>
+  <script defer src="boot.js?v=20261012-home-entry-perf-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
-    const revealShell=()=>root.removeAttribute('data-elara-booting');
+    // Fail open: a missing optional asset must never strand the entire app behind a skeleton.
+    const showApp=()=>{root.removeAttribute('data-elara-booting');root.removeAttribute('data-elara-boot-failed')};
+    window.ElaraShowBootError=reason=>{console.warn('Elara startup fallback:',reason);showApp()};
     const applyLocalMode=()=>{
       const body=document.body;
       if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
@@ -73,16 +95,15 @@ html[data-elara-booting] #elara-boot-screen span{
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyLocalMode,{once:true});
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:reason,source:'index-failsafe'}}));
     };
+    // Independent of boot.js; protect even against a failed download or a thrown startup error.
     window.setTimeout(()=>{
-      const bootStuck=root.hasAttribute('data-elara-booting');
+      if(root.hasAttribute('data-elara-booting'))showApp();
       const body=document.body;
-      const cloudStuck=!document.querySelector('[data-elara-account-gate-ready]')&&(!body||(!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline')));
-      if(bootStuck)revealShell();
-      if(cloudStuck)forceLocal('html-startup-timeout');
-    },5000);
+      if(!document.querySelector('[data-elara-account-gate-ready]')&&body&&!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline'))forceLocal('html-startup-timeout');
+    },4800);
     window.addEventListener('error',event=>{
       const src=String(event.target?.src||'');
-      if(event.target?.tagName==='SCRIPT'&&(src.includes('/boot.js')||src.endsWith('boot.js')))window.setTimeout(()=>{revealShell();forceLocal('boot-script-load-error')},0);
+      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showApp();forceLocal('boot-script-load-error')}
     },true);
   })();
   </script>
@@ -94,13 +115,15 @@ html[data-elara-booting] #elara-boot-screen span{
       #elara-social-page .social-tabs>[role="tab"]{display:block!important;flex:0 0 92px!important;width:92px!important;min-width:92px!important;margin:0!important;align-self:flex-start!important}
     }
   </style>
+  <!-- All shared/legacy styles must be inserted BEFORE this marker. Page owners win the cascade. -->
+  <meta name="elara-page-owner-styles" content="owner-css-start" id="elara-page-owner-styles">
   <!-- LIB-01: scoped dashboard only; shared shell and canonical modules remain unchanged. -->
-  <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261011-lib01-v2">
+  <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261012-home-first-recovery-v2">
   <!-- FOCUS-01: approved room scene on canonical Pomodoro route; no timer replacement. -->
   <link rel="stylesheet" href="focus-room-fidelity.css?v=20261012-focus-bg-v1">
   <link rel="stylesheet" href="focus-two-mode.css?v=20261012-focus-two-modes-v1">
   <script defer src="focus-two-mode.js?v=20261012-focus-two-modes-v1"></script>
-  <script defer src="lib01-library-dashboard.js?v=20261011-lib01-v2"></script>
+  <script defer src="lib01-library-dashboard.js?v=20261012-home-first-recovery-v2"></script>
   <!-- REPORTS-01 isolated assets; current navigators and subreports remain canonical. -->
   <link rel="stylesheet" href="reports-dashboard-01.css?v=20261012-reports-fidelity-v1">
   <script defer src="reports-dashboard-01.js?v=20261012-reports-fidelity-v1"></script>
@@ -108,9 +131,16 @@ html[data-elara-booting] #elara-boot-screen span{
   <!-- FOCUS-03 reference setup only; immersive remains unchanged. -->
   <link rel="stylesheet" href="focus-setup-reference-03.css?v=20261012-owner-final-v2">
   <script defer src="focus-setup-reference-03.js?v=20261012-owner-final-v2"></script>
+  <link rel="stylesheet" href="task-decision-refinement-20261012.css?v=1">
 </head>
 <body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
-  <div id="elara-boot-screen" aria-hidden="true"><div class="elara-boot-card"><img src="assets/ui/brand-elara-app-mark.webp" width="76" height="76" alt=""><strong>ELARA SPACE</strong><span></span></div></div>
+  <div id="elara-boot-screen" role="status" aria-label="در حال بارگذاری">
+    <div class="elara-skel-app">
+      <aside class="elara-skel-aside" aria-hidden="true"><div class="elara-skel-nav"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div></aside>
+      <div class="elara-skel-main"><div class="elara-skel-top" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div><div class="elara-skel-hero" aria-hidden="true"><span class="elara-skel-line"></span></div><div class="elara-skel-cards" aria-hidden="true"><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span></div></div>
+    </div>
+    <div class="elara-skel-mobile-nav" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div>
+  </div>
   <div id="cloud-layer" class="cloud-layer" role="region" aria-label="حساب کاربری" hidden><div class="cloud-card"><h2>Elara Space</h2><p class="muted" id="cloud-status">در حال اتصال امن…</p><button id="cloud-retry" class="quiet-button" type="button" hidden>تلاش دوباره</button></div></div>
   <div class="shell">
     <aside class="sidebar" aria-label="منوی اصلی">
