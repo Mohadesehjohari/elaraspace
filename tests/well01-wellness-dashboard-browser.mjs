@@ -47,8 +47,7 @@ for(const w of [390,1440]){
   const before=await open(w,baseline);
   await before.evaluate(()=>window.scrollTo(0,0));
   const beforeRect=await geometry(before);
-  beforeGeometry.set(w,beforeRect);
-  console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar.y,headerBottom:beforeRect.bar.bottom,appY:beforeRect.app.y}));
+  if(beforeRect.hero&&beforeRect.shortcut&&beforeRect.features){beforeGeometry.set(w,beforeRect);console.log('WELL_HERO_TOP_BEFORE_'+w,JSON.stringify({heroY:beforeRect.hero.y,heroH:beforeRect.hero.height,heroW:beforeRect.hero.width,shortcutsY:beforeRect.shortcut.y,cardsY:beforeRect.features.y,headerY:beforeRect.bar?.y,headerBottom:beforeRect.bar?.bottom,appY:beforeRect.app?.y}));}else console.log('WELL01_LEGACY_BASELINE_NO_HERO_'+w);
   await before.screenshot({path:'browser-artifacts/well01/before-'+w+'.png',fullPage:true});
   await before.close();
  }
