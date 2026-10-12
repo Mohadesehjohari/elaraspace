@@ -7,7 +7,7 @@ const routeArt=Object.freeze({
  language:['language_banner_main.webp','یادگیری زبان'],
  books:['librairy_banner_main.webp','کتابخانه'],
  exercise:['workout_banner_main.webp','ورزش و سلامتی'],
- ranking:['ranking_banner.webp','رتبه‌بندی'],
+ ranking:['ranking_banner_main.webp?v=20261012-gold1','رتبه‌بندی'],
  social:['36-friends-hero-banner.webp','دوستان'],
  freedom:['41-freedom-hero-banner.webp','آزادی'],
  reports:['39-reports-hero-banner.webp','گزارش‌ها'],
