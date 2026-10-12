@@ -133,14 +133,18 @@ for(const width of widths){
   for(const [route,id] of routes){
    await page.evaluate(route=>window.ElaraOpen(route),route);
    await page.waitForSelector('#'+id+':not(.hidden)',{timeout:12000});
-   await page.mouse.move(12,360);await page.waitForTimeout(260);
+   await page.mouse.move(12,360);
+   // Escape may intentionally restore focus-visible to the account trigger.
+   // Verify the idle state only after keyboard focus leaves the account.
+   await page.evaluate(()=>document.activeElement?.blur?.());
+   await page.waitForTimeout(270);
    const current=await opacity();
    console.log('ACCOUNT_NONHOME_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>{
     const target=document.querySelector('.topbar .ref-header-account-cluster');
     return {hash:location.hash,panelNames:[...document.querySelectorAll('#main > [id^="panel-"]:not(.hidden)')].map(x=>x.id),visibleAny:!!document.querySelector('#main > [id^="panel-"]:not(#panel-home):not(.hidden)'),bodyClasses:document.body.className,matched:document.body.matches('body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden))'),opacity:getComputedStyle(target).opacity};
    })));
-   if(width===1440)assert.ok(current<=.15,route+' desktop should fade account: '+current);
-   else assert.ok(current>=.48&&current<.9,route+' mobile keeps avatar discoverable: '+current);
+   if(width===1440)assert.ok(current<=.15,route+' desktop should fade account when unfocused: '+current);
+   else assert.ok(current>=.48&&current<.9,route+' mobile keeps avatar discoverable when unfocused: '+current);
    if(route==='tasks'){
     await page.screenshot({path:'browser-artifacts/well01/account-tasks-idle-'+width+'.png'});
     if(width===1440){
