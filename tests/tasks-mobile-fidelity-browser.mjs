@@ -70,7 +70,7 @@ async function render(stage,url,width){
    assert.ok(geo.rows>=8,'Test setup did not render tasks');
    assert.ok(geo.hasBottomNav,'Mobile bottom navigation was lost');
  }
- if(stage==='after'&&width<=700){
+ if(stage==='after'&&width<=850){
    assert.ok(geo.averageRowHeight<102,`mobile task rows too tall: ${width}px ${geo.averageRowHeight}px`);
    assert.ok(parseFloat(geo.fontSize)>=15,'Mobile task title too small');
    assert.ok(parseFloat(geo.metadataSize)<=12,'Mobile task metadata too big');
@@ -127,7 +127,7 @@ try{
    console.log(`TASKS ${stage} ${width}: height=${results[stage][width].averageRowHeight.toFixed(1)} visible=${results[stage][width].visibleAboveNav}`);
   }
  }
- for(const width of [320,360,375,390,412,430]){
+ for(const width of [320,360,375,390,412,430,768]){
   const prev=results.before[width],next=results.after[width];
   assert.ok(next.averageRowHeight+7<prev.averageRowHeight,`Task row height not materially reduced at ${width}`);
   assert.ok(next.visibleAboveNav>=prev.visibleAboveNav,`Fewer tasks visible after redesign at ${width}`);
