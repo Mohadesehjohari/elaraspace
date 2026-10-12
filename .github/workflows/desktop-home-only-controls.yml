@@ -1,0 +1,40 @@
+name: Desktop Home-only controls browser gate
+on:
+  pull_request:
+    paths:
+      - 'boot.js'
+      - 'index.html'
+      - 'desktop-home-only-controls-20261012.css'
+      - 'tests/desktop-home-only-controls-browser.mjs'
+      - '.github/workflows/desktop-home-only-controls.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'desktop-home-only-controls-20261012.css'
+      - 'tests/desktop-home-only-controls-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-home-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check the runtime and deployment contract
+        run: |
+          node --check boot.js
+          node --check tests/desktop-home-only-controls-browser.mjs
+          node -e "let b=require('fs').readFileSync('boot.js','utf8');let m=require('./deploy/production-manifest.json');let f='desktop-home-only-controls-20261012.css';if(!b.includes(f)||!m.required.includes(f)||!m.files.includes(f))process.exit(1)"
+      - name: Install Playwright browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate and verify desktop/mobile states
+        run: |
+          python3 -m http.server 4173 > /tmp/elara-homeonly-http.log 2>&1 &
+          sleep 3
+          ELARA_TEST_URL=http://127.0.0.1:4173 node tests/desktop-home-only-controls-browser.mjs
