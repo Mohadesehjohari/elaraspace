@@ -7,6 +7,24 @@ await page.goto(base+'/?wellness-notes='+Date.now()+'#home',{waitUntil:'domconte
 await page.locator('[data-wellness-plan-edit="workout"]').click();await page.locator('.wellness-plan-editor textarea').fill('سه روز تمرین قدرتی\nدو روز کشش');await page.locator('.elara-dialog-actions .primary-button').click();
 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_wellness-qa')||'{}').workoutPlanNote?.includes('تمرین قدرتی'));assert.match(await page.locator('#wellness-workout-plan').innerText(),/تمرین قدرتی/);
 assert.equal((await page.evaluate(()=>window.__wellnessPublished.length)),0,'private plan note leaked to social publish');
+await page.locator('[data-wellness-plan-edit="workout"]').click();
+await page.locator('.wellness-full-plan-editor [name="title"]').fill('برنامه صبحگاهی');
+await page.locator('.wellness-full-plan-editor [data-plan-new-folder]').click();
+await page.locator('.wellness-full-plan-editor [data-plan-folder-title]').fill('گرم کردن');
+await page.locator('.wellness-full-plan-editor [data-plan-folder-note]').fill('پنج دقیقه نرمش');
+await page.locator('.wellness-full-plan-editor [data-plan-tab="checklist"]').click();
+await page.locator('.wellness-full-plan-editor [data-plan-new-item]').fill('دویدن آرام');
+await page.locator('.wellness-full-plan-editor [data-plan-add-item]').click();
+await page.locator('.wellness-full-plan-editor [data-plan-item-index="0"]').check();
+await page.locator('.elara-dialog-actions .primary-button').click();
+await page.waitForFunction(()=>{const d=JSON.parse(localStorage.getItem('elara_private_wellness_v1_wellness-qa')||'{}');return d.workoutPlanTitle==='برنامه صبحگاهی'&&d.workoutPlanFolders?.[0]?.checklist?.[0]?.done===true});
+await page.locator('[data-wellness-plan-edit="workout"]').click();
+assert.equal(await page.locator('.wellness-full-plan-editor [name="title"]').inputValue(),'برنامه صبحگاهی');
+assert.equal(await page.locator('.wellness-full-plan-editor [data-plan-folder-title]').inputValue(),'گرم کردن');
+await page.locator('.wellness-full-plan-editor [data-plan-tab="checklist"]').click();
+assert.equal(await page.locator('.wellness-full-plan-editor [data-plan-item-index="0"]').isChecked(),true);
+await page.locator('.elara-dialog-actions button').filter({hasText:'انصراف'}).click();
+
 await page.locator('[data-wellness-plan-delete="workout"]').click();await page.locator('.elara-dialog-actions .elara-dialog-danger').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_wellness-qa')||'{}').workoutPlanNote==='');
 assert.match(await page.locator('#wellness-workout-plan').innerText(),/هنوز برنامه‌ای ننوشتی/);
 await page.evaluate(()=>window.ElaraI18n.set('en'));await page.waitForTimeout(120);assert.match(await page.locator('.wellness-plans').innerText(),/My private plans|Workout plan/i);
