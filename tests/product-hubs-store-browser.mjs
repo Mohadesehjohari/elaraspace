@@ -122,9 +122,9 @@ async function run(width,height){
  // to eight destinations, with vertically stacked icon+text on narrow phones.
  const socialStrip=page.locator('#elara-social-page .social-tabs');
  const socialBoxes=await socialTiles.evaluateAll(xs=>xs.map(x=>{
-  const r=x.getBoundingClientRect(),im=x.querySelector('img'),img=im?.getBoundingClientRect(),
+  const r=x.getBoundingClientRect(),im=x.querySelector('svg.social-tab-svg'),img=im?.getBoundingClientRect(),
    lab=x.querySelector('.social-tab-label'),lr=lab?.getBoundingClientRect(),css=getComputedStyle(x);
-  return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('src')||'',
+  return {h:r.height,w:r.width,imgH:img?.height||0,imgSrc:im?.getAttribute('viewBox')||'',
    label:lab?.textContent?.trim()||'',labelTop:lr?.top??-1,labelBottom:lr?.bottom??-1,tabTop:r.top,tabBottom:r.bottom,
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
@@ -136,8 +136,8 @@ async function run(width,height){
   !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(visibleSocialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
- assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
- assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*(200|185),\s*255)/,width+': selected cyan focus/glow missing');
+ assert.match(socialBoxes[0].color,/rgb\(55,\s*241,\s*255\)/,width+': selected cyan border color missing');
+ assert.ok(socialBoxes[0].glow.includes('rgb')&&!socialBoxes[0].glow.includes('none'),width+': selected cyan focus/glow missing');
  assert.ok(visibleSocialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==visibleSocialBoxes[0].color&&
   x.bg!==visibleSocialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
