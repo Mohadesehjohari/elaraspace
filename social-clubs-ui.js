@@ -18,6 +18,7 @@ function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.u
 async function hydrateClubMedia(){return; /* Never fetch broken Firebase Storage URLs. */}
 function clubCard(c,owned=true){return '<button type="button" class="social-club-card" data-club-open="'+esc(c.id)+'" data-club-owned="'+(owned?'1':'0')+'"><span class="social-club-kind">'+({reading:'📚',fitness:'⚡',language:'🧠',focus:'🎯',habits:'🔥',meditation:'🫶',general:'🚀'}[c.kind]||'🚀')+'</span><span><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+(owned?roleLabel(c.role):modeLabel(c.membershipMode))+' · '+Number(c.memberCount||1).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'/'+Number(c.memberLimit||50).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')+'</small></span><b>›</b></button>'}
 
+let clubF3Query='',clubF3Kind='',clubF3Mode='';
 const clubF3Num=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
 const clubF3Icon=k=>({reading:'📚',fitness:'⚡',language:'🌐',focus:'🎯',habits:'🔥',meditation:'✧',general:'✦'}[k]||'✦');
 const clubF3Empty=(fa,en)=>'<p class="club-f3-empty">'+t(fa,en)+'</p>';
@@ -61,11 +62,15 @@ async function mount(){
  const error=result.some(x=>x.status==='rejected')?'<p class="club-f3-error" role="status">'+t('برخی اطلاعات دریافت نشد؛ بعداً دوباره تلاش کن.','Some club data could not load; please retry.')+'</p>':'';
  section.dataset.managedClub=manager?.id||'';
  section.innerHTML='<div class="club-f3-summary"><span>'+t('باشگاه‌های من','My clubs')+' <b>'+clubF3Num(clubs.length)+'</b></span><span>'+t('دعوت‌ها','Invites')+' <b>'+clubF3Num(invites.length)+'</b></span><button type="button" class="club-f3-gradient-button" data-club-create '+(!canCreateClub()?'disabled':'')+'>'+t('ساخت باشگاه','Create club')+' ＋</button></div>'+error+'<div class="club-f3-layout">'+rank+tasks+mineHtml+catalogue+popular+invite+news+inviteRows+'</div>';
+ const search=section.querySelector('[data-club-f3-search]'),topic=section.querySelector('[data-club-f3-kind]'),mode=section.querySelector('[data-club-f3-mode]');
+ if(search)search.value=clubF3Query;if(topic)topic.value=clubF3Kind;if(mode)mode.value=clubF3Mode;
+ clubF3Filter();
 }
 function clubF3Filter(){
  const root=document.querySelector('.social-clubs-section.club-f3');if(!root)return;
  const q=(root.querySelector('[data-club-f3-search]')?.value||'').trim().toLocaleLowerCase(),kind=root.querySelector('[data-club-f3-kind]')?.value||'',mode=root.querySelector('[data-club-f3-mode]')?.value||'';
- let found=0;root.querySelectorAll('[data-club-f3-results] [data-club-tile]').forEach(el=>{const ok=(!q||el.dataset.title.includes(q))&&(!kind||el.dataset.kind===kind)&&(!mode||el.dataset.mode===mode);el.hidden=!ok;if(ok)found++});
+ clubF3Query=q;clubF3Kind=kind;clubF3Mode=mode;
+ let found=0;root.querySelectorAll('[data-club-f3-results] [data-club-tile]').forEach(el=>{const ok=(!q||el.dataset.title.includes(q))&&(!kind||el.dataset.kind===kind)&&(!mode||el.dataset.mode===mode);el.hidden=!ok;el.style.setProperty('display',ok?'flex':'none','important');if(ok)found++});
  const no=root.querySelector('[data-club-f3-no-results]');if(no)no.hidden=found!==0;
 }
 document.addEventListener('input',e=>{if(e.target.matches('[data-club-f3-search]'))clubF3Filter()});
