@@ -204,7 +204,8 @@ async function run(width,height){
  assert.ok(themeState.theme&&themeState.dataTheme===themeState.theme,width+': Store profile theme did not persist into profile composition '+JSON.stringify(themeState));
  assert.match(themeState.style,/theme_.*\.webp|city_theme\.webp/,width+': equipped profile theme asset missing from profile composition');
  assert.match(themeState.nameFont,/Georgia|Times/i,width+': equipped profile name font is not applied');
- await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
+ await page.locator('#panel-store .store-more summary').click();assert.equal(await page.locator('#panel-store .store-more').evaluate(el=>el.open),true,width+': Store More categories must expand');
+  await page.locator('[data-store-category="tokens"]').click();assert.match(await page.locator('#panel-store .store-gated-hero').innerText(),/— TOKEN/,width+': token balance must not be fabricated');
  await page.locator('[data-store-category="banners"]').click();await page.locator('#panel-store [data-store-equip="banner"]').first().click();
  const bannerState=await page.evaluate(()=>{const w=ElaraProfileSystem.readWardrobe(),v=ElaraProfileSystem.viewModel(ElaraSocial.me,{self:true}),html=ElaraProfileSystem.composition(v);return{banner:w.banner,html}});
  assert.ok(!!bannerState.banner,width+': Store banner equip did not reach wardrobe source of truth');assert.match(bannerState.html,/assets\/ui\/banner[1-4]\.webp/,width+': equipped banner did not reach profile composition');
