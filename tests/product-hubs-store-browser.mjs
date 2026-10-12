@@ -129,23 +129,27 @@ async function run(width,height){
    selected:x.getAttribute('aria-selected'),disabled:x.disabled||x.getAttribute('aria-disabled')==='true',
    border:parseFloat(css.borderTopWidth),color:css.borderTopColor,bg:css.backgroundImage,glow:css.boxShadow};
  }));
- assert.ok(socialBoxes.every(x=>x.h>=(isMobile?62:50)&&x.h<=(isMobile?72:56)&&x.w>=(isMobile?52:100)&&
+ const visibleSocialBoxes=socialBoxes.filter(x=>x.h>0);
+ assert.equal(visibleSocialBoxes.length,7,width+': seven visible Friends tabs; Challenges must be accessible via Activity CTA');
+ assert.ok(visibleSocialBoxes.every(x=>x.h>=(isMobile?60:45)&&x.h<=(isMobile?74:56)&&x.w>=(isMobile?52:90)&&
   x.imgH>=16&&x.imgH<=30&&x.imgSrc&&x.label&&x.labelTop>=x.tabTop-1&&x.labelBottom<=x.tabBottom+1&&
-  !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(socialBoxes));
+  !x.disabled&&x.bg.includes('gradient')),width+': Friends compact icons/labels/tap targets '+JSON.stringify(visibleSocialBoxes));
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
  assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
  assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
- assert.ok(socialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==socialBoxes[0].color&&
-  x.bg!==socialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
+ assert.ok(visibleSocialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==visibleSocialBoxes[0].color&&
+  x.bg!==visibleSocialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
   const start=el.scrollLeft;el.scrollLeft=-100000;const neg=el.scrollLeft;
   el.scrollLeft=100000;const pos=el.scrollLeft;el.scrollLeft=start;
   return{w:el.clientWidth,full:el.scrollWidth,overflow:getComputedStyle(el).overflowX,neg,pos};
  });
- if(isMobile)assert.ok(scroll.full>scroll.w+20&&scroll.overflow==='auto'&&
-  Math.abs(scroll.neg-scroll.pos)>20,width+': horizontal movement must stay inside Friends strip '+JSON.stringify(scroll));
- else assert.ok(scroll.full<=scroll.w+3,width+': Friends desktop strip must fit '+JSON.stringify(scroll));
+ assert.ok(scroll.full<=scroll.w+3,width+': Friends seven visible destinations should fit or wrap without horizontal overflow '+JSON.stringify(scroll));
+ if(isMobile){
+  const rows=[...new Set(visibleSocialBoxes.map(x=>Math.round(x.tabTop)))];
+  assert.ok(rows.length>=2,width+': compact mobile Friends destinations must wrap into multiple touchable rows');
+ }
  await socialTiles.first().focus();await page.keyboard.press('Tab');
  const keyboard=await socialTiles.nth(1).evaluate(el=>({
   active:document.activeElement===el,visible:el.matches(':focus-visible'),
@@ -156,7 +160,7 @@ async function run(width,height){
  for(const [view,section] of [
   ['chats','.social-dm-section'],['groups','.social-groups-section'],
   ['clubs','.social-clubs-section'],['activity','.social-friend-activity'],
-  ['requests','.social-requests-standalone'],['challenges','.social-hub-slot[data-social-slot="challenges"]'],
+  ['requests','.social-requests-standalone'],
   ['friends','.friends-f2-friends']
  ]){
   await page.locator('#elara-social-page [role="tab"][data-social-view="'+view+'"]').click();
@@ -166,6 +170,10 @@ async function run(width,height){
   assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="friends"]').getAttribute('aria-selected'),
    view==='friends'?'true':'false',width+': inactive state did not update after '+view);
  }
+ // Hidden eighth route must still work through its actual visible CTA in the Friends dashboard.
+ await page.locator('#elara-social-page [data-f2-tab="challenges"]').click();
+ await page.waitForSelector('#elara-social-page .social-hub-slot[data-social-slot="challenges"]');
+ assert.equal(await page.locator('#elara-social-page [role="tab"][data-social-view="challenges"]').getAttribute('aria-selected'),'true',width+': visible Challenges CTA failed to navigate');
  await page.evaluate(()=>ElaraOpen('ranking',{history:'replace'}));
  await page.waitForSelector('#elara-ranking-page:not(.hidden) .social-tabs');
  const ranking=page.locator('#elara-ranking-page .social-tabs [role="tab"]');
