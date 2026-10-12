@@ -168,6 +168,58 @@ for(const width of widths){
   }
  }
  if(width===390||width===1440){
+  assert.ok(await dash.locator('.well01-metric-sleep .well01-ring').count()===1,'sleep ring exists');
+  assert.ok(await dash.locator('.well01-metric-exercise .well01-ring').count()===1,'exercise ring exists');
+  const sleepRing=await dash.locator('.well01-metric-sleep .well01-ring').getAttribute('style');
+  assert.match(sleepRing,/--well01-ring:(?!0%)/,'logged sleep feeds ring');
+  await dash.locator('[data-well01-plan-edit="workout"]').first().click();
+  const plan=page.locator('.elara-dialog-panel:has(.wellness-plan-designer)');
+  await plan.waitFor();
+  await plan.locator('[name="planTitle"]').fill('برنامه تمرینی تازه');
+  await plan.locator('[data-folder-new]').click();
+  await plan.locator('[data-folder-mode="checklist"]').click();
+  await plan.locator('[data-new-item]').fill('تمرین کششی');
+  await plan.locator('[data-item-add]').click();
+  await plan.locator('[data-item-done]').first().check();
+  await plan.screenshot({path:'browser-artifacts/well01/workout-plan-'+width+'.png'});
+  await plan.locator('.elara-dialog-actions .primary-button').click();
+  await plan.waitFor({state:'hidden'});
+  const savedPlan=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')));
+  assert.equal(savedPlan.workoutPlanTitle,'برنامه تمرینی تازه');
+  assert.equal(savedPlan.workoutPlanFolders[0].items[0].text,'تمرین کششی');
+  assert.equal(savedPlan.workoutPlanFolders[0].items[0].done,true);
+  await dash.locator('[data-well01-plan-edit="workout"]').first().click();
+  await plan.waitFor();
+  await plan.locator('[data-folder-mode="checklist"]').click();
+  assert.ok(await plan.locator('[data-item-done]').first().isChecked(),'checklist persisted when reopening');
+  await plan.locator('.elara-dialog-actions button').first().click();
+  await plan.waitFor({state:'hidden'});
+  await dash.locator('[data-well01-plan-edit="nutrition"]').first().click();
+  await plan.waitFor();
+  await plan.locator('[name="planTitle"]').fill('برنامه تغذیه تازه');
+  await plan.locator('[data-folder-new]').click();
+  await plan.locator('[data-folder-mode="note"]').click();
+  await plan.locator('[data-folder-note]').fill('سبزیجات و میوه تازه');
+  await plan.screenshot({path:'browser-artifacts/well01/nutrition-plan-'+width+'.png'});
+  await plan.locator('.elara-dialog-actions .primary-button').click();
+  await plan.waitFor({state:'hidden'});
+  const nutritionState=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')));
+  assert.equal(nutritionState.nutritionPlanTitle,'برنامه تغذیه تازه');
+  assert.equal(nutritionState.nutritionPlanFolders[0].note,'سبزیجات و میوه تازه');
+  await dash.locator('.well01-metric-sleep [data-wellness-add="sleep"]').click();
+  const sleepModal=page.locator('.elara-dialog-panel:has(.wellness-sleep-editor)');
+  await sleepModal.waitFor();
+  assert.ok(await sleepModal.locator('.wellness-sleep-duration strong').count()===1,'sleep duration preview');
+  await sleepModal.screenshot({path:'browser-artifacts/well01/sleep-popup-'+width+'.png'});
+  await sleepModal.locator('.elara-dialog-actions button').first().click();
+  await sleepModal.waitFor({state:'hidden'});
+  await dash.locator('.well01-shortcut[data-feature-route="wellness-sleep"]').click();
+  await page.waitForSelector('#panel-wellness-sleep:not(.hidden)');
+  assert.match(await page.locator('#wellness-sleep-chart').innerText(),/Mon|Tue|Wed|Thu|Fri|Sat|Sun/,'English short weekday labels');
+  await page.locator('#panel-wellness-sleep .feature-subpage-head [data-feature-route="exercise"]').click();
+  await page.waitForSelector('#panel-exercise:not(.hidden)');
+ }
+ if(width===390||width===1440){
   await dash.locator('.well01-activity-card [data-wellness-add="workout"]').click();
   const modal=page.locator('.wellness-workout-dialog[role="dialog"][aria-modal="true"]');
   await modal.waitFor();
