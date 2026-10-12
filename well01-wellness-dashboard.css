@@ -403,12 +403,12 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:opacity 210ms ease;
  }
  body.elara-private-drawer-open:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
- body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster:has(:focus-visible),
+ body[data-well-profile-input="keyboard"]:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar .ref-header-account-cluster:has(:focus-visible),
  body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
   opacity:1;
  }
  body.elara-private-drawer-open:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy,
- body:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account:focus-visible .ref-account-copy{
+ body[data-well-profile-input="keyboard"]:has(#main > [id^="panel-"]:not(#panel-home):not(.hidden)) .workspace>.topbar #ref-header-account:focus-visible .ref-account-copy{
   opacity:1;
  }
 }
