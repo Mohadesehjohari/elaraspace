@@ -127,7 +127,21 @@ for(const width of widths){
   }
   await page.evaluate(()=>window.ElaraOpen('home'));
   await page.waitForSelector('#panel-home:not(.hidden)');
-  assert.ok(Math.abs(await opacity()-1)<.001,'account returns fully visible outside wellness');
+  assert.ok(Math.abs(await opacity()-1)<.001,'account remains fully visible on Home');
+  for(const [route,panelId] of [['tasks','panel-tasks'],['reports','panel-reports'],['habits','panel-habits']]){
+   await page.evaluate(route=>window.ElaraOpen(route),route);
+   await page.waitForSelector('#'+panelId+':not(.hidden)',{timeout:12000});
+   await page.mouse.move(12,360);await page.waitForTimeout(270);
+   const p=await opacity();
+   if(width===1440){
+    assert.ok(p<=.15,'nonhome desktop account should fade on '+route+': '+p);
+    await account.hover();await page.waitForTimeout(260);assert.ok(await opacity()>.9,'hover must reveal account on '+route);
+   }else assert.ok(p>=.48&&p<.9,'nonhome mobile account must remain visible on '+route);
+   await page.evaluate(()=>window.ElaraOpen('home'));
+   await page.waitForSelector('#panel-home:not(.hidden)');
+   await page.waitForTimeout(260);
+   assert.ok(Math.abs(await opacity()-1)<.001,'Home account must restore after '+route);
+  }
   await page.evaluate(()=>window.ElaraOpen('exercise'));
   await page.waitForSelector('#panel-exercise:not(.hidden)');
   console.log('WELL_PROFILE_INTERACTION_PASS_'+width);
