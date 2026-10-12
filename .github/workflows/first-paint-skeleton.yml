@@ -7,6 +7,12 @@ on:
       - lib01-library-dashboard.js
       - tests/first-paint-skeleton-browser.mjs
       - tests/home-entry-speed-browser.mjs
+      - tests/no-legacy-art-first-paint-browser.mjs
+      - reference-home-shell-2026.js
+      - artwork-home-install-2026.js
+      - elara-midnight-layout-2026.css
+      - visual-fidelity-pass5.css
+      - elara-design.js
       - .github/workflows/first-paint-skeleton.yml
   workflow_dispatch:
 permissions:
@@ -26,6 +32,9 @@ jobs:
           node --check lib01-library-dashboard.js
           node --check tests/first-paint-skeleton-browser.mjs
           node --check tests/home-entry-speed-browser.mjs
+          node --check tests/no-legacy-art-first-paint-browser.mjs
+          node --check reference-home-shell-2026.js
+          node --check artwork-home-install-2026.js
           node - <<'NODE'
           const fs = require('fs');
           const index = fs.readFileSync('index.html', 'utf8');
@@ -52,3 +61,7 @@ jobs:
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
         run: timeout 180s node tests/home-entry-speed-browser.mjs
+      - name: No deprecated banner or icon in first paint
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 160s node tests/no-legacy-art-first-paint-browser.mjs
