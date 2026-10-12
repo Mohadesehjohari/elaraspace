@@ -75,7 +75,7 @@ function clubF3Filter(){
  const q=(root.querySelector('[data-club-f3-search]')?.value||'').trim().toLocaleLowerCase(),kind=root.querySelector('[data-club-f3-kind]')?.value||'',mode=root.querySelector('[data-club-f3-mode]')?.value||'';
  clubF3Query=q;clubF3Kind=kind;clubF3Mode=mode;
  let found=0;root.querySelectorAll('[data-club-f3-results] [data-club-tile]').forEach(el=>{const ok=(!q||el.dataset.title.includes(q))&&(!kind||el.dataset.kind===kind)&&(!mode||el.dataset.mode===mode);el.hidden=!ok;el.style.setProperty('display',ok?'flex':'none','important');if(ok)found++});
- const no=root.querySelector('[data-club-f3-no-results]');if(no)no.hidden=found!==0;
+ const no=root.querySelector('[data-club-f3-no-results]');if(no)no.hidden=found!==0||root.querySelectorAll('[data-club-f3-results] [data-club-tile]').length===0;
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-club-f3-retry]')){e.preventDefault();void mount()}});
  document.addEventListener('input',e=>{if(e.target.matches('[data-club-f3-search]'))clubF3Filter()});
