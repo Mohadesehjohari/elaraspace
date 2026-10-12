@@ -6,6 +6,8 @@ const baseline=process.env.ELARA_BASELINE==='1';
 const widths=[320,360,375,390,412,430,768,1024,1440,1648];
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const results=[];
+const revealGuestVisual = page => page.addStyleTag({content:
+  'body.cloud-locked .shell,body:not(.cloud-ready) .shell,body:not(.cloud-ready) .bottom-nav,html[data-elara-booting] .shell{visibility:visible!important;opacity:1!important;pointer-events:auto!important} #cloud-layer{display:none!important}'});
 fs.mkdirSync('browser-artifacts',{recursive:true});
 try {
  for(const width of widths) {
@@ -16,6 +18,7 @@ try {
    await page.goto(base+'/#ranking',{waitUntil:'domcontentloaded',timeout:60000});
    if(baseline) {
      await page.waitForTimeout(3200);
+     await revealGuestVisual(page);
      if(width===390||width===1440)await page.screenshot({path:'browser-artifacts/ranking-before-'+width+'.png',fullPage:true});
      results.push({width,baseline:true});
      await page.close();
@@ -23,6 +26,7 @@ try {
    }
    await page.waitForSelector('#elara-ranking-page.ranking-gold .rg-tabs button',{state:'attached',timeout:45000});
    await page.waitForTimeout(700);
+   await revealGuestVisual(page);
    let state=await page.evaluate(()=>{
      const panel=document.getElementById('panel-ranking');
      const hero=panel?.querySelector(':scope > .ranking-gold-hero');
@@ -79,6 +83,7 @@ try {
    await page.goto(base+'/#ranking',{waitUntil:'domcontentloaded',timeout:60000});
    await page.waitForSelector('#elara-ranking-page.ranking-gold .rg-card',{timeout:30000});
    await page.reload({waitUntil:'domcontentloaded',timeout:60000});
+   await revealGuestVisual(page);
    await page.waitForSelector('#elara-ranking-page.ranking-gold .rg-card',{timeout:30000});
    assert.equal(await page.locator('.rg-hero-copy').count(),1,'Only one ranking hero copy');
    assert.equal(errors.filter(x=>/ranking-gold-20261012/i.test(x)).length,0,'No Ranking Gold script exceptions '+width);
