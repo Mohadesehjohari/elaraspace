@@ -54,7 +54,7 @@ function renderChallenges(){
  host.innerHTML='<section class="ui13-surface ui13-challenge-empty"><img src="assets/ui/11-challenges-icon.webp" width="120" height="120" loading="eager" alt=""><h2>'+tx('چالش زبان مستقل در دست آماده‌سازی است','Dedicated language challenges are being prepared')+'</h2><p>'+tx('چالش‌های دوستانهٔ واقعی در Elara وجود دارند، اما هنوز نوع هدف زبان و داوری نتیجهٔ معتبر برای آن‌ها منتشر نشده است؛ این بخش شرکت‌کننده، امتیاز یا پیشرفت جعلی نمی‌سازد.','Real friend challenges exist, but language-specific targets and server-verified results are not published yet. No invented participants, scores or progress are shown.')+'</p><button class="ui13-primary" type="button" data-ui13-canonical="social">'+tx('مشاهدهٔ چالش‌های واقعی دوستان','See real friend challenges')+'</button></section>';
 }
 
-// L3: full-screen story view, independent #leitner-review route. Canonical word handlers stay in app.js.
+// L3: full-screen story destination, stable ?leitner=review#words deep link, canonical #words dashboard. Canonical word handlers stay in app.js.
 const l3={total:0,history:[],preview:false,historyIndex:0,scene:null,flash:null,original:null,actions:null,forgot:null,known:null,focus:null,scrollY:0,swipeX:null};
 function l3Due(){let d;try{d=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{d={}}
  const today=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
@@ -77,7 +77,7 @@ function l3Sync(){
  const completed=scene.querySelector('.l3-story-frame');completed?.classList.toggle('l3-story-finished',remaining===0&&!l3.preview);
 }
 function l3Enter(push=true){
- if(l3.scene){if(push&&location.hash!=='#leitner-review')history.pushState({l3:true},'', '#leitner-review');return}
+ if(l3.scene){if(push){const u=new URL(location.href);u.searchParams.set('leitner','review');u.hash='#words';history.pushState({l3:true},'',u)}return}
  const panel=$('panel-words');let flash=panel?.querySelector('.flashcard');if(!flash)return;
  const scene=l3Build();l3.total=l3Due().length;l3.history=[];l3.preview=false;l3.historyIndex=0;l3.scrollY=window.scrollY;
  l3.focus=document.activeElement;l3.flash=flash;l3.original=flash.parentNode;
@@ -86,7 +86,7 @@ function l3Enter(push=true){
  scene.querySelector('[data-l3-forgot-slot]').append(l3.forgot);
  scene.querySelector('[data-l3-known-slot]').append(l3.known);
  document.documentElement.classList.add('l3-story-open');document.body.classList.add('l3-story-open');
- if(push&&location.hash!=='#leitner-review')history.pushState({leitner:'review'},'', '#leitner-review');
+ if(push){const u=new URL(location.href);u.searchParams.set('leitner','review');u.hash='#words';history.pushState({leitner:'review'},'',u)}
  l3Sync();requestAnimationFrame(()=>$('word-reveal')?.focus({preventScroll:true}));
 }
 function l3Exit(navigate=true){
@@ -95,7 +95,7 @@ function l3Exit(navigate=true){
  if(l3.flash&&l3.original)l3.original.insertBefore(l3.flash,l3.original.querySelector('#word-list'));
  l3.scene.remove();l3.scene=null;l3.flash=null;l3.actions=null;l3.forgot=null;l3.known=null;l3.history=[];l3.preview=false;
  document.documentElement.classList.remove('l3-story-open');document.body.classList.remove('l3-story-open');
- if(navigate){window.ElaraOpen?.('words',{history:'replace'});if(location.hash!=='#words')history.replaceState(null,'','#words');renderLeitner()}
+ if(navigate){const u=new URL(location.href);u.searchParams.delete('leitner');u.hash='#words';history.replaceState(null,'',u);window.ElaraOpen?.('words',{history:'replace'});renderLeitner()}
  window.scrollTo({top:l3.scrollY,behavior:'instant'});
  if(navigate)requestAnimationFrame(()=>document.querySelector('[data-l2-review]')?.focus({preventScroll:true}));
 }
@@ -111,7 +111,7 @@ function l3Current(){
  l3.scene.querySelector('[data-l3-history]').hidden=true;$('word-reveal')?.focus({preventScroll:true});
 }
 function l3Route(){
- if(location.hash==='#leitner-review'){if(l3.scene)return;const panel=$('panel-words');if(panel?.querySelector('.flashcard'))l3Enter(false);}
+ if(location.hash==='#words'&&new URLSearchParams(location.search).get('leitner')==='review'){if(l3.scene)return;const panel=$('panel-words');if(panel?.querySelector('.flashcard'))l3Enter(false);}
  else if(l3.scene)l3Exit(false);
 }
 
@@ -144,7 +144,7 @@ function renderLeitner(){
 function renderActive(){
  const name=location.hash.replace(/^#/,'');
  if(name==='language-tasks')renderTasks();
- if(name==='words')renderLeitner();if(name==='leitner-review')l3Route();
+ if(name==='words'){renderLeitner();l3Route()}
  if(name==='language-channels')void renderChannels();
  if(name==='language-challenges')renderChallenges();
 }
