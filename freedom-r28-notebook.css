@@ -1,0 +1,190 @@
+/* R28 full-viewport private notebook. Layout and colors grounded in the owner-supplied reference. */
+#elara-dialog-root .elara-dialog-layer:has(.freedom-r28-diary){
+ padding:0!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;
+ inset:0!important;width:100vw!important;height:100dvh!important;max-width:100%!important;overflow:hidden!important;
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary){
+ width:100vw!important;max-width:100vw!important;height:100dvh!important;min-height:100dvh!important;
+ max-height:100dvh!important;min-width:0!important;display:flex!important;flex-direction:column!important;
+ margin:0!important;padding:0!important;transform:none!important;overflow:hidden!important;border:0!important;
+ border-radius:0!important;background:#061329!important;color:#f8f3ff!important;box-shadow:none!important;
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-head{
+ flex:none!important;min-height:60px!important;position:relative!important;z-index:5!important;
+ padding:9px clamp(14px,3vw,44px)!important;margin:0!important;border-bottom:1px solid #546ab744!important;
+ background:linear-gradient(120deg,#071735ed,#0b1d42d9,#0b1532ed)!important;
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-head h2{font-size:clamp(16px,2vw,20px)!important;color:#f7f4ff!important}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-head button{
+ min-height:42px!important;min-width:42px!important;border-radius:12px!important;color:white!important;
+ border:1px solid #6077b077!important;background:#1b2c55!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-body{
+ flex:1 1 auto!important;min-height:0!important;padding:0!important;overflow:hidden!important;
+ margin:0!important;width:100%!important;max-width:100%!important;display:flex!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary)>.elara-dialog-actions{display:none!important}
+#elara-dialog-root .freedom-r28-diary{
+ --r28-border:#4e62b1;--r28-text:#faf6ff;
+ display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+ min-width:0!important;min-height:0!important;width:100%!important;max-width:100%!important;
+ overflow:hidden!important;background-color:#06122c!important;background-position:center!important;
+ background-size:cover!important;direction:rtl!important;isolation:isolate;color:var(--r28-text)!important;
+}
+#elara-dialog-root .freedom-r28-diary *{box-sizing:border-box}
+#elara-dialog-root .r28-shell{
+ display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;
+ width:min(100%,1540px);margin:0 auto;background:linear-gradient(120deg,#05132cec,#071630da);
+ box-shadow:0 0 55px #010615a8;border-inline:1px solid #5475ae55;overflow:hidden
+}
+#elara-dialog-root .r28-section-top{
+ display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;flex:none;min-height:62px;
+ padding:10px clamp(16px,2vw,34px);border-bottom:1px solid #37548e77;
+ background:linear-gradient(115deg,#0c1c40de,#13204be0);position:relative
+}
+#elara-dialog-root .r28-brand{grid-column:2;grid-row:1;align-self:center;justify-self:center;color:#c46aff;
+ font-size:28px;text-shadow:0 0 18px #9c60ff;text-align:center;min-width:120px}
+#elara-dialog-root .r28-brand small{display:block;color:#69b0ff;letter-spacing:.5em;font:800 12px Arial,sans-serif}
+#elara-dialog-root .r28-intro{grid-column:1;grid-row:1;text-align:right;display:grid;gap:3px;min-width:0}
+#elara-dialog-root .r28-intro strong{font-size:clamp(17px,1.4vw,23px);font-weight:900;color:#fff}
+#elara-dialog-root .r28-intro span{font-size:12px;line-height:1.6;color:#a8b8e0}
+#elara-dialog-root .r28-note-form{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(245px,27%)!important;gap:18px!important;
+ flex:1 1 auto;min-height:0;min-width:0;overflow:hidden;padding:16px clamp(16px,2vw,32px)!important;
+ direction:ltr!important;align-items:stretch!important;background:linear-gradient(110deg,#061531ba,#071536a8)
+}
+#elara-dialog-root .r28-editor-column{
+ grid-column:1;display:flex;flex-direction:column;gap:11px;min-width:0;min-height:0;
+ overflow-y:auto;scrollbar-width:thin;scrollbar-color:#624b9f transparent;
+ direction:rtl!important;padding:0 5px 3px 0
+}
+#elara-dialog-root .r28-label{display:flex!important;flex-direction:column!important;gap:7px!important;
+ color:#f3eeff!important;font-size:14px!important;font-weight:850!important;min-width:0;flex:none}
+#elara-dialog-root .r28-label>span{display:inline;color:#baaeff}
+#elara-dialog-root .r28-label input{height:48px!important;width:100%!important;max-width:100%!important;min-width:0!important;
+ color:#f9f6ff!important;background:#101d41db!important;border:1px solid #7255cc!important;
+ border-radius:13px!important;padding:12px 16px!important;box-shadow:inset 0 0 12px #1327597a!important;
+ font:inherit!important;font-size:14px!important;outline-offset:1px!important}
+#elara-dialog-root .r28-label input:focus{border-color:#da7dff!important;box-shadow:0 0 10px #9659ed77!important}
+#elara-dialog-root .r28-label input::placeholder{color:#a4afcc!important}
+#elara-dialog-root .r28-date input{height:44px!important;border-color:#2a508c!important}
+#elara-dialog-root .r28-date input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.8;cursor:pointer}
+#elara-dialog-root .r28-writing-label{gap:0!important}
+#elara-dialog-root .r28-writing-panel{
+ display:flex;flex-direction:column;flex:1 1 auto;min-height:230px;overflow:hidden!important;
+ border-radius:16px;border:1px solid #365ba3;background:#091536e6;
+}
+#elara-dialog-root .r28-tools{height:46px;flex:none;display:flex;flex-direction:row;align-items:center;gap:7px;padding:4px 10px;
+ border-bottom:1px solid #4357a0;background:#0e234bbd;direction:rtl}
+#elara-dialog-root .r28-tools button{height:36px;min-width:38px;border:0;background:transparent;color:#c9d5ff;
+ border-radius:7px;cursor:pointer;font-size:16px}
+#elara-dialog-root .r28-tools button:hover,#elara-dialog-root .r28-tools button:focus-visible{background:#5543a770;color:#fff;outline:1px solid #a49bff}
+#elara-dialog-root .r28-writing-wall{
+ min-width:0;min-height:170px;flex:1 1 auto;background-size:cover!important;background-position:center!important;
+ overflow:hidden;isolation:isolate;position:relative
+}
+#elara-dialog-root .r28-writing-wall:before{
+ content:"";position:absolute;inset:0;background:linear-gradient(180deg,#06142b4d,#0411308c);
+ pointer-events:none;z-index:0
+}
+#elara-dialog-root .r28-writing-wall textarea{
+ display:block!important;position:relative!important;z-index:1!important;height:100%!important;min-height:170px!important;
+ width:100%!important;max-width:100%!important;border:0!important;border-radius:0!important;
+ resize:none!important;background:transparent!important;padding:22px 20px!important;color:white!important;
+ font-size:clamp(15px,1.25vw,18px)!important;line-height:2!important;box-shadow:none!important;
+ font-family:inherit!important;overflow-wrap:anywhere!important;outline:0!important;text-align:right!important
+}
+#elara-dialog-root .r28-writing-wall textarea::placeholder{color:#ccd3f6!important;text-shadow:0 1px 5px #0c1037}
+#elara-dialog-root .r28-tags{display:grid;gap:5px;flex:none}
+#elara-dialog-root .r28-tags>label{font-size:14px;font-weight:800;color:white}
+#elara-dialog-root .r28-tag-field{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:45px;
+ border:1px solid #3758a1;border-radius:13px;background:#0d1c40d9;padding:5px 9px;min-width:0}
+#elara-dialog-root .r28-tag-field>div{display:flex;gap:5px;flex-wrap:wrap;align-items:center;max-width:100%}
+#elara-dialog-root .r28-tag-field input{flex:1 1 110px;min-width:75px;max-width:100%;height:30px;padding:4px;
+ background:transparent;border:0;outline:0;box-shadow:none;color:white;font-size:12px}
+#elara-dialog-root .r28-tag-field button[data-r28-add-tag]{width:34px;height:34px;flex:none;border:1px solid #9b8fff;
+ background:#10224f;color:#fff;border-radius:50%;cursor:pointer;font-size:20px}
+#elara-dialog-root .r28-tag-chip{border:1px solid #6949c7;background:linear-gradient(110deg,#712d82,#2d40a2);
+ color:#fff;min-height:27px;border-radius:9px;padding:3px 8px;cursor:pointer;font-size:11px}
+#elara-dialog-root .r28-tag-chip span{color:#d9b3f5;margin-inline-start:4px}
+#elara-dialog-root .r28-privacy{border:1px solid #334b80;border-radius:9px;background:#0e1a38a6;padding:5px 9px;font-size:11px;color:#c9d2f5}
+#elara-dialog-root .r28-privacy summary{cursor:pointer}
+#elara-dialog-root .r28-privacy label{display:flex;align-items:center;gap:7px;line-height:1.8;padding:5px 0}
+#elara-dialog-root .r28-themes-column{
+ grid-column:2;direction:rtl!important;min-width:0;min-height:0;overflow-y:auto;
+ padding:6px 0 0 12px;border-left:1px solid #4b5da75c;scrollbar-width:thin
+}
+#elara-dialog-root .r28-theme-heading{display:grid;gap:5px;margin-bottom:15px;text-align:right}
+#elara-dialog-root .r28-theme-heading b{font-size:16px;color:#f7f3ff}
+#elara-dialog-root .r28-theme-heading small{font-size:11px;line-height:1.6;color:#b2bfe0}
+#elara-dialog-root .r28-theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#elara-dialog-root .r28-theme-card{min-width:0;padding:5px 5px 10px;border:1px solid #2d4a8d;
+ border-radius:13px;background:linear-gradient(130deg,#0c2045,#121d46);cursor:pointer;color:#f3efff;
+ display:grid;gap:3px;text-align:center;box-shadow:none}
+#elara-dialog-root .r28-theme-card.selected,#elara-dialog-root .r28-theme-card:focus-visible{
+ border-color:#bf62ff;outline:1px solid #a94dff;box-shadow:0 0 15px #9950f36b}
+#elara-dialog-root .r28-theme-image{position:relative;height:clamp(100px,15vh,170px);min-width:0;overflow:hidden;border-radius:8px}
+#elara-dialog-root .r28-theme-image img{height:100%;width:100%;object-fit:cover;display:block}
+#elara-dialog-root .r28-theme-image i{position:absolute;right:7px;top:7px;border:1px solid #ffffffc9;border-radius:50%;
+ width:25px;height:25px;background:#37436a4d}
+#elara-dialog-root .r28-theme-card.selected .r28-theme-image i{background:#8456f6;border-color:#a387ff}
+#elara-dialog-root .r28-theme-card.selected .r28-theme-image i:before{content:"✓";font-style:normal;color:#fff;display:block;text-align:center;line-height:23px}
+#elara-dialog-root .r28-theme-card strong{font-size:12px;line-height:1.6;white-space:normal}
+#elara-dialog-root .r28-theme-card small{font-size:10px;line-height:1.4;color:#b4c4e9}
+#elara-dialog-root .r28-upload{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;
+ margin-top:13px;padding:8px;background:linear-gradient(105deg,#3046b5,#9a4fe4);border:1px solid #ae7ff0;
+ border-radius:12px;color:#fff;font-size:12px;font-weight:850;cursor:pointer;position:relative;text-align:center}
+#elara-dialog-root .r28-upload.selected{outline:2px solid #e7aaff;box-shadow:0 0 17px #a442e888}
+#elara-dialog-root .r28-upload span{font-size:23px;line-height:1}
+#elara-dialog-root .r28-upload input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+#elara-dialog-root .r28-upload-hint{display:block;margin-top:7px;color:#a9b8dd;font-size:10px;line-height:1.6}
+#elara-dialog-root .r28-upload-error{font-size:11px;color:#ffb9de;line-height:1.6;min-height:16px}
+#elara-dialog-root .r28-bottom-actions{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;direction:ltr;
+ flex:none;min-height:68px;padding:10px clamp(16px,2vw,34px);
+ border-top:1px solid #3b52a5;background:#0b193cde
+}
+#elara-dialog-root .r28-bottom-actions>div{display:flex;gap:10px;direction:rtl;min-width:0}
+#elara-dialog-root .r28-bottom-actions button{min-height:44px;border-radius:12px;font-size:13px;
+ font-weight:800;cursor:pointer;padding:8px 15px;white-space:nowrap;color:#fff}
+#elara-dialog-root .r28-bottom-actions .r28-save{border:1px solid #e38ee9;
+ background:linear-gradient(115deg,#fc6eb5,#aa40ef,#5b78ff);box-shadow:0 0 18px #9a56f977}
+#elara-dialog-root .r28-bottom-actions .r28-new{border:1px solid #6987cc;background:#102b57}
+#elara-dialog-root .r28-bottom-actions .r28-close{border:1px solid #475c99;background:#1a2a51}
+#elara-dialog-root .r28-bottom-actions button:focus-visible{outline:2px solid #e9baff;outline-offset:2px}
+#elara-dialog-root .r28-paper .r28-writing-wall:before{background:#fff8}
+#elara-dialog-root .r28-paper .r28-writing-wall textarea{color:#18254b!important;text-shadow:0 1px #fff4!important}
+#elara-dialog-root .r28-paper .r28-writing-wall textarea::placeholder{color:#555b76!important;text-shadow:none!important}
+#panel-freedom img[data-r28-cover]{object-fit:cover!important;background:#091737}
+@media(max-width:800px){
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-head{min-height:54px!important;padding:6px 10px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-head h2{font-size:15px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.freedom-r28-diary) .elara-dialog-body{overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin}
+ #elara-dialog-root .freedom-r28-diary{overflow:visible!important;flex:none!important;min-height:100%!important;height:auto!important}
+ #elara-dialog-root .r28-shell{flex:none;min-height:100%;overflow:visible}
+ #elara-dialog-root .r28-note-form{display:flex!important;flex-direction:column!important;gap:14px!important;
+  overflow:visible!important;flex:none;padding:12px 13px!important}
+ #elara-dialog-root .r28-editor-column{overflow:visible!important;flex:none;gap:10px;padding:0}
+ #elara-dialog-root .r28-writing-panel{min-height:300px;flex:none}
+ #elara-dialog-root .r28-writing-wall{height:275px;min-height:275px;flex:none}
+ #elara-dialog-root .r28-writing-wall textarea{min-height:275px!important;font-size:15px!important;padding:18px 14px!important}
+ #elara-dialog-root .r28-themes-column{order:2;overflow:visible!important;padding:12px 0;border:0;border-top:1px solid #4b5da76b}
+ #elara-dialog-root .r28-theme-image{height:125px}
+ #elara-dialog-root .r28-bottom-actions{position:sticky;bottom:0;z-index:3;min-height:62px;
+  flex-wrap:nowrap;gap:7px;padding:8px 10px;background:#081638f2}
+ #elara-dialog-root .r28-bottom-actions button{font-size:11px;padding:7px 10px;min-height:42px}
+ #elara-dialog-root .r28-section-top{min-height:54px;padding:9px 12px}
+ #elara-dialog-root .r28-intro strong{font-size:15px}
+ #elara-dialog-root .r28-intro span{font-size:11px}
+ #elara-dialog-root .r28-brand{min-width:70px;font-size:21px}
+ #elara-dialog-root .r28-brand small{font-size:9px}
+}
+@media(max-width:400px){
+ #elara-dialog-root .r28-bottom-actions{flex-wrap:wrap;justify-content:center}
+ #elara-dialog-root .r28-bottom-actions>div{flex:1;justify-content:flex-end}
+ #elara-dialog-root .r28-bottom-actions button{padding:7px 8px;font-size:10px}
+ #elara-dialog-root .r28-theme-image{height:115px}
+ #elara-dialog-root .r28-theme-grid{gap:8px}
+ #elara-dialog-root .r28-theme-card{padding:4px 4px 7px}
+}
+@media(prefers-reduced-motion:reduce){#elara-dialog-root .freedom-r28-diary *{scroll-behavior:auto!important;transition:none!important}}
