@@ -23,10 +23,25 @@ function decorate(){
   }
   row.append(wrap);
  }
+
+ // Home preview, completed archive and deferred task queues use title as the jump target
+ // without adding decorative badges or increasing their height.
+ for(const row of document.querySelectorAll('#panel-home .ref-task-row[data-key],#task-checked-archive .task-archive-row[data-task-archive-id],#task-status-groups .task-status-group article')){
+  const id=row.dataset.key||row.dataset.taskArchiveId||row.querySelector('[data-task-restore]')?.dataset.taskRestore;
+  const task=items.get(String(id||''));if(!task)continue;
+  const strong=row.matches('.ref-task-row')?row.querySelector('.ref-task-copy>strong'):row.querySelector('strong');
+  if(!strong)continue;
+  if(!task.list&&!task.folder){strong.removeAttribute('data-org-jump-list');strong.removeAttribute('data-org-jump-folder');continue}
+  if(task.list){strong.dataset.orgJumpList=task.list;strong.removeAttribute('data-org-jump-folder')}
+  else{strong.dataset.orgJumpFolder=task.folder;strong.removeAttribute('data-org-jump-list')}
+  strong.setAttribute('role','link');strong.tabIndex=0;
+  strong.title='رفتن به '+(task.list?'لیست '+task.list:'پوشه '+task.folder);
+ }
  const panel=document.getElementById('panel-tasks'),nav=document.getElementById('task-category-nav'),hero=document.getElementById('astra-task-hero');
  if(panel&&nav&&hero&&nav.previousElementSibling!==hero)hero.after(nav);
 }
 function schedule(){if(running)return;running=true;requestAnimationFrame(()=>{running=false;decorate()})}
+document.addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target?.matches?.('#panel-home [data-org-jump-list],#panel-home [data-org-jump-folder],#task-checked-archive strong[data-org-jump-list],#task-checked-archive strong[data-org-jump-folder]')){event.preventDefault();event.target.click()}});
 function start(){
  schedule();const main=document.getElementById('main');
  if(main)new MutationObserver(x=>{if(x.some(a=>a.addedNodes.length||a.removedNodes.length))schedule()}).observe(main,{subtree:true,childList:true});
