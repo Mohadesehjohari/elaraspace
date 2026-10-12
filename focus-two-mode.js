@@ -17,7 +17,7 @@ function sync(){
  const live=!!active;
  const playing=active?.status==='running';
  const btn=$('[data-lib01-focus-inline]');
- if(btn){btn.textContent=playing?'Ⅱ':live?'▶':'▶';btn.setAttribute('aria-label',playing?t('مکث تایمر','Pause timer'):live?t('ادامه تایمر','Resume timer'):t('شروع تایمر در کتابخانه','Start timer in library'));btn.setAttribute('aria-pressed',String(playing))}
+ if(btn){const label=playing?'Ⅱ':'▶';if(btn.textContent!==label)btn.textContent=label;btn.setAttribute('aria-label',playing?t('مکث تایمر','Pause timer'):live?t('ادامه تایمر','Resume timer'):t('شروع تایمر در کتابخانه','Start timer in library'));btn.setAttribute('aria-pressed',String(playing))}
  const dial=$('#lib01-overview .lib01-focus-dial');if(dial)dial.classList.toggle('is-running',playing);
  if(fullscreen && !live)setFullscreen(false);
 }
@@ -45,9 +45,10 @@ document.addEventListener('click',e=>{
  const mode=e.target.closest('[data-elara-focus-mode]');
  if(mode){e.preventDefault();document.querySelectorAll('[data-elara-focus-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b===mode)));return}
  const start=e.target.closest('#panel-focus-pomodoro #timer-start');
- if(start){if(!fullscreen && !state().activeFocus){setFullscreen(true)}setTimeout(sync,0);return}
+ if(start){return}
  if(e.target.closest('#panel-focus-pomodoro #timer-reset'))setTimeout(sync,0);
 },true);
+window.addEventListener('elara:focus-toggle',()=>{if(location.hash==='#focus-pomodoro'&&!fullscreen&&state().activeFocus?.status==='running')setFullscreen(true);sync()});
 window.addEventListener('elara:open',e=>{if(e.detail?.tab!=='focus-pomodoro')setFullscreen(false);setTimeout(install,0)});
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed'])window.addEventListener(ev,()=>setTimeout(install,0));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fullscreen)setFullscreen(false)});
