@@ -377,3 +377,16 @@
    overflow:visible!important;
  }
 }
+
+/* Touch scroll containment: keep mobile filter swipes and long form scroll inside their surfaces. */
+@media (max-width:767px) {
+  #panel-tasks#panel-tasks #astra-task-chips,
+  #panel-tasks#panel-tasks #task-list>.astra-task-row .astra-task-core-meta {
+    overscroll-behavior-inline:contain!important;
+    scrollbar-width:none!important;
+  }
+  #task-composer-shell#task-composer-shell .task-composer-window {
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+}
