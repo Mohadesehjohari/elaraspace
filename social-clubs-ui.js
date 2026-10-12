@@ -21,7 +21,9 @@ function clubCard(c,owned=true){return '<button type="button" class="social-club
 let clubF3Query='',clubF3Kind='',clubF3Mode='';
 const clubF3Num=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
 const clubF3Icon=k=>({reading:'📚',fitness:'⚡',language:'🌐',focus:'🎯',habits:'🔥',meditation:'✧',general:'✦'}[k]||'✦');
-const clubF3Empty=(fa,en)=>'<p class="club-f3-empty">'+t(fa,en)+'</p>';
+const clubF3Empty=(fa,en)=>'<div class="club-f3-empty"><span class="club-f3-empty-star" aria-hidden="true">✧</span><span>'+t(fa,en)+'</span></div>';
+ // Empty podium is deliberately decorative: no synthetic clubs, ranks, members or scores.
+ const clubF3VacantPodium=()=>'<div class="club-f3-vacant" aria-hidden="true"><div class="club-f3-vacant-slot club-f3-vacant-silver"><span>✧</span><i></i></div><div class="club-f3-vacant-slot club-f3-vacant-gold"><span>✦</span><i></i></div><div class="club-f3-vacant-slot club-f3-vacant-bronze"><span>✧</span><i></i></div></div><p class="club-f3-vacant-label">'+t('هنوز باشگاهی برای رتبه‌بندی قابل مشاهده نیست.','No clubs are currently available to rank.')+'</p>';
 function clubF3Tile(c,owned,cls=''){
  return '<button class="club-f3-tile '+cls+'" type="button" data-club-open="'+esc(c.id)+'" data-club-owned="'+(owned?'1':'0')+'" data-club-tile data-title="'+esc((c.title||'').toLocaleLowerCase())+'" data-kind="'+esc(c.kind||'general')+'" data-mode="'+esc(c.membershipMode||'invite')+'"><span class="club-f3-art club-f3-art-'+esc(c.kind||'general')+'">'+clubF3Icon(c.kind)+'</span><span class="club-f3-text"><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+kindLabel(c.kind)+' · '+modeLabel(c.membershipMode)+'</small><small>'+clubF3Num(c.memberCount)+' '+t('عضو','members')+(owned?' · '+roleLabel(c.role):'')+'</small></span><b aria-hidden="true">←</b></button>';
 }
@@ -44,7 +46,7 @@ async function mount(){
  const rankItem=(c,i)=>'<button type="button" class="club-f3-rank club-f3-rank-'+(i+1)+'" data-club-open="'+esc(c.id)+'" data-club-owned="'+(ownIds.has(c.id)?'1':'0')+'"><span class="club-f3-rank-no">'+clubF3Num(i+1)+'</span><span class="club-f3-art club-f3-art-'+esc(c.kind||'general')+'">'+clubF3Icon(c.kind)+'</span><strong>'+esc(c.title||t('باشگاه','Club'))+'</strong><small>'+clubF3Num(c.memberCount)+' '+t('عضو','members')+'</small></button>';
  const rank=clubF3Panel('🏆 '+t('رتبه‌بندی باشگاه‌ها','Club ranking'),'club-f3-ranking',
  '<p class="club-f3-caption">'+t('پرعضوترین باشگاه‌های قابل مشاهده — بدون امتیاز ساختگی','Accessible clubs ranked by real members — no invented scores')+'</p>'+
- (ordered.length?'<div class="club-f3-podium">'+ordered.slice(0,3).map(rankItem).join('')+'</div><div class="club-f3-rank-list">'+ordered.slice(3,7).map((c,i)=>rankItem(c,i+3)).join('')+'</div>':clubF3Empty('باشگاهی برای رتبه‌بندی پیدا نشد.','No clubs to rank.')));
+ (ordered.length?'<div class="club-f3-podium">'+ordered.slice(0,3).map(rankItem).join('')+'</div><div class="club-f3-rank-list">'+ordered.slice(3,7).map((c,i)=>rankItem(c,i+3)).join('')+'</div>':clubF3VacantPodium()));
  const postSets=await Promise.allSettled(clubs.slice(0,4).map(c=>service.posts(c.id)));
  if(mine!==token||!section.isConnected||clubF3Editing())return;
  const posts=postSets.flatMap((r,i)=>r.status==='fulfilled'&&Array.isArray(r.value)?r.value.map(p=>({...p,club:clubs[i]})):[]).sort((a,b)=>Number(b.ms||0)-Number(a.ms||0));
@@ -61,7 +63,7 @@ async function mount(){
  const invite=clubF3Panel('✉ '+t('دعوت به باشگاه','Invite to club'),'club-f3-invite','<p>'+t('دوستان تأییدشده را با مجوز مدیر یا دستیار از داخل باشگاه دعوت کن.','Invite verified friends from a club you manage.')+'</p><button type="button" class="club-f3-gradient-button" data-club-f3-invite '+(!manager?'disabled':'')+'>'+t('دعوت دوستان','Invite friends')+' ↗</button>'+(!manager?'<small>'+t('برای دعوت باید مدیر یا دستیار یک باشگاه باشی.','Club manager permissions required.')+'</small>':''));
  const news=clubF3Panel('◷ '+t('رویدادها و خبرهای باشگاه','Club activities'),'club-f3-news',notices.length?notices.map(postEntry).join(''):clubF3Empty('رویداد یا اطلاعیهٔ جدیدی موجود نیست.','No new club announcements.'));
  const inviteRows=clubF3Panel('✉ '+t('دعوت‌های دریافتی','Incoming invites'),'club-f3-invitations',invites.length?invites.map(x=>'<div class="club-f3-invite-row"><strong>'+esc(x.club?.title||t('باشگاه','Club'))+'</strong><button type="button" class="primary-button" data-club-invite-action="accepted" data-club-id="'+esc(x.clubId)+'">'+t('پذیرش','Accept')+'</button><button type="button" class="quiet-button danger" data-club-invite-action="declined" data-club-id="'+esc(x.clubId)+'">'+t('رد','Decline')+'</button></div>').join(''):clubF3Empty('دعوت تازه‌ای ندارید.','No new invitations.'));
- const error=result.some(x=>x.status==='rejected')?'<p class="club-f3-error" role="status">'+t('برخی اطلاعات دریافت نشد؛ بعداً دوباره تلاش کن.','Some club data could not load; please retry.')+'</p>':'';
+ const error=result.some(x=>x.status==='rejected')?'<div class="club-f3-error" role="status"><span aria-hidden="true">⚠</span><span>'+t('برخی اطلاعات باشگاه‌ها دریافت نشد. اطلاعات نمایش‌داده‌شده ممکن است کامل نباشد.','Some club information could not load. Displayed results may be incomplete.')+'</span><button type="button" data-club-f3-retry>'+t('تلاش دوباره','Retry')+'</button></div>':'';
  section.dataset.managedClub=manager?.id||'';
  section.innerHTML='<div class="club-f3-summary"><span>'+t('باشگاه‌های من','My clubs')+' <b>'+clubF3Num(clubs.length)+'</b></span><span>'+t('دعوت‌ها','Invites')+' <b>'+clubF3Num(invites.length)+'</b></span><button type="button" class="club-f3-gradient-button" data-club-create '+(!canCreateClub()?'disabled':'')+'>'+t('ساخت باشگاه','Create club')+' ＋</button></div>'+error+'<div class="club-f3-layout">'+rank+tasks+mineHtml+catalogue+popular+invite+news+inviteRows+'</div>';
  const search=section.querySelector('[data-club-f3-search]'),topic=section.querySelector('[data-club-f3-kind]'),mode=section.querySelector('[data-club-f3-mode]');
@@ -75,7 +77,8 @@ function clubF3Filter(){
  let found=0;root.querySelectorAll('[data-club-f3-results] [data-club-tile]').forEach(el=>{const ok=(!q||el.dataset.title.includes(q))&&(!kind||el.dataset.kind===kind)&&(!mode||el.dataset.mode===mode);el.hidden=!ok;el.style.setProperty('display',ok?'flex':'none','important');if(ok)found++});
  const no=root.querySelector('[data-club-f3-no-results]');if(no)no.hidden=found!==0;
 }
-document.addEventListener('input',e=>{if(e.target.matches('[data-club-f3-search]'))clubF3Filter()});
+document.addEventListener('click',e=>{if(e.target.closest('[data-club-f3-retry]')){e.preventDefault();void mount()}});
+ document.addEventListener('input',e=>{if(e.target.matches('[data-club-f3-search]'))clubF3Filter()});
 document.addEventListener('change',e=>{if(e.target.matches('[data-club-f3-kind],[data-club-f3-mode]'))clubF3Filter()});
 async function createClub(kind='general'){
  const service=api();if(!service)return;if(!canCreateClub()){toast(t('ساخت باشگاه از Level 6 باز می‌شود.','Club creation unlocks at Level 6.'));return}
