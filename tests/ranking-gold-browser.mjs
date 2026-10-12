@@ -61,6 +61,32 @@ try {
      copy:[...base.querySelectorAll('b,small')].every(node=>node.getBoundingClientRect().width<=base.getBoundingClientRect().width+2)
    })));
    assert.ok(podiumTextFit.every(x=>x.scrollWidth<=x.width+2&&x.copy),'Podium labels must not overflow '+width+': '+JSON.stringify(podiumTextFit));
+
+   const layout=await page.evaluate(()=>{
+     const rect=cls=>document.querySelector('#elara-ranking-page .'+cls)?.getBoundingClientRect().toJSON();
+     return {grid:rect('rg-grid'),podium:rect('rg-podium-card'),mine:rect('rg-my-card'),
+       rewards:rect('rg-rewards-card'),leaders:rect('rg-leaderboard-card'),
+       clubs:rect('rg-clubs-card'),friends:rect('rg-friends-card'),
+       faces:[...document.querySelectorAll('.rg-podium-portrait .rg-avatar')].map(x=>x.getBoundingClientRect().toJSON()),
+       podiumCTA:document.querySelectorAll('[data-rg-scroll="leaderboard"]').length};
+   });
+   assert.equal(layout.podiumCTA,1,'View complete leaderboard CTA exists '+width);
+   assert.ok(layout.faces.length>=3,'All three podium slots rendered '+width);
+   assert.ok(layout.faces[1].width>layout.faces[0].width,'First place more prominent than second '+width);
+   if(width>=701) {
+     assert.ok(Math.abs(layout.podium.width-layout.grid.width)<=3,'Podium full content width '+width+': '+JSON.stringify(layout));
+     assert.ok(layout.mine.y>=layout.podium.bottom-2,'My Rank below podium '+width);
+     assert.ok(Math.abs(layout.mine.y-layout.rewards.y)<=3,'My Rank and Rewards share a row '+width);
+     assert.ok(Math.abs(layout.leaders.width-layout.grid.width)<=3,'Leaderboard full width '+width);
+     assert.ok(layout.leaders.y>=layout.mine.bottom-2,'Leaderboard below secondary cards '+width);
+     assert.ok(Math.abs(layout.clubs.y-layout.friends.y)<=3,'Clubs and Friends share a row '+width);
+   } else {
+     assert.ok(Math.abs(layout.podium.width-layout.grid.width)<=3,'Mobile podium width '+width);
+     assert.ok(layout.mine.y>=layout.podium.bottom-2,'Mobile cards stack below podium '+width);
+     assert.ok(layout.rewards.y>=layout.mine.bottom-2,'Mobile rewards stack below My Rank '+width);
+     assert.ok(layout.leaders.y>=layout.rewards.bottom-2,'Mobile leaderboard follows rewards '+width);
+   }
+
    for(const name of ['rg-podium-card','rg-my-card','rg-rewards-card','rg-leaderboard-card','rg-clubs-card','rg-friends-card','rg-countdown-card','rg-weekly-card'])assert.ok(state.cards.some(x=>x.includes(name)),'Required panel '+name+' '+width);
    const asset=await page.evaluate(async()=>{const res=await fetch('assets/ui/ranking_banner_main.webp',{cache:'no-store'});return {status:res.status,type:res.headers.get('content-type')}});
    assert.equal(asset.status,200,'WebP available '+width);
@@ -71,6 +97,8 @@ try {
      console.log('RANKING_VISIBILITY_DEBUG '+width+' '+JSON.stringify(debug));
      await page.screenshot({path:'browser-artifacts/ranking-debug-'+width+'.png',fullPage:true});
    }
+   await page.locator('[data-rg-scroll="leaderboard"]').click();
+   await page.waitForTimeout(120);
    await page.locator('[data-rg-filter="friends"]').click();
    assert.equal(await page.locator('.rg-tabs [aria-selected=true]').getAttribute('data-rg-filter'),'friends');
    assert.ok(await page.locator('.rg-friends-card').count(),'Friends tab real data container');
