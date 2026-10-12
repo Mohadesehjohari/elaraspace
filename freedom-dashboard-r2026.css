@@ -198,3 +198,18 @@ html body #panel-freedom .freedom-hero-copy p{margin:0!important;color:#fff!impo
 @media(prefers-reduced-motion:reduce){
  #panel-freedom .fd-tile,#panel-freedom .fd-action{transition:none!important}
 }
+
+/* A visible swipe cue without allowing document-level horizontal scroll. */
+#panel-freedom .fd-swipe-cue{display:none;margin:-10px 4px 0;color:#b5a4df;font-size:11px;text-align:left;line-height:1.45}
+.fd-gallery-dialog .fd-gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fd-gallery-dialog .fd-gallery-grid figure{margin:0;min-width:0}
+.fd-gallery-dialog .fd-gallery-grid img{width:100%;height:155px;object-fit:cover;border-radius:12px}
+.fd-gallery-dialog .fd-gallery-grid figcaption{margin-top:6px;color:#eee3ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:900px){
+ #panel-freedom .fd-swipe-cue{display:block}
+ #panel-freedom .fd-diary-list:has(.fd-empty){min-height:68px}
+ #panel-freedom .fd-diary:has(.fd-empty) .fd-footer-link{margin-top:0}
+}
+@media(max-width:540px){
+ .fd-gallery-dialog .fd-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
