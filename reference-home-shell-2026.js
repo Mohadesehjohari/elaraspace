@@ -8,7 +8,7 @@ const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${Str
 const today=()=>iso(new Date()),fa=v=>Number(v||0).toLocaleString('fa-IR');
 const card=id=>$(id)?.closest('.elara-card');
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
-const UI_ASSETS={hero:'assets/ui/hero-landscape.webp',mission:'assets/ui/missions-rocket.webp',flame:'assets/ui/streak-flame.webp',friends:'assets/ui/friends-tab.webp',friendsGroup:'assets/ui/friends-group-icon.webp',tasks:'assets/ui/nav-tasks-default.webp',taskCheck:'assets/ui/Glowing Neon Checkmark Orb.webp',habits:'assets/ui/icon-habits-sprout.webp',wellness:'assets/ui/green_heart.webp',weight:'assets/ui/apple.webp',water:'assets/ui/icon-wellness-water.webp',exercise:'assets/ui/icon-exercise-running-shoe.webp',sleep:'assets/ui/icon-night-crescent-moon.webp',library:'assets/ui/icon-library-open-book.webp',freedom:'assets/ui/icon-freedom-lotus.webp',ranking:'assets/ui/icon-ranking-trophy.webp',themeDefault:'assets/ui/icon-mode-night-default.webp',themeActive:'assets/ui/icon-mode-night-active.webp',notificationRead:'assets/ui/icon-notifications-read.webp',notificationUnread:'assets/ui/icon-notifications-unread.webp',brandWordmark:'assets/ui/brand-elara-wordmark.webp',achievement:'assets/ui/icon-reward-star.webp',banner:'assets/ui/banner-running-moonlit-mountains.webp',goals:'assets/ui/my-goals-icon.webp',viewAll:'assets/ui/button-view-all.webp'};
+const UI_ASSETS={hero:'assets/ui/homebanner1.webp',mission:'assets/ui/missions-rocket.webp',flame:'assets/ui/streak-flame.webp',friends:'assets/ui/friends-tab.webp',friendsGroup:'assets/ui/friends-group-icon.webp',tasks:'assets/ui/nav-tasks-default.webp',taskCheck:'assets/ui/Glowing Neon Checkmark Orb.webp',habits:'assets/ui/icon-habits-sprout.webp',wellness:'assets/ui/green_heart.webp',weight:'assets/ui/apple.webp',water:'assets/ui/icon-wellness-water.webp',exercise:'assets/ui/icon-exercise-running-shoe.webp',sleep:'assets/ui/icon-night-crescent-moon.webp',library:'assets/ui/icon-library-open-book.webp',freedom:'assets/ui/icon-freedom-lotus.webp',ranking:'assets/ui/icon-ranking-trophy.webp',themeDefault:'assets/ui/icon-mode-night-default.webp',themeActive:'assets/ui/icon-mode-night-active.webp',notificationRead:'assets/ui/icon-notifications-read.webp',notificationUnread:'assets/ui/icon-notifications-unread.webp',brandWordmark:'assets/ui/brand-elara-wordmark.webp',achievement:'assets/ui/icon-reward-star.webp',banner:'assets/ui/banner-running-moonlit-mountains.webp',goals:'assets/ui/my-goals-icon.webp',viewAll:'assets/ui/button-view-all.webp'};
 const THEME_ART={violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',green:'assets/ui/theme_forest_green.webp',orange:'assets/ui/theme_orange.webp',black:'assets/ui/theme_dark.webp'};
 
 const habitArt=h=>/آب|water/i.test(h.title)?UI_ASSETS.water:/خواب|sleep/i.test(h.title)?UI_ASSETS.sleep:/ورزش|تمرین|exercise/i.test(h.title)?UI_ASSETS.exercise:/مدیتیشن|آرامش|meditat/i.test(h.title)?UI_ASSETS.freedom:/مطالعه|کتاب|read/i.test(h.title)?UI_ASSETS.library:UI_ASSETS.habits;
@@ -69,18 +69,30 @@ function localSearch(q){
 }
 
 function element(tag,cls,id){const e=document.createElement(tag);e.className=cls;if(id)e.id=id;return e}
+const QUICK_REFERENCE_SVG={
+tasks:'<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 4h6M9 12l2 2 4-4M9 18h6"/>',
+language:'<path d="M4 6h12M10 3v3m3 0c-.3 6-3 10-8 12m1-8c1 3 4 6 8 8M15 12l5 9m-2-4h-5"/>',
+books:'<path d="M12 21c-2.5-2.5-5.8-3.4-9-3V4c3.5-.4 6.5.4 9 3 2.5-2.6 5.5-3.4 9-3v14c-3.2-.4-6.5.5-9 3ZM12 7v14"/>',
+exercise:'<path d="M3 9v6m3-9v12m3-8v4m6-4v4m3-8v12m3-9v6M9 12h6"/>',
+social:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 6a3 3 0 0 1 0 6m1 3c2.4 0 4 1.6 4 4v1"/>',
+freedom:'<path d="m12 2 2.8 7.2L22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2Z"/>'
+};
 function ensureQuickAccess(panel,grid){
  let q=$('ref-quick-access');if(!q){q=element('section','ref-quick-access','ref-quick-access');q.innerHTML='<header><h2>ورود سریع به بخش‌ها</h2></header><div class="ref-quick-access-grid"></div>';grid?.insertAdjacentElement('afterend',q)}
  const host=q.querySelector('.ref-quick-access-grid');
  const cards=[
-  ['tasks','کارها','برنامه‌ریزی روزانه','nav-tasks-active.webp'],
-  ['language','یادگیری زبان','مسیر رشد فردی','nav-language-default.webp'],
-  ['books','کتابخانه','دانش بی‌مرز','nav-library-default.webp'],
-  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی','icon-wellness-heartbeat.webp'],
-  ['social','دوستان','با هم، دورتر','friends_normal.webp'],
-  ['freedom','آزادی','زندگی دلخواه تو','13-freedom-nav-default.webp']
+  ['tasks','کارها','برنامه‌ریزی روزانه'],
+  ['language','یادگیری زبان','مسیر رشد فردی'],
+  ['books','کتابخانه','دانش بی‌مرز'],
+  ['exercise','ورزش و سلامتی','بدن قوی، ذهن قوی'],
+  ['social','دوستان','با هم، دورتر'],
+  ['freedom','آزادی','زندگی دلخواه تو']
  ];
- if(host&&!host.dataset.ready){host.dataset.ready='1';host.innerHTML=cards.map(([route,title,sub,ic])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><img class="ref-quick-icon" src="assets/ui/'+ic+'" alt="" aria-hidden="true" width="42" height="42" loading="lazy" decoding="async"><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')}
+ if(host&&!host.dataset.ready){
+  host.dataset.ready='1';
+  // Draw the final icons directly; deprecated badge images never enter DOM/network.
+  host.innerHTML=cards.map(([route,title,sub])=>'<button type="button" class="ref-quick-card ref-quick-'+route+'" data-elara-tab="'+route+'"><span class="ref-quick-icon ref-quick-icon--reference" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'+QUICK_REFERENCE_SVG[route]+'</svg></span><span class="ref-quick-copy"><strong>'+title+'</strong><small>'+sub+'</small></span><i aria-hidden="true">‹</i></button>').join('')
+ }
  return q
 }
 function ensureBottomGrid(panel,grid){
@@ -118,7 +130,7 @@ function homeStructure(){
  panel.classList.add('ref-home');grid.classList.add('ref-home-grid');const firstStructure=!grid.dataset.structureReady;grid.dataset.structureReady='true';
  for(const id of ['elara-home-focus','elara-home-books','elara-home-freedom']){const c=card(id);if(c)c.hidden=true}
  const tasks=card('elara-home-tasks'),habits=card('elara-home-habits'),missions=card('elara-home-missions'),goals=card('elara-home-goals'),ranks=card('elara-home-ranks'),activity=card('elara-home-activity'),social=card('elara-home-social');
- let wellness=$('ref-wellness-card');if(!wellness){wellness=element('section','elara-card ref-card ref-wellness-card','ref-wellness-card');wellness.innerHTML=`<header><h2>${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامت / ورزش</h2><button type="button" class="elara-link" data-elara-tab="exercise">همه ←</button></header><div id="ref-wellness-data"></div>`}
+ let wellness=$('ref-wellness-card');if(!wellness){wellness=element('section','elara-card ref-card ref-wellness-card','ref-wellness-card');wellness.innerHTML=`<header><h2>سلامت / ورزش</h2><button type="button" class="elara-link" data-elara-tab="exercise">همه ←</button></header><div id="ref-wellness-data"></div>`}
  let side=$('ref-right-stack');
  let theme=$('ref-theme-strip');if(!theme){theme=element('section','elara-card ref-theme-strip','ref-theme-strip');theme.innerHTML=`<header><h2>${icon('spark')} جهان‌های تم</h2><button type="button" class="elara-link" data-drawer-appearance>مشاهده همه ←</button></header><div class="ref-theme-options">${['violet','blue','pink','green','orange','black'].map((c,i)=>`<button type="button" class="ref-theme-option" data-ref-theme="${c}" aria-label="انتخاب تم ${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}"><img class="ref-theme-option-art" src="${THEME_ART[c]}" alt="" loading="lazy" decoding="async"><small>${['یاسی','آبی','صورتی','سبز','نارنجی','تیره'][i]}</small></button>`).join('')}</div>`}
  const streakCard=$('ref-streak-card')||element('section','ref-streak-card ref-card','ref-streak-card');
@@ -142,13 +154,13 @@ function homeStructure(){
  grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('grid-template-areas')
  const extra=card('elara-home-books');if(extra){extra.hidden=true;if(extra.parentElement!==grid)grid.append(extra)}
  for(const [c,name] of [[tasks,'tasks'],[habits,'habits'],[missions,'missions'],[goals,'goals'],[ranks,'ranks'],[activity,'activity']])if(c){c.classList.add('ref-card','ref-'+name)}
- ownHeading(tasks,'tasks',`${art(UI_ASSETS.tasks,'elara-card-art ref-tasks-heading-art','')} تسک‌های امروز`);
- ownHeading(habits,'habits',`${art(UI_ASSETS.habits,'elara-card-art ref-habits-heading-art','')} عادت‌ها`);
- ownHeading(wellness,'wellness',`${art(UI_ASSETS.wellness,'elara-card-art ref-wellness-heading-art','')} سلامتی و انرژی`);
- ownHeading(missions,'missions',`${art(UI_ASSETS.mission,'ref-art-icon ref-missions-art','')} مأموریت‌های امروز`);
- ownHeading(goals,'goals',`${art(UI_ASSETS.goals,'elara-card-art ref-goals-heading-art','')} اهداف من`);
- ownHeading(ranks,'ranks',`${art(UI_ASSETS.ranking,'elara-card-art ref-ranking-heading-art','')} رتبه‌بندی دوستان`);
- if(activity){const header=activity.querySelector('header');ownHeading(activity,'activity',`${art(UI_ASSETS.friendsGroup,'elara-card-art ref-friends-heading-art','')} فعالیت دوستان`);if(header){let open=header.querySelector('[data-ref-friends-open]')||header.querySelector('[data-elara-tab="social"]');if(!open){open=document.createElement('button');open.type='button';header.append(open)}open.className='elara-link ref-friends-open';open.dataset.refFriendsOpen='1';open.dataset.elaraTab='social';open.setAttribute('aria-label','باز کردن فهرست دوستان');open.innerHTML='<span>همه ←</span>'}}
+ ownHeading(tasks,'tasks',`تسک‌های امروز`);
+ ownHeading(habits,'habits',`عادت‌ها`);
+ ownHeading(wellness,'wellness',`سلامتی و انرژی`);
+ ownHeading(missions,'missions',`مأموریت‌های امروز`);
+ ownHeading(goals,'goals',`اهداف من`);
+ ownHeading(ranks,'ranks',`رتبه‌بندی دوستان`);
+ if(activity){const header=activity.querySelector('header');ownHeading(activity,'activity',`فعالیت دوستان`);if(header){let open=header.querySelector('[data-ref-friends-open]')||header.querySelector('[data-elara-tab="social"]');if(!open){open=document.createElement('button');open.type='button';header.append(open)}open.className='elara-link ref-friends-open';open.dataset.refFriendsOpen='1';open.dataset.elaraTab='social';open.setAttribute('aria-label','باز کردن فهرست دوستان');open.innerHTML='<span>همه ←</span>'}}
  const stats=$('elara-stats');if(stats)stats.hidden=true;
  if(streakCard.parentElement!==grid)grid.prepend(streakCard)
  const hero=panel.querySelector('.elara-hero');if(hero){hero.classList.add('ref-hero');const heading=hero.querySelector('.hero-copy h1');if(heading)heading.textContent='سفر به نسخه‌ای بهتر تو از همین امروز آغاز می‌شود.';const copy=hero.querySelector('.hero-copy');if(copy&&!copy.querySelector('.ref-hero-actions')){copy.querySelector('.ref-hero-continue')?.remove();copy.insertAdjacentHTML('beforeend','<div class="ref-hero-actions"><button type="button" class="ref-hero-continue" data-elara-tab="tasks">ادامه مسیر <span aria-hidden="true">‹</span></button><button type="button" class="ref-hero-reports" data-elara-tab="reports">گزارش‌ها <span aria-hidden="true">↗</span></button></div>')}if(!hero.querySelector('.ref-hero-floating'))hero.insertAdjacentHTML('beforeend','<aside class="ref-hero-floating"><b>✦ پیشرفت</b><span>یک مسیر روزانه است، نه یک مقصد دور.</span></aside>');let quote=$('ref-hero-quote');if(!quote){quote=element('aside','ref-hero-quote','ref-hero-quote');quote.innerHTML='<strong>امروز بهتر از دیروز!</strong><span>همیشه ممکن است.</span>';hero.append(quote)}let desktopStreak=$('ref-desktop-streak');if(!desktopStreak){desktopStreak=element('div','ref-desktop-streak','ref-desktop-streak');desktopStreak.setAttribute('aria-label','استریک روزانه');hero.append(desktopStreak)}}
