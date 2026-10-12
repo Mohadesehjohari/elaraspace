@@ -519,6 +519,17 @@
     ensureTaskCategoryNav();renderTasks();
   }
   document.addEventListener('click',event=>{
+    // Capture Home and canonical Tasks checks before any legacy toggle listener.
+    const check=event.target.closest('#task-list [data-phase2-action="toggle-task"],#panel-home [data-ref-task]');
+    if(check){
+      event.preventDefault();event.stopImmediatePropagation();
+      const id=check.dataset.id||check.dataset.refTask;
+      showTaskDecision(id,check.dataset.taskDate||window.ElaraHomeDay||taskOccurrenceDate||today());
+      return;
+    }
+    // The same native composer must open from mobile and desktop regardless of stale listeners.
+    const add=event.target.closest('#elara-task-add-main');
+    if(add){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
     const choice=event.target.closest('[data-task-decision]');if(choice){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void chooseTaskDecision(choice);return}
     const back=event.target.closest('[data-task-round-back]');if(back){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void taskAction('undo-task',back.dataset.taskRoundBack,back.dataset.taskDate||today());return}
     const restore=event.target.closest('[data-task-restore]');if(restore){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();setTaskFlow(restore.dataset.taskRestore,restore.dataset.day||today(),'');return}
