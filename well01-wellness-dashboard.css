@@ -417,3 +417,147 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:none;
  }
 }
+
+/* WELL-PLANS-GREEN-20261012 — private named plans, folders, charts and sleep. Scoped to Wellness. */
+#panel-exercise #well01-dashboard .well01-metric-sleep,
+#panel-exercise #well01-dashboard .well01-shortcut.well01-sleep{
+ background:radial-gradient(circle at 15% 10%,#0aa87c29,transparent 60%),linear-gradient(130deg,#082b30,#0a3436)!important;
+ border-color:#168e6e!important;
+}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-icon,
+#panel-exercise #well01-dashboard .well01-sleep .well01-shortcut-icon{
+ color:#36f3bd!important;background:#0c665e70!important;border-color:#16c59b!important;box-shadow:0 0 18px #17dba638!important;
+}
+#panel-exercise #well01-dashboard .well01-ring{
+ flex:none;display:grid;place-items:center;width:76px;height:76px;border-radius:50%;
+ background:conic-gradient(#1effae var(--well01-ring,0%),#24565d var(--well01-ring,0%));
+ box-shadow:0 0 14px #19e9ad3c;position:relative;
+}
+#panel-exercise #well01-dashboard .well01-ring:before{
+ content:"";position:absolute;inset:7px;border-radius:50%;background:linear-gradient(145deg,#052a32,#07282b);
+}
+#panel-exercise #well01-dashboard .well01-ring>span{z-index:1;font-size:1.6rem;color:#58ffd0;line-height:1}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-icon,
+#panel-exercise #well01-dashboard .well01-metric-exercise .well01-metric-icon{display:none!important}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-top,
+#panel-exercise #well01-dashboard .well01-metric-exercise .well01-metric-top{align-items:center}
+@media(max-width:700px){
+ #panel-exercise #well01-dashboard .well01-ring{width:55px;height:55px}
+ #panel-exercise #well01-dashboard .well01-ring:before{inset:5px}
+ #panel-exercise #well01-dashboard .well01-ring>span{font-size:1.25rem}
+}
+/* Subpage sleep line: visible SVG strokes and compact responsive geometry, Mon-Sun labels come from JS. */
+#panel-wellness-sleep .wellness-sleep-line{width:min(100%,570px);height:164px;margin:14px auto 6px;overflow:visible}
+#panel-wellness-sleep .wellness-sleep-line svg{width:100%;height:100%;display:block;overflow:visible}
+#panel-wellness-sleep .wellness-sleep-line .line{fill:none;stroke:#25f2a8;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px #0ad6a588)}
+#panel-wellness-sleep .wellness-sleep-line .axis{stroke:#358d75;stroke-width:1}
+#panel-wellness-sleep .wellness-sleep-line .point{fill:#42ffd0;stroke:#045039;stroke-width:1.5}
+#panel-wellness-sleep .wellness-sleep-line text{font:10px Arial,sans-serif;fill:#cbffe9;direction:ltr}
+#panel-wellness-sleep .wellness-empty-chart{padding:24px;text-align:center;color:#c4e5db}
+#panel-wellness-sleep .wellness-sleep,#panel-wellness-sleep .wellness-workouts,
+#panel-wellness-exercise .wellness-plans,
+#panel-wellness-reports .elara-card,
+#panel-wellness-analysis .elara-card{
+ border-color:#176c5b!important;background:linear-gradient(145deg,#052825,#071e2c)!important;
+}
+#panel-wellness-sleep .wellness-entry,#panel-wellness-exercise .wellness-plan-note-card{
+ border-color:#218f7777;color:#e8fff8;
+}
+#panel-wellness-sleep .elara-link,#panel-wellness-sleep .wellness-entry button{border-color:#13ac80;color:#71ffcd}
+#panel-wellness-sleep .wellness-sleep-line,
+#panel-wellness-sleep .wellness-sleep>header{color:#e9fff9}
+@media(max-width:700px){
+ #panel-wellness-sleep .wellness-sleep-line{width:100%;max-width:100%;height:138px}
+}
+/* Full green dialog treatment, without changing other app modals. */
+.elara-dialog-panel:has(.wellness-plan-designer),
+.elara-dialog-panel:has(.wellness-sleep-editor){
+ width:min(850px,calc(100vw - 28px));max-height:calc(100dvh - 28px);
+ background:linear-gradient(145deg,#062d28,#05181f 70%,#06332d)!important;
+ border:1px solid #1ce6a4!important;box-shadow:0 0 25px #00df9a30,0 25px 80px #000b!important;
+ color:#effff8!important;direction:rtl;
+}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-head,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-head{
+ background:linear-gradient(100deg,#07362a99,#06271cd0),url("assets/ui/workout_banner_main.webp") center 56%/cover!important;
+ border-bottom:1px solid #1be4a36b;min-height:91px;align-items:center;
+}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-head h2,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-head h2{color:#fff;font-weight:900;font-size:1.28rem}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-kicker,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-kicker{color:#52ffcc}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-actions,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-actions{
+ background:#04271fe8!important;border-top:1px solid #1cae85;
+}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-actions .primary-button,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-actions .primary-button{
+ background:linear-gradient(125deg,#0cefa2,#38e6b4)!important;color:#052522!important;border:1px solid #7bffca!important;box-shadow:0 0 14px #12ef9c5a!important;
+}
+.elara-dialog-panel:has(.wellness-plan-designer) .elara-dialog-body,
+.elara-dialog-panel:has(.wellness-sleep-editor) .elara-dialog-body{padding:16px 18px!important}
+.wellness-plan-designer{display:block!important;grid-template-columns:none!important;padding:0!important}
+.wellness-plan-designer,.wellness-sleep-editor{color:#eafff6;font:inherit}
+.wellness-plan-designer *,.wellness-sleep-editor *{box-sizing:border-box}
+.wellness-plan-designer label,.wellness-sleep-editor label{display:grid;gap:7px;color:#e2fff5;font-size:.88rem;font-weight:700;min-width:0}
+.wellness-plan-designer input,.wellness-plan-designer textarea,.wellness-plan-designer select,
+.wellness-sleep-editor input,.wellness-sleep-editor textarea,.wellness-sleep-editor select{
+ width:100%;min-width:0;max-width:100%;border:1px solid #378a76!important;border-radius:11px!important;
+ padding:11px 12px!important;background:#061f21!important;color:#f2fff9!important;outline-offset:2px;font:inherit;
+}
+.wellness-plan-designer textarea,.wellness-sleep-editor textarea{resize:vertical;line-height:1.8}
+.wellness-plan-designer :focus-visible,.wellness-sleep-editor :focus-visible{outline:2px solid #5dffd0}
+.wellness-design-intro{display:grid;gap:13px}
+.wellness-design-days{display:grid;gap:8px;padding:12px;border:1px solid #1f755d;border-radius:14px;background:#09604330}
+.wellness-design-days>div{display:flex;flex-wrap:wrap;gap:6px}
+.wellness-design-days button,.wellness-design-new,.wellness-design-tabs button,.wellness-design-add-item button{
+ background:#06362f!important;color:#defdf0!important;border:1px solid #2a9077!important;border-radius:10px;padding:8px 13px;min-height:40px;
+}
+.wellness-design-days button.selected,.wellness-design-tabs button[aria-selected="true"]{
+ background:#086f55!important;border-color:#1bfbb8!important;box-shadow:0 0 13px #19e7a452;
+}
+.wellness-design-settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wellness-design-settings>label{padding:11px;background:#0c3d335c;border:1px solid #28745e;border-radius:12px}
+.wellness-design-folders{margin-top:18px;border:1px solid #1b735b;border-radius:16px;padding:12px;background:#09281e5c}
+.wellness-design-folders>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+.wellness-design-folders h3,.wellness-design-folders h4{margin:0;color:#eafff8}
+.wellness-design-workspace{display:grid;grid-template-columns:minmax(180px,.75fr) minmax(0,1.25fr);gap:12px;min-height:245px}
+.wellness-design-folder-list{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wellness-design-folder-row{display:flex;align-items:center;gap:4px;padding:5px;border:1px solid #2b7260;border-radius:11px;background:#092e2d}
+.wellness-design-folder-row.selected{border-color:#21e99e;box-shadow:0 0 12px #00dfa84a}
+.wellness-design-folder-row button{background:transparent!important;border:0!important;color:#e2fff5;min-height:37px}
+.wellness-design-folder-row button[data-folder-open]{flex:1;min-width:0;display:flex;align-items:center;gap:6px;text-align:right}
+.wellness-design-folder-row button[data-folder-open] span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wellness-design-folder-row button[data-folder-remove]{color:#ff9a9a}
+.wellness-design-folder-detail{min-width:0;min-height:245px;border:1px solid #367963;border-radius:13px;padding:11px;background:#051d21ba}
+.wellness-design-tabs{display:flex;gap:7px;margin:12px 0}
+.wellness-design-tabs button{flex:1}
+.wellness-design-checklist ul{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.wellness-design-checklist li{display:flex;gap:6px;align-items:center}
+.wellness-design-checklist li label{display:flex;align-items:center;flex:1}
+.wellness-design-checklist li input[type="checkbox"]{width:21px;min-width:21px;height:21px;accent-color:#19efad}
+.wellness-design-checklist li button{background:transparent;color:#ff9c9c;border:0;font-size:1.15rem;min-width:35px;min-height:35px}
+.wellness-design-add-item{display:flex;gap:7px}
+.wellness-design-add-item button{white-space:nowrap}
+.wellness-design-empty{color:#bde5d5;line-height:1.8}
+.wellness-design-private{display:block;margin-top:12px;color:#83cdb5;font-size:.75rem}
+.wellness-sleep-editor{display:block!important;padding:0!important}
+.wellness-sleep-cover{padding:14px;border-radius:14px;background:linear-gradient(110deg,#07422a,#07452c44),url("assets/ui/workout_banner_main.webp") center/cover;display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;color:#7cffe0}
+.wellness-sleep-cover strong{font-size:1.2rem;color:#fff}
+.wellness-sleep-fields{display:grid;gap:12px}
+.wellness-sleep-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wellness-sleep-duration{margin:0;border:1px solid #27916d;border-radius:12px;padding:12px;background:#0a624441;color:#b0f4d2}
+.wellness-sleep-duration strong{color:#36ffb9}
+@media(max-width:700px){
+ .elara-dialog-panel:has(.wellness-plan-designer),.elara-dialog-panel:has(.wellness-sleep-editor){width:100%;max-height:100dvh;height:100dvh;border:0!important;border-radius:0!important}
+ .elara-dialog-layer:has(.wellness-plan-designer),.elara-dialog-layer:has(.wellness-sleep-editor){padding:0!important}
+ .wellness-design-settings{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .wellness-design-workspace{grid-template-columns:1fr;min-height:0}
+ .wellness-design-folder-list{max-height:170px;overflow:auto}
+ .wellness-design-folder-detail{min-height:175px}
+ .wellness-sleep-pair{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-exercise #well01-dashboard .well01-ring{transition:none}
+ .wellness-plan-designer *, .wellness-sleep-editor *{animation:none!important;transition:none!important}
+}
