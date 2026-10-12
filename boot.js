@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261012-tasks-mobile-inline-v2';
+  const BUILD='20261012-list-hierarchy-v3';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
