@@ -1014,3 +1014,28 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page .club-f3-cards{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){#elara-social-page .club-f3-tile,#elara-social-page .social-tabs [role="tab"]{transition:none!important}}
+
+
+/* Fix implicit 12-column tracks on mobile: desktop-only 9/13 areas must never
+   override the explicit two-column phone/tablet grid. */
+@media(max-width:1050px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:row!important;
+ }
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-column:1!important;grid-row:4!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-fidelity-memberships{grid-column:2!important;grid-row:4!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1!important;grid-row:5!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:1/-1!important;grid-row:6!important}
+}
+@media(max-width:700px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-column:1/-1!important;grid-row:4!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-fidelity-memberships{grid-column:1/-1!important;grid-row:5!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1/-1!important;grid-row:6!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:1/-1!important;grid-row:7!important}
+}
+@media(max-width:380px){
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-activities{grid-column:1/-1!important;grid-row:5!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-fidelity-memberships{grid-column:1/-1!important;grid-row:6!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-preview-chats{grid-column:1/-1!important;grid-row:7!important}
+ #elara-social-page.social-reference.social-friends-page[data-social-tab="friends"] .social-reference-grid>.friends-f2-ranking{grid-column:1/-1!important;grid-row:8!important}
+}
