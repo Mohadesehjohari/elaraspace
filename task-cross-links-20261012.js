@@ -38,6 +38,7 @@ function decorate(){
   strong.title='رفتن به '+(task.list?'لیست '+task.list:'پوشه '+task.folder);
  }
  const panel=document.getElementById('panel-tasks'),nav=document.getElementById('task-category-nav'),hero=document.getElementById('astra-task-hero');
+ if(panel)for(const el of panel.querySelectorAll('a,button')){if((el.textContent||'').includes('بازگشت به خانه'))el.classList.add('elara-task-back-home-hidden')}
  if(panel&&nav&&hero&&nav.previousElementSibling!==hero)hero.after(nav);
 }
 function schedule(){if(running)return;running=true;requestAnimationFrame(()=>{running=false;decorate()})}

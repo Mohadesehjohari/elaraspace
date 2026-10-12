@@ -28,14 +28,14 @@ function task(t){
 }
 function list(s,name){
  const desc=meta(s,name).description,rows=(s.tasks||[]).filter(t=>t.list===name),done=rows.filter(completed).length;
- return '<details class="org-list" data-org-list="'+esc(name)+'" '+(openedLists.has(name)||focusList===name?'open':'')+'><summary><span aria-hidden="true">☑</span><div><strong>'+esc(name)+'</strong><small>'+esc(desc||'بدون توضیحات')+'</small></div><b>'+fa(done)+' / '+fa(rows.length)+'</b><i>⌄</i></summary><div class="org-list-body"><div class="org-list-tools"><button type="button" data-org-task-new="'+esc(name)+'">+ تسک</button><button type="button" data-org-list-edit="'+esc(name)+'">ویرایش</button></div>'+ (rows.length?rows.map(task).join(''):'<p class="org-empty">لیست خالی است؛ یک تسک اضافه کن.</p>')+'</div></details>';
+ return '<details class="org-list" data-org-list="'+esc(name)+'" '+(openedLists.has(name)||focusList===name?'open':'')+'><summary><span aria-hidden="true">☑</span><div><strong>'+esc(name)+'</strong><small>'+esc(desc||'بدون توضیحات')+'</small></div><b>'+fa(done)+' / '+fa(rows.length)+'</b><i>⌄</i></summary><div class="org-list-body"><div class="org-list-tools"><button type="button" data-org-task-new="'+esc(name)+'">+ تسک</button><button type="button" data-org-list-edit="'+esc(name)+'">ویرایش</button><button type="button" class="org-delete" data-org-list-delete="'+esc(name)+'">حذف لیست</button></div>'+ (rows.length?rows.map(task).join(''):'<p class="org-empty">لیست خالی است؛ یک تسک اضافه کن.</p>')+'</div></details>';
 }
 function folder(s,name,mode){
  const lists=(s.taskLists||[]).filter(n=>(meta(s,n).folder||'')===name);
  const noList=(s.tasks||[]).filter(t=>!t.list&&(t.folder||'')===name);
  const count=lists.reduce((n,k)=>n+(s.tasks||[]).filter(t=>t.list===k).length,0)+noList.length;
  const open=openedFolders.has(name)||focusFolder===name||(mode==='lists'&&!focusList);
- return '<details class="org-folder" data-org-folder="'+esc(name)+'" '+(open?'open':'')+'><summary><span aria-hidden="true">▣</span><strong>'+esc(name||'بدون پوشه')+'</strong><small>'+fa(lists.length)+' لیست · '+fa(count)+' تسک</small><i>⌄</i></summary><div class="org-folder-body"><div class="org-folder-tools"><button type="button" data-org-list-new data-folder="'+esc(name)+'">+ لیست</button><button type="button" data-org-task-new="" data-folder="'+esc(name)+'">+ تسک</button></div>'+lists.map(k=>list(s,k)).join('')+(noList.length?'<div class="org-no-list"><strong>بدون لیست</strong>'+noList.map(task).join('')+'</div>':'')+(!count&&!lists.length?'<p class="org-empty">هنوز موردی ثبت نشده.</p>':'')+'</div></details>';
+ return '<details class="org-folder" data-org-folder="'+esc(name)+'" '+(open?'open':'')+'><summary><span aria-hidden="true">▣</span><strong>'+esc(name||'بدون پوشه')+'</strong><small>'+fa(lists.length)+' لیست · '+fa(count)+' تسک</small><i>⌄</i></summary><div class="org-folder-body"><div class="org-folder-tools"><button type="button" data-org-list-new data-folder="'+esc(name)+'">+ لیست</button><button type="button" data-org-task-new="" data-folder="'+esc(name)+'">+ تسک</button>'+(name?'<button type="button" class="org-delete" data-org-folder-delete="'+esc(name)+'">حذف پوشه</button>':'')+'</div>'+lists.map(k=>list(s,k)).join('')+(noList.length?'<div class="org-no-list"><strong>بدون لیست</strong>'+noList.map(task).join('')+'</div>':'')+(!count&&!lists.length?'<p class="org-empty">هنوز موردی ثبت نشده.</p>':'')+'</div></details>';
 }
 function render(){
  const root=ensure();if(!root)return;
@@ -72,6 +72,35 @@ function modal(kind,old='',folder=''){
  });
  d.showModal();d.querySelector('input')?.focus();
 }
+async function removeGroup(kind,name){
+ const isList=kind==='list',label=isList?'لیست':'پوشه';
+ const ok=window.ElaraDialog?.confirm
+  ? await window.ElaraDialog.confirm('«'+name+'» حذف شود؟ تسک‌ها نگه داشته می‌شوند و فقط دسته‌بندی‌شان تغییر می‌کند.',{title:'حذف '+label,danger:true,confirmText:'حذف'})
+  : window.confirm('«'+name+'» حذف شود؟ تسک‌ها حذف نمی‌شوند.');
+ if(!ok)return;
+ const s=get();s.tasks=Array.isArray(s.tasks)?s.tasks:[];
+ s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];
+ s.folders=Array.isArray(s.folders)?s.folders:[];
+ s.taskListDetails=s.taskListDetails&&typeof s.taskListDetails==='object'?s.taskListDetails:{};
+ if(isList){
+  const parent=meta(s,name).folder||'';
+  s.taskLists=s.taskLists.filter(n=>n!==name);
+  delete s.taskListDetails[name];
+  s.tasks.forEach(t=>{if(t.list===name){t.list='';t.folder=parent}
+   Object.values(t.occurrenceOverrides||{}).forEach(o=>{if(o?.list===name){o.list='';o.folder=parent}})
+  });
+  openedLists.delete(name);if(focusList===name)focusList='';
+ }else{
+  if(!name)return;
+  s.folders=s.folders.filter(n=>n!==name);
+  Object.values(s.taskListDetails).forEach(d=>{if(d?.folder===name)d.folder=''});
+  s.tasks.forEach(t=>{if(t.folder===name)t.folder='';
+   Object.values(t.occurrenceOverrides||{}).forEach(o=>{if(o?.folder===name)o.folder=''})
+  });
+  openedFolders.delete(name);if(focusFolder===name)focusFolder='';
+ }
+ store(s);queue();
+}
 function addTask(list='',folder=''){
  window.ElaraTasks?.openComposer?.({focus:false});
  requestAnimationFrame(()=>{const x=get(),l=document.getElementById('task-list-name'),f=document.getElementById('task-folder');if(l)l.value=list;if(f)f.value=list?meta(x,list).folder||'':folder;document.getElementById('task-title')?.focus()});
@@ -81,11 +110,13 @@ function jump(list='',folder=''){
  window.ElaraOpen?.('tasks');window.ElaraTasks?.selectCategory?.(list?'lists':'folders');queue();
 }
 document.addEventListener('click',e=>{
- const b=e.target.closest('[data-org-folder-new],[data-org-list-new],[data-org-list-edit],[data-org-task-new],[data-org-toggle],[data-org-jump-list],[data-org-jump-folder]');
+ const b=e.target.closest('[data-org-folder-new],[data-org-list-new],[data-org-list-edit],[data-org-task-new],[data-org-toggle],[data-org-jump-list],[data-org-jump-folder],[data-org-list-delete],[data-org-folder-delete]');
  if(!b)return;e.preventDefault();e.stopImmediatePropagation();
  if(b.hasAttribute('data-org-folder-new'))modal('folder');
  else if(b.hasAttribute('data-org-list-new'))modal('list','',b.dataset.folder||'');
  else if(b.hasAttribute('data-org-list-edit'))modal('list',b.dataset.orgListEdit);
+ else if(b.hasAttribute('data-org-list-delete'))void removeGroup('list',b.dataset.orgListDelete);
+ else if(b.hasAttribute('data-org-folder-delete'))void removeGroup('folder',b.dataset.orgFolderDelete);
  else if(b.hasAttribute('data-org-task-new'))addTask(b.dataset.orgTaskNew,b.dataset.folder||'');
  else if(b.hasAttribute('data-org-toggle'))void window.ElaraTasks?.taskAction?.('toggle-task',b.dataset.id);
  else if(b.hasAttribute('data-org-jump-list')){const s=get();jump(b.dataset.orgJumpList,meta(s,b.dataset.orgJumpList).folder||'')}
