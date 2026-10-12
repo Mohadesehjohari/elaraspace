@@ -417,3 +417,17 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:none;
  }
 }
+
+/* Wellness sleep/exercise rings: calculated from private saved entries. */
+#panel-exercise #well01-dashboard .well01-metric-sleep{background:radial-gradient(circle at 15% 10%,#08a77d2e,transparent 58%),linear-gradient(125deg,#06372c,#071f26)}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-icon{background:#075c49ad;color:#56ffbc}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-top,
+#panel-exercise #well01-dashboard .well01-metric-exercise .well01-metric-top{position:relative}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-top:after,
+#panel-exercise #well01-dashboard .well01-metric-exercise .well01-metric-top:after{
+content:"";display:block;flex:none;width:54px;height:54px;border-radius:50%;
+background:conic-gradient(#40f5af var(--ring-end,0%),#345d6266 0);
+-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));
+mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px))}
+#panel-exercise #well01-dashboard .well01-metric-sleep .well01-metric-top:after{--ring-end:var(--sleep-progress,0%)}
+#panel-exercise #well01-dashboard .well01-metric-exercise .well01-metric-top:after{--ring-end:var(--exercise-progress,0%)}
