@@ -84,7 +84,8 @@ function renderDreams(r,d){
 function renderMusic(r){
  const host=r.querySelector('[data-fd-song]');if(!host)return;
  const song=space().profileSong;
- if(!song?.previewUrl){host.innerHTML='<div class="fd-music-empty"><img src="'+A+'04-study-music-ambience-icon.webp" alt=""><p>هنوز آهنگی انتخاب نکرده‌ای. آهنگ‌های واقعی را در جستجوی Apple Preview پیدا کن.</p><button type="button" data-fd-music>جستجوی موسیقی</button></div>';return}
+ if(!song?.previewUrl&&!song?.localAudioKey){host.innerHTML='<div class="fd-music-empty"><img src="'+A+'04-study-music-ambience-icon.webp" alt=""><p>هنوز آهنگی انتخاب نکرده‌ای. آهنگ‌های واقعی را در جستجوی Apple Preview پیدا کن.</p><button type="button" data-fd-music>جستجوی موسیقی</button></div>';return}
+ if(song.localAudioKey){host.innerHTML='<div class="fd-playing"><img src="'+A+'04-study-music-ambience-icon.webp" alt=""><div><strong dir="auto">'+esc(song.title||'فایل صوتی من')+'</strong><small>آپلود خصوصی · همین مرورگر</small><small>پخش پس از انتخاب شما</small></div><audio controls preload="none" aria-label="پخش موسیقی آپلودشده"></audio></div>';void window.ElaraFreedomMusicR27?.attachLocalAudio?.(host,song);return}
  host.innerHTML='<div class="fd-playing"><img src="'+esc(song.artwork||A+'04-study-music-ambience-icon.webp')+'" alt="">'+
  '<div><strong dir="auto">'+esc(song.title||'آهنگ پروفایل')+'</strong><small dir="auto">'+esc(song.artist||'')+'</small><small>Apple Preview · پخش فقط با انتخاب شما</small></div>'+
  '<audio controls preload="none" src="'+esc(song.previewUrl)+'" aria-label="پخش پیش‌نمایش موسیقی"></audio></div>';
@@ -106,9 +107,7 @@ async function gallery(){
 }
 async function openSection(kind){
  const enhancement=window.ElaraFreedomEnhancements,media=window.ElaraFreedomMediaDiary;
- if(kind==='diary')return media?.openDiary?.();
- if(kind==='gallery')return gallery();
- if(['vision','ideas','inspiration','art','experiences','reflection','notes'].includes(kind))return enhancement?.open?.(kind);
+ if(cards.some(row=>row[0]===kind))return enhancement?.open?.(kind);
 }
 function stopAudio(){P()?.querySelectorAll('.fd-dashboard audio').forEach(a=>{try{a.pause()}catch{}})}
 document.addEventListener('click',e=>{

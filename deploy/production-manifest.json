@@ -212,7 +212,9 @@
     "freedom-dashboard-r2026.js",
     "freedom-dashboard-r2026.css",
     "assets/ui/Celestial Crystal Spellbook Icon.webp",
-    "assets/ui/freedom-card-bg.webp"
+    "assets/ui/freedom-card-bg.webp",
+    "freedom-r27-music.js",
+    "freedom-r27-polish.css"
   ],
   "files": [
     ".htaccess",
@@ -523,6 +525,8 @@
     "freedom-dashboard-r2026.js",
     "freedom-dashboard-r2026.css",
     "assets/ui/Celestial Crystal Spellbook Icon.webp",
-    "assets/ui/freedom-card-bg.webp"
+    "assets/ui/freedom-card-bg.webp",
+    "freedom-r27-music.js",
+    "freedom-r27-polish.css"
   ]
 }
