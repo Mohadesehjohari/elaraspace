@@ -65,3 +65,5 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 #elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-green-form) .elara-dialog-actions .primary-button{background:linear-gradient(120deg,#0dcf95,#3df0b4)!important;color:#042921!important;border:1px solid #68ffd0!important}
 #panel-wellness-sleep .wellness-sleep,#panel-wellness-exercise .wellness-plans,#panel-wellness-water .wellness-water,#panel-wellness-analysis .wellness-analysis{background:linear-gradient(140deg,#073126,#071e21)!important;border-color:#1b9279!important}
 #panel-wellness-sleep .wellness-sleep h3{color:#c5ffdf}
+
+.wellness-full-plan-editor .wellness-folder-item input[type=checkbox]{box-sizing:border-box;width:20px!important;height:20px!important;min-width:20px!important;padding:0!important;margin:0!important;accent-color:#16e9a6}
