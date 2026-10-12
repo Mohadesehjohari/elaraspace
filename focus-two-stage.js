@@ -10,7 +10,7 @@ const modes=[
  ['deep','♡','کار عمیق','Deep work'],
  ['meditation','✧','مدیتیشن','Meditation']
 ];
-let immersive=false,previousFocus=null,selected='reading',observed=null,installing=false;
+let immersive=false,previousFocus=null,selected='reading',observed=null,installing=false,retryPending=false,retries=0;
 try{selected=localStorage.getItem('elara_focus_view_mode')||'reading'}catch{}
 if(!modes.some(x=>x[0]===selected))selected='reading';
 const state=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
@@ -147,7 +147,13 @@ function adjust(id,dir){
 function install(){
  if(installing)return;
  installing=true;
- try{if(addPreview())overlay();sync()}finally{installing=false}
+ let mounted=false;
+ try{mounted=addPreview();if(mounted)overlay();sync()}finally{installing=false}
+ if(mounted){retries=0;return}
+ if(retries<65&&!retryPending){
+  retries++;retryPending=true;
+  setTimeout(()=>{retryPending=false;install()},300);
+ }
 }
 document.addEventListener('click',e=>{
  const b=e.target.closest?.('#panel-focus-pomodoro #timer-display,[data-focus-v2-inline-start],[data-focus-v2-library-mode],[data-focus-v2-mode],[data-focus-v2-enter],[data-focus-v2-exit],[data-focus-v2-pause],[data-focus-v2-reset],[data-focus-v2-inc],[data-focus-v2-dec]');
