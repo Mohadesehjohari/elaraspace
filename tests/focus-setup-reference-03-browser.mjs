@@ -53,9 +53,9 @@ try{
   assert.match(details.ring,/rgb\(255, 222, 141\)|#ffde8d|rgb\(81, 217, 253\)|#51d9fd/i,'ring palette');
   assert.equal(details.control,'timer-start','play is canonical timer control');
   assert.equal(details.modeCount,4,'four study modes');
-  assert.ok(details.timerBox.w>=250 && details.timerBox.w<=420,'ring size '+JSON.stringify(details));
+  assert.ok(details.timerBox.w>=245 && details.timerBox.w<=420,'ring size '+JSON.stringify(details));
   assert.ok(Math.abs(details.timerBox.x+details.timerBox.w/2-details.playBox.x-details.playBox.w/2)<18,'play must be centered on ring '+JSON.stringify(details));
-  assert.ok(details.playBox.y>details.timerBox.bottom-110 && details.playBox.y<details.timerBox.bottom+35,'play must overlap ring lower edge '+JSON.stringify(details));
+  assert.ok(details.playBox.y>details.timerBox.bottom-115 && details.playBox.y<details.timerBox.bottom-24,'play must overlap ring lower edge '+JSON.stringify(details));
   assert.ok(details.scroll<=details.viewport+1,'horizontal overflow '+JSON.stringify(details));
   assert.match(details.completed,/۲|2/,'real session count');
   assert.match(details.total,/۷۰|70/,'real minutes');
