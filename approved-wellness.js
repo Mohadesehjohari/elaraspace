@@ -25,7 +25,7 @@ const svgIcon=name=>window.ElaraIcons?.icon?.(name)||(()=>{
  };
  return `<span class="pass2-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[name]||paths.person}</svg></span>`;
 })();
-function barChart(values,max,label){const m=Math.max(1,max,...values);return `<div class="wellness-chart" role="img" aria-label="${esc(label)}">${days().map((date,i)=>`<div class="wellness-chart-day" title="${esc(date)}: ${fmt(values[i])}"><span>${fmt(values[i])}</span><div class="wellness-chart-track"><i style="height:${Math.max(2,Math.round(values[i]/m*100))}%"></i></div><small>${new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'})}</small></div>`).join('')}</div>`}
+function barChart(values,max,label){const m=Math.max(1,max,...values);return `<div class="wellness-chart" role="img" aria-label="${esc(label)}">${days().map((date,i)=>`<div class="wellness-chart-day" title="${esc(date)}: ${fmt(values[i])}"><span>${fmt(values[i])}</span><div class="wellness-chart-track"><i style="height:${Math.max(2,Math.round(values[i]/m*100))}%"></i></div><small>${new Date(date+'T12:00:00').toLocaleDateString('fa-IR',{weekday:'short'})}</small></div>`).join('')}</div>`}
 function lineChart(values,label){
  if(!values.some(v=>Number(v)>0))return '<div class="wellness-empty-chart">هنوز دادهٔ خوابی برای هفت روز اخیر ثبت نشده است.</div>';
  const width=350,height=100,left=18,right=8,top=12,bottom=22,max=Math.max(10,...values,1),usableW=width-left-right,usableH=height-top-bottom;
