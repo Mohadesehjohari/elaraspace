@@ -55,3 +55,13 @@ body.light .wellness-insight{background:#f8faff;border-color:#d3deef}
 .wellness-plan-folder-detail{padding:12px;background:#042d24;border:1px solid #137f65;border-radius:13px;min-width:0}
 .wellness-plan-item-list{max-height:260px;overflow-y:auto}
 @media(max-width:700px){.wellness-full-plan-editor{max-height:calc(100dvh - 190px)}.wellness-plan-workspace{grid-template-columns:1fr}.wellness-plan-folder-navigation{max-height:195px;overflow-y:auto}.wellness-plan-folder-detail{min-height:160px}}
+
+/* Emerald popups scoped to wellness; other dialogs unchanged. */
+#elara-dialog-root .elara-dialog-panel:has(.wellness-green-plan-editor),
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-green-form){background:linear-gradient(145deg,#062a24,#031c1b)!important;border:1px solid #26b78a!important;box-shadow:0 24px 90px #001510db,0 0 24px #13ab754d!important}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-green-plan-editor) .elara-dialog-head,
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-green-form) .elara-dialog-head{background:linear-gradient(100deg,#04382b,#0a534130)!important;border-bottom:1px solid #1c8f70!important;color:#edfff6!important}
+#elara-dialog-root .elara-dialog-panel:has(.wellness-green-plan-editor) .elara-dialog-actions .primary-button,
+#elara-dialog-root .elara-dialog-panel:has(.wellness-sleep-green-form) .elara-dialog-actions .primary-button{background:linear-gradient(120deg,#0dcf95,#3df0b4)!important;color:#042921!important;border:1px solid #68ffd0!important}
+#panel-wellness-sleep .wellness-sleep,#panel-wellness-exercise .wellness-plans,#panel-wellness-water .wellness-water,#panel-wellness-analysis .wellness-analysis{background:linear-gradient(140deg,#073126,#071e21)!important;border-color:#1b9279!important}
+#panel-wellness-sleep .wellness-sleep h3{color:#c5ffdf}
