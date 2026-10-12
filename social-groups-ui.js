@@ -6,19 +6,78 @@ const api=()=>window.ElaraSocial?.groups,current=()=>window.ElaraSocial?.me||nul
 function when(ms){if(!ms)return'';try{return new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'})}catch{return''}}
 function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.uid===current()?.uid})?.avatarSrc;return src?'<img src="'+esc(src)+'" alt="">':'<span>'+esc((p?.name||p?.username||'?').slice(0,1))+'</span>'}
 function activeGroupsTab(root){return !!root?.querySelector('[data-social-view="groups"][aria-selected="true"]')}
+
+let groupQuery='',groupFilter='all';
+const icon=(kind)=>({
+ search:'<circle cx="10.8" cy="10.8" r="6.7"/><path d="m16 16 4.8 4.8"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ arrow:'<path d="m9 18 6-6-6-6"/>',
+ spark:'<path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>',
+ users:'<circle cx="8" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2m3-13a3 3 0 0 1 0 6m3 7v-2a5 5 0 0 0-4-5"/>',
+ bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>'
+ }[kind]||'');
+const svg=kind=>'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+icon(kind)+'</svg>';
+const numerals=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
+function applyGroupFilters(section=document.querySelector('#elara-social-page .groups-r4')){
+ if(!section)return;
+ const q=groupQuery.trim().toLocaleLowerCase();
+ let count=0;
+ section.querySelectorAll('.g4-row[data-social-open-group]').forEach(row=>{
+  const match=(!q||(row.dataset.groupSearch||'').toLocaleLowerCase().includes(q))
+   &&(groupFilter==='all'||(groupFilter==='unread'&&row.dataset.groupUnread==='true')
+   ||(groupFilter==='owned'&&row.dataset.groupRole==='owner')
+   ||(groupFilter==='closed'&&row.dataset.groupStatus==='closed'));
+  row.hidden=!match;if(match)count++;
+ });
+ section.querySelectorAll('[data-group-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.groupFilter===groupFilter)));
+ const empty=section.querySelector('[data-g4-no-results]');if(empty)empty.hidden=count!==0;
+ const countEl=section.querySelector('[data-g4-results-count]');if(countEl)countEl.textContent=numerals(count);
+}
 async function mount(){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
- if(!activeGroupsTab(root)){root.querySelector('.social-groups-section')?.remove();return}
+ if(!activeGroupsTab(root)){renderToken++;root.querySelector('.social-groups-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
- let section=root.querySelector('.social-groups-section');if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section';section.dataset.elaraI18n='off';const dm=root.querySelector('.social-dm-section');if(dm)dm.insertAdjacentElement('afterend',section);else grid.prepend(section)}
+ let section=root.querySelector('.social-groups-section');
+ if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section groups-r4';section.dataset.elaraI18n='off';grid.prepend(section)}
+ section.classList.add('groups-r4');
  const token=++renderToken;
- section.innerHTML='<header class="social-groups-head"><div><small>ELARA · GROUPS</small><h2>'+t('گروه‌ها','Groups')+'</h2><p>'+t('با رفیق‌هات گروه بساز و باهم پیش برو 👊🔥','Create a group with friends and move together 👊🔥')+'</p></div><button type="button" class="primary-button" data-social-create-group>'+t('گروه جدید','New group')+'</button></header><p class="social-groups-loading">'+t('در حال بارگذاری گروه‌ها…','Loading groups…')+'</p>';
- let groups=[],invites=[];try{[groups,invites]=await Promise.all([service.list(),service.invites?.()||[]])}catch(error){if(token!==renderToken)return;section.querySelector('.social-groups-loading').textContent=t('گروه‌ها بارگذاری نشدند.','Groups could not be loaded.')+' '+String(error?.message||'');return}
- if(token!==renderToken||!section.isConnected)return;
- const inviteRows=invites.map(x=>'<article class="social-group-invite"><div><strong>'+esc(x.group?.title||t('گروه','Group'))+'</strong><small>'+t('دعوت گروه','Group invite')+'</small></div><div><button type="button" class="primary-button" data-group-invite-action="accepted" data-group-invite-id="'+esc(x.groupId)+'">'+t('قبول','Accept')+'</button><button type="button" class="quiet-button danger" data-group-invite-action="declined" data-group-invite-id="'+esc(x.groupId)+'">'+t('رد','Decline')+'</button></div></article>').join('');
- const cards=groups.map(g=>'<button type="button" class="social-group-row '+(g.unread?'has-unread':'')+'" data-social-open-group="'+esc(g.id)+'" data-group-role="'+esc(g.role||'member')+'"><span class="social-group-icon">👥</span><span class="social-group-copy"><strong>'+esc(g.title||t('گروه','Group'))+(g.status==='closed'?' · '+t('بسته','Closed'):'')+'</strong><small>'+esc(g.lastText||t('هنوز پیامی نیست؛ شروعش کن 😎','No messages yet — start it 😎'))+'</small></span>'+(g.unread?'<b class="social-unread-badge" aria-label="'+t('خوانده‌نشده','Unread')+'">•</b>':'')+'<time>'+when(g.updatedAt)+'</time></button>').join('');
- section.innerHTML='<header class="social-groups-head"><div><small>ELARA · GROUPS</small><h2>'+t('گروه‌ها','Groups')+'</h2><p>'+t('با رفیق‌هات گروه بساز و باهم پیش برو 👊🔥','Create a group with friends and move together 👊🔥')+'</p></div><button type="button" class="primary-button" data-social-create-group>'+t('گروه جدید','New group')+'</button></header>'+(inviteRows?'<section class="social-group-invites"><h3>'+t('دعوت‌های گروه','Group invites')+'</h3>'+inviteRows+'</section>':'')+'<div class="social-groups-scroll">'+(cards||'<p class="ref-empty">'+t('هنوز گروهی نداری؛ یکی بساز 🌝','No groups yet — make one 🌝')+'</p>')+'</div>';
+ const newBtn=()=>'<button type="button" class="g4-primary" data-social-create-group>'+svg('plus')+'<span>'+t('گروه جدید','New group')+'</span></button>';
+ section.innerHTML='<div class="g4-loading" role="status">'+svg('spark')+' '+t('در حال آماده‌کردن فضای گروه‌ها…','Preparing your groups…')+'</div>';
+ let groups=[],invites=[];
+ try{
+  const results=await Promise.all([service.list(),service.invites?.()||[]]);
+  groups=Array.isArray(results[0])?results[0]:[];
+  invites=Array.isArray(results[1])?results[1]:[];
+ }catch(error){
+  if(token!==renderToken||!section.isConnected)return;
+  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+esc(String(error?.message||''))+'</p><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button></div>';
+  return;
+ }
+ if(token!==renderToken||!section.isConnected||!activeGroupsTab(root))return;
+ groups=[...groups].sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
+ const unread=groups.filter(g=>!!g.unread).length,own=groups.filter(g=>g.role==='owner').length;
+ const inviteRows=invites.map(x=>'<article class="social-group-invite g4-invite"><span class="g4-invite-icon">'+svg('users')+'</span><div class="g4-invite-copy"><strong data-elara-ugc dir="auto">'+esc(x.group?.title||t('گروه جدید','New group'))+'</strong><small>'+t('دعوت به عضویت در گروه','Invitation to join a group')+'</small></div><div class="g4-invite-actions"><button type="button" data-group-invite-action="accepted" data-group-invite-id="'+esc(x.groupId)+'">'+t('پذیرش','Accept')+'</button><button type="button" data-group-invite-action="declined" data-group-invite-id="'+esc(x.groupId)+'">'+t('رد','Decline')+'</button></div></article>').join('');
+ const cards=groups.map((g,i)=>{
+  const name=esc(g.title||t('گروه بدون نام','Unnamed group')),last=esc(g.lastText||t('هنوز پیامی ردوبدل نشده؛ اولین نفر باش!','No messages yet — say hello!'));
+  const role=g.role==='owner'?t('مدیر گروه','Group owner'):t('عضو گروه','Member');
+  return '<button type="button" class="social-group-row g4-row '+(g.unread?'has-unread':'')+'" data-social-open-group="'+esc(g.id)+'" data-group-search="'+esc((g.title||'')+' '+(g.lastText||''))+'" data-group-unread="'+(g.unread?'true':'false')+'" data-group-role="'+esc(g.role||'member')+'" data-group-status="'+esc(g.status||'active')+'"><span class="social-group-icon g4-group-avatar g4-hue-'+(i%5)+'">'+svg('users')+'</span><span class="social-group-copy g4-row-copy"><strong data-elara-ugc dir="auto">'+name+'</strong><small data-elara-ugc dir="auto">'+last+'</small><span class="g4-row-meta">'+(g.status==='closed'?'<i class="g4-closed">'+t('بسته‌شده','Closed')+'</i>':'<i>'+role+'</i>')+'</span></span><span class="g4-row-end"><time>'+when(g.updatedAt)+'</time>'+(g.unread?'<b class="social-unread-badge" aria-label="'+t('پیام خوانده‌نشده','Unread message')+'"></b>':svg('arrow'))+'</span></button>';
+ }).join('');
+ const spotlight=groups[0];
+ section.innerHTML=
+  '<div class="g4-hero"><div class="g4-hero-content"><span class="g4-eyebrow">'+svg('spark')+' ELARA SPACE / '+t('حلقه‌های دوستی','SOCIAL CIRCLES')+'</span><h2>'+t('مسیرهای بزرگ، با هم شروع می‌شن.','Great journeys start together.')+'</h2><p>'+t('گفت‌وگو کن، کنار هم رشد کن و برای هر ماجراجویی، جمع خودت رو داشته باش.','Connect, grow together and make a space for every adventure.')+'</p><div class="g4-hero-actions">'+newBtn()+(invites.length?'<button type="button" class="g4-secondary" data-g4-scroll-invites>'+t('دیدن دعوت‌ها','View invites')+' <span>'+numerals(invites.length)+'</span></button>':'')+'</div></div><div class="g4-hero-orbit" aria-hidden="true"><span class="g4-orbit-core">'+svg('users')+'</span><i></i><i></i><i></i></div></div>'+
+  '<div class="g4-stats" aria-label="'+t('آمار گروه‌های من','My group statistics')+'"><article><span class="g4-stat-icon">'+svg('users')+'</span><div><strong>'+numerals(groups.length)+'</strong><small>'+t('گروه‌های من','My groups')+'</small></div></article><article><span class="g4-stat-icon">'+svg('bell')+'</span><div><strong>'+numerals(unread)+'</strong><small>'+t('گروه با پیام جدید','Groups with unread messages')+'</small></div></article><article><span class="g4-stat-icon">'+svg('spark')+'</span><div><strong>'+numerals(own)+'</strong><small>'+t('گروه‌های ساختهٔ من','Groups I own')+'</small></div></article></div>'+
+  '<div class="g4-layout"><div class="g4-main"><div class="g4-panel-heading"><div><span class="g4-kicker">'+t('گفت‌وگوهای تو','YOUR CONVERSATIONS')+'</span><h3>'+t('گروه‌های من','My groups')+'</h3></div><span class="g4-count">'+numerals(groups.length)+' '+t('گروه','groups')+'</span></div>'+
+  '<label class="g4-search">'+svg('search')+'<input type="search" data-g4-search autocomplete="off" aria-label="'+t('جست‌وجو در گروه‌ها','Search groups')+'" placeholder="'+t('اسم گروه یا آخرین پیام را جست‌وجو کن…','Search groups or last messages…')+'" value="'+esc(groupQuery)+'"></label>'+
+  '<div class="g4-filters" role="group" aria-label="'+t('فیلتر گروه‌ها','Group filters')+'">'+[['all',t('همه','All')],['unread',t('خوانده‌نشده','Unread')],['owned',t('ساخته‌های من','Owned')],['closed',t('بسته‌شده','Closed')]].map(([key,label])=>'<button type="button" data-group-filter="'+key+'" aria-pressed="'+(groupFilter===key?'true':'false')+'">'+label+'</button>').join('')+'</div>'+
+  (groups.length?'<div class="social-groups-scroll g4-list" aria-live="polite">'+cards+'</div>':'<div class="g4-empty"><div class="g4-empty-art" aria-hidden="true">'+svg('users')+'</div><h4>'+t('هنوز گروهی نساختی','Your story starts here')+'</h4><p>'+t('دوست‌هات رو دور هم جمع کن و اولین گفت‌وگو رو شروع کن.','Bring your friends together and start the first conversation.')+'</p>'+newBtn()+'</div>')+
+  (groups.length?'<p class="g4-no-results" data-g4-no-results hidden>'+t('گروهی با این فیلتر پیدا نشد.','No matching groups found.')+'</p>':'')+
+  '<div class="g4-list-foot"><span>'+t('نمایش','Showing')+' <b data-g4-results-count>'+numerals(groups.length)+'</b> '+t('گروه','groups')+'</span><span class="g4-live"><i></i>'+t('متصل به گروه‌های واقعی شما','Your real groups')+'</span></div></div>'+
+  '<aside class="g4-side"><section class="g4-side-card g4-invitations" id="g4-invitations"><div class="g4-side-heading"><span class="g4-side-icon">'+svg('bell')+'</span><div><span class="g4-kicker">'+t('دعوت‌ها','INVITATIONS')+'</span><h3>'+t('دعوت‌های گروهی','Group invites')+'</h3></div>'+(invites.length?'<b>'+numerals(invites.length)+'</b>':'')+'</div>'+(invites.length?'<div class="social-group-invites g4-invite-list">'+inviteRows+'</div>':'<div class="g4-invite-empty"><span>✧</span><strong>'+t('فعلاً دعوت تازه‌ای نداری','All caught up!')+'</strong><p>'+t('وقتی دوستی تو رو به گروهی دعوت کنه، همین‌جا می‌بینیش.','New group invitations will show up here.')+'</p></div>')+'</section>'+
+  '<section class="g4-side-card g4-discover"><span class="g4-kicker">'+t('جایی برای باهم بودن','A SPACE TO BELONG')+'</span><h3>'+t('ماجراجویی بعدی، جمعی زیباتره','Better together')+'</h3><p>'+t('برای برنامه‌ریزی، یادگیری، هدف‌ها و لحظه‌های مشترک یک گروه بساز.','Create a place for plans, learning, goals, and the moments you share.')+'</p>'+newBtn()+'</section>'+
+  (spotlight?'<section class="g4-side-card g4-recent"><span class="g4-kicker">'+t('آخرین گفت‌وگو','MOST RECENT')+'</span><h3>'+t('ادامه بده از جایی که بودی','Pick up where you left off')+'</h3><button type="button" class="g4-recent-link" data-social-open-group="'+esc(spotlight.id)+'"><span class="g4-recent-icon">'+svg('users')+'</span><span><strong data-elara-ugc dir="auto">'+esc(spotlight.title||t('گروه','Group'))+'</strong><small data-elara-ugc dir="auto">'+esc(spotlight.lastText||t('برای شروع گفت‌وگو ضربه بزن','Tap to start chatting'))+'</small></span>'+svg('arrow')+'</button></section>':'')+'</aside></div>';
+ applyGroupFilters(section);
 }
+
 async function createGroup(){
  const service=api(),people=friends();if(!service)return;
  if(!people.length){const el=document.getElementById('toast');if(el){el.textContent=t('اول حداقل یک دوست اضافه کن.','Add at least one friend first.');el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}return}
@@ -52,6 +111,8 @@ async function openGroup(id){
  const actions=[{label:t('بستن','Close'),value:false}];if(group.role!=='owner')actions.unshift({label:t('خروج از گروه','Leave group'),value:'leave',kind:'danger'});
  try{const result=await window.ElaraDialog.open({title:t('گفتگوی گروهی','Group chat'),content:wrap,wide:true,actions});if(result==='leave'&&await window.ElaraDialog.confirm(t('از این گروه خارج شوی؟','Leave this group?'),{title:t('خروج از گروه','Leave group'),danger:true,confirmText:t('خروج','Leave')})){await service.leave(id)}}finally{try{stop?.()}catch{};setTimeout(mount,0)}
 }
+document.addEventListener('input',e=>{if(e.target.matches('.groups-r4 [data-g4-search]')){groupQuery=e.target.value;applyGroupFilters()}});
+document.addEventListener('click',e=>{const filter=e.target.closest('.groups-r4 [data-group-filter]');if(filter){groupFilter=filter.dataset.groupFilter;applyGroupFilters();return}if(e.target.closest('.groups-r4 [data-group-retry]')){void mount();return}if(e.target.closest('.groups-r4 [data-g4-scroll-invites]')){document.getElementById('g4-invitations')?.scrollIntoView({behavior:'smooth',block:'center'})}});
 document.addEventListener('click',async e=>{if(e.target.closest('[data-social-create-group]')){e.preventDefault();void createGroup();return}const invite=e.target.closest('[data-group-invite-action]');if(invite){e.preventDefault();const rows=await api()?.invites?.()||[],item=rows.find(x=>x.groupId===invite.dataset.groupInviteId);if(item)try{await api().decideInvite(item,invite.dataset.groupInviteAction);await mount()}catch(error){const el=document.getElementById('toast');if(el)el.textContent=String(error?.message||error)}return}const row=e.target.closest('[data-social-open-group]');if(row){e.preventDefault();void openGroup(row.dataset.socialOpenGroup);return}if(e.target.closest('[data-social-view]'))setTimeout(mount,40)});
 for(const event of ['elara:social-updated','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(mount,40));
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,80)});
