@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {chromium} from 'playwright';
 
-const root=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\\/$/,'');
+const root=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
 await mkdir('browser-artifacts/focus-bg',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const auth="window.ElaraAccount={user:{uid:'focus-bg-qa',emailVerified:true},profile:{uid:'focus-bg-qa',name:'Focus QA',username:'focus_bg',xp:0}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
@@ -21,7 +21,7 @@ try {
     await page.locator('#panel-focus-pomodoro:not(.hidden) #timer-display').waitFor();
     const image=await page.request.get(root+'/assets/ui/bg_focus_room.webp?focus-test='+width);
     assert.equal(image.status(),200,'approved image did not load');
-    assert.match(image.headers()['content-type']||'',/image\\/webp/,'approved image MIME');
+    assert.match(image.headers()['content-type']||'',/image\/webp/,'approved image MIME');
     const state=await page.evaluate(()=>{
       const panel=document.querySelector('#panel-focus-pomodoro');
       const timer=panel.querySelector('#timer-display');
@@ -31,12 +31,12 @@ try {
         timer:dial.width,container:wrap.width,play:!!panel.querySelector('#timer-start'),
         route:location.hash,txt:timer.textContent.trim()};
     });
-    assert.match(state.background,/bg_focus_room\\.webp/,'canonical background missing');
+    assert.match(state.background,/bg_focus_room\.webp/,'canonical background missing');
     assert.ok(state.timer>=180,'timer too small '+width);
     assert.ok(state.container<=state.viewport+1,'focus panel too wide '+JSON.stringify(state));
     assert.ok(state.scroll<=state.viewport+1,'horizontal overflow '+JSON.stringify(state));
     assert.ok(state.play,'canonical timer play missing');
-    assert.match(state.txt,/\\d{1,3}:\\d{2}/,'canonical timer display missing');
+    assert.match(state.txt,/\d{1,3}:\d{2}/,'canonical timer display missing');
     if(width===390||width===1440){
       await page.screenshot({path:'browser-artifacts/focus-bg/'+(process.env.ELARA_TEST_URL?.startsWith('https:')?'live':'candidate')+'-'+width+'.png',fullPage:true});
     }
