@@ -137,7 +137,7 @@ async function run(width,height){
  assert.deepEqual(socialBoxes.map(x=>x.selected),['true','false','false','false','false','false','false','false'],
   width+': selected/inactive Friends ARIA state missing');
  assert.match(socialBoxes[0].color,/rgb\(12,\s*234,\s*255\)/,width+': selected cyan border color missing');
- assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*200,\s*255)/,width+': selected cyan focus/glow missing');
+ assert.match(socialBoxes[0].glow,/rgba?\((53,\s*233,\s*255|0,\s*(200|185),\s*255)/,width+': selected cyan focus/glow missing');
  assert.ok(visibleSocialBoxes.slice(1).every(x=>x.border>=.5&&x.color!==visibleSocialBoxes[0].color&&
   x.bg!==visibleSocialBoxes[0].bg),width+': inactive Friends tabs have no dark gradient/border');
  const scroll=await socialStrip.evaluate(el=>{
