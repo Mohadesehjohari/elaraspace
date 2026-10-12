@@ -1,0 +1,89 @@
+name: Clubs Reference Visual and Functional Gate
+on:
+  pull_request:
+    paths:
+      - 'friends-hub.css'
+      - 'social-clubs-ui.js'
+      - 'tests/clubs-stage11-browser.mjs'
+      - '.github/workflows/clubs-reference-ui.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'friends-hub.css'
+      - 'social-clubs-ui.js'
+      - 'tests/clubs-stage11-browser.mjs'
+      - '.github/workflows/clubs-reference-ui.yml'
+permissions:
+  contents: read
+jobs:
+  clubs-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify Clubs at 390 and 1440, including genuine empty data
+        run: |
+          node --check social-clubs-ui.js
+          python3 -m http.server 4173 >/tmp/clubs-reference-server.log 2>&1 &
+          sleep 3
+          timeout 360s node tests/clubs-stage11-browser.mjs
+      - name: Capture real Chromium artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clubs-reference-${{ github.sha }}
+          path: browser-artifacts/clubs-*.png
+          if-no-files-found: warn
+          retention-days: 20
+  live-clubs:
+    if: github.event_name == 'push'
+    needs: clubs-reference
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for exact published CSS and JS
+        run: |
+          set -euo pipefail
+          base=https://mohadesehjohari.github.io/elaraspace
+          verified=false
+          for i in $(seq 1 80); do
+            ok=true
+            for file in friends-hub.css social-clubs-ui.js; do
+              if ! curl -fsSL --max-time 12 "$base/$file?verify=${GITHUB_SHA}&attempt=$i" -o "/tmp/live-${file}" || ! cmp -s "$file" "/tmp/live-${file}"; then
+                ok=false
+                break
+              fi
+            done
+            if [ "$ok" = true ]; then
+              verified=true
+              echo "CLUBS_LIVE_BYTES_VERIFIED=${GITHUB_SHA}"
+              break
+            fi
+            sleep 8
+          done
+          test "$verified" = true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify published Clubs UI with authorized-data fixtures at 390 and 1440
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 360s node tests/clubs-stage11-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clubs-reference-live-${{ github.sha }}
+          path: browser-artifacts/clubs-*.png
+          if-no-files-found: warn
+          retention-days: 20
