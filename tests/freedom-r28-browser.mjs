@@ -42,6 +42,7 @@ try{
    await page.locator('[data-r28-save]').click();
    await page.waitForFunction(()=>window.ElaraFreedomMediaDiary.diaryRows().some(r=>r.title==='یادداشت تم روشن'&&r.diaryTheme==='paper'&&r.tags.includes('شکرگزاری')));
    const saved=await page.evaluate(()=>window.ElaraFreedomMediaDiary.diaryRows().find(x=>x.title==='یادداشت تم روشن'));
+   console.log('R28_POST_SAVE_VISIBILITY',JSON.stringify(await page.evaluate(()=>{const p=document.querySelector('#panel-freedom');return {hash:location.hash,hidden:p?.classList.contains('hidden'),display:p?getComputedStyle(p).display:'absent',bodyClass:document.body.className}})));
    await page.locator('[data-fd-diary-id="'+saved.id+'"]').first().evaluate(el=>el.click());
    await page.waitForSelector('.freedom-r28-diary.r28-paper');
    assert.equal(await page.locator('.r28-note-form [name=body]').inputValue(),'این متن باید بعد از باز کردن دوباره باقی بماند.');
@@ -59,7 +60,8 @@ try{
    assert.ok(ref.diaryBackgroundKey.startsWith('freedom-r28-qa/'));
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>window.ElaraFreedomNotebookR28&&window.ElaraFreedomMediaDiary?.diaryRows().length>=2&&document.querySelector('#panel-freedom .fd-diary-list'),null,{timeout:45000});
-   await page.locator('[data-fd-diary-id="'+ref.id+'"]').first().click();
+   console.log('R28_POST_RELOAD_VISIBILITY',JSON.stringify(await page.evaluate(()=>{const p=document.querySelector('#panel-freedom');return {hash:location.hash,hidden:p?.classList.contains('hidden'),display:p?getComputedStyle(p).display:'absent',bodyClass:document.body.className}})));
+   await page.locator('[data-fd-diary-id="'+ref.id+'"]').first().evaluate(el=>el.click());
    await page.waitForSelector('.freedom-r28-diary.r28-custom');
    await page.waitForFunction(()=>document.querySelector('[data-r28-writing-wall]')?.style.backgroundImage.includes('blob:'),null,{timeout:16000});
    assert.equal(await page.locator('.r28-note-form [name=title]').inputValue(),'یادداشت تصویر شخصی');
