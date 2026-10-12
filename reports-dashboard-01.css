@@ -2,6 +2,10 @@
 body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;--reports-aqua:#40d7ff;--reports-violet:#9655ff;color:#e7efff;min-width:0}
 #panel-reports .elara-reports-dashboard,#panel-reports-today .elara-reports-detail-grid{direction:rtl;min-width:0;width:100%;font-family:inherit}
 #panel-reports .elara-reports-dashboard * ,#panel-reports-today .elara-reports-detail-grid *{box-sizing:border-box}
+/* REPORTS-01 compact flow: legacy hub has 18px grid gap in addition to hero margin.
+   The only intended hero-to-KPI separation is the hero's 14px bottom margin. */
+#panel-reports.reports-feature-hub{row-gap:0!important;column-gap:0!important}
+#panel-reports.reports-feature-hub > .elara-reports-hero{margin-bottom:14px!important}
 #panel-reports .elara-reports-dashboard{display:grid;gap:12px;padding-bottom:16px}
 #panel-reports .elara-reports-dashboard h2,#panel-reports-today h2{font-size:clamp(.95rem,1.3vw,1.16rem);font-weight:900;line-height:1.4;letter-spacing:0;color:#f4f4ff;margin:0!important}
 #panel-reports .elara-reports-dashboard p,#panel-reports-today .elara-reports-detail-grid p{margin:2px 0;color:#91a9dc;font-size:.76rem;line-height:1.65}
@@ -119,6 +123,10 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports-today .elara-reports-detail-grid{grid-template-columns:1fr}
 }
 @media(max-width:700px){
+ /* The regular mobile topbar occupies real layout height; remove only Reports' 10px main padding.
+    Retain the horizontal content inset and the safe area owned by the site shell. */
+ body.dark #main:has(> #panel-reports:not(.hidden)){padding-top:0!important}
+ #panel-reports.reports-feature-hub > .elara-reports-hero{margin-bottom:10px!important}
  #panel-reports>.feature-hub-hero.elara-reports-hero,#panel-reports>.elara-global-hero.elara-reports-hero{
   width:100%!important;height:158px!important;min-height:158px!important;margin:0 0 10px!important;padding:16px!important;
   background-image:linear-gradient(270deg,#061431e8,#0716339a 52%,#07163322),url('assets/ui/39-reports-hero-banner.webp')!important;
@@ -128,19 +136,25 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports>.elara-reports-hero .elara-reports-hero-content p{font-size:.69rem;max-width:270px}
  #panel-reports .elara-reports-dashboard{gap:9px}
  #panel-reports .elara-reports-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- #panel-reports .elara-reports-kpi{min-height:101px;padding:9px 8px 9px 43px}
- #panel-reports .elara-reports-kpi-icon{left:7px;top:9px;width:30px;height:34px}
+ #panel-reports .elara-reports-kpi{min-height:91px;padding:7px 7px 7px 40px;gap:2px}
+ #panel-reports .elara-reports-kpi-icon{left:6px;top:8px;width:29px;height:30px}
  #panel-reports .elara-reports-kpi-icon .elara-reports-icon{font-size:1.25rem}
  #panel-reports .elara-reports-kpi span:not(.elara-reports-icon){font-size:.65rem}
- #panel-reports .elara-reports-kpi strong{font-size:1.15rem}
- #panel-reports .elara-reports-kpi footer small{font-size:.51rem}
+ #panel-reports .elara-reports-kpi strong{font-size:1.1rem}
+ #panel-reports .elara-reports-kpi footer small{font-size:.58rem;line-height:1.3}
  #panel-reports .elara-reports-panel{padding:11px}
  #panel-reports .elara-reports-trends{min-height:0}
  #panel-reports .elara-reports-periods{width:100%;justify-content:space-evenly}
  #panel-reports .elara-reports-periods button{min-height:44px;padding:5px 9px;font-size:.66rem}
- #panel-reports .elara-reports-plot{min-width:560px}
+ #panel-reports .elara-reports-plot-scroll{overflow-x:hidden}
+ #panel-reports .elara-reports-plot{min-width:0;width:100%;height:auto;max-height:none}
  #panel-reports .elara-reports-sections-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #panel-reports .elara-reports-insight-grid{grid-template-columns:1fr}
+ #panel-reports .elara-reports-spark{width:60px;height:17px}
+ #panel-reports .elara-reports-section{gap:5px;padding:8px 7px}
+ #panel-reports .elara-reports-today .elara-reports-ring{width:112px;height:112px}
+ #panel-reports .elara-reports-today-rows>div{padding:6px 7px}
+ #panel-reports .elara-reports-activity-list button{padding:5px;min-height:40px}
  #panel-reports .elara-reports-activity-list button{min-height:44px}
  #panel-reports-today .elara-reports-detail-head{padding:15px 12px}
  body.dark #panel-home.ref-home .ref-hero-actions .ref-hero-reports{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:relative!important;visibility:visible!important;min-height:44px!important;max-width:49%!important;white-space:nowrap!important}
@@ -160,4 +174,74 @@ body.dark #panel-reports,body.dark #panel-reports-today{--reports-edge:#2252b8;-
  #panel-reports .elara-reports-kpis{grid-template-columns:1fr}
  #panel-reports .elara-reports-periods button{padding:5px 7px;font-size:.6rem}
  #panel-reports>.elara-reports-hero .elara-reports-hero-content p{max-width:220px}
+}
+
+/* REPORTS-LIVE-03: content-sized lower dashboard (no forced blank activity panel). */
+#panel-reports .elara-reports-lower{align-items:start}
+#panel-reports .elara-reports-lower>.elara-reports-activities{align-self:start;min-height:0}
+#panel-reports .elara-reports-panel.elara-reports-activities>header{margin-bottom:9px}
+#panel-reports .elara-reports-activities .elara-reports-empty{
+ min-height:88px;
+ padding:11px 13px;
+ font-size:.73rem;
+ line-height:1.65;
+}
+#panel-reports .elara-reports-activity-list{gap:2px}
+#panel-reports .elara-reports-activity-list>button:last-child{border-bottom:0}
+#panel-reports .elara-reports-insight-grid button{align-content:start}
+#panel-reports .elara-reports-insight-grid button:hover{border-color:#5877d8}
+@media(max-width:700px){
+ #panel-reports .elara-reports-lower>div:first-child{gap:9px}
+ #panel-reports .elara-reports-panel.elara-reports-insights,
+ #panel-reports .elara-reports-panel.elara-reports-activities{padding:10px 11px}
+ #panel-reports .elara-reports-insight-grid{gap:6px}
+ #panel-reports .elara-reports-insight-grid button{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  grid-template-rows:auto auto auto;
+  align-items:center;
+  gap:2px 9px;
+  min-height:74px;
+  padding:8px 10px;
+  border-radius:9px;
+ }
+ #panel-reports .elara-reports-insight-grid button>b{
+  grid-column:1;
+  grid-row:1 / 4;
+  font-size:1.35rem;
+  line-height:1;
+ }
+ #panel-reports .elara-reports-insight-grid button>strong{
+  grid-column:2;grid-row:1;
+  font-size:.73rem;
+ }
+ #panel-reports .elara-reports-insight-grid button>small{
+  grid-column:2;grid-row:2;
+  font-size:.68rem;
+  line-height:1.48;
+  overflow-wrap:anywhere;
+ }
+ #panel-reports .elara-reports-insight-grid button>span{
+  grid-column:2;grid-row:3;
+  font-size:.64rem;
+ }
+ #panel-reports .elara-reports-activity-list button{
+  min-height:44px;
+  grid-template-columns:24px minmax(0,1fr) auto;
+  gap:5px;
+  padding:5px 2px;
+ }
+ #panel-reports .elara-reports-activity-list strong{font-size:.7rem;line-height:1.42}
+ #panel-reports .elara-reports-activity-list b{font-size:.64rem;white-space:nowrap}
+ #panel-reports .elara-reports-activities .elara-reports-empty{min-height:78px}
+}
+
+/* REPORTS-LIVE-03 visual hotfix: mobile flex columns must occupy their full width. */
+@media(max-width:1050px){
+ #panel-reports .elara-reports-lower{align-items:stretch}
+ #panel-reports .elara-reports-lower>div:first-child,
+ #panel-reports .elara-reports-lower>.elara-reports-activities{
+  width:100%;
+  align-self:stretch;
+ }
 }

@@ -74,15 +74,16 @@ function topKpis(d){
  kpi('روزهای فعال',known?fmt(a.active):'—','روز یکتا','▦','#23d3ff',f('tasks'),'فعالیت ثبت‌شده')+'</section>';
 }
 function trend(d){
+ const compact=window.matchMedia?.('(max-width:700px)')?.matches===true;
  const map=new Map(),now=d.now;
  for(const row of d.rows){
-  const key=bucket(row.date,d.n),v=map.get(key)||{date:key,tasks:0,focus:0,due:0,doneDue:0};
+  const key=bucket(row.date,compact&&d.n===30?90:d.n),v=map.get(key)||{date:key,tasks:0,focus:0,due:0,doneDue:0};
   v.tasks+=row.tasks;v.focus+=row.focus;v.due+=row.due;v.doneDue+=row.doneDue;map.set(key,v);
  }
  const rows=[...map.values()].map(v=>({...v,pct:v.due?Math.round(100*v.doneDue/v.due):null}));
  const hasActivity=rows.some(r=>r.tasks||r.focus||r.pct!==null);
  if(!hasActivity)return '<div class="elara-reports-empty">هنوز دادهٔ تاریخ‌دار کافی برای نمایش روند در این بازه ندارید.</div>';
- const W=880,H=302,x0=50,x1=816,top=35,bot=197,lowerTop=236,lowerBot=279;
+ const W=compact?360:880,H=302,x0=compact?35:50,x1=compact?325:816,top=35,bot=197,lowerTop=236,lowerBot=279;
  const step=(x1-x0)/Math.max(1,rows.length),maxTask=Math.max(1,...rows.map(r=>r.tasks)),maxFocus=Math.max(1,...rows.map(r=>r.focus));
  const px=i=>x0+(i+.5)*step,sy=(v,max)=>bot-(v/max)*(bot-top);
  const bars=rows.map((r,i)=>r.tasks?'<rect class="elara-reports-hit" tabindex="0" data-report-point="'+i+'" x="'+(px(i)-Math.min(15,step*.30))+'" y="'+sy(r.tasks,maxTask)+'" rx="4" width="'+Math.min(30,step*.60)+'" height="'+(bot-sy(r.tasks,maxTask))+'" fill="#7756ee"><title>'+esc(r.date)+' · '+fmt(r.tasks)+' تسک</title></rect>':'').join('');
@@ -96,10 +97,10 @@ function trend(d){
  rows.forEach((r,i)=>{if(r.pct===null){flush()}else segment.push(px(i)+','+(lowerBot-(r.pct/100)*(lowerBot-lowerTop)))});flush();
  const dots=rows.map((r,i)=>r.pct===null?'':'<circle tabindex="0" class="elara-reports-hit" data-report-point="'+i+'" cx="'+px(i)+'" cy="'+(lowerBot-r.pct/100*(lowerBot-lowerTop))+'" r="4" fill="#e26bfe"><title>'+esc(r.date)+' · '+r.pct+'٪</title></circle>').join('');
  const grids=[0,.5,1].map(v=>'<line x1="'+x0+'" y1="'+sy(v*maxTask,maxTask)+'" x2="'+x1+'" y2="'+sy(v*maxTask,maxTask)+'" stroke="#7a98e7" stroke-opacity=".14" stroke-dasharray="3 5"/><text x="'+(x0-7)+'" y="'+(sy(v*maxTask,maxTask)+4)+'" text-anchor="end">'+fmt(v*maxTask)+'</text><text x="'+(x1+8)+'" y="'+(sy(v*maxFocus,maxFocus)+4)+'">'+fmt(Math.round(v*maxFocus))+'</text>').join('');
- const labels=rows.map((r,i)=>i%Math.max(1,Math.ceil(rows.length/9))===0?'<text x="'+px(i)+'" y="218" text-anchor="middle">'+esc(r.date.slice(5))+'</text>':'').join('');
+ const labels=rows.map((r,i)=>i%Math.max(1,Math.ceil(rows.length/(compact?5:9)))===0?'<text x="'+px(i)+'" y="218" text-anchor="middle">'+esc(r.date.slice(5))+'</text>':'').join('');
  return '<div class="elara-reports-legend"><span><i class="tasks"></i>تسک (تعداد)</span><span><i class="focus"></i>تمرکز (دقیقه)</span><span><i class="progress"></i>پیشرفت برنامه (٪)</span></div>'+
  '<div class="elara-reports-plot-scroll"><svg class="elara-reports-plot" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="نمودار ترکیبی: ستون‌های تسک، خط دقیقه تمرکز و نوار مستقل درصد برنامه. جدول جزئیات در ادامه قرار دارد.">'+
- '<text x="50" y="16">تعداد تسک</text><text x="816" y="16" text-anchor="end">دقیقه تمرکز</text>'+grids+bars+(rows.some(r=>r.focus>0)?line('focus',maxFocus,'#38caff'):'')+
+ '<text x="'+x0+'" y="16">تعداد تسک</text><text x="'+x1+'" y="16" text-anchor="end">دقیقه تمرکز</text>'+grids+bars+(rows.some(r=>r.focus>0)?line('focus',maxFocus,'#38caff'):'')+
  '<line x1="'+x0+'" y1="'+lowerBot+'" x2="'+x1+'" y2="'+lowerBot+'" stroke="#a77dff" stroke-opacity=".5"/><text x="15" y="'+lowerTop+'">۱۰۰٪</text><text x="22" y="'+lowerBot+'">۰٪</text>'+progress+dots+labels+
  '</svg></div><p class="elara-reports-plot-status" aria-live="polite">برای دیدن عدد و تاریخ، روی نقطه نمودار لمس یا با Tab انتخاب کنید.</p>'+
  '<details class="elara-reports-table"><summary>جدول داده‌های نمودار و مقیاس‌ها</summary><div class="elara-reports-table-scroll"><table><thead><tr><th>شروع بازه</th><th>تسک (تعداد)</th><th>تمرکز (دقیقه)</th><th>تکمیل برنامه</th></tr></thead><tbody>'+
@@ -150,6 +151,16 @@ function render(){
  rendering=true;
  try{
  const d=data();
+ // Own the Reports layout at first dashboard render: Feature Hubs loads later on idle.
+ // Otherwise the old full report can temporarily occupy an entire block between hero and KPIs.
+ panel.classList.add('feature-hub-parent','reports-feature-hub');
+ const legacy=$('elara-reports-page'),legacyHost=$('panel-reports-productivity');
+ if(legacy&&legacyHost&&legacy.parentElement===panel)legacyHost.append(legacy);
+ // The legacy router creates this direct child for its original report view.
+ // Its content is now hosted by #panel-reports-productivity; keep no orphan heading/row.
+ for(const title of panel.querySelectorAll(':scope > h1')){
+  if(title.textContent.trim()==='گزارش‌های من')title.remove();
+ }
  let hero=panel.querySelector(':scope > .feature-hub-hero, :scope > .elara-global-hero');
  if(!hero){hero=document.createElement('section');hero.className='feature-hub-hero';hero.dataset.hubHero='reports';panel.prepend(hero)}
  hero.dataset.hubHero='reports';hero.dataset.elaraPageHero='reports';hero.classList.add('feature-hub-hero','elara-reports-hero');hero.innerHTML='<div class="elara-reports-hero-content"><small>خانه ‹ گزارش‌ها</small><h1>گزارش‌های کل</h1><p>مروری جامع بر عملکرد و پیشرفت شما در تمام بخش‌های الارا</p></div>';
@@ -185,7 +196,7 @@ document.addEventListener('click',e=>{
 });
 function pointText(node){
  const root=node.closest('.elara-reports-trends'),i=Number(node.dataset.reportPoint);if(!root||!Number.isInteger(i))return;
- const d=data(),rows=new Map();for(const row of d.rows){const key=bucket(row.date,d.n),r=rows.get(key)||{date:key,tasks:0,focus:0,due:0,doneDue:0};r.tasks+=row.tasks;r.focus+=row.focus;r.due+=row.due;r.doneDue+=row.doneDue;rows.set(key,r)}
+ const d=data(),rows=new Map(),compact=window.matchMedia?.('(max-width:700px)')?.matches===true;for(const row of d.rows){const key=bucket(row.date,compact&&d.n===30?90:d.n),r=rows.get(key)||{date:key,tasks:0,focus:0,due:0,doneDue:0};r.tasks+=row.tasks;r.focus+=row.focus;r.due+=row.due;r.doneDue+=row.doneDue;rows.set(key,r)}
  const item=[...rows.values()][i],status=root.querySelector('.elara-reports-plot-status');if(!item||!status)return;
  status.textContent=item.date+' · '+fmt(item.tasks)+' تسک · '+fmt(item.focus)+' دقیقه تمرکز · '+(item.due?fmt(Math.round(item.doneDue/item.due*100))+'٪ برنامه':'پیشرفت نامشخص');
 }
@@ -193,6 +204,13 @@ document.addEventListener('pointerdown',e=>{const point=e.target.closest?.('.ela
 document.addEventListener('focusin',e=>{const point=e.target.closest?.('.elara-reports-hit');if(point)pointText(point)});
 for(const ev of ['elara:open','elara:hydrate','elara:data-changed','elara:state-committed','elara:account-ready','elara:logout','elara:auth-changed','elara:wellness-saved'])
  window.addEventListener(ev,()=>{if(location.hash==='#home'){normalizeHomeReportsEntry();queueMicrotask(normalizeHomeReportsEntry)}if(location.hash==='#reports'||location.hash==='#reports-today'||ev==='elara:hydrate')queueMicrotask(render)});
+let lastCompact=window.matchMedia?.('(max-width:700px)')?.matches===true;
+window.addEventListener('resize',()=>{
+ const next=window.matchMedia?.('(max-width:700px)')?.matches===true;
+ if(next===lastCompact)return;
+ lastCompact=next;
+ if(location.hash==='#reports')queueMicrotask(render);
+});
 window.ElaraReportsDashboard={render,data,getRange:()=>days};
 function init(){
  render();normalizeHomeReportsEntry();

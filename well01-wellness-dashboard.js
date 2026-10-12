@@ -117,18 +117,16 @@ function hideDuplicateHero(panel){
   wellnessHeroObserver.observe(panel,{childList:true});
  }
 }
-function syncWell01Header(){
- const panel=document.getElementById('panel-exercise'),bar=document.querySelector('.topbar');
- if(!panel||panel.classList.contains('hidden')||window.scrollY>8)return;
- const pr=panel.getBoundingClientRect(),br=bar?.getBoundingClientRect();
- const shown=bar&&getComputedStyle(bar).display!=='none'&&getComputedStyle(bar).visibility!=='hidden';
- panel.style.setProperty('--well01-header-clearance',(shown?Math.max(0,Math.ceil(br.bottom-pr.top)+1):0)+'px');
-}
-window.addEventListener('resize',()=>requestAnimationFrame(syncWell01Header),{passive:true});
-window.addEventListener('hashchange',()=>requestAnimationFrame(syncWell01Header));
-window.addEventListener('elara:open',()=>requestAnimationFrame(syncWell01Header));
+/* Input modality is only used for the Wellness account reveal, not for navigation layout. */
+const setWellProfileMode=mode=>{
+ if(document.querySelector('#panel-exercise.wellness-feature-hub:not(.hidden)'))document.body.dataset.wellProfileInput=mode;
+};
+document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')setWellProfileMode('pointer')},{passive:true});
+document.addEventListener('pointerdown',()=>setWellProfileMode('pointer'),{passive:true});
+document.addEventListener('keydown',e=>{if(['Tab','Enter',' ','Escape','ArrowDown','ArrowUp'].includes(e.key))setWellProfileMode('keyboard')},true);
+window.addEventListener('elara:open',()=>{if(document.querySelector('#panel-exercise.hidden'))delete document.body.dataset.wellProfileInput});
 function render(){
- const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);requestAnimationFrame(syncWell01Header);
+ const panel=document.getElementById(panelId);if(!panel)return;hideDuplicateHero(panel);
  let host=panel.querySelector(':scope > #well01-dashboard');
  if(!host){host=document.createElement('section');host.id='well01-dashboard';host.className='well01';host.setAttribute('dir','rtl');panel.prepend(host)}
  const s=read();ensureLegacyEditors(s);

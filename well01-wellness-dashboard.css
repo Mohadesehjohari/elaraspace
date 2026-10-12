@@ -1,6 +1,6 @@
 /* WELL-01: scoped green/teal wellness art direction. Does not modify site navigation. */
-/* Single dynamic clearance read from the active topbar and panel geometry. */
-html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:var(--well01-header-clearance,0px)!important}
+/* WELL-HERO-TOP: The header is layered on the wellness panorama. No duplicate top clearance. */
+html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){padding-top:0!important}
 #panel-exercise.wellness-feature-hub{position:relative;isolation:isolate;max-width:none;min-width:0;background:radial-gradient(ellipse at 85% 0%,#0e594440,transparent 37%),radial-gradient(ellipse at 10% 48%,#08476342,transparent 48%),#031525;color:#edfffa}
 #panel-exercise>.elara-global-hero,#panel-exercise>.wellness-heading,#panel-exercise>.wellness-banner,#panel-exercise>.wellness-layout,#panel-exercise>.feature-hub-hero,#panel-exercise>.feature-hub-launchers,#panel-exercise>.feature-section-tasks{display:none!important}
 #panel-exercise #well01-dashboard{display:block!important}
@@ -351,3 +351,69 @@ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){scroll-margi
 .wellness-workout-form{margin:0}
 .wellness-workout-error:not([hidden]){display:block}
 @media(max-width:430px) and (min-width:356px){#panel-exercise #well01-dashboard .well01-shortcuts{grid-template-columns:repeat(5,minmax(0,1fr))}#panel-exercise #well01-dashboard .well01-shortcut-label strong{font-size:.73rem;white-space:nowrap}#panel-exercise #well01-dashboard .well01-shortcut-icon{width:34px;height:34px}}
+
+/* WELL-HERO-TOP | Owner-approved vertical relocation only.
+   Lift the complete panel in document flow; keep hero dimensions and artwork untouched. */
+body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar{
+ z-index:120!important;
+ background:linear-gradient(180deg,rgba(3,16,34,.88),rgba(3,18,36,.36) 77%,transparent)!important;
+ backdrop-filter:none!important;
+ box-shadow:none!important;
+}
+@media(min-width:701px){
+ #panel-exercise.wellness-feature-hub:not(.hidden) .well01-hero-copy{top:34px}
+}
+@media(max-width:700px){
+ html body #main > #panel-exercise.wellness-feature-hub:not(.hidden){
+  margin-top:-74px!important;
+ }
+ #panel-exercise.wellness-feature-hub:not(.hidden) .well01-hero-copy{top:26px}
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar{
+  z-index:120!important;
+ }
+}
+
+
+/* WELL-PROFILE-AUTOHIDE | Only the active Wellness page.
+   Preserve the original account cluster box, hit targets, order and #79 hero position.
+   Private drawer lives under body; open state MUST keep this control visible. */
+@media (min-width:701px) and (hover:hover) and (pointer:fine){
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
+  opacity:.07;
+  pointer-events:auto;
+  transition:opacity 210ms ease;
+ }
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:hover,
+ body[data-well-profile-input="keyboard"]:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:focus-within,
+ body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
+  opacity:1;
+ }
+}
+/* Touch: avatar/character control always remains discoverable and tappable. */
+@media (max-width:700px), (hover:none), (pointer:coarse){
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster{
+  opacity:.72;
+  pointer-events:auto;
+  transition:opacity 210ms ease;
+ }
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
+  opacity:.12;
+  transition:opacity 210ms ease;
+ }
+ body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster:has(:focus-visible),
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)):has(#ref-equipped-character-panel:not([hidden])) .workspace>.topbar .ref-header-account-cluster{
+  opacity:1;
+ }
+ body.elara-private-drawer-open:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy,
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account:focus-visible .ref-account-copy{
+  opacity:1;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar .ref-header-account-cluster,
+ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace>.topbar #ref-header-account .ref-account-copy{
+  transition:none;
+ }
+}
