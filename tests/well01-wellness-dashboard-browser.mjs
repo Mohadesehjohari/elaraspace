@@ -274,6 +274,9 @@ for(const width of [390,1440]){
 
 const touch=await open(390,base,false,true);
 await touch.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero');
+// This QA helper booted at #home then opened exercise without updating its URL;
+// synchronize the hash to the real #exercise production route before testing the drawer.
+await touch.evaluate(()=>history.replaceState({...history.state,elaraTab:'exercise'},'',location.pathname+location.search+'#exercise'));
 const tr=await touch.locator('#ref-header-account').boundingBox();
 assert.ok(tr&&tr.width>=44&&tr.height>=44,'actual touch account >=44x44');
 await touch.touchscreen.tap(tr.x+tr.width/2,tr.y+tr.height/2);
@@ -299,6 +302,7 @@ console.log('ACCOUNT_TOUCH_CLOSED',JSON.stringify(await touch.evaluate(()=>{
  const cluster=document.querySelector('.ref-header-account-cluster'),button=document.querySelector('#ref-header-account');
  return {opacity:getComputedStyle(cluster).opacity,mode:document.body.dataset.wellProfileInput,classes:document.body.className,focus:document.activeElement?.outerHTML.slice(0,150),focusVisible:cluster.matches(':has(:focus-visible)'),buttonFocusVisible:button?.matches(':focus-visible'),characterPanel:!!document.querySelector('#ref-equipped-character-panel:not([hidden])'),drawerOpen:document.body.classList.contains('elara-private-drawer-open'),htmlPanel:document.querySelector('#panel-exercise')?.className};
 })));
+assert.ok(await touch.locator('#panel-exercise').evaluate(x=>!x.classList.contains('hidden')),'account drawer close does not leave the exercise route');
 assert.ok(closedOpacity<.9,'touch account compacts after closing');
 await touch.close();
 await browser.close();
