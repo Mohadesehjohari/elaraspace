@@ -1,0 +1,53 @@
+/* Elara Space violet streak calendar – Tasks-only launch surfaces. */
+#panel-tasks .elara-cal-trigger{cursor:pointer!important;touch-action:manipulation}
+#panel-tasks #astra-task-hero .task-streak-summary.elara-cal-trigger:focus-visible,
+#panel-tasks #astra-task-streak.elara-cal-trigger:focus-visible{outline:2px solid #d7b8ff!important;outline-offset:4px!important;border-radius:12px!important}
+#panel-tasks #astra-task-hero .task-streak-summary.elara-cal-trigger:hover{filter:brightness(1.09);transition:filter .2s}
+#panel-tasks #astra-task-streak.elara-cal-trigger:hover{border-color:#a78bfa!important}
+#elara-streak-calendar.elara-streak-calendar{
+ box-sizing:border-box!important;direction:rtl!important;
+ width:min(438px,calc(100vw - 26px))!important;max-width:calc(100vw - 26px)!important;
+ max-height:min(720px,calc(100dvh - 34px))!important;overflow-y:auto!important;
+ margin:auto!important;padding:0!important;border:1px solid #9976ff!important;border-radius:22px!important;
+ color:#f7efff!important;background:linear-gradient(150deg,#21103f,#110e2a 58%,#09152f)!important;
+ box-shadow:0 0 0 1px #bcabff27,0 22px 90px #040414db,0 0 38px #8e56ff65,inset 0 1px #efddff36!important;
+ font-family:inherit!important
+}
+#elara-streak-calendar.elara-streak-calendar::backdrop{background:#02071cd9!important;backdrop-filter:blur(8px)}
+#elara-streak-calendar .elara-cal-shell{padding:19px 18px 16px!important;box-sizing:border-box!important}
+#elara-streak-calendar .elara-cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #ac78ff42;padding-bottom:12px}
+#elara-streak-calendar .elara-cal-head small{display:block;color:#ceafff;font-size:11px;letter-spacing:.2px}
+#elara-streak-calendar .elara-cal-head h2{color:#fff;font-size:18px;font-weight:900;line-height:1.5;margin:2px 0 0}
+#elara-streak-calendar button{font:inherit;cursor:pointer}
+#elara-streak-calendar .elara-cal-close{flex:none;display:grid;place-items:center;width:32px;height:32px;border:1px solid #bc90ff80;border-radius:10px;background:#3b255e;color:#f5eaff;font-size:22px}
+#elara-streak-calendar .elara-cal-month{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 0 12px}
+#elara-streak-calendar .elara-cal-month strong{flex:1;text-align:center;font-size:17px;color:#f7eaff;font-weight:850}
+#elara-streak-calendar .elara-cal-month button{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;border:1px solid #9471e6a8;border-radius:10px;background:#362258;color:#ebdfff}
+#elara-streak-calendar .elara-cal-weekdays,#elara-streak-calendar .elara-cal-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+#elara-streak-calendar .elara-cal-weekdays{margin-bottom:7px}
+#elara-streak-calendar .elara-cal-weekdays span{text-align:center;color:#bfaff1;font-weight:800;font-size:12px}
+#elara-streak-calendar .elara-cal-day{position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1/1;min-width:0;max-height:46px;background:#32224ebd;border:1px solid #8263b663;border-radius:12px;color:#f8f4ff;font-size:14px;font-weight:700;transition:background .15s,border-color .15s,box-shadow .15s}
+#elara-streak-calendar .elara-cal-day:hover{background:#513178;border-color:#c5a7ff}
+#elara-streak-calendar .elara-cal-day.is-today{border-color:#55deff;box-shadow:inset 0 0 0 1px #51d5f180}
+#elara-streak-calendar .elara-cal-day.is-selected{background:linear-gradient(135deg,#9c66ed,#6746c8)!important;border-color:#e1c7ff!important;box-shadow:0 0 13px #af80ff94!important;color:white!important}
+#elara-streak-calendar .elara-cal-day:focus-visible{outline:2px solid #e6d2ff;outline-offset:2px}
+#elara-streak-calendar .elara-cal-day i{position:absolute;bottom:3px;width:6px;height:6px;border-radius:50%}
+#elara-streak-calendar :is(.elara-cal-day i,.elara-cal-legend i).is-aqua{background:#43dafa;box-shadow:0 0 6px #43dafa}
+#elara-streak-calendar :is(.elara-cal-day i,.elara-cal-legend i).is-gold{background:#ffce68;box-shadow:0 0 7px #ffce68}
+#elara-streak-calendar :is(.elara-cal-day i,.elara-cal-legend i).is-mixed{background:#c8a3ff;box-shadow:0 0 7px #c8a3ff}
+#elara-streak-calendar .elara-cal-legend{display:flex;align-items:center;justify-content:center;gap:15px;flex-wrap:wrap;margin:15px 0 8px;color:#cbbef1;font-size:10px}
+#elara-streak-calendar .elara-cal-legend span{display:flex;gap:5px;align-items:center}
+#elara-streak-calendar .elara-cal-legend i{display:block;width:7px;height:7px;border-radius:50%}
+#elara-streak-calendar .elara-cal-bottom{border-top:1px solid #9775d446;padding:12px 0 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#elara-streak-calendar .elara-cal-bottom small{color:#c3addc;font-size:10px;line-height:1.6}
+#elara-streak-calendar .elara-cal-today{white-space:nowrap;padding:9px 13px;background:linear-gradient(135deg,#995ae7,#6d46e1);border:1px solid #d7abff;border-radius:10px;color:#fff;font-size:11px;font-weight:850;box-shadow:0 0 10px #9755ed66}
+@media(max-width:700px){
+ #elara-streak-calendar.elara-streak-calendar{width:min(414px,calc(100vw - 18px))!important;max-width:calc(100vw - 18px)!important;max-height:calc(100dvh - 24px)!important}
+ #elara-streak-calendar .elara-cal-shell{padding:14px 12px!important}
+ #elara-streak-calendar .elara-cal-weekdays,#elara-streak-calendar .elara-cal-days{gap:4px}
+ #elara-streak-calendar .elara-cal-day{border-radius:9px;font-size:13px;min-height:38px;max-height:46px}
+ #elara-streak-calendar .elara-cal-month strong{font-size:15px}
+ #elara-streak-calendar .elara-cal-bottom{flex-direction:column;align-items:stretch}
+ #elara-streak-calendar .elara-cal-bottom small{text-align:center}
+}
+@media(prefers-reduced-motion:reduce){#elara-streak-calendar .elara-cal-day{transition:none!important}}

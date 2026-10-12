@@ -507,7 +507,8 @@
       archive.innerHTML='<summary><span class="task-archive-arrow">⌄</span><strong>کارهای تیک‌خورده</strong><span data-task-archive-count>۰</span></summary><div data-task-archive-list></div>';
       list.insertAdjacentElement('afterend',archive);
     }
-    const records=s.tasks.filter(t=>taskDone(t,date)&&(!t.recurrenceRule||applies(t,date)));
+    const calendarDateFilter=$('task-filter')?.value==='today';
+    const records=s.tasks.filter(t=>taskDone(t,date)&&(!t.recurrenceRule||applies(t,date))&&(!calendarDateFilter||(t.recurrenceRule?applies(t,date):t.date===date||t.doneAt===date)));
     const archiveList=archive.querySelector('[data-task-archive-list]');
     const count=archive.querySelector('[data-task-archive-count]');
     if(count)count.textContent=fa(records.length);
