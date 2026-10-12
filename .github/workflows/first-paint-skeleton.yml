@@ -1,4 +1,4 @@
-name: Unified First Paint and Skeleton Gate
+name: Progressive First Paint Gate
 on:
   pull_request:
     paths:
@@ -28,10 +28,11 @@ jobs:
           const fs = require('fs');
           const index = fs.readFileSync('index.html', 'utf8');
           const boot = fs.readFileSync('boot.js', 'utf8');
-          for (const contract of ['<html lang="fa" dir="rtl" data-elara-booting>', 'elara-page-owner-styles', 'elara-boot-failure']) {
+          for (const contract of ['<html lang="fa" dir="rtl" data-elara-booting>', 'elara-page-owner-styles']) {
             if (!index.includes(contract)) throw new Error('Missing boot contract: ' + contract);
           }
-          if (index.includes('if(bootStuck)revealShell()') || boot.includes('hardWatchdog released')) throw new Error('Legacy watchdog still exposes old UI.');
+          if (index.includes('id="elara-boot-failure"') || index.includes('در حال آماده‌سازی نسخهٔ جدید الارا')) throw new Error('Legacy boot error/status still present.');
+          if (!boot.includes("window.__elaraBootStage='tasks'") || !boot.includes("window.__elaraBootStage='secondary'")) throw new Error('Progressive startup stages missing.');
           NODE
       - name: Install Chromium
         run: |

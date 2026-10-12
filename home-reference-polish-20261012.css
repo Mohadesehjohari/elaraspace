@@ -182,3 +182,8 @@ html body #panel-home.ref-home.owner-art-home .ref-ranks .ref-podium-person>smal
     box-sizing:border-box!important;min-height:190px!important;height:190px!important;max-height:190px!important;
   }
 }
+
+/* Progressive boot: keep the Home account avatar visible while optional profile layers hydrate. */
+body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar #ref-header-account .ref-account-avatar{
+ visibility:visible!important;opacity:1!important;
+}

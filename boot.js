@@ -1,22 +1,39 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261012-unified-skeleton-v1';
+  const BUILD='20261012-home-first-recovery-v2';
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${BUILD}`;
   const styles=['elara-design.css','elara-finishing.css','approved-visual.css','approved-tuning.css','approved-reference-fidelity.css','approved-wellness.css','approved-navigation-extension.css','approved-seasonal.css','approved-home-return.css','approved-language-journal.css','visual-fidelity-pass2.css','visual-fidelity-pass3.css','visual-fidelity-pass4.css','artwork-home-install-2026.css','home-functional-pass-2026.css','reference-home-shell-2026.css','visual-fidelity-pass5.css','reference-restore.css','reference-exact-pass-2026.css','freedom-page.css','october-fixes-2026-10-01.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','mobile-ia-2026-10-05.css','avatar-3d.css','task-goal-final-2026.css','elara-midnight-layout-2026.css','profile-gallery-2026.css','collab-2026.css','home-owner-art-2026.css','global-page-banner-20261009.css','ui12-language-dashboard.css','ui13-language.css','well01-wellness-dashboard.css','freedom-dashboard-r2026.css','store-reference-2026.css','desktop-home-only-controls-20261012.css','tasks-mobile-fidelity-20261012.css','freedom-r27-polish.css','ranking-gold-20261012.css','home-reference-polish-20261012.css'];
   /* Shared styles have one deterministic cascade position, ahead of every new page owner's CSS. */
   const ownerStyleAnchor=document.getElementById('elara-page-owner-styles');
-  const styleReady=[];
-  for(const name of styles){
-    const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);
-    styleReady.push(new Promise(resolve=>{css.onload=()=>resolve({name,ok:true});css.onerror=()=>{console.error('Elara stylesheet unavailable:',name);resolve({name,ok:false})}}));
-    if(ownerStyleAnchor?.parentNode)ownerStyleAnchor.before(css);
-    else document.head.append(css);
-  }
+  // Core/Home styling first, Tasks next; unrelated page themes stream in later.
+  const secondaryStyles=new Set(['freedom-page.css','freedom-refinement-v2.css','friends-hub.css','october-product-hubs.css','profile-gallery-2026.css','collab-2026.css','ui12-language-dashboard.css','ui13-language.css','well01-wellness-dashboard.css','freedom-dashboard-r2026.css','store-reference-2026.css','freedom-r27-polish.css','ranking-gold-20261012.css']);
+  const taskStyles=new Set(['task-goal-final-2026.css','tasks-mobile-fidelity-20261012.css']);
+  const initialRoute=(location.hash||'#home').slice(1).split('?')[0];
+  const routeStyles={freedom:['freedom-page.css','freedom-refinement-v2.css','freedom-r27-polish.css'],social:['friends-hub.css'],books:['october-product-hubs.css'],language:['ui12-language-dashboard.css','ui13-language.css'],exercise:['well01-wellness-dashboard.css'],ranking:['ranking-gold-20261012.css'],store:['store-reference-2026.css']};
+  const priorityStyles=new Set([...(routeStyles[initialRoute]||[]),'reference-home-shell-2026.css','reference-exact-pass-2026.css','elara-midnight-layout-2026.css','home-owner-art-2026.css','global-page-banner-20261009.css','home-reference-polish-20261012.css']);
+  const styleLinks=styles.map(name=>{const css=document.createElement('link');css.rel='stylesheet';css.href=assetUrl(name);return css});
+  const styleReady=new Map();
+  const mountStyle=name=>{
+    if(styleReady.has(name))return styleReady.get(name);
+    const i=styles.indexOf(name),css=styleLinks[i];
+    if(!css)return Promise.resolve({name,ok:false});
+    const done=new Promise(resolve=>{
+      css.onload=()=>resolve({name,ok:true});
+      css.onerror=()=>{console.warn('Elara style unavailable:',name);resolve({name,ok:false})};
+    });
+    styleReady.set(name,done);
+    // Preserve canonical cascade order even when stylesheets are inserted in phases.
+    const later=styleLinks.slice(i+1).find(link=>link.isConnected);
+    (later||ownerStyleAnchor)?.before(css);
+    if(!css.isConnected)document.head.append(css);
+    return done;
+  };
+  const primaryCss=styles.filter(name=>(!taskStyles.has(name)&&!secondaryStyles.has(name))||priorityStyles.has(name));
+  primaryCss.forEach(mountStyle);
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   /* First-paint artwork is requested before the shell is released so users do not see legacy SVGs swap to WebPs. */
-  const initialRoute=(location.hash||'#home').slice(1).split('?')[0];
   const pageArtwork={home:'homebanner1.webp',tasks:'task-header-banner-bg.webp',language:'language_banner_main.webp',books:'librairy_banner_main.webp',exercise:'workout_banner_main.webp',ranking:'ranking_banner.webp',social:'36-friends-hero-banner.webp',freedom:'41-freedom-hero-banner.webp',reports:'39-reports-hero-banner.webp',page:'38-my-page-hero-banner.webp',blog:'weblog_banner_main.webp',store:'shop_senter.webp',goals:'goals-target-background.webp',habits:'daily-streak-background.webp',focus:'banner_moon_lake.webp'};
   const essentialImages=[...new Set([
     pageArtwork[initialRoute]?'assets/ui/'+pageArtwork[initialRoute]:null,
@@ -25,7 +42,14 @@
   const decodeImage=src=>new Promise(resolve=>{const img=new Image();let settled=false;const done=()=>{if(settled)return;settled=true;resolve()};img.onload=done;img.onerror=done;img.src=src;if(typeof img.decode==='function')img.decode().then(done,done)});
   for(const src of essentialImages){const preload=document.createElement('link');preload.rel='preload';preload.as='image';preload.href=src;preload.fetchPriority='high';document.head.append(preload)}
   const essentialArtworkReady=Promise.all(essentialImages.map(decodeImage));
-  const release=()=>{document.documentElement.removeAttribute('data-elara-booting');document.documentElement.removeAttribute('data-elara-boot-failed');window.__elaraBootInProgress=false;window.dispatchEvent(new Event('elara:visual-ready'))};
+  const release=()=>{
+    if(!document.documentElement.hasAttribute('data-elara-booting'))return;
+    document.documentElement.removeAttribute('data-elara-booting');
+    document.documentElement.removeAttribute('data-elara-boot-failed');
+    window.__elaraBootInProgress=false;
+    window.__elaraBootStage='home';
+    window.dispatchEvent(new Event('elara:visual-ready'));
+  };
   const criticalScripts=['approved-navigation-extension.js','feature-hubs-shell.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','home-owner-art-2026.js','mobile-ia-2026-10-05.js','home-reference-polish-20261012.js'];
   const deferredScripts=['approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js','global-page-banner-20261009.js','ui12-language-dashboard.js','ui13-language-routes.js','well01-wellness-dashboard.js','freedom-dashboard-r2026.js','freedom-r27-music.js','ranking-gold-20261012.js'];
   const optionalFailures=[];
@@ -46,55 +70,76 @@
       const script=document.createElement('script');
       script.async=false;
       script.src=assetUrl(name);
-      script.onload=()=>resolve();
-      script.onerror=()=>{rememberOptionalFailure(name,new Error('script load failed'));console.error('Elara module unavailable:',name);resolve()};
+      let settled=false;
+      const finish=error=>{
+        if(settled)return;
+        settled=true;clearTimeout(timeout);
+        if(error){rememberOptionalFailure(name,error);console.warn('Elara module unavailable:',name,error.message);script.remove()}
+        resolve();
+      };
+      const timeout=setTimeout(()=>finish(new Error('script load timeout')),6500);
+      script.onload=()=>finish();
+      script.onerror=()=>finish(new Error('script load failed'));
       document.head.append(script);
     }));
     await Promise.all(pending);
     syncOptionalFailures();
   };
-  let ready=false;
-  const slow=setTimeout(()=>{if(!ready)console.warn('Elara is still preparing the current route and its styles.')},5000);
-  /* Never expose legacy markup simply because the network is slow. */
+  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  let startupReleased=false;
+  // The timeout is a safety net, not a signal that every page must be ready.
+  const revealHome=()=>{
+    if(startupReleased)return;
+    startupReleased=true;
+    release();
+  };
   const hardWatchdog=setTimeout(()=>{
-    if(!ready){console.error('Elara startup took too long; retaining the skeleton.');window.ElaraShowBootError?.('startup-timeout');window.dispatchEvent(new Event('elara:boot-watchdog'))}
-  },24000);
+    console.warn('Elara Home startup fallback: showing the available application.');
+    revealHome();
+  },8000);
   void(async()=>{
+    const primaryReady=loadScriptsInOrder(criticalScripts);
     try{
-      const [_,cssResults]=await Promise.all([loadScriptsInOrder(criticalScripts),Promise.all(styleReady)]);
-      const failedCss=cssResults.filter(x=>!x.ok).map(x=>x.name);
-      const failedCritical=criticalScripts.filter(x=>optionalFailures.includes(x));
-      if(failedCss.length||failedCritical.length)throw new Error('Required visual resources failed: '+[...failedCss,...failedCritical].join(', '));
-      if(!window.ElaraNavigation||!window.ElaraReferenceHome)throw new Error('Canonical navigation/home owner missing.');
-      window.ElaraNavigation.render?.();
-      window.ElaraReferenceHome.render?.();
-
-      /* Route owner scripts run BEFORE the first visible frame (including direct deep links). */
-      await loadScriptsInOrder(deferredScripts);
-      const visualOwners=['feature-hubs-2026.js','global-page-banner-20261009.js','ui12-language-dashboard.js','well01-wellness-dashboard.js','freedom-dashboard-r2026.js'];
-      const missingOwners=visualOwners.filter(x=>optionalFailures.includes(x));
-      if(missingOwners.length)throw new Error('Required page owners failed: '+missingOwners.join(', '));
+      // Home is the only route owner in the first reveal gate.
+      await Promise.race([primaryReady,delay(6500)]);
+      window.ElaraNavigation?.render?.();
+      window.ElaraReferenceHome?.render?.();
+      await Promise.race([
+        Promise.all([...priorityStyles].map(name=>mountStyle(name))),
+        delay(1400)
+      ]);
+    }catch(error){
+      console.warn('Elara Home startup continued with partial assets:',error);
+    }finally{
+      clearTimeout(hardWatchdog);
+      revealHome();
+    }
+    try{
+      // Tasks can initialize while the rest of the app is still downloading.
+      await primaryReady;
+      const tasks=['task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js'];
+      taskStyles.forEach(mountStyle);
+      await loadScriptsInOrder(tasks);
+      window.__elaraBootStage='tasks';
+      window.dispatchEvent(new Event('elara:tasks-ready'));
+      await delay(100);
+      // Additional feature routes are non-blocking and never control shell visibility.
+      styles.filter(name=>secondaryStyles.has(name)&&!styleReady.has(name)).forEach(mountStyle);
+      const taskNames=new Set(tasks);
+      const rest=deferredScripts.filter(name=>!taskNames.has(name));
+      // Keep the network responsive: load optional routes in small ordered batches.
+      for(let i=0;i<rest.length;i+=6){
+        await loadScriptsInOrder(rest.slice(i,i+6));
+        if(i+6<rest.length)await delay(120);
+      }
       window.ElaraFeatureHubs?.refresh?.();
       window.ElaraGlobalBanners?.refresh?.();
       window.ElaraLibraryDashboardLIB01?.refresh?.();
       window.ElaraLanguageUI12?.refresh?.();
       window.ElaraReportsDashboard?.render?.();
-      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-      /* Verify the new library overview, rather than showing the old library by default. */
-      if(location.hash==='#books'&&!document.querySelector('#panel-books #lib01-overview'))throw new Error('LIB-01 library dashboard did not mount.');
-
-      const renderedArtworkReady=Promise.all([...document.querySelectorAll('.bottom-nav [aria-current="page"] .elara-nav-art,.sidebar [aria-current="page"] .elara-nav-art,#theme-toggle .ref-theme-art,#ref-header-notifications .ref-notification-art')]
-        .filter(img=>img.getClientRects().length>0)
-        .map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():typeof img.decode==='function'?img.decode().catch(()=>{}):new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true})})));
-      await Promise.race([Promise.all([essentialArtworkReady,renderedArtworkReady]),new Promise(resolve=>setTimeout(resolve,2400))]);
-      ready=true;release();
-    }catch(error){
-      console.error('Elara first-paint aborted:',error);
-      window.ElaraShowBootError?.(String(error?.message||error));
-      const status=document.getElementById('cloud-status'),retry=document.getElementById('cloud-retry');
-      if(status)status.textContent='بارگذاری طراحی جدید کامل نشد. لطفاً دوباره تلاش کنید.';
-      if(retry)retry.hidden=false;
-    }finally{clearTimeout(slow);clearTimeout(hardWatchdog)}
+      window.__elaraBootStage='secondary';
+      window.dispatchEvent(new Event('elara:secondary-ready'));
+    }catch(error){console.warn('Elara background features unavailable:',error)}
   })();
   let cloudPromise=null,socialPromise=null,socialFailure=null,socialAttempt=0,socialStartedAt=0;
   const loadCloud=()=>{
@@ -213,6 +258,7 @@
     if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:2600});
     else setTimeout(run,1800)
   };
-  if(document.readyState==='complete')startCloud();else window.addEventListener('load',startCloud,{once:true});
+  // Window load waits for images and background styles; account initialization should not.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startCloud,{once:true});else startCloud();
 })();
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261012-unified-skeleton-v1 -->
+<!-- deploy-refresh: 20261012-home-first-recovery-v2 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -31,10 +31,6 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
 #elara-boot-screen .elara-skel-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 #elara-boot-screen .elara-skel-block{height:160px;border:1px solid #28405e}
 #elara-boot-screen .elara-skel-block:nth-child(2){height:205px}
-#elara-boot-screen .elara-skel-foot{margin-top:26px;font-size:12px;color:#acc7e2}
-#elara-boot-screen #elara-boot-failure{max-width:560px;margin-top:15px;padding:15px 18px;border:1px solid #a26e74;border-radius:14px;background:#311d35;color:#ffddde}
-#elara-boot-screen #elara-boot-failure[hidden]{display:none!important}
-#elara-boot-screen #elara-boot-retry{margin-top:10px;cursor:pointer;border:1px solid #81cbf2;background:#194c70;border-radius:9px;color:white;padding:9px 16px;font:inherit}
 @keyframes elaraSkelPulse{to{background-position-x:-240%}}
 @media(max-width:700px){
  #elara-boot-screen .elara-skel-app{display:block}
@@ -50,9 +46,9 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
 @media(min-width:701px){#elara-boot-screen .elara-skel-mobile-nav{display:none}}
 @media(prefers-reduced-motion:reduce){#elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{animation:none}}
 </style>
-  <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261012-unified-skeleton-v1">
-  <link rel="preload" as="style" href="reference-home-shell-2026.css?v=20261012-unified-skeleton-v1">
-  <link rel="preload" as="style" href="elara-midnight-layout-2026.css?v=20261012-unified-skeleton-v1">
+  <link rel="preload" as="style" href="reference-exact-pass-2026.css?v=20261012-home-first-recovery-v2">
+  <link rel="preload" as="style" href="reference-home-shell-2026.css?v=20261012-home-first-recovery-v2">
+  <link rel="preload" as="style" href="elara-midnight-layout-2026.css?v=20261012-home-first-recovery-v2">
   <link rel="preload" as="image" href="assets/ui/hero-landscape.webp" fetchpriority="high">
   <link rel="preload" as="image" href="assets/ui/brand-elara-app-mark.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20261005-task-system-v8">
@@ -75,22 +71,13 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-unified-skeleton-v1"></script>
+  <script defer src="boot.js?v=20261012-home-first-recovery-v2"></script>
   <script>
   (() => {
     const root=document.documentElement;
-    const showBootError=reason=>{
-      root.setAttribute('data-elara-boot-failed','');
-      const panel=document.getElementById('elara-boot-failure');
-      const message=document.getElementById('elara-boot-failure-message');
-      if(panel)panel.hidden=false;
-      if(message&&reason)message.textContent='طراحی جدید کامل بارگذاری نشد. لطفاً اتصال را بررسی و دوباره تلاش کنید.';
-      const status=document.getElementById('elara-boot-status');
-      if(status)status.textContent='بارگذاری متوقف شد؛ برای جلوگیری از نمایش قالب قدیمی، صفحه پنهان مانده است.';
-      console.error('Elara boot blocked:',reason);
-    };
-    window.ElaraShowBootError=showBootError;
-    document.addEventListener('DOMContentLoaded',()=>document.getElementById('elara-boot-retry')?.addEventListener('click',()=>location.reload()),{once:true});
+    // Fail open: a missing optional asset must never strand the entire app behind a skeleton.
+    const showApp=()=>{root.removeAttribute('data-elara-booting');root.removeAttribute('data-elara-boot-failed')};
+    window.ElaraShowBootError=reason=>{console.warn('Elara startup fallback:',reason);showApp()};
     const applyLocalMode=()=>{
       const body=document.body;
       if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
@@ -103,18 +90,15 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyLocalMode,{once:true});
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:reason,source:'index-failsafe'}}));
     };
+    // Independent of boot.js; protect even against a failed download or a thrown startup error.
     window.setTimeout(()=>{
+      if(root.hasAttribute('data-elara-booting'))showApp();
       const body=document.body;
-      const cloudStuck=!document.querySelector('[data-elara-account-gate-ready]')&&(!body||(!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline')));
-      if(root.hasAttribute('data-elara-booting')&&!window.__elaraBootInProgress)showBootError('boot-script-not-started');
-      if(cloudStuck)forceLocal('html-startup-timeout');
-    },20000);
+      if(!document.querySelector('[data-elara-account-gate-ready]')&&body&&!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline'))forceLocal('html-startup-timeout');
+    },8500);
     window.addEventListener('error',event=>{
       const src=String(event.target?.src||'');
-      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){
-        showBootError('boot-script-load-error');
-        forceLocal('boot-script-load-error');
-      }
+      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showApp();forceLocal('boot-script-load-error')}
     },true);
   })();
   </script>
@@ -129,12 +113,12 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <!-- All shared/legacy styles must be inserted BEFORE this marker. Page owners win the cascade. -->
   <meta name="elara-page-owner-styles" content="owner-css-start" id="elara-page-owner-styles">
   <!-- LIB-01: scoped dashboard only; shared shell and canonical modules remain unchanged. -->
-  <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261012-unified-skeleton-v1">
+  <link rel="stylesheet" href="lib01-library-dashboard.css?v=20261012-home-first-recovery-v2">
   <!-- FOCUS-01: approved room scene on canonical Pomodoro route; no timer replacement. -->
   <link rel="stylesheet" href="focus-room-fidelity.css?v=20261012-focus-bg-v1">
   <link rel="stylesheet" href="focus-two-mode.css?v=20261012-focus-two-modes-v1">
   <script defer src="focus-two-mode.js?v=20261012-focus-two-modes-v1"></script>
-  <script defer src="lib01-library-dashboard.js?v=20261012-unified-skeleton-v1"></script>
+  <script defer src="lib01-library-dashboard.js?v=20261012-home-first-recovery-v2"></script>
   <!-- REPORTS-01 isolated assets; current navigators and subreports remain canonical. -->
   <link rel="stylesheet" href="reports-dashboard-01.css?v=20261012-reports-fidelity-v1">
   <script defer src="reports-dashboard-01.js?v=20261012-reports-fidelity-v1"></script>
@@ -147,7 +131,7 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <div id="elara-boot-screen" role="status" aria-label="در حال آماده‌سازی سایت الارا">
     <div class="elara-skel-app">
       <aside class="elara-skel-aside" aria-hidden="true"><div class="elara-skel-logo"><img src="assets/ui/brand-elara-app-mark.webp" width="44" height="44" alt=""> ELARA SPACE</div><div class="elara-skel-nav"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div></aside>
-      <div class="elara-skel-main"><div class="elara-skel-top" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div><div class="elara-skel-hero" aria-hidden="true"><span class="elara-skel-line"></span></div><div class="elara-skel-cards" aria-hidden="true"><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span></div><div class="elara-skel-foot" id="elara-boot-status">در حال آماده‌سازی نسخهٔ جدید الارا…</div><div id="elara-boot-failure" hidden><span id="elara-boot-failure-message">بارگذاری کامل نشد. لطفاً دوباره تلاش کنید.</span><div><button id="elara-boot-retry" type="button">تلاش دوباره</button></div></div></div>
+      <div class="elara-skel-main"><div class="elara-skel-top" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div><div class="elara-skel-hero" aria-hidden="true"><span class="elara-skel-line"></span></div><div class="elara-skel-cards" aria-hidden="true"><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span><span class="elara-skel-block"></span></div></div>
     </div>
     <div class="elara-skel-mobile-nav" aria-hidden="true"><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span><span class="elara-skel-line"></span></div>
   </div>
