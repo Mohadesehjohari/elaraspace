@@ -90,7 +90,7 @@ function render(){
 let watching=null,queued=false,ready=false;
 function mount(){
  const p=$('#panel-books');
- if(!p||!window.ElaraReading||!window.ElaraFeatureHubs||!p.querySelector(':scope > .elara-global-hero'))return false;
+ if(!p||!window.ElaraReading||!p.querySelector(':scope > .elara-global-hero'))return false;
  let root=p.querySelector(':scope > #lib01-overview');
  if(!root){root=document.createElement('div');root.id='lib01-overview';root.className='lib01-overview';root.dir='rtl';const h=p.querySelector(':scope > .elara-global-hero');h.insertAdjacentElement('afterend',root)}
  if(watching){watching.disconnect();watching=null}

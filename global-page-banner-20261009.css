@@ -341,5 +341,5 @@ html body #main .elara-global-hero[data-elara-page-hero="freedom"]>div{max-width
    second deep-page Back button. Dedicated nested editors own their Back. */
 @media(min-width:701px){
  #main > :is(#panel-tasks,#panel-language,#panel-books):not(.hidden) > :is(.feature-parent-back,.feature-hub-parent-back){display:none!important}
- .workspace:has(#panel-words:not(.hidden),#panel-language-books:not(.hidden),#panel-language-courses:not(.hidden),#panel-language-reports:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
+ .workspace:not(:has(#panel-home.ref-home:not(.hidden))):has(#panel-words:not(.hidden),#panel-language-books:not(.hidden),#panel-language-courses:not(.hidden),#panel-language-reports:not(.hidden))>.topbar :is(#ref-header-account,#ref-header-notifications,#ref-equipped-character-toggle,#theme-toggle){visibility:hidden!important;pointer-events:none!important}
 }
