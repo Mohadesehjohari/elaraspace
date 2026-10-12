@@ -43,6 +43,7 @@ try{
   await page.waitForSelector('#panel-words:not(.hidden) .l2-start-review:not([disabled])');
   assert.equal(await page.locator('#panel-words > .flashcard:visible, #panel-words > #word-list:visible').count(),0,'Dashboard must not expose review cards or word list @'+width);
   assert.equal(await page.locator('#panel-words .l2-leitner-bottom').count(),0,'Legacy dashboard review block duplicated @'+width);
+  assert.equal(await page.locator('#panel-words > .feature-subpage-head:visible, #panel-words > .pass3-language-leitner:visible, #panel-words > .feature-section-tasks:visible').count(),0,'Visible legacy duplicates below the dedicated dashboard @'+width);
   if(width===1440)console.log('L4_DASHBOARD_DOM '+JSON.stringify(await page.evaluate(()=>({panels:[...document.querySelectorAll('.panel')].filter(el=>getComputedStyle(el).display!=='none').map(el=>el.id),wordsChildren:[...document.querySelector('#panel-words').children].map(el=>({id:el.id,cls:el.className,visible:getComputedStyle(el).display!=='none'})),wordAncestors:[...document.querySelector('#panel-words').parentElement.children].map(el=>el.id||el.className).slice(0,30)}))));
   if(width===390||width===1440)await page.screenshot({path:dir+'/leitner-dashboard-'+width+'.png',fullPage:true,animations:'disabled'});
   await page.locator('#panel-words .l2-start-review').click();
