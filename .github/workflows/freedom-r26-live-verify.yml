@@ -1,0 +1,52 @@
+name: Freedom R26 Live Pages Byte + Chromium QA
+on:
+  push:
+    branches:
+      - qa/freedom-r26-live-verify-20261012
+permissions:
+  contents: read
+jobs:
+  live-freedom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Await deployed exact merge bytes on Pages
+        run: |
+          set -e
+          base='https://mohadesehjohari.github.io/elaraspace'
+          expected='3cba2c12f1ea14389315d74d981b86dcee3f988d'
+          good=0
+          for attempt in $(seq 1 72); do
+            ok=1
+            for f in boot.js freedom-dashboard-r2026.js freedom-dashboard-r2026.css freedom-enhancements.js freedom-diary-music.js; do
+              curl -fsSL --max-time 15 "$base/$f?verify=$expected-$attempt" -o "/tmp/live-$f" || ok=0
+              if [ "$ok" = 1 ] && ! cmp -s "$f" "/tmp/live-$f"; then ok=0; fi
+            done
+            if [ "$ok" = 1 ]; then good=1; echo "PAGES_EXACT_BYTES_VERIFIED=$expected"; break; fi
+            echo "Waiting for exact Pages bytes, attempt $attempt"
+            sleep 8
+          done
+          test "$good" = 1
+          curl -fsSL --max-time 20 "$base/?verify=$expected" -o /tmp/freedom-live-index.html
+          grep -q '20261012-freedom-r26-v1' /tmp/freedom-live-index.html
+          echo "PAGES_INDEX_AND_ASSETS_MATCH_MERGE=$expected"
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test real Pages - ten widths and private demo data
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 360s node tests/freedom-r26-browser.mjs
+      - name: Save live screenshots and QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freedom-r26-production-chromium
+          path: browser-artifacts/freedom-after-*.png
+          if-no-files-found: warn
+          retention-days: 14
