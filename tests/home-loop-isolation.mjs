@@ -5,8 +5,9 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const browser=await chromium.launch({headless:true});
 try{
  for(const name of scenarios){
-  const ctx=await browser.newContext({viewport:{width:1440,height:900}}),page=await ctx.newPage(),errors=[],network=[];
+  const ctx=await browser.newContext({viewport:{width:1440,height:900}}),page=await ctx.newPage(),errors=[],network=[],requested=[];
   page.on('pageerror',e=>errors.push(String(e.stack||e.message).slice(0,550)));
+  page.on('request',r=>{if(/\.js(?:\?|$)/.test(r.url().split('#')[0]))requested.push(r.url().split('/').pop().split('?')[0])});
   page.on('requestfailed',r=>network.push(r.url().split('/').pop()+':'+r.failure()?.errorText));
   const staticScripts=['dialog.js','schedule.js','calendar.js','stable-dom.js','i18n.js','reading.js',
     'notifications.js','app.js','library-enhancements.js','linked-tasks.js','phase2.js','elara-levels.js',
