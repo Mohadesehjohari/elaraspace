@@ -1,0 +1,25 @@
+name: Bootstrap script isolation diagnostic
+on:
+  pull_request:
+    paths:
+      - boot.js
+      - index.html
+      - tests/boot-blocker-diagnostic-browser.mjs
+      - .github/workflows/boot-diagnostic-only.yml
+permissions:
+  contents: read
+jobs:
+  script-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/elara-diagnostic-server.log 2>&1 &
+          sleep 2
+      - run: timeout 110s node tests/boot-blocker-diagnostic-browser.mjs
