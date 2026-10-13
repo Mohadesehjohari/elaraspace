@@ -22,4 +22,5 @@ jobs:
       - run: |
           python3 -m http.server 4173 >/tmp/elara-diagnostic-server.log 2>&1 &
           sleep 2
+      - run: timeout 30s node tests/phase2-bind-diagnostic-browser.mjs
       - run: timeout 110s node tests/boot-blocker-diagnostic-browser.mjs
