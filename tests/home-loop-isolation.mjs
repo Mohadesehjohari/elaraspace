@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 const base=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
-const scenarios=['static-only','boot-no-dynamic','with-design','with-navigation-design','with-reference','with-hubs','with-visual','with-artwork','all-critical','all-no-artwork','all-no-reference','normal'];
+const scenarios=['all-critical','with-tasks','prefix-11','prefix-22','prefix-33','prefix-all','part-0','part-1','part-2','part-3','normal'];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const browser=await chromium.launch({headless:true});
 try{
@@ -18,18 +18,19 @@ try{
   const visuals=['approved-visual.js','approved-runtime.js','approved-home-return.js','home-functional-pass-2026.js'];
   const art=['artwork-home-install-2026.js','home-owner-art-2026.js','home-reference-polish-20261012.js'];
   const core=[...nav,...design,...ref,...hubs,...visuals,...art];
+  const deferred=["approved-focus-dialog.js","approved-wellness.js","approved-overlay-guard.js","approved-language-journal.js","visual-fidelity-pass2.js","visual-fidelity-pass3.js","task-bulk-reorder.js","task-checklist.js","entity-reorder.js","entity-bulk-selection.js","task-collections.js","focus-ambience.js","domain-notifications.js","mission-celebration.js","social-view.js","social-messaging-ui.js","social-groups-ui.js","social-clubs-ui.js","social-challenges-ui.js","page-view.js","social-engagement-view.js","reports.js","blog-view.js","freedom-page.js","freedom-enhancements.js","freedom-diary-music.js","freedom-ai.js","feature-hubs-2026.js","language-custom-classes.js","store-view.js","profile-social-tools.js","mobile-banner-copy.js","global-page-banner-20261009.js","ui12-language-dashboard.js","ui13-language-routes.js","well01-wellness-dashboard.js","wellness-reference-popups-20261012.js","freedom-dashboard-r2026.js","freedom-r27-music.js","ranking-gold-20261012.js","task-organizer-20261012.js","task-cross-links-20261012.js","task-streak-calendar-20261012.js","freedom-r28-notebook.js"];
+  const taskFirst=['task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js'];
   const allow={
-    'static-only':staticScripts.filter(s=>s!=='boot.js'),
-    'boot-no-dynamic':staticScripts,
-    'with-design':[...staticScripts,...design],
-    'with-navigation-design':[...staticScripts,...nav,...design],
-    'with-reference':[...staticScripts,...nav,...design,...ref],
-    'with-hubs':[...staticScripts,...nav,...design,...ref,...hubs],
-    'with-visual':[...staticScripts,...nav,...design,...ref,...hubs,...visuals],
-    'with-artwork':[...staticScripts,...nav,...design,...ref,...hubs,...visuals,...art],
     'all-critical':[...staticScripts,...core],
-    'all-no-artwork':[...staticScripts,...core.filter(s=>!art.includes(s))],
-    'all-no-reference':[...staticScripts,...core.filter(s=>!ref.includes(s))],
+    'with-tasks':[...staticScripts,...core,...taskFirst],
+    'prefix-11':[...staticScripts,...core,...deferred.slice(0,11)],
+    'prefix-22':[...staticScripts,...core,...deferred.slice(0,22)],
+    'prefix-33':[...staticScripts,...core,...deferred.slice(0,33)],
+    'prefix-all':[...staticScripts,...core,...deferred],
+    'part-0':[...staticScripts,...core,...deferred.slice(0,11)],
+    'part-1':[...staticScripts,...core,...deferred.slice(11,22)],
+    'part-2':[...staticScripts,...core,...deferred.slice(22,33)],
+    'part-3':[...staticScripts,...core,...deferred.slice(33)],
     'normal':null
   }[name];
   if(allow)await page.route('**/*.js*',r=>{
