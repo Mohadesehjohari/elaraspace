@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 const base=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
-const scenarios=['normal','no-css','no-artwork','no-owner-art','no-polish','no-reference','no-visual','no-cloud','no-boot'];
+const scenarios=['normal','no-scripts','no-app','no-phase2','no-linked','no-library','no-profile','no-first-group','no-last-group','no-boot'];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const browser=await chromium.launch({headless:true});
 try{
@@ -9,16 +9,21 @@ try{
   page.on('pageerror',e=>errors.push(String(e.stack||e.message).slice(0,550)));
   page.on('requestfailed',r=>network.push(r.url().split('/').pop()+':'+r.failure()?.errorText));
   const block={
-   'no-artwork':'artwork-home-install-2026.js',
-   'no-owner-art':'home-owner-art-2026.js',
-   'no-polish':'home-reference-polish-20261012.js',
-   'no-reference':'reference-home-shell-2026.js',
-   'no-visual':'approved-visual.js',
-   'no-boot':'boot.js'
+   'no-app':'app.js','no-phase2':'phase2.js','no-linked':'linked-tasks.js',
+   'no-library':'library-enhancements.js','no-profile':'approved-profile-system.js','no-boot':'boot.js'
   }[name];
   if(block)await page.route('**/'+block+'*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
-  if(name==='no-css')await page.route('**/*.css*',r=>r.fulfill({status:200,contentType:'text/css',body:''}));
-  if(name==='no-cloud')await page.route('**/*firebase*',r=>r.abort());
+  if(name==='no-scripts')await page.route('**/*.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:''}));
+  if(name==='no-first-group')await page.route('**/*',r=>{
+    const file=r.request().url().split('/').pop().split('?')[0];
+    return ['dialog.js','schedule.js','calendar.js','stable-dom.js','i18n.js','reading.js','notifications.js','app.js'].includes(file)?
+    r.fulfill({status:200,contentType:'application/javascript',body:''}):r.continue()
+  });
+  if(name==='no-last-group')await page.route('**/*',r=>{
+    const file=r.request().url().split('/').pop().split('?')[0];
+    return ['library-enhancements.js','linked-tasks.js','phase2.js','elara-levels.js','collection-level.js','rpg.js','approved-profile-system.js','approved-icon-system.js','drawer.js','avatar-3d.js'].includes(file)?
+    r.fulfill({status:200,contentType:'application/javascript',body:''}):r.continue()
+  });
   const t=Date.now();
   try{
    await page.goto(base+'/?isolate='+name+'#home',{waitUntil:'commit',timeout:10000});
