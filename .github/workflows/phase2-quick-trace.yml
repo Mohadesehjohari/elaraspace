@@ -1,0 +1,25 @@
+name: Phase2 startup trace
+on:
+  pull_request:
+    paths:
+      - phase2.js
+      - boot.js
+      - tests/phase2-bind-diagnostic-browser.mjs
+      - .github/workflows/phase2-quick-trace.yml
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/site.log 2>&1 &
+          sleep 2
+      - run: timeout 30s node tests/phase2-bind-diagnostic-browser.mjs
