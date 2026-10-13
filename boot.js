@@ -32,7 +32,14 @@
     return done;
   };
   const primaryCss=styles.filter(name=>(!taskStyles.has(name)&&!secondaryStyles.has(name))||priorityStyles.has(name));
-  primaryCss.forEach(mountStyle);
+  // Dynamically inserting dozens of styles from a deferred head script can hold
+  // up the remaining deferred scripts and DOMContentLoaded itself. Start the real
+  // Home resources only after the parser/deferred startup has completed.
+  const domReady=new Promise(resolve=>{
+    if(document.readyState==='complete')resolve();
+    else document.addEventListener('DOMContentLoaded',resolve,{once:true});
+  });
+  const startHomeStyles=()=>primaryCss.forEach(mountStyle);
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   // The Home banner is preloaded in HTML. Never decode all app icons during startup:
   // decoding triggers extra requests and is unnecessary for the first usable frame.
@@ -93,6 +100,8 @@
     if(!startupReleased)window.ElaraShowBootError?.('canonical-home-slow');
   },10000);
   void(async()=>{
+    await domReady;
+    startHomeStyles();
     const primaryReady=loadScriptsInOrder(criticalScripts);
     let homeReady=false;
     try{
