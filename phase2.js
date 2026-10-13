@@ -854,7 +854,15 @@ function refreshAll(){syncSelectors();if(routeActive('tasks'))renderTasks();if(r
   document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeTaskTools();closeTaskKebabs(null,true);if(document.activeElement?.closest?.('#task-form'))closeComposer()}else{const details=document.activeElement?.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)}},true);
     for(const id of ['focus-duration','focus-break-duration','focus-session-count'])$(id)?.addEventListener('input',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
-    taskSurfaceObserver=new MutationObserver(scheduleTaskSurfaceDecorate);taskSurfaceObserver.observe(document.body,{childList:true,subtree:true});scheduleTaskSurfaceDecorate();
+    // The global old observer repeatedly rescanned Tasks whenever *any* Home,
+    // chat, library or cloud widget changed. Only actual Task-card insertions matter.
+    taskSurfaceObserver=new MutationObserver(records=>{
+      if(records.some(record=>[...record.addedNodes].some(node=>
+        node.nodeType===1&&(node.matches?.(taskSurfaceSelector)||node.querySelector?.(taskSurfaceSelector))
+      )))scheduleTaskSurfaceDecorate();
+    });
+    taskSurfaceObserver.observe(document.body,{childList:true,subtree:true});
+    scheduleTaskSurfaceDecorate();
     window.addEventListener('elara:hydrate',()=>setTimeout(()=>{refreshAll();restoreFocus()},0));
     window.addEventListener('elara:linked-state',()=>setTimeout(()=>{if(routeActive('tasks'))renderTasks();scheduleTaskSurfaceDecorate()},0));
     window.addEventListener('elara:locale-changed',()=>{updateFocusDisplay();renderFocusHistory()});
@@ -862,5 +870,18 @@ function refreshAll(){syncSelectors();if(routeActive('tasks'))renderTasks();if(r
   }
   window.ElaraCoreTaskHold={decorate:decorateTaskSurfaces,editDailyTarget:editTaskDailyTarget,openActions:openTaskQuickActions};
   window.ElaraTasks={taskAction,habitAction,taskView,habitView,taskDone,taskDailyTarget,taskDailyProgress,habitScheduled,openComposer:openTaskComposer,render:renderTasks,renderHabits,reset:resetTaskForm,selectCategory:selectTaskCategory};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+  // Script is deferred in <head>: readyState is already "interactive", yet
+  // DOMContentLoaded has NOT fired. Binding immediately used to mutate the entire
+  // document and stall the parser/first paint. Bind *after* canonical Home release.
+  let taskInitialized=false;
+  const startTaskRuntime=()=>{
+    if(taskInitialized)return;
+    taskInitialized=true;
+    setTimeout(bind,0);
+  };
+  if(document.documentElement.hasAttribute('data-elara-booting')){
+    window.addEventListener('elara:visual-ready',startTaskRuntime,{once:true});
+  }else if(document.readyState!=='complete'){
+    document.addEventListener('DOMContentLoaded',startTaskRuntime,{once:true});
+  }else startTaskRuntime();
 })();

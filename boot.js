@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261012-purple-streak-calendar-v2';
+  const BUILD='20261013-verified-home-boot-v1';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${/^(social-messaging-ui\.js|friends-chats-redesign\.css)$/.test(name)?'20261012-chats-r1':BUILD}`;
@@ -32,7 +32,14 @@
     return done;
   };
   const primaryCss=styles.filter(name=>(!taskStyles.has(name)&&!secondaryStyles.has(name))||priorityStyles.has(name));
-  primaryCss.forEach(mountStyle);
+  // Dynamically inserting dozens of styles from a deferred head script can hold
+  // up the remaining deferred scripts and DOMContentLoaded itself. Start the real
+  // Home resources only after the parser/deferred startup has completed.
+  const domReady=new Promise(resolve=>{
+    if(document.readyState==='complete')resolve();
+    else document.addEventListener('DOMContentLoaded',resolve,{once:true});
+  });
+  const startHomeStyles=()=>primaryCss.forEach(mountStyle);
   const icon=document.createElement('link');icon.rel='icon';icon.type='image/svg+xml';icon.href=assetUrl('assets/logo.svg');document.head.append(icon);
   // The Home banner is preloaded in HTML. Never decode all app icons during startup:
   // decoding triggers extra requests and is unnecessary for the first usable frame.
@@ -83,57 +90,69 @@
   };
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   let startupReleased=false;
-  // The timeout is a safety net, not a signal that every page must be ready.
   const revealHome=()=>{
     if(startupReleased)return;
     startupReleased=true;
     release();
   };
-  const hardWatchdog=setTimeout(()=>{
-    console.warn('Elara Home startup fallback: showing the available application.');
-    revealHome();
-  },3000);
+  // A timeout reports the problem; it must never manufacture a successful first paint.
+  const slowHome=setTimeout(()=>{
+    if(!startupReleased)window.ElaraShowBootError?.('canonical-home-slow');
+  },10000);
   void(async()=>{
+    await domReady;
+    startHomeStyles();
     const primaryReady=loadScriptsInOrder(criticalScripts);
+    let homeReady=false;
     try{
-      // Yield the first usable Home frame as soon as the core owners are available.
-      // A slow optional stylesheet can no longer add an extra 1.4s to Home.
-      await Promise.race([primaryReady,delay(1100)]);
-      if(!window.ElaraReferenceHome||!window.ElaraNavigation){
-        await Promise.race([primaryReady,delay(550)]);
-      }
-      window.ElaraNavigation?.render?.();
-      window.ElaraReferenceHome?.render?.();
+      // Do not reveal the old shell while core modules are still downloading.
+      await primaryReady;
+      const missingCore=criticalScripts.filter(name=>optionalFailures.includes(name));
+      if(missingCore.length)throw new Error('Missing canonical module(s): '+missingCore.join(', '));
+      if(typeof window.ElaraNavigation?.render!=='function' ||
+         typeof window.ElaraReferenceHome?.render!=='function')
+        throw new Error('Canonical Home or navigation owner unavailable');
+
+      window.ElaraNavigation.render();
+      window.ElaraReferenceHome.render();
+      window.ElaraOwnerHomeArtwork?.refresh?.();
+
       const homePaintStyles=['reference-home-shell-2026.css','reference-exact-pass-2026.css',
         'elara-midnight-layout-2026.css','home-owner-art-2026.css','home-reference-polish-20261012.css'];
-      // A direct deep link also needs its own CSS before reveal. Normal entry
-      // still waits only for Home; this avoids hiding Library launchers on tablets.
       const firstRouteStyles=initialRoute==='home'?homePaintStyles:
-        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',...(initialRoute==='tasks'?['task-blue-compact-20261012.css','task-organizer-20261012.css','task-mobile-inline-20261012.css','task-layout-hotfix-20261012.css','task-streak-calendar-20261012.css']:[]),...(routeStyles[initialRoute]||[])])];
-      await Promise.race([
-        Promise.all(firstRouteStyles.map(name=>mountStyle(name))),
-        delay(initialRoute==='home'?180:2000)
-      ]);
-    }catch(error){
-      console.warn('Elara Home startup continued with partial assets:',error);
-    }finally{
-      clearTimeout(hardWatchdog);
+        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',
+          ...(initialRoute==='tasks'?['task-blue-compact-20261012.css','task-organizer-20261012.css',
+            'task-mobile-inline-20261012.css','task-layout-hotfix-20261012.css',
+            'task-streak-calendar-20261012.css']:[]),...(routeStyles[initialRoute]||[])])];
+      const cssResults=await Promise.all(firstRouteStyles.map(name=>mountStyle(name)));
+      const missingCss=cssResults.filter(x=>!x.ok).map(x=>x.name);
+      if(missingCss.length)throw new Error('Missing canonical CSS: '+missingCss.join(', '));
+
+      // Some owners decorate in a frame callback. Verify actual current Home DOM,
+      // not just JavaScript globals or an arbitrary elapsed time.
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      window.ElaraReferenceHome.render();
+      const panel=document.getElementById('panel-home');
+      if(!panel?.querySelector('.elara-hero') || !panel.querySelector('.ref-home-grid'))
+        throw new Error('Canonical Home composition did not mount');
+      homeReady=true;
       revealHome();
-    }
+    }catch(error){
+      console.error('Elara canonical Home boot failed:',error);
+      window.ElaraShowBootError?.(String(error?.message||error));
+    }finally{clearTimeout(slowHome)}
+    if(!homeReady)return;
     try{
-      // Tasks can initialize while the rest of the app is still downloading.
-      await primaryReady;
+      // Complete Tasks after a usable Home, then hydrate the optional destinations.
       const tasks=['task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js'];
       taskStyles.forEach(mountStyle);
       await loadScriptsInOrder(tasks);
       window.__elaraBootStage='tasks';
       window.dispatchEvent(new Event('elara:tasks-ready'));
       await delay(100);
-      // Additional feature routes are non-blocking and never control shell visibility.
       styles.filter(name=>secondaryStyles.has(name)&&!styleReady.has(name)).forEach(mountStyle);
       const taskNames=new Set(tasks);
       const rest=deferredScripts.filter(name=>!taskNames.has(name));
-      // Keep the network responsive: load optional routes in small ordered batches.
       for(let i=0;i<rest.length;i+=6){
         await loadScriptsInOrder(rest.slice(i,i+6));
         if(i+6<rest.length)await delay(120);

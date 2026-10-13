@@ -1,0 +1,51 @@
+name: Verified Home boot recovery
+on:
+  pull_request:
+    paths:
+      - index.html
+      - boot.js
+      - tests/verified-home-boot-browser.mjs
+      - .github/workflows/verified-home-boot.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - boot.js
+      - tests/verified-home-boot-browser.mjs
+permissions:
+  contents: read
+jobs:
+  verify-home:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and verified release contract
+        run: |
+          node --check boot.js
+          node --check tests/verified-home-boot-browser.mjs
+          node --check tests/boot-blocker-diagnostic-browser.mjs
+          node - <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const index = fs.readFileSync('index.html','utf8'), boot = fs.readFileSync('boot.js','utf8');
+          assert(!index.includes('showApp()'),'Old fail-open timer remains');
+          assert(!boot.includes('delay(1100)'),'Old premature reveal remains');
+          assert(boot.includes('Missing canonical CSS'),'Home CSS verification missing');
+          assert(boot.includes('Canonical Home composition did not mount'),'Home DOM verification missing');
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve static site
+        run: |
+          python3 -m http.server 4173 >/tmp/home-boot-verify.log 2>&1 &
+          sleep 2
+      - name: Diagnose current script blockers
+        run: timeout 100s node tests/boot-blocker-diagnostic-browser.mjs
+      - name: Browser test for slow CSS, slow JS and missing CSS
+        run: timeout 350s node tests/verified-home-boot-browser.mjs

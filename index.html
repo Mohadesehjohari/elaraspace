@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261012-focus-owner-first-v1 -->
+<!-- deploy-refresh: 20261013-verified-home-boot-v1 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -72,19 +72,40 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="app.js?v=20261012-task-decision-v1"></script>
   <script defer src="library-enhancements.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="linked-tasks.js?v=20261005-goal-task-v10"></script>
-  <script defer src="phase2.js?v=20261012-focus-owner-first-v1"></script>
+  <script defer src="phase2.js?v=20261013-post-home-phase2-v1"></script>
   <script defer src="elara-levels.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="collection-level.js?v=20261004-p0-section-tasks-v118"></script>
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-chats-r2"></script>
+  <script defer src="boot.js?v=20261013-verified-home-boot-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
-    // Fail open: a missing optional asset must never strand the entire app behind a skeleton.
-    const showApp=()=>{root.removeAttribute('data-elara-booting');root.removeAttribute('data-elara-boot-failed')};
-    window.ElaraShowBootError=reason=>{console.warn('Elara startup fallback:',reason);showApp()};
+    // Never expose the fallback/legacy shell while the canonical Home is incomplete.
+    window.ElaraShowBootError=reason=>{
+      root.setAttribute('data-elara-boot-error','');
+      const screen=document.getElementById('elara-boot-screen');
+      if(!screen)return;
+      let status=document.getElementById('elara-boot-recovery');
+      if(!status){
+        status=document.createElement('section');
+        status.id='elara-boot-recovery';
+        status.setAttribute('role','alert');
+        status.setAttribute('dir','rtl');
+        status.style.cssText='max-width:620px;margin:20px auto;padding:20px;border:1px solid #5877a2;border-radius:14px;background:#10233c;color:#eaf5ff;font:600 14px/1.8 Tahoma,Arial,sans-serif;text-align:center';
+        const message=document.createElement('p');
+        message.textContent='اتصال به طراحی سایت کامل نشده است. لطفاً دوباره تلاش کنید.';
+        const retry=document.createElement('button');
+        retry.type='button';
+        retry.textContent='بارگذاری دوباره';
+        retry.style.cssText='margin-top:12px;padding:10px 22px;color:white;background:#325d9b;border:1px solid #79b0f0;border-radius:9px;cursor:pointer;font:inherit';
+        retry.addEventListener('click',()=>{const url=new URL(location.href);url.searchParams.set('elara_reload',Date.now());location.replace(url.href)});
+        status.append(message,retry);
+        screen.append(status);
+      }
+      console.error('Elara verified boot not yet ready:',reason);
+    };
     const applyLocalMode=()=>{
       const body=document.body;
       if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
@@ -97,15 +118,16 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyLocalMode,{once:true});
       window.dispatchEvent(new CustomEvent('elara:cloud-unavailable',{detail:{message:reason,source:'index-failsafe'}}));
     };
-    // Independent of boot.js; protect even against a failed download or a thrown startup error.
+    // A slow boot may eventually recover. Keep the neutral skeleton and offer retry,
+    // rather than revealing a stale, blank or unstyled application after 4.8 seconds.
     window.setTimeout(()=>{
-      if(root.hasAttribute('data-elara-booting'))showApp();
+      if(root.hasAttribute('data-elara-booting'))window.ElaraShowBootError?.('bootstrap-timeout');
       const body=document.body;
       if(!document.querySelector('[data-elara-account-gate-ready]')&&body&&!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline'))forceLocal('html-startup-timeout');
-    },4800);
+    },12000);
     window.addEventListener('error',event=>{
       const src=String(event.target?.src||'');
-      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showApp();forceLocal('boot-script-load-error')}
+      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){window.ElaraShowBootError?.('boot-script-load-error');forceLocal('boot-script-load-error')}
     },true);
   })();
   </script>
