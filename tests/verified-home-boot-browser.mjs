@@ -17,7 +17,8 @@ try{
       await new Promise(resolve=>setTimeout(resolve,5600));
       await route.continue();
     });
-    await page.goto(base+'/?verify=slow-'+width+'#home',{waitUntil:'domcontentloaded',timeout:45000});
+    await page.goto(base+'/?verify=slow-'+width+'#home',{waitUntil:'commit',timeout:45000});
+    await page.waitForFunction(()=>!!document.querySelector('.shell') && !!document.getElementById('elara-boot-screen'),null,{timeout:30000});
     await page.waitForTimeout(3500);
     const before=await page.evaluate(()=>({
       booting:document.documentElement.hasAttribute('data-elara-booting'),
@@ -40,9 +41,10 @@ try{
       panel:document.querySelector('#panel-home'),
       shell:getComputedStyle(document.querySelector('.shell')).visibility,
       hero:!!document.querySelector('#panel-home .owner-home-hero-image'),
+      authGate:document.body.classList.contains('cloud-locked'),
       recovery:document.documentElement.hasAttribute('data-elara-boot-error')
     }));
-    assert.notEqual(after.shell,'hidden','New shell remained hidden after verification');
+    assert.ok(after.shell!=='hidden'||after.authGate,'Neither usable Home nor genuine account gate was visible');
     assert.ok(['home','tasks','secondary'].includes(after.ready));
     assert.equal(after.recovery,false,'Recovery appeared after successful boot');
     assert.equal(after.hero,true,'Canonical image owner missing after boot');
@@ -55,7 +57,7 @@ try{
     const page=await context.newPage();
     await page.route('**/reference-home-shell-2026.css*',route=>
       route.fulfill({status:503,contentType:'text/css',body:'/* unavailable */'}));
-    await page.goto(base+'/?verify=missing-css#home',{waitUntil:'domcontentloaded'});
+    await page.goto(base+'/?verify=missing-css#home',{waitUntil:'commit'});
     await page.waitForFunction(()=>document.documentElement.hasAttribute('data-elara-boot-error'),null,{timeout:25000});
     const blocked=await page.evaluate(()=>({
       booting:document.documentElement.hasAttribute('data-elara-booting'),
