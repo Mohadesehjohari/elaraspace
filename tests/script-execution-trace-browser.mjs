@@ -8,7 +8,7 @@ try{
  page.on('console',msg=>{if(msg.text().startsWith('TRACE_FILE_')){seen.push(msg.text());console.log(msg.text())}});
  page.on('pageerror',e=>console.log('TRACE_PAGEERROR '+String(e).slice(0,600)));
  await page.route('**/*.js*',route=>{
-   const url=new URL(route.request().url),name=decodeURIComponent(url.pathname.split('/').pop()||'');
+   const url=new URL(route.request().url()),name=decodeURIComponent(url.pathname.split('/').pop()||'');
    if(!/^[a-zA-Z0-9._-]+\.js$/.test(name)||!existsSync(name))return route.continue();
    const body=readFileSync(name,'utf8');
    return route.fulfill({status:200,contentType:'application/javascript',
