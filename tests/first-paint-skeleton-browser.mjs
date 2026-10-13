@@ -21,7 +21,8 @@ try {
           request.fulfill({ status: 503, contentType: 'application/javascript', body: '' }));
       }
       await page.goto(base + '/?progressive-boot=' + route + '-' + width + '#' + route,
-        { waitUntil: 'domcontentloaded', timeout: 45000 });
+        { waitUntil: 'commit', timeout: 15000 });
+      await page.waitForSelector('.shell #panel-home',{state:'attached',timeout:20000});
       const initial = await page.evaluate(() => ({
         boot: document.documentElement.hasAttribute('data-elara-booting'),
         visibleSkeleton: getComputedStyle(document.getElementById('elara-boot-screen')).display !== 'none',
