@@ -27,6 +27,7 @@ jobs:
         run: |
           node --check boot.js
           node --check tests/verified-home-boot-browser.mjs
+          node --check tests/boot-blocker-diagnostic-browser.mjs
           node - <<'NODE'
           const assert = require('node:assert/strict');
           const fs = require('node:fs');
@@ -44,5 +45,7 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/home-boot-verify.log 2>&1 &
           sleep 2
+      - name: Diagnose current script blockers
+        run: timeout 100s node tests/boot-blocker-diagnostic-browser.mjs
       - name: Browser test for slow CSS, slow JS and missing CSS
         run: timeout 350s node tests/verified-home-boot-browser.mjs
