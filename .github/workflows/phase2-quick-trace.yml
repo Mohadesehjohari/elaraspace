@@ -22,4 +22,5 @@ jobs:
       - run: |
           python3 -m http.server 4173 >/tmp/site.log 2>&1 &
           sleep 2
+      - run: timeout 30s node tests/script-execution-trace-browser.mjs
       - run: timeout 30s node tests/phase2-bind-diagnostic-browser.mjs
