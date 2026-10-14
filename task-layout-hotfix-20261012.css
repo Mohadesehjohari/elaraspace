@@ -340,3 +340,54 @@ html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-t
   padding:2px 1px!important;font-size:9px!important
  }
 }
+
+
+/* TABLET STATUS/META GRID AREA GUARD • Chromium regression at 768px.
+   Override intermediate-width layout rules which place status and folder chips
+   in the same cell. Keep independent grid areas and the compact task height. */
+@media(min-width:701px) and (max-width:1100px){
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row{
+  display:grid!important;
+  box-sizing:border-box!important;
+  grid-template-areas:"task-check task-name task-state task-tags task-actions"!important;
+  grid-template-columns:28px minmax(125px,1.2fr) 79px minmax(105px,.9fr) 30px!important;
+  grid-template-rows:minmax(42px,auto)!important;
+  grid-auto-flow:row!important;
+  align-items:center!important;align-content:center!important;
+  gap:5px!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:54px!important;max-height:72px!important;
+  padding:5px 8px!important;
+ }
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button{
+  grid-area:task-check!important;position:relative!important;
+  justify-self:center!important;align-self:center!important;inset:auto!important;
+ }
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{
+  grid-area:task-name!important;position:static!important;
+  justify-self:stretch!important;align-self:center!important;min-width:0!important;
+ }
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{
+  grid-area:task-state!important;position:static!important;inset:auto!important;
+  justify-self:stretch!important;align-self:center!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;transform:none!important
+ }
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid{
+  grid-area:task-tags!important;position:static!important;inset:auto!important;
+  justify-self:stretch!important;align-self:center!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;transform:none!important
+ }
+ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-more,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-more{
+  grid-area:task-actions!important;position:relative!important;inset:auto!important;
+  align-self:center!important;justify-self:center!important;
+  min-width:28px!important;width:28px!important;margin:0!important;
+ }
+}
