@@ -25,7 +25,8 @@ assert.doesNotMatch(boot,/p0-home-2026\.js/);
 
 for(const token of ['ref-wellness-card','ref-theme-strip','ref-streak-card','ref-desktop-streak','ref-library-focus','localSearch','ref-header-search','ref-mobile-brand','assets/ui/missions-rocket.webp','assets/ui/streak-flame.webp'])assert.ok(home.includes(token),'reference Home missing '+token);
 assert.match(home,/for\(const id of \['elara-home-focus','elara-home-books','elara-home-freedom'\]\)/);
-assert.match(home,/const books=\$\('panel-books'\)/);
+assert.match(home,/const legacy=\$\('ref-library-focus'\);if\(legacy\)legacy\.remove\(\)/,'Old Library focus wrapper should be retired');
+assert.doesNotMatch(home,/section\.append\(timer\)/,'Canonical Pomodoro must not be relocated into Library');
 assert.match(home,/data-ref-exercise/);
 assert.match(css,/grid-template-areas:'tasks habits wellness' 'missions goals right' 'theme theme right'/);
 assert.match(css,/\.bottom-nav\{display:none!important/);
