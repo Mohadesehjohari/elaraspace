@@ -43,6 +43,17 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
 }
 @media(min-width:701px){#elara-boot-screen .elara-skel-mobile-nav{display:none}}
 @media(prefers-reduced-motion:reduce){#elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{animation:none}}
+/* Language first-paint contract: do not reveal the legacy hub while UI12 loads. */
+html body #main #panel-language:not(.hidden):not([data-ui12-paint-ready="true"]) > *{display:none!important}
+html body #main #panel-language:not(.hidden):not([data-ui12-paint-ready="true"])::before{
+ content:"در حال آماده‌سازی صفحهٔ جدید زبان…";display:block;box-sizing:border-box;
+ width:100%;min-height:170px;padding:58px 20px;margin:10px 0 18px;
+ border:1px solid #1e5b84;border-radius:16px;background:#071c39;color:#d4e8ff;
+ text-align:center;font:700 14px/1.8 Vazirmatn,Tahoma,Arial,sans-serif
+}
+html body #main #panel-language:not(.hidden)[data-ui12-paint-error]::before{content:"بارگذاری صفحهٔ جدید زبان کامل نشد؛ لطفاً صفحه را دوباره بارگذاری کن."}
+/* Once UI12 is ready, render exactly the three owner nodes, never legacy cards or duplicate heroes. */
+html body #main #panel-language:not(.hidden)[data-ui12-paint-ready="true"] > :not(.elara-language-hero):not(.ui12-shortcuts):not(.ui12-board){display:none!important}
 /* The real FOCUS-03 owner unveils the canonical timer only when the new panel is ready. */
 #panel-focus-pomodoro:not([data-focus-ref-ready="true"]):not(.hidden) > .focus-card{visibility:hidden!important;pointer-events:none!important}
 </style>
