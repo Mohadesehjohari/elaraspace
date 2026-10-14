@@ -255,3 +255,25 @@ body.light #elara-social-page .groups-r4 .g4-discover{background:linear-gradient
  .social-group-chat-dialog .social-group-members>span{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){#elara-social-page .groups-r4 *,#elara-social-page .groups-r4 *:before,#elara-social-page .groups-r4 *:after{transition:none!important;animation:none!important}}
+
+
+/* Designed Groups welcome state — shared by immediate paint and delayed account sync. */
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space{min-height:250px;padding:30px 15px;background:radial-gradient(ellipse at 50% 10%,#254b86 0%,#10294f 38%,#071a33 83%);border:1px dashed #5087b0}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space h4{font-size:clamp(15px,1.5vw,19px);line-height:1.7;letter-spacing:0;margin:2px 0 0}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-availability-message{font-size:12px;line-height:2;color:#b9d0e7;max-width:420px;margin:0;text-align:center}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space .g4-secondary{margin-top:7px}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-search:has(input:disabled){opacity:.83}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-search input:disabled{cursor:default}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-filters button:disabled{opacity:.58;cursor:default}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-sync-note{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 13px;margin:0 0 14px;border-radius:12px;border:1px solid #3b668b;background:#103252;color:#c6d9f0;font-size:12px;line-height:1.8}
+#elara-social-page[data-social-tab="groups"] .groups-r4 .g4-sync-note .g4-secondary{min-height:34px;font-size:11px}
+#elara-social-page[data-social-tab="groups"] .groups-r4[data-g4-availability="waiting"] .g4-live i{background:#f3bc7a;box-shadow:0 0 9px #f3bc7a}
+body.light #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space{background:radial-gradient(ellipse at 50% 0%,#dce9ff,#f7fbff 88%);border-color:#b6ccec}
+body.light #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space h4{color:#253d5d}
+body.light #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-availability-message{color:#59708e}
+body.light #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-sync-note{background:#eef6ff;color:#305070;border-color:#caddec}
+@media(max-width:540px){
+ #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space{min-height:220px;padding:24px 12px}
+ #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-pending-space .g4-secondary{min-height:42px}
+ #elara-social-page[data-social-tab="groups"] .groups-r4 .g4-sync-note{flex-direction:column;align-items:stretch;text-align:center}
+}

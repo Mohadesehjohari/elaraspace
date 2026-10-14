@@ -1,0 +1,162 @@
+/* CLASSES REF 2026-10-15 — isolated, real-data class dashboard.
+   Replace --lc2-page-art / --lc2-card-art when the owner uploads final images. */
+#panel-language-courses{--lc2-line:#175080;--lc2-ink:#f5f6ff;--lc2-muted:#c1cdeb;--lc2-panel:#041733;--lc2-page-art:url('assets/ui/language-learning-background.webp');--lc2-card-art:url('assets/ui/language_banner_main.webp')}
+#panel-language-courses>.feature-subpage-head{display:none!important}
+#panel-language-courses .lc2-classes-page{display:grid;gap:13px;min-width:0;width:100%;max-width:1560px;margin-inline:auto;color:var(--lc2-ink);font-family:Vazirmatn,Tahoma,Arial,sans-serif;container-type:inline-size}
+#panel-language-courses .lc2-classes-page *,#panel-language-courses .lc2-classes-page *::before,#panel-language-courses .lc2-classes-page *::after{box-sizing:border-box}
+#panel-language-courses .lc2-top{isolation:isolate;position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:34px;min-width:0;min-height:189px;padding:20px 25px 17px;border:0;border-radius:18px;overflow:hidden;background:linear-gradient(90deg,#031329d1 0%,#0415338a 55%,#04142a40 100%),var(--lc2-page-art) center 52%/cover no-repeat}
+#panel-language-courses .lc2-top::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 65% -20%,#482aff35,transparent 60%);z-index:-1}
+#panel-language-courses .lc2-top-tools{display:flex;justify-content:space-between;align-items:center;flex-direction:row;gap:16px}
+#panel-language-courses .lc2-back{display:grid;place-items:center;width:45px;height:45px;flex:none;border:1px solid #3b62bb;border-radius:13px;background:#062455c9;color:#e8e8ff;font-size:27px;font-family:inherit;cursor:pointer;transition:background .18s,transform .18s}
+#panel-language-courses .lc2-back:hover{background:#163f80;transform:translateX(-2px)}
+#panel-language-courses .lc2-search-wrap{display:flex;align-items:center;gap:10px;max-width:475px;width:min(46%,475px);height:47px;border:1px solid #1d68b3;border-radius:12px;background:#03182fda;box-shadow:inset 0 1px #62aaff14;color:#27dffc;min-width:0;padding:0 12px}
+#panel-language-courses .lc2-search-wrap:focus-within{outline:2px solid #21cffa7b;outline-offset:2px}
+#panel-language-courses .lc2-search-icon{font-size:29px;line-height:1}
+#panel-language-courses .lc2-search-wrap input{width:100%;min-width:0;min-height:40px;padding:5px 0;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#f6faff!important;font:inherit;font-size:13px;text-align:start}
+#panel-language-courses .lc2-search-wrap input::placeholder{color:#9caacb}
+#panel-language-courses .lc2-top-title{display:grid;justify-items:start;gap:1px;position:relative;z-index:1}
+#panel-language-courses .lc2-heading-icon{color:#17def2;float:right;position:absolute;right:0;top:7px;width:32px;height:32px}
+#panel-language-courses .lc2-heading-icon svg{width:100%;height:100%}
+#panel-language-courses .lc2-top-title h1{margin:0;padding-inline-start:44px;font-size:clamp(24px,2.3vw,34px);font-weight:900;text-shadow:0 2px 16px #000d}
+#panel-language-courses .lc2-top-title p{margin:0;color:#d5dcf3;font-size:clamp(11px,.95vw,14px);line-height:1.8}
+#panel-language-courses .lc2-stat-grid.l1-class-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;direction:rtl}
+#panel-language-courses .lc2-stat.l1-class-stat{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:10px;min-height:109px;padding:16px 18px!important;border:1px solid #225584;border-radius:17px;background:linear-gradient(145deg,#071e3fe9,#041631f5);box-shadow:0 7px 20px #010a1c54}
+#panel-language-courses .lc2-stat .l1-stat-symbol{display:grid;place-items:center;flex:0 0 49px;height:49px;width:49px;border:1px solid #1768a5;border-radius:13px;background:#07305fc7;color:#45e7ff}
+#panel-language-courses .lc2-stat .l1-stat-symbol svg{width:26px;height:26px}
+#panel-language-courses .lc2-stat>div{display:grid;gap:4px;min-width:0}
+#panel-language-courses .lc2-stat small{font-size:13px;font-weight:800;color:#d9e6ff}
+#panel-language-courses .lc2-stat strong{font-size:clamp(18px,2vw,30px);line-height:1.3;color:#fff;font-weight:900;overflow-wrap:anywhere}
+#panel-language-courses .lc2-stat>div>span:not(.lc2-mini-track){font-size:10px;color:#bad0e6;line-height:1.5}
+#panel-language-courses .lc2-stat-progress .l1-stat-symbol{color:#d08cff;border-color:#6350bd;background:#291d62a8}
+#panel-language-courses .lc2-stat-next .l1-stat-symbol{color:#33ddf3}
+#panel-language-courses .lc2-stat-active .l1-stat-symbol{color:#55f5d3;border-color:#187e92}
+#panel-language-courses .lc2-stat-next strong{font-size:clamp(14px,1.5vw,21px)}
+#panel-language-courses .lc2-mini-track{display:block;width:min(160px,100%);height:8px;border-radius:20px;background:#142b50;overflow:hidden;margin-top:3px}
+#panel-language-courses .lc2-mini-track i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#4c39fd,#ab53ff);box-shadow:0 0 10px #9955f980}
+#panel-language-courses .lc2-filter.lf-class-filter{display:flex;flex-wrap:nowrap;align-items:center;gap:9px;min-width:0;padding:10px 12px!important;border:1px solid #174a82;border-radius:14px;background:linear-gradient(90deg,#061731,#071b3bf2)}
+#panel-language-courses .lc2-filter button{flex:0 1 auto;min-width:0;white-space:nowrap;min-height:42px;border:1px solid #2367a6;border-radius:11px;padding:9px 18px;color:#e7efff;background:#051d3c;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
+#panel-language-courses .lc2-filter button[aria-pressed=true]{background:linear-gradient(105deg,#fe7e7b,#bf49fd 57%,#6355ff)!important;border-color:#ab8aff;color:#fff;box-shadow:0 0 12px #af46e97c}
+#panel-language-courses .lc2-filter .lc2-filter-create{margin-inline-start:auto;flex:0 0 auto;min-width:166px;padding:9px 17px;border:1px solid #ac6afa;background:linear-gradient(110deg,#fe7c78,#d147db 52%,#624aff);color:#fff;font-size:13px;font-weight:900}
+#panel-language-courses .lc2-filter button:focus-visible{outline:2px solid #97eaff;outline-offset:2px}
+#panel-language-courses .language-class-intro.l1-class-hero.lc2-create-hero{position:relative;isolation:isolate;display:grid!important;grid-template-columns:minmax(130px,.23fr) minmax(0,1fr) minmax(168px,.19fr)!important;align-items:center!important;gap:14px!important;min-height:146px!important;padding:18px 21px!important;border:1px solid #25d9f7!important;border-right-color:#8d50ee!important;border-radius:21px!important;overflow:hidden;background:linear-gradient(90deg,#051f42a8,#071b43dd 40%,#071e44a9),var(--lc2-card-art) center 48%/cover no-repeat!important;box-shadow:inset 0 0 0 1px #84aaff18,0 0 0 1px #6325cf35!important}
+#panel-language-courses .lc2-create-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0625529e,#07163668 55%,#050f35b3);z-index:-1;pointer-events:none}
+#panel-language-courses .l1-class-hero.lc2-create-hero .lc2-create-art{grid-column:1;grid-row:1;position:relative;z-index:1;display:grid;place-items:center;min-width:0;max-width:none;align-self:center;min-height:100px}
+#panel-language-courses .lc2-create-art img{display:block;max-width:142px;width:95%;max-height:124px;object-fit:contain;filter:drop-shadow(0 0 18px #6642ffb3)}
+#panel-language-courses .lc2-create-copy{grid-column:2;grid-row:1;max-width:none!important;min-width:0;align-self:center!important}
+#panel-language-courses .lc2-create-copy h2{margin:0 0 5px;color:#fff;font-size:clamp(18px,1.7vw,24px);font-weight:900}
+#panel-language-courses .lc2-create-copy p{font-size:12px;line-height:1.7;color:#d2e2ff;max-width:630px;margin:0 0 10px}
+#panel-language-courses .lc2-feature-pills{display:flex;flex-wrap:wrap;gap:7px}
+#panel-language-courses .lc2-feature-pills span{padding:5px 11px;border:1px solid #275e9c;border-radius:999px;background:#062047cf;color:#cfddff;font-size:11px}
+#panel-language-courses .lc2-create-hero .l1-main-cta{grid-column:3;grid-row:1;justify-self:stretch;align-self:center;min-height:52px;min-width:0;padding:8px 14px;border:1px solid #2bd6ff;border-radius:14px;background:linear-gradient(110deg,#045fa1,#2b36bf 65%,#6530b8);color:#fff;font:inherit;font-size:14px;font-weight:900;box-shadow:0 0 19px #208bff85;cursor:pointer}
+#panel-language-courses .lc2-create-hero .l1-main-cta:hover{filter:brightness(1.1)}
+#panel-language-courses .lc2-section.language-personal-classes,#panel-language-courses .lc2-section.language-shared-classes{min-width:0;padding:14px!important;display:grid;gap:10px;border:1px solid #1f5688;border-radius:21px;background:linear-gradient(135deg,#041933,#05152d)}
+#panel-language-courses .lc2-section>header{display:grid!important;justify-content:stretch;align-items:start;gap:0;margin:0!important}
+#panel-language-courses .lc2-section>header h2{display:flex;align-items:center;gap:10px;margin:0;color:#fff;font-size:clamp(18px,1.55vw,23px);font-weight:900}
+#panel-language-courses .lc2-section>header p{color:#b3c7e2;font-size:11px;line-height:1.7;margin:2px 0 0}
+#panel-language-courses .lc2-section-icon{color:#1bdbf5;font-size:28px;line-height:1}
+#panel-language-courses .lc2-card-list{display:grid!important;grid-template-columns:1fr!important;gap:11px;width:100%;min-width:0}
+#panel-language-courses .lc2-empty.language-class-empty,#panel-language-courses .lc2-empty.language-shared-classes-empty{display:grid!important;justify-items:center;align-content:center;gap:6px;min-height:182px;padding:18px!important;border:1px solid #1d4e7a!important;border-radius:17px;background:radial-gradient(ellipse at top,#243b8b3b,transparent 63%),#061831}
+#panel-language-courses .lc2-empty.language-class-empty::before{display:none!important}
+#panel-language-courses .lc2-empty img{display:block;width:82px;height:66px;object-fit:contain;filter:drop-shadow(0 0 13px #6e58ff7d)}
+#panel-language-courses .lc2-empty strong{font-size:18px;color:#fff;text-align:center}
+#panel-language-courses .lc2-empty p{color:#bed0e9;font-size:12px;text-align:center;max-width:540px;line-height:1.7;margin:0}
+#panel-language-courses .lc2-empty .l1-empty-cta,#panel-language-courses .lc2-empty .l1-shared-cta{min-height:41px;padding:8px 18px;margin-top:4px;border:1px solid #a66afb;border-radius:13px;background:linear-gradient(110deg,#ff8571,#d84dca 55%,#6444fe);box-shadow:0 0 13px #ad49fd50;color:white;font:inherit;font-weight:850;font-size:12px;cursor:pointer}
+#panel-language-courses .lc2-empty .l1-shared-cta{background:#0a3156;border-color:#2586c5;box-shadow:none}
+#panel-language-courses .lc2-class-card.language-class-card{position:relative;min-width:0;display:grid!important;grid-template-columns:clamp(160px,17vw,230px) minmax(0,1fr) minmax(115px,170px)!important;grid-template-rows:auto auto;align-items:stretch;gap:13px 17px!important;padding:13px!important;overflow:hidden;border:1px solid #1e5c90;border-radius:18px;background:linear-gradient(125deg,#071e3c,#03142c 85%);direction:ltr}
+#panel-language-courses .lc2-class-card.is-shared::before{display:none!important}
+#panel-language-courses .lc2-cover{grid-column:1;grid-row:1;width:100%;min-height:160px;display:grid;place-items:center;overflow:hidden;border:1px solid #2a67a4;border-radius:14px;background:radial-gradient(ellipse at center,#2b329771,transparent 72%),var(--lc2-card-art) center/cover no-repeat}
+#panel-language-courses .lc2-cover img{display:block;width:100%;height:100%;max-height:205px;object-fit:contain;padding:12px;filter:drop-shadow(0 0 13px #ac52ff)}
+#panel-language-courses .lc2-class-info{grid-column:2;grid-row:1;display:grid;align-content:center;gap:6px;min-width:0;direction:rtl}
+#panel-language-courses .lc2-class-heading{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#panel-language-courses .lc2-class-heading h3{font-size:clamp(16px,1.5vw,22px);font-weight:900;margin:0;color:#fff;overflow-wrap:anywhere}
+#panel-language-courses .lc2-type{display:inline-flex;align-items:center;gap:6px;border:1px solid #137c79;border-radius:999px;background:#063e43;color:#71ffe2;padding:3px 10px;font-size:11px;font-weight:850;white-space:nowrap}
+#panel-language-courses .lc2-type::before{content:"";width:8px;height:8px;border-radius:50%;background:#20edb3;box-shadow:0 0 9px #22eeb0}
+#panel-language-courses .lc2-type.offline{background:#232748;border-color:#676fd5;color:#d3d5ff}
+#panel-language-courses .lc2-type.linked{background:#072d59;border-color:#4e8ffa;color:#b6deff}
+#panel-language-courses .lc2-description{font-size:12px;color:#bfd4ec;margin:0;line-height:1.7}
+#panel-language-courses .lc2-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#panel-language-courses .lc2-meta span{max-width:100%;padding:5px 9px;border:1px solid #1f578a;border-radius:9px;background:#061b3a;color:#d7e6fa;font-size:10px;line-height:1.6;overflow-wrap:anywhere}
+#panel-language-courses .lc2-meta .lc2-next{border-color:#4263af;color:#c2b4ff}
+#panel-language-courses .lc2-eta{margin:0;font-size:10px;color:#b2c9e2;line-height:1.65}
+#panel-language-courses .lc2-link{font-size:11px;text-decoration:none;color:#58dafe}
+#panel-language-courses .lc2-class-progress{grid-column:3;grid-row:1;display:grid;align-content:center;justify-items:center;gap:5px;padding:6px 4px;border-inline-start:1px solid #164377;direction:rtl;text-align:center}
+#panel-language-courses .lc2-ring{display:grid;place-items:center;width:95px;height:95px;border-radius:50%;background:conic-gradient(#4e83ff 0%,#b74fff var(--lc2-progress),#163657 var(--lc2-progress),#163657 100%);padding:8px;box-shadow:0 0 16px #3357bd45}
+#panel-language-courses .lc2-ring>div{display:grid;place-items:center;background:#06152e;border-radius:50%;height:100%;width:100%}
+#panel-language-courses .lc2-ring strong{font-size:21px;color:#fff}
+#panel-language-courses .lc2-class-progress small{color:#bfd6ef;font-size:10px}
+#panel-language-courses .lc2-class-progress>span{font-size:10px;color:#a5badb}
+#panel-language-courses .lc2-class-progress .lc2-session{width:100%;min-height:40px;padding:7px;border:1px solid #ad65fd;border-radius:10px;background:linear-gradient(100deg,#ff7d76,#d646c8,#6047ff);color:#fff;font:inherit;font-size:11px;font-weight:850;cursor:pointer}
+#panel-language-courses .lc2-class-progress .lc2-session:disabled{opacity:.55;cursor:not-allowed}
+#panel-language-courses .lc2-class-actions{grid-column:1/-1;grid-row:2;direction:rtl;display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:7px;padding-top:7px;border-top:1px solid #1d4b81}
+#panel-language-courses .lc2-class-actions button{flex:0 1 auto;min-width:0!important;min-height:34px!important;padding:7px 13px;border:1px solid #246499;border-radius:10px;background:#061d3c;color:#e0f0ff;font:inherit;font-size:11px;cursor:pointer}
+#panel-language-courses .lc2-class-actions button:hover{background:#113567;border-color:#4bafff}
+#panel-language-courses .lc2-class-actions .lc2-delete{margin-inline-start:auto;color:#ffabc4;border-color:#742f61}
+#panel-language-courses .lc2-card-list .lf-filter-empty{grid-column:1/-1;padding:23px;border:1px dashed #356aa1;border-radius:12px;text-align:center;color:#afc9e6}
+#panel-language-courses .lc2-class-card[hidden],#panel-language-courses .lf-filter-empty[hidden]{display:none!important}
+#panel-language-courses .lc2-classes-page button:focus-visible,#panel-language-courses .lc2-classes-page a:focus-visible{outline:3px solid #79eaff;outline-offset:3px}
+@media(max-width:1150px){
+ #panel-language-courses .lc2-stat.l1-class-stat{padding:12px 13px!important}
+ #panel-language-courses .lc2-create-hero .lc2-feature-pills span{font-size:10px;padding:4px 8px}
+ #panel-language-courses .lc2-class-card.language-class-card{grid-template-columns:clamp(130px,19vw,175px) minmax(0,1fr) minmax(100px,135px)!important}
+}
+@media(max-width:850px){
+ #panel-language-courses .lc2-stat-grid.l1-class-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-language-courses .language-class-intro.l1-class-hero.lc2-create-hero{grid-template-columns:minmax(110px,.35fr) minmax(0,1fr)!important}
+ #panel-language-courses .lc2-create-hero .l1-main-cta{grid-column:1/-1;grid-row:2;min-height:46px}
+ #panel-language-courses .lc2-class-card.language-class-card{grid-template-columns:145px minmax(0,1fr) 115px!important}
+}
+@media(max-width:700px){
+ #panel-language-courses .lc2-classes-page{gap:10px}
+ #panel-language-courses .lc2-top{min-height:232px;padding:17px 13px 14px;gap:34px;border-radius:15px;background-position:52% 42%}
+ #panel-language-courses .lc2-top-tools{align-items:center;gap:11px}
+ #panel-language-courses .lc2-search-wrap{width:auto;flex:1 1 auto;max-width:none;height:45px}
+ #panel-language-courses .lc2-back{width:43px;height:43px}
+ #panel-language-courses .lc2-top-title h1{font-size:26px}
+ #panel-language-courses .lc2-top-title p{font-size:12px;max-width:95%}
+ #panel-language-courses .lc2-stat-grid.l1-class-stats{gap:9px}
+ #panel-language-courses .lc2-stat.l1-class-stat{min-height:96px;padding:12px!important;gap:8px}
+ #panel-language-courses .lc2-stat .l1-stat-symbol{flex:0 0 42px;width:42px;height:42px}
+ #panel-language-courses .lc2-stat .l1-stat-symbol svg{width:22px;height:22px}
+ #panel-language-courses .lc2-stat small{font-size:11px}
+ #panel-language-courses .lc2-stat strong{font-size:22px}
+ #panel-language-courses .lc2-stat-next strong{font-size:15px}
+ #panel-language-courses .lc2-filter.lf-class-filter{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:9px!important}
+ #panel-language-courses .lc2-filter button{padding:7px 2px;font-size:10px;min-height:41px}
+ #panel-language-courses .lc2-filter .lc2-filter-create{display:none}
+ #panel-language-courses .language-class-intro.l1-class-hero.lc2-create-hero{display:grid!important;grid-template-columns:minmax(110px,.45fr) minmax(0,1fr)!important;gap:9px!important;min-height:250px!important;padding:16px!important;background-position:50% 46%!important}
+ #panel-language-courses .lc2-create-art img{max-width:130px}
+ #panel-language-courses .lc2-create-copy h2{font-size:20px}
+ #panel-language-courses .lc2-create-copy p{font-size:12px}
+ #panel-language-courses .lc2-feature-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #panel-language-courses .lc2-feature-pills span{padding:5px 6px;text-align:center;line-height:1.55;white-space:normal;font-size:10px}
+ #panel-language-courses .lc2-create-hero .l1-main-cta{grid-column:1/-1;grid-row:2;min-height:53px;background:linear-gradient(110deg,#ff7b79,#d451e8 55%,#6549ff);border-color:#b585ff}
+ #panel-language-courses .lc2-section.language-personal-classes,#panel-language-courses .lc2-section.language-shared-classes{padding:12px!important}
+ #panel-language-courses .lc2-section>header h2{font-size:19px}
+ #panel-language-courses .lc2-empty.language-class-empty{min-height:190px}
+ #panel-language-courses .lc2-class-card.language-class-card{grid-template-columns:110px minmax(0,1fr)!important;gap:10px!important}
+ #panel-language-courses .lc2-cover{grid-column:1;grid-row:1;min-height:130px}
+ #panel-language-courses .lc2-class-info{grid-column:2;grid-row:1}
+ #panel-language-courses .lc2-class-heading h3{font-size:16px}
+ #panel-language-courses .lc2-description{font-size:11px}
+ #panel-language-courses .lc2-meta span{font-size:10px;padding:3px 6px}
+ #panel-language-courses .lc2-class-progress{grid-column:1/-1;grid-row:2;display:flex;justify-content:space-between;flex-wrap:wrap;gap:9px;border-inline-start:0;border-top:1px solid #19477c;padding-top:10px}
+ #panel-language-courses .lc2-ring{width:68px;height:68px;padding:6px}
+ #panel-language-courses .lc2-ring strong{font-size:16px}
+ #panel-language-courses .lc2-class-progress .lc2-session{width:auto;min-width:135px;margin-inline-start:auto}
+ #panel-language-courses .lc2-class-actions{grid-row:3;gap:6px}
+ #panel-language-courses .lc2-class-actions button{font-size:10px;padding:6px 9px}
+}
+@media(max-width:385px){
+ #panel-language-courses .lc2-top-title h1{font-size:23px}
+ #panel-language-courses .lc2-stat.l1-class-stat{padding:9px!important}
+ #panel-language-courses .lc2-stat .l1-stat-symbol{flex-basis:35px;width:35px;height:35px}
+ #panel-language-courses .lc2-stat strong{font-size:19px}
+ #panel-language-courses .lc2-create-art img{max-width:103px}
+ #panel-language-courses .lc2-create-copy h2{font-size:18px}
+ #panel-language-courses .lc2-create-copy p{font-size:11px}
+ #panel-language-courses .lc2-feature-pills span{font-size:9px}
+ #panel-language-courses .lc2-class-card.language-class-card{grid-template-columns:85px minmax(0,1fr)!important}
+ #panel-language-courses .lc2-cover{min-height:105px}
+ #panel-language-courses .lc2-class-progress small,#panel-language-courses .lc2-class-progress>span{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){#panel-language-courses .lc2-classes-page button{transition:none!important}}
