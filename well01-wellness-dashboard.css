@@ -417,3 +417,17 @@ body:has(#panel-exercise.wellness-feature-hub:not(.hidden)) .workspace > .topbar
   transition:none;
  }
 }
+
+
+/* Wellness folders on the home dashboard: only green, clickable folder tiles. */
+#panel-exercise #well01-dashboard .well01-folder-body{display:flex;flex-direction:column;justify-content:flex-start;overflow-y:auto;min-height:150px;max-height:190px;scrollbar-width:thin;scrollbar-color:#149973 transparent;padding:2px}
+#panel-exercise #well01-dashboard .well01-folder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:start;width:100%}
+#panel-exercise #well01-dashboard .well01-folder-tile{display:flex;align-items:center;gap:9px;min-width:0;min-height:66px;text-align:right;direction:rtl;padding:9px 8px!important;border:1px solid #118e70!important;border-radius:13px;background:linear-gradient(130deg,#064d41ee,#032b36ee)!important;color:#eafff3!important;box-shadow:inset 0 0 15px #13a87620,0 4px 13px #001c24b3;transition:background .18s,border-color .18s,box-shadow .18s,transform .18s;cursor:pointer}
+#panel-exercise #well01-dashboard .well01-folder-tile:hover,#panel-exercise #well01-dashboard .well01-folder-tile:focus-visible{transform:translateY(-2px);background:linear-gradient(135deg,#097c58,#034738)!important;border-color:#33ffae!important;box-shadow:inset 0 0 20px #20fa9a32,0 0 15px #12f8a443;outline:0}
+#panel-exercise #well01-dashboard .well01-folder-tile:focus-visible{outline:2px solid #8bffe0;outline-offset:2px}
+#panel-exercise #well01-dashboard .well01-folder-mark{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:10px;color:#5ef4a2;background:linear-gradient(135deg,#116848,#044333);border:1px solid #23ad72;box-shadow:inset 0 1px 9px #66ffbd2e,0 0 9px #0afa9b36}
+#panel-exercise #well01-dashboard .well01-folder-mark svg{display:block;width:30px;height:30px;filter:drop-shadow(0 0 5px #4affad73)}
+#panel-exercise #well01-dashboard .well01-folder-name{min-width:0;overflow-wrap:anywhere;line-height:1.55;font-size:.76rem;font-weight:750}
+#panel-exercise #well01-dashboard .well01-folder-create{border-style:dashed!important}
+@media(max-width:1350px){#panel-exercise #well01-dashboard .well01-folder-tile{gap:5px;padding:7px 5px!important}#panel-exercise #well01-dashboard .well01-folder-mark{width:34px;height:36px}#panel-exercise #well01-dashboard .well01-folder-mark svg{width:26px;height:26px}#panel-exercise #well01-dashboard .well01-folder-name{font-size:.68rem}}
+@media(max-width:580px){#panel-exercise #well01-dashboard .well01-folder-body{min-height:142px;max-height:190px}#panel-exercise #well01-dashboard .well01-folder-grid{gap:6px}#panel-exercise #well01-dashboard .well01-folder-tile{min-height:60px}#panel-exercise #well01-dashboard .well01-folder-name{font-size:.69rem}}
