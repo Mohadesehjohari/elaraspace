@@ -232,7 +232,12 @@
     "ui13-language-routes.js",
     "ui13-language.css",
     "language-four-routes-20261015.js",
-    "language-four-routes-20261015.css"
+    "language-four-routes-20261015.css",
+    "task-single-row-20261015.css",
+    "task-completion-polish-20261014.css",
+    "task-cross-links-20261012.js",
+    "freedom-r31-remaining.js",
+    "freedom-r31-remaining.css"
   ],
   "files": [
     ".htaccess",
@@ -562,6 +567,30 @@
     "ui13-language-routes.js",
     "ui13-language.css",
     "language-four-routes-20261015.js",
-    "language-four-routes-20261015.css"
+    "language-four-routes-20261015.css",
+    "task-goal-final-2026.css",
+    "task-blue-compact-20261012.css",
+    "task-organizer-20261012.css",
+    "task-organizer-20261012.js",
+    "task-mobile-inline-20261012.css",
+    "task-layout-hotfix-20261012.css",
+    "task-final-round-archive-20261014.css",
+    "task-completion-polish-20261014.css",
+    "task-streak-calendar-20261012.css",
+    "task-streak-calendar-20261012.js",
+    "task-cross-links-20261012.js",
+    "task-universal-interactions.js",
+    "task-universal-interactions.css",
+    "task-decision-refinement-20261012.css",
+    "task-board-view.css",
+    "task-board-view.js",
+    "task-single-row-20261015.css",
+    "assets/ui/icon-task-complete-astra-v2.webp",
+    "assets/ui/hero-tasks-astra-v2.webp",
+    "social-groups-redesign-20261012.css",
+    "avatar-3d.js",
+    "avatar-3d.css",
+    "freedom-r31-remaining.js",
+    "freedom-r31-remaining.css"
   ]
 }

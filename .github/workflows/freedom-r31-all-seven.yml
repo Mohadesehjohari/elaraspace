@@ -1,0 +1,53 @@
+name: Freedom R31 All Seven Pages
+on:
+  push:
+    branches:
+      - freedom-r31-complete-all-seven-20261015
+  pull_request:
+    paths:
+      - 'freedom-r31-*'
+      - 'freedom-enhancements.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/freedom-r31-seven-browser.mjs'
+      - '.github/workflows/freedom-r31-all-seven.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  seven-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, routing and assets
+        run: |
+          node --check freedom-enhancements.js
+          node --check freedom-r30-pages.js
+          node --check freedom-r31-remaining.js
+          node --check boot.js
+          node --check tests/freedom-r31-seven-browser.mjs
+          node -e "let m=require('./deploy/production-manifest.json');for(let f of ['freedom-r30-pages.js','freedom-r30-pages.css','freedom-r31-remaining.js','freedom-r31-remaining.css']){if(!m.required.includes(f)||!m.files.includes(f))process.exit(1)}"
+          for f in 'Ideas.webp' 'Inspirations.webp' 'Vision_Board.webp' 'my_reflection.webp' 'freedom_banner.webp'; do test -s "assets/ui/$f"; done
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-r31.log 2>&1 &
+          sleep 2
+      - name: Seven tab responsive route and save tests
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 360s node tests/freedom-r31-seven-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freedom-r31-seven-page-screenshots
+          path: browser-artifacts/freedom-r31-*.png
+          if-no-files-found: warn
+          retention-days: 14
