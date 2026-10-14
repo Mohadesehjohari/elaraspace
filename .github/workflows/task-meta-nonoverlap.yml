@@ -1,0 +1,43 @@
+name: Task Metadata No-Overlap QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'task-cross-links-20261012.js'
+      - 'task-layout-hotfix-20261012.css'
+      - 'tests/task-meta-nonoverlap-browser.mjs'
+      - '.github/workflows/task-meta-nonoverlap.yml'
+  pull_request:
+    paths:
+      - 'task-cross-links-20261012.js'
+      - 'task-layout-hotfix-20261012.css'
+      - 'tests/task-meta-nonoverlap-browser.mjs'
+      - '.github/workflows/task-meta-nonoverlap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  responsive-meta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check task decorator and browser assertions
+        run: |
+          node --check task-cross-links-20261012.js
+          node --check tests/task-meta-nonoverlap-browser.mjs
+          test -s task-layout-hotfix-20261012.css
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve repository website
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-task-meta.log 2>&1 &
+          sleep 2
+      - name: Validate chip rectangles at six mobile and desktop widths
+        run: |
+          timeout 240s node tests/task-meta-nonoverlap-browser.mjs
