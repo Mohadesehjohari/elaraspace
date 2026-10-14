@@ -1,0 +1,52 @@
+name: Freedom R29 Notebook Reference
+on:
+  push:
+    branches:
+      - freedom-r29-notebook-right-clear-fullscreen-20261014
+  pull_request:
+    paths:
+      - 'freedom-r28-notebook.css'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/freedom-r29-browser.mjs'
+      - '.github/workflows/freedom-r29-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  notebook-r29:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax, CSS tokens and four images
+        run: |
+          node --check boot.js
+          node --check freedom-r28-notebook.js
+          node --check tests/freedom-r29-browser.mjs
+          grep -Fq "grid-template-columns:minmax(280px,32%) minmax(0,1fr)" freedom-r28-notebook.css
+          grep -Fq 'background-image:var(--r28-bg)!important' freedom-r28-notebook.css
+          for n in 'Misty Mountain Lake at Dawn.webp' 'Celestial Mirror Lake at Night.webp' 'Sunlit Botanical Shadows on Parchment.webp' 'Lavender Moonrise Over Misty Meadows.webp'; do test -s "assets/ui/$n"; done
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/freedom-r29-http.log 2>&1 &
+          sleep 2
+      - name: Eight viewport reference and theme verification
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 360s node tests/freedom-r29-browser.mjs
+      - name: Capture mobile and desktop screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freedom-r29-visual-check
+          path: browser-artifacts/freedom-r29-*.png
+          if-no-files-found: warn
+          retention-days: 14

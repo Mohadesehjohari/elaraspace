@@ -8,6 +8,25 @@ function avatar(p){const src=window.ElaraProfileSystem?.viewModel?.(p,{self:p?.u
 function activeGroupsTab(root){return !!root?.querySelector('[data-social-view="groups"][aria-selected="true"]')}
 
 let groupQuery='',groupFilter='all';
+// Social updates can re-render the whole Friends page while Firestore is still loading.
+// Share pending queries and give each attempt a finite deadline so tabs never hang.
+const GROUP_LOAD_TIMEOUT_MS=8000;
+let pendingGroupLoad=null,pendingGroupUid='',groupMountTimer=null;
+function groupData(service,force=false){
+ const uid=String(current()?.uid||'');
+ if(force||pendingGroupUid!==uid){pendingGroupLoad=null;pendingGroupUid=uid}
+ if(!pendingGroupLoad){
+  const task=Promise.resolve().then(()=>Promise.all([service.list(),service.invites?.()||[]]));
+  pendingGroupLoad=task;
+  void task.then(()=>{if(pendingGroupLoad===task)pendingGroupLoad=null},()=>{if(pendingGroupLoad===task)pendingGroupLoad=null});
+ }
+ return pendingGroupLoad;
+}
+function scheduleMount(delay=70){
+ if(groupMountTimer!==null)return;
+ groupMountTimer=setTimeout(()=>{groupMountTimer=null;void mount()},delay);
+}
+
 const icon=(kind)=>({
  search:'<circle cx="10.8" cy="10.8" r="6.7"/><path d="m16 16 4.8 4.8"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
@@ -33,27 +52,38 @@ function applyGroupFilters(section=document.querySelector('#elara-social-page .g
  const empty=section.querySelector('[data-g4-no-results]');if(empty)empty.hidden=count!==0;
  const countEl=section.querySelector('[data-g4-results-count]');if(countEl)countEl.textContent=numerals(count);
 }
-async function mount(){
+async function mount(force=false){
  const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
  if(!activeGroupsTab(root)){renderToken++;root.querySelector('.social-groups-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-groups-section');
  if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section groups-r4';section.dataset.elaraI18n='off';grid.prepend(section)}
  section.classList.add('groups-r4');
+ if(!force&&section.dataset.g4Loading==='true')return;
  const token=++renderToken;
+ section.dataset.g4Loading='true';
  const newBtn=extra=>'<button type="button" class="g4-primary" '+(extra?'data-g4-create':'data-social-create-group')+'>'+svg('plus')+'<span>'+t('گروه جدید','New group')+'</span></button>';
- section.innerHTML='<div class="g4-loading" role="status">'+svg('spark')+' '+t('در حال آماده‌کردن فضای گروه‌ها…','Preparing your groups…')+'</div>';
- let groups=[],invites=[];
+ section.innerHTML='<div class="g4-loading" role="status">'+svg('spark')+'<strong>'+t('در حال آماده‌کردن فضای گروه‌ها…','Preparing your groups…')+'</strong><p>'+t('اگر دریافت اطلاعات طول کشید، می‌توانی به تب دیگری بروی.','You can switch tabs while groups load.')+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('دوستان','Friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('چت‌ها','Chats')+'</button></div></div>';
+ let groups=[],invites=[],deadline=null;
  try{
-  const results=await Promise.all([service.list(),service.invites?.()||[]]);
+  const timeout=new Promise((_,reject)=>{deadline=setTimeout(()=>reject(new Error('groups-load-timeout')),GROUP_LOAD_TIMEOUT_MS)});
+  const results=await Promise.race([groupData(service,force),timeout]);
   groups=Array.isArray(results[0])?results[0]:[];
   invites=Array.isArray(results[1])?results[1]:[];
  }catch(error){
+  // Do not reuse a Firestore promise that may never settle on a subsequent retry.
+  if(String(error?.message||'')==='groups-load-timeout')pendingGroupLoad=null;
   if(token!==renderToken||!section.isConnected)return;
-  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+esc(String(error?.message||''))+'</p><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button></div>';
+  section.dataset.g4Loading='false';
+  const isTimeout=String(error?.message||'')==='groups-load-timeout';
+  const missingIndex=/COLLECTION_GROUP_ASC|requires (?:a |an )?index|failed-precondition|collection.group.*index/i.test(String(error?.message||''));
+  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+(isTimeout?t('اتصال گروه‌ها بیش از حد طول کشید؛ می‌توانی دوباره تلاش کنی یا به تب دیگری بروی.','Groups took too long to respond. Try again or switch tabs.'):missingIndex?t('ایندکس عضویت گروه‌ها در Firestore هنوز فعال نشده؛ تب‌های دیگر در دسترس هستند.','The required Firestore membership index is not active yet. You can still use other tabs.'):esc(String(error?.message||'')))+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('بازگشت به دوستان','Back to friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('رفتن به چت‌ها','Go to chats')+'</button></div></div>';
   return;
+ }finally{
+  if(deadline!==null)clearTimeout(deadline);
  }
  if(token!==renderToken||!section.isConnected||!activeGroupsTab(root))return;
+ section.dataset.g4Loading='false';
  groups=[...groups].sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
  const unread=groups.filter(g=>!!g.unread).length,own=groups.filter(g=>g.role==='owner').length;
  const inviteRows=invites.map(x=>'<article class="social-group-invite g4-invite"><span class="g4-invite-icon">'+svg('users')+'</span><div class="g4-invite-copy"><strong data-elara-ugc dir="auto">'+esc(x.group?.title||t('گروه جدید','New group'))+'</strong><small>'+t('دعوت به عضویت در گروه','Invitation to join a group')+'</small></div><div class="g4-invite-actions"><button type="button" data-group-invite-action="accepted" data-group-invite-id="'+esc(x.groupId)+'">'+t('پذیرش','Accept')+'</button><button type="button" data-group-invite-action="declined" data-group-invite-id="'+esc(x.groupId)+'">'+t('رد','Decline')+'</button></div></article>').join('');
@@ -112,11 +142,11 @@ async function openGroup(id){
  try{const result=await window.ElaraDialog.open({title:t('گفتگوی گروهی','Group chat'),content:wrap,wide:true,actions});if(result==='leave'&&await window.ElaraDialog.confirm(t('از این گروه خارج شوی؟','Leave this group?'),{title:t('خروج از گروه','Leave group'),danger:true,confirmText:t('خروج','Leave')})){await service.leave(id)}}finally{try{stop?.()}catch{};setTimeout(mount,0)}
 }
 document.addEventListener('input',e=>{if(e.target.matches('.groups-r4 [data-g4-search]')){groupQuery=e.target.value;applyGroupFilters()}});
-document.addEventListener('click',e=>{if(e.target.closest('.groups-r4 [data-g4-create]')){e.preventDefault();void createGroup();return}const filter=e.target.closest('.groups-r4 [data-group-filter]');if(filter){groupFilter=filter.dataset.groupFilter;applyGroupFilters();return}if(e.target.closest('.groups-r4 [data-group-retry]')){void mount();return}if(e.target.closest('.groups-r4 [data-g4-scroll-invites]')){document.getElementById('g4-invitations')?.scrollIntoView({behavior:'smooth',block:'center'})}});
-document.addEventListener('click',async e=>{if(e.target.closest('[data-social-create-group]')){e.preventDefault();void createGroup();return}const invite=e.target.closest('[data-group-invite-action]');if(invite){e.preventDefault();const rows=await api()?.invites?.()||[],item=rows.find(x=>x.groupId===invite.dataset.groupInviteId);if(item)try{await api().decideInvite(item,invite.dataset.groupInviteAction);await mount()}catch(error){const el=document.getElementById('toast');if(el)el.textContent=String(error?.message||error)}return}const row=e.target.closest('[data-social-open-group]');if(row){e.preventDefault();void openGroup(row.dataset.socialOpenGroup);return}if(e.target.closest('[data-social-view]'))setTimeout(mount,40)});
-for(const event of ['elara:social-updated','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(mount,40));
-window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,80)});
-window.addEventListener('hashchange',()=>setTimeout(mount,120));
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,220),{once:true});else setTimeout(mount,220);
+document.addEventListener('click',e=>{if(e.target.closest('.groups-r4 [data-g4-create]')){e.preventDefault();void createGroup();return}const filter=e.target.closest('.groups-r4 [data-group-filter]');if(filter){groupFilter=filter.dataset.groupFilter;applyGroupFilters();return}if(e.target.closest('.groups-r4 [data-group-retry]')){void mount(true);return}if(e.target.closest('.groups-r4 [data-g4-scroll-invites]')){document.getElementById('g4-invitations')?.scrollIntoView({behavior:'smooth',block:'center'})}});
+document.addEventListener('click',async e=>{if(e.target.closest('[data-social-create-group]')){e.preventDefault();void createGroup();return}const invite=e.target.closest('[data-group-invite-action]');if(invite){e.preventDefault();const rows=await api()?.invites?.()||[],item=rows.find(x=>x.groupId===invite.dataset.groupInviteId);if(item)try{await api().decideInvite(item,invite.dataset.groupInviteAction);await mount()}catch(error){const el=document.getElementById('toast');if(el)el.textContent=String(error?.message||error)}return}const row=e.target.closest('[data-social-open-group]');if(row){e.preventDefault();void openGroup(row.dataset.socialOpenGroup);return}if(e.target.closest('[data-social-view]'))scheduleMount(40)});
+for(const event of ['elara:social-updated','elara:locale-changed','elara:social-tab-changed'])window.addEventListener(event,()=>scheduleMount(40));
+window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')scheduleMount(80)});
+window.addEventListener('hashchange',()=>scheduleMount(120));
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scheduleMount(220),{once:true});else scheduleMount(220);
 window.ElaraSocialGroupsUI={mount,createGroup,openGroup};
 })();

@@ -7,6 +7,9 @@ on:
       - 'social-view.js'
       - 'social-clubs-ui.js'
       - 'friends-hub.css'
+      - 'social-groups-ui.js'
+      - 'social-groups-redesign-20261012.css'
+      - 'tests/friends-groups-ui-browser.mjs'
       - 'tests/friends-hub-browser.mjs'
       - 'tests/clubs-stage11-browser.mjs'
       - '.github/workflows/friends-neon-live-pages.yml'
@@ -58,6 +61,10 @@ jobs:
         env:
           ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
         run: timeout 240s node tests/clubs-stage11-browser.mjs
+      - name: Browser verify missing-index navigation escape on mobile and desktop
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 300s node tests/friends-groups-ui-browser.mjs
       - name: Publish production verification screenshots
         if: always()
         uses: actions/upload-artifact@v4

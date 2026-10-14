@@ -11,6 +11,9 @@ on:
       - well01-wellness-dashboard.js
       - well01-wellness-dashboard.css
       - approved-wellness.js
+      - wellness-reference-popups-20261012.js
+      - wellness-reference-popups-20261012.css
+      - tests/wellness-notes-browser.mjs
       - tests/well01-wellness-dashboard-browser.mjs
       - .github/workflows/well01-wellness-dashboard.yml
   workflow_dispatch:
@@ -68,6 +71,47 @@ jobs:
           path: browser-artifacts/well01/*.png
           if-no-files-found: warn
           retention-days: 30
+
+  wellness-reference-live:
+    name: Training nutrition sleep - live release acceptance
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm the published workout, nutrition and sleep JS/CSS match main
+        run: |
+          set -euo pipefail
+          base="https://mohadesehjohari.github.io/elaraspace"
+          for i in $(seq 1 45); do
+            good=1
+            for asset in boot.js wellness-reference-popups-20261012.js wellness-reference-popups-20261012.css; do
+              if ! curl -fLsS --retry 2 -H 'Cache-Control: no-cache' "$base/$asset?release=$GITHUB_SHA" -o "/tmp/elara-live-${asset//\//_}"; then
+                good=0
+                break
+              fi
+              if ! cmp -s "$asset" "/tmp/elara-live-${asset//\//_}"; then good=0; break; fi
+            done
+            if [ "$good" -eq 1 ]; then
+              echo "LIVE_WELLNESS_ASSETS_VERIFIED $GITHUB_SHA"
+              exit 0
+            fi
+            echo "Waiting for matching Pages wellness assets $i/45"
+            sleep 20
+          done
+          echo '::error::Live wellness JavaScript or CSS does not match main.'
+          exit 1
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test real live private workout plan, nutrition plan, folders, sleep and popups
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
+        run: timeout 300s node tests/wellness-notes-browser.mjs
 
   production-verification:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
