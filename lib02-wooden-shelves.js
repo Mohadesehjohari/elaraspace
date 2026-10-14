@@ -23,6 +23,35 @@ function shelf(info,bs){
  const rows=names.length?names.map(book).join(''):'<div class="lib02-empty"><span aria-hidden="true">✧</span><p>'+t('در این قفسه هنوز کتابی نیست.','No books on this shelf yet.')+'</p><button type="button" data-lib02-add>'+t('افزودن کتاب','Add a book')+'</button></div>';
  return '<section class="lib02-shelf" data-lib02-shelf="'+info.id+'"><div class="lib02-shelf-head"><h2>'+info.icon+' '+t(info.fa,info.en)+'</h2><span>'+fa(names.length)+' '+t('کتاب','books')+'</span></div><div class="lib02-wood"><div class="lib02-wood-row">'+rows+'</div><div class="lib02-wood-divider" aria-hidden="true"></div><div class="lib02-wood-base" aria-hidden="true"></div></div></section>';
 }
+/* All custom shelves use the same original wooden interior as canonical status shelves. */
+function customCases(names,books){
+ if(!names.length)return '<div class="lib06-no-custom"><span aria-hidden="true">✦</span><p>'+t('قفسه شخصی نداری. با «قفسه جدید» اولین قفسه را بساز.','No custom shelves yet. Create your first one with New shelf.')+'</p></div>';
+ return '<div class="lib06-custom-grid">'+names.map(name=>{
+  const owned=books.filter(b=>b.customShelf===name),attr=esc(name);
+  const content=owned.length?owned.map(book).join(''):'<div class="lib02-empty"><span aria-hidden="true">✧</span><p>'+t('این قفسه هنوز کتابی ندارد.','This custom shelf has no books yet.')+'</p><button type="button" data-lib02-assign="'+attr+'">'+t('قرار دادن کتاب در قفسه','Put a book on this shelf')+'</button></div>';
+  return '<section class="lib02-custom-case" data-lib02-custom-shelf="'+attr+'" aria-label="'+t('قفسه شخصی ','Custom shelf ')+attr+'">'+
+   '<div class="lib02-shelf-head lib06-custom-head"><h3 data-elara-ugc dir="auto">▣ '+attr+'</h3><div class="lib06-case-tools"><span>'+fa(owned.length)+' '+t('کتاب','books')+'</span><button type="button" data-lib02-custom="'+attr+'" aria-label="'+t('نمایش کتاب‌های قفسه ','View books on shelf ')+attr+'">▤</button><button type="button" data-lib02-assign="'+attr+'" aria-label="'+t('افزودن کتاب به ','Add a book to ')+attr+'">＋</button><button type="button" data-lib02-rename="'+attr+'" aria-label="'+t('تغییر نام قفسه ','Rename shelf ')+attr+'">✎</button></div></div>'+
+   '<div class="lib02-wood"><div class="lib02-wood-row">'+content+'</div><div class="lib02-wood-divider" aria-hidden="true"></div><div class="lib02-wood-base" aria-hidden="true"></div></div></section>'
+ }).join('')+'</div>';
+}
+function foldLegacyTools(){
+ const panel=$('#panel-library-shelves');if(!panel||!$('#lib02-scene'))return;
+ const targets=['.library-enhancement-tools','#book-form','.bookshelf-filter','#book-list','#book-empty'];
+ const nodes=targets.map(x=>panel.querySelector(':scope > '+x)).filter(Boolean);
+ if(!nodes.length)return;
+ let disclosure=panel.querySelector(':scope > .lib06-legacy-tools');
+ if(!disclosure){
+  disclosure=document.createElement('details');disclosure.className='lib06-legacy-tools';
+  disclosure.innerHTML='<summary>⚙ '+t('مدیریت و ویرایش کتاب‌ها','Book management and editing')+'</summary><div class="lib06-legacy-body"></div>';
+  panel.append(disclosure);
+ }
+ const body=disclosure.querySelector('.lib06-legacy-body');
+ nodes.forEach(node=>body.append(node));
+}
+function openBookManagement(){
+ const details=$('#panel-library-shelves > .lib06-legacy-tools');if(details)details.open=true;
+ const form=$('#book-form');form?.scrollIntoView({behavior:'smooth',block:'center'});$('#book-title')?.focus({preventScroll:true});
+}
 function latest(bs){
  const history=bs.flatMap(b=>(Array.isArray(b.readingLogs)?b.readingLogs:[]).map(x=>({...x,book:b}))).sort((a,b)=>Number(b.timestamp||0)-Number(a.timestamp||0)).slice(0,4);
  return history.length?'<ul>'+history.map(x=>'<li><span>'+esc(x.book.title)+'</span><small>'+fa(x.pagesRead)+' '+t('صفحه','pages')+' · '+esc(x.date||'')+'</small></li>').join('')+'</ul>':'<p class="lib02-note">'+t('تاریخچه مطالعه پس از ثبت صفحات واقعی نمایش داده می‌شود.','Actual reading activity appears after you log pages.')+'</p>';
@@ -42,14 +71,14 @@ function render(){
  [[bs.length,t('کتاب در کتابخانه','Total books'),'▣'],[bs.filter(b=>b.shelf==='reading').length,t('در حال مطالعه','Reading'),'📖'],[bs.filter(b=>b.shelf==='want').length,t('خواهم خواند','To read'),'🔖'],[bs.filter(b=>b.shelf==='finished').length,t('خوانده‌ام','Finished'),'✓']].map(([n,label,ic])=>'<div><span>'+ic+'</span><strong>'+fa(n)+'</strong><small>'+label+'</small></div>').join('')+'</div>'+
  '<div class="lib02-mobile-picker" role="group" aria-label="'+t('انتخاب وضعیت مطالعه','Choose reading status')+'">'+statuses.map(x=>'<button type="button" aria-pressed="'+(x.id===selected)+'" data-lib02-picker="'+x.id+'">'+x.icon+' '+t(x.fa,x.en)+'</button>').join('')+'</div>'+
  '<div class="lib02-shelves" data-lib02-selected="'+selected+'">'+statuses.map(x=>shelf(x,bs)).join('')+'</div>'+
- '<section class="lib02-personal"><div><h2>✦ '+t('قفسه‌های اختصاصی من','My custom shelves')+'</h2><p>'+fa(custom.length)+' '+t('قفسه شخصی — وضعیت مطالعه از قفسه شخصی جداست.','custom shelves — independent of reading status.')+'</p></div><div class="lib02-personal-tags">'+(custom.length?custom.map(n=>'<span class="lib02-personal-chip"><button type="button" data-lib02-custom="'+esc(n)+'">'+esc(n)+' <small>'+fa(bs.filter(b=>b.customShelf===n).length)+'</small></button><button type="button" data-lib02-rename="'+esc(n)+'" aria-label="'+t('تغییر نام قفسه ','Rename shelf ')+esc(n)+'">✎</button></span>').join(''):'<span class="lib02-note">'+t('قفسه اختصاصی نداری. از دکمه «قفسه جدید» استفاده کن.','No custom shelves yet.')+'</span>')+'</div></section>'+
+ '<section class="lib02-personal"><div class="lib06-personal-heading"><h2>✦ '+t('قفسه‌های اختصاصی من','My custom shelves')+'</h2><p>'+fa(custom.length)+' '+t('قفسه شخصی — هر قفسه با عنوان و کتاب‌های خودش نمایش داده می‌شود.','custom shelves — each has its own title and books.')+'</p></div>'+customCases(custom,bs)+'</section>'+
  '<div class="lib02-extras"><section><h2>◷ '+t('فعالیت‌های اخیر','Recent activity')+'</h2>'+latest(bs)+'</section><section><h2>❝ '+t('بریده اخیر','Recent passage')+'</h2>'+quote(s,bs)+'</section></div>';
 }
 function mount(){
  const panel=$('#panel-library-shelves');if(!panel||!window.ElaraFeatureHubs||!window.ElaraReading||!window.ElaraLibraryEnhancements)return;
  let root=$('#lib02-scene');
  if(!root){root=document.createElement('div');root.id='lib02-scene';root.dir='rtl';const header=panel.querySelector(':scope > .feature-subpage-head');if(header)header.insertAdjacentElement('afterend',root);else panel.prepend(root)}
- ready=true;render();
+ ready=true;render();foldLegacyTools();
 }
 function schedule(){if(pending)return;pending=true;queueMicrotask(()=>{pending=false;if(ready)render();else mount()})}
 function saveBooks(fn){const s=state(),all=Array.isArray(s.books)?s.books:[],books=all.slice();const changed=fn(books);if(changed===false)return;window.ElaraReading.commit(books)}
@@ -57,7 +86,7 @@ document.addEventListener('click',async event=>{
  const root=event.target.closest('#lib02-scene');if(!root)return;
  const pick=event.target.closest('[data-lib02-picker]');
  if(pick){selected=pick.dataset.lib02Picker;schedule();return}
- if(event.target.closest('[data-lib02-add]')){event.preventDefault();const form=$('#book-form');form?.scrollIntoView({behavior:'smooth',block:'center'});$('#book-title')?.focus({preventScroll:true});return}
+ if(event.target.closest('[data-lib02-add]')){event.preventDefault();openBookManagement();return}
  if(event.target.closest('[data-lib02-new-shelf]')){event.preventDefault();await window.ElaraLibraryEnhancements.newShelf();schedule();return}
  if(event.target.closest('[data-lib02-library]')){event.preventDefault();window.ElaraOpen?.('books',{history:'push'});return}
  const read=event.target.closest('[data-lib02-read]');
@@ -68,6 +97,27 @@ document.addEventListener('click',async event=>{
  if(manage){event.preventDefault();await window.ElaraLibraryEnhancements.manageBook(manage.dataset.lib02Manage);return}
  const bm=event.target.closest('[data-lib02-bookmark]');
  if(bm){event.preventDefault();saveBooks(all=>{const i=all.findIndex(x=>x.id===bm.dataset.lib02Bookmark);if(i<0)return false;all[i]={...all[i],bookmarked:!all[i].bookmarked}});return}
+ const assign=event.target.closest('[data-lib02-assign]');
+ if(assign){
+  event.preventDefault();const shelfName=assign.dataset.lib02Assign;
+  const current=state();
+  if(!Array.isArray(current.bookShelves)||!current.bookShelves.includes(shelfName))return;
+  const books=normalized(current);
+  if(!books.length){openBookManagement();return}
+  const picker=document.createElement('div');picker.className='lib06-book-picker';
+  const field=document.createElement('label');field.textContent=t('کتابی را برای این قفسه انتخاب کن','Choose a book for this shelf');
+  const select=document.createElement('select');select.setAttribute('aria-label',field.textContent);
+  books.forEach(b=>select.add(new Option(String(b.title||t('کتاب بدون عنوان','Untitled book')),String(b.id))));
+  field.append(select);picker.append(field);
+  const ok=await window.ElaraDialog?.open?.({title:t('قرار دادن کتاب در قفسه: ','Add a book to shelf: ')+shelfName,content:picker,actions:[{label:t('انصراف','Cancel'),value:false},{label:t('افزودن','Add'),value:true,kind:'primary'}]});
+  if(ok!==true)return;
+  const latest=state();
+  if(!latest.bookShelves?.includes(shelfName))return;
+  const index=(latest.books||[]).findIndex(b=>String(b.id)===select.value);
+  if(index<0)return;
+  latest.books[index]={...latest.books[index],customShelf:shelfName};
+  emit(latest);schedule();return;
+ }
  const rename=event.target.closest('[data-lib02-rename]');
  if(rename){event.preventDefault();await window.ElaraLibraryEnhancements.renameShelf(rename.dataset.lib02Rename);schedule();return}
  const custom=event.target.closest('[data-lib02-custom]');
