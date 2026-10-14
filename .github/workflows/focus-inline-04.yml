@@ -1,10 +1,10 @@
 name: FOCUS-04 Inline Ambient Sounds and Reference Palette
 on:
   pull_request:
-    paths: [index.html, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
+    paths: [index.html, boot.js, feature-hubs-2026.js, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
   push:
     branches: [main]
-    paths: [index.html, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
+    paths: [index.html, boot.js, feature-hubs-2026.js, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
 permissions:
   contents: read
 jobs:
@@ -53,7 +53,7 @@ jobs:
           good=false
           for attempt in $(seq 1 70); do
             good=true
-            for f in index.html focus-ambience.js focus-setup-reference-03.js focus-inline-ambience-04.css; do
+            for f in index.html boot.js feature-hubs-2026.js focus-ambience.js focus-setup-reference-03.js focus-inline-ambience-04.css; do
               curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$f?sha=$GITHUB_SHA&n=$attempt" -o "/tmp/$(basename "$f")" || { good=false;break; }
               cmp -s "$f" "/tmp/$(basename "$f")" || { good=false;break; }
             done
