@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const nav=read('approved-navigation-extension.js');
 const boot=read('boot.js');
+const index=read('index.html');
 const home=read('reference-home-shell-2026.js');
 const css=read('reference-home-shell-2026.css');
 const exact=read('reference-exact-pass-2026.css');
@@ -16,13 +17,16 @@ assert.match(nav,/route:'social',label:'دوستان'/,'Friends route must remai
 for(const forbidden of ["route:'habits'","route:'goals'","route:'focus'"])assert.doesNotMatch(nav.split('const SIDEBAR=Object.freeze([...MAIN,FRIEND]);')[1]||'',new RegExp(forbidden));
 
 assert.match(boot,/reference-home-shell-2026\.css/);
-assert.match(boot,/reference-home-shell-2026\.js/);
+const homeOwner=index.indexOf('<script defer src="reference-home-shell-2026.js?v=');
+const bootOwner=index.indexOf('<script defer src="boot.js?v=');
+assert.ok(homeOwner>=0&&bootOwner>homeOwner,'Home owner must load before Boot in HTML');
 assert.doesNotMatch(boot,/p0-home-2026\.css/);
 assert.doesNotMatch(boot,/p0-home-2026\.js/);
 
 for(const token of ['ref-wellness-card','ref-theme-strip','ref-streak-card','ref-desktop-streak','ref-library-focus','localSearch','ref-header-search','ref-mobile-brand','assets/ui/missions-rocket.webp','assets/ui/streak-flame.webp'])assert.ok(home.includes(token),'reference Home missing '+token);
 assert.match(home,/for\(const id of \['elara-home-focus','elara-home-books','elara-home-freedom'\]\)/);
-assert.match(home,/const books=\$\('panel-books'\)/);
+assert.match(home,/const legacy=\$\('ref-library-focus'\);if\(legacy\)legacy\.remove\(\)/,'Old Library focus wrapper should be retired');
+assert.doesNotMatch(home,/section\.append\(timer\)/,'Canonical Pomodoro must not be relocated into Library');
 assert.match(home,/data-ref-exercise/);
 assert.match(css,/grid-template-areas:'tasks habits wellness' 'missions goals right' 'theme theme right'/);
 assert.match(css,/\.bottom-nav\{display:none!important/);
