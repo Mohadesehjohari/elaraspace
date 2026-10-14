@@ -50,7 +50,8 @@ async function mount(){
   invites=Array.isArray(results[1])?results[1]:[];
  }catch(error){
   if(token!==renderToken||!section.isConnected)return;
-  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+esc(String(error?.message||''))+'</p><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button></div>';
+  const missingIndex=/COLLECTION_GROUP_ASC|requires (?:a |an )?index|failed-precondition|collection.group.*index/i.test(String(error?.message||''));
+  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+(missingIndex?t('ایندکس عضویت گروه‌ها در Firestore هنوز فعال نشده؛ تب‌های دیگر در دسترس هستند.','The required Firestore membership index is not active yet. You can still use other tabs.'):esc(String(error?.message||'')))+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('بازگشت به دوستان','Back to friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('رفتن به چت‌ها','Go to chats')+'</button></div></div>';
   return;
  }
  if(token!==renderToken||!section.isConnected||!activeGroupsTab(root))return;
@@ -114,7 +115,7 @@ async function openGroup(id){
 document.addEventListener('input',e=>{if(e.target.matches('.groups-r4 [data-g4-search]')){groupQuery=e.target.value;applyGroupFilters()}});
 document.addEventListener('click',e=>{if(e.target.closest('.groups-r4 [data-g4-create]')){e.preventDefault();void createGroup();return}const filter=e.target.closest('.groups-r4 [data-group-filter]');if(filter){groupFilter=filter.dataset.groupFilter;applyGroupFilters();return}if(e.target.closest('.groups-r4 [data-group-retry]')){void mount();return}if(e.target.closest('.groups-r4 [data-g4-scroll-invites]')){document.getElementById('g4-invitations')?.scrollIntoView({behavior:'smooth',block:'center'})}});
 document.addEventListener('click',async e=>{if(e.target.closest('[data-social-create-group]')){e.preventDefault();void createGroup();return}const invite=e.target.closest('[data-group-invite-action]');if(invite){e.preventDefault();const rows=await api()?.invites?.()||[],item=rows.find(x=>x.groupId===invite.dataset.groupInviteId);if(item)try{await api().decideInvite(item,invite.dataset.groupInviteAction);await mount()}catch(error){const el=document.getElementById('toast');if(el)el.textContent=String(error?.message||error)}return}const row=e.target.closest('[data-social-open-group]');if(row){e.preventDefault();void openGroup(row.dataset.socialOpenGroup);return}if(e.target.closest('[data-social-view]'))setTimeout(mount,40)});
-for(const event of ['elara:social-updated','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(mount,40));
+for(const event of ['elara:social-updated','elara:locale-changed','elara:social-tab-changed'])window.addEventListener(event,()=>setTimeout(mount,40));
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,80)});
 window.addEventListener('hashchange',()=>setTimeout(mount,120));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,220),{once:true});else setTimeout(mount,220);
