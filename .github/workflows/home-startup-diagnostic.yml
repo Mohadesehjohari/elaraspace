@@ -5,6 +5,7 @@ on:
       - boot.js
       - index.html
       - elara-design.js
+      - artwork-home-install-2026.js
       - reference-home-shell-2026.js
       - tests/home-startup-diagnostic-browser.mjs
       - .github/workflows/home-startup-diagnostic.yml
