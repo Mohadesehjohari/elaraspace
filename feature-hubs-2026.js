@@ -114,13 +114,11 @@ function setupFocus(){
  for(const [panel,key] of [[pom,'focus-pomodoro'],[amb,'focus-ambience'],[room,'focus-room'],[deep,'focus-deep-work']])head(panel,'focus','FOCUS',titles[key],['یک مقصد خلوت برای تمرکز.','A calm destination for focus.']);
  const timer=document.querySelector('#panel-focus .focus-card,#panel-books .focus-card,#ref-library-focus .focus-card');if(timer)move(timer,pom);
  const legacy=$('ref-library-focus');if(legacy&&!legacy.querySelector('.focus-card'))legacy.remove();
- const ambience=$('focus-ambience');if(ambience)move(ambience,amb);
  room.querySelector('.feature-gated-message')?.remove();room.insertAdjacentHTML('beforeend','<section class="elara-card feature-gated-message"><h2>'+tx('اتاق تمرکز گروهی','Shared Focus Room')+'</h2><p>'+tx('دعوت دوست، حضور زنده، همگام‌سازی Pomodoro و ثبت Stop هر نفر بعد از آماده‌شدن Realtime backend فعال می‌شود.','Friend invites, live presence, synchronized Pomodoro and per-person stop events require the realtime backend.')+'</p><span>'+tx('بدون کاربر یا حضور آنلاین ساختگی','No fake users or presence')+'</span></section>');
  deep.querySelector('.feature-deep-work')?.remove();deep.insertAdjacentHTML('beforeend','<section class="elara-card feature-deep-work"><h2>'+tx('جلسهٔ کار عمیق','Deep Work session')+'</h2><p>'+tx('از Pomodoro با مدت و Tag واقعی استفاده کن؛ نتیجه طبق Privacy در Activity ثبت می‌شود.','Use Pomodoro with a real duration and tag; completion follows your Activity privacy.')+'</p><button class="primary-button" type="button" data-feature-route="focus-pomodoro">'+tx('شروع','Start')+'</button></section>');
  hub(parent,
   card('focus-pomodoro','assets/ui/19-pomodoro-icon.webp','پومودورو','Pomodoro','تایمر و چرخه‌های تمرکز','Timer and focus cycles')+
   card('focus-room','assets/ui/03-focus-room-icon.webp','اتاق تمرکز','Focus Room','تمرکز مشترک با دوستان','Shared focus with friends',{gated:true})+
-  card('focus-ambience','assets/ui/04-study-music-ambience-icon.webp','موسیقی و فضا','Music / Ambience','صدای محیطی و منظرهٔ تمرکز','Soundscape and focus scene')+
   card('focus-deep-work','assets/ui/10-deep-work-icon.webp','کار عمیق','Deep Work','جلسهٔ جدی با مدت و Tag','A focused session with duration and tag'),'focus'
  );sectionTasks(parent,'focus','focus');
 }
