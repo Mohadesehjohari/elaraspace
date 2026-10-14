@@ -194,3 +194,8 @@ html[lang="en"] #panel-words .l2-leitner-hero::after{content:'“Smart repetitio
 @media(prefers-reduced-motion:reduce){
  #panel-words .l6-collection,#panel-words .l5-quick-entry button,#panel-words .l5-review-btn{transition:none}
 }
+
+/* Keep the review ring physically left and the Persian description on the right. */
+#panel-words .l5-feature-copy{direction:ltr}
+#panel-words .l5-feature-copy>h2,#panel-words .l5-feature-copy>p,#panel-words .l5-feature-copy>.l5-review-btn,#panel-words .l5-feature-copy>.l5-study-meter{direction:rtl}
+@media(max-width:600px){#panel-words .l5-feature-copy>h2,#panel-words .l5-feature-copy>p{text-align:right}}
