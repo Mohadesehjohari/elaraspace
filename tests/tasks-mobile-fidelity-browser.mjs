@@ -108,7 +108,7 @@ try {
    assert.ok(state.titleFont>=14,'title unreadable '+width);
    assert.ok(state.titleSamples.every(x=>x.value!=='nowrap'),'source-linked titles must wrap: '+JSON.stringify(state.titleSamples));
    assert.ok(state.metaFont<=12,'metadata too large '+width);
-   assert.ok(state.heroHeight<=145,'hero too tall '+width);
+   assert.ok(state.heroHeight>=160&&state.heroHeight<=195,'enlarged streak card must be visible without giant banner '+width+' '+state.heroHeight);
    assert.equal(state.filtersExpanded,false,'advanced filters should start collapsed '+width);
   }
   if(width===390){

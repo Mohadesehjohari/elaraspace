@@ -1,0 +1,45 @@
+name: Tasks Streak Only Mobile Visual
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phase2.js'
+      - 'global-page-banner-20261009.js'
+      - 'task-layout-hotfix-20261012.css'
+      - 'tests/tasks-streak-only-mobile.mjs'
+      - '.github/workflows/tasks-streak-only-mobile.yml'
+  pull_request:
+    paths:
+      - 'phase2.js'
+      - 'global-page-banner-20261009.js'
+      - 'task-layout-hotfix-20261012.css'
+      - 'tests/tasks-streak-only-mobile.mjs'
+      - '.github/workflows/tasks-streak-only-mobile.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check phase2.js
+          node --check global-page-banner-20261009.js
+          node --check tests/tasks-streak-only-mobile.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve actual website
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-streak.log 2>&1 &
+          sleep 2
+      - name: Ensure there is only one enlarged streak hero and calendar works
+        run: |
+          timeout 240s node tests/tasks-streak-only-mobile.mjs
