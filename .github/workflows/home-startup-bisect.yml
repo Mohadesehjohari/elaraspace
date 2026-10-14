@@ -1,0 +1,32 @@
+name: Home Startup Module Bisect
+on:
+  pull_request:
+    paths:
+      - tests/home-startup-bisect-browser.mjs
+      - .github/workflows/home-startup-bisect.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve
+        run: |
+          python3 -m http.server 4173 >/tmp/boot-bisect-http.log 2>&1 &
+          sleep 1
+      - name: Bisect hung Home browser context
+        run: |
+          for mode in no-boot no-css no-design no-reference no-art no-app; do
+            echo "=== CASE $mode ==="
+            timeout 17s env BISECT_MODE="$mode" node tests/home-startup-bisect-browser.mjs || true
+          done
