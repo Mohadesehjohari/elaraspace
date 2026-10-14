@@ -23,21 +23,36 @@ function sync(){
 }
 function install(){
  const panel=$('#panel-focus-pomodoro');
- if(panel&&!$('#elara-focus-expand')){
-  const bar=document.createElement('div');bar.className='elara-focus-view-actions';
-  bar.innerHTML='<button type="button" id="elara-focus-expand"></button>';
-  panel.querySelector('.feature-subpage-head')?.after(bar);
-  const modes=document.createElement('div');modes.className='elara-focus-mode-options';
-  modes.innerHTML=[['📖',t('مطالعه','Reading')],['✎',t('نوشتن','Writing')],['◈',t('کار عمیق','Deep work')],['✧',t('مدیتیشن','Meditation')]].map(([icon,name],i)=>'<button type="button" data-elara-focus-mode="'+i+'" aria-pressed="'+(i===0)+'"><span>'+icon+'</span><b>'+name+'</b></button>').join('');
-  panel.querySelector('.focus-card')?.after(modes);
-  if(!panel.querySelector('#elara-focus-exit')){const exit=document.createElement('button');exit.type='button';exit.id='elara-focus-exit';exit.hidden=true;exit.textContent='← '+t('بازگشت به تنظیمات','Back to setup');panel.prepend(exit)}
-  bar.querySelector('button').textContent=t('تمام‌صفحه','Full screen');
+ if(panel){
+  // FOCUS-03 and feature-hubs can mount their heading later than this script.
+  // Always attach the bar to the DOM; otherwise the observer sees a missing
+  // button, reinserts modes, and enters an infinite MutationObserver loop.
+  if(!panel.querySelector('#elara-focus-expand')){
+   const bar=document.createElement('div');bar.className='elara-focus-view-actions';
+   bar.innerHTML='<button type="button" id="elara-focus-expand"></button>';
+   const heading=panel.querySelector(':scope > .feature-subpage-head');
+   if(heading)heading.after(bar);
+   else panel.prepend(bar);
+   bar.querySelector('button').textContent=t('تمام‌صفحه','Full screen');
+  }
+  if(!panel.querySelector('.elara-focus-mode-options')){
+   const modes=document.createElement('div');modes.className='elara-focus-mode-options';
+   modes.innerHTML=[['📖',t('مطالعه','Reading')],['✎',t('نوشتن','Writing')],['◈',t('کار عمیق','Deep work')],['✧',t('مدیتیشن','Meditation')]].map(([icon,name],i)=>'<button type="button" data-elara-focus-mode="'+i+'" aria-pressed="'+(i===0)+'"><span>'+icon+'</span><b>'+name+'</b></button>').join('');
+   const card=panel.querySelector(':scope > .focus-card');
+   if(card)card.after(modes);
+   else panel.append(modes);
+  }
+  if(!panel.querySelector('#elara-focus-exit')){
+   const exit=document.createElement('button');exit.type='button';exit.id='elara-focus-exit';
+   exit.hidden=true;exit.textContent='← '+t('بازگشت به تنظیمات','Back to setup');panel.prepend(exit);
+  }
+  panel.querySelectorAll('#elara-focus-exit').forEach((node,i)=>{if(i)node.remove()});
  }
- const duplicates=panel?.querySelectorAll('#elara-focus-exit')||[];duplicates.forEach((node,i)=>{if(i)node.remove()});
  const source=$('#lib01-overview .lib01-focus-dial button[data-lib01-route]');
  if(source){source.removeAttribute('data-lib01-route');source.dataset.lib01FocusInline='';source.setAttribute('title',t('شروع یا مکث تایمر همین‌جا','Start or pause timer here'))}
  sync();
 }
+
 document.addEventListener('click',e=>{
  const inline=e.target.closest('[data-lib01-focus-inline]');
  if(inline){e.preventDefault();e.stopImmediatePropagation();const start=$('#timer-start');if(start)start.click();sync();return}
@@ -54,6 +69,15 @@ window.addEventListener('elara:open',e=>{if(e.detail?.tab!=='focus-pomodoro')set
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed'])window.addEventListener(ev,()=>setTimeout(install,0));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fullscreen)setFullscreen(false)});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-new MutationObserver(()=>{if($('#lib01-overview .lib01-focus-dial button[data-lib01-route]')||($('#panel-focus-pomodoro .focus-card')&&!$('#elara-focus-expand')))install()}).observe(document.documentElement,{subtree:true,childList:true});
+// Observe only missing canonical controls and yield a frame before patching DOM.
+let installQueued=false;
+new MutationObserver(()=>{
+ const panel=$('#panel-focus-pomodoro');
+ const needsControl=!!panel&&(!panel.querySelector('#elara-focus-expand')||!panel.querySelector('.elara-focus-mode-options'));
+ const needsLibrary=!!$('#lib01-overview .lib01-focus-dial button[data-lib01-route]');
+ if((!needsControl&&!needsLibrary)||installQueued)return;
+ installQueued=true;
+ requestAnimationFrame(()=>{installQueued=false;install()});
+}).observe(document.documentElement,{subtree:true,childList:true});
 window.ElaraFocusPresentation={setFullscreen,sync};
 })();
