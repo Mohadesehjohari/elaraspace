@@ -38,8 +38,7 @@
   const homePaintStyles=['elara-design.css','elara-finishing.css','approved-navigation-extension.css',
     'reference-home-shell-2026.css','reference-exact-pass-2026.css',
     'elara-midnight-layout-2026.css','home-owner-art-2026.css',
-    'home-reference-polish-20261012.css','mobile-ia-2026-10-05.css',
-    'global-page-banner-20261009.css'];
+    'home-reference-polish-20261012.css','mobile-ia-2026-10-05.css'];
   const homeStylesReady=Promise.all(homePaintStyles.map(mountStyle)).then(styles=>{
     const missing=styles.filter(style=>!style.ok).map(style=>style.name);
     if(missing.length)throw new Error('Home CSS unavailable: '+missing.join(', '));
