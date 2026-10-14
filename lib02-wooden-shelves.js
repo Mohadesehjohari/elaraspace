@@ -73,12 +73,20 @@ function render(){
  '<div class="lib02-shelves" data-lib02-selected="'+selected+'">'+statuses.map(x=>shelf(x,bs)).join('')+'</div>'+
  '<section class="lib02-personal"><div class="lib06-personal-heading"><h2>✦ '+t('قفسه‌های اختصاصی من','My custom shelves')+'</h2><p>'+fa(custom.length)+' '+t('قفسه شخصی — هر قفسه با عنوان و کتاب‌های خودش نمایش داده می‌شود.','custom shelves — each has its own title and books.')+'</p></div>'+customCases(custom,bs)+'</section>'+
  '<div class="lib02-extras"><section><h2>◷ '+t('فعالیت‌های اخیر','Recent activity')+'</h2>'+latest(bs)+'</section><section><h2>❝ '+t('بریده اخیر','Recent passage')+'</h2>'+quote(s,bs)+'</section></div>';
+ foldLegacyTools();
 }
+let legacyObserver=null;
 function mount(){
  const panel=$('#panel-library-shelves');if(!panel||!window.ElaraFeatureHubs||!window.ElaraReading||!window.ElaraLibraryEnhancements)return;
  let root=$('#lib02-scene');
  if(!root){root=document.createElement('div');root.id='lib02-scene';root.dir='rtl';const header=panel.querySelector(':scope > .feature-subpage-head');if(header)header.insertAdjacentElement('afterend',root);else panel.prepend(root)}
  ready=true;render();foldLegacyTools();
+ if(!legacyObserver){
+  legacyObserver=new MutationObserver(()=>{
+   if(panel.querySelector(':scope > .library-enhancement-tools,:scope > #book-form,:scope > #book-list,:scope > .bookshelf-filter'))foldLegacyTools();
+  });
+  legacyObserver.observe(panel,{childList:true});
+ }
 }
 function schedule(){if(pending)return;pending=true;queueMicrotask(()=>{pending=false;if(ready)render();else mount()})}
 function saveBooks(fn){const s=state(),all=Array.isArray(s.books)?s.books:[],books=all.slice();const changed=fn(books);if(changed===false)return;window.ElaraReading.commit(books)}
