@@ -2,8 +2,8 @@
    Isolated to the canonical ElaraDialog class editor. No data model or scheduling changes.
    Replace the two --lf3 artwork URLs when new owner files are available. */
 #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor){
- --lf3-sky:url('assets/ui/language-learning-background.webp');
- --lf3-book:url('assets/ui/24-language-classes-icon.webp');
+ --lf3-sky:url('assets/ui/Alien%20Moonlit%20Shoreline.webp');
+ --lf3-book:url('assets/ui/icon-library-open-book.webp');
  position:relative!important;isolation:isolate;
  width:min(776px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;
  max-height:calc(100dvh - 24px)!important;min-width:0!important;
@@ -330,4 +330,19 @@
 }
 @media(prefers-reduced-motion:reduce){
  #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) *{scroll-behavior:auto!important;transition:none!important}
+}
+
+
+/* Actual repository open-book art is closer to the requested reference. */
+#elara-dialog-root .lf3-class-editor .lf-editor-cover::after{
+ content:"+";position:absolute;top:2px;right:7%;
+ width:43px;height:43px;display:grid;place-items:center;border-radius:50%;
+ border:2px solid #80eaff;background:linear-gradient(140deg,#18b4ff,#5842fd);
+ box-shadow:0 0 15px #27bfff,0 0 22px #a144ff;
+ color:#fff;font:900 34px/1 Arial,sans-serif;filter:none;pointer-events:none;
+}
+@media(max-width:670px){
+ #elara-dialog-root .lf3-class-editor .lf-editor-cover::after{
+  right:0;top:0;width:44px;height:44px;
+ }
 }

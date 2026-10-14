@@ -91,7 +91,7 @@ function editorMarkup(c={}){
   '<label class="language-class-share-toggle lf3-share-toggle"><input type="checkbox" name="shareEnabled">'+icon('people')+'<strong>'+(shared?tx('دعوت یک دوست دیگر به این کلاس','Invite another friend to this class'):tx('این درس/کلاس را با یک دوست مشترک بگذارم','Share this class with a friend'))+'</strong></label>'+
   '<label data-class-friend-field hidden class="lf3-friend-choice">'+tx('انتخاب دوست','Choose a friend')+'<select name="friendUid">'+friendOptions()+'</select></label>'+
   '<p class="lf3-share-note">'+(shared?tx('پیشرفت هر عضو مستقل ثبت می‌شود.','Each member keeps individual progress.'):tx('دعوت فقط پس از پذیرفتن دوست فعال می‌شود.','Sharing only begins after your friend accepts.'))+'</p>';
- return '<form class="language-class-editor lf-class-editor lf3-class-editor" data-language-class-form dir="'+(document.documentElement.lang==='en'?'ltr':'rtl')+'">'+
+ return '<form class="language-class-editor lf-class-editor lf3-class-editor" data-class-design-version="popup-v3" data-language-class-form dir="'+(document.documentElement.lang==='en'?'ltr':'rtl')+'">'+
   '<header class="lf-editor-hero lf3-hero"><div class="lf-editor-cover" aria-hidden="true"></div><div class="lf3-hero-copy"><small>ELARA</small><h2>'+tx(c.id?'ویرایش کلاس سفارشی':'کلاس سفارشی جدید',c.id?'Edit custom class':'New custom class')+'</h2><p>'+tx('کلاس رویایی خود را بسازید و مسیر یادگیری‌تان را شخصی‌سازی کنید.','Create your own class and personalize your learning journey.')+'</p></div></header>'+
   '<input type="hidden" name="id" value="'+esc(c.id||'')+'">'+
   '<section class="lf3-title-section">'+title+'</section>'+
