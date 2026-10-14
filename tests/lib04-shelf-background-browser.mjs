@@ -20,10 +20,11 @@ try {
   await page.waitForFunction(()=>!!window.ElaraLibraryShelvesLIB02&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
   await page.locator('#panel-library-shelves:not(.hidden) #lib02-scene .lib02-wood').first().waitFor();
-  const img=await page.request.get(base+'/assets/ui/library-shelf-warm-alcove.webp?case='+width);
+  const img=await page.request.get(base+'/assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp?case='+width);
   assert.equal(img.status(),200,'WebP asset not public');
   assert.match(img.headers()['content-type']||'',/image\/webp/,'WebP MIME missing');
   const asset=await img.body();
+  assert.ok(asset.byteLength>100000,'original higher-resolution WebP expected, got '+asset.byteLength+' bytes');
   assert.equal(asset.subarray(0,4).toString('ascii'),'RIFF','WebP RIFF signature');
   assert.equal(asset.subarray(8,12).toString('ascii'),'WEBP','WebP format signature');
   const details=await page.evaluate(()=>{
@@ -34,7 +35,7 @@ try {
   });
   assert.equal(details.shelfCount,3,'all three canonical shelves preserved');
   for(const bg of details.backgrounds){
-   assert.match(bg,/library-shelf-warm-alcove\.webp/,'owner wooden background missing');
+   assert.match(bg,/Cinematic(?:%20|\s)Gothic(?:%20|\s)Library(?:%20|\s)Alcove\.webp/,'owner wooden background missing');
    assert.doesNotMatch(bg,/library-card-background\.webp/,'old purple background still applied');
   }
   assert.ok(details.scroll<=details.width+1,'horizontal overflow '+JSON.stringify(details));
@@ -45,4 +46,4 @@ try {
   await context.close();
  }
 } finally {await browser.close()}
-console.log('LIB04_OWNER_ASSET_LIVE_PASS');
+console.log('LIB05_ORIGINAL_HIGHRES_ASSET_PASS');

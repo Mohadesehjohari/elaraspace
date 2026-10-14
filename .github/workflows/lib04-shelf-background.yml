@@ -2,7 +2,7 @@ name: LIB-04 Owner Wooden WebP Background
 on:
   pull_request:
     paths:
-      - assets/ui/library-shelf-warm-alcove.webp
+      - assets/ui/Cinematic Gothic Library Alcove.webp
       - library-vertical-reference-03.css
       - index.html
       - tests/lib04-shelf-background-browser.mjs
@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
     paths:
-      - assets/ui/library-shelf-warm-alcove.webp
+      - assets/ui/Cinematic Gothic Library Alcove.webp
       - library-vertical-reference-03.css
       - index.html
       - tests/lib04-shelf-background-browser.mjs
@@ -29,8 +29,8 @@ jobs:
           node-version: '22'
       - name: Asset and syntax
         run: |
-          test -s assets/ui/library-shelf-warm-alcove.webp
-          file assets/ui/library-shelf-warm-alcove.webp | grep -q 'Web/P'
+          test -s "assets/ui/Cinematic Gothic Library Alcove.webp"
+          file "assets/ui/Cinematic Gothic Library Alcove.webp" | grep -q 'Web/P'
           node --check tests/lib04-shelf-background-browser.mjs
       - name: Chromium
         run: |
@@ -63,9 +63,9 @@ jobs:
           good=false
           for attempt in $(seq 1 80); do
             good=true
-            for path in index.html library-vertical-reference-03.css assets/ui/library-shelf-warm-alcove.webp; do
+            for path in index.html library-vertical-reference-03.css "assets/ui/Cinematic Gothic Library Alcove.webp"; do
               tmp="/tmp/lib04-$(basename "$path")"
-              if ! curl -fLsS --max-time 15 "https://mohadesehjohari.github.io/elaraspace/$path?sha=$GITHUB_SHA&n=$attempt" -o "$tmp" || ! cmp -s "$path" "$tmp"; then good=false; break; fi
+              if ! curl -fLsS --max-time 15 "https://mohadesehjohari.github.io/elaraspace/${path// /%20}?sha=$GITHUB_SHA&n=$attempt" -o "$tmp" || ! cmp -s "$path" "$tmp"; then good=false; break; fi
             done
             if [ "$good" = true ]; then echo "LIB04_WEBP_EXACT_LIVE_BYTES_PASS sha=$GITHUB_SHA"; break; fi
             sleep 8

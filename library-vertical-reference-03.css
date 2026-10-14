@@ -199,12 +199,12 @@
  #panel-library-shelves #lib02-scene .lib02-book-cover img{max-height:103px}
 }
 
-/* LIB-04: owner's original warm wooden library scene, WebP, within all shelf interiors. */
+/* LIB-05: user's own original full-resolution Cinematic Gothic Library Alcove WebP. */
 #panel-library-shelves #lib02-scene .lib02-wood {
  background-color:#241107;
- background-image:linear-gradient(90deg,rgba(23,8,2,.13),rgba(18,7,2,.04) 50%,rgba(20,8,2,.13)),url("assets/ui/library-shelf-warm-alcove.webp");
+ background-image:linear-gradient(90deg,rgba(23,8,2,.13),rgba(18,7,2,.04) 50%,rgba(20,8,2,.13)),url("assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp");
  background-position:center center,center center;
- background-size:100% 100%,100% 100%;
+ background-size:100% 100%,cover;
  background-repeat:no-repeat;
  box-shadow:inset 0 0 22px rgba(0,0,0,.48),inset 0 0 8px rgba(228,135,51,.28);
 }
