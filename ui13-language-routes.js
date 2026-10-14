@@ -1,6 +1,8 @@
 /* UI13: language-only destination panels. Shares canonical Tasks and authenticated Social services. */
 (()=>{'use strict';
 const leitnerStyle=document.createElement('link');leitnerStyle.rel='stylesheet';leitnerStyle.href='leitner-story-interactions-20261012.css';document.head.append(leitnerStyle);
+const l5Style=document.createElement('link');l5Style.rel='stylesheet';l5Style.href='leitner-l5-fidelity-20261012.css';document.head.append(l5Style);
+const l5Script=document.createElement('script');l5Script.defer=true;l5Script.src='leitner-l5-fidelity-20261012.js';document.head.append(l5Script);
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const num=v=>Number(v||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
