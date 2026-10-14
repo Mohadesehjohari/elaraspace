@@ -34,7 +34,9 @@ try{
         await page.waitForTimeout(1200);
         assert.equal(await row(id).evaluate(el=>el.classList.contains('just-completed-gold')),false,id+' gold feedback should fade after one second');
         await page.reload({waitUntil:'domcontentloaded'});
-        await page.waitForFunction(()=>document.querySelector('#task-list .astra-task-row[data-key="qa-normal"]')&&window.ElaraTasks);
+        // Earlier tasks may already be archived, so wait for the current task
+        // instead of requiring qa-normal to remain in the active list.
+        await page.waitForFunction(taskId=>!!window.ElaraTasks&&!!document.querySelector('#task-list .astra-task-row[data-key="'+taskId+'"]'),id,{timeout:30000});
         assert.equal(await progress(id),n,id+' reload erased round '+n);
       } else {
         await page.waitForFunction(taskId=>!!document.querySelector('#task-checked-archive [data-task-archive-id="'+taskId+'"]'),id);
