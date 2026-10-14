@@ -47,12 +47,17 @@ function progressData(){
  const data=read(),words=Array.isArray(data.words)?data.words:[];
  const due=words.filter(w=>w&&(!w.due||String(w.due)<=(window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA'))));
  const boxes=[1,2,3,4,5].map(b=>words.filter(w=>Number(w.box||1)===b).length);
- const tasks=(Array.isArray(data.tasks)?data.tasks:[]).filter(t=>t?.sourceGroup==='language').slice(0,3);
- return {words,due,boxes,tasks};
+ const allTasks=(Array.isArray(data.tasks)?data.tasks:[]).filter(t=>t?.sourceGroup==='language');
+ const tasks=allTasks.slice(0,4);
+ return {words,due,boxes,tasks,allTasks};
 }
 function addDashboard(host){
  if(host.querySelector('.l5-quick-entry'))return;
- const data=progressData(),{words,due,boxes,tasks}=data;
+ const data=progressData(),{words,due,boxes,tasks,allTasks}=data;
+ const currentDay=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
+ const taskDone=t=>!!window.ElaraTasks?.taskDone?.(t,currentDay);
+ const completedTasks=allTasks.filter(taskDone).length;
+ const taskPercent=allTasks.length?Math.round(completedTasks/allTasks.length*100):0;
  const stats=host.querySelector('.l2-leitner-stats');
  if(!stats)return;
  host.querySelector('.l2-leitner-bottom')?.remove();
@@ -62,8 +67,18 @@ function addDashboard(host){
  const percent=words.length?Math.round((words.length-due.length)*100/words.length):0;
  const feature=document.createElement('section');feature.className='l5-review-feature';
  feature.innerHTML='<div class="l5-review-today"><div class="l5-feature-copy"><h2>✦ '+tx('مرور امروز','Today’s review')+'</h2><p>'+tx('زمان یادگیری فرا رسیده! هر واژه را در زمان واقعی مرور کن.','Review due words when they are ready.')+'</p><div class="l5-study-meter"><div class="l5-meter-ring" style="--l5-progress:'+percent+'%"><strong>'+num(due.length)+'</strong><small>'+tx('واژه آماده','words ready')+'</small></div><div class="l5-meter-note"><b>'+num(words.length)+'</b><span>'+tx('کل واژه‌ها','total words')+'</span><small>'+tx('غیرسررسید: ','Not due: ')+num(words.length-due.length)+'</small></div></div><button type="button" class="l5-review-btn" data-l2-review '+(!due.length?'disabled':'')+'>'+tx(due.length?'شروع مرور امروز':'مرور امروز انجام شده',due.length?'Start review':'No words due')+' ▶</button></div></div>'+
- '<div class="l5-language-tasks"><header><h2>☷ '+tx('تسک‌های زبان','Language tasks')+'</h2><button type="button" data-ui13-canonical="language-tasks">'+tx('مشاهده همه','View all')+' ←</button></header><div class="l5-task-list">'+(tasks.length?tasks.map(t=>'<div class="l5-task"><span aria-hidden="true">◎</span><span>'+esc(t.text||t.title||tx('تسک زبان','Language task'))+'</span></div>').join(''):'<p class="l5-empty">'+tx('برای امروز تسک زبانی ثبت نشده است.','No language tasks have been added.')+'</p>')+'</div></div>';
+ '<div class="l5-language-tasks"><header><h2>◎ '+tx('تسک‌های زبان','Language tasks')+'</h2><button type="button" data-ui13-canonical="language-tasks">'+tx('مشاهده همه','View all')+' ←</button></header><div class="l5-task-list">'+(tasks.length?tasks.map(t=>{const done=taskDone(t);return '<div class="l5-task '+(done?'is-done':'')+'"><button type="button" class="l5-task-check" data-section-task-toggle="'+esc(t.id||'')+'" aria-label="'+esc(tx('تغییر وضعیت تسک','Toggle task'))+'" aria-pressed="'+done+'" '+(t.sourceCompletionLocked?'disabled':'')+'>'+ (done?'✓':'') +'</button><span class="l5-task-content" data-elara-ugc dir="auto">'+esc(t.text||t.title||tx('تسک زبان','Language task'))+'</span></div>'}).join(''):'<p class="l5-empty">'+tx('برای امروز تسک زبانی ثبت نشده است.','No language tasks have been added.')+'</p>')+'</div><div class="l5-task-progress"><div class="l5-task-track" role="progressbar" aria-label="'+tx('پیشرفت تسک‌های زبان','Language task progress')+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+taskPercent+'"><i style="width:'+taskPercent+'%"></i></div><small>'+num(completedTasks)+' '+tx('از','of')+' '+num(allTasks.length)+' '+tx('انجام‌شده','completed')+'</small></div></div>';
  quick.after(feature);
+ // Live dashboard summary only: source vocabulary and scheduling remain canonical.
+ const collections=document.createElement('section');collections.className='l6-collections';
+ const tiles=[
+  {key:'all',label:tx('کل واژه‌ها','All words'),count:words.length,caption:tx('واژه‌های ثبت‌شده','Saved vocabulary'),icon:'▣',go:'boxes'},
+  {key:'due',label:tx('آماده مرور','Ready to review'),count:due.length,caption:tx('نیازمند مرور امروز','Due today'),icon:'↻',go:'review'},
+  {key:'new',label:tx('واژه جدید','New words'),count:boxes[0],caption:tx('در جعبه اول','In the first box'),icon:'＋',go:'add'},
+  {key:'learned',label:tx('ماندگار','Mastered'),count:boxes[4],caption:tx('در جعبه پنجم','In the fifth box'),icon:'★',go:'boxes'}
+ ];
+ collections.innerHTML='<header><div><h2>'+tx('جعبه‌های لایتنر','Leitner boxes')+'</h2><p>'+tx('واژه‌ها بر اساس عملکردت در جعبه‌های مختلف قرار می‌گیرند.','Your real vocabulary moves between boxes as you learn.')+'</p></div></header><div class="l6-collections-grid">'+tiles.map(t=>'<button type="button" class="l6-collection '+t.key+'" data-l6-go="'+t.go+'" aria-label="'+esc(t.label)+'"><span class="l6-collection-icon" aria-hidden="true">'+t.icon+'</span><span class="l6-collection-copy"><strong>'+t.label+'</strong><b>'+num(t.count)+'</b><small>'+t.caption+'</small></span><span class="l6-collection-arrow" aria-hidden="true">‹</span></button>').join('')+'</div>';
+ feature.after(collections);
  const last=document.createElement('section');last.className='l5-latest';
  const recent=words.slice(0,4);
  last.innerHTML='<header><h2>◷ '+tx('آخرین واژه‌های اضافه‌شده','Recently added words')+'</h2><span>'+num(recent.length)+' '+tx('واژه','words')+'</span></header><div class="l5-recent-list">'+(recent.length?recent.map(w=>'<div class="l5-recent-row"><span aria-hidden="true">♧</span><strong dir="auto">'+esc(w.front||'')+'</strong><small dir="auto">'+esc(w.back||'')+'</small><b>'+tx('جعبه ','Box ')+num(w.box||1)+'</b></div>').join(''):'<p class="l5-empty">'+tx('هنوز واژه‌ای اضافه نشده است.','No words have been added yet.')+'</p>')+'</div>';
@@ -130,6 +145,15 @@ window.addEventListener('pointerup',e=>{
 },true);
 window.addEventListener('pointercancel',e=>{if(drag&&drag.id===e.pointerId){e.stopImmediatePropagation();endDrag()}},true);
 window.addEventListener('click',e=>{
+ const summary=e.target.closest?.('#panel-words [data-l6-go]');
+ if(summary){
+  e.preventDefault();
+  const target=summary.dataset.l6Go;
+  if(target==='review'){$('#panel-words .l5-review-btn:not(:disabled)')?.click();return}
+  if(target==='add'){$('#panel-words .l5-quick-entry input[name="front"]')?.focus();return}
+  $('#panel-words .l2-leitner-boxes')?.scrollIntoView({behavior:'smooth',block:'center'});
+  return;
+ }
  const auto=e.target.closest?.('#l3-review-scene [data-l5-auto]');
  if(auto){e.preventDefault();e.stopImmediatePropagation();const next=auto.getAttribute('aria-pressed')!=='true';setAuto(auto,next);if(next)startFocus();else stopFocus();message(next?tx('ثبت خودکار روشن شد؛ زمان‌های کامل به گزارش زبان اضافه می‌شوند','Automatic study recording is on'):tx('ثبت خودکار خاموش شد','Automatic study recording is off'));return}
  const prev=e.target.closest?.('#l3-review-scene [data-l3-prev]');
