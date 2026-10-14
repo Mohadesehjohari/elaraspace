@@ -5,7 +5,11 @@ on:
     paths:
       - 'phase2.js'
       - 'task-completion-polish-20261014.css'
+      - 'task-organizer-20261012.js'
+      - 'task-collections.js'
       - 'tests/task-completion-feedback-browser.mjs'
+      - 'tests/task-daily-rounds-browser.mjs'
+      - 'tests/task-collections-browser.mjs'
       - '.github/workflows/task-completion-feedback.yml'
   pull_request:
     paths:
@@ -28,7 +32,11 @@ jobs:
       - name: Syntax and compiled CSS existence
         run: |
           node --check phase2.js
+          node --check task-organizer-20261012.js
+          node --check task-collections.js
           node --check tests/task-completion-feedback-browser.mjs
+          node --check tests/task-daily-rounds-browser.mjs
+          node --check tests/task-collections-browser.mjs
           test -s task-completion-polish-20261014.css
       - name: Install Chromium
         run: |
@@ -41,3 +49,5 @@ jobs:
       - name: Verify round counter, golden wait, compact archive and blue check
         run: |
           timeout 220s node tests/task-completion-feedback-browser.mjs
+          timeout 220s node tests/task-daily-rounds-browser.mjs
+          timeout 220s node tests/task-collections-browser.mjs
