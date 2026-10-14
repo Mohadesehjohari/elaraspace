@@ -43,6 +43,8 @@ try{
   });
   assert.ok(archive.height<=110,'archive row too tall '+JSON.stringify(archive));
   assert.ok(archive.imageWidth>=archive.buttonWidth*.9,'uploaded tick does not fill check tile '+JSON.stringify(archive));
+  // The completed archive is intentionally a collapsed <details> until explicitly expanded.
+  await page.locator('#task-checked-archive summary').click();
   await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"] .task-archive-undo').click();
   await page.waitForFunction(day=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='qa-multi')?.dailyProgress?.[day]===0,day);
   assert.ok((await row('qa-multi').locator('.task-round-count').textContent()).includes('۰/۳'),'restore from completed must reset to zero');

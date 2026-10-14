@@ -44,6 +44,7 @@ try{
   // Restoring a fully completed 3/3 task from archive resets the whole day to zero;
   // the inline ↶ button still decreases just one round.
   const archive=page.locator('#task-checked-archive [data-task-archive-id="qa-normal"]');
+  await page.locator('#task-checked-archive summary').click();
   await archive.locator('[data-phase2-action="undo-task"]').click();
   await page.waitForFunction(day=>{
    const s=JSON.parse(localStorage.getItem('elara_space_v1'));
