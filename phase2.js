@@ -360,7 +360,9 @@
         filter==='all'||filter==='active'&&!done&&!expired||filter==='completed'&&done||filter==='today'&&todayDue||filter==='overdue'&&!t.recurrenceRule&&!t.completed&&t.date&&t.date<now
       );
     }).sort((a,b)=>{
-      const doneDelta=Number(taskDone(a,now))-Number(taskDone(b,now));if(doneDelta)return doneDelta;
+      // A just-completed row must hold its original sort position through the
+      // three-second handoff; treating it as archived immediately makes it jump.
+      const doneDelta=Number(taskDone(a,now)&&!flashFor(a.id,now))-Number(taskDone(b,now)&&!flashFor(b.id,now));if(doneDelta)return doneDelta;
       const ao=a.manualOrder!=null&&Number.isFinite(Number(a.manualOrder))?Number(a.manualOrder):null;
       const bo=b.manualOrder!=null&&Number.isFinite(Number(b.manualOrder))?Number(b.manualOrder):null;
       if(ao!=null||bo!=null){const orderDelta=(ao??Number.MAX_SAFE_INTEGER)-(bo??Number.MAX_SAFE_INTEGER);if(orderDelta)return orderDelta}
