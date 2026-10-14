@@ -167,25 +167,41 @@ function render(){
  window.ElaraDOM.patch($('elara-home-activity'),arr(s.activities).length?activities: '<p class="ref-empty">اینجا فعلاً ساکته 👀 وقتی دوستات فعالیتی رو باهات share کنن، خبرها همین‌جا میاد 🔥</p>');setTimeout(()=>window.ElaraEngagementView?.scan?.(),0);
  if(!ranked.length)window.ElaraDOM.patch($('elara-home-ranks'),empty('تنهایی هم می‌شه ترکوند 😎 ولی با یه رفیق، رنکینگ خیلی جذاب‌تر می‌شه 👊','icon-ranking-trophy.webp'));
 }
+// Tab routing must not depend on a group query succeeding. Capture clicks early
+// so a failed widget cannot hold the user on ?friendsTab=groups.
+function navigateSocialTab(route,tab){
+ if(route!=='social'&&route!=='ranking')return false;
+ if(route==='social'&&tab==='ranking'){window.ElaraOpen?.('ranking');return true}
+ if(!(route==='social'?socialTabs:rankingTabs).some(x=>x[0]===tab))return false;
+ selections[route]=tab;
+ let url=null;
+ if(route==='social'){
+  url=new URL(location.href);url.searchParams.set('friendsTab',tab);
+  if(url.href!==location.href)history.pushState({...history.state,friendsTab:tab},'',url);
+ }
+ try{render()}catch(error){
+  console.error('Elara social tab navigation failed:',error);
+  if(url)location.assign(url.href);
+  return false;
+ }
+ window.dispatchEvent(new CustomEvent('elara:social-tab-changed',{detail:{route,tab}}));
+ return true;
+}
 document.addEventListener('click',e=>{
  if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
   if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
  const requestMode=e.target.closest('[data-f2-requests-mode]');if(requestMode){friendRequestMode=requestMode.dataset.f2RequestsMode==='outgoing'?'outgoing':'incoming';render();return}
  const layout=e.target.closest('[data-f2-layout]');if(layout){friendLayout=layout.dataset.f2Layout;applyFriendFilters();document.querySelectorAll('[data-f2-layout]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.f2Layout===friendLayout)));return}
  if(e.target.closest('[data-f2-all-friends]')){document.getElementById('f2-friend-search')?.focus();return}
- const action=e.target.closest('[data-f2-tab]');if(action){if(action.hasAttribute('data-social-open-dm'))return;selections.social=action.dataset.f2Tab;const url=new URL(location.href);url.searchParams.set('friendsTab',selections.social);history.pushState({...history.state,friendsTab:selections.social},'',url);render();return}
- const b=e.target.closest('[data-social-view]');if(b){if(b.dataset.socialRoute==='social'&&b.dataset.socialView==='ranking'){window.ElaraOpen?.('ranking');return}
-  selections[b.dataset.socialRoute]=b.dataset.socialView;
-  if(b.dataset.socialRoute==='social'){const url=new URL(location.href);url.searchParams.set('friendsTab',selections.social);history.pushState({...history.state,friendsTab:selections.social},'',url)}
-  render();return
- }
- if(e.target.closest('[data-social-manage]')){selections.social='friends';window.ElaraOpen('social');render()}
-});
+ const action=e.target.closest('[data-f2-tab]');if(action){if(action.hasAttribute('data-social-open-dm'))return;e.preventDefault();navigateSocialTab('social',action.dataset.f2Tab);return}
+ const b=e.target.closest('[data-social-view]');if(b){e.preventDefault();navigateSocialTab(b.dataset.socialRoute,b.dataset.socialView);return}
+ if(e.target.closest('[data-social-manage]')){navigateSocialTab('social','friends');window.ElaraOpen('social')}
+},true);
 document.addEventListener('input',e=>{if(e.target.matches('[data-f2-search]')){friendQuery=e.target.value;applyFriendFilters()}});
 document.addEventListener('change',e=>{if(e.target.matches('[data-f2-filter]')){friendFilter=e.target.value;applyFriendFilters()}});
-window.addEventListener('popstate',()=>{selections.social=selectedFromUrl();render()});
+window.addEventListener('popstate',()=>{selections.social=selectedFromUrl();render();window.dispatchEvent(new CustomEvent('elara:social-tab-changed',{detail:{route:'social',tab:selections.social}}))});
 document.addEventListener('change',async e=>{const select=e.target.closest('[data-presence-visibility]');if(!select)return;try{await window.ElaraSocial?.presence?.setVisibility?.(select.value)}catch(error){console.error('Presence privacy update:',error);render()}});
 for(const event of ['elara:social-updated','elara:presence-updated','elara:collab-updated','elara:account-ready','elara:logout','elara:locale-changed'])window.addEventListener(event,render);
 window.addEventListener('elara:open',e=>{if(['ranking','social'].includes(e.detail?.tab))render()});
-window.ElaraSocialView={render};render();
+window.ElaraSocialView={render,navigateSocialTab};render();
 })();
