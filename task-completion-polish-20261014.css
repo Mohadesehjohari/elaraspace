@@ -359,6 +359,7 @@ html body #panel-tasks #elara-task-filter-quick [data-task-more-filter]{
 }
 
 
+html body .task-collection-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
 /* Oct 15: keep the full check artwork within its hit target, without the
    legacy themes shrinking the image or drawing a second check on top. */
 html body #panel-tasks#panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo{
