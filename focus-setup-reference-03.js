@@ -122,11 +122,20 @@ document.addEventListener('click',e=>{
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed','elara:open'])
  window.addEventListener(ev,()=>setTimeout(init,0));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+// Observe only unfulfilled structure requirements. Calling init() after every
+// childList mutation is a feedback loop: updateTasks() updates textContent,
+// which creates another childList mutation and locks the entire browser.
+let initScheduled=false;
 new MutationObserver(()=>{
- const p=panel();
- if(p&&!p.dataset.focusRefReady&&p.querySelector(':scope > .focus-card > .focus-config'))init();
- else if(p&&(p.querySelector(':scope > .elara-focus-mode-options')||
-   p.querySelector(':scope > .feature-subpage-head:not(:has(.focus-ref-owner-title))')))init();
+ const p=panel(),card=p?.querySelector(':scope > .focus-card');
+ if(!p||!card)return;
+ const options=p.querySelector(':scope > .elara-focus-mode-options');
+ const pending=!p.dataset.focusRefReady&&!!card.querySelector(':scope > .focus-config');
+ const displaced=!!options&&options.parentElement!==card;
+ const missingTitle=!!p.querySelector(':scope > .feature-subpage-head:not(:has(.focus-ref-owner-title))');
+ if(!(pending||displaced||missingTitle)||initScheduled)return;
+ initScheduled=true;
+ requestAnimationFrame(()=>{initScheduled=false;init()});
 }).observe(document.documentElement,{childList:true,subtree:true});
 setInterval(()=>{if(!panel()?.classList.contains('hidden'))update()},1000);
 window.ElaraFocusReference03={refresh:init};
