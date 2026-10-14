@@ -27,8 +27,41 @@ function syncShareField(form){const on=!!form.elements.shareEnabled?.checked,fie
 function scheduleLabel(c){const names=dayNames(),days=(c.weekdays||[]).map(x=>names[Number(x)]).filter(Boolean).join('، ');return (days||tx('روز مشخص نشده','No days'))+(c.studyTime?' · '+esc(c.studyTime):'')}
 function hours(n){const h=(Number(n)||0)/60;return h<1?fa(Math.round(Number(n)||0))+' '+tx('دقیقه','min'):fa(Number(h.toFixed(1)))+' '+tx('ساعت','h')}
 function card(c){
- const e=eta(c),done=completed(c),sum=total(c),percent=pct(c),shared=!!c.collabSpaceId,collabOwner=!shared||c.collabRole!=='member';
- return '<article class="language-class-card '+(shared?'is-shared':'')+'" data-language-class-id="'+esc(c.id)+'"><header><div><small>'+typeLabel(c.type)+'</small><h3 dir="auto">'+esc(c.title||tx('کلاس بدون نام','Untitled class'))+'</h3>'+(shared?'<span class="language-class-shared-chip">🤝 '+tx('کلاس مشترک','Shared class')+'</span>':'')+'</div><span>'+fa(percent)+'٪</span></header><div class="language-class-progress"><i style="width:'+percent+'%"></i></div><div class="language-class-meta"><span>'+tx('ترم','Terms')+': '+fa(c.terms)+'</span><span>'+tx('جلسه','Sessions')+': '+fa(done)+' / '+fa(sum)+'</span><span>'+tx('هر جلسه','Per session')+': '+hours(c.durationMin)+'</span><span>'+scheduleLabel(c)+'</span><span>'+tx('مطالعه در روز','Study/day')+': '+fa(Number(c.studyHoursPerDay||Math.max(1,(Number(c.durationMin)||60)/60)))+' '+tx('ساعت','h')+'</span></div><p class="language-class-eta">'+(percent>=100?tx('✓ این کلاس تمام شده','✓ Class completed'):e.date?tx('با این ریتم، پایان تقریبی: ','Estimated finish at this pace: ')+esc(e.date)+' · '+fa(e.weeks)+' '+tx('هفته','weeks'):tx('برای محاسبه ETA حداقل یک روز هفته انتخاب کن.','Choose at least one weekday to calculate ETA.'))+'</p>'+(c.linkUrl?'<a class="language-class-link" href="'+esc(c.linkUrl)+'" target="_blank" rel="noopener">'+tx('باز کردن لینک کلاس','Open class link')+'</a>':'')+'<footer><button type="button" class="primary-button" data-class-session="'+esc(c.id)+'" '+(done>=sum?'disabled':'')+'>'+tx('ثبت جلسه بعدی','Complete next session')+'</button>'+(done>0?'<button type="button" class="quiet-button" data-class-session-undo="'+esc(c.id)+'">↶ '+tx('برگرداندن جلسه','Undo session')+'</button>':'')+'<button type="button" class="quiet-button" data-class-report="'+esc(c.id)+'">'+tx('گزارش','Report')+'</button><button type="button" class="quiet-button" data-class-edit="'+esc(c.id)+'">'+tx('ویرایش','Edit')+'</button><button type="button" class="quiet-button danger" data-class-delete="'+esc(c.id)+'">'+tx('حذف','Delete')+'</button></footer><div class="language-class-collab-actions">'+(!shared||collabOwner?'<button type="button" class="quiet-button" data-class-share="'+esc(c.id)+'">🤝 '+(shared?tx('دعوت همکلاسی','Invite classmate'):tx('مشترک با دوست','Share with friend'))+'</button>':'')+(shared?'<button type="button" class="quiet-button" data-class-classmates="'+esc(c.id)+'">'+tx('آمار همکلاسی‌ها','Classmate stats')+'</button>':'')+(shared&&collabOwner?'<button type="button" class="quiet-button" data-class-share-link="'+esc(c.id)+'">'+tx('لینک عضویت','Join link')+'</button>':'')+'</div></article>';
+ const done=completed(c),sum=total(c),percent=pct(c),shared=!!c.collabSpaceId,owner=!shared||c.collabRole!=='member';
+ const safeId=esc(c.id),next=nextSession(c),schedule=scheduleLabel(c);
+ const cover='assets/ui/24-language-classes-icon.webp';
+ const progress='<div class="lc2-ring" role="progressbar" aria-label="'+tx('پیشرفت کلاس','Class progress')+'" aria-valuenow="'+percent+'" aria-valuemin="0" aria-valuemax="100" style="--lc2-progress:'+percent+'"><div><strong>'+fa(percent)+'٪</strong></div></div>';
+ const meta='<div class="lc2-meta"><span>⌗ '+tx('ترم','Terms')+' '+fa(c.terms||1)+'</span><span>▤ '+fa(done)+' / '+fa(sum)+' '+tx('جلسه','sessions')+'</span><span>◷ '+tx('هر جلسه','Each session')+' '+hours(c.durationMin||60)+'</span><span>▦ '+esc(schedule)+'</span>'+(next?'<span class="lc2-next">▦ '+tx('جلسه بعدی: ','Next: ')+esc(next)+'</span>':'')+'</div>';
+ const action=(attr,label,kind='',disabled=false)=>'<button type="button" class="'+kind+'" '+attr+'="'+safeId+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
+ return '<article class="language-class-card lc2-class-card '+(shared?'is-shared':'is-personal')+'" data-language-class-id="'+safeId+'">'+
+  '<div class="lc2-cover" aria-hidden="true"><img src="'+cover+'" alt="" loading="lazy" decoding="async"></div>'+
+  '<div class="lc2-class-info"><div class="lc2-class-heading"><h3 dir="auto" data-elara-ugc>'+esc(c.title||tx('کلاس بدون نام','Untitled class'))+'</h3><span class="lc2-type '+esc(c.type||'offline')+'">'+typeLabel(c.type)+'</span></div>'+
+  '<p class="lc2-description">'+tx('مسیر یادگیری شخصی با برنامه‌ریزی جلسات و ثبت پیشرفت واقعی.','Your class schedule and real logged learning progress.')+'</p>'+
+  meta+'<p class="lc2-eta">'+(percent>=100?tx('✓ این کلاس به پایان رسیده است','✓ Course complete'):eta(c).date?tx('پایان تقریبی: ','Estimated finish: ')+esc(eta(c).date):tx('روزهای کلاس را برای برنامه‌ریزی مشخص کن.','Set class days to see a schedule.'))+'</p>'+
+  (c.linkUrl&&/^https?:\/\//i.test(c.linkUrl)?'<a class="lc2-link" href="'+esc(c.linkUrl)+'" target="_blank" rel="noopener noreferrer">'+tx('باز کردن لینک کلاس ↗','Open class link ↗')+'</a>':'')+'</div>'+
+  '<div class="lc2-class-progress">'+progress+'<small>'+tx('پیشرفت شما','Your progress')+'</small><span>'+fa(done)+' / '+fa(sum)+' '+tx(' جلسه',' sessions')+'</span>'+
+  action('data-class-session',tx('ثبت جلسه بعدی','Log next session'),'lc2-session',done>=sum)+'</div>'+
+  '<footer class="lc2-class-actions">'+
+  action('data-class-edit',tx('ویرایش','Edit'))+
+  action('data-class-report',tx('گزارش','Report'))+
+  (shared&&owner?action('data-class-share-link',tx('لینک عضویت','Join link')):'')+
+  (shared?action('data-class-classmates',tx('همکلاسی‌ها','Classmates')):'')+
+  (!shared||owner?action('data-class-share',tx('دعوت همکلاسی','Invite classmate')):'')+
+  (done>0?action('data-class-session-undo',tx('برگرداندن جلسه','Undo session')):'')+
+  action('data-class-delete',tx('حذف','Delete'),'lc2-delete')+'</footer></article>';
+}
+function nextSession(c){
+ const days=(Array.isArray(c.weekdays)?c.weekdays:[]).map(Number).filter(x=>Number.isInteger(x)&&x>=0&&x<=6);
+ if(!days.length||completed(c)>=total(c))return '';
+ const time=/^([01]\d|2[0-3]):[0-5]\d$/.test(String(c.studyTime||''))?c.studyTime:'';
+ const now=new Date();
+ for(let i=0;i<15;i++){
+  const d=new Date(now);d.setHours(time?Number(time.slice(0,2)):12,time?Number(time.slice(3)):0,0,0);d.setDate(d.getDate()+i);
+  if(days.includes(d.getDay())&&(!time||d>=now||i>0)){
+   return d.toLocaleDateString(document.documentElement.lang==='en'?'en-US':'fa-IR',{weekday:'long',month:'long',day:'numeric'})+(time?' · '+time:'');
+  }
+ }
+ return '';
 }
 function editorMarkup(c={}){
  const selected=new Set((c.weekdays||[]).map(Number)),names=dayNames(),shared=!!c.collabSpaceId,collabMember=shared&&c.collabRole==='member';
@@ -101,84 +134,66 @@ async function remove(c){
  const s=read();s.languageClasses=s.languageClasses.filter(x=>x.id!==c.id);write(s);
 }
 let languageClassesFilter='all';
+let languageClassesSearch='';
 function render(){
  const panel=document.getElementById('panel-language-courses');if(!panel)return;
- let host=panel.querySelector('[data-custom-classes]');if(!host){host=document.createElement('section');host.className='language-custom-classes';host.dataset.customClasses='';panel.append(host)}
- const rows=read().languageClasses.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)),sharedRows=rows.filter(x=>x.collabSpaceId),personalRows=rows.filter(x=>!x.collabSpaceId);
- const personalEmpty='<section class="elara-card language-class-empty"><strong>'+tx('هنوز کلاس شخصی نداری.','No personal classes yet.')+'</strong><p>'+tx('مثلاً یک کلاس ۳ ترمه با ۱۲ جلسه در هر ترم بساز و روزهای مطالعه را انتخاب کن.','Create a 3-term class with 12 sessions per term and choose your study days.')+'</p></section>';
- const sharedEmpty='<div class="language-shared-classes-empty"><strong>'+tx('هنوز کلاس مشترک پذیرفته‌شده‌ای نداری.','No accepted shared classes yet.')+'</strong><p>'+tx('دعوت‌های در انتظار در بخش «درخواست‌های مشترک» صفحه دوستان نمایش داده می‌شوند.','Pending invitations appear in the Shared requests section on Friends.')+'</p></div>';
- host.innerHTML='<section class="elara-card language-class-intro"><div><small>ELARA · CUSTOM CLASSES</small><h2>'+tx('کلاس‌های خودت را دقیق بساز','Build your classes your way')+'</h2><p>'+tx('آنلاین، آفلاین یا لینک‌شده؛ تعداد ترم و جلسه، مدت، روزها و ساعت را مشخص کن تا ETA واقعی محاسبه شود.','Online, offline or linked; set terms, sessions, duration, days and time for a real ETA.')+'</p></div><div class="language-class-type-adders"><button type="button" class="quiet-button" data-class-add-type="offline">+ '+tx('آفلاین','Offline')+'</button><button type="button" class="primary-button" data-class-add-type="online">+ '+tx('آنلاین','Online')+'</button><button type="button" class="quiet-button" data-class-add-type="linked">+ '+tx('لینک‌شده','Linked')+'</button><button type="button" class="sr-only" data-class-add>+ '+tx('کلاس جدید','New class')+'</button></div></section><section class="language-personal-classes"><header><h2>'+tx('کلاس‌های من','My classes')+'</h2></header><div class="language-class-list">'+(personalRows.length?personalRows.map(card).join(''):personalEmpty)+'</div></section><section class="elara-card language-shared-classes" data-shared-classes><header><div><small>SHARED LEARNING</small><h2>'+tx('کلاس‌های مشترک','Shared classes')+'</h2><p>'+tx('فقط کلاس‌های پذیرفته‌شده اینجا هستند؛ پیشرفت هر عضو مستقل می‌ماند.','Only accepted shared classes appear here; each member keeps independent progress.')+'</p></div><b class="language-shared-count">'+fa(sharedRows.length)+'</b></header><div class="language-shared-classes-list">'+(sharedRows.length?sharedRows.map(card).join(''):sharedEmpty)+'</div></section>';
-
- // L1: derive every count from the existing canonical classes and session history.
- // This layer adds presentation only; it never writes, migrates, or seeds account data.
- const activeRows=rows.filter(c=>completed(c)<total(c)),sessionCount=rows.reduce((sum,c)=>sum+completed(c),0);
- const hero=host.querySelector('.language-class-intro');
- if(hero){
-   hero.classList.add('l1-class-hero');
-   const mainAction=hero.querySelector('[data-class-add]');
-   if(mainAction){
-     mainAction.classList.remove('sr-only');
-     mainAction.classList.add('l1-main-cta');
-     mainAction.textContent=tx('＋ ایجاد کلاس جدید','＋ Create new class');
-     hero.querySelector('.language-class-type-adders')?.prepend(mainAction);
-   }
-   const returnButton=document.createElement('button');
-   returnButton.type='button';returnButton.className='l1-return-language';
-   returnButton.dataset.classBack='';
-   returnButton.textContent=tx('← بازگشت به زبان','← Back to Language');
-   hero.prepend(returnButton);
+ let host=panel.querySelector('[data-custom-classes]');
+ if(!host){host=document.createElement('section');host.className='language-custom-classes lc2-classes-page';host.dataset.customClasses='';panel.append(host)}
+ host.classList.add('lc2-classes-page');host.setAttribute('dir',document.documentElement.lang==='en'?'ltr':'rtl');
+ const rows=read().languageClasses.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+ const sharedRows=rows.filter(x=>x.collabSpaceId),personalRows=rows.filter(x=>!x.collabSpaceId);
+ const ongoing=rows.filter(c=>completed(c)<total(c)),done=rows.reduce((n,c)=>n+completed(c),0),planned=rows.reduce((n,c)=>n+total(c),0);
+ const overall=planned?Math.round(done/planned*100):0;
+ const upcoming=ongoing.map(c=>({c,next:nextSession(c)})).filter(x=>x.next);
+ const soon=upcoming.sort((a,b)=>{const find=c=>{const ds=(c.weekdays||[]).map(Number);const now=new Date();for(let i=0;i<14;i++){const d=new Date(now);d.setDate(d.getDate()+i);const t=/^\d\d:\d\d$/.test(c.studyTime||'')?c.studyTime:'12:00';d.setHours(+t.slice(0,2),+t.slice(3),0,0);if(ds.includes(d.getDay())&&d>=now)return d.getTime()}return Infinity};return find(a.c)-find(b.c)})[0];
+ const paths='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM8 2v5M16 2v5M4 10h16"/></svg>';
+ const people='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="18" cy="9" r="2"/><path d="M2 21v-3c0-4 3-6 7-6s7 2 7 6v3M17 14c3 0 5 2 5 6"/></svg>';
+ const bars='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20v-7M10 20V6M16 20v-10M22 20v-15"/></svg>';
+ const book='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V6c-4-1-7-1-10 1zM12 7v14"/></svg>';
+ const stat=(kind,label,value,note,icon,mark='')=>'<article class="l1-class-stat lc2-stat lc2-stat-'+kind+'"><span class="l1-stat-symbol" aria-hidden="true">'+icon+'</span><div><small>'+label+'</small><strong>'+value+'</strong><span>'+note+'</span>'+mark+'</div></article>';
+ const emptyPersonal='<div class="elara-card language-class-empty lc2-empty"><img src="assets/ui/24-language-classes-icon.webp" alt="" loading="lazy"><strong>'+tx('هنوز کلاس شخصی نداری!','No personal classes yet!')+'</strong><p>'+tx('با ایجاد یک کلاس، مسیر یادگیری خودت را آغاز کن و آن را با کلاس‌های موجود مقایسه کن.','Create a class to start your personal learning path.')+'</p><button type="button" class="l1-empty-cta" data-class-add>＋ '+tx('ایجاد اولین کلاس','Create your first class')+'</button></div>';
+ const emptyShared='<div class="language-shared-classes-empty lc2-empty"><img src="assets/ui/24-language-classes-icon.webp" alt="" loading="lazy"><strong>'+tx('هنوز کلاس مشترکی نداری','No shared classes yet')+'</strong><p>'+tx('کلاس‌هایی که دعوت آن‌ها را پذیرفته‌ای اینجا نمایش داده می‌شوند.','Accepted class invitations appear here.')+'</p><button type="button" class="l1-shared-cta" data-class-friends>'+tx('مشاهده درخواست‌های دوستان','View friend requests')+'</button></div>';
+ host.innerHTML=
+  '<header class="lc2-top"><div class="lc2-top-tools"><button type="button" class="lc2-back" data-class-back aria-label="'+tx('بازگشت به زبان','Back to language')+'">←</button><label class="lc2-search-wrap"><span class="lc2-search-icon" aria-hidden="true">⌕</span><input type="search" data-class-search autocomplete="off" maxlength="120" value="'+esc(languageClassesSearch)+'" placeholder="'+tx('جستجو در کلاس‌ها و مسیرها...','Search classes and paths...')+'" aria-label="'+tx('جستجوی کلاس‌ها','Search classes')+'"></label></div><div class="lc2-top-title"><span aria-hidden="true" class="lc2-heading-icon">'+book+'</span><h1>'+tx('کلاس‌ها و مسیرها','Classes & paths')+'</h1><p>'+tx('مسیرهای یادگیری، کلاس‌های شخصی و کلاس‌های مشترک شما در یک نگاه','Your learning paths, personal classes and shared classes at a glance')+'</p></div></header>'+
+  '<section class="l1-class-stats lc2-stat-grid" aria-label="'+tx('آمار واقعی کلاس‌ها','Real class statistics')+'">'+
+   stat('shared',tx('کلاس‌های مشترک','Shared classes'),fa(sharedRows.length),tx('عضویت پذیرفته‌شده','Accepted shared classes'),people)+
+   stat('progress',tx('پیشرفت کل','Overall progress'),fa(overall)+'٪',tx('در همه کلاس‌ها','Across classes'),bars,'<span class="lc2-mini-track"><i style="width:'+overall+'%"></i></span>')+
+   stat('next',tx('جلسه بعدی','Next session'),soon?esc(soon.next):'—',soon?esc(soon.c.title):tx('هنوز برنامه‌ای ثبت نشده','Not scheduled yet'),paths)+
+   stat('active',tx('کلاس‌های فعال','Active classes'),fa(ongoing.length),tx('در حال یادگیری','In progress'),people)+
+  '</section>'+
+  '<nav class="lf-class-filter lc2-filter" aria-label="'+tx('فیلتر کلاس‌ها','Filter classes')+'">'+
+    [['all',tx('همه کلاس‌ها','All classes')],['online',tx('آنلاین','Online')],['linked',tx('لینک‌شده','Linked')],['offline',tx('آفلاین','Offline')]].map(([type,label])=>'<button type="button" data-lf-class-filter="'+type+'" aria-pressed="'+(languageClassesFilter===type)+'">'+label+'</button>').join('')+
+    '<button type="button" class="lc2-filter-create" data-class-add>＋ '+tx('ایجاد کلاس جدید','Create new class')+'</button></nav>'+
+  '<section class="elara-card language-class-intro l1-class-hero lc2-create-hero"><div class="lc2-create-art" aria-hidden="true"><img src="assets/ui/24-language-classes-icon.webp" alt=""></div><div class="lc2-create-copy"><h2>'+tx('ساخت کلاس شخصی','Create a personal class')+'</h2><p>'+tx('کلاس اختصاصی خود را بساز و برنامه یادگیری دلخواهت را با دیگران به اشتراک بگذار.','Build your own learning plan and share it with others.')+'</p><div class="lc2-feature-pills"><span>▦ '+tx('برنامه‌ریزی جلسات','Session scheduling')+'</span><span>♧ '+tx('دعوت از همکلاسی‌ها','Classmate invitations')+'</span><span>◷ '+tx('زمان‌بندی منعطف','Flexible schedule')+'</span><span>▥ '+tx('پیگیری پیشرفت','Progress tracking')+'</span></div></div><button type="button" class="l1-main-cta" data-class-add>＋ '+tx('ایجاد کلاس جدید','Create new class')+'</button></section>'+
+  '<section class="language-personal-classes lc2-section"><header><h2><span class="lc2-section-icon" aria-hidden="true">♙</span>'+tx('کلاس‌های من','My classes')+'</h2><p>'+tx('کلاس‌هایی که ساخته‌اید یا در آن‌ها عضو هستید.','Classes you have created or joined.')+'</p></header><div class="language-class-list lc2-card-list">'+(personalRows.length?personalRows.map(card).join(''):emptyPersonal)+'</div></section>'+
+  '<section class="elara-card language-shared-classes lc2-section" data-shared-classes><header><h2><span class="lc2-section-icon" aria-hidden="true">♧</span>'+tx('کلاس‌های مشترک','Shared classes')+'</h2><p>'+tx('کلاس‌هایی که دیگران ساخته‌اند و شما در آن‌ها عضو هستید.','Classes shared with you and your classmates.')+'</p></header><div class="language-shared-classes-list lc2-card-list">'+(sharedRows.length?sharedRows.map(card).join(''):emptyShared)+'</div></section>';
+ applyClassFilters(host);
+}
+function applyClassFilters(host){
+ if(!host)return;
+ const query=languageClassesSearch.trim().toLocaleLowerCase();
+ for(const element of host.querySelectorAll('[data-language-class-id]')){
+  const type=element.querySelector('.lc2-type')?.classList;
+  const typeName=type?.contains('online')?'online':type?.contains('linked')?'linked':'offline';
+  const recordMatches=languageClassesFilter==='all'||typeName===languageClassesFilter;
+  const title=element.querySelector('.lc2-class-heading h3')?.textContent||'';
+  const textMatches=!query||title.toLocaleLowerCase().includes(query);
+  element.hidden=!(recordMatches&&textMatches);
  }
- const overview=document.createElement('section');overview.className='l1-class-stats';
- overview.setAttribute('aria-label',tx('آمار واقعی کلاس‌های من','Actual class statistics'));
- const statIcons={
-   all:'<path d="M4 5h16v15H4zM8 3v4M16 3v4M4 10h16"/>',
-   active:'<path d="M12 2v3m7 7h3M12 19v3M2 12h3"/><circle cx="12" cy="12" r="7"/><path d="m9 12 2 2 4-5"/>',
-   shared:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 21v-3c0-4 3-6 6-6s6 2 6 6v3M16 15c3 0 6 2 6 6"/>',
-   sessions:'<path d="M4 20V12h4v8M10 20V4h4v16M16 20V9h4v11"/>'
- };
- const metrics=[
-   ['all',tx('کل کلاس‌ها','Total classes'),rows.length,tx('کلاس ثبت‌شده','Recorded classes')],
-   ['active',tx('در حال یادگیری','In progress'),activeRows.length,tx('کلاس تکمیل‌نشده','Unfinished classes')],
-   ['shared',tx('کلاس‌های مشترک','Shared classes'),sharedRows.length,tx('عضویت پذیرفته‌شده','Accepted memberships')],
-   ['sessions',tx('جلسات ثبت‌شده','Sessions completed'),sessionCount,tx('بر اساس گزارش واقعی','From real session logs')]
- ];
- overview.innerHTML=metrics.map(([kind,label,value,note])=>'<article class="l1-class-stat l1-stat-'+kind+'"><span aria-hidden="true" class="l1-stat-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+statIcons[kind]+'</svg></span><div><small>'+label+'</small><strong>'+fa(value)+'</strong><span>'+note+'</span></div></article>').join('');
- if(hero)hero.before(overview);else host.prepend(overview);
-
- // Visual-only, canonical data-backed type filters. Filtering never writes or duplicates classes.
- const typeFilter=document.createElement('nav');
- typeFilter.className='lf-class-filter';
- typeFilter.setAttribute('aria-label',tx('فیلتر کلاس‌ها','Filter classes'));
- typeFilter.innerHTML=[
-  ['all',tx('همه کلاس‌ها','All classes')],
-  ['online',tx('آنلاین','Online')],
-  ['linked',tx('لینک‌شده','Linked')],
-  ['offline',tx('آفلاین','Offline')]
- ].map(([type,label])=>'<button type="button" data-lf-class-filter="'+type+'" aria-pressed="'+(languageClassesFilter===type)+'">'+label+'</button>').join('');
- if(overview)overview.after(typeFilter);
- for(const cardElement of host.querySelectorAll('.language-class-card')){
-  const record=rows.find(c=>String(c.id)===cardElement.dataset.languageClassId);
-  cardElement.hidden=!!record&&languageClassesFilter!=='all'&&record.type!==languageClassesFilter;
- }
- for(const group of host.querySelectorAll('.language-personal-classes,.language-shared-classes')){
-  const visible=group.querySelectorAll('.language-class-card:not([hidden])').length;
-  const hasCards=group.querySelectorAll('.language-class-card').length;
-  if(hasCards&&!visible){
-    const notice=document.createElement('p');notice.className='lf-filter-empty';
-    notice.textContent=tx('در این دسته کلاسی وجود ندارد.','No classes match this filter.');
-    group.querySelector('.language-class-list,.language-shared-classes-list')?.append(notice);
-  }
- }
-
- const privateHeader=host.querySelector('.language-personal-classes>header');
- if(privateHeader)privateHeader.insertAdjacentHTML('beforeend','<p>'+tx('کلاس‌هایی که ساخته‌ای و پیشرفت واقعی هر جلسه','Classes you created, with real session progress')+'</p>');
- if(!personalRows.length){
-   host.querySelector('.language-class-empty')?.insertAdjacentHTML('beforeend','<button type="button" class="l1-empty-cta" data-class-add>＋ '+tx('ساخت اولین کلاس','Create your first class')+'</button>');
- }
- if(!sharedRows.length){
-   host.querySelector('.language-shared-classes-empty')?.insertAdjacentHTML('beforeend','<button type="button" class="l1-shared-cta" data-class-friends>'+tx('مشاهده درخواست‌های دوستان ←','View Friends requests →')+'</button>');
+ for(const section of host.querySelectorAll('.lc2-section')){
+  let note=section.querySelector('.lf-filter-empty');
+  const cards=[...section.querySelectorAll('[data-language-class-id]')];
+  const none=cards.length&&cards.every(el=>el.hidden);
+  if(none&&!note){note=document.createElement('p');note.className='lf-filter-empty';note.textContent=tx('کلاسی مطابق جستجو یا فیلتر پیدا نشد.','No classes match your search or filter.');section.querySelector('.lc2-card-list')?.append(note)}
+  if(note)note.hidden=!none;
  }
 }
+document.addEventListener('input',e=>{
+ const search=e.target.closest?.('#panel-language-courses [data-class-search]');
+ if(!search)return;
+ languageClassesSearch=search.value.slice(0,120);
+ applyClassFilters(search.closest('[data-custom-classes]'));
+});
 document.addEventListener('click',e=>{
  const filter=e.target.closest('[data-lf-class-filter]');if(filter){languageClassesFilter=filter.dataset.lfClassFilter;render();return}
  const goBack=e.target.closest('[data-class-back]');if(goBack){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});return}
