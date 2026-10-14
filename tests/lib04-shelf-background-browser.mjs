@@ -35,7 +35,7 @@ try {
   });
   assert.equal(details.shelfCount,3,'all three canonical shelves preserved');
   for(const bg of details.backgrounds){
-   assert.match(bg,/library-shelf-warm-alcove\.webp/,'owner wooden background missing');
+   assert.match(bg,/Cinematic(?:%20|\s)Gothic(?:%20|\s)Library(?:%20|\s)Alcove\.webp/,'owner wooden background missing');
    assert.doesNotMatch(bg,/library-card-background\.webp/,'old purple background still applied');
   }
   assert.ok(details.scroll<=details.width+1,'horizontal overflow '+JSON.stringify(details));
@@ -46,4 +46,4 @@ try {
   await context.close();
  }
 } finally {await browser.close()}
-console.log('LIB04_OWNER_ASSET_LIVE_PASS');
+console.log('LIB05_ORIGINAL_HIGHRES_ASSET_PASS');
