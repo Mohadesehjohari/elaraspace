@@ -1,0 +1,113 @@
+/* FOCUS-04: reference palette, no purple icons or legacy ambience scene. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro{
+ --focus-amber:#ffdc91;--focus-teal:#27bfc5;--focus-ink:#071721;
+ color:#fff0d7;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+ background:
+ radial-gradient(circle closest-side,#060f19 0 81%,#101b20 82%,transparent 84%),
+ conic-gradient(from -54deg,#ffe2a0 0%,#ffc66a 18%,#36c9cb 40%,#087c94 56%,#4ca6d6 72%,#f3bf71 90%,#ffe2a0 100%);
+ box-shadow:0 0 24px #ffcb7238,0 0 34px #087f9251,0 0 0 3px #0b2029c9,inset 0 0 20px #000a;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
+ border:2px solid #ffe0a7;
+ background:radial-gradient(circle at 25% 18%,#fff0bc,#f2b458 41%,#d88236 70%,#8f562c);
+ box-shadow:inset 0 0 16px #fff0bf8b,0 0 21px #fbc37383,0 5px 25px #000b;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start:hover{
+ box-shadow:0 0 29px #ffc46ba8,0 6px 26px #000b;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-config{
+ border-color:#b08b5485;
+ background:linear-gradient(155deg,#071722ec,#102028ed 65%,#24190ff0);
+ box-shadow:0 9px 24px #0008,inset 0 1px #ffda921c;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom .focus-ref-ambience{
+ min-width:0;display:flex;flex-direction:column;gap:12px;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambient-caption{
+ font-size:11px;color:#d8c3a2;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience{
+ width:100%;min-width:0;margin:0;padding:0;border:none;
+ background:transparent;box-shadow:none;overflow:visible;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-mode]{
+ display:grid;place-content:center;justify-items:center;gap:7px;
+ min-height:105px;min-width:0;padding:8px 5px;
+ border-radius:12px;border:1px solid #b18b547c;
+ background:linear-gradient(160deg,#091b25,#171b1c 60%,#2d1c10);
+ color:#f7e7c7;box-shadow:inset 0 1px #ffdb9b22;
+ font-size:clamp(10px,.9vw,13px);font-weight:700;line-height:1.4;font-family:inherit;cursor:pointer;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-inline-icon{
+ display:grid;place-items:center;width:42px;height:42px;border-radius:11px;
+ background:linear-gradient(135deg,#0b3237,#1e291f);color:#ffe1a1;
+ border:1px solid #c4a06962;font:700 25px/1 Arial,sans-serif;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-mode][aria-pressed="true"]{
+ border:2px solid #ffdc87;color:#ffe4a7;
+ background:linear-gradient(140deg,#573718,#22180f);
+ box-shadow:0 0 19px #ffbc5859,inset 0 0 17px #ffcb552a;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-controls{
+ display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:9px 2px 3px;
+ color:#e7d6b5;font-size:12px;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-play]{
+ min-height:40px;padding:8px 17px;border:1px solid #ffdf9d;border-radius:10px;
+ background:linear-gradient(135deg,#ffe6b1,#e7ac54);color:#39220c;
+ font-size:13px;font-weight:800;line-height:1.5;font-family:inherit;cursor:pointer;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-controls label{
+ display:flex;align-items:center;gap:9px;flex:1 1 190px;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-volume]{
+ width:100%;accent-color:#ffd17b;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-note{
+ margin:0;font-size:10px;color:#c7bda9;line-height:1.6;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-main,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-link{
+ display:none!important;
+}
+/* The old forest page is no longer a second surface. Hidden route is kept harmless for old bookmarks. */
+#panel-focus-ambience{display:none!important;}
+@media(max-width:700px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-mode]{min-height:88px;}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-controls{
+  align-items:stretch;
+ }
+}
+
+/* Focus hub is now an entry to the reference focus room, never the obsolete violet woodland. */
+#panel-focus > .feature-hub-hero[data-hub-hero="focus"],
+#panel-focus > .elara-global-hero{
+ background-image:linear-gradient(90deg,#03101dcc,#07131c48 55%,#07121a80),url("assets/ui/bg_focus_room.webp")!important;
+ background-position:center 50%!important;background-size:cover!important;
+ border-color:#b78b4a96!important;
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"]{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-card{
+ background:linear-gradient(145deg,#071923,#171c1d 57%,#2e1b10)!important;
+ border-color:#ac824c8d!important;color:#ffe8c3!important;
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-art{
+ filter:sepia(.9) saturate(.85) hue-rotate(339deg);
+}
+@media(max-width:700px){
+ #panel-focus .feature-hub-launchers[data-hub-kind="focus"]{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:420px){
+ #panel-focus .feature-hub-launchers[data-hub-kind="focus"]{grid-template-columns:1fr;}
+}

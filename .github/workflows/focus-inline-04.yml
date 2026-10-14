@@ -1,0 +1,69 @@
+name: FOCUS-04 Inline Ambient Sounds and Reference Palette
+on:
+  pull_request:
+    paths: [index.html, boot.js, feature-hubs-2026.js, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
+  push:
+    branches: [main]
+    paths: [index.html, boot.js, feature-hubs-2026.js, focus-ambience.js, focus-setup-reference-03.js, focus-inline-ambience-04.css, tests/focus-inline-ambience-04-browser.mjs, .github/workflows/focus-inline-04.yml]
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check focus-ambience.js
+          node --check focus-setup-reference-03.js
+          node --check tests/focus-inline-ambience-04-browser.mjs
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Inline ambient playback and seven responsive viewports
+        run: |
+          python3 -m http.server 4173 >/tmp/focus04.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/focus-inline-ambience-04-browser.mjs
+          timeout 420s node tests/focus-two-mode-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus04-candidate-screenshots
+          path: browser-artifacts/focus04/*.png
+          retention-days: 20
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public exact files
+        run: |
+          set -euo pipefail
+          good=false
+          for attempt in $(seq 1 70); do
+            good=true
+            for f in index.html boot.js feature-hubs-2026.js focus-ambience.js focus-setup-reference-03.js focus-inline-ambience-04.css; do
+              curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$f?sha=$GITHUB_SHA&n=$attempt" -o "/tmp/$(basename "$f")" || { good=false;break; }
+              cmp -s "$f" "/tmp/$(basename "$f")" || { good=false;break; }
+            done
+            if [ "$good" = true ];then echo "FOCUS04_LIVE_EXACT_BYTES_PASS";break;fi
+            sleep 8
+          done
+          if [ "$good" != true ];then echo "::error::Live published files mismatch";exit 1;fi
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Live seven-width audio and navigation
+        run: ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/focus-inline-ambience-04-browser.mjs
