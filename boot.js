@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261015-task-rounds-feedback-v3';
+  const BUILD='20261015-language-four-v1';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${/^(social-messaging-ui\.js|friends-chats-redesign\.css)$/.test(name)?'20261012-chats-r1':BUILD}`;
@@ -58,7 +58,7 @@
     window.dispatchEvent(new Event('elara:visual-ready'));
   };
   const criticalScripts=['feature-hubs-shell.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','mobile-ia-2026-10-05.js','home-reference-polish-20261012.js'];
-  const deferredScripts=['approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js','global-page-banner-20261009.js','ui12-language-dashboard.js','ui13-language-routes.js','well01-wellness-dashboard.js','wellness-reference-popups-20261012.js','freedom-dashboard-r2026.js','freedom-r27-music.js','ranking-gold-20261012.js','task-organizer-20261012.js','task-cross-links-20261012.js','task-streak-calendar-20261012.js','freedom-r28-notebook.js'];
+  const deferredScripts=['approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js','global-page-banner-20261009.js','ui12-language-dashboard.js','ui13-language-routes.js','language-four-routes-20261015.js','well01-wellness-dashboard.js','wellness-reference-popups-20261012.js','freedom-dashboard-r2026.js','freedom-r27-music.js','ranking-gold-20261012.js','task-organizer-20261012.js','task-cross-links-20261012.js','task-streak-calendar-20261012.js','freedom-r28-notebook.js'];
   const optionalFailures=[];
   const syncOptionalFailures=()=>{window.__elaraOptionalFailures=optionalFailures.slice()};
   const rememberOptionalFailure=(name,error)=>{
