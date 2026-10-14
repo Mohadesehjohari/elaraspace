@@ -56,6 +56,8 @@ try {
    assert.ok(!state.profileVisible,'No account in Ranking '+width);
    assert.ok(state.overflow<=2,'No horizontal overflow '+width+': '+state.overflow);
    assert.equal(state.active,'all','Gold tab active '+width);
+   assert.equal(await page.locator('#elara-ranking-page > .social-tabs, #elara-ranking-page > .social-page-head').count(),0,'No legacy Ranking social view '+width);
+   assert.equal(await page.locator('#panel-ranking > h1:visible').count(),0,'No legacy Ranking title '+width);
    const podiumTextFit=await page.locator('.rg-podium-base').evaluateAll(bases=>bases.map(base=>({
      width:base.clientWidth,scrollWidth:base.scrollWidth,
      copy:[...base.querySelectorAll('b,small')].every(node=>node.getBoundingClientRect().width<=base.getBoundingClientRect().width+2)
