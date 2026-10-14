@@ -41,7 +41,7 @@ function addMarkup(){
  if(!p.querySelector(':scope > .focus-ref-bottom')){
   const bottom=document.createElement('div');bottom.className='focus-ref-bottom';
   const ambience=document.createElement('section');ambience.className='focus-ref-glass focus-ref-ambience';
-  ambience.innerHTML='<header><h2>♫ '+tr('صداهای محیط','Ambient sounds')+'</h2><button type="button" data-feature-route="focus-ambience">'+tr('مشاهده همه','View all')+' ←</button></header><div class="focus-ref-ambience-main"><img src="assets/ui/04-study-music-ambience-icon.webp" alt="" width="96" height="96" loading="lazy"><div><strong>'+tr('فضای آرام مطالعه','Calm study ambience')+'</strong><small>'+tr('صداها و فضای تمرکز را از بخش محیط انتخاب کن','Choose your atmosphere in the ambience room')+'</small></div></div><button class="focus-ref-ambience-link" type="button" data-feature-route="focus-ambience">'+tr('ورود به صداهای محیط','Open ambience')+' ↗</button>';
+  ambience.innerHTML='<header><h2>♫ '+tr('صداهای محیط','Ambient sounds')+'</h2></header><div class="focus-ref-ambience-slot" aria-label="'+tr('انتخاب و پخش صداهای محیط','Ambient sound controls')+'"></div>';
   const history=p.querySelector(':scope > .focus-history-card');
   const goals=document.createElement('section');goals.className='focus-ref-glass focus-ref-goals';
   goals.innerHTML='<header><h2>◎ '+tr('هدف جلسه','Session goal')+'</h2></header><div class="focus-ref-goal-reading"><strong data-focus-goal-caption>۰ / ۱</strong><span>'+tr('جلسات تکمیل‌شده امروز از تعداد تنظیم‌شده','Today’s completions vs selected session count')+'</span></div><div class="focus-ref-goal-track"><span data-focus-goal-bar></span></div><p>'+tr('با شروع جلسه، پیشرفت از داده‌های واقعی محاسبه می‌شود.','Progress comes from your real session history.')+'</p>';
@@ -109,6 +109,7 @@ function update(){
 }
 function init(){
  if(!addMarkup())return;
+ window.ElaraFocusAmbience?.mount?.();
  update();
 }
 document.addEventListener('change',e=>{
@@ -116,8 +117,8 @@ document.addEventListener('change',e=>{
  if(e.target?.id==='focus-session-count')update();
 });
 document.addEventListener('click',e=>{
- const button=e.target.closest('#panel-focus-pomodoro .focus-ref-task-open,#panel-focus-pomodoro [data-feature-route="focus-ambience"]');
- if(button){e.preventDefault();e.stopImmediatePropagation();window.ElaraOpen?.(button.dataset.featureRoute,{history:'push'})}
+ const button=e.target.closest('#panel-focus-pomodoro .focus-ref-task-open');
+ if(button){e.preventDefault();e.stopImmediatePropagation();window.ElaraOpen?.('tasks',{history:'push'})}
 },true);
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed','elara:open'])
  window.addEventListener(ev,()=>setTimeout(init,0));
