@@ -193,3 +193,75 @@
  #elwp-sleep-dashboard .elwp-sleep-entry{flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.elwp-dialog *{transition:none!important;animation:none!important}}
+
+
+/* Full-size wellness program folder preview — description and tasks receive most space. */
+.elwp-overlay.elwp-folder-view-overlay{background:rgba(0,13,24,.85)}
+.elwp-folder-view-overlay .elwp-dialog{width:min(1450px,96vw);height:min(950px,94dvh);max-height:94dvh;min-height:0;border-radius:23px;background:radial-gradient(circle at 50% 0,#0a4d43aa,transparent 45%),linear-gradient(145deg,#032a35,#011b2f 70%,#031c25);border-color:#07e6ad;box-shadow:0 24px 100px #000e,0 0 0 1px #8fffe01f,0 0 45px #05e8ac3c}
+.elwp-folder-view-overlay .elwp-header{min-height:90px;padding:16px 24px;background-image:linear-gradient(90deg,#001b30f0,#002924dc),url('assets/ui/35-wellness-hero-banner.webp')}
+.elwp-folder-view-overlay .elwp-body{padding:20px 24px 22px;overflow:auto;display:flex;flex-direction:column;gap:15px}
+.elwp-folder-view-top{display:flex;align-items:center;gap:15px;flex:none;padding:0 4px 7px;border-bottom:1px solid #2a736e7a;direction:rtl}
+.elwp-view-folder-symbol{display:grid;place-items:center;flex:none;width:70px;height:70px;border-radius:20px;background:linear-gradient(130deg,#074c40,#022d30);border:1px solid #1ceb9d;color:#5af8a6;box-shadow:0 0 20px #03fd8e35;font-size:48px;line-height:1}
+.elwp-folder-view-top>div:nth-child(2){min-width:0;flex:1}
+.elwp-folder-view-top small{display:block;color:#48ffc3;font-size:12px;margin-bottom:2px}
+.elwp-folder-view-top h2{font-size:clamp(19px,2vw,27px);line-height:1.5;margin:0;font-weight:850;color:#f2fffb}
+.elwp-folder-view-top p{color:#aad6d1;font-size:12px;margin:4px 0 0;overflow-wrap:anywhere}
+.elwp-view-status{flex:none;align-self:center;display:inline-flex;align-items:center;white-space:nowrap;padding:7px 13px;border:1px solid #09886f;border-radius:100px;background:#02523e83;color:#30ffc0;font-weight:750;font-size:12px}
+.elwp-folder-view-layout{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(235px,.82fr);grid-template-rows:minmax(225px,.9fr) minmax(300px,1.28fr);grid-template-areas:"description days" "tasks notes";gap:14px;flex:1 0 auto;min-width:0;min-height:585px;align-items:stretch}
+.elwp-view-card{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid #216976b5;border-radius:16px;background:linear-gradient(140deg,#073747cc,#031e31e9 70%);padding:17px 19px;box-shadow:inset 0 0 20px #11bba412}
+.elwp-view-card h3{display:flex;align-items:center;gap:10px;font-size:17px;margin:0 0 13px;color:#f0fff9;font-weight:850;line-height:1.5}
+.elwp-view-heading-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:8px;background:#075e55;color:#4cfbc1;font-size:21px}
+.elwp-view-description{grid-area:description}
+.elwp-view-days{grid-area:days}
+.elwp-view-tasks{grid-area:tasks}
+.elwp-view-notes{grid-area:notes}
+.elwp-view-prose{min-height:70px;flex:1 1 auto;max-height:100%;overflow:auto;white-space:normal;overflow-wrap:anywhere;color:#e1faf2;font-size:14px;line-height:2.2;text-align:right;padding:13px 15px;border:1px solid #2b6871b2;border-radius:12px;background:#021b2caa;scrollbar-width:thin;scrollbar-color:#156f62 transparent}
+.elwp-view-placeholder{color:#a2c7c8;line-height:1.95;font-size:13px;margin:0}
+.elwp-view-weekdays{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:1px}
+.elwp-view-day{display:grid;place-items:center;min-height:42px;border:1px solid #225574;border-radius:10px;background:#05283c;color:#9bbdc3;font-size:12px;font-weight:700}
+.elwp-view-day.is-selected{border-color:#0dfab3;color:#e0fff3;background:linear-gradient(135deg,#05614e,#024738);box-shadow:inset 0 0 12px #03ef9534}
+.elwp-view-tasks-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.elwp-view-tasks-head h3{margin-bottom:11px}
+.elwp-view-tasks-head>span{font-size:12px;color:#b8e8df;white-space:nowrap}
+.elwp-view-progress{height:10px;width:100%;flex:none;border-radius:100px;border:1px solid #145b64;background:#022338;overflow:hidden;margin:0 0 12px}
+.elwp-view-progress>span{display:block;height:100%;background:linear-gradient(90deg,#0cb596,#5dfeb2);border-radius:inherit;box-shadow:0 0 17px #1aff98}
+.elwp-view-checklist{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#207b6c transparent;min-height:100px}
+.elwp-view-checklist li{border:1px solid #23536a;border-radius:10px;background:linear-gradient(130deg,#032737,#021b2e);flex:none}
+.elwp-view-checklist li:hover{border-color:#109a79}
+.elwp-view-checklist label{display:flex;align-items:center;flex-direction:row;gap:13px;padding:12px 14px;margin:0;cursor:pointer;font-weight:600}
+.elwp-view-checklist label>input[type=checkbox]{appearance:auto!important;accent-color:#2af0a8;width:20px;height:20px;min-width:20px;cursor:pointer}
+.elwp-view-checklist label>span{font-size:13px;line-height:1.7;overflow-wrap:anywhere;flex:1;color:#e2f7f4}
+.elwp-view-checklist label>span.is-done{text-decoration:line-through;color:#83bbae}
+.elwp-folder-view-overlay .elwp-footer{justify-content:space-between;flex-direction:row-reverse;align-items:center;background:#021e2e;border-color:#1c7368;padding:13px 24px}
+.elwp-view-close,.elwp-view-edit{display:flex;align-items:center;justify-content:center;min-width:165px;min-height:48px;padding:9px 16px!important;border:1px solid #359da2!important;border-radius:11px!important;background:#073349!important;color:#e5fffa!important;font-size:14px!important;font-weight:800!important}
+.elwp-view-edit{background:linear-gradient(115deg,#42ffd0,#13c69e)!important;border-color:#45ffd1!important;color:#003229!important;box-shadow:0 0 18px #1edfa532}
+.elwp-folder-program-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;border:1px solid #256f61;padding:11px;margin-top:9px;border-radius:12px;background:#01332f64}
+.elwp-folder-program-fields textarea{min-height:100px!important}
+.elwp-folder-own-days>strong{display:block;margin-bottom:8px;font-size:13px}
+.elwp-folder-own-days .elwp-chip{font-size:11px!important;padding:7px 9px!important}
+@media(min-width:851px){.elwp-workout:not(.elwp-sleep),.elwp-nutrition{width:min(1170px,96vw);max-height:93dvh}}
+@media(max-width:850px){
+ .elwp-folder-view-overlay .elwp-dialog{width:98vw;height:96dvh;max-height:96dvh}
+ .elwp-folder-view-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"description" "tasks" "days" "notes";min-height:0;gap:12px}
+ .elwp-view-card{min-height:180px;overflow:visible}
+ .elwp-view-description{min-height:220px}
+ .elwp-view-tasks{min-height:275px}
+ .elwp-view-prose{overflow:visible;max-height:none}
+ .elwp-view-checklist{max-height:none;overflow:visible}
+ .elwp-view-weekdays{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .elwp-folder-view-overlay .elwp-dialog{width:100vw;height:100dvh;max-height:100dvh;border-radius:0}
+ .elwp-folder-view-overlay .elwp-header{min-height:106px;padding:17px}
+ .elwp-folder-view-overlay .elwp-body{padding:12px 13px 18px;gap:11px}
+ .elwp-view-folder-symbol{width:52px;height:52px;border-radius:13px;font-size:35px}
+ .elwp-folder-view-top h2{font-size:17px}
+ .elwp-view-status{font-size:10px;padding:6px 8px}
+ .elwp-view-card{padding:13px}
+ .elwp-view-card h3{font-size:15px}
+ .elwp-view-prose{padding:11px;font-size:13px}
+ .elwp-view-weekdays{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .elwp-folder-view-overlay .elwp-footer{padding:11px 14px max(12px,env(safe-area-inset-bottom));gap:10px}
+ .elwp-view-close,.elwp-view-edit{min-width:0;flex:1}
+}
+@media(prefers-reduced-motion:reduce){#panel-exercise .well01-folder-tile{transition:none!important}}
