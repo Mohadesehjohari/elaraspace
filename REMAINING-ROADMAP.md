@@ -82,6 +82,7 @@
 6. Clubs realtime.
 7. Store token ledger / Elite / payment verification.
 8. AI gateway.
+9. **اشتراک برنامه‌های تمرینی و تغذیه با دوستان**: قابلیت مستقل از پوشه‌های برنامه؛ ارسال و دسترسی با رضایت گیرنده، کنترل حریم خصوصی و لغو دسترسی. نیازمند backend/rules واقعی، بدون نمایش اشتراک جعلی در UI.
 
 ## Definition of Done برای چت اجرایی
 - هر نوبت HEAD واقعی `main` را بگیر.

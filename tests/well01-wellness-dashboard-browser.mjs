@@ -22,7 +22,7 @@ async function open(width,url,seed=true,touch=false){
  if(seed)await page.evaluate(({date})=>{
   window.ElaraAccount=window.ElaraAccount||{};window.ElaraAccount.user={...(window.ElaraAccount.user||{}),uid:'well01-qa'};
   if(window.ElaraSocial?.me)window.ElaraSocial.me.uid='well01-qa';
-  localStorage.setItem('elara_private_wellness_v1_well01-qa',JSON.stringify({weight:'68.5',targetWeight:'',goal:2000,glass:250,water:{[date]:750},sleep:[{id:'well01-sleep',date,bed:'22:30',wake:'06:00'}],workouts:[{id:'well01-workout',date,type:'یوگا',minutes:30}],workoutPlanNote:'تمرین قدرتی سه روز در هفته',nutritionPlanNote:'یادداشت تغذیه شخصی',workoutPlanFolders:[],nutritionPlanFolders:[]}));
+  localStorage.setItem('elara_private_wellness_v1_well01-qa',JSON.stringify({weight:'68.5',targetWeight:'',goal:2000,glass:250,water:{[date]:750},sleep:[{id:'well01-sleep',date,bed:'22:30',wake:'06:00'}],workouts:[{id:'well01-workout',date,type:'یوگا',minutes:30}],workoutPlanNote:'تمرین قدرتی سه روز در هفته',nutritionPlanNote:'یادداشت تغذیه شخصی',workoutPlanFolders:[{id:'well01-folder-workout',title:'چربی‌سوزی',programName:'تمرین چربی‌سوزی',description:'برنامه قدرتی سه روز در هفته',note:'یادداشت مربی',days:['شنبه','دوشنبه','چهارشنبه'],checks:[{id:'well01-check-a',text:'گرم کردن',done:false},{id:'well01-check-b',text:'تمرین اصلی',done:true}]}],nutritionPlanFolders:[{id:'well01-folder-nutrition',title:'تغذیه سالم',programName:'تغذیه روزانه',description:'وعده‌های متعادل در طول روز',note:'آب کافی بنوش',days:['همه روزها'],checks:[]}]}));
   window.dispatchEvent(new Event('elara:wellness-saved'));
   window.ElaraWell01?.render();
  },{date});
@@ -149,8 +149,25 @@ for(const width of widths){
  assert.equal(await dash.locator('.well01-shortcut').count(),5,'five category shortcuts at '+width);
  assert.equal(await dash.locator('.well01-metric').count(),4,'four daily metrics at '+width);
  assert.equal(await dash.locator('.well01-report').count(),4,'four real-data report entries at '+width);
- assert.match(await dash.locator('.well01-workout-plan').innerText(),/تمرین قدرتی/);
- assert.match(await dash.locator('.well01-nutrition-plan').innerText(),/یادداشت تغذیه/);
+ assert.equal(await dash.locator('.well01-workout-plan [data-well01-folder-view="workout"]').count(),1,'workout card contains folder tile');
+ assert.equal(await dash.locator('.well01-nutrition-plan [data-well01-folder-view="nutrition"]').count(),1,'nutrition card contains folder tile');
+ assert.doesNotMatch(await dash.locator('.well01-workout-plan').innerText(),/برنامه قدرتی سه روز در هفته/,'no inline workout plan text');
+ assert.doesNotMatch(await dash.locator('.well01-nutrition-plan').innerText(),/وعده‌های متعادل در طول روز/,'no inline nutrition plan text');
+ if(width===390||width===1440){
+  await dash.locator('[data-well01-folder-view="workout"]').click();
+  const folderModal=page.locator('.elwp-folder-view-overlay .elwp-dialog');
+  await folderModal.waitFor();
+  assert.match(await folderModal.locator('.elwp-view-description').innerText(),/برنامه قدرتی/);
+  assert.match(await folderModal.locator('.elwp-view-notes').innerText(),/یادداشت مربی/);
+  assert.equal(await folderModal.locator('.elwp-view-day.is-selected').count(),3);
+  const modalBox=await folderModal.boundingBox();
+  if(width===1440)assert.ok(modalBox.width>=1150,'folder viewer must be significantly wider than previous 840px editor');
+  await folderModal.locator('[data-elwp-view-check="well01-check-a"]').check();
+  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_private_wellness_v1_well01-qa')).workoutPlanFolders[0].checks[0].done);
+  assert.equal(saved,true,'viewer checkbox persists per-folder completion');
+  await folderModal.locator('[data-elwp-close]').first().click();
+  await folderModal.waitFor({state:'hidden'});
+ }
  assert.match(await dash.locator('.well01-activity-card').innerText(),/یوگا/);
  assert.doesNotMatch(await dash.innerText(),/۴۲۰|420 کالری/,'no synthetic calories');
  const dimensions=await page.evaluate(()=>({view:innerWidth,body:document.documentElement.scrollWidth,panel:document.querySelector('#panel-exercise').scrollWidth}));
