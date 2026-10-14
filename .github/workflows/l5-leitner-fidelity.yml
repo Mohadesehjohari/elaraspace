@@ -1,0 +1,49 @@
+name: L5 Leitner Story and Dashboard
+on:
+  pull_request:
+    paths:
+      - ui13-language-routes.js
+      - leitner-l5-fidelity-20261012.js
+      - leitner-l5-fidelity-20261012.css
+      - tests/l5-leitner-fidelity-browser.mjs
+      - .github/workflows/l5-leitner-fidelity.yml
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static and owner assets
+        run: |
+          node --check leitner-l5-fidelity-20261012.js
+          node --check ui13-language-routes.js
+          node --check tests/l5-leitner-fidelity-browser.mjs
+          test -s assets/ui/lightner_words_backgroud_pc.webp
+          test -s assets/ui/lightner_words_backgroud_mobile.webp
+          test -s assets/ui/language_banner_main.webp
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/l5.log 2>&1 &
+          sleep 3
+      - name: Eight-width owner behavior verification
+        run: timeout 360s node tests/l5-leitner-fidelity-browser.mjs
+      - name: Existing canonical ten-width Leitner test
+        run: timeout 360s node tests/l3-leitner-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l5-owner-before-after
+          path: |
+            browser-artifacts/leitner-l5/*.png
+            browser-artifacts/language-l3/*.png
+          if-no-files-found: warn
+          retention-days: 30
