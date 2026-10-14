@@ -6,6 +6,13 @@ try {
  for(const width of [390,1440]){
   const context=await browser.newContext({viewport:{width,height:900}});
   const page=await context.newPage();
+  // Repeat with a signed-in fixture: otherwise Firebase's legitimate account gate
+  // makes every active panel inherit visibility:hidden, which is NOT route failure.
+  const cloudStub="window.ElaraAccount={user:{uid:'qa',email:'qa@example.test',emailVerified:true},profile:{uid:'qa',name:'QA',username:'qa_user',xp:10,profilePublic:true},logout:async()=>{}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
+  const socialStub="const me={uid:'qa',name:'QA',username:'qa_user',xp:10,profilePublic:true};window.ElaraSocial={me,friends:[],requests:[],activities:[],blocked:[],refresh:async()=>{},saveProfileValues:async()=>{},dm:{list:async()=>[],listen:()=>()=>{}},groups:{list:async()=>[],members:async()=>[]},clubs:{list:async()=>[]}};window.dispatchEvent(new Event('elara:social-updated'));";
+  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
+  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
+
   page.setDefaultTimeout(8000);
   const errors=[],bad=[];
   page.on('pageerror',e=>errors.push(e.message.slice(0,380)));
@@ -54,7 +61,9 @@ try {
     const detail=await page.evaluate(route=>{
       const p=document.getElementById('panel-'+route),e=p?.querySelector(':scope > *');
       const info=node=>{if(!node)return null;const s=getComputedStyle(node),r=node.getBoundingClientRect();return {tag:node.tagName,class:node.className,display:s.display,visibility:s.visibility,opacity:s.opacity,height:r.height,width:r.width,text:node.textContent?.trim().slice(0,120),inner:node.innerText?.trim().slice(0,120),hidden:node.hidden}};
-      return {route,panel:info(p),child:info(e),children:p?.children.length,selector:document.querySelector('#main>.panel:not(.hidden)')?.id};
+      const chain=[];for(let n=p;n&&chain.length<8;n=n.parentElement){const st=getComputedStyle(n);chain.push([n.tagName,n.id||n.className?.toString().slice(0,70),st.visibility])}
+      return {route,panel:info(p),child:info(e),children:p?.children.length,selector:document.querySelector('#main>.panel:not(.hidden)')?.id,
+        bodyClass:document.body.className,cloudLayerHidden:document.getElementById('cloud-layer')?.hidden,chain};
     },route);
     console.log('ROUTE_STYLE '+JSON.stringify({width,...detail}));
    }
