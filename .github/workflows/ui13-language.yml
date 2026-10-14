@@ -14,6 +14,7 @@ on:
       - social-clubs-ui.js
       - feature-hubs-shell.js
       - tests/ui13-language-owner-browser.mjs
+      - tests/language-first-paint-browser.mjs
       - tests/l2-language-leitner-browser.mjs
       - tests/l3-leitner-review-browser.mjs
       - tests/ui12-language-reference-browser.mjs
@@ -53,6 +54,8 @@ jobs:
           python3 -m http.server 4174 --directory baseline >/tmp/ui13-baseline.log 2>&1 &
           sleep 3
           curl -fLsS http://127.0.0.1:4173/ui13-language-routes.js >/dev/null
+      - name: New Language only first-paint gate with delayed owner CSS and JS
+        run: timeout 200s node tests/language-first-paint-browser.mjs
       - name: Nine-width owner art and route screenshots, classmate dialog
         run: timeout 420s node tests/ui13-language-owner-browser.mjs
       - name: L2 nine-width canonical Leitner dashboard
