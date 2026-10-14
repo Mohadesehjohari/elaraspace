@@ -28,7 +28,20 @@ const selectedFromUrl=()=>{const v=new URLSearchParams(location.search).get('fri
 let selections={social:selectedFromUrl(),ranking:'ranking'},friendQuery='',friendFilter='all',friendLayout='grid',dashboardVersion=0,friendRequestMode='incoming';
 
 /* The Groups tab must never be an empty slot if the optional Groups/Social modules are late or fail. */
-const groupRouteFallback=()=>'<section class="elara-card social-section social-groups-section groups-r4" data-g4-availability="pending" data-elara-i18n="off"><div class="g4-error g4-route-fallback" role="status"><strong>'+tt('فضای گروه‌های الارا','Elara groups')+'</strong><p class="g4-availability-message">'+tt('در حال آماده‌سازی گروه‌ها هستیم. اگر اتصال برقرار نشد، می‌توانی دوباره امتحان کنی یا به تب دیگری بروی.','Preparing groups. If the connection fails, retry or switch to another tab.')+'</p><div class="g4-error-actions"><button class="g4-secondary" type="button" data-g4-reconnect>'+tt('تلاش دوباره','Retry')+'</button><button class="g4-secondary" type="button" data-f2-tab="friends">'+tt('دوستان','Friends')+'</button><button class="g4-secondary" type="button" data-f2-tab="chats">'+tt('چت‌ها','Chats')+'</button></div></div></section>';
+const groupRouteFallback=()=>{
+ const glyph=kind=>'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(tabIconPaths[kind]||tabIconPaths.groups)+'</svg>';
+ const makeButton=()=>'<button type="button" class="g4-primary" data-g4-design-create>'+glyph('requests')+tt('ساخت گروه جدید','Create a group')+'</button>';
+ return '<section class="elara-card social-section social-groups-section groups-r4" data-g4-availability="pending" data-elara-i18n="off">'+
+  '<div class="g4-hero"><div class="g4-hero-content"><span class="g4-eyebrow">'+glyph('challenges')+' ELARA SPACE / '+tt('حلقه‌های دوستی','SOCIAL CIRCLES')+'</span><h2>'+tt('ماجراجویی با هم قشنگ‌تره','The best journeys start together')+'</h2><p>'+tt('یک جای مخصوص برای جمع‌های خودت؛ از گپ‌های صمیمی تا هدف‌های بزرگ.','Your own space for conversations, shared goals and unforgettable adventures.')+'</p><div class="g4-hero-actions">'+makeButton()+'<button type="button" class="g4-secondary" data-f2-tab="friends">'+tt('دیدن دوستان','See friends')+'</button></div></div><div class="g4-hero-orbit" aria-hidden="true"><span class="g4-orbit-core">'+glyph('groups')+'</span><i></i><i></i><i></i></div></div>'+
+  '<div class="g4-stats" aria-label="'+tt('خلاصهٔ گروه‌ها','Groups overview')+'"><article><span class="g4-stat-icon">'+glyph('groups')+'</span><div><strong>—</strong><small>'+tt('گروه‌های من','My groups')+'</small></div></article><article><span class="g4-stat-icon">'+glyph('requests')+'</span><div><strong>—</strong><small>'+tt('گروه با پیام جدید','Unread groups')+'</small></div></article><article><span class="g4-stat-icon">'+glyph('challenges')+'</span><div><strong>—</strong><small>'+tt('ساخته‌های من','Created by me')+'</small></div></article></div>'+
+  '<div class="g4-layout"><div class="g4-main"><div class="g4-panel-heading"><div><span class="g4-kicker">'+tt('همراهی و گفت‌وگو','FRIENDS & CONVERSATIONS')+'</span><h3>'+tt('گروه‌های من','My groups')+'</h3></div><span class="g4-count">'+tt('در حال همگام‌سازی','Syncing')+'</span></div>'+
+  '<label class="g4-search">'+glyph('groups')+'<input type="search" data-g4-search placeholder="'+tt('جست‌وجو در گروه‌ها…','Search your groups…')+'" aria-label="'+tt('جست‌وجوی گروه‌ها','Search groups')+'" disabled></label>'+
+  '<div class="g4-filters" role="group" aria-label="'+tt('فیلتر گروه‌ها','Group filters')+'"><button type="button" aria-pressed="true" disabled>'+tt('همه','All')+'</button><button type="button" disabled>'+tt('خوانده‌نشده','Unread')+'</button><button type="button" disabled>'+tt('ساخته‌های من','Created')+'</button></div>'+
+  '<div class="g4-empty g4-pending-space"><div class="g4-empty-art" aria-hidden="true">'+glyph('groups')+'</div><h4>'+tt('گروه‌های تو، همین‌جا جمع می‌شن','Your groups have a home here')+'</h4><p class="g4-availability-message" role="status">'+tt('داریم جمع‌های تو رو آماده می‌کنیم.','Getting your circles ready…')+'</p><button type="button" class="g4-secondary" data-g4-reconnect>'+tt('تازه‌سازی گروه‌ها','Refresh groups')+'</button></div>'+
+  '<div class="g4-list-foot"><span>'+tt('گفت‌وگوهای مخصوص تو','A space for your conversations')+'</span><span class="g4-live"><i></i>'+tt('منتظر همگام‌سازی','Waiting to sync')+'</span></div></div>'+
+  '<aside class="g4-side"><section class="g4-side-card g4-invitations"><div class="g4-side-heading"><span class="g4-side-icon">'+glyph('requests')+'</span><div><span class="g4-kicker">'+tt('دعوت‌ها','INVITATIONS')+'</span><h3>'+tt('دعوت‌های گروهی','Group invitations')+'</h3></div></div><div class="g4-invite-empty"><span>✧</span><strong>'+tt('دعوت‌ها اینجا ظاهر می‌شن','Invitations land here')+'</strong><p>'+tt('وقتی دوستی تو رو به گروه دعوت کنه، می‌تونی همین‌جا جواب بدی.','Accept or decline invitations from your friends right here.')+'</p></div></section>'+
+  '<section class="g4-side-card g4-discover"><span class="g4-kicker">'+tt('اینجا جای جمع توئه','YOUR CORNER OF ELARA')+'</span><h3>'+tt('یک جمع تازه بساز ✨','Start a new circle ✨')+'</h3><p>'+tt('برای درس، ورزش، کتاب یا فقط یک گپ دوستانه، فضای خودت رو بساز.','Bring your people together for study, fitness, books or a friendly chat.')+'</p>'+makeButton()+'</section></aside></div></section>';
+};
 let groupRouteScriptPromise=null,groupRouteScriptFailed=false;
 function ensureGroupsModule(retry=false){
  if(window.ElaraSocialGroupsUI?.mount){void Promise.resolve(window.ElaraSocialGroupsUI.mount(retry)).catch(error=>console.warn('Groups mount:',error));return Promise.resolve(true)}
@@ -37,7 +50,7 @@ function ensureGroupsModule(retry=false){
  groupRouteScriptPromise=new Promise(resolve=>{
   const script=document.createElement('script');
   script.async=true;
-  script.src='social-groups-ui.js?v=20261015-groups-nonblank-v1'+(retry?'&retry='+Date.now():'');
+  script.src='social-groups-ui.js?v=20261015-groups-designed-v2'+(retry?'&retry='+Date.now():'');
   let finished=false;
   const done=ok=>{
    if(finished)return;finished=true;clearTimeout(timeout);
@@ -53,7 +66,7 @@ function ensureGroupsModule(retry=false){
   if(ok)void Promise.resolve(window.ElaraSocialGroupsUI.mount(retry)).catch(error=>console.warn('Groups mount:',error));
   else{
    const notice=document.querySelector('#elara-social-page[data-social-tab="groups"] .g4-availability-message');
-   if(notice)notice.textContent=tt('ماژول گروه‌ها بارگذاری نشد؛ دوباره تلاش کن یا به بخش دوستان برگرد.','Groups could not load. Retry or return to Friends.');
+   if(notice)notice.textContent=tt('گروه‌های واقعی هنوز همگام نشده‌اند؛ می‌تونی کمی بعد تازه‌سازی کنی.','Your real groups have not synced yet. You can refresh shortly.');
   }
   return ok;
  });
@@ -236,6 +249,7 @@ function navigateSocialTab(route,tab){
  return true;
 }
 document.addEventListener('click',e=>{
+ if(e.target.closest('[data-g4-design-create]')){e.preventDefault();if(window.ElaraSocial?.groups?.create&&window.ElaraSocialGroupsUI?.createGroup)void window.ElaraSocialGroupsUI.createGroup();else retryGroupsRoute();return}
  if(e.target.closest('[data-g4-reconnect]')){e.preventDefault();retryGroupsRoute();return}
  if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
   if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
