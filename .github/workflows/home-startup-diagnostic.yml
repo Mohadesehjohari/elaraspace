@@ -1,0 +1,34 @@
+name: Home Bootstrap Diagnosis
+on:
+  pull_request:
+    paths:
+      - boot.js
+      - index.html
+      - elara-design.js
+      - reference-home-shell-2026.js
+      - tests/home-startup-diagnostic-browser.mjs
+      - .github/workflows/home-startup-diagnostic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  home-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve repository
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
+          sleep 1
+      - name: Diagnose real first-paint sequence
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 90s node tests/home-startup-diagnostic-browser.mjs
