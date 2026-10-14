@@ -31,6 +31,9 @@
     if(!css.isConnected)document.head.append(css);
     return done;
   };
+  // Route owner may publish its DOM only after the corresponding CSS has loaded.
+  // This reuses the existing insertion/order cache and does not block Home or Tasks.
+  window.ElaraEnsureRouteStyles=route=>Promise.all((routeStyles[route]||[]).map(mountStyle));
   const primaryCss=styles.filter(name=>(!taskStyles.has(name)&&!secondaryStyles.has(name))||priorityStyles.has(name));
   primaryCss.forEach(mountStyle);
   // Do not reveal Home using an intermediate cascade: final mobile geometry lives
