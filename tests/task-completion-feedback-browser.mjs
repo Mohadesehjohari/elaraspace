@@ -35,8 +35,11 @@ try{
   assert.ok(await row('qa-multi').evaluate(x=>x.classList.contains('just-completed-gold')),'complete row must glow gold first');
   assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').count(),0,'archive moved too soon');
   await page.waitForTimeout(1200);
-  assert.equal(await row('qa-multi').count(),0,'completed row did not move after one second');
-  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').count(),1,'completed task did not reach archive');
+  assert.equal(await row('qa-multi').count(),1,'completed task should remain in place past the first second');
+  assert.equal(await row('qa-multi').evaluate(x=>x.classList.contains('just-completed-gold')),false,'gold should end after one second');
+  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').count(),0,'archive should wait a full three seconds');
+  await page.waitForFunction(id=>!!document.querySelector('#task-checked-archive [data-task-archive-id="'+id+'"]'),'qa-multi',{timeout:6500});
+  assert.equal(await row('qa-multi').count(),0,'completed task did not move after three seconds');
   const archive=await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').evaluate(x=>{
    const row=x.getBoundingClientRect(),button=x.querySelector('.task-archive-undo').getBoundingClientRect(),img=x.querySelector('.elara-uploaded-check').getBoundingClientRect();
    return {height:row.height,buttonWidth:button.width,imageWidth:img.width,imageHeight:img.height}
