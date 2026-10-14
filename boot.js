@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261014-task-feedback-counter-undo-v3';
+  const BUILD='20261014-task-feedback-counter-undo-v4';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${/^(social-messaging-ui\.js|friends-chats-redesign\.css)$/.test(name)?'20261012-chats-r1':BUILD}`;
