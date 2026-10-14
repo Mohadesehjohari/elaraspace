@@ -6,6 +6,8 @@ on:
       - index.html
       - elara-design.js
       - artwork-home-install-2026.js
+      - focus-setup-reference-03.js
+      - tests/focus-observer-freeze-browser.mjs
       - reference-home-shell-2026.js
       - tests/home-startup-diagnostic-browser.mjs
       - .github/workflows/home-startup-diagnostic.yml
@@ -33,3 +35,7 @@ jobs:
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
         run: timeout 90s node tests/home-startup-diagnostic-browser.mjs
+      - name: Assert global UI remains responsive after Focus mutations
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 80s node tests/focus-observer-freeze-browser.mjs
