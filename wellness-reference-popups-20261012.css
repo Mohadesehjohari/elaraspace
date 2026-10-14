@@ -265,3 +265,6 @@
  .elwp-view-close,.elwp-view-edit{min-width:0;flex:1}
 }
 @media(prefers-reduced-motion:reduce){#panel-exercise .well01-folder-tile{transition:none!important}}
+
+.elwp-view-folder-symbol svg{display:block;width:47px;height:47px;filter:drop-shadow(0 0 7px #36f6a77a)}
+@media(max-width:600px){.elwp-view-folder-symbol svg{width:36px;height:36px}}
