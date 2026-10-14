@@ -38,17 +38,21 @@ function update(){
   const panel=document.getElementById('panel-'+route);
   if(!panel)continue;
   panel.dataset.elaraBannerPage=route;
-  let hero=panel.querySelector('[data-elara-page-hero="'+route+'"]');
+  let hero=route==='tasks'?panel.querySelector('#astra-task-hero'):panel.querySelector('[data-elara-page-hero="'+route+'"]');
   if(!hero)hero=panel.querySelector(choices[route]||'.feature-hub-hero,.elara-hero');
   if(!hero&&route==='social'||!hero&&route==='ranking'){
    hero=panel.querySelector('.social-page-head');
   }
+  if(!hero&&route==='tasks')continue;
   if(!hero){
    hero=document.createElement('section');
    hero.className='elara-global-hero elara-generated-hero';
    hero.innerHTML='<div><small>ELARA SPACE</small><h1></h1></div>';
    hero.querySelector('h1').textContent=title;
    panel.prepend(hero);
+  }
+  if(route==='tasks'){
+   panel.querySelectorAll('.elara-generated-hero,[data-elara-page-hero="tasks"],#elara-task-mobile-banner').forEach(extra=>{if(extra!==hero)extra.remove()});
   }
   if(hero.parentElement!==panel)panel.prepend(hero);
   else if(panel.firstElementChild!==hero)panel.prepend(hero);
