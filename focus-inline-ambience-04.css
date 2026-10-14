@@ -87,3 +87,27 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-link
   align-items:stretch;
  }
 }
+
+/* Focus hub is now an entry to the reference focus room, never the obsolete violet woodland. */
+#panel-focus > .feature-hub-hero[data-hub-hero="focus"],
+#panel-focus > .elara-global-hero{
+ background-image:linear-gradient(90deg,#03101dcc,#07131c48 55%,#07121a80),url("assets/ui/bg_focus_room.webp")!important;
+ background-position:center 50%!important;background-size:cover!important;
+ border-color:#b78b4a96!important;
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"]{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-card{
+ background:linear-gradient(145deg,#071923,#171c1d 57%,#2e1b10)!important;
+ border-color:#ac824c8d!important;color:#ffe8c3!important;
+}
+#panel-focus .feature-hub-launchers[data-hub-kind="focus"] .feature-launcher-art{
+ filter:sepia(.9) saturate(.85) hue-rotate(339deg);
+}
+@media(max-width:700px){
+ #panel-focus .feature-hub-launchers[data-hub-kind="focus"]{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:420px){
+ #panel-focus .feature-hub-launchers[data-hub-kind="focus"]{grid-template-columns:1fr;}
+}
