@@ -30,7 +30,7 @@ let selections={social:selectedFromUrl(),ranking:'ranking'},friendQuery='',frien
 /* The Groups tab must never be an empty slot if the optional Groups/Social modules are late or fail. */
 const groupRouteFallback=()=>{
  const glyph=kind=>'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(tabIconPaths[kind]||tabIconPaths.groups)+'</svg>';
- const makeButton=()=>'<button type="button" class="g4-primary" data-g4-create>'+glyph('requests')+tt('ساخت گروه جدید','Create a group')+'</button>';
+ const makeButton=()=>'<button type="button" class="g4-primary" data-g4-design-create>'+glyph('requests')+tt('ساخت گروه جدید','Create a group')+'</button>';
  return '<section class="elara-card social-section social-groups-section groups-r4" data-g4-availability="pending" data-elara-i18n="off">'+
   '<div class="g4-hero"><div class="g4-hero-content"><span class="g4-eyebrow">'+glyph('challenges')+' ELARA SPACE / '+tt('حلقه‌های دوستی','SOCIAL CIRCLES')+'</span><h2>'+tt('ماجراجویی با هم قشنگ‌تره','The best journeys start together')+'</h2><p>'+tt('یک جای مخصوص برای جمع‌های خودت؛ از گپ‌های صمیمی تا هدف‌های بزرگ.','Your own space for conversations, shared goals and unforgettable adventures.')+'</p><div class="g4-hero-actions">'+makeButton()+'<button type="button" class="g4-secondary" data-f2-tab="friends">'+tt('دیدن دوستان','See friends')+'</button></div></div><div class="g4-hero-orbit" aria-hidden="true"><span class="g4-orbit-core">'+glyph('groups')+'</span><i></i><i></i><i></i></div></div>'+
   '<div class="g4-stats" aria-label="'+tt('خلاصهٔ گروه‌ها','Groups overview')+'"><article><span class="g4-stat-icon">'+glyph('groups')+'</span><div><strong>—</strong><small>'+tt('گروه‌های من','My groups')+'</small></div></article><article><span class="g4-stat-icon">'+glyph('requests')+'</span><div><strong>—</strong><small>'+tt('گروه با پیام جدید','Unread groups')+'</small></div></article><article><span class="g4-stat-icon">'+glyph('challenges')+'</span><div><strong>—</strong><small>'+tt('ساخته‌های من','Created by me')+'</small></div></article></div>'+
@@ -249,7 +249,7 @@ function navigateSocialTab(route,tab){
  return true;
 }
 document.addEventListener('click',e=>{
- if(e.target.closest('[data-g4-create]')){e.preventDefault();if(window.ElaraSocial?.groups?.create&&window.ElaraSocialGroupsUI?.createGroup)void window.ElaraSocialGroupsUI.createGroup();else retryGroupsRoute();return}
+ if(e.target.closest('[data-g4-design-create]')){e.preventDefault();if(window.ElaraSocial?.groups?.create&&window.ElaraSocialGroupsUI?.createGroup)void window.ElaraSocialGroupsUI.createGroup();else retryGroupsRoute();return}
  if(e.target.closest('[data-g4-reconnect]')){e.preventDefault();retryGroupsRoute();return}
  if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
   if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
