@@ -15,7 +15,7 @@ const paths={
 await page.route('**/*',async route=>{
  const url=route.request().url();
  const name=url.split('/').pop()?.split('?')[0]||'';
- if(paths.includes(name)||(mode==='no-css'&&/\.css(?:\?|$)/.test(url)&&name!=='styles.css'))await route.fulfill({status:200,contentType:name.endsWith('.css')?'text/css':'text/javascript',body:''});
+ if(paths.includes(name)||(mode==='no-css'&&/\.css(?:\?|$)/.test(url)&&name!=='styles.css')||(mode==='no-js'&&/\.js(?:\?|$)/.test(url))||(mode==='no-all-assets'&&/\.(?:js|css|webp|png|jpg|svg)(?:\?|$)/.test(url))||(mode==='no-static'&&['dialog.js','schedule.js','calendar.js','stable-dom.js','i18n.js','reading.js','notifications.js','app.js','library-enhancements.js','linked-tasks.js','phase2.js','elara-levels.js','collection-level.js','rpg.js','approved-profile-system.js','approved-icon-system.js'].includes(name)))await route.fulfill({status:200,contentType:name.endsWith('.css')?'text/css':name.endsWith('.js')?'text/javascript':'text/plain',body:''});
  else await route.continue();
 });
 let phase='navigate';
