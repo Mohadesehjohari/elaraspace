@@ -18,7 +18,11 @@ function groupData(service,force=false){
  const uid=String(current()?.uid||'');
  if(force||pendingGroupUid!==uid){pendingGroupLoad=null;pendingGroupUid=uid}
  if(!pendingGroupLoad){
-  const task=Promise.resolve().then(()=>Promise.all([service.list(),service.invites?.()||[]]));
+  const task=Promise.resolve().then(()=>Promise.allSettled([service.list(),service.invites?.()||[]])).then(([groupsResult,invitesResult])=>{
+   if(groupsResult.status==='rejected')throw groupsResult.reason;
+   if(invitesResult.status==='rejected')console.warn('Elara group invites unavailable:',invitesResult.reason);
+   return [groupsResult.value,invitesResult.status==='fulfilled'?invitesResult.value:[]];
+  });
   pendingGroupLoad=task;
   void task.then(()=>{if(pendingGroupLoad===task)pendingGroupLoad=null},()=>{if(pendingGroupLoad===task)pendingGroupLoad=null});
  }
