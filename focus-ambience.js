@@ -81,8 +81,14 @@ document.addEventListener('input',e=>{if(!e.target.matches('[data-ambience-volum
 let mountTimer=0,observer=null;
 function ensureMounted(delay=0){clearTimeout(mountTimer);mountTimer=setTimeout(()=>{mount();},delay)}
 window.addEventListener('elara:locale-changed',()=>{document.getElementById('focus-ambience')?.remove();ensureMounted(0)});
-window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus-pomodoro'||e.detail?.tab==='focus')ensureMounted(40)});
-window.addEventListener('hashchange',()=>{if(location.hash==='#focus-pomodoro')ensureMounted(40)});
+window.addEventListener('elara:open',e=>{
+ if(e.detail?.tab==='focus-ambience'){window.ElaraOpen?.('focus-pomodoro',{history:'replace'});ensureMounted(40);return}
+ if(e.detail?.tab==='focus-pomodoro'||e.detail?.tab==='focus')ensureMounted(40)
+});
+window.addEventListener('hashchange',()=>{
+ if(location.hash==='#focus-ambience'){window.ElaraOpen?.('focus-pomodoro',{history:'replace'});return}
+ if(location.hash==='#focus-pomodoro')ensureMounted(40)
+});
 window.addEventListener('elara:data-changed',()=>ensureMounted(25));
 window.addEventListener('elara:state-committed',()=>ensureMounted(25));
 window.addEventListener('elara:boot-watchdog',()=>ensureMounted(0));
