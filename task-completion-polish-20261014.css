@@ -325,3 +325,21 @@ html body #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-g
   display:none!important
  }
 }
+
+
+/* Separate the quick filter above the task toolbar instead of floating it below it. */
+html body #panel-tasks #elara-task-filter-quick{
+ box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+ display:flex!important;direction:rtl!important;align-items:center!important;
+ justify-content:flex-start!important;min-height:37px!important;
+ margin:5px 0 3px!important;padding:2px 4px!important;position:relative!important
+}
+html body #panel-tasks #elara-task-filter-quick [data-task-more-filter]{
+ box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ cursor:pointer!important;padding:6px 12px!important;min-height:32px!important;
+ border:1px solid #48b7e1!important;border-radius:10px!important;
+ background:linear-gradient(135deg,#144e73,#0a3054)!important;color:#c0f0ff!important;
+ box-shadow:0 0 8px #2cb7ed33!important;font-size:12px!important;font-weight:800!important;
+ white-space:nowrap!important
+}
+@media(max-width:700px){html body #panel-tasks #elara-task-filter-quick{margin:3px 0!important;min-height:34px!important;padding:0 4px!important}}

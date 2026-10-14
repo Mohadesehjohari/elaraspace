@@ -318,9 +318,14 @@
   function placeTaskFilters(){
     const panel=$('panel-tasks'),chips=$('astra-task-chips'),filters=panel?.querySelector('.astra-task-filters');
     if(chips&&filters&&filters.previousElementSibling!==chips)chips.after(filters);
-    const actions=$('elara-task-page-actions'),more=chips?.querySelector('[data-task-more-filter]')||actions?.querySelector('[data-task-more-filter]');
-    if(actions&&more){
-      if(more.parentElement!==actions)actions.prepend(more);
+    const toolbar=$('astra-task-toolbar');
+    const actions=$('elara-task-page-actions');
+    const more=chips?.querySelector('[data-task-more-filter]')||actions?.querySelector('[data-task-more-filter]')||panel?.querySelector('#elara-task-filter-quick [data-task-more-filter]');
+    if(toolbar&&more){
+      let quick=$('elara-task-filter-quick');
+      if(!quick){quick=document.createElement('div');quick.id='elara-task-filter-quick';quick.className='elara-task-filter-quick'}
+      if(quick.nextElementSibling!==toolbar)toolbar.before(quick);
+      if(more.parentElement!==quick)quick.append(more);
       if(!more.dataset.filterPromoted){
         more.dataset.filterPromoted='true';
         more.addEventListener('click',event=>{

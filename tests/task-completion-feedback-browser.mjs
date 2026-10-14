@@ -50,7 +50,7 @@ try{
   assert.ok((await row('qa-multi').locator('.task-round-count').textContent()).includes('۰/۳'),'restore from completed must reset to zero');
 
   const toolbar=await page.locator('#astra-task-toolbar').boundingBox();
-  const filter=await page.locator('#elara-task-page-actions [data-task-more-filter]').boundingBox();
+  const filter=await page.locator('#elara-task-filter-quick [data-task-more-filter]').boundingBox();
   assert.ok(filter&&toolbar&&filter.y<=toolbar.y+1,'Filter button should appear above toolbar');
   assert.deepEqual(errors,[],'uncaught JS errors '+errors.join(','));
   console.log('TASK_COMPLETION_FEEDBACK_PASS '+width+'px '+JSON.stringify(archive));
