@@ -50,7 +50,7 @@ function ensureGroupsModule(retry=false){
  groupRouteScriptPromise=new Promise(resolve=>{
   const script=document.createElement('script');
   script.async=true;
-  script.src='social-groups-ui.js?v=20261015-groups-nonblank-v1'+(retry?'&retry='+Date.now():'');
+  script.src='social-groups-ui.js?v=20261015-groups-designed-v2'+(retry?'&retry='+Date.now():'');
   let finished=false;
   const done=ok=>{
    if(finished)return;finished=true;clearTimeout(timeout);
