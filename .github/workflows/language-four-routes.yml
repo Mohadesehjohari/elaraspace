@@ -1,0 +1,57 @@
+name: Language Four Routes Reference
+on:
+  pull_request:
+    paths:
+      - 'language-four-routes-20261015.js'
+      - 'language-four-routes-20261015.css'
+      - 'ui13-language-routes.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/language-four-routes-reference-browser.mjs'
+      - '.github/workflows/language-four-routes.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'language-four-routes-20261015.js'
+      - 'language-four-routes-20261015.css'
+      - 'ui13-language-routes.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/language-four-routes-reference-browser.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax safety
+        run: |
+          node --check ui13-language-routes.js
+          node --check language-four-routes-20261015.js
+          node --check boot.js
+          node --check tests/language-four-routes-reference-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/language-four.log 2>&1 &
+          sleep 3
+      - name: Desktop and mobile real-data routes
+        run: timeout 210s node tests/language-four-routes-reference-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: language-four-reference-${{ github.sha }}
+          path: browser-artifacts/language-four/
+          if-no-files-found: warn
+          retention-days: 14

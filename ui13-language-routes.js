@@ -32,30 +32,81 @@ function renderTasks(){
   return '<div class="ui13-task-row'+(complete?' is-done':'')+'"><button type="button" data-section-task-toggle="'+esc(t.id)+'" aria-label="'+tx('تغییر وضعیت تسک','Toggle task')+'" aria-pressed="'+complete+'" '+(t.sourceCompletionLocked?'disabled':'')+'><span aria-hidden="true">'+(complete?'✓':'')+'</span></button><button type="button" data-section-task-detail="'+esc(t.id)+'" data-elara-ugc dir="auto">'+esc(t.text||t.title)+'</button><small>'+ (complete?tx('انجام‌شده','Done'):tx('در انتظار','Pending'))+'</small></div>'
  }).join('')||'<p class="ui13-empty">'+tx('هنوز تسک زبانی نداری.','No language tasks yet.')+'</p>')+'</div><div class="ui13-actions"><button class="ui13-primary" data-section-task-add="language" type="button">+ '+tx('افزودن تسک زبان','Add language task')+'</button><button class="ui13-secondary" data-ui13-canonical="tasks" type="button">'+tx('مرکز تسک‌ها','All Tasks')+'</button></div></section>';
 }
-let epoch=0;
-async function renderChannels(){
- const host=head('channels','کانال‌های زبان','Language channels',tx('باشگاه‌های زبان واقعی در سیستم اجتماعی Elara؛ زیرساخت کانال مستقل هنوز منتشر نشده است.','Existing real language clubs in Elara Social; standalone channel backend is not released.'));if(!host)return;
- const ticket=++epoch;
- const service=window.ElaraSocial?.clubs,user=window.ElaraAccount?.user;
- if(!user?.uid||!service?.list){host.innerHTML='<section class="ui13-surface"><p class="ui13-empty">'+tx('برای مشاهدهٔ باشگاه‌های زبان واقعی وارد حساب شو.','Sign in to see your real language clubs.')+'</p></section>';return}
- host.innerHTML='<section class="ui13-surface"><p class="ui13-empty" role="status">'+tx('در حال خواندن عضویت‌های واقعی…','Loading authorized memberships…')+'</p></section>';
- try{
-  const mine=list(await service.list()),publicRows=typeof service.discover==='function'?list(await service.discover()):[];
-  if(ticket!==epoch||!host.isConnected)return;
-  const seen=new Set();const rows=[];
-  for(const [group,arr] of [['mine',mine],['public',publicRows]])for(const club of arr){
-   if(club?.kind!=='language'||!club?.id||seen.has(club.id))continue;
-   seen.add(club.id);rows.push({...club,ownerGroup:group})
-  }
-  host.innerHTML='<section class="ui13-surface"><header class="ui13-section-head"><h2>'+tx('باشگاه‌های زبان واقعی','Real language clubs')+'</h2><span>'+num(rows.length)+'</span></header><p class="ui13-note">'+tx('این موارد در Backend واقعی Club ذخیره شده‌اند؛ کانال گفت‌وگوی مستقل هنوز فعال نیست.','These records are backed by the existing Clubs service; standalone language channels are not enabled.')+'</p><div class="ui13-club-list">'+(rows.map(c=>'<button type="button" class="ui13-club-row" data-ui13-open-club="'+esc(c.id)+'" data-ui13-owned="'+(c.ownerGroup==='mine'?'1':'0')+'"><span aria-hidden="true">'+ico('channels')+'</span><span><strong data-elara-ugc dir="auto">'+esc(c.title)+'</strong><small>'+tx(c.ownerGroup==='mine'?'باشگاه عضو شده':'باشگاه عمومی',c.ownerGroup==='mine'?'Joined club':'Public club')+' · '+num(c.memberCount||0)+' '+tx('عضو','members')+'</small></span><span aria-hidden="true">‹</span></button>').join('')||'<p class="ui13-empty">'+tx('هنوز باشگاه زبان قابل‌مشاهده‌ای نداری.','No authorized language clubs to show yet.')+'</p>')+'</div><div class="ui13-actions"><button class="ui13-primary" type="button" data-ui13-create-club>'+tx('ساخت باشگاه زبان واقعی','Create real language club')+'</button><button class="ui13-secondary" type="button" data-ui13-canonical="social">'+tx('رفتن به دوستان','Go to Friends')+'</button></div></section>';
- }catch(error){
-  if(ticket!==epoch)return;
-  host.innerHTML='<section class="ui13-surface"><p class="ui13-empty" role="alert">'+tx('نمایش داده‌های کانال ممکن نیست؛ عضویت و دسترسی را بررسی کن.','Cannot load clubs; check account permissions.')+'</p><p class="ui13-note">'+esc(error?.code||error?.message||'')+'</p><button class="ui13-secondary" data-ui13-retry type="button">'+tx('تلاش دوباره','Try again')+'</button></section>';
- }
+
+/* Real language communities; use the Clubs and Friends challenge contracts, not demo rows. */
+let epoch=0,channelMode='all',channelQuery='',challengeMode='all';
+const pill=(value,label,active)=>'<button type="button" class="lr4-pill '+(active?'is-current':'')+'" aria-pressed="'+active+'" data-lr4-channel-filter="'+esc(value)+'">'+label+'</button>';
+const mark=(kind)=>'<span class="lr4-icon lr4-icon-'+kind+'" aria-hidden="true">'+ico(kind==='channel'?'channels':kind==='challenge'?'challenges':'tasks')+'</span>';
+const labelStatus=c=>c.status==='closed'?tx('بسته‌شده','Closed'):tx('فعال','Active');
+const channelCard=(c,index)=>'<article class="lr4-channel-card lr4-scene-'+(index%4)+'"><div class="lr4-channel-art"><span class="lr4-channel-category">'+tx(c.ownerGroup==='mine'?'کانال من':'قابل مشاهده',c.ownerGroup==='mine'?'My channel':'Discover')+'</span><span class="lr4-channel-symbol">'+ico('channels')+'</span></div><div class="lr4-channel-info"><h3 data-elara-ugc dir="auto">'+esc(c.title||tx('باشگاه زبان','Language club'))+'</h3><p data-elara-ugc dir="auto">'+esc(String(c.bio||c.description||tx('فضایی برای یادگیری و گفت‌وگوی گروهی زبان','Language learning and conversation')).slice(0,145))+'</p><div class="lr4-channel-tags"><span>'+labelStatus(c)+'</span><span>'+num(c.memberCount||0)+' '+tx('عضو','members')+'</span></div><button type="button" class="lr4-outline" data-ui13-open-club="'+esc(c.id)+'" data-ui13-owned="'+(c.ownerGroup==='mine'?'1':'0')+'">'+tx(c.ownerGroup==='mine'?'ورود به باشگاه':'مشاهدهٔ باشگاه',c.ownerGroup==='mine'?'Open club':'View club')+' ←</button></div></article>';
+const communityHeader=(kind,title,sub)=>'<section class="lr4-intro lr4-intro-'+kind+'"><span class="lr4-overline">ELARA / LANGUAGE / '+kind.toUpperCase()+'</span><h2>'+title+'</h2><p>'+sub+'</p></section>';
+function channelSurface(host,rows,ready=true,notice=''){
+ const joined=rows.filter(c=>c.ownerGroup==='mine'),discover=rows.filter(c=>c.ownerGroup==='public');
+ const q=channelQuery.trim().toLocaleLowerCase();
+ const visible=rows.filter(c=>(channelMode==='all'||channelMode===c.ownerGroup)&&(!q||String(c.title||'').toLocaleLowerCase().includes(q)||String(c.bio||'').toLocaleLowerCase().includes(q)));
+ host.innerHTML='<div class="lr4-page lr4-channels">'+
+ communityHeader('channels',tx('با هم، زبان را زندگی کنیم','Speak, learn and grow together'),tx('کانال‌ها و باشگاه‌های واقعی زبان، برای تمرین و همراهی با دوستان.','Real language clubs and communities to learn with others.'))+
+ '<div class="lr4-summary lr4-summary-three"><article>'+mark('channel')+'<strong>'+(ready?num(rows.length):'—')+'</strong><span>'+tx('کانال قابل مشاهده','Visible channels')+'</span></article><article>'+mark('channel')+'<strong>'+(ready?num(joined.length):'—')+'</strong><span>'+tx('عضویت‌های من','My memberships')+'</span></article><article>'+mark('channel')+'<strong>'+(ready?num(discover.length):'—')+'</strong><span>'+tx('برای کشف','Discover')+'</span></article></div>'+
+ '<div class="lr4-channel-layout"><main class="lr4-panel lr4-channel-main"><div class="lr4-panel-heading"><div><small>EXPLORE THE UNIVERSE</small><h2>'+tx('کانال‌های زبان','Language channels')+'</h2></div><button type="button" class="lr4-outline lr4-compact" data-ui13-create-club>＋ '+tx('ساخت باشگاه','Create club')+'</button></div>'+
+ '<div class="lr4-filterbar"><div class="lr4-pills" role="group" aria-label="'+tx('فیلتر کانال‌ها','Channel filters')+'">'+pill('all',tx('همهٔ کانال‌ها','All'),channelMode==='all')+pill('mine',tx('کانال‌های من','My channels'),channelMode==='mine')+pill('public',tx('کشف کانال‌ها','Discover'),channelMode==='public')+'</div><label class="lr4-search"><span aria-hidden="true">⌕</span><input type="search" data-lr4-channel-search value="'+esc(channelQuery)+'" aria-label="'+tx('جست‌وجو در کانال‌ها','Search channels')+'" placeholder="'+tx('نام یا موضوع کانال…','Search channel name or topic…')+'"></label></div>'+
+ (notice?'<p class="lr4-status" role="status">'+esc(notice)+'</p>':'')+
+ '<div class="lr4-channel-grid">'+visible.map(channelCard).join('')+'</div>'+
+ (!visible.length?'<div class="lr4-beautiful-empty"><img src="assets/ui/24-language-classes-icon.webp" alt=""><strong>'+tx(ready?'هنوز کانالی در این بخش نداری':'در حال آماده‌کردن کانال‌ها',ready?'No channels match this view':'Getting channels ready')+'</strong><p>'+tx('وقتی کانال واقعی در دسترس باشه، کارت‌های اون همین‌جا ظاهر می‌شن.','Authorized language clubs appear here automatically.')+'</p><button type="button" class="lr4-outline" data-ui13-retry>'+tx('تازه‌سازی','Refresh')+'</button></div>':'')+
+ '</main><aside class="lr4-panel lr4-channel-side"><div class="lr4-panel-heading"><div><small>MY LEARNING SPACE</small><h2>'+tx('کانال‌های من','My channels')+'</h2></div></div>'+
+ (joined.length?joined.slice(0,5).map(c=>'<button type="button" class="lr4-mini-club" data-ui13-open-club="'+esc(c.id)+'" data-ui13-owned="1"><span>✦</span><strong data-elara-ugc dir="auto">'+esc(c.title)+'</strong><small>'+num(c.memberCount||0)+' '+tx('عضو','members')+'</small>‹</button>').join(''):'<p class="lr4-sidebar-empty">'+tx('هنوز عضو باشگاه زبانی نشدی. از کارت‌های این صفحه باشگاه‌های واقعی رو ببین.','No joined language clubs yet. Explore available clubs here.')+'</p>')+
+ '<section class="lr4-invite-card"><h3>✧ '+tx('گفت‌وگو را آغاز کن','Start a conversation')+'</h3><p>'+tx('با اعضای باشگاه‌های زبانی و دوستانت مسیر یادگیری بساز.','Find your learning companions in real clubs.')+'</p><button type="button" data-ui13-canonical="social">'+tx('دیدن دوستان','View friends')+' ←</button></section></aside></div></div>';
 }
-function renderChallenges(){
- const host=head('challenges','چالش‌های زبان','Language challenges',tx('فضای اختصاصی چالش زبان؛ پشتیبانی نتیجهٔ معتبر سروری هنوز فعال نشده است.','Language-specific challenges need verified server-side results and are not yet available.'));if(!host)return;
- host.innerHTML='<section class="ui13-surface ui13-challenge-empty"><img src="assets/ui/11-challenges-icon.webp" width="120" height="120" loading="eager" alt=""><h2>'+tx('چالش زبان مستقل در دست آماده‌سازی است','Dedicated language challenges are being prepared')+'</h2><p>'+tx('چالش‌های دوستانهٔ واقعی در Elara وجود دارند، اما هنوز نوع هدف زبان و داوری نتیجهٔ معتبر برای آن‌ها منتشر نشده است؛ این بخش شرکت‌کننده، امتیاز یا پیشرفت جعلی نمی‌سازد.','Real friend challenges exist, but language-specific targets and server-verified results are not published yet. No invented participants, scores or progress are shown.')+'</p><button class="ui13-primary" type="button" data-ui13-canonical="social">'+tx('مشاهدهٔ چالش‌های واقعی دوستان','See real friend challenges')+'</button></section>';
+async function renderChannels(){
+ const host=head('channels','کانال‌های زبان','Language channels',tx('یادگیری گروهی، تمرین و گفت‌وگوی واقعی','Real group learning, practice and conversation'));if(!host)return;
+ const ticket=++epoch,service=window.ElaraSocial?.clubs,user=window.ElaraAccount?.user;
+ channelSurface(host,[],false,tx('در حال دریافت کانال‌های واقعی…','Syncing real language clubs…'));
+ if(!user?.uid||!service?.list){
+  channelSurface(host,[],false,tx('برای نمایش کانال‌های واقعی، وارد حساب تأییدشده شو.','Sign in to see authorized language clubs.'));
+  return
+ }
+ try{
+  const result=await Promise.allSettled([service.list(),typeof service.discover==='function'?service.discover():[]]);
+  if(ticket!==epoch||!host.isConnected)return;
+  const mine=result[0].status==='fulfilled'?list(result[0].value):[];
+  const publicRows=result[1].status==='fulfilled'?list(result[1].value):[];
+  const seen=new Set(),rows=[];
+  for(const [group,items] of [['mine',mine],['public',publicRows]])for(const club of items){
+   if(club?.kind!=='language'||!club.id||seen.has(club.id))continue;
+   seen.add(club.id);rows.push({...club,ownerGroup:group});
+  }
+  channelSurface(host,rows,true,result.some(r=>r.status==='rejected')?tx('بخشی از کانال‌ها فعلاً قابل دریافت نیست.','Some clubs could not be fetched.'): '');
+ }catch(error){if(ticket===epoch)channelSurface(host,[],false,tx('دریافت کانال‌ها کامل نشد. برای تلاش دوباره تازه‌سازی کن.','Could not sync clubs. Try refreshing.'))}
+}
+const isLanguageChallenge=c=>['reading'].includes(c.targetKind)||(['task','general'].includes(c.targetKind)&&/زبان|لغت|واژه|language|english|vocab/i.test(c.targetText||''));
+const challengeCard=(c,i)=>{
+ const label=(c.status==='accepted'?tx('پذیرفته‌شده','Accepted'):c.status==='pending'?tx('در انتظار پاسخ','Pending'):tx('پایان یافته یا بسته‌شده','Closed'));
+ const target=Math.max(1,Number(c.targetValue)||1);
+ return '<article class="lr4-challenge-card"><div class="lr4-challenge-art lr4-scene-'+(i%4)+'"><span>'+tx('چالش واقعی دوستان','Real friend challenge')+'</span></div><div class="lr4-challenge-copy"><span class="lr4-overline">'+esc(c.targetKind||'reading').toUpperCase()+'</span><h3 data-elara-ugc dir="auto">'+esc(c.targetText||tx('چالش مطالعه','Reading challenge'))+'</h3><p>'+tx('مقدار هدف: ','Target: ')+num(target)+' · '+label+'</p><span class="lr4-channel-category">'+tx('براساس درخواست واقعی','Real request')+'</span><button class="lr4-outline" type="button" data-ui13-friend-challenges>'+tx('مشاهده و پاسخ','View and respond')+' ←</button></div></article>';
+};
+let challengesEpoch=0,challengeFilter='all',languageChallengeCache=null;
+function paintChallenges(host,rows=null,info=''){
+ const active=list(rows).filter(c=>c.status==='accepted'),pending=list(rows).filter(c=>c.status==='pending'),joined=list(rows).filter(isLanguageChallenge);
+ const shown=list(rows).filter(isLanguageChallenge).filter(c=>challengeFilter==='all'||(challengeFilter==='active'&&c.status==='accepted')||(challengeFilter==='requests'&&c.status==='pending'));
+ const stats=rows===null?['—','—','—']: [num(joined.length),num(active.filter(isLanguageChallenge).length),num(pending.filter(isLanguageChallenge).length)];
+ host.innerHTML='<div class="lr4-page lr4-challenges">'+communityHeader('challenges',tx('باهم تمرین کن، فراتر برو','Challenge yourself, together'),tx('هدف‌های مطالعه و زبان را با دوستانت دنبال کن؛ نتیجه فقط براساس دادهٔ واقعی ثبت می‌شود.','Explore actual reading and language-related friend challenges.'))+
+ '<div class="lr4-summary lr4-summary-three"><article>'+mark('challenge')+'<strong>'+stats[0]+'</strong><span>'+tx('چالش مرتبط','Related challenges')+'</span></article><article>'+mark('challenge')+'<strong>'+stats[1]+'</strong><span>'+tx('پذیرفته‌شده','Accepted')+'</span></article><article>'+mark('challenge')+'<strong>'+stats[2]+'</strong><span>'+tx('درخواست‌های باز','Pending')+'</span></article></div>'+
+ '<div class="lr4-challenge-layout"><div class="lr4-panel"><div class="lr4-panel-heading"><div><small>CHALLENGE YOURSELF</small><h2>'+tx('چالش‌های زبان و مطالعه','Language & reading challenges')+'</h2></div><button type="button" class="lr4-outline" data-ui13-friend-challenges>'+tx('همهٔ چالش‌ها','All challenges')+' ←</button></div><div class="lr4-pills" role="group" aria-label="'+tx('فیلتر چالش‌ها','Challenge filters')+'">'+[['all',tx('همه','All')],['active',tx('پذیرفته‌شده','Accepted')],['requests',tx('درخواست‌ها','Requests')]].map(([key,v])=>'<button type="button" data-lr4-challenge-filter="'+key+'" aria-pressed="'+(challengeFilter===key)+'" class="lr4-pill '+(challengeFilter===key?'is-current':'')+'">'+v+'</button>').join('')+'</div>'+
+ (info?'<p class="lr4-status" role="status">'+esc(info)+'</p>':'')+
+ '<div class="lr4-challenge-grid">'+shown.map(challengeCard).join('')+'</div>'+
+ (!shown.length?'<div class="lr4-beautiful-empty"><img src="assets/ui/11-challenges-icon.webp" alt=""><h3>'+tx('ماجراجویی بعدی منتظر توست','Your next challenge awaits')+'</h3><p>'+tx('هنوز درخواست مرتبط با مطالعه و زبان نداری. می‌تونی از بخش چالش‌های دوستان یک چالش واقعی ایجاد کنی.','There are no matching real challenges yet. Start one with a friend.')+'</p><button type="button" class="lr4-gradient" data-ui13-friend-challenges>'+tx('رفتن به چالش‌های دوستان','Open friend challenges')+' ←</button></div>':'')+'</div>'+
+ '<aside class="lr4-panel lr4-leaderboard"><span class="lr4-overline">TOGETHER WE GROW</span><h2>'+tx('دوستان هم‌مسیر','Learning together')+'</h2><p>'+tx('رتبه‌بندی و امتیاز چالش‌های زبان تنها پس از فعال‌شدن داوری معتبر سرور نمایش داده می‌شود.','Language challenge winners and XP require verified server results.')+'</p><div class="lr4-challenge-scenic"></div><button type="button" class="lr4-gradient" data-ui13-friend-challenges>'+tx('ساخت چالش با دوست','Challenge a friend')+'</button></aside></div></div>';
+}
+async function renderChallenges(){
+ const host=head('challenges','چالش‌های زبان','Language challenges',tx('چالش‌های واقعی مطالعه و یادگیری با دوستان','Real reading and language challenges with friends'));if(!host)return;
+ const token=++challengesEpoch;
+ paintChallenges(host,null,tx('در حال دریافت چالش‌های واقعی…','Loading real challenges…'));
+ if(typeof window.ElaraSocial?.challenges?.list!=='function'){
+  paintChallenges(host,null,tx('برای دیدن چالش‌ها، به حساب اجتماعی متصل شو.','Connect your account to load challenges.'));return;
+ }
+ try{
+  const rows=list(await window.ElaraSocial.challenges.list());if(token!==challengesEpoch||!host.isConnected)return;
+  languageChallengeCache=rows;paintChallenges(host,rows);
+ }catch(e){if(token===challengesEpoch)paintChallenges(host,null,tx('دریافت چالش‌ها کامل نشد. بعداً دوباره تلاش کن.','Could not load challenges. Try again later.'))}
 }
 
 // L3: full-screen story destination, stable ?leitner=review#words deep link, canonical #words dashboard. Canonical word handlers stay in app.js.
@@ -229,6 +280,7 @@ document.addEventListener('pointerup',event=>{
 document.addEventListener('pointercancel',l3ResetDrag);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)l3StopFocus()});
 window.addEventListener('pagehide',l3StopFocus);
+document.addEventListener('input',e=>{if(e.target.matches('[data-lr4-channel-search]')){const el=e.target;channelQuery=el.value;const host=document.querySelector('#panel-language-channels [data-ui13-content="channels"]');if(host){const list=host.querySelectorAll('.lr4-channel-card');for(const row of list){const match=!channelQuery||row.textContent.toLocaleLowerCase().includes(channelQuery.toLocaleLowerCase());row.hidden=!match}}}});
 document.addEventListener('click',e=>{
  const exit=e.target.closest('[data-l3-exit]');if(exit){e.preventDefault();l3Exit();return}
  const prev=e.target.closest('[data-l3-prev]');if(prev){e.preventDefault();l3Previous();return}
@@ -239,7 +291,10 @@ document.addEventListener('click',e=>{
  const addWord=e.target.closest('[data-l2-add]');if(addWord){e.preventDefault();$('panel-words')?.classList.add('l2-adding-word');document.getElementById('word-form')?.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('word-front')?.focus({preventScroll:true});return}
  const back=e.target.closest('[data-ui13-back]');if(back){e.preventDefault();window.ElaraOpen?.('language',{history:'push'});requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));return}
  const go=e.target.closest('[data-ui13-canonical]');if(go){e.preventDefault();window.ElaraOpen?.(go.dataset.ui13Canonical,{history:'push'});return}
- const retry=e.target.closest('[data-ui13-retry]');if(retry){e.preventDefault();void renderChannels();return}
+ const channelFilter=e.target.closest('[data-lr4-channel-filter]');if(channelFilter){e.preventDefault();channelMode=channelFilter.dataset.lr4ChannelFilter;void renderChannels();return}
+  const challengeFilterBtn=e.target.closest('[data-lr4-challenge-filter]');if(challengeFilterBtn){e.preventDefault();challengeFilter=challengeFilterBtn.dataset.lr4ChallengeFilter;const host=document.querySelector('#panel-language-challenges [data-ui13-content="challenges"]');if(host)paintChallenges(host,languageChallengeCache);return}
+  const challengeJump=e.target.closest('[data-ui13-friend-challenges]');if(challengeJump){e.preventDefault();window.ElaraOpen?.('social',{history:'push'});window.ElaraSocialView?.navigateSocialTab?.('social','challenges');return}
+  const retry=e.target.closest('[data-ui13-retry]');if(retry){e.preventDefault();void renderChannels();return}
  const club=e.target.closest('[data-ui13-open-club]');if(club){e.preventDefault();void window.ElaraSocialClubsUI?.openClub?.(club.dataset.ui13OpenClub,club.dataset.ui13Owned==='1');return}
  const create=e.target.closest('[data-ui13-create-club]');if(create){e.preventDefault();void window.ElaraSocialClubsUI?.createClub?.('language');return}
 });
