@@ -64,7 +64,7 @@ html body #task-composer-shell#task-composer-shell .task-date-shortcuts button{
  padding:7px 19px!important;border:1px solid #755de0!important;border-radius:14px!important;
  background:linear-gradient(125deg,#192455e8,#0d183aca)!important;color:#fff!important;
  box-shadow:inset 0 0 18px #4355b42e!important;
- font:800 14px/1.4 inherit!important;white-space:nowrap!important;cursor:pointer
+ font-family:inherit!important;font-weight:800!important;font-size:14px!important;line-height:1.4!important;white-space:nowrap!important;cursor:pointer
 }
 html body #task-composer-shell#task-composer-shell .task-date-shortcuts button::before{
  display:inline-block;margin-inline-end:8px;font-size:18px;color:#a76aff
@@ -137,7 +137,7 @@ html body #task-composer-shell#task-composer-shell #task-title{
 html body #task-composer-shell#task-composer-shell #task-submit{
  min-width:128px!important;width:100%!important;min-height:56px!important;height:56px!important;
  padding:6px 13px!important;border:1px solid #d797ff!important;border-radius:13px!important;
- color:#fff!important;font:900 16px/1.3 inherit!important;
+ color:#fff!important;font-family:inherit!important;font-weight:900!important;font-size:16px!important;line-height:1.3!important;
  background:linear-gradient(115deg,#f36de4,#873bfd 56%,#377eff)!important;
  box-shadow:0 0 18px #8a4dfd7d,0 3px 13px #3110b598!important;cursor:pointer
 }
@@ -182,7 +182,7 @@ html body #task-composer-shell#task-composer-shell #task-form .form-grid .mini-c
  width:80px!important;min-width:80px!important;min-height:30px!important;height:30px!important;
  padding:3px 8px!important;margin:0!important;border:1px dashed #6958ff!important;
  border-radius:10px!important;background:#101f51e0!important;color:#27c8ff!important;
- font:800 12px/1.3 inherit!important;cursor:pointer!important
+ font-family:inherit!important;font-weight:800!important;font-size:12px!important;line-height:1.3!important;cursor:pointer!important
 }
 html body #task-composer-shell#task-composer-shell #task-form .form-grid .mini-create:hover{
  border-color:#70d6ff!important;background:#173b71!important
