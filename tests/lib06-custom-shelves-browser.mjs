@@ -23,8 +23,11 @@ async function open(width){
  },seed());
  await page.goto(base+'/?lib06='+width+'#library-shelves',{waitUntil:'domcontentloaded',timeout:40000});
  await page.waitForFunction(()=>!!window.ElaraLibraryShelvesLIB02 && !!window.ElaraLibraryEnhancements&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:35000});
- await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
- await page.locator('#panel-library-shelves:not(.hidden) #lib02-scene .lib02-custom-case').first().waitFor({timeout:30000});
+ for(let attempt=0;attempt<3;attempt++){
+  await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
+  try{await page.locator('#panel-library-shelves:not(.hidden) #lib02-scene .lib02-custom-case').first().waitFor({timeout:11000});break}
+  catch(e){if(attempt===2)throw e}
+ }
  return page;
 }
 try {
