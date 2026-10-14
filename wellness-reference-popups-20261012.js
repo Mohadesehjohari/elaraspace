@@ -28,14 +28,14 @@ function defaultNote(kind,title){
 function folderKey(kind){return kind==='workout'?'workoutPlanFolders':'nutritionPlanFolders'}
 function metaKey(kind){return kind==='workout'?'workoutPlanMeta':'nutritionPlanMeta'}
 function oldNoteKey(kind){return kind==='workout'?'workoutPlanNote':'nutritionPlanNote'}
-function normalizeFolder(x){return {id:String(x.id||id()),title:String(x.title||'پوشه بدون نام').slice(0,80),note:String(x.note||'').slice(0,5000),checks:Array.isArray(x.checks)?x.checks.slice(0,90).map(c=>({id:String(c.id||id()),text:String(c.text||'').slice(0,180),done:!!c.done})):[],updatedAt:x.updatedAt||Date.now()}}
+function normalizeFolder(x){return {id:String(x.id||id()),title:String(x.title||'پوشه بدون نام').slice(0,80),description:String(x.description||'').slice(0,5000),note:String(x.note||'').slice(0,5000),days:Array.isArray(x.days)?x.days.filter(d=>trainingDays.includes(d)||d==='همه روزها'||d==='روزهای کاری').slice(0,9):null,checks:Array.isArray(x.checks)?x.checks.slice(0,90).map(c=>({id:String(c.id||id()),text:String(c.text||'').slice(0,180),done:!!c.done})):[],updatedAt:x.updatedAt||Date.now()}}
 function initialState(kind){
  const s=read(),old=s[metaKey(kind)]||{};
  const meta=kind==='workout'?{name:'تناسب اندام تابستان',description:'',days:['شنبه','دوشنبه','چهارشنبه'],duration:'30',intensity:'متوسط',focus:'کاهش وزن'}:
  {name:'برنامه تغذیه سالم و متعادل',description:'',days:['همه روزها'],meals:'5',style:'متعادل',calories:'2000'};
  const folders=Array.isArray(s[folderKey(kind)])?s[folderKey(kind)].filter(x=>x?.id&&x?.title).slice(0,60).map(normalizeFolder):[];
  // Empty accounts get useful editable suggestions without storing data until Save.
- if(!folders.length)defaultFolders[kind].forEach(title=>folders.push({id:id(),title,note:defaultNote(kind,title),checks:seedChecks(kind,title).map(text=>({id:id(),text,done:false})),updatedAt:Date.now()}));
+ if(!folders.length)defaultFolders[kind].forEach(title=>folders.push({id:id(),title,description:'',note:defaultNote(kind,title),days:null,checks:seedChecks(kind,title).map(text=>({id:id(),text,done:false})),updatedAt:Date.now()}));
  const merged={...meta,...old};
  if(!old.description&&s[oldNoteKey(kind)])merged.description=String(s[oldNoteKey(kind)]).slice(0,5000);
  return {kind,meta:merged,folders,selected:folders[0]?.id||'',tab:kind==='workout'?'note':'check',confirmDelete:false,addFolder:false,errors:''};
@@ -69,6 +69,7 @@ function detail(d){
  const f=selected();if(!f)return '<div class="elwp-empty-folder">پوشه‌ای برای نمایش وجود ندارد. یک پوشه بسازید.</div>';
  const isNote=d.tab==='note';
  return '<div class="elwp-folder-detail"><label class="elwp-folder-title">▰ <input data-elwp-folder-title maxlength="80" value="'+esc(f.title)+'" aria-label="نام پوشه"></label>'+
+  '<div class="elwp-folder-program-fields"><label><span>توضیحات برنامه در این پوشه</span><textarea data-elwp-folder-description maxlength="5000" rows="4" placeholder="هدف، نحوه اجرا و توضیحات این برنامه را بنویسید...">'+esc(f.description||'')+'</textarea></label><div class="elwp-folder-own-days"><strong>روزهای هفته این پوشه</strong><div class="elwp-chips">'+(d.kind==='workout'?trainingDays:mealDays).map(day=>'<button type="button" class="elwp-chip" data-elwp-folder-day="'+esc(day)+'" aria-pressed="'+(Array.isArray(f.days)?f.days.includes(day):(d.meta.days||[]).includes(day))+'">'+esc(day)+'</button>').join('')+'</div></div></div>'+
  '<div class="elwp-tabs" role="tablist" aria-label="محتوای پوشه"><button type="button" role="tab" data-elwp-tab="note" aria-selected="'+isNote+'" class="'+(isNote?'active':'')+'">▤ یادداشت</button><button type="button" role="tab" data-elwp-tab="check" aria-selected="'+!isNote+'" class="'+(!isNote?'active':'')+'">☷ چک‌لیست</button></div>'+
  (isNote?'<textarea class="elwp-note" data-elwp-folder-note maxlength="5000" rows="8" placeholder="یادداشت این پوشه را بنویسید...">'+esc(f.note)+'</textarea>':
  '<div class="elwp-check-box"><div class="elwp-check-input"><input data-elwp-new-check maxlength="180" placeholder="آیتم جدید را وارد کنید..." aria-label="آیتم جدید">'+btn('add-check','＋','aria-label="افزودن آیتم"')+'</div><ul class="elwp-check-items">'+f.checks.map(c=>'<li><label><input type="checkbox" data-elwp-check="'+esc(c.id)+'" '+(c.done?'checked':'')+'><span class="'+(c.done?'checked':'')+'">'+esc(c.text)+'</span></label>'+btn('remove-check','⋮','data-elwp-id="'+esc(c.id)+'" aria-label="حذف آیتم"')+'</li>').join('')+'</ul></div>')+
@@ -83,19 +84,20 @@ function redrawPlan(focusSelector){
 function syncPlanText(){
  if(!active?.draft)return;const d=active.draft,root=active.body;
  root.querySelectorAll('[data-elwp-meta]').forEach(el=>d.meta[el.dataset.elwpMeta]=el.value);
- const f=selected();if(f){const title=$('[data-elwp-folder-title]',root),note=$('[data-elwp-folder-note]',root);if(title)f.title=title.value.slice(0,80);if(note)f.note=note.value.slice(0,5000)}
+ const f=selected();if(f){const title=$('[data-elwp-folder-title]',root),note=$('[data-elwp-folder-note]',root);if(title)f.title=title.value.slice(0,80);if(note)f.note=note.value.slice(0,5000);const desc=$('[data-elwp-folder-description]',root);if(desc)f.description=desc.value.slice(0,5000)}
 }
 function onPlanClick(e){
  const button=e.target.closest('button');if(!button||!active)return;
  const d=active.draft;syncPlanText();
  if(button.hasAttribute('data-elwp-day')){const day=button.dataset.elwpDay;d.meta.days=(d.meta.days||[]).includes(day)?d.meta.days.filter(x=>x!==day):[...d.meta.days,day];redrawPlan();return}
+  if(button.hasAttribute('data-elwp-folder-day')){const f=selected();if(!f)return;const day=button.dataset.elwpFolderDay,days=Array.isArray(f.days)?f.days:(d.meta.days||[]);f.days=days.includes(day)?days.filter(x=>x!==day):[...days,day];redrawPlan();return}
  if(button.dataset.elwpFolder){d.selected=button.dataset.elwpFolder;d.confirmDelete=false;d.tab=d.kind==='workout'?'note':'check';redrawPlan();return}
  if(button.dataset.elwpTab){d.tab=button.dataset.elwpTab;redrawPlan();return}
  if(!button.dataset.elwpAction)return;
  const act=button.dataset.elwpAction,f=selected();
  if(act==='new-folder'){d.addFolder=true;redrawPlan('[data-elwp-new-folder]')}
  else if(act==='cancel-folder'){d.addFolder=false;redrawPlan()}
- else if(act==='confirm-folder'){const name=$('[data-elwp-new-folder]',active.body)?.value.trim();if(!name){$('[data-elwp-new-folder]',active.body)?.focus();return}if(d.folders.length>=60){d.errors='حداکثر ۶۰ پوشه قابل ثبت است.';redrawPlan();return}const folder={id:id(),title:name.slice(0,80),note:'',checks:[],updatedAt:Date.now()};d.folders.push(folder);d.selected=folder.id;d.addFolder=false;d.confirmDelete=false;redrawPlan('[data-elwp-folder-title]')}
+ else if(act==='confirm-folder'){const name=$('[data-elwp-new-folder]',active.body)?.value.trim();if(!name){$('[data-elwp-new-folder]',active.body)?.focus();return}if(d.folders.length>=60){d.errors='حداکثر ۶۰ پوشه قابل ثبت است.';redrawPlan();return}const folder={id:id(),title:name.slice(0,80),description:'',note:'',days:Array.isArray(d.meta.days)?[...d.meta.days]:[],checks:[],updatedAt:Date.now()};d.folders.push(folder);d.selected=folder.id;d.addFolder=false;d.confirmDelete=false;redrawPlan('[data-elwp-folder-title]')}
  else if(act==='rename-folder'){d.selected=button.dataset.elwpId;redrawPlan('[data-elwp-folder-title]')}
  else if(act==='remove-folder'){d.selected=button.dataset.elwpId;d.confirmDelete=true;redrawPlan()}
  else if(act==='confirm-delete'){d.folders=d.folders.filter(x=>x.id!==d.selected);d.selected=d.folders[0]?.id||'';d.confirmDelete=false;redrawPlan()}
@@ -130,6 +132,51 @@ function openPlan(kind,options={}){if(kind!=='workout'&&kind!=='nutrition')retur
 function savePlan(){const a=active;if(!a||a.kind==='sleep')return;syncPlanText();const d=a.draft;const error=!d.meta.name.trim()?'نام برنامه را وارد کنید.':!d.meta.days?.length?'حداقل یک روز یا بازه انتخاب کنید.':d.folders.some(f=>!f.title.trim())?'برای تمام پوشه‌ها نام بنویسید.':'';if(error){d.errors=error;redrawPlan('[data-elwp-meta="name"]');return}if(!uid()){d.errors='برای ذخیره برنامه خصوصی وارد حساب کاربری شوید.';redrawPlan();return}
  const next=clone(d.folders.map(normalizeFolder));const patch={[folderKey(d.kind)]:next,[metaKey(d.kind)]:{...d.meta,name:d.meta.name.trim().slice(0,100),description:String(d.meta.description||'').trim().slice(0,5000)},[oldNoteKey(d.kind)]:String(d.meta.description||'').trim().slice(0,5000)};
  if(save(patch)){close();renderSleepOverview()}else{d.errors='ذخیره انجام نشد. فضای ذخیره‌سازی مرورگر را بررسی کنید.';redrawPlan()}}
+
+/* Readable, extra-large folder detail modal. Editing remains in the plan settings. */
+function folderViewerMarkup(d){
+ const f=d.folders.find(x=>x.id===d.selected);
+ if(!f)return '<p class="elwp-view-empty">این پوشه پیدا نشد.</p>';
+ const checks=Array.isArray(f.checks)?f.checks:[],done=checks.filter(x=>x.done).length;
+ const percent=checks.length?Math.round(done/checks.length*100):0;
+ const days=Array.isArray(f.days)?f.days:(Array.isArray(d.meta.days)?d.meta.days:[]);
+ const description=String(f.description||d.meta.description||'').trim();
+ const note=String(f.note||'').trim();
+ const h=t=>'<h3><span class="elwp-view-heading-icon" aria-hidden="true">▤</span>'+t+'</h3>';
+ return '<div class="elwp-folder-view-top"><div class="elwp-view-folder-symbol" aria-hidden="true">▰</div><div><small>'+esc(heading[d.kind])+'</small><h2 data-elara-ugc dir="auto">'+esc(f.title)+'</h2><p>'+esc(String(d.meta.name||''))+'</p></div><span class="elwp-view-status">● فعال</span></div>'+
+ '<div class="elwp-folder-view-layout" dir="ltr">'+
+ '<section class="elwp-view-card elwp-view-description" dir="rtl">'+h('توضیحات برنامه')+'<div class="elwp-view-prose" data-elara-ugc dir="auto">'+(description?esc(description).replace(/\n/g,'<br>'):'<p class="elwp-view-placeholder">هنوز توضیحاتی برای این برنامه نوشته نشده است. از بخش ویرایش می‌توانید اضافه کنید.</p>')+'</div></section>'+
+ '<section class="elwp-view-card elwp-view-days" dir="rtl">'+h('روزهای هفته')+'<div class="elwp-view-weekdays">'+trainingDays.map(day=>'<span class="elwp-view-day '+(days.includes(day)||days.includes('همه روزها')?'is-selected':'')+'">'+esc(day)+'</span>').join('')+'</div></section>'+
+ '<section class="elwp-view-card elwp-view-tasks" dir="rtl"><div class="elwp-view-tasks-head">'+h('تسک‌ها')+'<span data-elwp-view-count>'+faNum(done)+' از '+faNum(checks.length)+' انجام شده</span></div><div class="elwp-view-progress" role="progressbar" aria-label="پیشرفت تسک‌ها" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+percent+'"><span style="width:'+percent+'%"></span></div>'+
+ (checks.length?'<ul class="elwp-view-checklist">'+checks.map(c=>'<li><label><input type="checkbox" data-elwp-view-check="'+esc(c.id)+'" '+(c.done?'checked':'')+'><span class="'+(c.done?'is-done':'')+'" data-elara-ugc dir="auto">'+esc(c.text)+'</span></label></li>').join('')+'</ul>':'<p class="elwp-view-placeholder">هنوز تسکی ثبت نشده؛ از بخش ویرایش می‌توانید تسک اضافه کنید.</p>')+'</section>'+
+ '<section class="elwp-view-card elwp-view-notes" dir="rtl">'+h('یادداشت‌ها')+'<div class="elwp-view-prose" data-elara-ugc dir="auto">'+(note?esc(note).replace(/\n/g,'<br>'):'<p class="elwp-view-placeholder">هنوز یادداشتی برای این پوشه ثبت نشده است.</p>')+'</div></section>'+
+ '</div>';
+}
+function openFolder(kind,folderId){
+ if(!['workout','nutrition'].includes(kind))return;
+ const draft=initialState(kind),folder=draft.folders.find(x=>x.id===folderId);
+ if(!folder){openPlan(kind);return}
+ draft.selected=folder.id;
+ const a=openBase(heading[kind],kind);
+ a.draft=draft;a.overlay.classList.add('elwp-folder-view-overlay');
+ a.overlay.querySelector('.elwp-header h2').textContent=folder.title;
+ a.overlay.querySelector('.elwp-header small').textContent='ELARA · WELLNESS';
+ a.overlay.querySelector('.elwp-footer').innerHTML='<button type="button" class="elwp-view-close" data-elwp-close>بستن</button><button type="button" class="elwp-view-edit" data-elwp-folder-edit>✎ ویرایش برنامه</button>';
+ a.body.innerHTML=folderViewerMarkup(draft);
+ a.overlay.addEventListener('click',e=>{if(e.target.closest('[data-elwp-folder-edit]')){e.preventDefault();openPlan(kind,{folderId:folder.id})}});
+ a.body.addEventListener('change',e=>{
+  const box=e.target.closest('[data-elwp-view-check]');if(!box)return;
+  const current=read(),rows=Array.isArray(current[folderKey(kind)])?current[folderKey(kind)]:[];
+  const row=rows.find(x=>x?.id===folder.id),check=row?.checks?.find(x=>x.id===box.dataset.elwpViewCheck);
+  if(!check){a.body.innerHTML=folderViewerMarkup(a.draft);return}
+  check.done=box.checked;
+  if(save({[folderKey(kind)]:rows})){
+   a.draft.folders=rows.map(normalizeFolder);
+   a.body.innerHTML=folderViewerMarkup(a.draft);
+  }else box.checked=!box.checked;
+ });
+}
+
 const qualities=['ضعیف','متوسط','خوب','عالی'],moods=['خیلی بد','بد','معمولی','خوب','عالی'];
 function sleepMinutes(r){if(!r.date||!r.bed||!r.wake)return 0;const a=Date.parse(r.date+'T'+r.bed+':00'),b=Date.parse(r.date+'T'+r.wake+':00');if(!Number.isFinite(a)||!Number.isFinite(b))return 0;const min=Math.round((b<=a?b+86400000:b)-a)/60000;return min>0&&min<=1440?min:0}
 function sleepDate(value){try{return new Date(value+'T12:00:00').toLocaleDateString('fa-IR-u-ca-persian',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch{return value}}
@@ -169,8 +216,9 @@ function renderSleepOverview(){
 }
 function routeClick(e){
  if(active)return;
- const b=e.target.closest('[data-wellness-plan-folder-add],[data-wellness-plan-folder],[data-wellness-plan-edit],[data-well01-plan-edit],[data-wellness-add="sleep"],[data-wellness-edit="sleep"],[data-elwp-open-sleep],[data-elwp-edit-sleep]');if(!b)return;
+ const b=e.target.closest('[data-well01-folder-view],[data-wellness-plan-folder-add],[data-wellness-plan-folder],[data-wellness-plan-edit],[data-well01-plan-edit],[data-wellness-add="sleep"],[data-wellness-edit="sleep"],[data-elwp-open-sleep],[data-elwp-edit-sleep]');if(!b)return;
  e.preventDefault();e.stopImmediatePropagation();
+ if(b.hasAttribute('data-well01-folder-view')){openFolder(b.dataset.well01FolderView,b.dataset.folderId);return}
  if(b.matches('[data-elwp-open-sleep],[data-elwp-edit-sleep],[data-wellness-add="sleep"],[data-wellness-edit="sleep"]'))openSleep(b.dataset.elwpEditSleep||b.dataset.id||'');
  else openPlan(b.dataset.wellnessPlanFolderAdd||b.dataset.wellnessPlanFolder||b.dataset.wellnessPlanEdit||b.dataset.well01PlanEdit,{folderId:b.dataset.folderId||'',add:!!b.dataset.wellnessPlanFolderAdd});
 }
@@ -178,5 +226,5 @@ document.addEventListener('click',routeClick,true);
 document.addEventListener('click',e=>{if(e.target.closest('#elwp-sleep-dashboard [data-elwp-action="open-sleep"]')){e.preventDefault();openSleep()}});
 for(const event of ['elara:open','elara:account-ready','elara:wellness-saved','elara:locale-changed'])window.addEventListener(event,()=>setTimeout(renderSleepOverview,40));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(renderSleepOverview,250),{once:true});else setTimeout(renderSleepOverview,250);
-window.ElaraWellnessPopups={openPlan,openSleep,close,renderSleepOverview,sleepMinutes};
+window.ElaraWellnessPopups={openPlan,openFolder,openSleep,close,renderSleepOverview,sleepMinutes};
 })();
