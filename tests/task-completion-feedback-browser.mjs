@@ -37,15 +37,16 @@ try{
   await page.waitForTimeout(1200);
   assert.equal(await row('qa-multi').count(),0,'completed row did not move after one second');
   assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').count(),1,'completed task did not reach archive');
-  await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"] .task-archive-undo').click();
-  await page.waitForFunction(day=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='qa-multi')?.dailyProgress?.[day]===0,day);
-  assert.ok((await row('qa-multi').locator('.task-round-count').textContent()).includes('۰/۳'),'restore from completed must reset to zero');
   const archive=await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').evaluate(x=>{
    const row=x.getBoundingClientRect(),button=x.querySelector('.task-archive-undo').getBoundingClientRect(),img=x.querySelector('.elara-uploaded-check').getBoundingClientRect();
    return {height:row.height,buttonWidth:button.width,imageWidth:img.width,imageHeight:img.height}
   });
   assert.ok(archive.height<=110,'archive row too tall '+JSON.stringify(archive));
   assert.ok(archive.imageWidth>=archive.buttonWidth*.9,'uploaded tick does not fill check tile '+JSON.stringify(archive));
+  await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"] .task-archive-undo').click();
+  await page.waitForFunction(day=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='qa-multi')?.dailyProgress?.[day]===0,day);
+  assert.ok((await row('qa-multi').locator('.task-round-count').textContent()).includes('۰/۳'),'restore from completed must reset to zero');
+
   const toolbar=await page.locator('#astra-task-toolbar').boundingBox();
   const filter=await page.locator('#elara-task-page-actions [data-task-more-filter]').boundingBox();
   assert.ok(filter&&toolbar&&filter.y<=toolbar.y+1,'Filter button should appear above toolbar');
