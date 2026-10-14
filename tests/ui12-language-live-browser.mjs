@@ -75,6 +75,22 @@ try{
   // Isolated fixture against the REAL published GitHub Pages app, not a local server.
   await page.locator('#panel-language-courses .l1-main-cta').click();
   await page.waitForSelector('#elara-dialog-root .lf-class-editor',{timeout:15000});
+  // Assert the actual deployed modal, rather than a committed CSS file.
+  const ownerModal=page.locator('#elara-dialog-root .lf3-class-editor');
+  assert.equal(await ownerModal.count(),1,'STALE PRODUCTION: current class popup design is missing @'+width);
+  assert.equal(await ownerModal.getAttribute('data-class-design-version'),'popup-v3','STALE PRODUCTION: class popup v3 not published');
+  const visual=await ownerModal.evaluate(form=>{
+    const panel=form.closest('.elara-dialog-panel'),head=form.querySelector('.lf3-hero'),cover=form.querySelector('.lf-editor-cover'),footer=panel.querySelector('.elara-dialog-actions');
+    return {headerArt:getComputedStyle(head).backgroundImage,bookArt:getComputedStyle(cover).backgroundImage,
+      plus:getComputedStyle(cover,'::after').content,footerGrid:getComputedStyle(footer).gridTemplateAreas,
+      shareInFooter:!!footer.querySelector('.lf3-share-field'),overflow:panel.scrollWidth-panel.clientWidth};
+  });
+  assert.match(visual.headerArt,/Alien(?:%20| )Moonlit(?:%20| )Shoreline/,'Reference cosmic background not applied');
+  assert.match(visual.bookArt,/icon-library-open-book/,'Reference glowing blue book not applied');
+  assert.ok(visual.plus.includes('+'),'Reference book plus icon missing');
+  assert.equal(visual.shareInFooter,true,'Real share control not in footer');
+  assert.ok(visual.footerGrid.includes('save')&&visual.footerGrid.includes('cancel'),'Reference modal action grid not applied');
+  assert.ok(visual.overflow<=2,'Class popup horizontal overflow @'+width);
   await page.screenshot({path:out+'/live-classes-popup-new-'+width+'.png',animations:'disabled'});
   const popup=page.locator('#elara-dialog-root .lf-class-editor');
   const save=page.locator('#elara-dialog-root .elara-dialog-actions .primary-button').last();
