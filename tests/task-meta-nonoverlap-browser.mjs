@@ -11,9 +11,9 @@ function metrics(page){return page.evaluate(()=>{
  const intersects=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
  const rows=[...document.querySelectorAll('#task-list>.astra-task-row')];
  return {vp:innerWidth,pageWidth:document.documentElement.scrollWidth,rows:rows.map(row=>{
-  const meta=row.querySelector(':scope > .elara-task-meta-grid'),path=meta?.querySelector('.elara-task-path-link'),priority=meta?.querySelector('.elara-compact-priority'),timing=meta?.querySelector('.elara-task-timing'),status=row.querySelector(':scope > .astra-task-status');
-  const bounds={row:rect(row),meta:meta?rect(meta):null,path:path?rect(path):null,priority:priority?rect(priority):null,timing:timing?rect(timing):null,status:status?rect(status):null};
-  return {id:row.dataset.key,bounds,hasPath:!!path,hasPriority:!!priority,priorityText:priority?.textContent,metaDisplay:meta?getComputedStyle(meta).display:'missing',collisions:meta&&path&&priority&&timing?{pathPriority:intersects(bounds.path,bounds.priority),pathTiming:intersects(bounds.path,bounds.timing),priorityTiming:intersects(bounds.priority,bounds.timing),statusMeta:status?intersects(bounds.status,bounds.meta):false}:null};
+  const title=row.querySelector(':scope > .item-content'),menu=row.querySelector(':scope > .astra-task-more'),check=row.querySelector(':scope > .check-button'),meta=row.querySelector(':scope > .elara-task-meta-grid'),path=meta?.querySelector('.elara-task-path-link'),priority=meta?.querySelector('.elara-compact-priority'),timing=meta?.querySelector('.elara-task-timing'),status=row.querySelector(':scope > .astra-task-status');
+  const bounds={row:rect(row),title:title?rect(title):null,menu:menu?rect(menu):null,check:check?rect(check):null,meta:meta?rect(meta):null,path:path?rect(path):null,priority:priority?rect(priority):null,timing:timing?rect(timing):null,status:status?rect(status):null};
+  return {id:row.dataset.key,bounds,hasPath:!!path,hasPriority:!!priority,priorityText:priority?.textContent,metaDisplay:meta?getComputedStyle(meta).display:'missing',rowDisplay:getComputedStyle(row).display,collisions:meta&&path&&priority&&timing?{pathPriority:intersects(bounds.path,bounds.priority),pathTiming:intersects(bounds.path,bounds.timing),priorityTiming:intersects(bounds.priority,bounds.timing),statusMeta:status?intersects(bounds.status,bounds.meta):false,titleStatus:title&&status?intersects(bounds.title,bounds.status):false,titleMeta:title?intersects(bounds.title,bounds.meta):false,checkTitle:check&&title?intersects(bounds.check,bounds.title):false,metaMenu:menu?intersects(bounds.meta,bounds.menu):false}:null};
  })}
 })}
 try{
@@ -30,13 +30,14 @@ try{
   assert.ok(data.rows.length>=6,'missing task rows '+width+' '+JSON.stringify(data));
   assert.ok(data.pageWidth<=width+2,'whole page overflows '+width+' '+data.pageWidth);
   for(const row of data.rows){
-   assert.equal(row.metaDisplay,'grid',width+' task metadata is not grid: '+JSON.stringify(row));
+   assert.equal(row.metaDisplay,'flex',width+' task metadata is not one inline row: '+JSON.stringify(row));
+   if(width<=767){assert.equal(row.rowDisplay,'grid',width+' task is not single-row grid'); const b=row.bounds; assert.ok(Math.abs(b.check.top-b.meta.top)<26&&Math.abs(b.status.top-b.meta.top)<20,'task controls stacked at '+width+': '+JSON.stringify(row));}
    assert.ok(row.hasPath&&row.hasPriority,'path/priority badge missing: '+JSON.stringify(row));
    assert.match(row.priorityText,/^P[1-4]$/);
    assert.ok(row.bounds.meta.width>0,'metadata zero width '+JSON.stringify(row));
    assert.ok(row.bounds.meta.left>=row.bounds.row.left-1&&row.bounds.meta.right<=row.bounds.row.right+1,'meta out of task card '+JSON.stringify(row));
-   assert.ok(row.bounds.row.height<=90,'task card became too tall '+width+' '+JSON.stringify(row));
-   assert.deepEqual(row.collisions,{pathPriority:false,pathTiming:false,priorityTiming:false,statusMeta:false},'overlapping chips at '+width+': '+JSON.stringify(row));
+   assert.ok(row.bounds.row.height<=98,'task card became too tall '+width+' '+JSON.stringify(row));
+   assert.deepEqual(row.collisions,{pathPriority:false,pathTiming:false,priorityTiming:false,statusMeta:false,titleStatus:false,titleMeta:false,checkTitle:false,metaMenu:false},'overlapping chips at '+width+': '+JSON.stringify(row));
   }
   console.log('TASK_META_NONOVERLAP_PASS '+width+'px rows='+data.rows.length+' width='+data.pageWidth);
   assert.deepEqual(errors,[],'Javascript errors at '+width+': '+errors.join('; '));

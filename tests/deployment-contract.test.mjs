@@ -16,6 +16,7 @@ assert.equal(manifest.repo,'elaraspace');
 assert.equal(manifest.branch,'main');
 assert.equal(manifest.schema,1);
 assert.ok(Array.isArray(manifest.files)&&manifest.files.length>20,'production manifest must be explicit');
+for(const required of manifest.required)assert.ok(manifest.files.includes(required),'required asset missing from deploy file list: '+required);
 for(const required of ['index.html','styles.css','app.js','boot.js','cloud.js','admin/index.html','admin/admin.js','admin/deploy.php','.htaccess','maintenance.html']){
   assert.ok(manifest.files.includes(required),'manifest missing '+required);
   assert.ok(manifest.required.includes(required),'required missing '+required);
