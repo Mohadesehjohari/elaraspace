@@ -232,7 +232,9 @@
     "ui13-language-routes.js",
     "ui13-language.css",
     "language-four-routes-20261015.js",
-    "language-four-routes-20261015.css"
+    "language-four-routes-20261015.css",
+    "freedom-r31-remaining.css",
+    "freedom-r31-remaining.js"
   ],
   "files": [
     ".htaccess",
@@ -562,6 +564,8 @@
     "ui13-language-routes.js",
     "ui13-language.css",
     "language-four-routes-20261015.js",
-    "language-four-routes-20261015.css"
+    "language-four-routes-20261015.css",
+    "freedom-r31-remaining.css",
+    "freedom-r31-remaining.js"
   ]
 }
