@@ -89,5 +89,27 @@ async function verifyMissingIndexDoesNotTrapNavigation(width,height){
  await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='friends'&&document.querySelector('.social-tabs [data-social-view="friends"][aria-selected="true"]'));
  await page.close();
 }
-await run(390,844);await run(1440,1000);await verifyMissingIndexDoesNotTrapNavigation(390,844);await verifyMissingIndexDoesNotTrapNavigation(1440,1000);await browser.close();
+async function verifyStalledGroupsNeverLockNavigation(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ await wire(page);
+ const stalled=socialStub.replace("list:async()=>groups.map(x=>({...x})),","list:async()=>{window.__groupListCalls=(window.__groupListCalls||0)+1;return new Promise(()=>{})},");
+ if(stalled===socialStub)throw Error('Stalled groups stub was not installed');
+ await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:stalled}));
+ await page.goto(base+'/?friendsTab=groups&stalled-groups='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraSocialGroupsUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForSelector('.groups-r4 .g4-loading',{timeout:10000});
+ assert.equal(await page.locator('.groups-r4 .g4-loading [data-f2-tab="friends"]').count(),1,'Loading state needs an exit to Friends');
+ await page.evaluate(()=>{for(let i=0;i<8;i++)window.dispatchEvent(new Event('elara:social-updated'))});
+ await page.waitForTimeout(250);
+ assert.ok((await page.evaluate(()=>window.__groupListCalls))<=2,'Background updates must not start many stalled queries');
+ await page.locator('.social-tabs [data-social-view="chats"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='chats'&&document.querySelector('.social-tabs [data-social-view="chats"][aria-selected="true"]'));
+ await page.locator('.social-tabs [data-social-view="groups"]').click();
+ await page.waitForSelector('.groups-r4 .g4-error',{timeout:11000});
+ assert.match(await page.locator('.groups-r4 .g4-error').innerText(),/طول کشید|too long/i,'Hung query must end in an actionable error');
+ await page.locator('.groups-r4 [data-f2-tab="friends"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='friends'&&document.querySelector('.social-tabs [data-social-view="friends"][aria-selected="true"]'));
+ await page.close();
+}
+await run(390,844);await run(1440,1000);await verifyMissingIndexDoesNotTrapNavigation(390,844);await verifyMissingIndexDoesNotTrapNavigation(1440,1000);await verifyStalledGroupsNeverLockNavigation(390,844);await browser.close();
 console.log('FRIENDS_GROUPS_PASS create, missing-index navigation recovery, refresh persistence 390/1440');
