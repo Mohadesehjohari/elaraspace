@@ -50,7 +50,8 @@ try{
   assert.notEqual(details.view,'immersive','must remain setup/non-fullscreen');
   assert.match(details.image,/bg_focus_room\.webp/,'approved scene');
   assert.match(details.ring,/conic-gradient/,'full spectrum ring');
-  assert.match(details.ring,/rgb\(255, 222, 141\)|#ffde8d|rgb\(81, 217, 253\)|#51d9fd/i,'ring palette');
+  assert.match(details.ring,/rgb\(255, 223, 147\)|rgb\(12, 188, 180\)|#ffdf93|#0cbcb4/i,'warm gold and teal reference ring');
+  assert.doesNotMatch(details.ring,/rgb\(165, 72, 241\)|rgb\(103, 76, 255\)|#a548f1|#674cff/i,'old purple ring must be gone');
   assert.equal(details.control,'timer-start','play is canonical timer control');
   assert.equal(details.modeCount,4,'four study modes');
   assert.ok(details.timerBox.w>=245 && details.timerBox.w<=420,'ring size '+JSON.stringify(details));

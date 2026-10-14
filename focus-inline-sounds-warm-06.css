@@ -1,0 +1,127 @@
+/* FOCUS-06: warm Elara midnight/gold/turquoise. No purple gradients or old spring garden. */
+#panel-focus-pomodoro{
+ --focus06-gold:#ffda83;--focus06-gold-light:#ffe8ba;--focus06-blue:#409bde;
+ --focus06-teal:#18c7bf;--focus06-night:#061722;--focus06-border:#ad85528c;
+ accent-color:#f9cd80;color:#fff2db;
+}
+#panel-focus-ambience{display:none!important} /* Retired route redirects to #focus-pomodoro. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+ background:radial-gradient(circle closest-side,#06121b 0 82%,#091a25 84%,transparent 85.5%),
+  conic-gradient(from -50deg,#ffdf93 0%,#ffc268 16%,#f39849 26%,#0cbcb4 43%,#358bd6 58%,#6cd9ff 75%,#8adbd2 89%,#ffdd92 100%);
+ box-shadow:0 0 21px #1aa8bb62,0 0 45px #ecba5555,0 0 0 3px #0a1528cf,inset 0 0 23px #000b;
+ color:#fffdf4;text-shadow:0 4px 15px #000f;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start{
+ background:radial-gradient(circle at 27% 20%,#fff0c0 0%,#ffdc8d 19%,#f4b85d 53%,#af7130 86%,#76451e 100%);
+ border:2px solid #fff0c7;color:transparent;
+ box-shadow:inset 0 0 18px #fff7c680,0 0 0 4px #241c1180,0 0 22px #f5b75e8e,0 6px 24px #000b
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start:hover{
+ box-shadow:0 0 28px #ffd27f,0 7px 24px #000c
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-start::before{color:#302010;text-shadow:0 1px 5px #fff9}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #focus-status{color:#ffe8b6}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-history-card{
+ border-color:#9e7d4a91;background:linear-gradient(155deg,#061a25f2,#0a1924e9 63%,#2e1a10d0);
+ color:#fff0d5
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config{
+ border-color:#aa7f4b9a!important;background:linear-gradient(155deg,#061720ef,#271910de)!important
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card .focus-config :is(input,select){
+ border-color:#a881549e!important;color:#fff0db;background:#0a2029
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button{
+ border-color:#9e794b99;background:linear-gradient(155deg,#081823ed,#21170fe3);color:#ffe6b5
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button[aria-pressed=true]{
+ border-color:#ffe8a2;background:linear-gradient(165deg,#4e3615,#192023);
+ box-shadow:0 0 16px #f0b65186,inset 0 0 14px #ffda6e27
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button span{color:#f6d08b;filter:none}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dd{color:#ffdc91}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress{
+ background:radial-gradient(circle closest-side,#061720 72%,transparent 73%),conic-gradient(#ffd58c var(--focus-today-progress,0%),#007b88 0%);
+ box-shadow:0 0 14px #ffd58c34,inset 0 0 12px #000b
+}
+body.elara-focus-fullscreen #panel-focus-pomodoro > .focus-card #timer-display{
+ background:radial-gradient(circle at 50% 48%,#0b1720f5 0 61%,transparent 63%),
+ conic-gradient(from 14deg,#ffe6a7,#ffc06b 18%,#e68e45 30%,#1dc6bb 44%,#319cdd 61%,#69d8ef 76%,#174657 88%,#f7c974)
+}
+body.elara-focus-fullscreen #panel-focus-pomodoro #timer-start{
+ border-color:#fff0c4;background:radial-gradient(circle at 30% 24%,#ffebac,#e9b35f 53%,#985e29);
+ color:#2d2014;box-shadow:0 0 25px #efc27a7a,0 5px 19px #000a
+}
+/* Compact cards occupy the existing ambient-sounds box; no separate route. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience{
+ min-height:225px;overflow:hidden
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-slot{
+ min-width:0;width:100%;display:block
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience{
+ width:100%;max-width:100%;border:0;background:none;padding:0;margin:0;
+ display:grid;gap:12px;color:#f9edda;box-shadow:none;min-height:0;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-garden,
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-copy{
+ display:none!important
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+ padding:0;margin:0;min-width:0;align-items:stretch
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button{
+ min-height:94px;min-width:0;display:grid;place-items:center;align-content:center;gap:8px;
+ padding:9px 3px;border-radius:11px;border:1px solid #b78a539e;cursor:pointer;
+ color:#f9dfb1;background:linear-gradient(155deg,#0c202a,#2b1b12);
+ box-shadow:inset 0 1px #fff0c41d,0 5px 11px #0007;
+ font-family:inherit;font-weight:750;font-size:clamp(10px,.95vw,13px);line-height:1.5;text-align:center;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button .focus06-mode-art{
+ display:grid;place-items:center;width:36px;height:34px;
+ font:700 25px/1 Arial,sans-serif;color:#ffcf7c;
+ text-shadow:0 0 7px #dfa65b6a
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button span:last-child{
+ min-width:0;overflow-wrap:anywhere;font-size:clamp(10px,.84vw,12px);
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button[aria-pressed=true]{
+ border:2px solid #ffe7a5;background:linear-gradient(145deg,#6d441c,#1c2023);
+ color:#ffe8b3;box-shadow:0 0 15px #ffc77770,inset 0 0 10px #ffe2a524
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-controls{
+ display:grid;grid-template-columns:auto 1fr;gap:9px 11px;align-items:center;min-width:0;
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus06-sound-toggle{
+ min-width:100px;min-height:37px;padding:8px 12px;border-radius:9px;
+ border:1px solid #ffe0a2;background:linear-gradient(135deg,#ffe5ac,#ecb263);
+ color:#3d2914;font-family:inherit;font-weight:800;font-size:12px;line-height:1.4;cursor:pointer
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus06-sound-toggle[aria-pressed=true]{
+ background:linear-gradient(135deg,#13545d,#15afa5);border-color:#7cecd5;color:#fff4e0
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-controls label{
+ display:flex;align-items:center;gap:9px;min-width:0;color:#f8deb4;
+ font-size:11px
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-volume]{
+ min-width:20px;max-width:100%;flex:1;accent-color:#f6c879;cursor:pointer
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus06-now{
+ grid-column:1/-1;font-size:11px;color:#deccb4
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-note{
+ padding:0;margin:0;font-size:10px;line-height:1.5;color:#c7bda6
+}
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience button:focus-visible{
+ outline:3px solid #ffe59b;outline-offset:3px
+}
+@media(max-width:760px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button{min-height:84px}
+}
+@media(max-width:360px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

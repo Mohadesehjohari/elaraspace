@@ -1,0 +1,89 @@
+name: FOCUS-06 Inline Ambience and Warm Pomodoro
+on:
+  pull_request:
+    paths:
+      - index.html
+      - boot.js
+      - focus-ambience.js
+      - focus-setup-reference-03.js
+      - focus-inline-sounds-warm-06.css
+      - tests/focus-ambience-browser.mjs
+      - tests/focus-setup-reference-03-browser.mjs
+      - .github/workflows/focus06-inline-ambience.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - boot.js
+      - focus-ambience.js
+      - focus-setup-reference-03.js
+      - focus-inline-sounds-warm-06.css
+      - tests/focus-ambience-browser.mjs
+      - tests/focus-setup-reference-03-browser.mjs
+      - .github/workflows/focus06-inline-ambience.yml
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and scope
+        run: |
+          node --check focus-ambience.js
+          node --check focus-setup-reference-03.js
+          node --check boot.js
+          test -s assets/ui/bg_focus_room.webp
+          grep -q 'focus-inline-sounds-warm-06.css' index.html
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Inline ambience, no forest route and canonical Pomodoro
+        run: |
+          python3 -m http.server 4173 >/tmp/focus06-server.log 2>&1 &
+          sleep 3
+          timeout 340s node tests/focus-ambience-browser.mjs
+          timeout 440s node tests/focus-setup-reference-03-browser.mjs
+          timeout 340s node tests/focus-two-mode-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus06-candidate
+          path: browser-artifacts/focus*
+          retention-days: 18
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact public GitHub Pages deployment
+        run: |
+          set -euo pipefail
+          good=false
+          for attempt in $(seq 1 85); do
+            good=true
+            for path in index.html boot.js focus-ambience.js focus-setup-reference-03.js focus-inline-sounds-warm-06.css; do
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$path?sha=$GITHUB_SHA&attempt=$attempt" -o "/tmp/focus06-$path" || ! cmp -s "$path" "/tmp/focus06-$path";then good=false;break;fi
+            done
+            if [ "$good" = true ];then echo "FOCUS06_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$good" != true ];then echo "::error::Public assets mismatched";exit 1;fi
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Verify live inline audio and focus layout
+        run: |
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 340s node tests/focus-ambience-browser.mjs
+          ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 440s node tests/focus-setup-reference-03-browser.mjs
