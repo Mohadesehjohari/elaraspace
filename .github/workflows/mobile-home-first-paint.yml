@@ -1,0 +1,37 @@
+name: Mobile Home First Paint
+on:
+  pull_request:
+    paths:
+      - index.html
+      - boot.js
+      - home-owner-art-2026.js
+      - home-owner-art-2026.css
+      - tests/mobile-home-first-paint-browser.mjs
+      - .github/workflows/mobile-home-first-paint.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-mobile-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify syntax
+        run: |
+          node --check boot.js
+          node --check home-owner-art-2026.js
+          node --check tests/mobile-home-first-paint-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 >/tmp/mobile-home-first-paint.log 2>&1 &
+          sleep 2
+      - name: Test first visible frame on mobile
+        run: timeout 180s node tests/mobile-home-first-paint-browser.mjs
