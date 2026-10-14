@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261012-purple-streak-calendar-v2';
+  const BUILD='20261014-home-core-v1';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${/^(social-messaging-ui\.js|friends-chats-redesign\.css)$/.test(name)?'20261012-chats-r1':BUILD}`;
@@ -46,7 +46,7 @@
     window.__elaraBootStage='home';
     window.dispatchEvent(new Event('elara:visual-ready'));
   };
-  const criticalScripts=['approved-navigation-extension.js','feature-hubs-shell.js','elara-design.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','reference-home-shell-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','home-owner-art-2026.js','mobile-ia-2026-10-05.js','home-reference-polish-20261012.js'];
+  const criticalScripts=['feature-hubs-shell.js','approved-visual.js','approved-runtime.js','approved-home-return.js','reference-shell-compat-2026.js','artwork-home-install-2026.js','home-functional-pass-2026.js','home-owner-art-2026.js','mobile-ia-2026-10-05.js','home-reference-polish-20261012.js'];
   const deferredScripts=['approved-focus-dialog.js','approved-wellness.js','approved-overlay-guard.js','approved-language-journal.js','visual-fidelity-pass2.js','visual-fidelity-pass3.js','task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js','focus-ambience.js','domain-notifications.js','mission-celebration.js','social-view.js','social-messaging-ui.js','social-groups-ui.js','social-clubs-ui.js','social-challenges-ui.js','page-view.js','social-engagement-view.js','reports.js','blog-view.js','freedom-page.js','freedom-enhancements.js','freedom-diary-music.js','freedom-ai.js','feature-hubs-2026.js','language-custom-classes.js','store-view.js','profile-social-tools.js','mobile-banner-copy.js','global-page-banner-20261009.js','ui12-language-dashboard.js','ui13-language-routes.js','well01-wellness-dashboard.js','wellness-reference-popups-20261012.js','freedom-dashboard-r2026.js','freedom-r27-music.js','ranking-gold-20261012.js','task-organizer-20261012.js','task-cross-links-20261012.js','task-streak-calendar-20261012.js','freedom-r28-notebook.js'];
   const optionalFailures=[];
   const syncOptionalFailures=()=>{window.__elaraOptionalFailures=optionalFailures.slice()};
@@ -82,46 +82,59 @@
     syncOptionalFailures();
   };
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-  let startupReleased=false;
-  // The timeout is a safety net, not a signal that every page must be ready.
-  const revealHome=()=>{
-    if(startupReleased)return;
-    startupReleased=true;
-    release();
+  const domReady=new Promise(resolve=>{
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',resolve,{once:true});
+    else resolve();
+  });
+  let startupReleased=false,homeCheckTimer=null;
+  const actualHomeReady=()=>{
+    const home=document.getElementById('panel-home');
+    const grid=home?.querySelector('.elara-dashboard-grid');
+    return !!(home && grid?.dataset.structureReady==='true' &&
+      grid.querySelector('#elara-home-tasks') && home.querySelector('.elara-hero') &&
+      typeof window.ElaraOpen==='function' && typeof window.ElaraReferenceHome?.render==='function');
   };
-  const hardWatchdog=setTimeout(()=>{
-    console.warn('Elara Home startup fallback: showing the available application.');
-    revealHome();
-  },3000);
+  const refreshHome=()=>{
+    if(!document.getElementById('panel-home'))return false;
+    try{
+      window.ElaraNavigation?.render?.();
+      window.ElaraReferenceHome?.render?.();
+    }catch(error){console.error('Elara Home render error:',error);window.__elaraHomeError=String(error?.message||error)}
+    return actualHomeReady();
+  };
+  const revealHome=()=>{
+    if(startupReleased||!actualHomeReady())return false;
+    startupReleased=true;clearTimeout(homeCheckTimer);release();
+    return true;
+  };
+  // No time-based reveal: a blank fallback shell is NOT a successful boot.
+  const retryUntilReady=(attempt=0)=>{
+    if(startupReleased)return;
+    if(refreshHome()&&revealHome())return;
+    if(attempt<30){homeCheckTimer=setTimeout(()=>retryUntilReady(attempt+1),250)}
+    else window.ElaraShowBootError?.(window.__elaraHomeError||'Home did not mount');
+  };
   void(async()=>{
     const primaryReady=loadScriptsInOrder(criticalScripts);
     try{
-      // Yield the first usable Home frame as soon as the core owners are available.
-      // A slow optional stylesheet can no longer add an extra 1.4s to Home.
-      await Promise.race([primaryReady,delay(1100)]);
-      if(!window.ElaraReferenceHome||!window.ElaraNavigation){
-        await Promise.race([primaryReady,delay(550)]);
-      }
-      window.ElaraNavigation?.render?.();
-      window.ElaraReferenceHome?.render?.();
+      // The owner scripts are parser-ordered defer tags in index.html.
+      await domReady;
+      retryUntilReady();
       const homePaintStyles=['reference-home-shell-2026.css','reference-exact-pass-2026.css',
         'elara-midnight-layout-2026.css','home-owner-art-2026.css','home-reference-polish-20261012.css'];
-      // A direct deep link also needs its own CSS before reveal. Normal entry
-      // still waits only for Home; this avoids hiding Library launchers on tablets.
       const firstRouteStyles=initialRoute==='home'?homePaintStyles:
-        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',...(initialRoute==='tasks'?['task-blue-compact-20261012.css','task-organizer-20261012.css','task-mobile-inline-20261012.css','task-layout-hotfix-20261012.css','task-streak-calendar-20261012.css']:[]),...(routeStyles[initialRoute]||[])])];
-      await Promise.race([
-        Promise.all(firstRouteStyles.map(name=>mountStyle(name))),
-        delay(initialRoute==='home'?180:2000)
-      ]);
+        [...new Set([...homePaintStyles,'global-page-banner-20261009.css',
+        ...(initialRoute==='tasks'?['task-blue-compact-20261012.css','task-organizer-20261012.css',
+          'task-mobile-inline-20261012.css','task-layout-hotfix-20261012.css','task-streak-calendar-20261012.css']:[]),
+        ...(routeStyles[initialRoute]||[])])];
+      await Promise.race([Promise.all(firstRouteStyles.map(name=>mountStyle(name))),delay(1800)]);
+      if(!startupReleased)retryUntilReady();
     }catch(error){
-      console.warn('Elara Home startup continued with partial assets:',error);
-    }finally{
-      clearTimeout(hardWatchdog);
-      revealHome();
+      console.error('Elara Home bootstrap failed:',error);
+      window.ElaraShowBootError?.(String(error?.message||error));
     }
+    // Tasks and optional routes may load after the first real Home frame.
     try{
-      // Tasks can initialize while the rest of the app is still downloading.
       await primaryReady;
       const tasks=['task-bulk-reorder.js','task-checklist.js','entity-reorder.js','entity-bulk-selection.js','task-collections.js'];
       taskStyles.forEach(mountStyle);
@@ -129,11 +142,9 @@
       window.__elaraBootStage='tasks';
       window.dispatchEvent(new Event('elara:tasks-ready'));
       await delay(100);
-      // Additional feature routes are non-blocking and never control shell visibility.
       styles.filter(name=>secondaryStyles.has(name)&&!styleReady.has(name)).forEach(mountStyle);
       const taskNames=new Set(tasks);
       const rest=deferredScripts.filter(name=>!taskNames.has(name));
-      // Keep the network responsive: load optional routes in small ordered batches.
       for(let i=0;i<rest.length;i+=6){
         await loadScriptsInOrder(rest.slice(i,i+6));
         if(i+6<rest.length)await delay(120);
@@ -145,7 +156,7 @@
       window.ElaraReportsDashboard?.render?.();
       window.__elaraBootStage='secondary';
       window.dispatchEvent(new Event('elara:secondary-ready'));
-    }catch(error){console.warn('Elara background features unavailable:',error)}
+    }catch(error){console.warn('Elara optional features:',error)}
   })();
   let cloudPromise=null,socialPromise=null,socialFailure=null,socialAttempt=0,socialStartedAt=0;
   const loadCloud=()=>{
