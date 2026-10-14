@@ -4,6 +4,7 @@ on:
     paths:
       - 'phase2.js'
       - 'tasks-mobile-fidelity-20261012.css'
+      - 'task-completion-polish-20261014.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
       - 'tests/task-daily-rounds-browser.mjs'
       - 'tests/streak-calendar-browser.mjs'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'phase2.js'
       - 'tasks-mobile-fidelity-20261012.css'
+      - 'task-completion-polish-20261014.css'
       - 'tests/tasks-mobile-fidelity-browser.mjs'
       - 'tests/task-daily-rounds-browser.mjs'
       - 'tests/streak-calendar-browser.mjs'
