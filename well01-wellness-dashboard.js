@@ -51,13 +51,13 @@ function tasks(){
 }
 function planSummary(s,kind){
  const prefix=kind==='workout'?'workout':'nutrition';
- const note=String(s[prefix+'PlanNote']||'').trim();
- const folders=s[prefix+'PlanFolders'].filter(x=>x&&x.id&&x.title);
- const first=folders[0];
- const mainText=note||String(first?.note||'').trim();
+ const folders=(Array.isArray(s[prefix+'PlanFolders'])?s[prefix+'PlanFolders']:[]).filter(x=>x&&x.id&&x.title).slice(0,60);
  const title=kind==='workout'?tx('برنامه تمرینی','Training plan'):tx('برنامه تغذیه','Nutrition plan');
- const icon=kind==='workout'?'🏋️':'🌿',label=kind==='workout'?tx('ایجاد برنامه تمرینی','Create training plan'):tx('ایجاد برنامه تغذیه','Create nutrition plan');
- return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('ویرایش برنامه','Edit plan')+'">✎</button></header><div class="well01-plan-body">'+(mainText?'<p data-elara-ugc dir="auto">'+esc(mainText)+'</p>':'<div class="well01-plan-empty"><span aria-hidden="true">'+(kind==='workout'?'◎':'✿')+'</span><p>'+tx('هنوز برنامه شخصی ثبت نشده است.','No personal plan saved yet.')+'</p><small>'+tx('با یک یادداشت کوتاه شروع کن.','Start with a short personal note.')+'</small></div>')+(first?'<span class="well01-folder">📁 '+esc(first.title)+'</span>':'')+'</div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+(mainText?tx('ویرایش یادداشت','Edit note'):label)+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه','Folder')+'</button></footer></article>';
+ const icon=kind==='workout'?'🏋️':'🌿';
+ const folderIcon='<svg viewBox="0 0 32 32" aria-hidden="true" fill="none"><path d="M3.5 8a3 3 0 0 1 3-3H13l3.2 3.4h9.3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-19a3 3 0 0 1-3-3V8Z" fill="currentColor"/><path d="M4 12h24" stroke="#bcffe0" stroke-opacity=".48" stroke-width="1.5"/></svg>';
+ const tiles=folders.map(f=>'<button type="button" class="well01-folder-tile" data-well01-folder-view="'+kind+'" data-folder-id="'+esc(f.id)+'" aria-label="'+tx('باز کردن پوشه ','Open folder ')+esc(f.title)+'"><span class="well01-folder-mark">'+folderIcon+'</span><span class="well01-folder-name" data-elara-ugc dir="auto">'+esc(f.title)+'</span></button>').join('');
+ const empty='<button type="button" class="well01-folder-tile well01-folder-create" data-wellness-plan-folder-add="'+kind+'"><span class="well01-folder-mark">'+folderIcon+'</span><span class="well01-folder-name">'+tx('پوشه جدید بساز','Create a folder')+'</span></button>';
+ return '<article class="well01-card well01-plan well01-'+kind+'-plan"><header><h2><span class="well01-title-icon">'+icon+'</span>'+title+'</h2><button type="button" class="well01-edit" data-well01-plan-edit="'+kind+'" aria-label="'+tx('مدیریت برنامه‌ها و پوشه‌ها','Manage plans and folders')+'">✎</button></header><div class="well01-plan-body well01-folder-body"><div class="well01-folder-grid">'+(tiles||empty)+'</div></div><footer><button type="button" class="well01-plan-link" data-well01-plan-edit="'+kind+'">'+tx('مدیریت پوشه‌ها','Manage folders')+'</button><button type="button" class="well01-plan-link" data-wellness-plan-folder-add="'+kind+'">+ '+tx('پوشه جدید','New folder')+'</button></footer></article>';
 }
 function activity(s){
  const rows=s.workouts.filter(x=>x.date===today()),total=workoutOf(s,today()),last=rows[rows.length-1],type=last?(last.type==='ورزش دیگر'?last.customType||last.type:last.type):'';
