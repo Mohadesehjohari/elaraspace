@@ -39,6 +39,7 @@ for(const width of widths){
  const {page,context}=await setup(after,width,'many');
  try{
   await page.waitForSelector('#panel-language.ui12-language:not(.hidden) .ui12-board',{timeout:25000});
+  await page.waitForSelector('#panel-language[data-ui12-paint-ready="true"]',{timeout:25000});
   const cells=page.locator('#panel-language .ui12-board > .ui12-card'),jumps=page.locator('#panel-language .ui12-shortcut');
   assert.equal(await cells.count(),8,'Eight language dashboard cards: '+width);
   assert.equal(await jumps.count(),8,'Eight language shortcuts: '+width);

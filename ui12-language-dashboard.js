@@ -141,11 +141,29 @@ function renderReport(m){
  const bars=hasData?'<div class="ui12-chart" role="img" aria-label="'+esc(tx('نمودار زمان مطالعه واقعی به دقیقه','Actual study minutes chart'))+'">'+chart.map((x,i)=>'<div class="ui12-chart-column" title="'+esc(x.label+' · '+num(x.minutes)+' '+tx('دقیقه','minutes'))+'"><span>'+num(x.minutes)+'</span><i style="height:'+(x.minutes/max*100)+'%"></i><small>'+(range==='month'&&i%4!==0?'':esc(x.label))+'</small></div>').join('')+'</div>':'<p class="ui12-report-empty">'+tx('هنوز زمان مطالعه ثبت نشده؛ پس نمودار خالی است. از گزارش زبان زمان مطالعه‌ات را ثبت کن.','No study time has been logged for this period. Log a session in Language report to see your chart.')+'</p>';
  $('ui12-report').querySelector('[data-ui12-body]').innerHTML=nav+bars+'<div class="ui12-report-totals">'+stat(tx('کلمات','Words'),m.w.length,'📖')+stat(tx('جلسات کلاس','Class sessions'),m.sessionCount,'♙')+stat(tx('صفحات خوانده‌شده','Pages read'),m.pages,'▤')+'</div>';
 }
+let paintWait=null;
+function releaseOwnerPaint(host){
+ if(host.dataset.ui12PaintReady==='true'||paintWait)return;
+ const ensure=window.ElaraEnsureRouteStyles;
+ if(typeof ensure!=='function')return;
+ paintWait=ensure('language').then(results=>{
+  if(results.some(result=>!result.ok))throw new Error('Language owner styles unavailable');
+  const valid=host.isConnected&&host.classList.contains('ui12-language')&&
+    host.querySelector(':scope > .ui12-shortcuts .ui12-shortcut')&&
+    host.querySelectorAll(':scope > .ui12-board > .ui12-card').length===8&&
+    host.querySelector('.elara-language-hero.ui12-hero .ui12-hero-copy');
+  if(valid){host.dataset.ui12PaintReady='true';host.removeAttribute('data-ui12-paint-error');}
+ }).catch(error=>{
+  host.dataset.ui12PaintError='true';
+  console.error('UI12 owner first paint:',error);
+ }).finally(()=>{paintWait=null});
+}
 function render(){
  const host=$('panel-language');if(!host||!host.querySelector('.elara-language-hero'))return;
  mount(host);const m=metrics();hero(host,m);
  const nav=host.querySelector('.ui12-shortcuts');if(nav)nav.setAttribute('aria-label',tx('بخش‌های زبان','Language sections'));
  renderLeitner(m);renderTasks(m);renderBooks(m);renderStats(m);renderClasses(m);renderUnavailable();renderReport(m);
+ releaseOwnerPaint(host);
 }
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;render()})}
 function init(){

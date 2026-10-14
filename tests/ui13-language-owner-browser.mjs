@@ -22,6 +22,7 @@ try{
   await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraLanguageUI12&&window.ElaraLanguageDestinations,null,{timeout:35000});
   await page.evaluate(()=>ElaraOpen('language',{history:'replace'}));
   await page.waitForSelector('#panel-language:not(.hidden) .ui12-board');
+  await page.waitForSelector('#panel-language[data-ui12-paint-ready="true"]',{timeout:25000});
   assert.equal(await page.locator('#panel-language .ui12-shortcut').count(),8,'Missing eight Language shortcuts at '+width);
   assert.equal(await page.locator('#panel-language .ui12-shortcut svg').count(),8,'Semantic SVG icons at '+width);
   const imageState=await page.evaluate(async files=>Promise.all(files.map(async name=>{const im=new Image();im.src='assets/ui/'+name;try{await im.decode()}catch{}return{name,ok:im.naturalWidth>0,width:im.naturalWidth,height:im.naturalHeight}})),files);
