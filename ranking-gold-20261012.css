@@ -453,3 +453,8 @@ html body #panel-ranking #elara-ranking-page.ranking-gold{display:block!importan
  font:900 22px/1 Arial,sans-serif!important;color:#ffe5a7!important;
  transform:translateX(1px)!important;
 }
+
+/* Ranking Gold owns the visible route; reveal only with this owner stylesheet. */
+html body #main #panel-ranking:not(.hidden) > #elara-ranking-page.ranking-gold,
+html body #main #panel-ranking:not(.hidden) > .ranking-gold-hero{visibility:visible!important}
+html body #main #panel-ranking:not(.hidden):has(> #elara-ranking-page.ranking-gold > .rg-tabs)::before{display:none!important}
