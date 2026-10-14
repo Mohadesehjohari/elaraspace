@@ -17,7 +17,7 @@ function metrics(page){return page.evaluate(()=>{
  })}
 })}
 try{
- for(const width of [320,360,390,430,768,1440]){
+ for(const width of [320,360,390,430,768,920,1024,1440,1648]){
   const context=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:1});
   const page=await context.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
@@ -31,7 +31,7 @@ try{
   assert.ok(data.pageWidth<=width+2,'whole page overflows '+width+' '+data.pageWidth);
   for(const row of data.rows){
    assert.equal(row.metaDisplay,'flex',width+' task metadata is not one inline row: '+JSON.stringify(row));
-   if(width<=767){assert.equal(row.rowDisplay,'grid',width+' task is not single-row grid'); const b=row.bounds; assert.ok(Math.abs(b.check.top-b.meta.top)<26&&Math.abs(b.status.top-b.meta.top)<20,'task controls stacked at '+width+': '+JSON.stringify(row));}
+   assert.equal(row.rowDisplay,'grid',width+' task is not single-row grid'); const b=row.bounds; const center=a=>(a.top+a.bottom)/2; assert.ok(Math.abs(center(b.check)-center(b.meta))<30&&Math.abs(center(b.status)-center(b.meta))<23&&Math.abs(center(b.title)-center(b.meta))<30,'task controls not on ONE horizontal line at '+width+': '+JSON.stringify(row)); if(width>=921)assert.ok(b.meta.width>=180,'desktop meta too narrow '+width+': '+JSON.stringify(row));
    assert.ok(row.hasPath&&row.hasPriority,'path/priority badge missing: '+JSON.stringify(row));
    assert.match(row.priorityText,/^P[1-4]$/);
    assert.ok(row.bounds.meta.width>0,'metadata zero width '+JSON.stringify(row));
