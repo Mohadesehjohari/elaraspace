@@ -116,7 +116,7 @@ document.addEventListener('change',e=>{
  if(e.target?.id==='focus-session-count')update();
 });
 document.addEventListener('click',e=>{
- const button=e.target.closest('#panel-focus-pomodoro .focus-ref-task-open,#panel-focus-pomodoro [data-feature-route="focus-ambience"]');
+ const button=e.target.closest('#panel-focus-pomodoro .focus-ref-task-open');
  if(button){e.preventDefault();e.stopImmediatePropagation();window.ElaraOpen?.(button.dataset.featureRoute,{history:'push'})}
 },true);
 for(const ev of ['elara:state-committed','elara:data-changed','elara:hydrate','elara:locale-changed','elara:open'])
