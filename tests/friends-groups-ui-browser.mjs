@@ -111,5 +111,32 @@ async function verifyStalledGroupsNeverLockNavigation(width,height){
  await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='friends'&&document.querySelector('.social-tabs [data-social-view="friends"][aria-selected="true"]'));
  await page.close();
 }
-await run(390,844);await run(1440,1000);await verifyMissingIndexDoesNotTrapNavigation(390,844);await verifyMissingIndexDoesNotTrapNavigation(1440,1000);await verifyStalledGroupsNeverLockNavigation(390,844);await browser.close();
+
+async function verifyEmptyGroupModuleNeverBlanksRoute(width,height){
+ const page=await browser.newPage({viewport:{width,height}});await wire(page);
+ await page.route('**/social-groups-ui.js*',r=>r.abort('failed'));
+ await page.goto(base+'/?friendsTab=groups&failed-script='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraSocialView&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ const fallback=page.locator('#elara-social-page[data-social-tab="groups"] .g4-route-fallback');
+ await fallback.waitFor({state:'visible',timeout:10000});
+ assert.ok((await fallback.innerText()).length>25,width+': missing groups JS must not produce empty page');
+ assert.equal(await fallback.locator('[data-g4-reconnect]').count(),1,width+': recovery control missing');
+ await page.locator('#elara-social-page .social-tabs [data-social-view="friends"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='friends');
+ await page.close();
+}
+async function verifyUnavailableSocialNeverBlanksGroups(width,height){
+ const page=await browser.newPage({viewport:{width,height}});await wire(page);
+ // A loaded group widget must display an actionable placeholder even without an API.
+ await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:"window.__socialUnavailableForTest=true;"}));
+ await page.goto(base+'/?friendsTab=groups&no-social='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialGroupsUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.locator('#elara-social-page .g4-service-unavailable').waitFor({state:'visible',timeout:10000});
+ assert.equal(await page.locator('#elara-social-page .g4-service-unavailable [data-g4-reconnect]').count(),1);
+ await page.locator('#elara-social-page .g4-service-unavailable [data-f2-tab="chats"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='chats');
+ await page.close();
+}
+
+await run(390,844);await run(1440,1000);await verifyMissingIndexDoesNotTrapNavigation(390,844);await verifyMissingIndexDoesNotTrapNavigation(1440,1000);await verifyStalledGroupsNeverLockNavigation(390,844);await verifyEmptyGroupModuleNeverBlanksRoute(390,844);await verifyEmptyGroupModuleNeverBlanksRoute(1440,1000);await verifyUnavailableSocialNeverBlanksGroups(390,844);await verifyUnavailableSocialNeverBlanksGroups(1440,1000);await browser.close();
 console.log('FRIENDS_GROUPS_PASS create, missing-index navigation recovery, refresh persistence 390/1440');
