@@ -54,6 +54,19 @@ function applyGroupFilters(section=document.querySelector('#elara-social-page .g
  const empty=section.querySelector('[data-g4-no-results]');if(empty)empty.hidden=count!==0;
  const countEl=section.querySelector('[data-g4-results-count]');if(countEl)countEl.textContent=numerals(count);
 }
+function groupSyncMessage(section,copy){
+ const existing=section.querySelector('.g4-availability-message');
+ if(existing){existing.textContent=copy;return}
+ let note=section.querySelector('.g4-sync-note');
+ if(!note){
+  note=document.createElement('div');
+  note.className='g4-sync-note';note.setAttribute('role','status');
+  note.innerHTML='<span data-g4-sync-copy></span><button type="button" class="g4-secondary" data-group-retry>'+t('تازه‌سازی','Refresh')+'</button>';
+  (section.querySelector('.g4-main')||section).prepend(note);
+ }
+ note.querySelector('[data-g4-sync-copy]').textContent=copy;
+}
+
 async function mount(force=false){
  const root=document.getElementById('elara-social-page'),service=api();if(!root)return;
  if(!activeGroupsTab(root)){renderToken++;root.querySelector('.social-groups-section')?.remove();return}
@@ -62,16 +75,17 @@ async function mount(force=false){
  if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section groups-r4';section.dataset.elaraI18n='off';grid.prepend(section)}
  section.classList.add('groups-r4');
  if(!service || typeof service.list!=='function'){
-  renderToken++;
-  section.dataset.g4Loading='false';
-  section.innerHTML='<div class="g4-error g4-service-unavailable" role="status"><strong>'+t('گروه‌ها فعلاً به سرویس اجتماعی متصل نیستند','Groups are not connected yet')+'</strong><p class="g4-availability-message">'+t('سرویس گروه‌ها هنوز آماده نشده. می‌توانی دوباره تلاش کنی یا به تب دیگری بروی.','The group service is not ready yet. Retry or use another tab.')+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-g4-reconnect>'+t('تلاش دوباره','Retry')+'</button><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('دوستان','Friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('چت‌ها','Chats')+'</button></div></div>';
+  renderToken++;section.dataset.g4Loading='false';
+  section.dataset.g4Availability='waiting';
+  groupSyncMessage(section,t('گروه‌هات همین‌جا نمایش داده می‌شن؛ منتظر اتصال حساب هستیم.','Your groups will appear here as soon as your account connects.'));
   return;
  }
  if(!force&&section.dataset.g4Loading==='true')return;
  const token=++renderToken;
  section.dataset.g4Loading='true';
  const newBtn=extra=>'<button type="button" class="g4-primary" '+(extra?'data-g4-create':'data-social-create-group')+'>'+svg('plus')+'<span>'+t('گروه جدید','New group')+'</span></button>';
- section.innerHTML='<div class="g4-loading" role="status">'+svg('spark')+'<strong>'+t('در حال آماده‌کردن فضای گروه‌ها…','Preparing your groups…')+'</strong><p>'+t('اگر دریافت اطلاعات طول کشید، می‌توانی به تب دیگری بروی.','You can switch tabs while groups load.')+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('دوستان','Friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('چت‌ها','Chats')+'</button></div></div>';
+ section.dataset.g4Availability='syncing';
+ groupSyncMessage(section,t('در حال دریافت گروه‌ها و دعوت‌های واقعی تو…','Syncing your real groups and invitations…'));
  let groups=[],invites=[],deadline=null;
  try{
   const timeout=new Promise((_,reject)=>{deadline=setTimeout(()=>reject(new Error('groups-load-timeout')),GROUP_LOAD_TIMEOUT_MS)});
@@ -83,15 +97,17 @@ async function mount(force=false){
   if(String(error?.message||'')==='groups-load-timeout')pendingGroupLoad=null;
   if(token!==renderToken||!section.isConnected)return;
   section.dataset.g4Loading='false';
-  const isTimeout=String(error?.message||'')==='groups-load-timeout';
+  section.dataset.g4Availability='waiting';
   const missingIndex=/COLLECTION_GROUP_ASC|requires (?:a |an )?index|failed-precondition|collection.group.*index/i.test(String(error?.message||''));
-  section.innerHTML='<div class="g4-error" role="alert"><strong>'+t('ارتباط با گروه‌ها برقرار نشد','Could not load groups')+'</strong><p>'+(isTimeout?t('اتصال گروه‌ها بیش از حد طول کشید؛ می‌توانی دوباره تلاش کنی یا به تب دیگری بروی.','Groups took too long to respond. Try again or switch tabs.'):missingIndex?t('ایندکس عضویت گروه‌ها در Firestore هنوز فعال نشده؛ تب‌های دیگر در دسترس هستند.','The required Firestore membership index is not active yet. You can still use other tabs.'):esc(String(error?.message||'')))+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-group-retry>'+t('تلاش دوباره','Try again')+'</button><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('بازگشت به دوستان','Back to friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('رفتن به چت‌ها','Go to chats')+'</button></div></div>';
+  console.warn('Elara groups sync:',missingIndex?'Missing membership index':error);
+  groupSyncMessage(section,missingIndex?t('فهرست گروه‌ها هنوز همگام نشده؛ ایندکس عضویت باید در Firebase فعال شود.','The group list is waiting for its Firebase membership index.'):t('گروه‌ها فعلاً همگام نشده‌اند؛ طراحی صفحه آماده است و می‌توانی دوباره تلاش کنی.','Your groups have not synced yet. The page is ready; try refreshing.'));
   return;
  }finally{
   if(deadline!==null)clearTimeout(deadline);
  }
  if(token!==renderToken||!section.isConnected||!activeGroupsTab(root))return;
  section.dataset.g4Loading='false';
+ section.dataset.g4Availability='ready';
  groups=[...groups].sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
  const unread=groups.filter(g=>!!g.unread).length,own=groups.filter(g=>g.role==='owner').length;
  const inviteRows=invites.map(x=>'<article class="social-group-invite g4-invite"><span class="g4-invite-icon">'+svg('users')+'</span><div class="g4-invite-copy"><strong data-elara-ugc dir="auto">'+esc(x.group?.title||t('گروه جدید','New group'))+'</strong><small>'+t('دعوت به عضویت در گروه','Invitation to join a group')+'</small></div><div class="g4-invite-actions"><button type="button" data-group-invite-action="accepted" data-group-invite-id="'+esc(x.groupId)+'">'+t('پذیرش','Accept')+'</button><button type="button" data-group-invite-action="declined" data-group-invite-id="'+esc(x.groupId)+'">'+t('رد','Decline')+'</button></div></article>').join('');
