@@ -12,10 +12,16 @@ const paths={
  'no-art':['artwork-home-install-2026.js','home-owner-art-2026.js','home-reference-polish-20261012.js'],
  'no-app':['app.js']
 }[mode]||[];
+const allow={
+ 'only-app':['app.js'],'only-phase2':['phase2.js'],
+ 'only-boot':['boot.js'],'only-design':['elara-design.js'],
+ 'only-core':['app.js','elara-design.js','reference-home-shell-2026.js'],
+ 'only-ref':['reference-home-shell-2026.js']
+}[mode];
 await page.route('**/*',async route=>{
  const url=route.request().url();
  const name=url.split('/').pop()?.split('?')[0]||'';
- if(paths.includes(name)||(mode==='no-css'&&/\.css(?:\?|$)/.test(url)&&name!=='styles.css')||(mode==='no-js'&&/\.js(?:\?|$)/.test(url))||(mode==='no-all-assets'&&/\.(?:js|css|webp|png|jpg|svg)(?:\?|$)/.test(url))||(mode==='no-static'&&['dialog.js','schedule.js','calendar.js','stable-dom.js','i18n.js','reading.js','notifications.js','app.js','library-enhancements.js','linked-tasks.js','phase2.js','elara-levels.js','collection-level.js','rpg.js','approved-profile-system.js','approved-icon-system.js'].includes(name)))await route.fulfill({status:200,contentType:name.endsWith('.css')?'text/css':name.endsWith('.js')?'text/javascript':'text/plain',body:''});
+ if((allow&&/\.js(?:\?|$)/.test(url)&&!allow.includes(name))||paths.includes(name)||(mode==='no-css'&&/\.css(?:\?|$)/.test(url)&&name!=='styles.css')||(mode==='no-js'&&/\.js(?:\?|$)/.test(url))||(mode==='no-all-assets'&&/\.(?:js|css|webp|png|jpg|svg)(?:\?|$)/.test(url))||(mode==='no-static'&&['dialog.js','schedule.js','calendar.js','stable-dom.js','i18n.js','reading.js','notifications.js','app.js','library-enhancements.js','linked-tasks.js','phase2.js','elara-levels.js','collection-level.js','rpg.js','approved-profile-system.js','approved-icon-system.js'].includes(name)))await route.fulfill({status:200,contentType:name.endsWith('.css')?'text/css':name.endsWith('.js')?'text/javascript':'text/plain',body:''});
  else await route.continue();
 });
 let phase='navigate';
