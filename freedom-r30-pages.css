@@ -237,3 +237,8 @@
  #panel-freedom .r30-tabs button{padding:8px 12px;min-height:37px}
 }
 @media(prefers-reduced-motion:reduce){#panel-freedom .r30-shell *{scroll-behavior:auto!important;transition:none!important}}
+
+#panel-freedom .r30-insp-card{position:relative;min-width:0}
+#panel-freedom .r30-insp-card>.r30-insp-tile{width:100%;height:100%}
+#panel-freedom .r30-insp-fave{position:absolute;top:13px;left:12px;min-width:30px;min-height:30px;display:grid;place-items:center;font-size:22px;color:#ffc3ea;border:1px solid #cf77d9;border-radius:9px;background:#09152ddc;box-shadow:0 0 12px #ad46e780}
+#panel-freedom .r30-insp-fave[aria-pressed=true]{color:#ff679f}
