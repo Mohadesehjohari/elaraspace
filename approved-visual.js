@@ -155,7 +155,7 @@ function drawWardrobe(){
  const inventory={avatar:avatarItems,frame:frameItems,banner:bannerItems};
  const tabs=[['avatar','آواتار','user'],['banner','بنر پروفایل','home'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
  const items=inventory[wardrobeTab]||[],sel=selectedPreview,active=items.find(x=>x.id===sel?.id&&x.kind===sel?.kind)||null;
- const photo=(x)=>x.kind==='banner'?'<img src="'+esc(x.src)+'" alt="" loading="lazy" decoding="async">':'<img src="'+esc(x.src)+'" alt="" loading="lazy" decoding="async">';
+ const photo=(x)=>'<img src="'+esc(x.src)+'" alt="" loading="eager" decoding="async">';
  const list=items.slice(0,showAll[wardrobeTab]?items.length:6);
  const cards=list.map(x=>'<button type="button" class="wardrobe-p3-tile'+(active?.id===x.id?' is-selected':'')+(x.equipped?' is-equipped':'')+'" data-wardrobe-item="'+x.kind+'" data-wardrobe-id="'+esc(x.id)+'" aria-pressed="'+(active?.id===x.id)+'" aria-label="'+esc(x.label+(x.locked?' قفل؛ سطح '+x.required:'') )+'"><span class="wardrobe-p3-image">'+photo(x)+'</span><span class="wardrobe-p3-tile-info"><b>'+esc(x.label)+'</b><small>'+ (x.locked?'🔒 سطح '+x.required:x.equipped?'✓ مجهز':'سطح '+x.required)+'</small></span></button>').join('');
  const itemPreview=active||items.find(x=>x.equipped)||items[0]||null;
@@ -179,7 +179,7 @@ function showWardrobe(){
  selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
  showAll={avatar:false,frame:false,banner:false};
  drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;
- if(wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
+ if(location.hash!=='#wardrobe'&&wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
  windowRoot.querySelector('.approved-wardrobe-window')?.focus({preventScroll:true})
 }
 function closeWardrobe(fromHistory=false){
@@ -197,8 +197,8 @@ window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe}
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
-  if(event.target.closest('[data-approved-wardrobe]')){showWardrobe();return}
-  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){closeWardrobe();return}
+  if(event.target.closest('[data-approved-wardrobe]')){if(window.ElaraProfilePages?.navigate)window.ElaraProfilePages.navigate('wardrobe');else showWardrobe();return}
+  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){if(location.hash==='#wardrobe'&&window.ElaraProfilePages?.back)window.ElaraProfilePages.back();else closeWardrobe();return}
   if(event.target.closest('[data-lang-leitner]')){window.ElaraOpen?.('words');return}
   if(event.target.closest('[data-lang-review]')){window.ElaraOpen?.('words');return}
   const tab=event.target.closest('[data-wardrobe-tab]');if(tab){wardrobeTab=tab.dataset.wardrobeTab;selectedPreview=null;drawWardrobe();return}

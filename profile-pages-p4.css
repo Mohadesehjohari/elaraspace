@@ -1,0 +1,47 @@
+/* P4 private account routes. The global shell/sidebar/topbar/mobile navigation are unchanged. */
+.p4-private-page{position:fixed;top:70px;right:0;bottom:0;left:232px;z-index:32;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-padding-top:18px;padding:18px clamp(12px,2.5vw,42px) 38px;background:radial-gradient(ellipse at 50% 5%,#13275a,#020c22 70%);color:#fff}
+.p4-private-page[hidden]{display:none!important}
+body.p4-profile-page-active .p4-private-page>.elara-profile-hub{max-width:1400px;margin:auto;display:grid;gap:16px}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-heading{display:flex;justify-content:flex-start;min-height:70px;align-items:center}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-hero{min-height:270px}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-status{min-height:67px}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-shortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.p4-profile-page-active .p4-private-page .elara-profile-hub-hero .elara-profile-composition{width:100%}
+.p4-account-required{max-width:650px;margin:10vh auto;padding:26px;background:#0b2347;border:1px solid #3a64aa;border-radius:16px;text-align:center}
+.p4-account-required button{background:#17316b;color:#fff;border:1px solid #7b91e1;border-radius:12px;padding:12px;margin:8px;cursor:pointer}
+body.p4-wardrobe-page-active .p4-private-page{pointer-events:none}
+body.p4-wardrobe-page-active .approved-wardrobe.p4-wardrobe-page{position:fixed!important;top:70px!important;left:232px!important;right:0!important;bottom:0!important;z-index:33!important;display:block!important;overflow:auto!important;pointer-events:auto;background:#030c23!important;backdrop-filter:none!important}
+body.p4-wardrobe-page-active .p4-wardrobe-page>.approved-wardrobe-scrim{display:none!important}
+body.p4-wardrobe-page-active .p4-wardrobe-page>.approved-wardrobe-window{position:relative!important;inset:auto!important;transform:none!important;margin:0 auto!important;width:min(1420px,100%)!important;max-height:none!important;height:auto!important;min-height:100%!important;border-radius:0!important;overflow:visible!important;padding:20px clamp(12px,2vw,28px) 55px!important}
+body.p4-wardrobe-page-active .p4-wardrobe-page #wardrobe-main{min-height:0}
+@media(min-width:701px) and (max-width:1100px){.p4-private-page{left:200px}body.p4-wardrobe-page-active .approved-wardrobe.p4-wardrobe-page{left:200px!important}}
+@media(max-width:700px){
+ .p4-private-page{top:65px;left:0;bottom:calc(72px + env(safe-area-inset-bottom,0px));padding:10px 9px 26px}
+ body.p4-profile-page-active .p4-private-page .elara-profile-hub-heading{min-height:74px}
+ body.p4-profile-page-active .p4-private-page .elara-profile-hub-hero{min-height:200px}
+ body.p4-profile-page-active .p4-private-page .elara-profile-hub-shortcuts{display:grid;grid-template-columns:1fr;gap:10px}
+ body.p4-profile-page-active .p4-private-page .elara-profile-hub-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ body.p4-profile-page-active .p4-private-page .elara-profile-hub-actions button{min-width:0}
+ body.p4-wardrobe-page-active .approved-wardrobe.p4-wardrobe-page{top:65px!important;left:0!important;bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
+ body.p4-wardrobe-page-active .p4-wardrobe-page>.approved-wardrobe-window{position:relative!important;inset:auto!important;min-height:100%!important;width:100%!important;border-radius:0!important;max-height:none!important;overflow:visible!important;padding:10px 8px 48px!important}
+}
+
+/* P4 owner-reference refinement after Chromium: clear header and native cosmic tiles. */
+@media(min-width:701px){.p4-private-page{top:82px}body.p4-wardrobe-page-active .approved-wardrobe.p4-wardrobe-page{top:82px!important}}
+.p4-private-page .elara-profile-hub-shortcuts .elara-profile-hub-entry{display:flex;align-items:center;gap:11px;min-width:0;min-height:76px;padding:12px;border:1px solid #315e9c;border-radius:14px;background:linear-gradient(145deg,#10254f,#07152d);color:#fff;box-shadow:inset 0 0 12px #1774c11c;cursor:pointer;text-align:right}
+.p4-private-page .elara-profile-hub-shortcuts .elara-profile-hub-entry:first-child{border-color:#9f56fa;box-shadow:inset 0 0 16px #8547ff35,0 0 9px #9347ff40;background:linear-gradient(125deg,#28155b,#121d4e)}
+.p4-private-page .elara-profile-hub-entry span{min-width:0;overflow-wrap:anywhere}
+.p4-private-page .elara-profile-hub-entry strong{font-size:clamp(12px,1.2vw,15px);color:#fff}
+.p4-private-page .elara-profile-hub-entry small{display:block;line-height:1.6;color:#a9bfe5;font-size:11px}
+.p4-private-page .elara-profile-hub-entry .elara-profile-hub-chevron{margin-inline-start:auto;font-size:23px;color:#a7c5ff}
+.p4-private-page :is(.elara-profile-hub-entry,.elara-profile-hub-actions button):focus-visible{outline:3px solid #5ceaff;outline-offset:2px}
+.p4-private-page .elara-profile-hub-entry:hover{border-color:#bd7dff;box-shadow:0 0 16px #613bf34c}
+@media(max-width:700px){
+ .p4-private-page{top:96px}
+ body.p4-wardrobe-page-active .approved-wardrobe.p4-wardrobe-page{top:96px!important}
+ .p4-private-page .elara-profile-hub-shortcuts .elara-profile-hub-entry{min-height:71px;padding:11px 14px}
+ .p4-private-page .elara-profile-hub-shortcuts .elara-profile-hub-entry strong{font-size:15px}
+ .p4-private-page .elara-profile-hub-actions button{min-height:63px;padding:8px 4px}
+ .p4-private-page .elara-profile-hub-heading .drawer-section-head{min-width:0}
+}
