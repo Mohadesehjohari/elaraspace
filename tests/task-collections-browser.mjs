@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
 import {chromium} from 'playwright';
 const base=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173',browser=await chromium.launch({headless:true});
 const cloudStub="window.ElaraAccount={user:null,profile:{name:'Collection QA',username:'collection_qa',xp:20,profilePublic:true}};document.body.classList.remove('cloud-locked');document.body.classList.add('cloud-ready');document.getElementById('cloud-layer')?.setAttribute('hidden','');window.dispatchEvent(new Event('elara:account-ready'));";
@@ -47,6 +48,6 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.getByRole('button',{name:'حذف'}).last().click();
  await page.waitForFunction(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return !s.folders.includes('آرشیو')&&s.tasks.find(t=>t.id==='f1')?.folder===''});
  const metrics=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(metrics.sw<=metrics.w+1,'collection horizontal overflow '+width+' '+JSON.stringify(metrics));
- await page.screenshot({path:'browser-artifacts/task-collection-'+width+'.png',fullPage:true});await page.close()
+ mkdirSync('browser-artifacts',{recursive:true});await page.screenshot({path:'browser-artifacts/task-collection-'+width+'.png',fullPage:true});await page.close()
 }
 await browser.close();console.log('TASK_COLLECTIONS_PASS folder/list add toggle edit delete back 390/1440');
