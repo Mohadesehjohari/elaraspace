@@ -1,0 +1,333 @@
+/* CLASSES MODAL REFERENCE — 2026-10-15
+   Isolated to the canonical ElaraDialog class editor. No data model or scheduling changes.
+   Replace the two --lf3 artwork URLs when new owner files are available. */
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor){
+ --lf3-sky:url('assets/ui/language-learning-background.webp');
+ --lf3-book:url('assets/ui/24-language-classes-icon.webp');
+ position:relative!important;isolation:isolate;
+ width:min(776px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;
+ max-height:calc(100dvh - 24px)!important;min-width:0!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ border:1.5px solid #1fe1ff!important;border-radius:27px!important;
+ background:radial-gradient(circle at 100% 100%,#5124a879,transparent 35%),
+ linear-gradient(135deg,#061433eb,#030d23e9 64%,#08112de3),var(--lf3-sky) center center/cover no-repeat!important;
+ box-shadow:0 0 0 1px #7f5af9a8,inset -2px -2px 23px #6c3bef55,
+ 0 0 22px #208cff8c,0 22px 100px #000d!important;
+ color:#f4f4ff;
+}
+#elara-dialog-root .elara-dialog-layer:has(.lf3-class-editor){padding:12px!important;align-items:center!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head{
+ position:absolute!important;inset:0 0 auto!important;z-index:6!important;
+ width:100%;height:0!important;min-height:0!important;padding:0!important;margin:0!important;
+ border:0!important;background:transparent!important;overflow:visible!important;pointer-events:none!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>div{display:none!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>button{
+ position:absolute!important;top:20px!important;left:auto;right:auto;
+ display:grid!important;place-items:center;width:44px!important;min-width:44px!important;height:44px!important;
+ border:1px solid #2199e6!important;border-radius:12px!important;background:#061e43e6!important;
+ color:#f0f6ff!important;font:750 23px Vazirmatn,Tahoma,sans-serif!important;
+ box-shadow:0 0 12px #105ca650;pointer-events:auto!important;cursor:pointer;line-height:1!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>.elara-dialog-back{right:22px!important;left:auto!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>.elara-dialog-close{left:22px!important;right:auto!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>button:hover{border-color:#70efff!important;background:#163667!important}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-body{
+ flex:1 1 auto!important;min-height:0!important;min-width:0!important;
+ padding:0!important;margin:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#357be0 transparent
+}
+#elara-dialog-root .elara-dialog-body:has(.lf3-class-editor)>div{width:100%;min-width:0}
+#elara-dialog-root .lf3-class-editor{
+ display:grid!important;gap:0!important;width:100%!important;min-width:0!important;
+ margin:0!important;padding:0!important;direction:rtl;color:#f4f5ff!important;
+ font-family:Vazirmatn,Tahoma,Arial,sans-serif!important;
+}
+#elara-dialog-root .lf3-class-editor[dir="ltr"]{direction:ltr}
+#elara-dialog-root .lf3-class-editor *{box-sizing:border-box}
+#elara-dialog-root .lf3-class-editor .lf3-hero.lf-editor-hero{
+ position:relative!important;isolation:isolate;
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(172px,240px)!important;
+ grid-template-rows:1fr!important;align-items:center!important;
+ min-height:160px!important;margin:0!important;padding:56px 27px 16px!important;gap:13px!important;
+ overflow:hidden;border:0!important;border-bottom:1px solid #206aa9!important;border-radius:0!important;
+ background:linear-gradient(270deg,#04152cec 4%,#051633a9 55%,#040c2876 100%),var(--lf3-sky) center 51%/cover no-repeat!important;
+}
+#elara-dialog-root .lf3-class-editor .lf3-hero::before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background:radial-gradient(ellipse at 35% 20%,#3942ff29,transparent 56%);pointer-events:none
+}
+#elara-dialog-root .lf3-class-editor .lf3-hero-copy{
+ grid-column:1!important;grid-row:1!important;z-index:2!important;
+ min-width:0;max-width:none!important;align-self:center!important;text-align:start
+}
+#elara-dialog-root .lf3-class-editor .lf3-hero-copy small{
+ display:block;position:absolute;right:88px;top:27px;margin:0;
+ color:#3ae9ff!important;letter-spacing:.17em!important;font:850 11px Arial,sans-serif!important;
+ text-align:right
+}
+#elara-dialog-root .lf3-class-editor[dir="ltr"] .lf3-hero-copy small{right:auto;left:88px}
+#elara-dialog-root .lf3-class-editor .lf3-hero-copy h2{
+ margin:0 0 4px!important;color:#fff!important;
+ font-size:clamp(23px,2.4vw,32px)!important;line-height:1.43!important;
+ font-weight:900!important;text-shadow:0 2px 17px #0b1a40
+}
+#elara-dialog-root .lf3-class-editor .lf3-hero-copy p{
+ margin:0!important;color:#d3defb!important;font-size:12px!important;line-height:1.8!important
+}
+#elara-dialog-root .lf3-class-editor .lf-editor-cover{
+ position:relative!important;grid-column:2!important;grid-row:1!important;z-index:1!important;
+ width:100%!important;max-width:235px;min-height:130px!important;
+ background:var(--lf3-book) center/contain no-repeat!important;
+ filter:drop-shadow(0 0 19px #5864ffdb) drop-shadow(0 0 14px #ad57fe7d)!important
+}
+#elara-dialog-root .lf3-class-editor .lf3-title-section{
+ min-width:0;padding:13px 26px 9px;border-bottom:1px solid #1e4c86;
+ background:linear-gradient(90deg,#09214d4f,#03172e61)
+}
+#elara-dialog-root .lf3-class-editor .lf3-field,
+#elara-dialog-root .lf3-class-editor .lf3-link{
+ display:grid!important;align-content:start;gap:8px;min-width:0;
+ font-size:13px!important;font-weight:800;color:#f2f6ff!important
+}
+#elara-dialog-root .lf3-class-editor .lf3-field-heading{
+ display:flex;align-items:center;gap:8px;min-width:0;
+ font-size:13px!important;font-weight:850;line-height:1.45;
+ color:#f3f6ff
+}
+#elara-dialog-root .lf3-class-editor .lf3-field-heading svg,
+#elara-dialog-root .lf3-class-editor .lf3-days legend svg,
+#elara-dialog-root .lf3-share-field svg{
+ flex:none;width:24px;height:24px;color:#21e2ff;filter:drop-shadow(0 0 4px #08a8fc7e)
+}
+#elara-dialog-root .lf3-class-editor input:not([type=checkbox]),
+#elara-dialog-root .lf3-class-editor select,
+#elara-dialog-root .lf3-share-field select{
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:44px!important;min-height:44px!important;box-sizing:border-box!important;
+ padding:8px 14px!important;border:1px solid #198fd6!important;border-radius:12px!important;
+ background:linear-gradient(135deg,#021629e9,#041d3adb)!important;
+ box-shadow:inset 0 2px 9px #0107185e,0 0 0 1px #07366018;
+ color:#f5f7ff!important;font:650 13px Vazirmatn,Tahoma,sans-serif!important;
+ text-align:start
+}
+#elara-dialog-root .lf3-class-editor input:not([type=checkbox])::placeholder{color:#9bafd4!important;opacity:1}
+#elara-dialog-root .lf3-class-editor input:focus-visible,
+#elara-dialog-root .lf3-class-editor select:focus-visible,
+#elara-dialog-root .lf3-share-field select:focus-visible{
+ outline:2px solid #3ce6ff!important;outline-offset:2px!important;
+ box-shadow:0 0 16px #2c9bff65!important
+}
+#elara-dialog-root .lf3-class-editor .lf3-field-grid.language-class-form-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-areas:"type terms" "sessions duration" "time hours";
+ gap:0 22px!important;min-width:0!important;padding:0 26px!important;
+ background:linear-gradient(90deg,#071b3c62,#04162f69)
+}
+#elara-dialog-root .lf3-field-type{grid-area:type}
+#elara-dialog-root .lf3-field-terms{grid-area:terms}
+#elara-dialog-root .lf3-field-sessions{grid-area:sessions}
+#elara-dialog-root .lf3-field-duration{grid-area:duration}
+#elara-dialog-root .lf3-field-time{grid-area:time}
+#elara-dialog-root .lf3-field-hours{grid-area:hours}
+#elara-dialog-root .lf3-class-editor .lf3-field-grid>.lf3-field{padding:12px 0!important;border:0!important;border-bottom:1px solid #1d4a86!important}
+#elara-dialog-root .lf3-class-editor .lf3-field input[type=number]{
+ text-align:center!important;direction:ltr!important;font-variant-numeric:tabular-nums
+}
+#elara-dialog-root .lf3-class-editor .lf3-field input[type=time]{
+ direction:ltr!important;text-align:right!important
+}
+#elara-dialog-root .lf3-class-editor select{cursor:pointer}
+#elara-dialog-root .lf3-class-editor .lf3-days{
+ display:block!important;min-width:0!important;margin:0!important;
+ padding:14px 26px 13px!important;border:0!important;border-bottom:1px solid #1a568f!important;
+ border-radius:0!important;background:#051936a1!important
+}
+#elara-dialog-root .lf3-class-editor .lf3-days legend{
+ float:none;display:flex;align-items:center;gap:8px;
+ font:900 14px Vazirmatn,Tahoma,sans-serif;color:#f6f8ff;padding:0!important;margin-bottom:3px
+}
+#elara-dialog-root .lf3-class-editor .lf3-days>p{
+ margin:0 0 10px;font-size:11px;line-height:1.7;color:#b3c9ef;text-align:start
+}
+#elara-dialog-root .lf3-class-editor .lf3-days .language-class-days{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:8px!important;min-width:0
+}
+#elara-dialog-root .lf3-class-editor .language-class-days label{
+ display:flex!important;flex-direction:row;align-items:center;justify-content:space-between;
+ gap:6px!important;min-height:44px;padding:8px 11px!important;
+ border:1px solid #158bcc!important;border-radius:10px!important;
+ background:linear-gradient(125deg,#03162fef,#05213ea3)!important;
+ color:#f3f6ff;font-size:12px!important;font-weight:700;cursor:pointer
+}
+#elara-dialog-root .lf3-class-editor .language-class-days label:has(input:checked){
+ border-color:#a15bff!important;background:linear-gradient(130deg,#231e68,#082c56)!important;
+ box-shadow:inset 0 0 12px #8d49f941
+}
+#elara-dialog-root .lf3-class-editor .language-class-days input[type=checkbox],
+#elara-dialog-root .lf3-share-field input[type=checkbox]{
+ flex:none;width:18px!important;height:18px!important;min-width:18px;
+ margin:0!important;accent-color:#7b52f9!important;cursor:pointer
+}
+#elara-dialog-root .lf3-class-editor .lf3-link-section{
+ padding:13px 26px!important;border-bottom:1px solid #1e4c86;background:#04172d91
+}
+#elara-dialog-root .lf3-class-editor .lf3-link{padding:0!important}
+#elara-dialog-root .lf3-class-editor .lf3-estimate{display:none!important}
+#elara-dialog-root .lf3-class-editor .lf-editor-error{margin:8px 26px 12px!important;padding:10px 13px;border-radius:11px}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions{
+ position:relative;z-index:3;flex:none;
+ display:grid!important;grid-template-columns:minmax(0,1fr) 115px 180px!important;
+ grid-template-areas:"share cancel save";align-items:center;gap:11px!important;
+ direction:rtl!important;min-height:74px;padding:13px 26px calc(13px + env(safe-area-inset-bottom))!important;
+ margin:0!important;border:0!important;border-top:1px solid #2a6cba!important;
+ background:linear-gradient(130deg,#031633f9,#07173bea 67%,#0c1248f9)!important
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.lf3-share-field{
+ grid-area:share;display:grid;align-content:center;min-width:0;max-width:100%;gap:8px;
+ padding:0!important;margin:0!important;border:0!important;
+ background:transparent!important;color:#ebf3ff
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.quiet-button{
+ grid-area:cancel;min-width:0!important;min-height:47px!important;
+ border:1px solid #287dc9!important;border-radius:13px!important;background:#09244cf2!important;
+ color:#eaf0ff!important;font:850 14px Vazirmatn,Tahoma,sans-serif!important;cursor:pointer
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.primary-button{
+ grid-area:save;min-width:0!important;min-height:49px!important;padding:8px 14px;
+ border:1px solid #87c3ff!important;border-radius:14px!important;
+ background:linear-gradient(105deg,#ffb476 0%,#f54bb3 38%,#814afa 72%,#3685ff 100%)!important;
+ box-shadow:0 0 15px #b748ed80!important;color:#fff!important;
+ font:900 15px Vazirmatn,Tahoma,sans-serif!important;cursor:pointer
+}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>button:hover{
+ filter:brightness(1.12)
+}
+#elara-dialog-root .lf3-share-toggle{
+ display:flex!important;flex-direction:row;align-items:center;gap:10px;min-width:0;
+ color:#eef2ff;font:800 12px Vazirmatn,Tahoma,sans-serif;cursor:pointer
+}
+#elara-dialog-root .lf3-share-toggle strong{font-size:12px;font-weight:800;line-height:1.6;overflow-wrap:anywhere}
+#elara-dialog-root .lf3-share-field .lf3-friend-choice{
+ display:grid;grid-template-columns:1fr;gap:5px;min-width:0;
+ font:750 12px Vazirmatn,Tahoma,sans-serif
+}
+#elara-dialog-root .lf3-share-field .lf3-friend-choice[hidden]{display:none!important}
+#elara-dialog-root .lf3-share-field .lf3-share-note{display:none!important}
+#elara-dialog-root .lf3-share-field .language-class-member-note{
+ display:grid;gap:5px;padding:7px;border:1px solid #1b64a3;border-radius:10px;
+ color:#b6d9fa;font-size:11px
+}
+#elara-dialog-root .lf3-share-field .language-class-member-note>strong{
+ display:flex;align-items:center;gap:7px;font-size:12px
+}
+#elara-dialog-root .lf3-share-field .language-class-member-note>p{margin:0}
+#elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) :is(button,input,select):focus-visible{
+ outline:2px solid #81eaff!important;outline-offset:2px!important
+}
+@media(max-width:670px){
+ #elara-dialog-root .elara-dialog-layer:has(.lf3-class-editor){padding:6px!important}
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor){
+  width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;
+  height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important;
+  border-radius:25px!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>button{
+  top:22px!important;width:43px!important;min-width:43px!important;height:43px!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>.elara-dialog-back{
+  display:none!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>.elara-dialog-close{
+  left:20px!important;right:auto!important;font-size:0!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-head>.elara-dialog-close::after{
+  content:"←";font:800 26px Vazirmatn,Tahoma,sans-serif;color:#effaff
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-hero.lf-editor-hero{
+  min-height:292px!important;display:grid!important;
+  grid-template-columns:1fr!important;grid-template-rows:143px auto!important;
+  gap:5px!important;padding:60px 17px 20px!important;
+  background:linear-gradient(180deg,#06143676,#04152d75 38%,#030e29a9 100%),var(--lf3-sky) center 47%/cover no-repeat!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf-editor-cover{
+  grid-column:1!important;grid-row:1!important;justify-self:center;
+  width:min(72%,245px)!important;min-height:139px!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-hero-copy{
+  grid-column:1!important;grid-row:2!important;align-self:end!important;text-align:start!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-hero-copy small{
+  top:25px;right:23px!important;left:auto!important;font-size:13px!important;letter-spacing:.24em!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-hero-copy h2{
+  font-size:clamp(23px,6vw,33px)!important;margin:0 0 3px!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-hero-copy p{font-size:12px!important;line-height:1.75!important}
+ #elara-dialog-root .lf3-class-editor .lf3-title-section{padding:10px 11px!important;background:none!important}
+ #elara-dialog-root .lf3-class-editor .lf3-field-grid.language-class-form-grid{
+  grid-template-areas:"type type" "terms sessions" "duration hours" "time time"!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px 9px!important;padding:0 11px 11px!important;background:none!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-title-section>.lf3-field,
+ #elara-dialog-root .lf3-class-editor .lf3-field-grid>.lf3-field{
+  display:grid!important;gap:9px!important;padding:12px!important;min-width:0;
+  border:1px solid #126daf!important;border-radius:15px!important;
+  background:linear-gradient(115deg,#051b3ae5,#03152eaf)!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-field-heading{font-size:12px!important}
+ #elara-dialog-root .lf3-class-editor .lf3-field-heading svg{width:23px;height:23px}
+ #elara-dialog-root .lf3-class-editor input:not([type=checkbox]),
+ #elara-dialog-root .lf3-class-editor select{height:47px!important;min-height:47px!important;font-size:13px!important}
+ #elara-dialog-root .lf3-class-editor .lf3-days{
+  border:1px solid #1273b1!important;border-radius:15px!important;
+  margin:0 11px 10px!important;padding:12px!important;background:#041733b5!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-days legend{font-size:14px}
+ #elara-dialog-root .lf3-class-editor .lf3-days>p{font-size:11px}
+ #elara-dialog-root .lf3-class-editor .lf3-days .language-class-days{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important
+ }
+ #elara-dialog-root .lf3-class-editor .language-class-days label{
+  min-height:43px;padding:6px 8px!important;border-radius:10px!important;font-size:11px!important
+ }
+ #elara-dialog-root .lf3-class-editor .language-class-days input[type=checkbox]{
+  width:17px!important;height:17px!important;min-width:17px!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf3-link-section{
+  margin:0 11px 10px!important;padding:12px!important;
+  border:1px solid #1573b1!important;border-radius:15px!important;background:#041935bd!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:"share" "save" "cancel"!important;
+  gap:8px!important;padding:10px 12px calc(11px + env(safe-area-inset-bottom))!important;
+  border-top:1px solid #255c9d!important;background:#061532f9!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.lf3-share-field{
+  padding:9px 12px!important;border:1px solid #2364a4!important;
+  border-radius:14px;background:#041d3ac9!important
+ }
+ #elara-dialog-root .lf3-share-toggle{gap:10px;min-height:29px}
+ #elara-dialog-root .lf3-share-toggle strong{font-size:12px}
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.primary-button{
+  min-height:51px!important;font-size:15px!important
+ }
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) .elara-dialog-actions>.quiet-button{
+  min-height:46px!important
+ }
+ #elara-dialog-root .lf3-class-editor .lf-editor-error{margin:5px 11px 10px!important}
+}
+@media(max-width:360px){
+ #elara-dialog-root .lf3-class-editor .lf3-hero.lf-editor-hero{min-height:255px!important;grid-template-rows:120px auto!important}
+ #elara-dialog-root .lf3-class-editor .lf-editor-cover{min-height:110px!important}
+ #elara-dialog-root .lf3-class-editor .lf3-field-grid>.lf3-field{padding:8px!important}
+ #elara-dialog-root .lf3-class-editor .lf3-field-heading{font-size:10px!important}
+ #elara-dialog-root .lf3-class-editor .language-class-days label{font-size:10px!important;padding:5px 4px!important}
+ #elara-dialog-root .lf3-class-editor .language-class-days label input{width:14px!important;height:14px!important;min-width:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #elara-dialog-root .elara-dialog-panel:has(.lf3-class-editor) *{scroll-behavior:auto!important;transition:none!important}
+}
