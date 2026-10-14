@@ -582,6 +582,11 @@
     "task-decision-refinement-20261012.css",
     "task-board-view.css",
     "task-board-view.js",
-    "task-single-row-20261015.css"
+    "task-single-row-20261015.css",
+    "assets/ui/icon-task-complete-astra-v2.webp",
+    "assets/ui/hero-tasks-astra-v2.webp",
+    "social-groups-redesign-20261012.css",
+    "avatar-3d.js",
+    "avatar-3d.css"
   ]
 }
