@@ -270,3 +270,73 @@ html body #panel-tasks #elara-task-mobile-banner{display:none!important}
  }
  html body #panel-tasks #task-list>.astra-task-row .item-title{font-size:12px!important}
 }
+
+
+/* TASK META CHIP COLLISION FIX • 2026-10-14
+   One accessible folder/list link + one priority + a separate timing line.
+   Replaces the old 4–5 competing chips in a 55px-wide flex column. */
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid,
+html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid{
+ box-sizing:border-box!important;position:static!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr) 27px!important;
+ grid-template-rows:18px minmax(15px,auto)!important;
+ grid-auto-flow:row!important;align-items:center!important;justify-items:stretch!important;
+ gap:2px 3px!important;direction:rtl!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:35px!important;max-height:43px!important;
+ flex:initial!important;flex-wrap:nowrap!important;align-content:center!important;
+ margin:0!important;padding:0!important;overflow:hidden!important;
+}
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>*,
+html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>*{
+ box-sizing:border-box!important;position:static!important;
+ display:block!important;flex:none!important;order:initial!important;
+ min-width:0!important;max-width:100%!important;width:100%!important;
+ min-height:0!important;max-height:18px!important;height:18px!important;
+ margin:0!important;padding:2px 3px!important;
+ font-size:9px!important;font-weight:750!important;line-height:12px!important;
+ border-radius:6px!important;border-width:1px!important;
+ background-clip:padding-box!important;
+ text-align:center!important;white-space:nowrap!important;word-break:normal!important;
+ text-overflow:ellipsis!important;overflow:hidden!important;
+ inset:auto!important;transform:none!important;float:none!important;
+}
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-path-link,
+html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-path-link{
+ grid-column:1!important;grid-row:1!important;justify-self:stretch!important;
+ cursor:pointer!important;color:#9ce9ff!important;
+ border:1px solid #2882a7!important;background:#063047!important;
+ text-decoration:none!important;
+}
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-compact-priority,
+html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-compact-priority{
+ grid-column:2!important;grid-row:1!important;width:27px!important;min-width:27px!important;
+ max-width:27px!important;height:18px!important;min-height:18px!important;
+ font-family:system-ui,sans-serif!important;direction:ltr!important;
+ font-weight:900!important;text-overflow:clip!important;letter-spacing:0!important
+}
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-timing,
+html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-timing{
+ grid-column:1 / -1!important;grid-row:2!important;
+ min-height:15px!important;max-height:16px!important;height:16px!important;
+ border:0!important;background:none!important;color:#a7bcd9!important;
+ text-align:right!important;font-size:9px!important;line-height:13px!important;
+ direction:rtl!important;max-width:100%!important;
+}
+html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-path-link:focus-visible{
+ outline:2px solid #71e7ff!important;outline-offset:1px!important
+}
+@media(max-width:700px){
+ html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid,
+ html body.dark #panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid{
+  grid-template-columns:minmax(0,1fr) 26px!important;
+  grid-template-rows:18px 15px!important;min-height:35px!important;max-height:39px!important;
+  gap:2px!important;align-self:center!important
+ }
+ html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-compact-priority{
+  width:26px!important;max-width:26px!important;min-width:26px!important
+ }
+ html body #panel-tasks #task-list>.astra-task-row>.elara-task-meta-grid>.elara-task-path-link{
+  padding:2px 1px!important;font-size:9px!important
+ }
+}

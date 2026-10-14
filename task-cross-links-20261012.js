@@ -7,19 +7,43 @@ function decorate(){
  const state=read(),items=new Map((Array.isArray(state.tasks)?state.tasks:[]).map(t=>[String(t.id),t]));
  for(const row of document.querySelectorAll('#task-list .astra-task-row[data-key],.task-board-card[data-task-board-id],.feature-section-task-row[data-section-task-id]')){
   const task=items.get(String(row.dataset.key||row.dataset.taskBoardId||row.dataset.sectionTaskId||''));if(!task)continue;
-  const src=String(task.list||'')+'|'+String(task.folder||'')+'|'+String(task.priority||'');
-  if(row.dataset.orgLinked===src)continue;row.dataset.orgLinked=src;
+  const src=['chip-v2',task.list||'',task.folder||'',task.priority||'',task.time||'',task.date||''].join('|');
+  if(row.dataset.orgLinked===src&&row.querySelector(':scope > .elara-task-cross-links.elara-task-meta-grid'))continue;
+  row.dataset.orgLinked=src;
   row.querySelector(':scope > .elara-task-cross-links')?.remove();
-  const wrap=document.createElement('div');wrap.className='elara-task-cross-links';
-  const add=(name,label)=>{const btn=document.createElement('button');btn.type='button';btn.dataset[name==='list'?'orgJumpList':'orgJumpFolder']=String(task[name]||'');btn.textContent=label;btn.title='باز کردن '+label;wrap.append(btn)};
-  if(task.list)add('list',task.list);
-  if(task.folder)add('folder',task.folder);
-  else if(!task.list)add('folder','بدون پوشه');
-  const priority=document.createElement('span');priority.className='elara-compact-priority p'+String(task.priority||4);priority.textContent='P'+String(task.priority||4);wrap.append(priority);
-  if(task.time){const time=document.createElement('span');time.className='elara-compact-time';time.textContent='◷ '+task.time;wrap.append(time)}
+  const wrap=document.createElement('div');
+  wrap.className='elara-task-cross-links elara-task-meta-grid';
+  wrap.setAttribute('dir','rtl');
+  const hasList=!!task.list;
+  const path=document.createElement('button');
+  path.type='button';
+  path.className='elara-task-path-link';
+  const folder=String(task.folder||'');
+  const list=String(task.list||'');
+  path.textContent=hasList?list:(folder||'بدون پوشه');
+  path.dataset[hasList?'orgJumpList':'orgJumpFolder']=hasList?list:folder;
+  path.title=hasList?(folder?'پوشه: '+folder+' ← لیست: '+list:'لیست: '+list):('پوشه: '+(folder||'بدون پوشه'));
+  path.setAttribute('aria-label','رفتن به '+path.title);
+  wrap.append(path);
+  const priority=document.createElement('span');
+  const level=String(task.priority||'4');
+  priority.className='elara-compact-priority p'+level;
+  priority.textContent='P'+level;
+  priority.title='اولویت P'+level;
+  wrap.append(priority);
+  const pieces=[];
+  if(task.time)pieces.push('◷ '+String(task.time));
   if(task.date){
-   const now=new Date(),t=new Date(task.date+'T12:00:00'),d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12),n=Math.round((t-d)/86400000);
-   if(Number.isFinite(n)){const left=document.createElement('span');left.className='elara-compact-days';left.textContent=n===0?'امروز':n>0?fa(n)+' روز مانده':fa(-n)+' روز گذشته';wrap.append(left)}
+   const now=new Date(),t=new Date(String(task.date)+'T12:00:00'),d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+   const delta=Math.round((t-d)/86400000);
+   if(Number.isFinite(delta))pieces.push(delta===0?'امروز':delta>0?fa(delta)+' روز مانده':fa(-delta)+' روز گذشته');
+  }
+  if(pieces.length){
+   const timing=document.createElement('span');
+   timing.className='elara-task-timing';
+   timing.textContent=pieces.join(' · ');
+   timing.title=pieces.join(' · ');
+   wrap.append(timing);
   }
   row.append(wrap);
  }
