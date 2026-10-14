@@ -143,7 +143,7 @@ function folderViewerMarkup(d){
  const description=String(f.description||d.meta.description||'').trim();
  const note=String(f.note||'').trim();
  const h=t=>'<h3><span class="elwp-view-heading-icon" aria-hidden="true">▤</span>'+t+'</h3>';
- return '<div class="elwp-folder-view-top"><div class="elwp-view-folder-symbol" aria-hidden="true">▰</div><div><small>'+esc(heading[d.kind])+'</small><h2 data-elara-ugc dir="auto">'+esc(f.title)+'</h2><p>'+esc('برنامه: '+String(f.programName||f.title))+'</p></div><span class="elwp-view-status">● فعال</span></div>'+
+ return '<div class="elwp-folder-view-top"><div class="elwp-view-folder-symbol" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M3.5 8a3 3 0 0 1 3-3H13l3.2 3.4h9.3a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-19a3 3 0 0 1-3-3V8Z" fill="currentColor"/><path d="M4 12h24" stroke="#bcffe0" stroke-opacity=".55" stroke-width="1.5"/></svg></div><div><small>'+esc(heading[d.kind])+'</small><h2 data-elara-ugc dir="auto">'+esc(f.title)+'</h2><p>'+esc('برنامه: '+String(f.programName||f.title))+'</p></div><span class="elwp-view-status">● خصوصی</span></div>'+
  '<div class="elwp-folder-view-layout" dir="ltr">'+
  '<section class="elwp-view-card elwp-view-description" dir="rtl">'+h('توضیحات برنامه')+'<div class="elwp-view-prose" data-elara-ugc dir="auto">'+(description?esc(description).replace(/\n/g,'<br>'):'<p class="elwp-view-placeholder">هنوز توضیحاتی برای این برنامه نوشته نشده است. از بخش ویرایش می‌توانید اضافه کنید.</p>')+'</div></section>'+
  '<section class="elwp-view-card elwp-view-days" dir="rtl">'+h('روزهای هفته')+'<div class="elwp-view-weekdays">'+trainingDays.map(day=>'<span class="elwp-view-day '+(days.includes(day)||days.includes('همه روزها')?'is-selected':'')+'">'+esc(day)+'</span>').join('')+'</div></section>'+
@@ -160,6 +160,7 @@ function openFolder(kind,folderId){
  const a=openBase(heading[kind],kind);
  a.draft=draft;a.overlay.classList.add('elwp-folder-view-overlay');
  a.overlay.querySelector('.elwp-header h2').textContent=folder.title;
+ a.overlay.querySelector('.elwp-dialog').setAttribute('aria-label','جزئیات پوشه '+folder.title);
  a.overlay.querySelector('.elwp-header small').textContent='ELARA · WELLNESS';
  a.overlay.querySelector('.elwp-footer').innerHTML='<button type="button" class="elwp-view-close" data-elwp-close>بستن</button><button type="button" class="elwp-view-edit" data-elwp-folder-edit>✎ ویرایش برنامه</button>';
  a.body.innerHTML=folderViewerMarkup(draft);
