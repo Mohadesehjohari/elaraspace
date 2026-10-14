@@ -29,7 +29,10 @@ try{
       await page.waitForFunction(([taskId,day,count])=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));return s.tasks.find(t=>t.id===taskId)?.dailyProgress?.[day]===count},[id,date,n],{timeout:10000});
       assert.equal(await progress(id),n,id+' must persist '+n+'/3');
       if(n<3){
-        assert.ok((await row(id).locator('.task-round-count').textContent()).includes(String(n).replace(/[0-9]/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d])),id+' rendered counter did not advance');
+        assert.ok((await row(id).locator('.task-round-count').textContent()).includes(String(n).replace(/[0-9]/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d])),id+' rendered counter did not advance immediately after FIRST click');
+        assert.equal(await row(id).evaluate(el=>el.classList.contains('just-completed-gold')),true,id+' must immediately show golden feedback');
+        await page.waitForTimeout(1200);
+        assert.equal(await row(id).evaluate(el=>el.classList.contains('just-completed-gold')),false,id+' gold feedback should fade after one second');
         await page.reload({waitUntil:'domcontentloaded'});
         await page.waitForFunction(()=>document.querySelector('#task-list .astra-task-row[data-key="qa-normal"]')&&window.ElaraTasks);
         assert.equal(await progress(id),n,id+' reload erased round '+n);
@@ -38,6 +41,17 @@ try{
       }
     }
   }
+  // Restoring a fully completed 3/3 task from archive resets the whole day to zero;
+  // the inline ↶ button still decreases just one round.
+  const archive=page.locator('#task-checked-archive [data-task-archive-id="qa-normal"]');
+  await archive.locator('[data-phase2-action="undo-task"]').click();
+  await page.waitForFunction(day=>{
+   const s=JSON.parse(localStorage.getItem('elara_space_v1'));
+   const t=s.tasks.find(x=>x.id==='qa-normal');
+   return t&&!t.completed&&t.dailyProgress?.[day]===0;
+  },date);
+  assert.equal(await progress('qa-normal'),0,'archive restore must reset 3/3 to 0/3');
+  assert.ok((await row('qa-normal').locator('.task-round-count').textContent()).includes('۰/۳'),'restored task should display ۰/۳');
   assert.deepEqual(errors,[],'Uncaught JS errors: '+errors.join(';'));
   console.log('TASK_DAILY_ROUNDS_PASS: 0/3 → 1/3 → 2/3 → completed, persisting across reload, recurrence and linked goals');
 }finally{await page.context().browser().close()}

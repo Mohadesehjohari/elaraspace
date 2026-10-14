@@ -34,11 +34,22 @@
   const taskCompletionFlash=new Map();
   const flashId=(id,date)=>String(id)+'::'+String(date);
   const flashFor=(id,date)=>taskCompletionFlash.get(flashId(id,date))||null;
-  function flashCompletedTask(id,date,complete){
+  function flashCompletedTask(id,date,complete,count){
     const key=flashId(id,date),previous=taskCompletionFlash.get(key);
     if(previous?.timer)clearTimeout(previous.timer);
-    const timer=setTimeout(()=>{taskCompletionFlash.delete(key);renderTasks()},3000);
-    taskCompletionFlash.set(key,{complete,started:Date.now(),timer});
+    const timer=setTimeout(()=>{taskCompletionFlash.delete(key);renderTasks()},1000);
+    taskCompletionFlash.set(key,{complete,count:Number.isFinite(count)?count:null,started:Date.now(),timer});
+    // The keyed DOM patcher can retain the first old "۰/۳" frame.
+    // Draw the optimistic count immediately, then reconcile against storage.
+    const row=[...document.querySelectorAll('#task-list .astra-task-row[data-key]')].find(x=>String(x.dataset.key)===String(id));
+    if(row){
+      row.classList.add('just-completed-gold');
+      const badge=row.querySelector('.task-round-count');
+      if(badge&&Number.isFinite(count)){
+        const total=taskDailyTarget(ensureState(readState()).tasks.find(t=>String(t.id)===String(id)),date);
+        badge.textContent=fa(count)+'/'+fa(total);
+      }
+    }
   }
   let editingTask=null,editingTaskScope='series',editingHabit=null,editingHabitScope='series',focusInterval=null;
 
@@ -307,6 +318,20 @@
   function placeTaskFilters(){
     const panel=$('panel-tasks'),chips=$('astra-task-chips'),filters=panel?.querySelector('.astra-task-filters');
     if(chips&&filters&&filters.previousElementSibling!==chips)chips.after(filters);
+    const actions=$('elara-task-page-actions'),more=chips?.querySelector('[data-task-more-filter]')||actions?.querySelector('[data-task-more-filter]');
+    if(actions&&more){
+      if(more.parentElement!==actions)actions.prepend(more);
+      if(!more.dataset.filterPromoted){
+        more.dataset.filterPromoted='true';
+        more.addEventListener('click',event=>{
+          event.preventDefault();
+          event.stopPropagation();
+          const details=panel?.querySelector('.astra-task-filters');
+          if(details){details.open=true;details.classList.add('filters-expanded');}
+          details?.scrollIntoView({block:'nearest',behavior:'smooth'});
+        });
+      }
+    }
   }
   function renderTasks(){
     const state=ensureState(readState()),list=$('task-list');if(!list)return;placeTaskFilters();const taskPanel=$('panel-tasks');if(taskPanel)taskPanel.dataset.strikeCompleted=String(localStorage.getItem('elara_task_strike_completed')!=='no');
@@ -332,7 +357,7 @@
     });
     const taskRowHtml=t=>{
       const v=taskView(t,now),done=taskDone(t,now),flash=flashFor(t.id,now),scheduled=window.ElaraSchedule.taskDue(t,now),p=priorityMeta[String(v.priority)]||priorityMeta['4'];
-      const target=taskDailyTarget(t,now),count=taskDailyProgress(t,now),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||'شخصی',locked=!!t.sourceCompletionLocked,checkItems=(Array.isArray(v.checklist)?v.checklist:Array.isArray(t.checklist)?t.checklist:[]).filter(x=>x&&String(x.text||x.title||'').trim()).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+      const target=taskDailyTarget(t,now),count=Math.max(taskDailyProgress(t,now),Number.isFinite(flash?.count)?flash.count:0),source=sourceMeta[v.sourceGroup||t.sourceGroup]||null,kind=source?.label||'شخصی',locked=!!t.sourceCompletionLocked,checkItems=(Array.isArray(v.checklist)?v.checklist:Array.isArray(t.checklist)?t.checklist:[]).filter(x=>x&&String(x.text||x.title||'').trim()).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
       const overdue=!t.recurrenceRule&&!done&&!!t.date&&t.date<now,statusText=done?'انجام شد':target>1&&count>0?`در حال انجام · ${fa(count)}/${fa(target)}`:overdue?'عقب‌افتاده':scheduled?'در انتظار':'زمان‌بندی نشده',statusClass=done?'is-done':overdue?'is-overdue':target>1&&count>0?'is-progress':'is-pending';
       const scheduleText=t.recurrenceRule?recurrenceLabel(t.recurrenceRule).replace(/^تکرار:\s*/,''):(t.date?labelDate(t.date)+(v.time?' · '+v.time:''):'');
       return `<li tabindex="0" data-key="${esc(t.id)}" class="item astra-task-row priority-${esc(v.priority||'4')} ${source?.className||''} ${done?'done':''} ${flash?'just-completed-gold':''}" data-task-source="${esc(v.sourceGroup||t.sourceGroup||'personal')}"><button class="check-button" type="button" data-phase2-action="toggle-task" data-id="${esc(t.id)}" aria-pressed="${done}" ${locked?'disabled':''} data-task-date="${esc(now)}" aria-label="${locked?'وضعیت از بخش '+esc(t.sourceLabel||'مربوطه')+' مدیریت می‌شود':scheduled?(target>1?(done?'کم‌کردن یک نوبت':'ثبت نوبت '+fa(Math.min(target,count+1))+' از '+fa(target)):(done?'بازگرداندن':'تکمیل')):'برای امروز برنامه‌ریزی نشده'} ${esc(v.text||t.text)}">${done||flash?'<img class="elara-check-art" src="assets/ui/task-complete-user-blue.webp" alt="" decoding="async">':''}</button><div class="item-content"><button class="task-summary-button" type="button" data-phase2-action="view-task" data-id="${esc(t.id)}" aria-label="نمایش جزئیات ${esc(v.text||t.text)}"><span class="item-title" data-elara-ugc dir="auto">${esc(v.text||t.text)}</span>${target>1?`<b class="task-round-count" dir="ltr">${fa(count)}/${fa(target)}</b>`:""}</button>${target>1&&count>0?`<button type="button" class="task-round-back" data-task-round-back="${esc(t.id)}" data-task-date="${esc(now)}" title="برگشت یک نوبت" aria-label="برگشت یک نوبت">↶</button>`:""}<div class="item-meta astra-task-core-meta">${v.folder?`<span class="astra-folder-chip">${esc(v.folder)}</span>`:''}${v.tag?`<span class="astra-tag-chip">#${esc(v.tag)}</span>`:''}<span class="priority-badge ${p.className}">P${esc(v.priority||'4')}</span>${v.list?`<span class="astra-list-chip">${esc(v.list)}</span>`:''}${scheduleText?`<span class="astra-time-chip">◷ ${esc(v.time||scheduleText)}</span>`:''}${v.date?`<span class="astra-days-left">${daysBetween(now,v.date)===0?'امروز':daysBetween(now,v.date)>0?fa(daysBetween(now,v.date))+' روز مانده':fa(-daysBetween(now,v.date))+' روز گذشته'}</span>`:''}${t.collabSpaceId?`<span class="astra-shared-chip">🤝 مشترک</span>`:''}</div>${v.shortDescription?`<p class="task-short-description">${esc(v.shortDescription)}</p>`:''}</div>${checkItems.length?`<div class="task-checklist-preview" aria-label="زیرآیتم‌های تسک">${checkItems.map(item=>`<div class="task-checklist-preview-item ${item.done?'done':''}"><button type="button" class="check-button task-checklist-preview-check" data-task-check-toggle data-task-id="${esc(t.id)}" data-check-id="${esc(item.id)}" aria-pressed="${item.done}" aria-label="${item.done?'بازگرداندن':'تکمیل'} ${esc(item.text||item.title||'')}">${item.done?'<img class="elara-check-art" src="assets/ui/Glowing Neon Checkmark Orb.webp" alt="" decoding="async">':''}</button><div class="task-checklist-preview-copy"><b>${esc(item.text||item.title||'')}</b>${item.description?`<small>${esc(item.description)}</small>`:''}</div><button type="button" class="mini-button task-checklist-preview-edit" data-task-check-edit data-task-id="${esc(t.id)}" data-check-id="${esc(item.id)}">ویرایش</button></div>`).join('')}</div>`:''}<span class="astra-task-category ${source?.className||''}">${esc(kind)}</span><span class="astra-task-status ${statusClass}" title="${esc(scheduleText)}">${esc(statusText)}</span><span class="astra-task-xp ${t.linkedTask?'is-source':''}">${t.linkedTask?esc(t.sourceLabel||'مرتبط'):'+۱۰ XP'}</span><details class="astra-task-more"><summary aria-label="گزینه‌های تسک" aria-expanded="false"><span aria-hidden="true">⋮</span></summary><div class="item-actions"><button class="mini-button" type="button" data-phase2-action="edit-task" data-id="${esc(t.id)}">ویرایش</button><button class="mini-button" type="button" data-phase2-action="${t.collabSpaceId?'shared-task':'share-task'}" data-id="${esc(t.id)}">${t.collabSpaceId?'آمار مشترک':'مشترک با دوست'}</button><button class="mini-button danger" type="button" data-phase2-action="delete-task" data-id="${esc(t.id)}">حذف</button></div></details></li>`;
@@ -395,16 +420,22 @@
   async function taskAction(action,id,date=today()){
     const state=ensureState(readState()),task=state.tasks.find(t=>t.id===id);if(!task)return;const now=validDate(date)?date:today();/* Explicitly selected past, present and future occurrences are all actionable. */
     if(action==='toggle-task'){showTaskDecision(id,now);return}
-    if(action==='undo-task'){
+    if(action==='undo-task'||action==='undo-round'){
       if(task.sourceCompletionLocked)return;
       if(taskDailyTarget(task,now)>1){
         task.dailyProgress=task.dailyProgress&&typeof task.dailyProgress==='object'?task.dailyProgress:{};
-        task.dailyProgress[now]=Math.max(0,taskDailyProgress(task,now)-1);
+        // A row-arrow undoes only one session. Restoring a completed task
+        // from the archive deliberately starts the full day at ۰/۳ again.
+        task.dailyProgress[now]=action==='undo-task'?0:Math.max(0,taskDailyProgress(task,now)-1);
       }
       if(task.recurrenceRule)task.occurrenceDone=dateList(task.occurrenceDone).filter(x=>x!==now);
       else{task.completed=false;task.doneAt=null}
       removeCompletion(state,task,now);
-      window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state,now);writeState(state);renderTasks();return;
+      window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state,now);
+      const reset=state.tasks.find(t=>String(t.id)===String(id));
+      if(reset&&taskDailyTarget(reset,now)>1){reset.dailyProgress=reset.dailyProgress&&typeof reset.dailyProgress==='object'?reset.dailyProgress:{};reset.dailyProgress[now]=task.dailyProgress[now]}
+      const oldFlash=taskCompletionFlash.get(flashId(id,now));if(oldFlash?.timer)clearTimeout(oldFlash.timer);taskCompletionFlash.delete(flashId(id,now));
+      writeState(state);renderTasks();return;
     }
     if(action==='commit-task'){
       if(task.sourceCompletionLocked){notify(`این مورد از بخش ${task.sourceLabel||'مربوطه'} ثبت شده و وضعیتش از همان بخش مدیریت می‌شود.`);return}
@@ -516,7 +547,7 @@
       const before=ensureState(readState()).tasks.find(t=>String(t.id)===String(id));
       if(!before||before.sourceCompletionLocked||flashFor(id,date))return;
       const target=taskDailyTarget(before,date),beforeCount=taskDailyProgress(before,date);
-      if(target===1||beforeCount+1>=target)flashCompletedTask(id,date,true);
+      flashCompletedTask(id,date,target===1||beforeCount+1>=target,Math.min(target,beforeCount+1));
       await taskAction('commit-task',id,date);
       const saved=ensureState(readState()).tasks.find(t=>String(t.id)===String(id));
       if(target>1&&(!saved||taskDailyProgress(saved,date)<=beforeCount)){
@@ -618,7 +649,7 @@
     const add=event.target.closest('#elara-task-add-main');
     if(add){event.preventDefault();event.stopImmediatePropagation();openTaskComposer();return}
     const choice=event.target.closest('[data-task-decision]');if(choice){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void chooseTaskDecision(choice);return}
-    const back=event.target.closest('[data-task-round-back]');if(back){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void taskAction('undo-task',back.dataset.taskRoundBack,back.dataset.taskDate||today());return}
+    const back=event.target.closest('[data-task-round-back]');if(back){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();void taskAction('undo-round',back.dataset.taskRoundBack,back.dataset.taskDate||today());return}
     const restore=event.target.closest('[data-task-restore]');if(restore){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();setTaskFlow(restore.dataset.taskRestore,restore.dataset.day||today(),'');return}
     const cat=event.target.closest('[data-task-category]');if(cat){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();selectTaskCategory(cat.dataset.taskCategory);return}
     if(!event.target.closest('.elara-task-decision,[data-ref-task],[data-phase2-action="toggle-task"]'))closeTaskDecision();

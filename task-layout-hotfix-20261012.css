@@ -508,3 +508,124 @@ html body #panel-tasks > .elara-global-hero:not(#astra-task-hero){
  }
  html body #panel-tasks #astra-task-hero .task-streak-days{height:53px!important;min-height:53px!important;max-height:53px!important}
 }
+
+/* Task action feedback, one-second gold state and compact completed archive – 2026-10-14. */
+html body #panel-tasks #task-list>.astra-task-row.just-completed-gold{
+ border:1.5px solid #ffdc66!important;
+ background:linear-gradient(90deg,#8e581827,#1c3040 70%)!important;
+ box-shadow:0 0 15px #ffcb538a,inset 0 0 12px #ffcb5338!important;
+ transition:background .12s ease,box-shadow .12s ease!important
+}
+html body #panel-tasks #task-list>.astra-task-row.just-completed-gold>.check-button{
+ position:relative!important;overflow:hidden!important;
+ background:radial-gradient(circle at 35% 27%,#fff2bb,#ffd25f 53%,#ec9e2a)!important;
+ border:2px solid #fff2b0!important;box-shadow:0 0 14px #ffd66e,inset 0 0 5px #fff6d1!important
+}
+html body #panel-tasks #task-list>.astra-task-row.just-completed-gold>.check-button>img{display:none!important}
+html body #panel-tasks #task-list>.astra-task-row.just-completed-gold>.check-button::after{
+ content:"✓"!important;display:grid!important;position:absolute!important;inset:0!important;
+ place-items:center!important;font-size:18px!important;line-height:1!important;font-weight:950!important;
+ color:#704409!important;text-shadow:0 1px #fff8da!important
+}
+html body #panel-tasks #task-list>.astra-task-row.just-completed-gold .task-round-count{
+ color:#fff1b0!important;background:#7a4d14!important;border-color:#ffe299!important;
+ text-shadow:0 0 4px #fff2be!important
+}
+html body #panel-tasks #task-checked-archive{
+ box-sizing:border-box!important;max-width:100%!important;
+ padding:0!important;margin:8px 0 12px!important;
+ border:1px solid #e6b954!important;border-radius:13px!important
+}
+html body #panel-tasks #task-checked-archive>[data-task-archive-list]{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:6px!important;padding:8px!important;width:100%!important;min-width:0!important;
+ box-sizing:border-box!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row,
+html body.dark #panel-tasks #task-checked-archive .task-archive-row{
+ box-sizing:border-box!important;position:relative!important;
+ display:grid!important;grid-template-columns:38px minmax(0,1fr) auto!important;
+ grid-template-rows:minmax(44px,auto)!important;
+ align-items:center!important;align-content:center!important;justify-items:stretch!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:52px!important;max-height:72px!important;
+ margin:0!important;padding:5px 8px!important;gap:6px!important;
+ border:1px solid #b88934!important;border-radius:11px!important;overflow:hidden!important;
+ background:linear-gradient(100deg,#473015,#082541 68%)!important;box-shadow:inset 0 0 8px #ffcc3624!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo,
+html body.dark #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo{
+ grid-column:1!important;grid-row:1!important;align-self:center!important;justify-self:center!important;
+ position:relative!important;display:grid!important;place-items:center!important;
+ box-sizing:border-box!important;width:36px!important;height:36px!important;min-width:36px!important;max-width:36px!important;
+ min-height:36px!important;max-height:36px!important;overflow:visible!important;margin:0!important;padding:0!important;
+ border:0!important;background:transparent!important;box-shadow:none!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo>img.elara-uploaded-check{
+ box-sizing:border-box!important;display:block!important;
+ width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;object-fit:fill!important;
+ transform:scale(1.22)!important;transform-origin:center!important;
+ margin:0!important;padding:0!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>div:first-of-type{
+ grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;
+ gap:2px!important;justify-content:center!important;align-items:stretch!important;
+ margin:0!important;padding:0!important;min-width:0!important;
+ width:100%!important;height:auto!important;max-height:50px!important;overflow:hidden!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>div:first-of-type>strong{
+ display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ white-space:nowrap!important;font-size:12px!important;line-height:1.3!important;color:#fff4dc!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>div:first-of-type>small{
+ display:block!important;white-space:nowrap!important;font-size:10px!important;line-height:1.15!important;
+ color:#d9c292!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>div:last-of-type{
+ grid-column:3!important;grid-row:1!important;display:flex!important;flex-direction:row!important;
+ align-items:center!important;justify-content:flex-end!important;gap:4px!important;
+ min-width:0!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>div:last-of-type>button{
+ width:auto!important;min-width:0!important;height:29px!important;min-height:29px!important;
+ margin:0!important;padding:3px 7px!important;font-size:10px!important;white-space:nowrap!important
+}
+html body #panel-tasks .elara-task-decision [data-task-decision="done"],
+html body .elara-task-decision [data-task-decision="done"]{
+ background:linear-gradient(135deg,#c6ff62,#5bff6a,#00df84)!important;color:#075025!important;
+ border:1px solid #d7ff82!important;box-shadow:0 0 13px #80ff4d95!important
+}
+html body #panel-tasks .elara-task-decision [data-task-decision="declined"],
+html body .elara-task-decision [data-task-decision="declined"]{
+ background:linear-gradient(135deg,#ff768b,#e5284f)!important;color:#fff!important;
+ border:1px solid #ff9bac!important;box-shadow:0 0 12px #f34f7080!important
+}
+html body #panel-tasks .elara-task-decision [data-task-decision="later"],
+html body .elara-task-decision [data-task-decision="later"]{
+ background:linear-gradient(135deg,#65dfff,#2477ee)!important;color:#fff!important;
+ border:1px solid #96eafa!important;box-shadow:0 0 12px #42bfff85!important
+}
+html body #panel-tasks #elara-task-page-actions [data-task-more-filter]{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:34px!important;margin:0 4px!important;padding:6px 11px!important;
+ color:#aff0ff!important;border:1px solid #48aee8!important;background:#0b3253!important;
+ border-radius:11px!important;font-size:12px!important;white-space:nowrap!important
+}
+@media(max-width:700px){
+ html body #panel-tasks #task-checked-archive [data-task-archive-list]{padding:6px!important;gap:5px!important}
+ html body #panel-tasks #task-checked-archive .task-archive-row{
+  grid-template-columns:33px minmax(0,1fr) auto!important;
+  height:auto!important;min-height:49px!important;max-height:65px!important;
+  padding:4px 5px!important;gap:4px!important
+ }
+ html body #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo{
+  width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;min-height:32px!important;max-height:32px!important
+ }
+ html body #panel-tasks #task-checked-archive .task-archive-row>div:last-of-type{gap:2px!important}
+ html body #panel-tasks #task-checked-archive .task-archive-row>div:last-of-type>button{
+  height:25px!important;min-height:25px!important;padding:2px 5px!important;font-size:9px!important
+ }
+ html body #panel-tasks #task-checked-archive .task-archive-row>div:first-of-type>strong{font-size:11px!important}
+ html body #panel-tasks #elara-task-page-actions [data-task-more-filter]{min-height:30px!important;font-size:11px!important;padding:5px 8px!important}
+}
