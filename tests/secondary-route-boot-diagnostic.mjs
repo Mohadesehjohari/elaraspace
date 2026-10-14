@@ -48,6 +48,16 @@ try {
    console.log('ROUTES_DIAG '+JSON.stringify(await snapshot('after-3s')));
    await page.waitForTimeout(7000);
    console.log('ROUTES_DIAG '+JSON.stringify(await snapshot('after-10s')));
+   for(const route of ['language-books','language','exercise','social','page']){
+    await page.evaluate(route=>window.ElaraOpen?.(route,{history:'replace'}),route);
+    await page.waitForTimeout(100);
+    const detail=await page.evaluate(route=>{
+      const p=document.getElementById('panel-'+route),e=p?.querySelector(':scope > *');
+      const info=node=>{if(!node)return null;const s=getComputedStyle(node),r=node.getBoundingClientRect();return {tag:node.tagName,class:node.className,display:s.display,visibility:s.visibility,opacity:s.opacity,height:r.height,width:r.width,text:node.textContent?.trim().slice(0,120),inner:node.innerText?.trim().slice(0,120),hidden:node.hidden}};
+      return {route,panel:info(p),child:info(e),children:p?.children.length,selector:document.querySelector('#main>.panel:not(.hidden)')?.id};
+    },route);
+    console.log('ROUTE_STYLE '+JSON.stringify({width,...detail}));
+   }
   }catch(e){console.log('ROUTES_DIAG_ERROR '+JSON.stringify({width,error:e.message.slice(0,500)}));}
   console.log('ROUTES_DIAG_ERRORS '+JSON.stringify({width,errors:errors.slice(0,30),bad:bad.slice(0,35)}));
   await context.close();
