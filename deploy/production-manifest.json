@@ -226,7 +226,11 @@
     "well01-wellness-dashboard.js",
     "well01-wellness-dashboard.css",
     "wellness-reference-popups-20261012.js",
-    "wellness-reference-popups-20261012.css"
+    "wellness-reference-popups-20261012.css",
+    "ui13-language-routes.js",
+    "ui13-language.css",
+    "language-four-routes-20261015.js",
+    "language-four-routes-20261015.css"
   ],
   "files": [
     ".htaccess",
@@ -550,6 +554,10 @@
     "well01-wellness-dashboard.js",
     "well01-wellness-dashboard.css",
     "wellness-reference-popups-20261012.js",
-    "wellness-reference-popups-20261012.css"
+    "wellness-reference-popups-20261012.css",
+    "ui13-language-routes.js",
+    "ui13-language.css",
+    "language-four-routes-20261015.js",
+    "language-four-routes-20261015.css"
   ]
 }
