@@ -237,7 +237,9 @@
     "task-completion-polish-20261014.css",
     "task-cross-links-20261012.js",
     "freedom-r31-remaining.js",
-    "freedom-r31-remaining.css"
+    "freedom-r31-remaining.css",
+    "task-composer-reference-20261015.css",
+    "task-composer-reference-20261015.js"
   ],
   "files": [
     ".htaccess",
@@ -591,6 +593,8 @@
     "avatar-3d.js",
     "avatar-3d.css",
     "freedom-r31-remaining.js",
-    "freedom-r31-remaining.css"
+    "freedom-r31-remaining.css",
+    "task-composer-reference-20261015.css",
+    "task-composer-reference-20261015.js"
   ]
 }
