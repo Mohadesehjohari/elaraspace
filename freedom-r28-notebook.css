@@ -4,8 +4,8 @@
 #elara-dialog-root .r28-notebook-layer>.elara-dialog-panel>.elara-dialog-head,#elara-dialog-root .r28-notebook-layer>.elara-dialog-panel>.elara-dialog-actions{display:none!important}
 #elara-dialog-root .r28-notebook-layer>.elara-dialog-panel>.elara-dialog-body{flex:1;min-height:0;width:100%;max-width:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
 #elara-dialog-root .r28-diary{--r28-bg:url("assets/ui/Celestial%20Mirror%20Lake%20at%20Night.webp");position:relative;width:100%;height:100%;min-height:0;isolation:isolate;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:hidden;color:#f7f1ff;font-family:inherit;background:#050d25}
-#elara-dialog-root .r28-diary:before{content:"";position:absolute;z-index:-2;inset:0;background-image:linear-gradient(#07122e94,#07122eb9),var(--r28-bg);background-size:cover;background-position:center;filter:saturate(1.07)}
-#elara-dialog-root .r28-diary:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 80%,#11184aa3,transparent 76%)}
+#elara-dialog-root .r28-diary:before{content:"";position:absolute;z-index:-2;inset:0;background-image:var(--r28-bg);background-size:cover;background-position:center;filter:none}
+#elara-dialog-root .r28-diary:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:none}
 #elara-dialog-root .r28-header{flex:none;min-height:92px;padding:15px clamp(16px,4vw,62px);border-bottom:1px solid #6c56bb71;background:#07142bcc;display:grid;grid-template-columns:150px minmax(0,1fr) 150px;align-items:center;gap:14px;backdrop-filter:blur(15px)}
 #elara-dialog-root .r28-brand{text-align:center;color:#7bcbff;display:grid;gap:2px;justify-items:center}
 #elara-dialog-root .r28-brand span{font-size:30px;color:#b45bfa;text-shadow:0 0 20px #a046ff}
@@ -15,8 +15,8 @@
 #elara-dialog-root .r28-title small{font-size:12px;color:#bec6e2}
 #elara-dialog-root .r28-book{display:grid;place-items:center;flex:none;width:48px;height:48px;font-size:27px;color:#ce9dff;background:#1c1750;border:1px solid #7e66e8;border-radius:14px;box-shadow:0 0 22px #a74bf55c}
 #elara-dialog-root .r28-back{justify-self:start;border:1px solid #435c97;background:#192b50e3;color:#f4eaff;border-radius:12px;min-height:44px;padding:8px 14px;cursor:pointer}
-#elara-dialog-root .r28-layout{flex:1;min-height:0;width:min(1500px,100%);margin:auto;padding:clamp(10px,1.7vw,26px);display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,32%);gap:clamp(12px,2vw,32px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
-#elara-dialog-root .r28-themes{min-width:0;grid-column:2;grid-row:1;padding:12px 15px 12px 0;border-right:1px solid #394c8c;border-left:0}
+#elara-dialog-root .r28-layout{flex:1;min-height:0;width:min(1500px,100%);margin:auto;padding:clamp(10px,1.7vw,26px);display:grid;grid-template-columns:minmax(280px,32%) minmax(0,1fr);gap:clamp(12px,2vw,32px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+#elara-dialog-root .r28-themes{min-width:0;grid-column:1;grid-row:1;padding:12px 0 12px 18px;border-left:1px solid #394c8c;border-right:0}
 #elara-dialog-root .r28-themes h3{margin:2px 0 5px;font-size:17px}
 #elara-dialog-root .r28-themes p{font-size:12px;color:#c4c7e5;line-height:1.6;margin:3px 0 13px}
 #elara-dialog-root .r28-theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -31,12 +31,12 @@
 #elara-dialog-root .r28-upload{margin-top:14px;display:flex;align-items:center;justify-content:center;position:relative;min-height:45px;border-radius:14px;border:1px dashed #c17fff;background:linear-gradient(110deg,#272266c9,#6634a9aa);font-weight:750;cursor:pointer}
 #elara-dialog-root .r28-upload input{position:absolute;width:1px;height:1px;opacity:0}
 #elara-dialog-root .r28-hint{font-size:11px!important;color:#c9b7e1!important}
-#elara-dialog-root .r28-editor{min-width:0;grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:15px;background:#06132dbb;border:1px solid #294371b0;border-radius:17px;padding:clamp(12px,1.7vw,24px)}
+#elara-dialog-root .r28-editor{min-width:0;grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:15px;background:#06132dbb;border:1px solid #294371b0;border-radius:17px;padding:clamp(12px,1.7vw,24px)}
 #elara-dialog-root .r28-editor>label{display:grid;gap:8px;min-width:0;font-weight:800;font-size:13px}
 #elara-dialog-root .r28-editor input:not([type=checkbox]){width:100%;min-width:0;border:1px solid #4e68a4;border-radius:12px;outline-offset:2px;padding:12px;color:#fff;background:#0b1d3ccf;font:inherit}
 #elara-dialog-root .r28-editor input[name=title]{border-color:#9459fa}
 #elara-dialog-root .r28-editor .r28-body-label{flex:1;min-height:235px;display:flex;flex-direction:column}
-#elara-dialog-root .r28-writing{flex:1;min-height:190px;display:flex;flex-direction:column;border:1px solid #455da0;border-radius:14px;overflow:hidden;background:linear-gradient(#071733a8,#071733a8),var(--r28-bg) center/cover}
+#elara-dialog-root .r28-writing{flex:1;min-height:190px;display:flex;flex-direction:column;border:1px solid #455da0;border-radius:14px;overflow:hidden;background:var(--r28-bg) center/cover}
 #elara-dialog-root .r28-toolbar{display:flex;gap:6px;min-height:41px;align-items:center;justify-content:flex-start;padding:5px 10px;background:#122249bb;border-bottom:1px solid #374f86}
 #elara-dialog-root .r28-toolbar button{color:#dbe0ff;background:transparent;border:0;border-radius:8px;min-width:33px;min-height:30px;cursor:pointer;font-size:16px}
 #elara-dialog-root .r28-toolbar button:hover{background:#6444a5}
@@ -72,3 +72,35 @@
  #elara-dialog-root .r28-footer>div{gap:7px}
 }
 @media(max-width:355px){#elara-dialog-root .r28-theme-grid{gap:6px}#elara-dialog-root .r28-theme b{font-size:11px}#elara-dialog-root .r28-footer .r28-save{padding:8px}}
+
+/* R29 owner fix: exact RTL reference order, original artwork colors, viewport edge-to-edge. */
+html:has(#elara-dialog-root .r28-notebook-layer),
+body:has(#elara-dialog-root .r28-notebook-layer){overflow:hidden!important;overscroll-behavior:none!important}
+#elara-dialog-root:has(.r28-notebook-layer){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;padding:0!important;overflow:hidden!important}
+#elara-dialog-root .elara-dialog-layer.r28-notebook-layer{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:100%!important;padding:0!important;overflow:hidden!important}
+#elara-dialog-root .r28-notebook-layer>.elara-dialog-panel{
+ position:fixed!important;inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100vw!important;height:100dvh!important;min-width:0!important;min-height:0!important;
+ max-width:none!important;max-height:none!important;transform:none!important;box-sizing:border-box!important;
+}
+#elara-dialog-root .r28-notebook-layer>.elara-dialog-panel>.elara-dialog-body{
+ height:auto!important;flex:1 1 auto!important;min-height:0!important;max-height:none!important;display:flex!important;
+}
+#elara-dialog-root .r28-diary{flex:1 1 auto!important;min-height:0!important;min-width:0!important;height:100%!important}
+#elara-dialog-root .r28-diary::before{background-image:var(--r28-bg)!important;background-color:transparent!important;filter:none!important;opacity:1!important}
+#elara-dialog-root .r28-diary::after{content:none!important}
+#elara-dialog-root .r28-writing{background-image:var(--r28-bg)!important;background-color:transparent!important;background-size:cover!important;background-position:center!important}
+#elara-dialog-root .r28-theme-image img{opacity:1!important;filter:none!important;mix-blend-mode:normal!important}
+#elara-dialog-root .r28-header{grid-template-columns:minmax(0,1fr) 140px minmax(0,1fr)}
+#elara-dialog-root .r28-header .r28-title{grid-column:1;grid-row:1;justify-self:start}
+#elara-dialog-root .r28-header .r28-brand{grid-column:2;grid-row:1;justify-self:center}
+#elara-dialog-root .r28-header .r28-back{grid-column:3;grid-row:1;justify-self:end}
+#elara-dialog-root .r28-footer{padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+@media(max-width:740px){
+ #elara-dialog-root .r28-header{grid-template-columns:minmax(0,1fr) auto!important}
+ #elara-dialog-root .r28-header .r28-title{grid-column:1;grid-row:1;justify-self:start}
+ #elara-dialog-root .r28-header .r28-back{grid-column:2;grid-row:1;justify-self:end}
+ #elara-dialog-root .r28-layout{width:100%;min-width:0;max-width:100%;overscroll-behavior:contain}
+ #elara-dialog-root .r28-themes{border-right:1px solid #334a85;border-left:1px solid #334a85;padding:10px}
+ #elara-dialog-root .r28-footer{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
+}
