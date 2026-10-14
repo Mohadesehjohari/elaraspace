@@ -119,7 +119,7 @@ function open(kind,fromHistory=false){
  p.querySelector('.freedom-subpage-shell')?.remove();p.classList.add('freedom-subpage-open');
  const shell=document.createElement('section');shell.className='freedom-subpage-shell r30-shell';shell.dataset.freedomView=kind;shell.dir='rtl';shell.innerHTML=header(kind)+'<div class="r30-content" data-r30-body></div>';p.append(shell);render();
  if(!fromHistory)history.pushState({...history.state,elaraFreedomView:kind},'',location.href);
- shell.scrollIntoView({block:'start',behavior:'instant'});
+ shell.scrollIntoView({block:'start',behavior:'auto'});
 }
 function close(){
  active='';const p=P();p?.querySelector('.r30-shell')?.remove();p?.classList.remove('freedom-subpage-open');if(history.state?.elaraFreedomView)history.back();
@@ -183,5 +183,5 @@ document.addEventListener('click',async e=>{
 });
 for(const name of ['elara:freedom-changed','elara:data-changed','elara:state-committed','elara:account-ready'])window.addEventListener(name,schedule);
 window.addEventListener('popstate',()=>{if(!history.state?.elaraFreedomView){active='';P()?.querySelector('.r30-shell')?.remove()}});
-window.ElaraFreedomR30={open,render,get active(){return active}};
+window.ElaraFreedomR30={open,render,get active(){return active},get selectedBoard(){return selectedBoard}};
 })();
