@@ -12,7 +12,7 @@ const assetAvatar=(group,n,shape=wardrobe().shape||'circle')=>profileSystem()?.a
 const bannerList=()=>profileSystem()?.BANNERS||[];
 const frames=()=>profileSystem()?.FRAMES||[];
 const icon=(name)=>window.ElaraIcons?.icon?.(name,{className:'elara-visual-icon'})||`<span class="elara-visual-icon" aria-hidden="true"></span>`;
-let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null,wardrobeOwnerUid=null,wardrobeOverflow=null;
+let windowRoot=null,selectedPreview=null,showAll={avatar:false,frame:false,banner:false},wardrobeTab='banner',browseGroup=null,wardrobeOwnerUid=null,wardrobeOverflow=null,wardrobePageHost=null;
 const LANGUAGE_BOOKS_KEY='elara_language_books_v2';
 const LANGUAGE_BOOKS_MIGRATION='elara_language_books_v2_migrated_';
 const currentLanguageUid=()=>String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'').trim();
@@ -146,7 +146,7 @@ function previewView(){
  return view
 }
 function drawWardrobe(){
- const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;if(wardrobeOwnerUid&&uid()!==wardrobeOwnerUid){closeWardrobe(true);return}
+ const host=wardrobePageHost||$('wardrobe-main'),system=profileSystem();if(!host||!system)return;if(wardrobeOwnerUid&&uid()!==wardrobeOwnerUid){closeWardrobe(true);return}
  const p=wardrobe(),group=browseGroup,curLvl=level(),view=previewView();
  const make=(kind,id,label,src,required,equipped)=>({kind,id,label,src,required,locked:curLvl<required,equipped});
  const avatarItems=group?Array.from({length:10},(_,i)=>{const n=i+1;return make('avatar',group+':'+n,'آواتار '+n,system.avatarPath(group,n,p.shape||'circle'),n,p.photoMode!=='upload'&&group===p.avatarGroup&&n===p.avatarLevel)}):[];
@@ -173,7 +173,7 @@ function drawWardrobe(){
  '<footer class="wardrobe-p3-footer"><p>تجهیز در همین مرورگر و مخصوص حساب فعال ذخیره می‌شود؛ آپلود ابری فعال نیست.</p><button type="button" class="wardrobe-p3-equip" data-wardrobe-equip '+(!enableEquip?'disabled':'')+'>'+(active?.locked?'آیتم قفل است':equippedSelected?'مجهز است':'تجهیز این آیتم')+'</button></footer>';
 }
 function showWardrobe(){
- wardrobeWindow();const wasClosed=windowRoot.hidden;
+ wardrobePageHost=null;wardrobeWindow();const wasClosed=windowRoot.hidden;
  if(wasClosed)wardrobeOverflow={body:document.body.style.overflow,html:document.documentElement.style.overflow};
  wardrobeOwnerUid=uid();
  selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
@@ -193,12 +193,20 @@ window.addEventListener('elara:account-ready',()=>{if(windowRoot&&!windowRoot.hi
  if(history.state?.elaraWardrobe)history.replaceState({...history.state,elaraWardrobe:false},'',location.href);
  closeWardrobe(true)
 }});
-window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe};
+function mountWardrobePage(host){
+ if(!host)return;
+ wardrobeWindow(); // Loads the already-shipped wardrobe design asset.
+ wardrobePageHost=host;wardrobeOwnerUid=uid();selectedPreview=null;wardrobeTab='banner';
+ browseGroup=wardrobe().avatarGroup||null;showAll={avatar:false,frame:false,banner:false};
+ drawWardrobe()
+}
+function unmountWardrobePage(){wardrobePageHost=null;selectedPreview=null;wardrobeOwnerUid=null}
+window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe,mountPage:mountWardrobePage,unmountPage:unmountWardrobePage};
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
-  if(event.target.closest('[data-approved-wardrobe]')){showWardrobe();return}
-  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){closeWardrobe();return}
+  if(event.target.closest('[data-approved-wardrobe]')){if(window.ElaraPrivateRoutes?.open){event.preventDefault();event.stopImmediatePropagation();window.ElaraPrivateDrawer?.close?.();window.ElaraPrivateRoutes.open('wardrobe')}else showWardrobe();return}
+  if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){if(wardrobePageHost&&window.ElaraPrivateRoutes?.back)window.ElaraPrivateRoutes.back();else closeWardrobe();return}
   if(event.target.closest('[data-lang-leitner]')){window.ElaraOpen?.('words');return}
   if(event.target.closest('[data-lang-review]')){window.ElaraOpen?.('words');return}
   const tab=event.target.closest('[data-wardrobe-tab]');if(tab){wardrobeTab=tab.dataset.wardrobeTab;selectedPreview=null;drawWardrobe();return}

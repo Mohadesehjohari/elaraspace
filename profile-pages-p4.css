@@ -1,0 +1,92 @@
+/* PROFILE P4 only: dedicated pages within the existing #main and shared chrome.
+   Does not repurpose #page or alter seven-item bottom navigation. */
+#elara-private-route[hidden]{display:none!important}
+body.elara-private-route-active #main>:not(#elara-private-route){display:none!important}
+body.elara-private-route-active #main{overflow:visible!important;min-height:calc(100dvh - 130px)}
+body.elara-private-route-active .workspace{min-width:0}
+#elara-private-route{width:100%;min-width:0;max-width:1460px;margin:0 auto;padding:96px clamp(10px,2vw,30px) 60px;direction:rtl;overflow-x:clip;color:#f9f8ff;box-sizing:border-box}
+#elara-private-route *{box-sizing:border-box}
+#elara-private-route button{cursor:pointer;font-family:inherit}
+#elara-private-route button:focus-visible{outline:3px solid #69e4ff;outline-offset:3px}
+#elara-private-route .p4-account-mount{display:block;min-width:0;padding:12px 20px 26px;border:1px solid #244f92;border-radius:20px;background:radial-gradient(ellipse at 45% -3%,#213e7c77,transparent 60%),#06132d;box-shadow:0 10px 42px #06102a80}
+#elara-private-route .elara-profile-hub{gap:17px}
+#elara-private-route .elara-profile-hub-heading{margin:0 0 1px}
+#elara-private-route .elara-profile-hub-heading .drawer-section-head{background:none;padding:4px 0 12px}
+#elara-private-route .elara-profile-hub-heading .drawer-section-head strong{font-size:clamp(22px,2.4vw,33px)}
+#elara-private-route .elara-profile-hub-heading [data-drawer-nav=home]{min-width:48px;min-height:48px;border-radius:13px;background:#0c234d;border:1px solid #5666d7}
+#elara-private-route .elara-profile-hub-hero .elara-profile-composition{min-height:clamp(260px,31vw,420px);border-radius:23px;border-color:#8255fb;box-shadow:0 0 16px #7136ff40}
+#elara-private-route .elara-profile-hub-hero .elara-profile-avatar-shell{width:clamp(120px,14vw,194px);height:clamp(120px,14vw,194px)}
+#elara-private-route .elara-profile-hub-medals{padding:3px 0}
+#elara-private-route .elara-profile-hub-status{min-height:68px}
+#elara-private-route .elara-profile-hub-shortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+#elara-private-route .elara-profile-hub-entry{min-width:0;min-height:70px;padding:10px;border-radius:14px;border:1px solid #325f9a;background:#091d3b;display:flex;align-items:center;gap:8px;text-align:right}
+#elara-private-route .elara-profile-hub-entry .elara-icon{flex:0 0 27px;width:27px;height:27px;color:#71baff}
+#elara-private-route .elara-profile-hub-entry span:not(.elara-icon){display:grid;flex:1;min-width:0;gap:2px}
+#elara-private-route .elara-profile-hub-entry strong{font-size:13px}
+#elara-private-route .elara-profile-hub-entry small{font-size:10px;line-height:1.5;color:#b9c9ed}
+#elara-private-route .elara-profile-hub-chevron{font-size:24px;color:#aacaff}
+#elara-private-route .elara-profile-hub-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+#elara-private-route .elara-profile-hub-actions>button{min-height:75px}
+#elara-private-route .elara-profile-hub-actions .p4-wardrobe-cta{display:none}
+#elara-private-route .p4-page-loading,#elara-private-route .p4-page-empty{padding:35px 20px;text-align:center;border:1px solid #3468aa;border-radius:15px;background:#081d3b;color:#bdd8fa}
+#elara-private-route .elara-page-wardrobe{display:block!important;position:static!important;inset:auto!important;min-width:0;width:100%;padding:0;margin:0;background:none;border:0;box-shadow:none;transform:none;overflow:visible}
+#elara-private-route .elara-page-wardrobe .approved-wardrobe-window{display:block!important;position:static!important;inset:auto!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;min-height:calc(100dvh - 160px);margin:0!important;overflow:visible!important;padding:18px!important;border:1px solid #6e58d1;border-radius:21px;background:radial-gradient(ellipse at 50% 0%,#14336a,transparent 75%),#06122c!important}
+#elara-private-route .elara-page-wardrobe .p4-page-heading{display:flex!important;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px 12px;border-bottom:1px solid #2a5285;background:none!important;position:static!important}
+#elara-private-route .p4-page-heading>div{min-width:0}
+#elara-private-route .p4-page-heading h1{margin:0 0 5px;font-size:clamp(22px,2.7vw,31px)}
+#elara-private-route .p4-page-heading p{margin:0;color:#b5cafa;font-size:12px}
+#elara-private-route .p4-page-heading [data-p4-back]{min-height:44px;min-width:106px;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;border:1px solid #607dd1;color:#fff;background:#0c2451;border-radius:12px;font-size:13px}
+#elara-private-route .p4-wardrobe-intro{margin:8px 0 15px;padding:6px 10px;text-align:center;color:#a9caff;font-size:11px}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-hero .elara-profile-composition{min-height:clamp(240px,25vw,390px)}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-layout{grid-template-columns:minmax(0,1.75fr) minmax(240px,.85fr)}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-image{height:clamp(92px,11vw,154px)}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-detail{min-height:310px}
+#elara-private-route .elara-page-wardrobe .wardrobe-p3-footer{min-height:75px}
+@media(min-width:701px) and (max-width:1100px){
+ #elara-private-route{padding-top:96px}
+}
+@media(max-width:900px){
+ #elara-private-route .elara-profile-hub-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-layout{grid-template-columns:minmax(0,1fr)}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ body.elara-private-route-active #main{padding-inline:4px!important}
+
+ body.elara-private-route-active #main{min-height:calc(100dvh - 135px)}
+ #elara-private-route{padding:9px 2px calc(107px + env(safe-area-inset-bottom,0px))}
+ #elara-private-route .p4-account-mount{padding:10px 8px 28px;border-radius:16px}
+ #elara-private-route .elara-profile-hub{gap:12px}
+ #elara-private-route .elara-profile-hub-heading .drawer-section-head{min-height:64px}
+ #elara-private-route .elara-profile-hub-heading .drawer-section-head strong{font-size:clamp(21px,6vw,26px)}
+ #elara-private-route .elara-profile-hub-hero .elara-profile-composition{min-height:clamp(270px,85vw,380px);background-position:center 42%}
+ #elara-private-route .elara-profile-hub-hero .elara-profile-composition .elara-profile-avatar-shell{width:clamp(102px,32vw,152px);height:clamp(102px,32vw,152px)}
+ #elara-private-route .elara-profile-hub-medals{gap:6px}
+ #elara-private-route .elara-profile-hub-shortcuts{display:grid;grid-template-columns:1fr;gap:8px}
+ #elara-private-route .elara-profile-hub-entry{min-height:68px;padding:12px}
+ #elara-private-route .elara-profile-hub-entry strong{font-size:15px}
+ #elara-private-route .elara-profile-hub-entry small{font-size:11px}
+ #elara-private-route .elara-profile-hub-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #elara-private-route .elara-profile-hub-actions>button{min-height:68px}
+ #elara-private-route .elara-profile-hub-actions .elara-profile-hub-edit{grid-column:1/-1;grid-row:1}
+ #elara-private-route .elara-profile-hub-actions .p4-wardrobe-cta{display:none}
+ #elara-private-route .elara-page-wardrobe .approved-wardrobe-window{min-height:calc(100dvh - 185px);padding:9px!important;border-radius:15px!important}
+ #elara-private-route .elara-page-wardrobe .p4-page-heading{gap:7px}
+ #elara-private-route .elara-page-wardrobe .p4-page-heading h1{font-size:19px}
+ #elara-private-route .elara-page-wardrobe .p4-page-heading p{font-size:10px}
+ #elara-private-route .p4-page-heading [data-p4-back]{min-width:83px;min-height:43px;padding:7px;font-size:12px}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-hero .elara-profile-composition{min-height:clamp(185px,60vw,260px)}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-layout{display:flex;flex-direction:column}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-image{height:clamp(86px,27vw,130px)}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-tabs{display:flex;overflow-x:auto}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-tabs button{min-height:45px;flex:0 0 auto}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-footer{display:grid;gap:8px}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-equip{width:100%;min-height:50px}
+}
+@media(max-width:350px){
+ #elara-private-route .elara-profile-hub-entry{gap:6px}
+ #elara-private-route .elara-profile-hub-actions button small{font-size:9px}
+ #elara-private-route .elara-page-wardrobe .wardrobe-p3-tile-info{flex-wrap:wrap}
+}

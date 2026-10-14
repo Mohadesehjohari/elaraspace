@@ -179,10 +179,10 @@
     const rows=blocked.map(row=>'<div class="pass2-blocked-row"><span><strong>'+esc(row.targetName||row.targetUsername||'کاربر')+'</strong><small>'+(row.targetUsername?'@'+esc(row.targetUsername):'')+'</small></span><button type="button" class="quiet-button" data-social-unblock="'+esc(row.target)+'">رفع مسدودیت</button></div>').join('');
     host.innerHTML=sectionHead('بلاک‌شده‌ها','رفع بلاک، دوستی قبلی را خودکار برنمی‌گرداند.')+'<section class="pass2-blocked-list"><div>'+(rows||'<p class="muted">فعلاً کسی مسدود نشده است.</p>')+'</div><p class="muted" data-privacy-status></p></section>';
   }
-  function renderAccount(){
-    const host=$('drawer-account-area');if(!host)return;
+  function renderAccount(destination=null){
+    const host=destination||$('drawer-account-area');if(!host)return;
     ensureProfileHubCSS();
-    if(window.matchMedia('(max-width:700px)').matches){
+    if(!destination&&window.matchMedia('(max-width:700px)').matches){
       // Account is the only full-screen Drawer section; bypass inherited grid slots.
       host.style.setProperty('position','absolute','important');
       host.style.setProperty('inset','0','important');
@@ -193,13 +193,13 @@
       host.style.setProperty('overflow-y','auto','important');
       host.style.setProperty('overflow-x','hidden','important');
       host.style.setProperty('padding','16px 8px calc(100px + env(safe-area-inset-bottom,0px))','important');
-    }else host.removeAttribute('style');
+    }else if(!destination)host.removeAttribute('style');
     const system=window.ElaraProfileSystem,person=profile(),uid=system?.currentUid?.(),view=profileView();
     if(!uid||!person?.uid||String(person.uid)!==String(uid)||!view){
       host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+'<p class="elara-profile-hub-empty" role="status">در حال بارگذاری اطلاعات حساب…</p>';
       return
     }
-    if(root)root.style.setProperty('--elara-profile-hub-banner','url("'+String(view.bannerSrc||'').replace(/"/g,'%22')+'")');
+    (destination||root)?.style.setProperty('--elara-profile-hub-banner','url("'+String(view.bannerSrc||'').replace(/"/g,'%22')+'")');
     const earned=Array.isArray(view.medals)?view.medals:[];
     const medalRows=earned.length?earned.map(m=>'<span class="elara-profile-hub-medal" title="'+esc(m.label)+'">'+icon('ranking')+'<b>'+esc(m.label)+'</b></span>').join(''):'<span class="elara-profile-hub-no-medals">هنوز نشانی کسب نشده است.</span>';
     const status=String(person.bio||'').trim();
@@ -356,8 +356,8 @@ function renderSecurity(){
   document.addEventListener('click',async e=>{
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
     const wardrobeButton=e.target.closest('[data-approved-wardrobe]');
-    if(wardrobeButton){e.preventDefault();window.ElaraWardrobeUI?.open?.();return}
-    const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
+    if(wardrobeButton){e.preventDefault();close();if(window.ElaraPrivateRoutes?.open)window.ElaraPrivateRoutes.open('wardrobe');else window.ElaraWardrobeUI?.open?.();return}
+    const nav=e.target.closest('[data-drawer-nav]');if(nav){if(nav.dataset.drawerNav==='account'&&window.ElaraPrivateRoutes?.open){close();window.ElaraPrivateRoutes.open('profile');return}show(nav.dataset.drawerNav);return}
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
     const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
@@ -422,7 +422,9 @@ function renderSecurity(){
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
-  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance};
+  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAccountInto:host=>renderAccount(host),renderAppearance};
+  // Load the optional private page route module without changing the global Router or #page.
+  if(!document.querySelector('script[data-elara-private-routes]')){const script=document.createElement('script');script.src='profile-pages-p4.js?v=20261011-p4-1';script.defer=true;script.dataset.elaraPrivateRoutes='';document.head.append(script)}
   window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();

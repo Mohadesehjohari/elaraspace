@@ -27,7 +27,7 @@ for(const width of widths){
   window.ElaraWardrobeUI.open();
  });
  await page.addStyleTag({content:'#cloud-layer{display:none!important}body.cloud-ready .shell{visibility:visible!important;opacity:1!important}'});
- await page.locator('.approved-wardrobe:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});
+ try{await page.locator('.approved-wardrobe:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});}catch(error){console.error('P3_LEGACY_DIAG '+JSON.stringify(await page.evaluate(()=>({hash:location.hash,wardrobeRoot:document.querySelector('.approved-wardrobe')?.outerHTML.slice(0,400),style:document.querySelector('.approved-wardrobe')?getComputedStyle(document.querySelector('.approved-wardrobe')).display:null,tabCount:document.querySelectorAll('.wardrobe-p3-tabs').length,html:document.querySelector('.approved-wardrobe')?.outerHTML.slice(0,1600)}))));throw error}
  assert.equal(await page.locator('[data-wardrobe-tab]').count(),5,'Five tabs');
  assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'No preview selection should equip');
  const box=await page.locator('.approved-wardrobe-window').boundingBox();
@@ -63,10 +63,11 @@ for(const width of widths){
  if(width===412){
   await page.evaluate(()=>window.ElaraPrivateDrawer?.open?.('account'));
   await page.locator('[data-approved-wardrobe]').first().evaluate(el=>el.click());
-  await page.locator('.approved-wardrobe:not([hidden])').waitFor();
+  await page.waitForFunction(()=>location.hash==='#wardrobe'&&!!document.querySelector('#elara-private-route .wardrobe-p3-tabs'),null,{timeout:13000});
+  assert.equal(await page.locator('.approved-wardrobe:not([hidden])').count(),0,'Drawer wardrobe entry still opened an overlay');
   await page.goBack({waitUntil:'domcontentloaded'});
-  await page.locator('.approved-wardrobe').waitFor({state:'hidden',timeout:10000});
-  assert.ok(await page.locator('.elara-private-drawer:not(.hidden)').isVisible(),'Browser Back should return to account drawer');
+  await page.waitForFunction(()=>location.hash==='#home',null,{timeout:13000});
+  assert.ok(await page.locator('#elara-private-route').isHidden(),'Browser Back left private page in front of Home');
   const scrolling=await page.evaluate(()=>({body:document.body.style.overflow,html:document.documentElement.style.overflow}));
   assert.notEqual(scrolling.html,'hidden','Wardrobe Back left global document scroll locked');
  }

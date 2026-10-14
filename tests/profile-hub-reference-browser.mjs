@@ -58,7 +58,8 @@ for(const width of sizes){
  }else if(width===1440){
   assert.equal(await page.locator('.drawer-menu').isVisible(),true,'Desktop drawer menu must remain');
   await page.locator('.elara-profile-hub-actions [data-approved-wardrobe]').click();
-  await page.locator('.approved-wardrobe:not([hidden])').waitFor({timeout:10000});
+  await page.waitForFunction(()=>location.hash==='#wardrobe'&&!!document.querySelector('#elara-private-route .wardrobe-p3-tabs'),null,{timeout:15000});
+  assert.equal(await page.locator('.approved-wardrobe:not([hidden])').count(),0,'P4 wardrobe must be a page, not modal');
  }
  assert.equal(await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||''),originalNav,'Main mobile navigation mutated');
  await context.close();
