@@ -20,7 +20,7 @@ try {
     const s=p?.querySelector('#ref-streak-card');
     const c=s?.getBoundingClientRect();
     const gRect=g?.getBoundingClientRect();
-    const owner=document.querySelector('link[href*="home-owner-art-2026.css"]');
+    const owner=document.querySelector('link[rel="stylesheet"][href*="home-owner-art-2026.css"]');
     return {
      width:innerWidth,
      booting:document.documentElement.hasAttribute('data-elara-booting'),
@@ -57,7 +57,7 @@ try {
   await page.waitForTimeout(750);
   const interim=await page.evaluate(()=>({
     booting:document.documentElement.hasAttribute('data-elara-booting'),
-    ownerSheet:!!document.querySelector('link[href*="home-owner-art-2026.css"]')?.sheet
+    ownerSheet:!!document.querySelector('link[rel="stylesheet"][href*="home-owner-art-2026.css"]')?.sheet
   }));
   assert.equal(interim.booting,true,'Old layout exposed while final owner CSS is delayed, width='+width);
   await page.waitForFunction(()=>!!window.__elaraMobileFirstFrame,null,{timeout:30000});
