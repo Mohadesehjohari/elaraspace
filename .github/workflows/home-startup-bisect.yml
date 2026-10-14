@@ -26,7 +26,7 @@ jobs:
           sleep 1
       - name: Bisect hung Home browser context
         run: |
-          for mode in no-boot no-css no-design no-reference no-art no-app; do
+          for mode in no-all-assets no-js no-static no-boot no-reference; do
             echo "=== CASE $mode ==="
             timeout 17s env BISECT_MODE="$mode" node tests/home-startup-bisect-browser.mjs || true
           done
