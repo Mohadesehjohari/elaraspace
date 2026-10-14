@@ -1,10 +1,10 @@
 name: FOCUS-02 Library Inline and Immersive Flow
 on:
   pull_request:
-    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, tests/focus02-no-freeze-browser.mjs, .github/workflows/focus-two-mode.yml]
   push:
     branches: [main]
-    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, .github/workflows/focus-two-mode.yml]
+    paths: [index.html, focus-two-mode.js, focus-two-mode.css, phase2.js, feature-hubs-2026.js, tests/focus-two-mode-browser.mjs, tests/focus02-no-freeze-browser.mjs, .github/workflows/focus-two-mode.yml]
 permissions:
   contents: read
 jobs:
@@ -21,6 +21,7 @@ jobs:
           node --check focus-two-mode.js
           node --check phase2.js
           node --check tests/focus-two-mode-browser.mjs
+          node --check tests/focus02-no-freeze-browser.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -30,3 +31,4 @@ jobs:
           python3 -m http.server 4173 >/tmp/focus-two-mode-http.log 2>&1 &
           sleep 3
           timeout 330s node tests/focus-two-mode-browser.mjs
+          timeout 90s node tests/focus02-no-freeze-browser.mjs
