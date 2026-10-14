@@ -21,6 +21,7 @@ const fixture={
  ],books:[{id:'book-1',title:'کتاب آزمایشی',shelf:'reading',totalPages:100,currentPage:8,readingLogs:[{date:today,timestamp:now-200000,fromPage:0,toPage:8,pagesRead:8}]}],folders:[],tags:[],taskLists:[]
 };
 const history=[{type:'wordsReviewed',value:1,date:today,at:now-50000,id:''},{type:'wordsReviewed',value:1,date:today,at:now-50000,id:''}];
+const leitner=[{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'leitner-focus-1760211111111-qax',date:today,minutes:4,seconds:260},{id:'malformed',date:'invalid-date',minutes:999}];
 await mkdir('browser-artifacts/reports01',{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
@@ -31,10 +32,11 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth}));
   await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social}));
-  await page.addInitScript(({fixture,history})=>{
+  await page.addInitScript(({fixture,history,leitner})=>{
    localStorage.setItem('elara_space_v1',JSON.stringify(fixture));
    localStorage.setItem('elara_report_history_v1_reports-fixture-01',JSON.stringify(history));
-  },{fixture,history});
+   localStorage.setItem('elara_language_journal_v1_reports-fixture-01',JSON.stringify(leitner));
+  },{fixture,history,leitner});
   await page.goto(origin+'/?reports01='+width+'#reports',{waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>window.ElaraReportsDashboard&&document.querySelector('#panel-reports #elara-reports-overview .elara-reports-kpis')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:40000});
   await page.waitForFunction(()=>window.ElaraAccount?.user?.uid==='reports-fixture-01',null,{timeout:30000});
@@ -53,15 +55,16 @@ try{
   assert.ok(heroAsset.width>100&&heroAsset.height>30,width+': reports_all.webp failed to load');
   assert.match(stats.background,/reports_all\.webp/,width+': real banner asset');
   assert.equal(stats.hiddenLegacy,0,width+': remove legacy Reports launcher shortcuts');
-  assert.equal(stats.taskCount,2,width+': deduped completions');
-  assert.equal(stats.focusMinutes,25,width+': only completed focus');
+  if(stats.taskCount!==2)console.error('REPORTS_L5_TASK_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({completionHistory:JSON.parse(localStorage.getItem('elara_space_v1')||'{}').taskCompletionHistory,events:window.ElaraReportsDashboard.data().events.filter(e=>e.kind==='tasks'),keys:window.ElaraReportsDashboard.data().current.filter(e=>e.kind==='tasks').map(e=>e.label)}))));
+  assert.equal(stats.taskCount,3,width+': two original completions plus one language-study task from one deduped journal record');
+  assert.equal(stats.focusMinutes,29,width+': count validated Leitner minutes once alongside completed focus');
   assert.equal(stats.words,1,width+': duplicate review not counted');
   assert.equal(stats.reading,8,width+': canonical reading log');
   assert.equal(stats.books,1,width+': active book');
   assert.ok(stats.scroll<=stats.viewport+4,width+': document horizontal overflow '+JSON.stringify(stats));
   assert.equal(await page.locator('#panel-reports .elara-reports-periods button').count(),4);
   await page.locator('#panel-reports [data-reports-days="7"]').click();
-  assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.tasks),1,width+': weekly filter did not narrow completions');
+  assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.tasks),2,width+': weekly filter excludes old completion and includes one generated study task');
   await page.locator('#panel-reports [data-reports-days="365"]').click();
   assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().n),365,width+': annual filter');
   await page.locator('#panel-reports [data-reports-days="90"]').click();
@@ -90,10 +93,11 @@ try{
  const page=await context.newPage();
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:auth.replaceAll('reports-fixture-01','reports-fixture-02')}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:social.replaceAll('reports-fixture-01','reports-fixture-02')}));
- await page.addInitScript(hist=>localStorage.setItem('elara_report_history_v1_reports-fixture-01',JSON.stringify(hist)),history);
+ await page.addInitScript(({hist,leitner})=>{localStorage.setItem('elara_report_history_v1_reports-fixture-01',JSON.stringify(hist));localStorage.setItem('elara_language_journal_v1_reports-fixture-01',JSON.stringify(leitner))},{hist:history,leitner});
  await page.goto(origin+'/?reports01=private#reports',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraReportsDashboard&&window.ElaraAccount?.user?.uid==='reports-fixture-02',null,{timeout:30000});
  assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.words),0,'cross-account review history leaked');
+ assert.equal(await page.evaluate(()=>window.ElaraReportsDashboard.data().agg.focus),0,'cross-account Leitner study minutes leaked');
  console.log('REPORTS01_PRIVATE_HISTORY_PASS');
  await context.close();
 }finally{await browser.close()}

@@ -32,6 +32,7 @@ function data(n=days){
  const history=who?A(read('elara_report_history_v1_'+who,[])):[];
  const wellness=who?read('elara_private_wellness_v1_'+who,{}):{};
  const tasks=A(state.tasks),books=A(state.books),focus=A(state.focusSessions);
+ const leitnerMinutes=who?A(read('elara_language_journal_v1_'+who,[])):[];
  const completion=seenUnique(A(state.taskCompletionHistory).filter(r=>r&&valid(r.date)),r=>String(r.taskId||r.key||'')+':'+r.date);
  const taskEvents=completion.map(r=>({date:r.date,at:Number(r.completedAt)||0,label:r.title||'تسک انجام‌شده',kind:'tasks',route:'reports-productivity',value:1}));
  const focusEvents=seenUnique(focus.filter(s=>s&&s.completed!==false&&Number(s.endedAt)>0&&Number(s.durationMin)>0&&Number(s.durationMin)<=180&&dateOf(s.endedAt)),s=>String(s.id||s.endedAt+':'+s.durationMin))
@@ -44,7 +45,10 @@ function data(n=days){
  .map(w=>({date:w.date,at:Number(w.timestamp)||0,label:'ورزش ثبت‌شده',kind:'exercise',route:'wellness-reports',value:N(w.minutes)}));
  const habits=seenUnique(A(state.habits).flatMap(h=>A(h.days).filter(valid).map(date=>({date,id:h.id||h.title||'',label:h.title||'عادت تکمیل‌شده'}))),r=>r.id+':'+r.date)
  .map(r=>({date:r.date,at:0,label:r.label,kind:'habits',route:'reports-productivity',value:1}));
- const events=[...taskEvents,...focusEvents,...words,...reading,...exercise,...habits];
+ // Only account-scoped, completed whole minutes logged by canonical Leitner story. No mock totals.
+ const leitnerFocusEvents=seenUnique(leitnerMinutes.filter(r=>r&&/^leitner-focus-[a-z0-9-]+$/i.test(String(r.id||''))&&valid(r.date)&&Number.isInteger(Number(r.minutes))&&N(r.minutes)>0&&N(r.minutes)<=1440),r=>String(r.id))
+ .map(r=>({date:r.date,at:Number(String(r.id).match(/^leitner-focus-(\d+)/)?.[1])||0,label:'مطالعه زبان · لایتنر',kind:'focus',route:'language-reports',value:N(r.minutes)}));
+ const events=[...taskEvents,...focusEvents,...leitnerFocusEvents,...words,...reading,...exercise,...habits];
  const inRange=e=>e.date>=start&&e.date<=now;
  const current=events.filter(inRange);
  const daily={};for(let d=start;d<=now;d=shift(d,1))daily[d]={tasks:0,focus:0,words:0,reading:0,exercise:0,habits:0,due:0,doneDue:0};

@@ -64,7 +64,19 @@ try{
   if(width===390||width===1440){
     assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+5),'Underlying app leaked beyond full-screen review');
     await page.reload({waitUntil:'domcontentloaded'});
-    await page.waitForSelector('#l3-review-scene .l3-story-card-slot .flashcard',{timeout:20000});
+    try{await page.waitForSelector('#l3-review-scene .l3-story-card-slot .flashcard',{timeout:20000})}
+    catch(error){
+     console.error('L3_REFRESH_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({
+      url:location.href,ready:document.readyState,route:location.hash,search:location.search,
+      appReady:!!window.ElaraOpen,languageReady:!!window.ElaraLanguageDestinations,loaders:!!window.ElaraLeitnerL5,
+      panelExists:!!document.querySelector('#panel-words'),panelClass:document.querySelector('#panel-words')?.className,
+      scene:!!document.querySelector('#l3-review-scene'),flash:document.querySelectorAll('.flashcard').length,
+      wordFront:document.querySelector('#flash-front')?.textContent,
+      words:JSON.parse(localStorage.getItem('elara_space_v1')||'{}').words?.map(w=>({front:w.front,box:w.box,due:w.due})),
+      activePanel:[...document.querySelectorAll('[id^="panel-"]')].filter(n=>!n.classList.contains('hidden')).map(n=>n.id).slice(0,12)
+     }))));
+     throw error;
+    }
     assert.equal(new URL(page.url()).searchParams.get('leitner'),'review','Direct review URL must restore after refresh');
   }
   await page.keyboard.press('Escape');
