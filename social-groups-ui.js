@@ -1,4 +1,6 @@
 (()=>{'use strict';
+// Boot and the route-level fallback may both request this module. Bind only once.
+if(window.ElaraSocialGroupsUI?.mount)return;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 let renderToken=0;
@@ -53,12 +55,18 @@ function applyGroupFilters(section=document.querySelector('#elara-social-page .g
  const countEl=section.querySelector('[data-g4-results-count]');if(countEl)countEl.textContent=numerals(count);
 }
 async function mount(force=false){
- const root=document.getElementById('elara-social-page'),service=api();if(!root||!service)return;
+ const root=document.getElementById('elara-social-page'),service=api();if(!root)return;
  if(!activeGroupsTab(root)){renderToken++;root.querySelector('.social-groups-section')?.remove();return}
  const grid=root.querySelector('.social-reference-grid');if(!grid)return;
  let section=root.querySelector('.social-groups-section');
  if(!section){section=document.createElement('section');section.className='elara-card social-section social-groups-section groups-r4';section.dataset.elaraI18n='off';grid.prepend(section)}
  section.classList.add('groups-r4');
+ if(!service || typeof service.list!=='function'){
+  renderToken++;
+  section.dataset.g4Loading='false';
+  section.innerHTML='<div class="g4-error g4-service-unavailable" role="status"><strong>'+t('گروه‌ها فعلاً به سرویس اجتماعی متصل نیستند','Groups are not connected yet')+'</strong><p class="g4-availability-message">'+t('سرویس گروه‌ها هنوز آماده نشده. می‌توانی دوباره تلاش کنی یا به تب دیگری بروی.','The group service is not ready yet. Retry or use another tab.')+'</p><div class="g4-error-actions"><button type="button" class="g4-secondary" data-g4-reconnect>'+t('تلاش دوباره','Retry')+'</button><button type="button" class="g4-secondary" data-f2-tab="friends">'+t('دوستان','Friends')+'</button><button type="button" class="g4-secondary" data-f2-tab="chats">'+t('چت‌ها','Chats')+'</button></div></div>';
+  return;
+ }
  if(!force&&section.dataset.g4Loading==='true')return;
  const token=++renderToken;
  section.dataset.g4Loading='true';
@@ -144,7 +152,7 @@ async function openGroup(id){
 document.addEventListener('input',e=>{if(e.target.matches('.groups-r4 [data-g4-search]')){groupQuery=e.target.value;applyGroupFilters()}});
 document.addEventListener('click',e=>{if(e.target.closest('.groups-r4 [data-g4-create]')){e.preventDefault();void createGroup();return}const filter=e.target.closest('.groups-r4 [data-group-filter]');if(filter){groupFilter=filter.dataset.groupFilter;applyGroupFilters();return}if(e.target.closest('.groups-r4 [data-group-retry]')){void mount(true);return}if(e.target.closest('.groups-r4 [data-g4-scroll-invites]')){document.getElementById('g4-invitations')?.scrollIntoView({behavior:'smooth',block:'center'})}});
 document.addEventListener('click',async e=>{if(e.target.closest('[data-social-create-group]')){e.preventDefault();void createGroup();return}const invite=e.target.closest('[data-group-invite-action]');if(invite){e.preventDefault();const rows=await api()?.invites?.()||[],item=rows.find(x=>x.groupId===invite.dataset.groupInviteId);if(item)try{await api().decideInvite(item,invite.dataset.groupInviteAction);await mount()}catch(error){const el=document.getElementById('toast');if(el)el.textContent=String(error?.message||error)}return}const row=e.target.closest('[data-social-open-group]');if(row){e.preventDefault();void openGroup(row.dataset.socialOpenGroup);return}if(e.target.closest('[data-social-view]'))scheduleMount(40)});
-for(const event of ['elara:social-updated','elara:locale-changed','elara:social-tab-changed'])window.addEventListener(event,()=>scheduleMount(40));
+for(const event of ['elara:social-updated','elara:social-ready','elara:social-failed','elara:locale-changed','elara:social-tab-changed'])window.addEventListener(event,()=>scheduleMount(40));
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')scheduleMount(80)});
 window.addEventListener('hashchange',()=>scheduleMount(120));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scheduleMount(220),{once:true});else scheduleMount(220);

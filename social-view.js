@@ -26,6 +26,54 @@ challenges:'<path d="m12 2 2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12
 const tabIcon=key=>'<svg class="social-tab-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+(tabIconPaths[key]||tabIconPaths.friends)+'</svg>';
 const selectedFromUrl=()=>{const v=new URLSearchParams(location.search).get('friendsTab');return socialTabs.some(x=>x[0]===v&&v!=='ranking')?v:'friends'};
 let selections={social:selectedFromUrl(),ranking:'ranking'},friendQuery='',friendFilter='all',friendLayout='grid',dashboardVersion=0,friendRequestMode='incoming';
+
+/* The Groups tab must never be an empty slot if the optional Groups/Social modules are late or fail. */
+const groupRouteFallback=()=>'<section class="elara-card social-section social-groups-section groups-r4" data-g4-availability="pending" data-elara-i18n="off"><div class="g4-error g4-route-fallback" role="status"><strong>'+tt('فضای گروه‌های الارا','Elara groups')+'</strong><p class="g4-availability-message">'+tt('در حال آماده‌سازی گروه‌ها هستیم. اگر اتصال برقرار نشد، می‌توانی دوباره امتحان کنی یا به تب دیگری بروی.','Preparing groups. If the connection fails, retry or switch to another tab.')+'</p><div class="g4-error-actions"><button class="g4-secondary" type="button" data-g4-reconnect>'+tt('تلاش دوباره','Retry')+'</button><button class="g4-secondary" type="button" data-f2-tab="friends">'+tt('دوستان','Friends')+'</button><button class="g4-secondary" type="button" data-f2-tab="chats">'+tt('چت‌ها','Chats')+'</button></div></div></section>';
+let groupRouteScriptPromise=null,groupRouteScriptFailed=false;
+function ensureGroupsModule(retry=false){
+ if(window.ElaraSocialGroupsUI?.mount){void Promise.resolve(window.ElaraSocialGroupsUI.mount(retry)).catch(error=>console.warn('Groups mount:',error));return Promise.resolve(true)}
+ if(groupRouteScriptPromise)return groupRouteScriptPromise;
+ if(groupRouteScriptFailed&&!retry)return Promise.resolve(false);
+ groupRouteScriptPromise=new Promise(resolve=>{
+  const script=document.createElement('script');
+  script.async=true;
+  script.src='social-groups-ui.js?v=20261015-groups-nonblank-v1'+(retry?'&retry='+Date.now():'');
+  let finished=false;
+  const done=ok=>{
+   if(finished)return;finished=true;clearTimeout(timeout);
+   if(!ok)script.remove();
+   resolve(!!(ok&&window.ElaraSocialGroupsUI?.mount));
+  };
+  const timeout=setTimeout(()=>done(false),10000);
+  script.onload=()=>done(true);
+  script.onerror=()=>done(false);
+  document.head.append(script);
+ }).then(ok=>{
+  groupRouteScriptPromise=null;groupRouteScriptFailed=!ok;
+  if(ok)void Promise.resolve(window.ElaraSocialGroupsUI.mount(retry)).catch(error=>console.warn('Groups mount:',error));
+  else{
+   const notice=document.querySelector('#elara-social-page[data-social-tab="groups"] .g4-availability-message');
+   if(notice)notice.textContent=tt('ماژول گروه‌ها بارگذاری نشد؛ دوباره تلاش کن یا به بخش دوستان برگرد.','Groups could not load. Retry or return to Friends.');
+  }
+  return ok;
+ });
+ return groupRouteScriptPromise;
+}
+function retryGroupsRoute(){
+ const notice=document.querySelector('#elara-social-page[data-social-tab="groups"] .g4-availability-message');
+ if(notice)notice.textContent=tt('در حال تلاش دوباره برای اتصال…','Retrying the connection…');
+ void ensureGroupsModule(true);
+ if(typeof window.ElaraLoadSocial==='function'){
+  void Promise.resolve().then(()=>window.ElaraLoadSocial({retry:true})).then(()=>{
+   if(selections.social==='groups')void window.ElaraSocialGroupsUI?.mount?.(true);
+  }).catch(error=>{
+   const message=document.querySelector('#elara-social-page[data-social-tab="groups"] .g4-availability-message');
+   if(message)message.textContent=tt('اتصال اجتماعی برقرار نشد. تب‌های دیگر در دسترس هستند.','The social connection is unavailable. Other tabs remain accessible.');
+   console.warn('Groups social retry:',error);
+  });
+ }
+}
+
 const finiteNumber=v=>v!==undefined&&v!==null&&v!==''&&Number.isFinite(Number(v));
 function kpi(label,value,emoji,kind){return '<article class="friends-f2-kpi friends-f2-kpi-'+kind+'"><span class="friends-f2-kpi-icon" aria-hidden="true">'+emoji+'</span><span><strong>'+value+'</strong><small>'+label+'</small></span></article>'}
 function applyFriendFilters(){
@@ -139,13 +187,13 @@ function render(){
   if(tab==='challenges'&&route==='social')body='<div class="social-hub-slot" data-social-slot="challenges" aria-live="polite"></div>';
   if(tab==='activity'&&route==='social')body=section(tt('فعالیت دوستان','Friend activity'),'<div class="social-scroll">'+activities+'</div>','social-friend-activity');
   if(tab==='chats'&&route==='social')body='<div class="social-hub-slot" data-social-slot="chats" aria-live="polite"></div>';
-  if(tab==='groups'&&route==='social')body='<div class="social-hub-slot" data-social-slot="groups" aria-live="polite"></div>';
+  if(tab==='groups'&&route==='social')body=groupRouteFallback();
   if(tab==='community'&&route==='ranking')body=section(tt('فعالیت دوستان','Friend activity'),'<div class="social-scroll">'+activities+'</div>','social-community')+section(tt('همراهی در مسیر رشد','Growing together'),'<p>'+tt('فقط فعالیت‌هایی که دوستان با رضایت به اشتراک گذاشته‌اند نمایش داده می‌شوند.','Only activities friends chose to share are shown here.')+'</p>','social-community-note');
   if(tab==='clubs')body=route==='ranking'?section(tt('کلاب‌ها و کافهٔ الارا','Elara clubs and cafe'),empty(tt('فعلاً کلابی برای ورود نیست 🌝 به محض آماده‌شدن، همین‌جا پیداش می‌کنی.','No clubs are available yet. When real clubs are ready, they will appear here. 🌝'),'clubs-tab.webp'),'social-clubs'):'<div class="social-hub-slot" data-social-slot="clubs" aria-live="polite"></div>';
   // Each dashboard and request tab owns its own canonical request cards.
   const heading=route==='ranking'?{k:'ELARA · TOGETHER',faTitle:'رنکینگ و اجتماع',enTitle:'Ranking & Community',faSub:'در کنار هم، قله‌ها نزدیک‌ترند.',enSub:'Together, the next summit feels closer.'}:{k:'ELARA SPACE · FRIENDS',faTitle:'دوستان الارا',enTitle:'Elara Friends',faSub:'با همراهان هم‌مسیرت، دنیای بزرگ‌تری بساز.',enSub:'Connect and grow with real friends.'};const headingTitle=tt(heading.faTitle,heading.enTitle);
   window.ElaraDOM.patch(root,`<header class="social-page-head"><div><small>${heading.k}</small><h1>${headingTitle}</h1><p>${tt(heading.faSub,heading.enSub)}</p></div><div class="social-head-art" aria-hidden="true"></div></header><div class="social-tabs" role="tablist" aria-label="${headingTitle}">${tabs.map(([key,faLabel,enLabel,art])=>`<button type="button" role="tab" aria-selected="${tab===key}" data-social-view="${key}" data-social-route="${route}" ${route==='social'&&tab==='friends'&&key==='challenges'?'style="display:none!important" aria-hidden="true" tabindex="-1"':''}>${route==='social'?tabIcon(key):`<img src="assets/ui/${art}" alt="">`}<span class="social-tab-label">${tt(faLabel,enLabel)}</span>${route==='social'&&key==='requests'&&pendingRequests.length?`<b class="friends-fidelity-request-badge">${fa(pendingRequests.length)}</b>`:''}</button>`).join('')}</div><div class="social-reference-grid" role="tabpanel">${body}</div>`);
-  if(route==='social'){f2Hero(root,tab);if(tab==='friends'){applyFriendFilters();void f2Extras()}}
+  if(route==='social'){f2Hero(root,tab);if(tab==='friends'){applyFriendFilters();void f2Extras()}else if(tab==='groups'){void ensureGroupsModule()}}
   const tabStrip=root.querySelector('.social-tabs');
   if(tabStrip){
    tabStrip.style.setProperty('display',route==='social'?'grid':'flex','important');
@@ -188,6 +236,7 @@ function navigateSocialTab(route,tab){
  return true;
 }
 document.addEventListener('click',e=>{
+ if(e.target.closest('[data-g4-reconnect]')){e.preventDefault();retryGroupsRoute();return}
  if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
   if(e.target.closest('[data-f2-ranking]')){window.ElaraOpen?.('ranking');return}
  const requestMode=e.target.closest('[data-f2-requests-mode]');if(requestMode){friendRequestMode=requestMode.dataset.f2RequestsMode==='outgoing'?'outgoing':'incoming';render();return}
