@@ -226,7 +226,9 @@
     "well01-wellness-dashboard.js",
     "well01-wellness-dashboard.css",
     "wellness-reference-popups-20261012.js",
-    "wellness-reference-popups-20261012.css"
+    "wellness-reference-popups-20261012.css",
+    "freedom-r30-pages.css",
+    "freedom-r30-pages.js"
   ],
   "files": [
     ".htaccess",
@@ -550,6 +552,8 @@
     "well01-wellness-dashboard.js",
     "well01-wellness-dashboard.css",
     "wellness-reference-popups-20261012.js",
-    "wellness-reference-popups-20261012.css"
+    "wellness-reference-popups-20261012.css",
+    "freedom-r30-pages.css",
+    "freedom-r30-pages.js"
   ]
 }
