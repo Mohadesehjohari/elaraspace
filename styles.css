@@ -339,3 +339,24 @@ body.task-card-reordering #task-list .astra-task-row:not(.is-core-task-reorderin
 .task-board-card.source-focus{background:linear-gradient(90deg,color-mix(in srgb,#e18bff 11%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#e18bff 38%,var(--border))!important}
 .task-board-card.source-habit{background:linear-gradient(90deg,color-mix(in srgb,#ff8fb8 9%,var(--surface)),var(--surface) 62%)!important;border-color:color-mix(in srgb,#ff8fb8 34%,var(--border))!important}
 .task-board-status{display:inline-flex;margin-top:4px;font-style:normal;font-size:.54rem;font-weight:800;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 6px;width:max-content;max-width:100%}
+
+/* Exclusive route first paint: hide legacy Ranking and Library surfaces.
+   Canonical book editors remain in DOM and move to the library-shelves route. */
+html body #main #panel-ranking:not(.hidden) > :not(#elara-ranking-page):not(.ranking-gold-hero){display:none!important}
+html body #main #panel-ranking:not(.hidden) > #elara-ranking-page:not(.ranking-gold){display:none!important}
+/* Only the late Ranking Gold owner stylesheet releases these surfaces. */
+html body #main #panel-ranking:not(.hidden) > #elara-ranking-page.ranking-gold,
+html body #main #panel-ranking:not(.hidden) > .ranking-gold-hero{visibility:hidden!important}
+html body #main #panel-ranking:not(.hidden)::before{
+ content:"در حال آماده‌سازی رتبه‌بندی جدید…";display:block;padding:20px 16px;
+ margin:16px 0;border:1px solid #274b6b;border-radius:12px;background:#091b35;color:#c8d9ec;
+ font:600 14px/1.8 Vazirmatn,Tahoma,Arial,sans-serif;text-align:center
+}
+/* Old form, book list and duplicate route tiles do not belong to the Library overview.
+   CRUD still uses those same canonical controls on the dedicated Shelves route. */
+html body #main #panel-books:not(.hidden) > :not(#lib01-overview):not(.lib01-hero){display:none!important}
+html body #main #panel-books:not(.hidden):not(:has(> #lib01-overview .lib01-grid))::before{
+ content:"در حال آماده‌سازی کتابخانه جدید…";display:block;padding:20px 16px;
+ margin:16px 0;border:1px solid #795d39;border-radius:12px;background:#12232c;color:#f5dab3;
+ font:600 14px/1.8 Vazirmatn,Tahoma,Arial,sans-serif;text-align:center
+}
