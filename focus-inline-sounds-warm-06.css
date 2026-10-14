@@ -77,7 +77,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-a
  padding:9px 3px;border-radius:11px;border:1px solid #b78a539e;cursor:pointer;
  color:#f9dfb1;background:linear-gradient(155deg,#0c202a,#2b1b12);
  box-shadow:inset 0 1px #fff0c41d,0 5px 11px #0007;
- font:750 clamp(10px,.95vw,13px)/1.5 inherit;text-align:center;
+ font-family:inherit;font-weight:750;font-size:clamp(10px,.95vw,13px);line-height:1.5;text-align:center;
 }
 body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes button .focus06-mode-art{
  display:grid;place-items:center;width:36px;height:34px;
@@ -97,7 +97,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-a
 body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus06-sound-toggle{
  min-width:100px;min-height:37px;padding:8px 12px;border-radius:9px;
  border:1px solid #ffe0a2;background:linear-gradient(135deg,#ffe5ac,#ecb263);
- color:#3d2914;font:800 12px/1.4 inherit;cursor:pointer
+ color:#3d2914;font-family:inherit;font-weight:800;font-size:12px;line-height:1.4;cursor:pointer
 }
 body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus06-sound-toggle[aria-pressed=true]{
  background:linear-gradient(135deg,#13545d,#15afa5);border-color:#7cecd5;color:#fff4e0
