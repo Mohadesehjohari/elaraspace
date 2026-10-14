@@ -7,6 +7,8 @@ on:
       - elara-design.js
       - artwork-home-install-2026.js
       - focus-setup-reference-03.js
+      - focus-two-mode.js
+      - tests/focus02-no-freeze-browser.mjs
       - tests/focus-observer-freeze-browser.mjs
       - reference-home-shell-2026.js
       - tests/home-startup-diagnostic-browser.mjs
@@ -31,6 +33,10 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-http.log 2>&1 &
           sleep 1
+      - name: Prevent recursive Focus-02 mount on Home
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 75s node tests/focus02-no-freeze-browser.mjs
       - name: Diagnose real first-paint sequence
         env:
           ELARA_TEST_URL: http://127.0.0.1:4173
