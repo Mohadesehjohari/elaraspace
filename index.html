@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- deploy-refresh: 20261012-focus-owner-first-v1 -->
+<!-- deploy-refresh: 20261014-home-core-v1 -->
 <html lang="fa" dir="rtl" data-elara-booting>
 <head>
   <meta charset="utf-8">
@@ -78,13 +78,31 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <script defer src="rpg.js?v=20261005-goal-task-v10"></script>
   <script defer src="approved-profile-system.js?v=20261007-social-ready-v1"></script>
   <script defer src="approved-icon-system.js?v=20261004-p0-section-tasks-v118"></script>
-  <script defer src="boot.js?v=20261012-chats-r2"></script>
+  <script defer src="approved-navigation-extension.js?v=20261014-home-core-v1"></script>
+  <script defer src="elara-design.js?v=20261014-home-core-v1"></script>
+  <script defer src="reference-home-shell-2026.js?v=20261014-home-core-v1"></script>
+  <script defer src="boot.js?v=20261014-home-core-v1"></script>
   <script>
   (() => {
     const root=document.documentElement;
-    // Fail open: a missing optional asset must never strand the entire app behind a skeleton.
-    const showApp=()=>{root.removeAttribute('data-elara-booting');root.removeAttribute('data-elara-boot-failed')};
-    window.ElaraShowBootError=reason=>{console.warn('Elara startup fallback:',reason);showApp()};
+    // Show a retry rather than exposing an old, empty fallback shell.
+    const showRecovery=reason=>{
+      if(!root.hasAttribute('data-elara-booting'))return;
+      const mount=()=>{
+        const skeleton=document.getElementById('elara-boot-screen');if(!skeleton)return;
+        if(document.getElementById('elara-home-retry'))return;
+        const box=document.createElement('div');
+        box.id='elara-home-retry';box.setAttribute('role','alert');
+        box.style.cssText='position:relative;margin:24px auto;padding:18px;max-width:430px;border:1px solid #45688f;border-radius:14px;background:#102444;color:white;text-align:center';
+        const text=document.createElement('p');text.textContent='بارگذاری خانه کامل نشد.';
+        const button=document.createElement('button');button.type='button';button.textContent='تلاش دوباره';
+        button.style.cssText='background:#3162a8;color:white;border:0;border-radius:8px;padding:10px 20px;cursor:pointer';
+        button.onclick=()=>location.reload();box.append(text,button);skeleton.append(box);
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+      console.error('Elara startup incomplete:',reason);
+    };
+    window.ElaraShowBootError=showRecovery;
     const applyLocalMode=()=>{
       const body=document.body;
       if(body){body.classList.remove('cloud-locked');body.classList.add('cloud-ready','cloud-offline')}
@@ -99,13 +117,13 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
     };
     // Independent of boot.js; protect even against a failed download or a thrown startup error.
     window.setTimeout(()=>{
-      if(root.hasAttribute('data-elara-booting'))showApp();
+      if(root.hasAttribute('data-elara-booting'))showRecovery('startup watchdog');
       const body=document.body;
       if(!document.querySelector('[data-elara-account-gate-ready]')&&body&&!body.classList.contains('cloud-ready')&&!body.classList.contains('cloud-offline'))forceLocal('html-startup-timeout');
     },4800);
     window.addEventListener('error',event=>{
       const src=String(event.target?.src||'');
-      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showApp();forceLocal('boot-script-load-error')}
+      if(event.target?.tagName==='SCRIPT'&&/\/boot\.js(?:\?|$)/.test(src)){showRecovery('boot script failed');forceLocal('boot-script-load-error')}
     },true);
   })();
   </script>
