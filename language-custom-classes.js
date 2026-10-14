@@ -30,7 +30,7 @@ function card(c){
  const done=completed(c),sum=total(c),percent=pct(c),shared=!!c.collabSpaceId,owner=!shared||c.collabRole!=='member';
  const safeId=esc(c.id),next=nextSession(c),schedule=scheduleLabel(c);
  const cover='assets/ui/24-language-classes-icon.webp';
- const progress='<div class="lc2-ring" role="progressbar" aria-label="'+tx('پیشرفت کلاس','Class progress')+'" aria-valuenow="'+percent+'" aria-valuemin="0" aria-valuemax="100" style="--lc2-progress:'+percent+'"><div><strong>'+fa(percent)+'٪</strong></div></div>';
+ const progress='<div class="lc2-ring" role="progressbar" aria-label="'+tx('پیشرفت کلاس','Class progress')+'" aria-valuenow="'+percent+'" aria-valuemin="0" aria-valuemax="100" style="--lc2-progress:'+percent+'%"><div><strong>'+fa(percent)+'٪</strong></div></div>';
  const meta='<div class="lc2-meta"><span>⌗ '+tx('ترم','Terms')+' '+fa(c.terms||1)+'</span><span>▤ '+fa(done)+' / '+fa(sum)+' '+tx('جلسه','sessions')+'</span><span>◷ '+tx('هر جلسه','Each session')+' '+hours(c.durationMin||60)+'</span><span>▦ '+esc(schedule)+'</span>'+(next?'<span class="lc2-next">▦ '+tx('جلسه بعدی: ','Next: ')+esc(next)+'</span>':'')+'</div>';
  const action=(attr,label,kind='',disabled=false)=>'<button type="button" class="'+kind+'" '+attr+'="'+safeId+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
  return '<article class="language-class-card lc2-class-card '+(shared?'is-shared':'is-personal')+'" data-language-class-id="'+safeId+'">'+

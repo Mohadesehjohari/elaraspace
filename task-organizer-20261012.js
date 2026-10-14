@@ -3,6 +3,7 @@
 const KEY='elara_space_v1',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return{}}};
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
+const localDay=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 const meta=(s,n)=>s.taskListDetails?.[n]||{folder:'',description:''};
 const openedFolders=new Set(),openedLists=new Set();let focusList='',focusFolder='',scheduled=false;
 function store(s){
@@ -23,8 +24,8 @@ function ensure(){
  return root;
 }
 function task(t){
- const done=completed(t),target=Math.max(1,Math.min(24,Math.round(Number(t.dailyTarget)||1)));
- return '<div class="org-task-row"><button type="button" data-org-toggle data-id="'+esc(t.id)+'" aria-pressed="'+done+'" title="وضعیت تسک">'+(done?'<img src="assets/ui/task-complete-user-blue.webp" alt="">':'')+'</button><span dir="auto">'+esc(t.text)+'</span>'+(target>1?'<small>'+fa(Number(t.dailyProgress?.[new Date().toISOString().slice(0,10)]||0))+'/'+fa(target)+'</small>':'')+'</div>';
+ const done=completed(t),day=localDay(),target=window.ElaraTasks?.taskDailyTarget?.(t,day)??Math.max(1,Math.min(24,Math.round(Number(t.dailyTarget)||1))),count=window.ElaraTasks?.taskDailyProgress?.(t,day)??Number(t.dailyProgress?.[day]||0);
+ return '<div class="org-task-row"><button type="button" data-org-toggle data-id="'+esc(t.id)+'" aria-pressed="'+done+'" title="وضعیت تسک">'+(done?'<img src="assets/ui/task-complete-user-blue.webp" alt="">':'')+'</button><span dir="auto">'+esc(t.text)+'</span>'+(target>1?'<small>'+fa(count)+'/'+fa(target)+'</small>':'')+'</div>';
 }
 function list(s,name){
  const desc=meta(s,name).description,rows=(s.tasks||[]).filter(t=>t.list===name),done=rows.filter(completed).length;
@@ -77,7 +78,7 @@ async function removeGroup(kind,name){
  const ok=window.ElaraDialog?.confirm
   ? await window.ElaraDialog.confirm('«'+name+'» حذف شود؟ تسک‌ها نگه داشته می‌شوند و فقط دسته‌بندی‌شان تغییر می‌کند.',{title:'حذف '+label,danger:true,confirmText:'حذف'})
   : window.confirm('«'+name+'» حذف شود؟ تسک‌ها حذف نمی‌شوند.');
- if(!ok)return;
+ if(!ok)return false;
  const s=get();s.tasks=Array.isArray(s.tasks)?s.tasks:[];
  s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];
  s.folders=Array.isArray(s.folders)?s.folders:[];
@@ -99,7 +100,7 @@ async function removeGroup(kind,name){
   });
   openedFolders.delete(name);if(focusFolder===name)focusFolder='';
  }
- store(s);queue();
+ store(s);queue();return true;
 }
 function addTask(list='',folder=''){
  window.ElaraTasks?.openComposer?.({focus:false});
@@ -126,5 +127,5 @@ document.addEventListener('toggle',e=>{const x=e.target;if(x?.matches?.('.org-fo
 document.addEventListener('change',e=>{const el=e.target;if(el?.id==='task-list-name'&&el.value){const f=document.getElementById('task-folder');if(f)f.value=meta(get(),el.value).folder||''}if(el?.matches?.('[data-detail=list]')&&el.value){const f=el.closest('form')?.querySelector('[data-detail=folder]');if(f)f.value=meta(get(),el.value).folder||''}},true);
 window.addEventListener('elara:task-category',queue);window.addEventListener('elara:data-changed',queue);window.addEventListener('elara:open',queue);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queue,{once:true});else queue();
-window.ElaraTaskOrganizer={jump,refresh:queue};
+window.ElaraTaskOrganizer={jump,refresh:queue,removeGroup};
 })();
