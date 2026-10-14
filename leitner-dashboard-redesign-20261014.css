@@ -7,7 +7,7 @@
 #panel-words .l2-leitner-hero{
   isolation:isolate;overflow:hidden;display:flex;align-items:flex-start;justify-content:flex-start;
   position:relative;min-height:194px;padding:25px 28px;border:1px solid #263d7e;border-radius:22px;
-  background:linear-gradient(270deg,#04112dca 0%,#05153371 39%,#04132b18 72%),url('assets/ui/lightner_words_backgroud_pc.webp') center center/cover no-repeat!important;
+  background:linear-gradient(270deg,#04112dca 0%,#05153371 39%,#04132b18 72%),url('assets/ui/Alien%20Moonlit%20Shoreline.webp') center center/cover no-repeat,url('assets/ui/lightner_words_backgroud_pc.webp') center center/cover no-repeat!important;
   box-shadow:inset 0 0 0 1px #ffffff0a,0 10px 24px #01061868;
 }
 #panel-words .l2-leitner-hero::after{
@@ -145,7 +145,7 @@ html[lang="en"] #panel-words .l2-leitner-hero::after{content:'“Smart repetitio
 @media(max-width:600px){
  #panel-words .l2-leitner-shell{gap:10px}
  #panel-words .l2-leitner-hero{min-height:420px;padding:18px;border-radius:19px;
-  background:linear-gradient(180deg,#040c25a3 0%,#07162a11 30%,#06122a52 60%,#030c2299 100%),url('assets/ui/lightner_words_backgroud_mobile.webp') center 48%/cover no-repeat!important}
+  background:linear-gradient(180deg,#040c25a3 0%,#07162a11 30%,#06122a52 60%,#030c2299 100%),url('assets/ui/Alien%20Moonlit%20Shoreline.webp') center 48%/cover no-repeat,url('assets/ui/lightner_words_backgroud_mobile.webp') center 48%/cover no-repeat!important}
  #panel-words .l2-leitner-copy{max-width:95%;padding:0;background:none;align-self:flex-start;height:auto}
  #panel-words .l2-leitner-copy h1{font-size:27px}
  #panel-words .l2-leitner-copy p{font-size:11px;max-width:280px;line-height:1.7}
