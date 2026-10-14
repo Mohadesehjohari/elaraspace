@@ -43,7 +43,7 @@
 #main .lr4-search>span,#main .lr4-book-search>span{font-size:24px;line-height:1}
 #main .lr4-search input,#main .lr4-book-search input{width:100%;min-width:0;min-height:39px;padding:5px 0;font:inherit;font-size:12px;background:transparent;border:0;outline:0;color:#e7f8ff}
 #main .lr4-search input::placeholder,#main .lr4-book-search input::placeholder{color:#8ba9cd}
-#main .lr4-channel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#main .lr4-channel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-width:0}
 #main .lr4-channel-card{min-width:0;overflow:hidden;border:1px solid #34638e;border-radius:15px;background:linear-gradient(145deg,#0b2a50,#081a34);box-shadow:0 10px 22px #0003}
 #main .lr4-channel-art{position:relative;height:130px;overflow:hidden;display:flex;align-items:flex-start;justify-content:space-between;padding:11px;background:linear-gradient(0deg,#051933cc,#091a3e18),url('assets/ui/language_banner_main.webp') 50% center/cover}
 #main .lr4-scene-1{background-position:22% 40%}
@@ -98,7 +98,7 @@
 #main .lr4-books-side{display:grid;gap:13px;min-width:0}
 #main .lr4-count{border:1px solid #2b6691;border-radius:9px;padding:6px 10px;background:#0c395f;color:#b5ecff;font-size:11px;white-space:nowrap}
 #main .lr4-book-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px}
-#main #language-book-list.pass3-language-book-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important}
+#main #language-book-list.pass3-language-book-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important}
 #main #language-book-list .pass3-language-book{position:relative;display:grid!important;grid-template-columns:77px minmax(0,1fr)!important;gap:10px!important;min-width:0;padding:12px!important;border:1px solid #315d90!important;border-radius:14px!important;background:linear-gradient(135deg,#102e54,#071c38)!important;box-shadow:inset 0 1px #d5f4ff13!important}
 #main #language-book-list .pass3-language-book[hidden]{display:none!important}
 #main #language-book-list .pass3-book-cover{display:grid;place-items:center;width:75px;min-height:114px;height:114px;border:1px solid #4e81ac;border-radius:9px;background:linear-gradient(160deg,#234b89,#412b7c 85%);box-shadow:0 7px 13px #001532aa;overflow:hidden}
@@ -151,6 +151,7 @@
 #main .lr4-report-book strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
 #main .lr4-report-bottom .lr4-outline{width:100%;margin-top:14px}
 @media(max-width:1180px){
+ #main .lr4-channel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #main .lr4-channel-layout,#main .lr4-challenge-layout{grid-template-columns:minmax(0,1.75fr) minmax(220px,.85fr)}
  #main .lr4-books-layout{grid-template-columns:minmax(0,1.7fr) minmax(230px,.85fr)}
  #main #language-book-list.pass3-language-book-list{grid-template-columns:minmax(0,1fr)!important}
