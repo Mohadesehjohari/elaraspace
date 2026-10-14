@@ -304,8 +304,12 @@
     if($('habit-start')&&!$('habit-start').value)$('habit-start').value=today();
   }
 
+  function placeTaskFilters(){
+    const panel=$('panel-tasks'),chips=$('astra-task-chips'),filters=panel?.querySelector('.astra-task-filters');
+    if(chips&&filters&&filters.previousElementSibling!==chips)chips.after(filters);
+  }
   function renderTasks(){
-    const state=ensureState(readState()),list=$('task-list');if(!list)return;const taskPanel=$('panel-tasks');if(taskPanel)taskPanel.dataset.strikeCompleted=String(localStorage.getItem('elara_task_strike_completed')!=='no');
+    const state=ensureState(readState()),list=$('task-list');if(!list)return;placeTaskFilters();const taskPanel=$('panel-tasks');if(taskPanel)taskPanel.dataset.strikeCompleted=String(localStorage.getItem('elara_task_strike_completed')!=='no');
     const now=validDate(taskOccurrenceDate)?taskOccurrenceDate:today(),search=($('task-search')?.value||'').trim().toLocaleLowerCase(),filter=$('task-filter')?.value||'all',listName=$('task-list-filter')?.value||'',folder=$('task-folder-filter')?.value||'',tag=$('task-tag-filter')?.value||'',priority=$('task-priority-filter')?.value||'';
     const archivedOneOff=t=>!t.recurrenceRule&&taskDone(t,now)&&!flashFor(t.id,now);
     const visible=state.tasks.filter(t=>{
@@ -433,6 +437,16 @@
         const current=state.tasks.find(t=>String(t.id)===String(id));
         if(current){current.dailyProgress=current.dailyProgress&&typeof current.dailyProgress==='object'?current.dailyProgress:{};current.dailyProgress[now]=count}
         writeState(state);renderTasks();
+        // Check again after the linked-data hydration microtasks. A partial round
+        // must remain committed even if a source refresh happened immediately.
+        if(!complete){
+          const stored=ensureState(readState()),record=stored.tasks.find(t=>String(t.id)===String(id));
+          if(record&&taskDailyProgress(record,now)<count){
+            record.dailyProgress=record.dailyProgress&&typeof record.dailyProgress==='object'?record.dailyProgress:{};
+            record.dailyProgress[now]=count;
+            writeState(stored);renderTasks();
+          }
+        }
         notify(complete?`همهٔ ${fa(target)} نوبت انجام شد.`:`نوبت ${fa(count)} از ${fa(target)} ثبت شد.`);
         return;
       }
@@ -502,7 +516,7 @@
       const before=ensureState(readState()).tasks.find(t=>String(t.id)===String(id));
       if(!before||before.sourceCompletionLocked||flashFor(id,date))return;
       const target=taskDailyTarget(before,date),beforeCount=taskDailyProgress(before,date);
-      flashCompletedTask(id,date,target===1||beforeCount+1>=target);
+      if(target===1||beforeCount+1>=target)flashCompletedTask(id,date,true);
       await taskAction('commit-task',id,date);
       const saved=ensureState(readState()).tasks.find(t=>String(t.id)===String(id));
       if(target>1&&(!saved||taskDailyProgress(saved,date)<=beforeCount)){
@@ -541,7 +555,7 @@
     const snapshot=records.map(t=>String(t.id)+':'+String(t.doneAt||'')+':'+String(taskDailyProgress(t,date))+':'+String(t.text||'')).join('|');
     if(archiveList&&archiveList.dataset.taskSnapshot!==snapshot){
       archiveList.dataset.taskSnapshot=snapshot;
-      archiveList.innerHTML=records.map(t=>'<article class="task-archive-row" data-task-archive-id="'+esc(t.id)+'"><button type="button" class="check-button task-archive-undo" data-phase2-action="undo-task" data-id="'+esc(t.id)+'" data-task-date="'+esc(date)+'" aria-pressed="true" aria-label="بازگرداندن '+esc(t.text||'تسک')+'"><img class="elara-uploaded-check" src="assets/ui/task-complete-user-blue.webp" alt=""></button><div><strong dir="auto">'+esc(t.text||'تسک')+'</strong><small>تکمیل · '+esc(t.recurrenceRule?date:(t.doneAt||date))+'</small></div><div><button type="button" class="mini-button" data-phase2-action="edit-task" data-id="'+esc(t.id)+'">ویرایش</button><button type="button" class="mini-button danger" data-phase2-action="delete-task" data-id="'+esc(t.id)+'">حذف</button></div></article>').join('');
+      archiveList.innerHTML=records.map(t=>'<article class="task-archive-row" data-task-archive-id="'+esc(t.id)+'"><button type="button" class="check-button task-archive-undo" data-phase2-action="undo-task" data-id="'+esc(t.id)+'" data-task-date="'+esc(date)+'" aria-pressed="true" aria-label="بازگرداندن '+esc(t.text||'تسک')+'"><img class="elara-uploaded-check" src="assets/ui/task-complete-user-blue.webp" alt=""></button><div class="task-archive-copy"><strong dir="auto">'+esc(t.text||'تسک')+'</strong><small>تکمیل · '+esc(t.recurrenceRule?date:(t.doneAt||date))+'</small></div><div class="task-archive-actions"><button type="button" class="mini-button" data-phase2-action="edit-task" data-id="'+esc(t.id)+'">ویرایش</button><button type="button" class="mini-button danger" data-phase2-action="delete-task" data-id="'+esc(t.id)+'">حذف</button></div></article>').join('');
     }
     let container=$('task-status-groups');
     if(!container){container=document.createElement('div');container.id='task-status-groups';(archive||list).insertAdjacentElement('afterend',container)}

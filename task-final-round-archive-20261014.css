@@ -1,0 +1,86 @@
+
+/* Task archive: compact horizontal cards; image fills the entire check square. */
+html body #panel-tasks #task-checked-archive [data-task-archive-list]{
+ box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;min-width:0!important;gap:6px!important;padding:8px!important;overflow:hidden!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row,
+html body.dark #panel-tasks#panel-tasks #task-checked-archive .task-archive-row{
+ box-sizing:border-box!important;display:grid!important;
+ grid-template-columns:38px minmax(0,1fr) auto!important;grid-template-rows:minmax(37px,auto)!important;
+ align-items:center!important;align-content:center!important;gap:7px!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ height:auto!important;min-height:54px!important;max-height:68px!important;
+ margin:0!important;padding:6px 8px!important;border-radius:11px!important;
+ overflow:hidden!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo{
+ box-sizing:border-box!important;grid-column:1!important;grid-row:1!important;position:relative!important;
+ display:grid!important;place-items:center!important;width:38px!important;height:38px!important;
+ min-width:38px!important;min-height:38px!important;max-width:38px!important;max-height:38px!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;box-shadow:none!important;overflow:visible!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-undo:after{display:none!important;content:none!important}
+html body #panel-tasks #task-checked-archive .task-archive-undo img.elara-uploaded-check{
+ display:block!important;object-fit:fill!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:100%!important;max-height:100%!important;margin:0!important;padding:0!important;transform:none!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-copy{
+ box-sizing:border-box!important;grid-column:2!important;grid-row:1!important;
+ display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;
+ min-width:0!important;width:100%!important;margin:0!important;padding:0!important;overflow:hidden!important;
+}
+html body #panel-tasks #task-checked-archive .task-archive-copy strong{
+ display:block!important;font-size:13px!important;line-height:1.3!important;
+ min-width:0!important;max-width:100%!important;white-space:nowrap!important;
+ overflow:hidden!important;text-overflow:ellipsis!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-copy small{
+ display:block!important;color:#f7d991!important;font-size:10px!important;line-height:1.3!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-actions{
+ grid-column:3!important;grid-row:1!important;display:flex!important;
+ align-items:center!important;gap:4px!important;position:static!important;
+ min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important
+}
+html body #panel-tasks #task-checked-archive .task-archive-actions button{
+ position:static!important;display:inline-grid!important;place-items:center!important;
+ min-height:28px!important;height:28px!important;padding:4px 8px!important;margin:0!important;
+ font-size:10px!important;line-height:1.1!important;white-space:nowrap!important
+}
+/* Gold feedback stays on the task for exactly three seconds before archival. */
+html body #panel-tasks #task-list .astra-task-row.just-completed-gold,
+html body.dark #panel-tasks#panel-tasks #task-list .astra-task-row.just-completed-gold{
+ border:2px solid #fbd363!important;background:linear-gradient(100deg,#6b4815d1,#213154de)!important;
+ box-shadow:0 0 17px #f3c3408f,inset 0 0 11px #f1d26844!important
+}
+html body #panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button{
+ background:radial-gradient(circle at 35% 25%,#fff2ad,#f4be35 80%)!important;
+ border:2px solid #fff6af!important;box-shadow:0 0 15px #ffd359!important;
+ color:#65410d!important
+}
+html body #panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button:after{
+ content:"✓"!important;display:grid!important;position:absolute!important;inset:0!important;
+ place-items:center!important;color:#5c3509!important;font-size:19px!important;font-weight:950!important
+}
+html body #panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button img{display:none!important}
+html body #panel-tasks .astra-task-filters{box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;display:block!important;clear:both!important;margin:3px 0 6px!important;position:relative!important}
+html body #panel-tasks .astra-task-filters>summary{max-width:100%!important}
+@media(max-width:700px){
+ html body #panel-tasks #task-checked-archive .task-archive-row{
+  grid-template-columns:35px minmax(0,1fr) auto!important;gap:5px!important;
+  min-height:49px!important;max-height:59px!important;padding:5px!important
+ }
+ html body #panel-tasks #task-checked-archive .task-archive-row>.task-archive-undo{
+  width:35px!important;height:35px!important;min-width:35px!important;min-height:35px!important;
+  max-width:35px!important;max-height:35px!important
+ }
+ html body #panel-tasks #task-checked-archive .task-archive-copy strong{font-size:12px!important}
+ html body #panel-tasks #task-checked-archive .task-archive-actions{gap:2px!important}
+ html body #panel-tasks #task-checked-archive .task-archive-actions button{
+  padding:3px 5px!important;font-size:9px!important;min-height:26px!important;height:26px!important
+ }
+}
