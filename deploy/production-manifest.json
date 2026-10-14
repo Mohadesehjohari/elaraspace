@@ -228,7 +228,11 @@
     "wellness-reference-popups-20261012.js",
     "wellness-reference-popups-20261012.css",
     "freedom-r30-pages.css",
-    "freedom-r30-pages.js"
+    "freedom-r30-pages.js",
+    "ui13-language-routes.js",
+    "ui13-language.css",
+    "language-four-routes-20261015.js",
+    "language-four-routes-20261015.css"
   ],
   "files": [
     ".htaccess",
@@ -554,6 +558,10 @@
     "wellness-reference-popups-20261012.js",
     "wellness-reference-popups-20261012.css",
     "freedom-r30-pages.css",
-    "freedom-r30-pages.js"
+    "freedom-r30-pages.js",
+    "ui13-language-routes.js",
+    "ui13-language.css",
+    "language-four-routes-20261015.js",
+    "language-four-routes-20261015.css"
   ]
 }
