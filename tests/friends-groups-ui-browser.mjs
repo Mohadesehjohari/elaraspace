@@ -67,5 +67,27 @@ async function run(width,height){
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));assert.ok(overflow.sw<=overflow.w+1,width+': group UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-groups-'+width+'.png',fullPage:true});await page.close();
 }
-await run(390,844);await run(1440,1000);await browser.close();
-console.log('FRIENDS_GROUPS_PASS create accepted-friends live-chat quick-message 390/1440');
+
+async function verifyMissingIndexDoesNotTrapNavigation(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ await wire(page);
+ const failingSocial=socialStub.replace("list:async()=>groups.map(x=>({...x})),","list:async()=>{throw Error('The query requires a COLLECTION_GROUP_ASC index for collection groupMembers and field uid')},");
+ if(failingSocial===socialStub)throw Error('Missing-index stub was not installed');
+ await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:failingSocial}));
+ await page.goto(base+'/?friendsTab=groups&index-recovery='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialGroupsUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForSelector('.groups-r4 .g4-error');
+ assert.match(await page.locator('.groups-r4 .g4-error').innerText(),/ایندکس|index/i);
+ await page.locator('.social-tabs [data-social-view="chats"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='chats'&&document.querySelector('.social-tabs [data-social-view="chats"][aria-selected="true"]'));
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.ElaraSocialView&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
+ await page.waitForFunction(()=>document.querySelector('.social-tabs [data-social-view="chats"][aria-selected="true"]'));
+ await page.locator('.social-tabs [data-social-view="groups"]').click();
+ await page.waitForSelector('.groups-r4 .g4-error');
+ await page.locator('.groups-r4 [data-f2-tab="friends"]').click();
+ await page.waitForFunction(()=>new URLSearchParams(location.search).get('friendsTab')==='friends'&&document.querySelector('.social-tabs [data-social-view="friends"][aria-selected="true"]'));
+ await page.close();
+}
+await run(390,844);await run(1440,1000);await verifyMissingIndexDoesNotTrapNavigation(390,844);await verifyMissingIndexDoesNotTrapNavigation(1440,1000);await browser.close();
+console.log('FRIENDS_GROUPS_PASS create, missing-index navigation recovery, refresh persistence 390/1440');
