@@ -363,3 +363,7 @@ html body #task-composer-shell#task-composer-shell :is(button,input,select,texta
 @media(prefers-reduced-motion:reduce){
  html body #task-composer-shell#task-composer-shell *{transition:none!important;animation:none!important}
 }
+/* A nested metadata prompt or Persian date calendar must appear above this composer. */
+html body.elara-task-modal-open>#elara-dialog-root:not(.hidden){
+ z-index:2147483400!important
+}
