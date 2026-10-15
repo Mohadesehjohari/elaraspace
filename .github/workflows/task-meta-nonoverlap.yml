@@ -8,12 +8,16 @@ on:
       - 'task-cross-links-20261012.js'
       - 'task-single-row-20261015.css'
       - 'task-layout-hotfix-20261012.css'
+      - 'task-mobile-toolbar-popup-20261015.css'
+      - 'phase2.js'
       - 'tests/task-meta-nonoverlap-browser.mjs'
       - '.github/workflows/task-meta-nonoverlap.yml'
   pull_request:
     paths:
       - 'task-cross-links-20261012.js'
       - 'task-layout-hotfix-20261012.css'
+      - 'task-mobile-toolbar-popup-20261015.css'
+      - 'phase2.js'
       - 'tests/task-meta-nonoverlap-browser.mjs'
       - '.github/workflows/task-meta-nonoverlap.yml'
   workflow_dispatch:
@@ -31,9 +35,11 @@ jobs:
       - name: Check task decorator and browser assertions
         run: |
           node --check task-cross-links-20261012.js
+          node --check phase2.js
           node --check tests/task-meta-nonoverlap-browser.mjs
           test -s task-layout-hotfix-20261012.css
           test -s task-single-row-20261015.css
+          test -s task-mobile-toolbar-popup-20261015.css
           node tests/deployment-contract.test.mjs
       - name: Install Chromium
         run: |
@@ -43,6 +49,6 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/elara-task-meta.log 2>&1 &
           sleep 2
-      - name: Validate chip rectangles at six mobile and desktop widths
+      - name: Validate inline task geometry and full-screen filter modal
         run: |
           timeout 240s node tests/task-meta-nonoverlap-browser.mjs
