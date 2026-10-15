@@ -26,12 +26,13 @@ try{
    const p=document.getElementById('panel-library-shelves'),sc=p.querySelector('#lib02-scene');
    const shelf=[...sc.querySelectorAll('.lib02-shelf')].map(x=>({status:x.dataset.lib02Shelf,count:x.querySelectorAll('[data-lib02-book]').length,visible:getComputedStyle(x).display!=='none'}));
    const header=p.querySelector(':scope > .feature-subpage-head');
-   return {viewport:innerWidth,scroll:document.documentElement.scrollWidth,header:!!header,duplicateHero:sc.querySelectorAll('.lib02-hero').length,
+   return {viewport:innerWidth,scroll:document.documentElement.scrollWidth,header:!!header,headerArt:header&&getComputedStyle(header).backgroundImage,duplicateHero:sc.querySelectorAll('.lib02-hero').length,
     shelf,legacyForm:!!p.querySelector('#book-form'),legacyList:!!p.querySelector('#book-list'),legacyShelfTools:!!p.querySelector('.library-enhancement-tools'),
     note:sc.querySelector('.lib02-extras')?.innerText||'',custom:sc.querySelectorAll('.lib02-custom-case').length};
   });
   assert.ok(m.scroll<=m.viewport+2,width+': horizontal overflow '+JSON.stringify(m));
   assert.ok(m.header&&!m.duplicateHero,width+': must keep reference subpage header without old duplicate hero');
+  assert.match(m.headerArt||'',/librairy_banner_main\.webp/,width+': canonical header must show owner's library artwork');
   assert.equal(m.shelf.length,3,width+': must preserve all reading statuses');
   assert.ok(m.legacyForm&&m.legacyList&&m.legacyShelfTools,width+': canonical actions missing');
   assert.deepEqual(m.shelf.map(x=>x.count),empty?[0,0,0]:[1,1,1],width+': fixture statuses mismatch');
