@@ -336,7 +336,7 @@ function renderSecurity(){
   function setColor(color){
     // Never turn existing users' legacy 'violet' preference neon automatically.
     // The new default option keeps the exact previous accent and visual styling.
-    const patch={color:color==='default'?'violet':color,themeVariant:color};
+    const patch={color:color==='default'?'violet':color,themeVariant:color,...(color==='default'?{style:'default'}:{})};
     if(window.ElaraSetAppearance)window.ElaraSetAppearance(patch);
     else {
       if(color!=='default')document.querySelector(`[data-color="${CSS.escape(color)}"]`)?.click();
