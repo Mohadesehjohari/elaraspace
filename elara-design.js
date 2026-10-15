@@ -63,7 +63,7 @@ function setup(){
     if(b.hasAttribute('data-elara-profile-self')){e.preventDefault();window.ElaraPrivateDrawer?.open?.('account');return}
     if(b.dataset.elaraTab){e.preventDefault();e.stopPropagation();open(b.dataset.elaraTab,{history:'push'})}
     else if(b.dataset.mode){pref.mode=b.dataset.mode;savePref()}
-    else if(b.dataset.color){pref.color=b.dataset.color;savePref()}
+    else if(b.dataset.color){pref.color=b.dataset.color;pref.themeVariant=b.dataset.color;savePref()}
     else if(b.dataset.lang){pref.language=b.dataset.lang;savePref();render()}
   });
   document.querySelector('.elara-lang-shortcut').onclick=()=>open('settings');
