@@ -47,7 +47,7 @@ try{
    await page.locator('[data-lib02-shelf="want"] [data-lib02-status="book-want"]').selectOption('reading');
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books.some(b=>b.id==='book-want'&&b.shelf==='reading'));
    await page.locator('[data-lib02-picker="reading"]').click();
-   await page.locator('[data-lib02-bookmark="book-reading"]').click();
+   await page.locator('.lib02-shelves [data-lib02-bookmark="book-reading"]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books.find(b=>b.id==='book-reading')?.bookmarked===true);
    const reading=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books);
    assert.equal(reading.length,3,'Status change or bookmark deleted books');
@@ -56,7 +56,7 @@ try{
    await page.waitForFunction(()=>!!window.ElaraOpen&&!!window.ElaraLibraryShelvesLIB02,null,{timeout:30000});
    await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
    await page.waitForFunction(()=>!!document.querySelector('#panel-library-shelves:not(.hidden) #lib02-scene [data-lib02-bookmark="book-reading"]'),null,{timeout:30000});
-   assert.equal(await page.locator('[data-lib02-bookmark="book-reading"]').getAttribute('aria-pressed'),'true','Bookmark did not survive refresh');
+   assert.equal(await page.locator('.lib02-shelves [data-lib02-bookmark="book-reading"]').getAttribute('aria-pressed'),'true','Bookmark did not survive refresh');
    await page.locator('[data-lib02-new-shelf]').click();
    await page.locator('.elara-dialog-field input').fill('قفسه تست دوم');
    await page.getByRole('button',{name:'ساختن'}).click();
