@@ -18,7 +18,7 @@ function metrics(page){return page.evaluate(()=>{
  })}
 })}
 try{
- for(const width of [320,360,390,430,768,920,1024,1440,1648]){
+ for(const width of [320,360,390,430,640,700,767,768,920,1024,1440,1648]){
   const context=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:1});
   const page=await context.newPage();
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
@@ -30,6 +30,20 @@ try{
   const data=await metrics(page);
   assert.ok(data.rows.length>=6,'missing task rows '+width+' '+JSON.stringify(data));
   assert.ok(data.pageWidth<=width+2,'whole page overflows '+width+' '+data.pageWidth);
+  if(width<=767){
+   const toolbar=await page.evaluate(()=>{
+    const pick=selector=>document.querySelector(selector);
+    const metrics=el=>{if(!el)return null;const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,clientWidth:el.clientWidth,scrollWidth:el.scrollWidth,display:getComputedStyle(el).display,flexWrap:getComputedStyle(el).flexWrap,maxHeight:getComputedStyle(el).maxHeight}};
+    return {toolbar:metrics(pick('#astra-task-toolbar')),chips:metrics(pick('#astra-task-chips')),actions:metrics(pick('#elara-task-page-actions')),add:metrics(pick('#elara-task-add-main')),views:metrics(pick('#elara-task-page-actions .astra-task-view-controls'))};
+   });
+   assert.ok(toolbar.toolbar&&toolbar.actions&&toolbar.chips&&toolbar.add&&toolbar.views,'missing mobile task controls '+width);
+   for(const key of ['toolbar','chips','actions'])assert.ok(toolbar[key].scrollWidth<=toolbar[key].clientWidth+2,'horizontal scrolling in '+key+' at '+width+': '+JSON.stringify(toolbar));
+   assert.equal(toolbar.actions.display,'grid','mobile task action controls must wrap in a grid');
+   assert.ok(toolbar.add.width>=toolbar.actions.width-2,'add-task button is not full-width at '+width+': '+JSON.stringify(toolbar));
+   assert.ok(toolbar.add.height>=63,'add-task button is not tall enough at '+width+': '+JSON.stringify(toolbar));
+   assert.ok(toolbar.add.top+2<toolbar.views.top,'add-task button must be on its own first row at '+width+': '+JSON.stringify(toolbar));
+   assert.ok(toolbar.add.left>=toolbar.actions.left-2&&toolbar.add.right<=toolbar.actions.right+2,'add-task button extends beyond action controls at '+width+': '+JSON.stringify(toolbar));
+  }
   for(const row of data.rows){
    assert.equal(row.metaDisplay,'flex',width+' task metadata is not one inline row: '+JSON.stringify(row));
    assert.equal(row.rowDisplay,'grid',width+' task is not single-row grid'); const b=row.bounds; const center=a=>(a.top+a.bottom)/2; assert.ok(Math.abs(center(b.check)-center(b.meta))<30&&Math.abs(center(b.status)-center(b.meta))<23&&Math.abs(center(b.title)-center(b.meta))<30,'task controls not on ONE horizontal line at '+width+': '+JSON.stringify(row)); if(width>=921)assert.ok(b.meta.width>=180,'desktop meta too narrow '+width+': '+JSON.stringify(row));
