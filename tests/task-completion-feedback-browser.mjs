@@ -77,7 +77,11 @@ try{
   await page.locator('[data-composer-close]').click();
   const toolbar=await page.locator('#astra-task-toolbar').boundingBox();
   const filter=await page.locator('#elara-task-filter-quick [data-task-more-filter]').boundingBox();
-  assert.ok(filter&&toolbar&&filter.y<=toolbar.y+1,'Filter button should appear above toolbar');
+  assert.ok(filter&&toolbar&&filter.y>=toolbar.y-2&&filter.y+filter.height<=toolbar.y+toolbar.height+3,'Filter button should be inside the compact toolbar');
+  await page.locator('#elara-task-filter-quick [data-task-more-filter]').click();
+  assert.ok(await page.locator('#panel-tasks .astra-task-filters[open]').isVisible(),'filters should open as a viewport overlay');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#panel-tasks .astra-task-filters[open]').count(),0,'Escape must close filters');
   assert.deepEqual(errors,[],'uncaught JS errors '+errors.join(','));
   console.log('TASK_COMPLETION_FEEDBACK_PASS '+width+'px '+JSON.stringify(archive));
   await context.close();

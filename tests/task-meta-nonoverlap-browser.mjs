@@ -43,6 +43,30 @@ try{
    assert.ok(toolbar.add.height>=63,'add-task button is not tall enough at '+width+': '+JSON.stringify(toolbar));
    assert.ok(toolbar.add.top+2<toolbar.views.top,'add-task button must be on its own first row at '+width+': '+JSON.stringify(toolbar));
    assert.ok(toolbar.add.left>=toolbar.actions.left-2&&toolbar.add.right<=toolbar.actions.right+2,'add-task button extends beyond action controls at '+width+': '+JSON.stringify(toolbar));
+   const compact=await page.evaluate(()=>{
+    const b=selector=>{const el=document.querySelector(selector);if(!el)return null;const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width}};
+    return {toolbar:b('#astra-task-toolbar'),actions:b('#elara-task-page-actions'),views:b('#elara-task-page-actions .astra-task-view-controls'),
+      reorder:b('#task-reorder-toggle'),tools:b('#elara-task-tools-toggle'),date:b('#astra-task-toolbar .task-occurrence-date'),
+      filter:b('#elara-task-filter-quick [data-task-more-filter]')};
+   });
+   assert.ok(compact.reorder&&compact.tools&&compact.date&&compact.filter,'missing compact actions '+width);
+   assert.ok(Math.abs(compact.reorder.top-compact.views.top)<9&&Math.abs(compact.tools.top-compact.views.top)<9,'view/reorder/tools do not share a compact row '+width+': '+JSON.stringify(compact));
+   assert.ok(Math.abs(compact.date.top-compact.filter.top)<9,'date/filter not on one row '+width+': '+JSON.stringify(compact));
+   assert.ok(compact.toolbar.height<=260,'oversized empty toolbar gap '+width+': '+JSON.stringify(compact));
+   const filterButton=page.locator('#elara-task-filter-quick [data-task-more-filter]');
+   await filterButton.click();
+   const modal=page.locator('#panel-tasks .astra-task-filters[open]');
+   assert.ok(await modal.isVisible(),'filter popup did not open '+width);
+   const geometry=await modal.evaluate(el=>{const r=el.getBoundingClientRect();return {position:getComputedStyle(el).position,top:r.top,left:r.left,width:r.width,height:r.height,search:!!el.querySelector('#task-search')}});
+   assert.equal(geometry.position,'fixed','filters did not open as floating modal');
+   assert.ok(Math.abs(geometry.top)<2&&Math.abs(geometry.left)<2&&geometry.width>=width-2,'filter popup does not cover the viewport '+width+': '+JSON.stringify(geometry));
+   assert.ok(geometry.search,'search control missing inside popup');
+   await page.keyboard.press('Escape');
+   assert.equal(await page.locator('#panel-tasks .astra-task-filters[open]').count(),0,'Escape failed to close popup at '+width);
+   await filterButton.click();
+   await modal.click({position:{x:5,y:5}});
+   assert.equal(await page.locator('#panel-tasks .astra-task-filters[open]').count(),0,'backdrop did not close popup '+width);
+
   }
   for(const row of data.rows){
    assert.equal(row.metaDisplay,'flex',width+' task metadata is not one inline row: '+JSON.stringify(row));
