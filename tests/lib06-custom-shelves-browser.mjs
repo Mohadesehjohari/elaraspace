@@ -99,7 +99,7 @@ try {
 
    console.log('LIB06_CREATE_ASSIGN_RENAME_RELOAD_PASS');
    const old=page.locator('#panel-library-shelves .lib06-legacy-tools');
-   await old.locator('summary').click();
+   await old.locator(':scope > summary').click();
    assert.ok(await page.locator('#panel-library-shelves #book-form').isVisible(),'underlying add editor must be accessible');
   }
   if(width===1440){
