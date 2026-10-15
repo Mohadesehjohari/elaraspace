@@ -697,11 +697,13 @@
   },true);
   document.addEventListener('click',event=>{
     // Capture Home and canonical Tasks checks before any legacy toggle listener.
-    const check=event.target.closest('#task-list [data-phase2-action="toggle-task"],#panel-home [data-ref-task]');
+    const check=event.target.closest('#task-list [data-phase2-action="toggle-task"],#panel-home [data-ref-task],[data-section-task-toggle],[data-board-toggle]');
     if(check){
       event.preventDefault();event.stopImmediatePropagation();
-      const id=check.dataset.id||check.dataset.refTask;
-      showTaskDecision(id,check.dataset.taskDate||window.ElaraHomeDay||taskOccurrenceDate||today(),check);
+      const id=check.dataset.id||check.dataset.refTask||check.dataset.sectionTaskToggle||check.dataset.boardToggle;
+      const isSectionOrBoard=check.matches('[data-section-task-toggle],[data-board-toggle]');
+      const date=check.dataset.taskDate||(isSectionOrBoard?today():window.ElaraHomeDay||taskOccurrenceDate||today());
+      showTaskDecision(id,date,check);
       return;
     }
     // The same native composer must open from mobile and desktop regardless of stale listeners.
