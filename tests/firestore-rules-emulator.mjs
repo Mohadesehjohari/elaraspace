@@ -113,6 +113,28 @@ try{
  await assertFails(setDoc(ref(eve,'socialStats/alice'),{streak:999,visibility:'public',updatedAt:serverTimestamp()}));
  await assertFails(updateDoc(ref(alice,'socialStats/alice'),{streak:40000,updatedAt:serverTimestamp()}));
 
+
+ // Wellness folders: exactly one invited friend per private folder, acceptance and revocation.
+ const verifiedDb=uid=>env.authenticatedContext(uid,{email:uid+'@example.test',email_verified:true}).firestore();
+ const aliceWell=verifiedDb('alice'),bobWell=verifiedDb('bob'),eveWell=verifiedDb('eve');
+ const sharePath='wellnessFolderShares/alice__workout__warmup';
+ const privateFolderJson=JSON.stringify({title:'Warmup',programName:'Fitness',description:'Routine',note:'Personal note',days:['شنبه'],checks:[{text:'Stretch',done:false}]});
+ const wellnessDoc={ownerUid:'alice',friendUid:'bob',folderId:'warmup',kind:'workout',title:'Warmup',payloadJson:privateFolderJson,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ await assertSucceeds(setDoc(ref(aliceWell,sharePath),wellnessDoc));
+ await assertSucceeds(getDoc(ref(aliceWell,sharePath)));
+ await assertSucceeds(getDoc(ref(bobWell,sharePath)));
+ await assertFails(getDoc(ref(eveWell,sharePath)));
+ await assertFails(setDoc(ref(eveWell,'wellnessFolderShares/eve__workout__fake'),{...wellnessDoc,ownerUid:'eve',friendUid:'alice'}));
+ await assertFails(setDoc(ref(aliceWell,'wellnessFolderShares/alice__workout__other'),{...wellnessDoc,folderId:'warmup'}));
+ await assertFails(updateDoc(ref(bobWell,sharePath),{payloadJson:'{"title":"tampered"}',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bobWell,sharePath),{status:'accepted',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(aliceWell,sharePath),{payloadJson:JSON.stringify({...JSON.parse(privateFolderJson),description:'Updated'}),updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(aliceWell,sharePath),{friendUid:'eve',status:'pending',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(eveWell,sharePath),{status:'declined',updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(aliceWell,sharePath)));
+ const revokedWell=await assertSucceeds(getDoc(ref(bobWell,sharePath)));
+ if(revokedWell.exists())throw new Error('revoked wellness folder is still readable');
+
  // Presence is real, privacy-aware and friend-scoped.
  await assertSucceeds(setDoc(ref(alice,'presence/alice'),{uid:'alice',visibility:'private',updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(alice,'presence/alice')));
