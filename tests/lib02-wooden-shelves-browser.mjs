@@ -21,24 +21,24 @@ try{
   await page.goto(base+'/?lib02='+width+'#library-shelves',{waitUntil:'domcontentloaded',timeout:40000});
   await page.waitForFunction(()=>!!window.ElaraLibraryShelvesLIB02&&!!window.ElaraLibraryEnhancements&&!!window.ElaraFeatureHubs&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
-  await page.waitForSelector('#panel-library-shelves:not(.hidden) #lib02-scene .lib02-hero');
+  await page.waitForSelector('#panel-library-shelves:not(.hidden) #lib02-scene .lib02-shelves');
   const m=await page.evaluate(()=>{
    const p=document.getElementById('panel-library-shelves'),sc=p.querySelector('#lib02-scene');
    const shelf=[...sc.querySelectorAll('.lib02-shelf')].map(x=>({status:x.dataset.lib02Shelf,count:x.querySelectorAll('[data-lib02-book]').length,visible:getComputedStyle(x).display!=='none'}));
-   const hero=sc.querySelector('.lib02-hero'),style=getComputedStyle(hero);
-   return {viewport:innerWidth,scroll:document.documentElement.scrollWidth,hero:style.backgroundImage,
+   const header=p.querySelector(':scope > .feature-subpage-head');
+   return {viewport:innerWidth,scroll:document.documentElement.scrollWidth,header:!!header,duplicateHero:sc.querySelectorAll('.lib02-hero').length,
     shelf,legacyForm:!!p.querySelector('#book-form'),legacyList:!!p.querySelector('#book-list'),legacyShelfTools:!!p.querySelector('.library-enhancement-tools'),
-    note:sc.querySelector('.lib02-extras')?.innerText||'',custom:sc.querySelectorAll('[data-lib02-custom]').length};
+    note:sc.querySelector('.lib02-extras')?.innerText||'',custom:sc.querySelectorAll('.lib02-custom-case').length};
   });
   assert.ok(m.scroll<=m.viewport+2,width+': horizontal overflow '+JSON.stringify(m));
-  assert.match(m.hero,/librairy_banner_main\.webp/,width+': owner library artwork missing');
+  assert.ok(m.header&&!m.duplicateHero,width+': must keep reference subpage header without old duplicate hero');
   assert.equal(m.shelf.length,3,width+': must preserve all reading statuses');
   assert.ok(m.legacyForm&&m.legacyList&&m.legacyShelfTools,width+': canonical actions missing');
   assert.deepEqual(m.shelf.map(x=>x.count),empty?[0,0,0]:[1,1,1],width+': fixture statuses mismatch');
   if(width<=700)assert.deepEqual(m.shelf.filter(x=>x.visible).map(x=>x.status),['reading'],width+': mobile must have one full-width shelf');
   else assert.equal(m.shelf.filter(x=>x.visible).length,3,width+': desktop requires three distinct bookcases');
   if(empty)assert.equal(m.custom,0,'No custom shelves must not invent books');
-  else assert.ok(m.note.includes('آرام')||m.note.includes('Steadily'),'Only recorded clip should appear');
+  else {assert.ok(m.note.includes('آرام')||m.note.includes('Steadily'),'Only recorded clip should appear');assert.equal(m.custom,1,'Every named custom shelf should appear as one wood case');}
   if(width===390){
    await page.locator('[data-lib02-picker="want"]').click();
    await page.waitForFunction(()=>document.querySelector('.lib02-shelves')?.dataset.lib02Selected==='want');
@@ -60,7 +60,7 @@ try{
    await page.locator('.elara-dialog-field input').fill('قفسه تست دوم');
    await page.getByRole('button',{name:'ساختن'}).click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('elara_space_v1')).bookShelves.includes('قفسه تست دوم'));
-   assert.ok(await page.locator('[data-lib02-custom="قفسه تست دوم"]').isVisible(),'Custom shelf not synced');
+   assert.ok(await page.locator('[data-lib02-custom-shelf="قفسه تست دوم"]').isVisible(),'Custom shelf not synced');
    await page.locator('[data-lib02-rename="رشد فردی"]').click();
    await page.locator('.elara-dialog-field input').fill('قفسه تازه');
    await page.getByRole('button',{name:'ذخیره'}).click();
@@ -72,7 +72,7 @@ try{
    await page.waitForFunction(()=>!!window.ElaraOpen&&!!window.ElaraLibraryShelvesLIB02,null,{timeout:30000});
    await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
    await page.waitForSelector('#panel-library-shelves:not(.hidden) #lib02-scene');
-   assert.ok(await page.locator('[data-lib02-custom="قفسه تازه"]').isVisible(),'Renamed shelf not persisted after refresh');
+   assert.ok(await page.locator('[data-lib02-custom-shelf="قفسه تازه"]').isVisible(),'Renamed shelf not persisted after refresh');
   }
   await page.screenshot({path:'browser-artifacts/lib02/shelves-'+width+'.png',fullPage:true,animations:'disabled'});
   console.log('LIB02_WIDTH_PASS '+JSON.stringify({width,...m}));
