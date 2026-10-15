@@ -1558,9 +1558,12 @@ service cloud.firestore {
           && d.status in ['pending','accepted','declined']
           && d.createdAt is timestamp && d.updatedAt is timestamp;
       }
+      // The explicit one-person designation is the durable read grant until owner revokes.
+      // Queries can prove ownerUid/friendUid equality; dynamic friendship checks on
+      // arbitrary document fields cannot be used as query filters in Firestore.
       allow get, list: if signed() && (
         resource.data.ownerUid == request.auth.uid ||
-        (resource.data.friendUid == request.auth.uid && friendOf(resource.data.ownerUid))
+        resource.data.friendUid == request.auth.uid
       );
       allow create: if signed() && request.auth.token.email_verified == true
         && validShare(request.resource.data)
