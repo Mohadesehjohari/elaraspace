@@ -1,0 +1,79 @@
+name: FOCUS-05 No Legacy Focus Back Route
+on:
+  pull_request:
+    paths:
+      - elara-design.js
+      - feature-hubs-2026.js
+      - index.html
+      - tests/focus05-back-modern-route-browser.mjs
+      - .github/workflows/focus05-modern-back.yml
+  push:
+    branches: [main]
+    paths:
+      - elara-design.js
+      - feature-hubs-2026.js
+      - index.html
+      - tests/focus05-back-modern-route-browser.mjs
+      - .github/workflows/focus05-modern-back.yml
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS syntax and absence of old hub
+        run: |
+          node --check elara-design.js
+          node --check feature-hubs-2026.js
+          node --check tests/focus05-back-modern-route-browser.mjs
+          ! grep -q "hub(parent," feature-hubs-2026.js
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Test all entry/back/forward routes on 7 viewports
+        run: |
+          python3 -m http.server 4173 >/tmp/focus05.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/focus05-back-modern-route-browser.mjs
+          timeout 420s node tests/focus-two-mode-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: focus05-candidate
+          path: browser-artifacts/focus05/*.png
+          retention-days: 20
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify live exact deployed files
+        run: |
+          set -euo pipefail
+          good=false
+          for attempt in $(seq 1 75); do
+            good=true
+            for f in index.html elara-design.js feature-hubs-2026.js; do
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/$f?sha=$GITHUB_SHA&n=$attempt" -o "/tmp/$(basename "$f")" || ! cmp -s "$f" "/tmp/$(basename "$f")";then good=false;break;fi
+            done
+            if [ "$good" = true ];then echo "FOCUS05_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$good" != true ];then echo "::error::Live files differ from merged commit";exit 1;fi
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Verify actual published route and seven sizes
+        run: ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/focus05-back-modern-route-browser.mjs
