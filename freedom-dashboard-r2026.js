@@ -8,13 +8,13 @@ const topic=(x,f='بدون عنوان')=>String(x?.title||'').trim()||String(x?.
 const when=v=>v?new Date(v).toLocaleDateString('fa-IR'):'';
 let filter='همه',root=null,refreshQueued=false;
 const cards=[
- ['gallery','گالری شخصی','لحظه‌های من','Vision_Board.webp'],
- ['inspiration','الهام‌بخش‌ها','انرژی برای ادامه','Inspirations.webp'],
- ['vision','برنامه‌ها و رؤیاها','طراحی آینده','freedom-card-bg.webp'],
- ['experiences','تجربه‌های من','سفر در مسیر زندگی','my_reflection.webp'],
- ['art','هنر و خلاقیت','خلق بدون محدودیت','Celestial Crystal Spellbook Icon.webp'],
- ['ideas','ایده‌ها','جرقه‌های خلاقیت','Ideas.webp'],
- ['diary','دفتر خاطرات','نوشتن خود واقعی','free_notes.webp']
+ ['gallery','تابلوی رؤیاها','قاب‌های خیال تو','Vision_Board.webp'],
+ ['inspiration','تالار الهام','نور برای ادامه راه','Inspirations.webp'],
+ ['vision','باغ رؤیاها','نقشه فردای تو','Plans & Dreams.webp'],
+ ['experiences','بازتاب‌های من','آینه لحظه‌های زندگی','my_reflection.webp'],
+ ['art','الهام‌های آفرینش','رنگی از خیال تو','Celestial Crystal Spellbook Icon.webp'],
+ ['ideas','جرقه‌های من','ستاره‌های اندیشه','Ideas.webp'],
+ ['diary','دفتر نجواها','قصه‌های دل و روزها','free_notes.webp']
 ];
 function tile([kind,title,sub,art]){
  return '<button type="button" class="fd-tile '+(kind==='diary'?'is-selected':'')+'" data-fd-open="'+kind+'" aria-label="'+esc(title)+'">'+
@@ -41,8 +41,8 @@ function install(){
   '<section class="fd-panel fd-inspiration"><header><h2>☀ الهام امروز</h2><button type="button" data-fd-quote-edit>ویرایش</button></header><blockquote data-fd-quote></blockquote></section>'+
   '<section class="fd-panel fd-music"><header><h2>♫ موسیقی آرامش‌بخش</h2><button type="button" data-fd-music>مشاهده همه ←</button></header><div data-fd-song></div></section>'+
  '</div>'+
- '<section class="fd-panel fd-dreams"><header><h2>✧ نقشه رؤیاها</h2><button type="button" data-fd-more-dreams>مشاهده همه ←</button></header>'+
- '<div class="fd-dream-art"><img src="'+A+'banner_city_of_stars.webp" alt=""><span>«رؤیاها، نقشه‌ی امروز برای فردای بهترند.»</span></div>'+
+ '<section class="fd-panel fd-dreams"><header><h2>✧ باغ رؤیاها</h2><button type="button" data-fd-more-dreams>مشاهده همه ←</button></header>'+
+ '<div class="fd-dream-art"><img src="'+A+'banner_city_of_stars.webp" alt=""><span>«از هر رؤیا، دری به فردا باز می‌شود.»</span></div>'+
  '<div class="fd-dream-list" data-fd-dream-list></div>'+
  '<button type="button" class="fd-wide-button" data-fd-new-dream>+ اضافه کردن رؤیای جدید</button></section>'+
  '<section class="fd-panel fd-diary"><header><h2>▣ دفتر خاطرات</h2><button type="button" class="fd-action" data-fd-new-diary>+ نوشتن یادداشت جدید</button></header>'+

@@ -16,9 +16,9 @@ const excerpt=x=>String(x?.text||x?.body||'').trim().slice(0,180);
 const title=x=>String(x?.title||x?.text||x?.body||'').trim().split(/\r?\n/)[0].slice(0,90)||'بدون عنوان';
 const sorted=x=>(Array.isArray(x)?x:[]).slice().sort((a,b)=>Number(b.updatedAt||b.at||b.createdAt||0)-Number(a.updatedAt||a.at||a.createdAt||0));
 const groups={
- art:{title:'هنر و خلاقیت',lead:'آثار هنری، طرح‌ها و جرقه‌های خلاقانه‌ات را در آتلیه شخصی خودت گردآوری کن.',hero:'banner_dream_tree.webp',badge:'◈',art:'Celestial Crystal Spellbook Icon.webp'},
- experiences:{title:'تجربه‌های من',lead:'سفرها، لحظه‌ها و درس‌های واقعی زندگی‌ات را به داستان‌های ماندگار تبدیل کن.',hero:'banner_city_of_stars.webp',badge:'✦',art:'my_reflection.webp'},
- gallery:{title:'گالری شخصی',lead:'تمام تصاویر خصوصی ذخیره‌شده در آزادی، در یک مجموعه مرتب و قابل جستجو.',hero:'freedom_banner.webp',badge:'▧',art:'Vision_Board.webp'}
+ art:{title:'الهام‌های آفرینش',lead:'آثار هنری، طرح‌ها و جرقه‌های خلاقانه‌ات را در آتلیه شخصی خودت گردآوری کن.',hero:'banner_dream_tree.webp',badge:'◈',art:'Celestial Crystal Spellbook Icon.webp'},
+ experiences:{title:'بازتاب‌های من',lead:'سفرها، لحظه‌ها و درس‌های واقعی زندگی‌ات را به داستان‌های ماندگار تبدیل کن.',hero:'banner_city_of_stars.webp',badge:'✦',art:'my_reflection.webp'},
+ gallery:{title:'تابلوی رؤیاها',lead:'تمام تصاویر خصوصی ذخیره‌شده در آزادی، در یک مجموعه مرتب و قابل جستجو.',hero:'freedom_banner.webp',badge:'▧',art:'Vision_Board.webp'}
 };
 const artCats=['همه آثار','نقاشی','طراحی','عکاسی','نویسندگی','موسیقی','دستی‌سازه','دیگر'];
 const experienceCats=['همه تجربه‌ها','سفر','یادگیری','زندگی روزمره','موفقیت','چالش','روابط','خاطره'];
@@ -39,7 +39,7 @@ function arts(){
  const featured=cover?'<div class="r31-feature-cover">'+artPicture(cover,groups.art.art)+'<div><b dir="auto">'+esc(title(cover))+'</b><p dir="auto">'+esc(excerpt(cover))+'</p>'+button('ویرایش اثر ←','data-r31-edit-art="'+esc(cover.id)+'"')+'</div></div>':empty('هنوز اثری ثبت نشده. نخستین اثر هنری یا خلاقانه خودت را اضافه کن.','🎨');
  const cards=selected.length?selected.map(x=>'<article class="r31-art-item">'+artPicture(x,groups.art.art)+'<div><strong dir="auto">'+esc(title(x))+'</strong><small>'+esc(x.category||'دیگر')+' · '+when(x)+'</small><p dir="auto">'+esc(excerpt(x))+'</p>'+button('مشاهده و ویرایش','data-r31-edit-art="'+esc(x.id)+'"')+'</div></article>').join(''):empty('در این دسته هنوز اثری ذخیره نکرده‌ای.','✦');
  return nav(artCats,artFilter,'data-r31-art-filter')+
- '<div class="r31-art-top">'+panelCard('✦ آتلیه خصوصی تو','<p class="r31-muted">هر اثر در فضای خصوصی خودت نگهداری می‌شود. می‌توانی تصویر، عنوان و توضیح آن را اضافه کنی.</p><div class="r31-art-actions">'+button('＋ افزودن اثر جدید','data-r31-new-art','r31-primary')+button('مشاهده گالری تصاویر','data-r31-jump="gallery"')+'</div><div class="r31-art-metrics"><div><b>'+fa(all.length)+'</b><small>اثر ثبت‌شده</small></div><div><b>'+fa(all.filter(x=>x.image).length)+'</b><small>تصویر</small></div><div><b>'+fa(categoryCounts.filter(x=>x.count).length)+'</b><small>دسته فعال</small></div></div>','r31-art-studio')+
+ '<div class="r31-art-top">'+panelCard('✦ آتلیه خصوصی تو','<p class="r31-muted">هر اثر در فضای خصوصی خودت نگهداری می‌شود. می‌توانی تصویر، عنوان و توضیح آن را اضافه کنی.</p><div class="r31-art-actions">'+button('＋ افزودن اثر جدید','data-r31-new-art','r31-primary')+button('ورود به تابلوی رؤیاها','data-r31-jump="gallery"')+'</div><div class="r31-art-metrics"><div><b>'+fa(all.length)+'</b><small>اثر ثبت‌شده</small></div><div><b>'+fa(all.filter(x=>x.image).length)+'</b><small>تصویر</small></div><div><b>'+fa(categoryCounts.filter(x=>x.count).length)+'</b><small>دسته فعال</small></div></div>','r31-art-studio')+
  panelCard('★ اثر منتخب تو',featured,'r31-art-featured')+'</div>'+
  '<div class="r31-art-bottom">'+panelCard('◈ دسته‌بندی آثار','<div class="r31-cat-grid">'+categoryCounts.map(x=>button(esc(x.title)+' <span>'+fa(x.count)+'</span>','data-r31-art-filter="'+esc(x.title)+'"')).join('')+'</div>')+
  panelCard('▤ مجموعه آثار','<div class="r31-art-grid">'+cards+'</div>','r31-art-list')+'</div>';
@@ -53,7 +53,7 @@ function experiences(){
  '<div class="r31-exp-top">'+panelCard('✎ تجربه جدید','<form data-r31-experience-form><label>عنوان<input name="title" maxlength="110" required placeholder="مثلاً روزی که چیز تازه‌ای یاد گرفتم…"></label><label>داستان تجربه<textarea name="text" maxlength="2400" required placeholder="چه اتفاقی افتاد؟ چه حسی داشتی و چه چیزی یاد گرفتی؟"></textarea></label><div class="r31-exp-fields"><label>دسته‌بندی<select name="category">'+experienceCats.slice(1).map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></label><label>تاریخ<input type="date" name="date"></label></div><div class="r31-actions">'+button('افزودن تصویر در ویرایشگر','data-r31-edit-photo')+'<button class="r31-primary" type="submit">✦ '+(editExperience?'ذخیره تغییرات':'ثبت تجربه')+'</button></div><p class="r31-muted" data-r31-feedback aria-live="polite"></p></form>','r31-exp-compose')+
  panelCard('✦ مسیر تجربه‌های تو','<div class="r31-stats"><div><b>'+fa(all.length)+'</b><small>تجربه</small></div><div><b>'+fa(allDates.size)+'</b><small>سال ثبت‌شده</small></div><div><b>'+fa(all.filter(x=>x.image).length)+'</b><small>تصویر ثبت‌شده</small></div></div><img class="r31-journey-art" src="'+image('banner_new_dawn.webp')+'" alt="منظره آرامش‌بخش در مسیر زندگی"><p class="r31-muted">این آمار فقط از خاطرات و تجربه‌های واقعی خودت محاسبه شده است.</p>','r31-exp-overview')+'</div>'+
  '<div class="r31-exp-bottom">'+panelCard('◈ مسیرهای زندگی','<div class="r31-cat-grid">'+byCategory.map(x=>button(esc(x.name)+' <span>'+fa(x.count)+'</span>','data-r31-experience-filter="'+esc(x.name)+'"')).join('')+'</div>')+
- panelCard('◷ داستان‌ها و تجربه‌های اخیر','<div class="r31-timeline">'+recent+'</div>','r31-exp-feed')+'</div>';
+ panelCard('◷ بازتاب‌های تازه زندگی','<div class="r31-timeline">'+recent+'</div>','r31-exp-feed')+'</div>';
 }
 function galleryItems(){
  const d=data(),rows=[];
@@ -70,7 +70,7 @@ function gallery(){
  '<img src="'+esc(x.displayPicture)+'" loading="lazy" alt="'+esc(title(x))+'"><span><b dir="auto">'+esc(title(x))+'</b><small>'+esc(x.sourceType)+'</small></span></button>').join(''):empty(all.length?'نتیجه‌ای برای جستجو یا این دسته پیدا نشد.':'هنوز تصویری ذخیره نکرده‌ای. برای شروع یک اثر هنری تصویری اضافه کن.','▧');
  return nav(galleryCats,galleryFilter,'data-r31-gallery-filter')+
  '<div class="r31-gallery-stats"><div><b>'+fa(all.length)+'</b><small>تصویر خصوصی</small></div><div><b>'+fa(new Set(all.map(x=>x.sourceType)).size)+'</b><small>دسته دارای تصویر</small></div><label>⌕ <input data-r31-gallery-search type="search" maxlength="100" placeholder="جستجوی تصویر، عنوان یا دسته…" value="'+esc(galleryQuery)+'"></label>'+button('＋ افزودن تصویر','data-r31-new-art','r31-primary')+'</div>'+
- panelCard('▧ آلبوم تصاویر تو','<p class="r31-muted">این صفحه تصاویر ثبت‌شده در ایده‌ها، آثار، رؤیاها، تجربه‌ها و خاطرات را از اطلاعات خصوصی خودت گردآوری می‌کند.</p><div class="r31-gallery-grid">'+images+'</div>','r31-gallery-body');
+ panelCard('▧ تابلوی تصویرهای تو','<p class="r31-muted">این صفحه تصاویر ثبت‌شده در ایده‌ها، آثار، رؤیاها، تجربه‌ها و خاطرات را از اطلاعات خصوصی خودت گردآوری می‌کند.</p><div class="r31-gallery-grid">'+images+'</div>','r31-gallery-body');
 }
 const render=()=>{if(!current)return;const host=panel()?.querySelector('.r31-shell [data-r31-content]');if(host)host.innerHTML=current==='art'?arts():current==='experiences'?experiences():gallery()};
 function open(kind,fromHistory=false){
