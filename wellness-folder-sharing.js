@@ -83,6 +83,28 @@ async function refresh(){
   }catch(err){shareError=err;if(loadedUid){received=[];loadedUid='';lastFingerprint='';window.dispatchEvent(new Event('elara:wellness-shares-updated'))}if(err?.code!=='permission-denied')console.warn('Wellness shares:',err?.message||err)}
  })().finally(()=>{loading=null});return loading
 }
+// Keep incoming invites and accepted folders current without a manual refresh.
+let stopReceived=null,receivedWatcherUid='';
+function stopReceivedWatch(){try{stopReceived?.()}catch{}stopReceived=null;receivedWatcherUid=''}
+async function watchReceived(){
+ let x;try{x=await signed()}catch{return}
+ if(receivedWatcherUid===x.user.uid&&stopReceived)return;
+ stopReceivedWatch();receivedWatcherUid=x.user.uid;
+ const inbox=x.fs.query(x.fs.collection(x.db,collectionName),x.fs.where('friendUid','==',x.user.uid));
+ stopReceived=x.fs.onSnapshot(inbox,snap=>{
+  if(x.auth.currentUser?.uid!==x.user.uid)return;
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>kinds.includes(r.kind)&&r.friendUid===x.user.uid);
+  const fingerprint=JSON.stringify(rows.map(r=>[r.id,r.status,r.title,r.updatedAt?.seconds||0,r.payloadJson]));
+  const previous=new Set(received.filter(r=>r.status==='pending').map(r=>r.id));
+  received=rows;loadedUid=x.user.uid;shareError=null;
+  if(fingerprint!==lastFingerprint){
+   lastFingerprint=fingerprint;window.dispatchEvent(new Event('elara:wellness-shares-updated'));
+   for(const r of rows.filter(r=>r.status==='pending'&&!previous.has(r.id))){
+    window.ElaraNotify?.push?.({type:'social',title:tx('دعوت برنامه مشترک','Shared plan invite'),message:r.title||tx('پوشه ورزشی','Wellness folder'),dedupeKey:'wellshare-invite:'+r.id,reopen:true});
+   }
+  }
+ },error=>{shareError=error;console.warn('Wellness invite stream:',error?.code||error?.message);window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
+}
 function receivedFolders(kind){return received.filter(r=>r.kind===kind&&r.status==='accepted').map(r=>({id:r.id,title:r.title,ownerUid:r.ownerUid}))}
 function readPayload(row){try{const d=JSON.parse(row.payloadJson||'{}');return{title:String(d.title||row.title||'').slice(0,80),programName:String(d.programName||'').slice(0,100),description:String(d.description||'').slice(0,5000),note:String(d.note||'').slice(0,5000),days:Array.isArray(d.days)?d.days.filter(x=>days.includes(x)||x==='همه روزها').slice(0,9):[],checks:Array.isArray(d.checks)?d.checks.slice(0,90).map((c,i)=>({id:String(c.id||'legacy-'+i).slice(0,110),text:String(c.text||'').slice(0,180),done:!!c.done})):[]}}catch{return null}}
 // Each participant records their own checklist progress; plan edits and progress stream live.
@@ -169,9 +191,9 @@ document.addEventListener('click',e=>{
 });
 window.addEventListener('elara:wellness-saved',e=>{if(e.detail?.workoutPlanFolders)void syncOwned('workout');if(e.detail?.nutritionPlanFolders)void syncOwned('nutrition')});
 window.addEventListener('elara:open',e=>{if(['exercise','wellness-exercise'].includes(e.detail?.tab))setTimeout(()=>void refresh(),150)});
-window.addEventListener('elara:account-ready',()=>setTimeout(()=>void refresh(),550));
+window.addEventListener('elara:account-ready',()=>setTimeout(()=>{void refresh();void watchReceived()},550));
 window.addEventListener('elara:social-updated',()=>void refresh());
-window.addEventListener('elara:logout',()=>{received=[];loadedUid='';lastFingerprint='';shareError=null;close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
+window.addEventListener('elara:logout',()=>{stopReceivedWatch();received=[];loadedUid='';lastFingerprint='';shareError=null;close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
 window.ElaraWellnessShare={shareFolder,openInbox,openReceived,receivedFolders,refresh,syncOwned};
-setTimeout(()=>void refresh(),1300);
+setTimeout(()=>{void refresh();void watchReceived()},1300);
 })();
