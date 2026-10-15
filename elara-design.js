@@ -64,7 +64,15 @@ function setup(){
   document.querySelector('.elara-lang-shortcut').onclick=()=>open('settings');
   document.querySelector('.elara-mode-shortcut').onclick=()=>{pref.mode=pref.mode==='dark'?'light':'dark';savePref()};
   $('elara-back-button').onclick=()=>{if(current==='focus-pomodoro'){backFromFocus();return}if((Number(history.state?.elaraDepth)||0)>0)history.back();else if(current!=='home')open('home',{history:'replace'})};
-  window.addEventListener('popstate',e=>{
+  // Normalize any remaining raw #focus anchor (including old bookmarks and sidebar links).
+   window.addEventListener('hashchange',()=>{
+     const raw=location.hash.replace(/^#/,'');
+     if(raw==='focus'||raw==='focus-ambience'){
+       if(current==='focus-pomodoro'){backFromFocus();return}
+       open('focus-pomodoro',{history:'replace'});
+     }
+   });
+   window.addEventListener('popstate',e=>{
  const raw=e.state?.elaraTab||location.hash.replace(/^#/,'')||'home',tab=raw==='profile'?'home':raw;
  if((tab==='focus'||tab==='focus-ambience')&&current==='focus-pomodoro'){backFromFocus();return}
  const canonical=normalizeFocus(tab);open($('panel-'+canonical)?canonical:'home',{history:canonical===tab?'none':'replace'});
