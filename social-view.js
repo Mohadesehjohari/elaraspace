@@ -50,7 +50,7 @@ function ensureGroupsModule(retry=false){
  groupRouteScriptPromise=new Promise(resolve=>{
   const script=document.createElement('script');
   script.async=true;
-  script.src='social-groups-ui.js?v=20261015-groups-designed-v2'+(retry?'&retry='+Date.now():'');
+  script.src='social-groups-ui.js?v=20261016-tab-navigation-escape-v1'+(retry?'&retry='+Date.now():'');
   let finished=false;
   const done=ok=>{
    if(finished)return;finished=true;clearTimeout(timeout);
@@ -234,11 +234,25 @@ function navigateSocialTab(route,tab){
  if(route!=='social'&&route!=='ranking')return false;
  if(route==='social'&&tab==='ranking'){window.ElaraOpen?.('ranking');return true}
  if(!(route==='social'?socialTabs:rankingTabs).some(x=>x[0]===tab))return false;
+ // Change navigation state first. A slow or failed Groups backend is not a
+ // prerequisite for moving to Chats, Friends, or any other social destination.
  selections[route]=tab;
+ const root=$(route==='social'?'elara-social-page':'elara-ranking-page');
+ if(root){
+  root.dataset.socialTab=tab;
+  root.querySelectorAll('.social-tabs [data-social-view]').forEach(button=>{
+   button.setAttribute('aria-selected',String(button.dataset.socialView===tab));
+  });
+ }
  let url=null;
  if(route==='social'){
   url=new URL(location.href);url.searchParams.set('friendsTab',tab);
-  if(url.href!==location.href)history.pushState({...history.state,friendsTab:tab},'',url);
+  try{
+   if(url.href!==location.href)history.pushState({friendsTab:tab,elaraTab:'social'},'',url);
+  }catch(error){
+   console.warn('Friends tab history state was unavailable:',error);
+   // Do not block tab navigation because a history state cannot be cloned.
+  }
  }
  try{render()}catch(error){
   console.error('Elara social tab navigation failed:',error);
@@ -256,8 +270,8 @@ document.addEventListener('click',e=>{
  const requestMode=e.target.closest('[data-f2-requests-mode]');if(requestMode){friendRequestMode=requestMode.dataset.f2RequestsMode==='outgoing'?'outgoing':'incoming';render();return}
  const layout=e.target.closest('[data-f2-layout]');if(layout){friendLayout=layout.dataset.f2Layout;applyFriendFilters();document.querySelectorAll('[data-f2-layout]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.f2Layout===friendLayout)));return}
  if(e.target.closest('[data-f2-all-friends]')){document.getElementById('f2-friend-search')?.focus();return}
- const action=e.target.closest('[data-f2-tab]');if(action){if(action.hasAttribute('data-social-open-dm'))return;e.preventDefault();navigateSocialTab('social',action.dataset.f2Tab);return}
- const b=e.target.closest('[data-social-view]');if(b){e.preventDefault();navigateSocialTab(b.dataset.socialRoute,b.dataset.socialView);return}
+ const action=e.target.closest('[data-f2-tab]');if(action){if(action.hasAttribute('data-social-open-dm'))return;e.preventDefault();e.stopImmediatePropagation();navigateSocialTab('social',action.dataset.f2Tab);return}
+ const b=e.target.closest('#elara-social-page .social-tabs [data-social-view],#elara-ranking-page .social-tabs [data-social-view]');if(b){e.preventDefault();e.stopImmediatePropagation();navigateSocialTab(b.dataset.socialRoute,b.dataset.socialView);return}
  if(e.target.closest('[data-social-manage]')){navigateSocialTab('social','friends');window.ElaraOpen('social')}
 },true);
 document.addEventListener('input',e=>{if(e.target.matches('[data-f2-search]')){friendQuery=e.target.value;applyFriendFilters()}});
