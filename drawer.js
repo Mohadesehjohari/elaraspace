@@ -479,7 +479,7 @@ function renderSecurity(){
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
   window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance};
-  window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance};
+  window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance,renderSettings};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
 })();
