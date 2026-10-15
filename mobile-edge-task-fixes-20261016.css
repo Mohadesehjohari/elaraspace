@@ -1,0 +1,156 @@
+/* 2026-10-16 — Mobile screen-edge fit, Tasks streak art, inline decisions and full gold check.
+   This is an owner-level responsive layer; desktop layout and task data are untouched. */
+@media (max-width:767px) {
+  /* Flatten compounded mobile gutters once, at the shared page boundary.
+     Retain each card's own internal padding so buttons and text remain usable. */
+  html, html body {margin:0!important;width:100%!important;max-width:100%!important;overflow-x:clip!important}
+  html body .shell,
+  html body .shell>.workspace,
+  html body .workspace {
+    box-sizing:border-box!important;min-width:0!important;max-width:100%!important;
+    width:100%!important;margin-inline:0!important;padding-inline:0!important
+  }
+  html body .workspace main,
+  html body .workspace #main,
+  html body #main {
+    box-sizing:border-box!important;width:100%!important;min-width:0!important;
+    max-width:100%!important;margin-inline:0!important;padding-inline:0!important
+  }
+  html body #main>.panel:not(.hidden),
+  html body.dark #main>.panel:not(.hidden) {
+    box-sizing:border-box!important;min-width:0!important;max-width:100%!important;
+    width:100%!important;margin-inline:0!important;padding-inline:0!important
+  }
+  html body #main :is(.elara-global-hero,.elara-generated-hero) {
+    box-sizing:border-box!important;max-width:100%!important
+  }
+
+  /* The Tasks page previously kept a 7–10px nested gutter on EACH side. */
+  html body #main>#panel-tasks#panel-tasks:not(.hidden),
+  html body.dark #main>#panel-tasks#panel-tasks:not(.hidden) {
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    padding-inline:0!important;margin-inline:0!important
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
+    box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+    margin-inline:0!important;border-radius:14px!important;
+    background-position:center 48%!important;
+    box-shadow:inset 0 0 0 1px #96c2ed32,0 3px 16px #0007!important
+  }
+  /* The illuminated streak artwork was almost completely concealed by a dark gradient. */
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary {
+    direction:ltr!important;
+    inset:auto 7px 9px auto!important;
+    width:min(246px,77%)!important;max-width:246px!important;
+    height:108px!important;min-height:108px!important;max-height:108px!important;
+    grid-template-columns:46px minmax(0,1fr)!important;grid-template-rows:42px 42px!important;
+    gap:4px 7px!important;padding:8px 10px!important;
+    background-image:linear-gradient(110deg,#24132763,#0c16385a 66%,#09173385),url("assets/ui/daily-streak-background.webp")!important;
+    background-size:cover!important;background-position:center!important;
+    border-color:#ffd394cc!important;
+    box-shadow:0 6px 19px #0008,inset 0 1px 0 #ffe8af66,0 0 12px #ffb44938!important
+  }
+  /* LTR grid = flame at LEFT; text gets its own RTL area at RIGHT. */
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary>img {
+    grid-column:1!important;grid-row:1!important;
+    width:44px!important;min-width:44px!important;max-width:44px!important;
+    height:46px!important;min-height:46px!important;max-height:46px!important;
+    align-self:center!important;justify-self:start!important
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary>span {
+    grid-column:2!important;grid-row:1!important;
+    direction:rtl!important;text-align:right!important;
+    justify-self:end!important;align-items:flex-end!important;
+    width:100%!important;padding-right:1px!important;overflow:visible!important
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary>span>b,
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary>span>strong {
+    text-align:right!important;text-shadow:0 1px 5px #000f!important
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary .task-streak-days {
+    direction:rtl!important;grid-column:1/-1!important;grid-row:2!important
+  }
+
+  /* Put "انجام دادم / بعداً / انجام نمی‌دم" immediately BELOW its task.
+     A semantic li wrapper is used for list/grid views, never a fixed overlay. */
+  html body #panel-tasks #task-list li.elara-task-decision-row,
+  html body #panel-tasks #task-list .elara-task-decision-row {
+    display:block!important;position:relative!important;list-style:none!important;
+    box-sizing:border-box!important;grid-column:1/-1!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    padding:0!important;margin:-3px 0 8px!important;overflow:visible!important
+  }
+  html body #panel-tasks #task-list .elara-task-decision-row>.elara-task-decision,
+  html body .ref-task-row>.elara-task-decision,
+  html body .org-task-row>.elara-task-decision,
+  html body .feature-section-task-row>.elara-task-decision,
+  html body .task-board-card>.elara-task-decision {
+    box-sizing:border-box!important;display:flex!important;position:relative!important;
+    inset:auto!important;transform:none!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    flex:0 0 100%!important;grid-column:1/-1!important;
+    margin:0!important;padding:10px!important;
+    border:1px solid #4fb1ff!important;border-radius:12px!important;
+    background:linear-gradient(155deg,#113558,#071932 75%)!important;
+    box-shadow:0 4px 12px #0007,0 0 12px #33afff26!important;
+    overflow:visible!important;z-index:4!important
+  }
+  html body :is(.ref-task-row,.org-task-row,.feature-section-task-row,.task-board-card):has(>.elara-task-decision) {
+    height:auto!important;max-height:none!important;overflow:visible!important;
+    flex-wrap:wrap!important
+  }
+  html body :is(.ref-task-row,.org-task-row,.feature-section-task-row,.task-board-card)>.elara-task-decision>div,
+  html body #panel-tasks #task-list .elara-task-decision-row>.elara-task-decision>div {
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;width:100%!important;min-width:0!important
+  }
+  html body :is(.ref-task-row,.org-task-row,.feature-section-task-row,.task-board-card)>.elara-task-decision button,
+  html body #panel-tasks #task-list .elara-task-decision-row>.elara-task-decision button {
+    box-sizing:border-box!important;min-width:0!important;width:100%!important;
+    min-height:39px!important;height:auto!important;
+    padding:7px 4px!important;text-align:center!important;white-space:normal!important;
+    font-size:11px!important;line-height:1.3!important
+  }
+
+  /* The complete CHECK area, not only the icon, stays golden when done. */
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.done-today>.check-button[aria-pressed="true"],
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button[aria-pressed="true"] {
+    box-sizing:border-box!important;position:relative!important;display:grid!important;place-items:center!important;
+    width:29px!important;min-width:29px!important;max-width:29px!important;
+    height:29px!important;min-height:29px!important;max-height:29px!important;
+    margin:0!important;padding:0!important;border:2px solid #ffec91!important;
+    border-radius:50%!important;
+    background:radial-gradient(circle at 36% 25%,#fffbd2 0%,#ffe179 28%,#ffc037 69%,#b87518 100%)!important;
+    box-shadow:0 0 0 1px #99621a,0 0 13px #ffca4da8,inset 0 0 4px #fff9d8!important;
+    overflow:hidden!important;opacity:1!important
+  }
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.done-today>.check-button[aria-pressed="true"]>img,
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button[aria-pressed="true"]>img {display:none!important}
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.done-today>.check-button[aria-pressed="true"]::before,
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button[aria-pressed="true"]::before {
+    content:none!important;display:none!important
+  }
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.done-today>.check-button[aria-pressed="true"]::after,
+  html body #panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row.just-completed-gold>.check-button[aria-pressed="true"]::after {
+    content:"✓"!important;position:absolute!important;inset:0!important;
+    display:grid!important;place-items:center!important;background:transparent!important;
+    color:#613803!important;font:900 19px/1 Arial,sans-serif!important;
+    text-shadow:0 1px #fff7dc!important;pointer-events:none!important
+  }
+}
+@media (max-width:359px) {
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary {
+    width:min(235px,78%)!important;max-width:235px!important;
+    grid-template-columns:42px minmax(0,1fr)!important;padding:7px 9px!important
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary>img {
+    width:40px!important;min-width:40px!important;max-width:40px!important
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  html body #panel-tasks #task-list .elara-task-decision-row {scroll-behavior:auto!important}
+}
