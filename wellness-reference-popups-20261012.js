@@ -162,7 +162,7 @@ function openFolder(kind,folderId){
  a.overlay.querySelector('.elwp-header h2').textContent=folder.title;
  a.overlay.querySelector('.elwp-dialog').setAttribute('aria-label','جزئیات پوشه '+folder.title);
  a.overlay.querySelector('.elwp-header small').textContent='ELARA · WELLNESS';
- a.overlay.querySelector('.elwp-footer').innerHTML='<button type="button" class="elwp-view-close" data-elwp-close>بستن</button><button type="button" class="elwp-view-edit" data-elwp-folder-edit>✎ ویرایش برنامه</button>';
+ a.overlay.querySelector('.elwp-footer').innerHTML='<button type="button" class="elwp-view-close" data-elwp-close>بستن</button><button type="button" class="elwp-view-share" data-wellness-folder-share="'+kind+'" data-folder-id="'+esc(folder.id)+'">♧ اشتراک با دوست</button><button type="button" class="elwp-view-edit" data-elwp-folder-edit>✎ ویرایش برنامه</button>';
  a.body.innerHTML=folderViewerMarkup(draft);
  a.overlay.addEventListener('click',e=>{if(e.target.closest('[data-elwp-folder-edit]')){e.preventDefault();openPlan(kind,{folderId:folder.id})}});
  a.body.addEventListener('change',e=>{
