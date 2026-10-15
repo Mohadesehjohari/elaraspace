@@ -7,24 +7,26 @@ function decorate(){
  const state=read(),items=new Map((Array.isArray(state.tasks)?state.tasks:[]).map(t=>[String(t.id),t]));
  for(const row of document.querySelectorAll('#task-list .astra-task-row[data-key],.task-board-card[data-task-board-id],.feature-section-task-row[data-section-task-id]')){
   const task=items.get(String(row.dataset.key||row.dataset.taskBoardId||row.dataset.sectionTaskId||''));if(!task)continue;
-  const src=['chip-v2',task.list||'',task.folder||'',task.priority||'',task.time||'',task.date||''].join('|');
+  const src=['chip-v3',task.list||'',task.folder||'',task.priority||'',task.time||'',task.date||''].join('|');
   if(row.dataset.orgLinked===src&&row.querySelector(':scope > .elara-task-cross-links.elara-task-meta-grid'))continue;
   row.dataset.orgLinked=src;
   row.querySelector(':scope > .elara-task-cross-links')?.remove();
   const wrap=document.createElement('div');
   wrap.className='elara-task-cross-links elara-task-meta-grid';
   wrap.setAttribute('dir','rtl');
-  const hasList=!!task.list;
-  const path=document.createElement('button');
-  path.type='button';
-  path.className='elara-task-path-link';
-  const folder=String(task.folder||'');
-  const list=String(task.list||'');
-  path.textContent=hasList?list:(folder||'بدون پوشه');
-  path.dataset[hasList?'orgJumpList':'orgJumpFolder']=hasList?list:folder;
-  path.title=hasList?(folder?'پوشه: '+folder+' ← لیست: '+list:'لیست: '+list):('پوشه: '+(folder||'بدون پوشه'));
-  path.setAttribute('aria-label','رفتن به '+path.title);
-  wrap.append(path);
+  const folder=String(task.folder||'').trim(),list=String(task.list||'').trim();
+  // No fake "بدون پوشه" chip: the priority and timing use the freed space.
+  // A real list stays clickable even when no folder has been assigned.
+  if(list||folder){
+   const path=document.createElement('button');
+   path.type='button';
+   path.className='elara-task-path-link';
+   path.textContent=list||folder;
+   path.dataset[list?'orgJumpList':'orgJumpFolder']=list||folder;
+   path.title=list?(folder?'پوشه: '+folder+' ← لیست: '+list:'لیست: '+list):('پوشه: '+folder);
+   path.setAttribute('aria-label','رفتن به '+path.title);
+   wrap.append(path);
+  }
   const priority=document.createElement('span');
   const level=String(task.priority||'4');
   priority.className='elara-compact-priority p'+level;
