@@ -1,0 +1,62 @@
+name: Social Groups Tab Escape
+on:
+  pull_request:
+    paths:
+      - 'social-view.js'
+      - 'social-groups-ui.js'
+      - 'social-messaging-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/groups-tab-navigation-escape-browser.mjs'
+      - '.github/workflows/social-groups-tab-escape.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'social-view.js'
+      - 'social-groups-ui.js'
+      - 'social-messaging-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'tests/groups-tab-navigation-escape-browser.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check social-view.js
+          node --check social-groups-ui.js
+          node --check social-messaging-ui.js
+          node --check social-clubs-ui.js
+          node --check social-challenges-ui.js
+          node --check boot.js
+          node --check tests/groups-tab-navigation-escape-browser.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start candidate HTTP server
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-social-tab-nav.log 2>&1 &
+          sleep 3
+      - name: Groups tab escape checks at mobile and desktop widths
+        run: timeout 210s node tests/groups-tab-navigation-escape-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: groups-tab-escape-${{ github.sha }}
+          path: browser-artifacts/group-tab-escape-*.png
+          retention-days: 14
+          if-no-files-found: warn
