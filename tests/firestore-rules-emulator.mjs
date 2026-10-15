@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import {initializeTestEnvironment,assertSucceeds,assertFails} from '@firebase/rules-unit-testing';
-import {doc,setDoc,getDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
+import {doc,setDoc,getDoc,getDocs,collection,query,where,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';
 
 const projectId='demo-elara-rules';
 const [host,portRaw]=(process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080').split(':');
@@ -123,6 +123,12 @@ try{
  await assertSucceeds(setDoc(ref(aliceWell,sharePath),wellnessDoc));
  await assertSucceeds(getDoc(ref(aliceWell,sharePath)));
  await assertSucceeds(getDoc(ref(bobWell,sharePath)));
+ const inboxQuery=query(collection(bobWell,'wellnessFolderShares'),where('friendUid','==','bob'));
+ const ownerQuery=query(collection(aliceWell,'wellnessFolderShares'),where('ownerUid','==','alice'));
+ const bobInbox=await assertSucceeds(getDocs(inboxQuery));
+ if(bobInbox.docs.length!==1)throw new Error('designated friend cannot list shared folder');
+ await assertSucceeds(getDocs(ownerQuery));
+ await assertFails(getDocs(query(collection(eveWell,'wellnessFolderShares'),where('friendUid','==','bob'))));
  await assertFails(getDoc(ref(eveWell,sharePath)));
  await assertFails(setDoc(ref(eveWell,'wellnessFolderShares/eve__workout__fake'),{...wellnessDoc,ownerUid:'eve',friendUid:'alice'}));
  await assertFails(setDoc(ref(aliceWell,'wellnessFolderShares/alice__workout__other'),{...wellnessDoc,folderId:'warmup'}));
