@@ -33,3 +33,18 @@ html body #main #panel-freedom.freedom-subpage-open .r31-hero{
   margin-top:0!important;padding-top:0!important;
  }
 }
+
+/* Keep the tab-specific hero and its Back action beneath the fixed/sticky
+   desktop and tablet toolbar after scrollIntoView(). */
+html body #main #panel-freedom.freedom-subpage-open > .freedom-subpage-shell{
+  scroll-margin-top:100px!important;
+}
+html body #main #panel-freedom.freedom-subpage-open .r30-back,
+html body #main #panel-freedom.freedom-subpage-open .r31-back{
+  scroll-margin-top:100px!important;
+}
+@media(max-width:700px){
+ html body #main #panel-freedom.freedom-subpage-open > .freedom-subpage-shell{
+  scroll-margin-top:78px!important;
+ }
+}
