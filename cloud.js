@@ -126,7 +126,12 @@ async function resolveCanonicalUsername(value){
   const username=normalizeUsername(value);if(!usernameValid(username))throw new Error('نام کاربری معتبر نیست.');
   const claimSnap=await getDoc(doc(db,'usernames',username));if(!claimSnap.exists())throw new Error('چنین نام کاربری‌ای پیدا نشد.');
   const claimedUid=String(claimSnap.data()?.uid||'');if(!claimedUid)throw identityIntegrityError('claim-uid-missing','شاخص نام کاربری خراب است و شناسهٔ مالک ندارد.');
-  const profileSnap=await getDoc(doc(db,'profiles',claimedUid));if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','شاخص نام کاربری به پروفایل موجودی اشاره نمی‌کند.');
+  let profileSnap;try{profileSnap=await getDoc(doc(db,'profiles',claimedUid))}catch(error){
+    // A private profile becomes visible only after a participant-scoped friend request.
+    if(error?.code==='permission-denied')return {uid:claimedUid,username,profile:{username,name:username},verifyAfterRequest:true};
+    throw error;
+  }
+  if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','شاخص نام کاربری به پروفایل موجودی اشاره نمی‌کند.');
   if(normalizeUsername(profileSnap.data()?.username)!==username)throw identityIntegrityError('claim-profile-mismatch','شاخص نام کاربری با پروفایل مقصد همخوان نیست؛ برای امنیت، این نتیجه استفاده نشد.');
   return {uid:claimedUid,username,profile:profileSnap.data()};
 }
@@ -249,7 +254,17 @@ async function decide(req,status){if(status==='declined'){try{await deleteDoc(do
 async function addFriend(username){
   const identity=await resolveCanonicalUsername(username),to=identity.uid;if(to===user.uid)throw new Error('این نام کاربری خودته.');
   const id=`${user.uid}_${to}`,ref=doc(db,'friendRequests',id);
-  try{await setDoc(ref,{from:user.uid,to,status:'pending'});await refreshFriends()}
+  try{
+    await setDoc(ref,{from:user.uid,to,status:'pending'});
+    if(identity.verifyAfterRequest){
+      const verified=await getDoc(doc(db,'profiles',to));
+      if(!verified.exists()||normalizeUsername(verified.data()?.username)!==identity.username){
+        await deleteDoc(ref).catch(()=>{});
+        throw identityIntegrityError('request-profile-mismatch','نام کاربری با پروفایل مقصد مطابقت ندارد.');
+      }
+    }
+    await refreshFriends();
+  }
   catch(error){console.error('Elara cloud friend request:',error);await refreshFriends().catch(()=>{});throw error}
 }
 function renderAccount(){
