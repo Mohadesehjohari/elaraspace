@@ -9,12 +9,25 @@ const drawer=read('drawer.js');
 const core=read('app.js');
 const css=read('neon-lavender-theme.css');
 const page=read('index.html');
-assert.match(page,/neon-lavender-theme\.css\?v=20261016-palette-only-v2/);
+assert.match(page,/neon-lavender-theme\.css\?v=20261016-four-colors-v3/);
 assert.match(page,/theme-settings-organization\.css\?v=20261016-theme-settings-v1/);
 assert.ok(page.indexOf('neon-lavender-theme.css')>page.indexOf('task-composer-reference-20261015.css'),'theme override must load after task reference');
 assert.match(css,/body\[data-elara-theme="violet"\]\.light/);
 assert.match(css,/body\[data-elara-theme="violet"\]\.dark\.amoled/);
 assert.match(css,/#task-composer-shell#task-composer-shell/);
+// Four fixed palette hues; role tokens are derived from them in Dark and Light.
+for(const hue of ['#101536','#7544DA','#C18BFF','#42B9FF']) assert.ok(css.includes(hue),'Approved hue missing: '+hue);
+assert.match(css,/--galaxy-navy:#101536/);
+assert.match(css,/--galaxy-purple:#7544DA/);
+assert.match(css,/--galaxy-lilac:#C18BFF/);
+assert.match(css,/--galaxy-blue:#42B9FF/);
+assert.match(css,/--neon-cta:linear-gradient\(110deg,var\(--galaxy-purple\)/);
+assert.equal((css.match(/background:var\(--neon-cta\)/g)||[]).length,3,'Primary shell CTAs should reuse the same violet/blue treatment');
+assert.match(css,/body\[data-elara-theme="violet"\]\.light/);
+assert.ok(page.indexOf('neon-lavender-theme.css') > page.lastIndexOf('home-card-neon-refinement-20261016.css'),'Theme stylesheet must load after page owners');
+assert.ok(page.indexOf('neon-lavender-theme.css') < page.indexOf('theme-settings-organization.css'),'Theme settings arrangement must remain final');
+assert.doesNotMatch(css,/\.astra-task-row|\.ref-task-row|\.feature-section-task-row|\.well01-task-row/,'Category and priority colors must remain feature-owned');
+
 assert.match(core,/window\.ElaraApplyTheme/);
 assert.match(drawer,/\['default','شب‌های بی‌انتها'\]/);
 assert.match(drawer,/\['violet','کهکشان یاسی'\]/);
