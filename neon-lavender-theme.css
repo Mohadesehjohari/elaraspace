@@ -1,64 +1,81 @@
-/* ELARA / NEON LAVENDER — opt-in appearance layer.
-   IMPORTANT: Every visual selector is gated by data-elara-theme="violet".
-   The existing Default appearance and every other accent remain untouched.
-   Load this stylesheet AFTER the page-owner stylesheets in index.html. */
+/* ELARA — "کهکشان یاسی" four-color environment palette.
+   Core colors agreed with the owner:
+     cosmic navy #101536 · galactic violet #7544DA
+     neon lilac #C18BFF · electric blue #42B9FF.
+   Only the site chrome/surfaces/actions inherit this palette. Task-category,
+   priority, success and error colors are explicitly owned by feature CSS.
+   CRITICAL: all visual rules are opt-in via data-elara-theme="violet".
+   "شب‌های بی‌انتها" (legacy/default) is never restyled here. */
 
 body[data-elara-theme="violet"] {
-  --neon-lilac:#b994ff;
-  --neon-violet:#8957ff;
-  --neon-blue:#40a6ff;
-  --neon-cyan:#49d6ff;
-  --neon-glow:rgba(165,96,255,.25);
-  --neon-ink:#f5efff;
-  --neon-panel:linear-gradient(155deg,rgba(26,13,52,.96),rgba(12,8,24,.98));
-  --neon-raised:linear-gradient(140deg,rgba(39,18,72,.97),rgba(18,12,38,.97));
-  --neon-field:linear-gradient(180deg,rgba(6,4,17,.98),rgba(15,9,34,.98));
-  --neon-outline:rgba(159,117,255,.67);
-  --neon-halo:0 0 0 1px rgba(84,163,255,.16),0 10px 32px rgba(1,2,26,.28),0 0 22px rgba(140,72,255,.12);
-  --bg:#07040f !important;
-  --surface:#1a102e !important;
-  --surface2:#281a44 !important;
-  --border:#7755ad !important;
-  --input:#0e0920 !important;
-  --text:#f5efff !important;
-  --muted:#b9b2e6 !important;
-  --accent:#bb91ff !important;
-  --accent2:#4dbdff !important;
-  --elara-accent:#bb91ff !important;
-  --shadow:0 16px 46px rgba(4,0,38,.45) !important;
+  /* Source palette (same identity in Dark, Light, System and AMOLED). */
+  --galaxy-navy:#101536;
+  --galaxy-purple:#7544DA;
+  --galaxy-lilac:#C18BFF;
+  --galaxy-blue:#42B9FF;
+
+  /* Semantic site tokens — adapt hierarchy/contrast per display mode. */
+  --neon-lilac:var(--galaxy-lilac);
+  --neon-violet:var(--galaxy-purple);
+  --neon-blue:var(--galaxy-blue);
+  --neon-cyan:var(--galaxy-blue);
+  --neon-glow:rgba(117,68,218,.26);
+  --neon-ink:#F8F5FF;
+  --neon-panel:linear-gradient(145deg,rgba(29,25,77,.97),rgba(16,21,54,.98) 62%,rgba(15,32,67,.97));
+  --neon-raised:linear-gradient(125deg,rgba(46,26,102,.98),rgba(19,31,69,.98));
+  --neon-field:linear-gradient(180deg,rgba(8,13,38,.98),rgba(18,19,57,.98));
+  --neon-outline:rgba(193,139,255,.65);
+  --neon-halo:0 0 0 1px rgba(66,185,255,.19),0 12px 32px rgba(4,8,35,.36),0 0 22px rgba(117,68,218,.21);
+  --neon-cta:linear-gradient(110deg,var(--galaxy-purple),color-mix(in srgb,var(--galaxy-blue) 57%,var(--galaxy-navy)));
+  --bg:#101536 !important;
+  --surface:#191B45 !important;
+  --surface2:#252458 !important;
+  --border:#7362BE !important;
+  --input:#101536 !important;
+  --text:#F8F5FF !important;
+  --muted:#C5BEE8 !important;
+  --accent:var(--galaxy-lilac) !important;
+  --accent2:var(--galaxy-blue) !important;
+  --elara-accent:var(--galaxy-lilac) !important;
+  --shadow:0 16px 46px rgba(4,8,35,.47) !important;
   color-scheme:dark;
-  background:radial-gradient(ellipse at 78% 0%,rgba(113,58,213,.38),transparent 32%),
-    radial-gradient(ellipse at 14% 34%,rgba(39,102,226,.22),transparent 37%),
-    linear-gradient(158deg,#05030c 0%,#130927 53%,#080411 100%) fixed !important;
+  background:
+    radial-gradient(ellipse at 78% 0%,rgba(117,68,218,.35),transparent 32%),
+    radial-gradient(ellipse at 10% 35%,rgba(66,185,255,.17),transparent 37%),
+    linear-gradient(155deg,#0D1230 0%,var(--galaxy-navy) 47%,#151040 100%) fixed !important;
   color:var(--text);
 }
+
+/* Light retains the same four hue identities but uses airy readable surfaces. */
 body[data-elara-theme="violet"].light {
-  --neon-lilac:#8554d4;
-  --neon-violet:#7440d8;
-  --neon-blue:#276bdf;
-  --neon-cyan:#167bbb;
-  --neon-glow:rgba(128,82,207,.17);
-  --neon-ink:#24113e;
-  --neon-panel:linear-gradient(155deg,rgba(255,252,255,.97),rgba(236,225,255,.96));
-  --neon-raised:linear-gradient(140deg,rgba(247,239,255,.98),rgba(229,225,255,.98));
-  --neon-field:linear-gradient(180deg,#fffaff,#f2ebff);
-  --neon-outline:rgba(128,85,201,.59);
-  --neon-halo:0 0 0 1px rgba(123,93,205,.1),0 10px 28px rgba(66,34,117,.1),0 0 20px rgba(165,96,255,.08);
-  --bg:#f3efff !important;
-  --surface:#fffaff !important;
-  --surface2:#eae1fb !important;
-  --border:#bea8e7 !important;
-  --input:#fffaff !important;
-  --text:#24153f !important;
-  --muted:#665782 !important;
-  --accent:#7844c7 !important;
-  --accent2:#316cc9 !important;
-  --elara-accent:#7844c7 !important;
-  --shadow:0 12px 30px rgba(66,34,117,.12) !important;
+  --neon-lilac:#7544DA;
+  --neon-violet:var(--galaxy-purple);
+  --neon-blue:#2478B6;
+  --neon-cyan:#2478B6;
+  --neon-glow:rgba(117,68,218,.13);
+  --neon-ink:#202344;
+  --neon-panel:linear-gradient(145deg,rgba(255,252,255,.98),rgba(239,233,255,.97) 61%,rgba(224,241,255,.95));
+  --neon-raised:linear-gradient(125deg,#F1E9FF,#E8F3FF);
+  --neon-field:linear-gradient(180deg,#FEFCFF,#F1F1FF);
+  --neon-outline:rgba(117,68,218,.49);
+  --neon-halo:0 0 0 1px rgba(66,185,255,.10),0 12px 28px rgba(16,21,54,.10),0 0 18px rgba(117,68,218,.10);
+  --neon-cta:linear-gradient(110deg,var(--galaxy-purple),color-mix(in srgb,var(--galaxy-blue) 53%,var(--galaxy-navy)));
+  --bg:#F5F3FF !important;
+  --surface:#FFFCFF !important;
+  --surface2:#EDE8FF !important;
+  --border:#B5A5DF !important;
+  --input:#FCFAFF !important;
+  --text:#202344 !important;
+  --muted:#625D84 !important;
+  --accent:#6740B3 !important;
+  --accent2:#216FAD !important;
+  --elara-accent:#6740B3 !important;
+  --shadow:0 12px 30px rgba(16,21,54,.11) !important;
   color-scheme:light;
-  background:radial-gradient(ellipse at 76% -4%,rgba(174,126,246,.25),transparent 37%),
-    radial-gradient(ellipse at 4% 36%,rgba(143,187,255,.20),transparent 45%),
-    linear-gradient(155deg,#faf6ff,#eeeaff 58%,#f6f1ff) fixed !important;
+  background:
+    radial-gradient(ellipse at 77% -4%,rgba(193,139,255,.28),transparent 37%),
+    radial-gradient(ellipse at 5% 38%,rgba(66,185,255,.17),transparent 45%),
+    linear-gradient(155deg,#FBF9FF,#F0EBFF 56%,#EFF6FF) fixed !important;
   color:var(--text);
 }
 /* AMOLED remains truly black while using the lavender highlight system. */
@@ -74,7 +91,7 @@ html body[data-elara-theme="violet"] :is(.workspace,.shell,#main,main) {
 html body[data-elara-theme="violet"] .workspace {background:transparent !important}
 html body[data-elara-theme="violet"] :is(.sidebar,.topbar,.ref-topbar,.bottom-nav) {
   border-color:var(--neon-outline) !important;
-  box-shadow:0 4px 28px var(--neon-glow) !important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--galaxy-blue) 16%,transparent),0 4px 28px var(--neon-glow) !important;
 }
 html body[data-elara-theme="violet"] .sidebar {
   background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 95%,transparent),color-mix(in srgb,var(--bg) 94%,transparent)) !important;
@@ -87,7 +104,7 @@ html body[data-elara-theme="violet"] .bottom-nav {
   backdrop-filter:blur(16px);
 }
 html body[data-elara-theme="violet"] :is(.nav-item.active,.nav-item[aria-current="page"],.bottom-nav button.active,.bottom-nav button[aria-current="page"]) {
-  background:linear-gradient(110deg,color-mix(in srgb,var(--neon-violet) 29%,var(--surface)),color-mix(in srgb,var(--neon-blue) 19%,var(--surface))) !important;
+  background:linear-gradient(110deg,color-mix(in srgb,var(--galaxy-purple) 32%,var(--surface)),color-mix(in srgb,var(--galaxy-blue) 26%,var(--surface))) !important;
   border-color:var(--neon-outline) !important;
   color:var(--text) !important;
   box-shadow:0 0 18px var(--neon-glow) !important;
@@ -194,10 +211,10 @@ html body[data-elara-theme="violet"] :is(
 html body[data-elara-theme="violet"] :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
 ) :is(.primary-button,.lib01-add,.well01-play,.lr4-gradient,.friends-f2-hero-cta) {
-  background:linear-gradient(115deg,#d44eee 0%,#8854ff 53%,#348fff 100%) !important;
-  border:1px solid #bc99ff !important;
+  background:var(--neon-cta) !important;
+  border:1px solid var(--galaxy-lilac) !important;
   color:#fff !important;
-  box-shadow:0 0 0 1px rgba(181,140,255,.22),0 0 23px rgba(146,76,255,.42) !important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--galaxy-lilac) 36%,transparent),0 0 23px var(--neon-glow) !important;
   text-shadow:0 1px 2px rgba(35,14,78,.55);
 }
 html body[data-elara-theme="violet"] :is(
@@ -254,8 +271,8 @@ html body[data-elara-theme="violet"] #panel-tasks#panel-tasks :is(
   box-shadow:var(--neon-halo) !important;
 }
 html body[data-elara-theme="violet"] #panel-tasks#panel-tasks #elara-task-add-main {
-  background:linear-gradient(115deg,#d44eee,#8953ff 55%,#358fff) !important;
-  border-color:#c8a5ff !important;
+  background:var(--neon-cta) !important;
+  border-color:var(--galaxy-lilac) !important;
   color:#fff !important;
   box-shadow:0 0 25px var(--neon-glow) !important;
 }
@@ -270,9 +287,9 @@ html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell :i
 }
 html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-submit {
   color:#fff !important;
-  border:1px solid #c8a5ff !important;
-  background:linear-gradient(110deg,#dc59ee,#8856ff 55%,#309dff) !important;
-  box-shadow:0 0 23px rgba(146,76,255,.48) !important;
+  border:1px solid var(--galaxy-lilac) !important;
+  background:var(--neon-cta) !important;
+  box-shadow:0 0 23px var(--neon-glow) !important;
 }
 html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-form :is(input,select,textarea) {
   border:1px solid var(--neon-outline) !important;
