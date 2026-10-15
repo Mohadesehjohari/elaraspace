@@ -2,11 +2,7 @@
    This stylesheet does not repaint the default app or modify existing surfaces. */
 #panel-settings .settings-theme-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 #panel-settings .settings-theme-quick{display:grid;align-content:start;gap:5px;min-width:0;min-height:132px;text-align:center;padding:9px;border:1px solid var(--border);border-radius:15px;background:var(--surface2);color:var(--text);font:inherit;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease}
-#panel-settings .settings-theme-quick-preview{display:block;height:65px;border-radius:9px;border:1px solid #58659c;position:relative;overflow:hidden}
-#panel-settings .settings-theme-preview-default{background:radial-gradient(circle at 68% 14%,#244b80,#0b1b34 65%,#050d1d)}
-#panel-settings .settings-theme-preview-violet{background:radial-gradient(ellipse at 75% 12%,#b95cff,#5233a9 32%,#10123e 73%,#03081b);box-shadow:inset 0 0 19px #965aff55}
-#panel-settings .settings-theme-quick-preview::before{content:'';position:absolute;left:12%;right:12%;bottom:20%;height:30%;border:1px solid #d1bcffb3;border-radius:9px;background:#111e4688;box-shadow:0 0 10px #935cff66}
-#panel-settings .settings-theme-preview-default::before{border-color:#4b8aca;background:#12325380;box-shadow:none}
+#panel-settings .settings-theme-quick-preview{display:block;width:100%;height:65px;border-radius:9px;border:1px solid #58659c;object-fit:cover;overflow:hidden}
 #panel-settings .settings-theme-quick b{font-size:.83rem}
 #panel-settings .settings-theme-quick small{font-size:.68rem;color:var(--muted)}
 #panel-settings .settings-theme-quick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)}
