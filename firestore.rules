@@ -1007,6 +1007,66 @@ service cloud.firestore {
     }
 
 
+
+    // One private wellness plan folder can have exactly one designated friend.
+    // Explicit consent: recipients may accept or decline; the owner can revoke.
+    match /wellnessFolderShares/{shareId} {
+      function validWellnessShare(d) {
+        return d.keys().hasOnly(['ownerUid','friendUid','folderId','kind','title','payloadJson','status','createdAt','updatedAt'])
+          && d.keys().hasAll(['ownerUid','friendUid','folderId','kind','title','payloadJson','status','createdAt','updatedAt'])
+          && d.ownerUid is string && d.ownerUid.size() > 0
+          && d.friendUid is string && d.friendUid.size() > 0 && d.friendUid != d.ownerUid
+          && d.kind in ['workout','nutrition']
+          && d.folderId is string && d.folderId.matches('^[A-Za-z0-9_-]{1,110}$')
+          && shareId == d.ownerUid + '__' + d.kind + '__' + d.folderId
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 80
+          && d.payloadJson is string && d.payloadJson.size() >= 2 && d.payloadJson.size() <= 30000
+          && d.status in ['pending','accepted','declined']
+          && d.createdAt is timestamp && d.updatedAt is timestamp;
+      }
+      // The explicit one-recipient designation is the read grant until revoked.
+      allow get, list: if signed() && (
+        resource.data.ownerUid == request.auth.uid ||
+        resource.data.friendUid == request.auth.uid
+      );
+      allow create: if signed() && request.auth.token.email_verified == true
+        && validWellnessShare(request.resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && friendOf(request.resource.data.friendUid)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if signed() && request.auth.token.email_verified == true
+        && validWellnessShare(request.resource.data)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.folderId == resource.data.folderId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && (
+          (
+            request.auth.uid == resource.data.ownerUid
+            && friendOf(request.resource.data.friendUid)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendUid','title','payloadJson','status','updatedAt'])
+            && (
+              (request.resource.data.friendUid == resource.data.friendUid
+                && (request.resource.data.status == resource.data.status
+                  || (resource.data.status == 'declined' && request.resource.data.status == 'pending')))
+              || (request.resource.data.friendUid != resource.data.friendUid
+                && request.resource.data.status == 'pending')
+            )
+          ) ||
+          (
+            request.auth.uid == resource.data.friendUid
+            && friendOf(resource.data.ownerUid)
+            && resource.data.status == 'pending'
+            && request.resource.data.status in ['accepted','declined']
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+          )
+        );
+      allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
+    }
+
     match /collabSpaces/{spaceId} {
       allow get: if isCollabMember(spaceId);
       allow list: if false;
