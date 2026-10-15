@@ -35,9 +35,16 @@ function bar(label,pct,iconName){return `<div class="elara-rowbar"><span class="
 function render(){const data=read(),tasks=arr(data.tasks),habits=arr(data.habits),goals=arr(data.goals),day=today(),xp=Math.max(0,Number(data.xp)||0),level=LV(xp),taskDone=x=>x?.recurrenceRule?arr(x.occurrenceDone).includes(day):!!x.completed,done=tasks.filter(taskDone),habitDone=habits.filter(h=>arr(h.days).includes(day)).length;const completionHistory=arr(data.taskCompletionHistory),todayHistory=completionHistory.filter(x=>x?.date===day),activeTaskIds=new Set(tasks.map(x=>x.id)),archivedDoneToday=todayHistory.filter(x=>!activeTaskIds.has(x.taskId)).length,doneToday=Math.max(done.length,new Set(todayHistory.map(x=>x.key||`${x.taskId}:${x.date}`)).size),todayTotal=tasks.length+archivedDoneToday;const name=window.ElaraSocial?.me?.name||window.ElaraAccount?.profile?.name||'دوست من';if(!window.ElaraReferenceHome)$('elara-greeting').textContent=`سلام ${name}!`;$('elara-home-level').textContent=`${pref.language==='fa'?'سطح':'Lv.'} ${fmt(level)} · ${titles[level-1]}`;$('elara-title-pill').textContent=titles[level-1];$('elara-home-xp').textContent=fmt(xp)+' XP';$('elara-home-progress').firstElementChild.style.width=(level===10?100:Math.min(100,Math.max(0,(xp-(level-1)**2*100)/((2*level-1)*100)*100)))+'%';$('elara-profile-name').textContent=name;$('elara-profile-rank').textContent=`Lv.${level} · ${fmt(xp)} XP`;
 $('elara-stats').innerHTML=[['flame','استریک روزانه',0],['tasks','کارهای امروز',`${doneToday}/${todayTotal}`],['habits','عادت‌های امروز',`${habitDone}/${habits.length}`],['goals','هدف فعال',goals.length],['spark','XP',xp]].map(([iconName,label,n])=>`<div class="elara-stat"><span>${ico(iconName)}</span><strong>${typeof n==='string'?esc(n):fmt(n)}</strong><small>${label}</small></div>`).join('');if(!window.ElaraReferenceHome){$('elara-home-tasks').innerHTML=tasks.slice(0,6).map(x=>`<div class="elara-item"><span>${taskDone(x)?'✓':'○'}</span><span class="${taskDone(x)?'done':''}">${esc(x.text||x.title)} <small>· P${esc(x.priority||'4')}</small></span></div>`).join('')||`<p class="muted">${t('none')}</p>`;$('elara-home-habits').innerHTML=habits.slice(0,6).map((x,i)=>bar(x.title,arr(x.days).includes(day)?100:0,['book','workout','water','sleep','habits','spark'][i%6])).join('')||`<p class="muted">${t('none')}</p>`;$('elara-home-goals').innerHTML=goals.slice(0,5).map((x,i)=>bar(x.title,arr(x.steps).length?arr(x.steps).filter(s=>s.done).length/arr(x.steps).length*100:0,['goals','spark','missions','book'][i%4])).join('')||`<p class="muted">${t('none')}</p>`;const missionItems=window.ElaraMissions?.snapshot?.()||[];$('elara-home-missions').innerHTML=(missionItems.length?missionItems.slice(0,3).map(m=>`<div class="elara-item elara-mission-row"><span>${m.completed?'✓':'○'}</span><span class="${m.completed?'done':''}"><strong>${esc(m.name)}</strong><small> ${fmt(Math.min(m.amount,m.target))}/${fmt(m.target)}</small></span><b class="elara-mission-reward">+${fmt(m.rewardXp||0)} XP${m.claimed?' · دریافت شد':''}</b></div>`).join(''):'<p class="muted">مأموریتی برای نمایش نیست.</p>')+'<button class="quiet-button" type="button" data-elara-tab="missions">مشاهده همه مأموریت‌ها</button>';} $('elara-reports-page').innerHTML=[['کارهای ثبت‌شده',tasks.length],['کارهای انجام‌شده',completionHistory.length||done.length],['عادت‌ها',habits.length],['هدف‌ها',goals.length],['جلسه‌های تمرکز',arr(data.focusSessions).length],['دقایق تمرکز',arr(data.focusSessions).reduce((n,s)=>n+(Number(s.durationMin)||0),0)]].map(([l,n])=>`<div class="elara-stat"><strong>${fmt(n)}</strong><small>${l}</small></div>`).join('');$('elara-mirror-timer').textContent=$('timer-display')?.textContent||'25:00';const id=window.ElaraSocial?.me?.uid;$('elara-share-activity').checked=!!id&&localStorage.getItem('elara_share_activity_'+id)==='yes';apply()}
 function routeUrl(tab){return location.pathname+location.search+'#'+tab}
+let focusReturn='home';
+const normalizeFocus=tab=>tab==='focus'||tab==='focus-ambience'?'focus-pomodoro':tab;
+function backFromFocus(){const target=normalizeFocus(focusReturn);open(target==='focus-pomodoro'?'home':target,{history:'replace'})}
+window.ElaraFocusBack=backFromFocus;
+window.ElaraFocusReturnRoute=()=>focusReturn;
 function open(tab,options={}){
+  const requested=tab;tab=normalizeFocus(tab);
+  if(tab==='focus-pomodoro'&&current!=='focus-pomodoro'&&!['focus','focus-ambience'].includes(current))focusReturn=$('panel-'+current)?current:'home';
   const panel=$('panel-'+tab);if(!panel)return;
-  const historyMode=options.history||'push',changed=current!==tab;
+  const historyMode=requested!==tab&&options.history==='none'?'replace':options.history||'push',changed=current!==tab;
   const depth=Number(history.state?.elaraDepth)||0;
   if(historyMode==='push'&&changed)history.pushState({elaraTab:tab,elaraDepth:depth+1},'',routeUrl(tab));
   else if(historyMode==='replace')history.replaceState({elaraTab:tab,elaraDepth:depth},'',routeUrl(tab));
@@ -56,13 +63,25 @@ function setup(){
   });
   document.querySelector('.elara-lang-shortcut').onclick=()=>open('settings');
   document.querySelector('.elara-mode-shortcut').onclick=()=>{pref.mode=pref.mode==='dark'?'light':'dark';savePref()};
-  $('elara-back-button').onclick=()=>{if((Number(history.state?.elaraDepth)||0)>0)history.back();else if(current!=='home')open('home',{history:'replace'})};
-  window.addEventListener('popstate',e=>{const raw=e.state?.elaraTab||location.hash.replace(/^#/,'')||'home',tab=raw==='profile'?'home':raw;open($('panel-'+tab)?tab:'home',{history:'none'})});
+  $('elara-back-button').onclick=()=>{if(current==='focus-pomodoro'){backFromFocus();return}if((Number(history.state?.elaraDepth)||0)>0)history.back();else if(current!=='home')open('home',{history:'replace'})};
+  // Normalize any remaining raw #focus anchor (including old bookmarks and sidebar links).
+   window.addEventListener('hashchange',()=>{
+     const raw=location.hash.replace(/^#/,'');
+     if(raw==='focus'||raw==='focus-ambience'){
+       if(current==='focus-pomodoro'){backFromFocus();return}
+       open('focus-pomodoro',{history:'replace'});
+     }
+   });
+   window.addEventListener('popstate',e=>{
+ const raw=e.state?.elaraTab||location.hash.replace(/^#/,'')||'home',tab=raw==='profile'?'home':raw;
+ if((tab==='focus'||tab==='focus-ambience')&&current==='focus-pomodoro'){backFromFocus();return}
+ const canonical=normalizeFocus(tab);open($('panel-'+canonical)?canonical:'home',{history:canonical===tab?'none':'replace'});
+});
   window.addEventListener('elara:hydrate',render);window.addEventListener('elara:data-changed',render);window.addEventListener('elara:social-updated',render);
   $('elara-share-activity').onchange=e=>{const id=window.ElaraSocial?.me?.uid;if(!id){e.target.checked=false;return}localStorage.setItem('elara_share_activity_'+id,e.target.checked?'yes':'no')};
   new MutationObserver(()=>{if(current==='home')$('elara-mirror-timer').textContent=$('timer-display')?.textContent||'25:00'}).observe($('timer-display'),{childList:true,subtree:true,characterData:true});
   for(const id of ['theme-toggle','settings-theme-toggle'])$(id)?.addEventListener('click',e=>{e.stopImmediatePropagation();pref.mode=pref.mode==='dark'?'light':'dark';savePref()},true);
-  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;if(!$('panel-'+requested)&&requested==='language'){window.__elaraPendingRoute=requested;open('home',{history:'none'})}else open($('panel-'+requested)?requested:'home',{history:'replace'})
+  render();const rawRequested=location.hash.replace(/^#/,'');const requested=rawRequested==='profile'?'home':rawRequested;if(!$('panel-'+requested)&&requested==='language'){window.__elaraPendingRoute=requested;open('home',{history:'none'})}else {const route=normalizeFocus(requested);open($('panel-'+route)?route:'home',{history:'replace'})}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
