@@ -165,7 +165,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-displ
   color:#fffaf3;
   background:
     radial-gradient(circle closest-side,#06131c 0 80%,#162029 82%,transparent 84%),
-    conic-gradient(from -38deg,#f9e2a5 0%,#ffc876 17%,#ba8045 27%,#4bcfca 47%,#138f9f 68%,#67b2bf 82%,#f7d48d 100%);
+    conic-gradient(from -38deg,#f9e2a5 0%,#ffc876 17%,#ba8045 27%,#4bcfca 47%,#138f9f 68%,#67b2bf 82%,#ffde8d 100%);
   box-shadow:0 0 0 5px rgba(6,22,29,.72),0 0 27px rgba(237,180,91,.21),0 0 42px rgba(39,171,180,.15),inset 0 0 20px #000b;
 }
 body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display::before {
@@ -394,7 +394,7 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-empty {
     padding:4px 0 0;
   }
   body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display {
-    width:min(250px,calc(100vw - 76px));
+    width:min(250px,calc(100vw - 60px));
     height:auto;
     max-width:250px;
     font-size:clamp(43px,11.8vw,59px);
@@ -479,13 +479,6 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-empty {
   }
 }
 @media(max-width:390px) {
-  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display {
-    width:min(232px,calc(100vw - 62px));
-    max-width:232px;
-  }
-  body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #focus-status {
-    transform:translateY(151px);
-  }
   body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button b {
     font-size:10px;
   }
