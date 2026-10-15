@@ -12,6 +12,8 @@ on:
       - well01-wellness-dashboard.css
       - approved-wellness.js
       - wellness-reference-popups-20261012.js
+      - wellness-folder-sharing.js
+      - tests/firestore-rules-emulator.mjs
       - wellness-reference-popups-20261012.css
       - tests/wellness-notes-browser.mjs
       - tests/well01-wellness-dashboard-browser.mjs
@@ -39,6 +41,8 @@ jobs:
           node --check boot.js
           node --check approved-wellness.js
           node --check well01-wellness-dashboard.js
+          node --check wellness-reference-popups-20261012.js
+          node --check wellness-folder-sharing.js
           node --check tests/well01-wellness-dashboard-browser.mjs
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
