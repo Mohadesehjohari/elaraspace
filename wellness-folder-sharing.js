@@ -18,7 +18,7 @@ function localFolder(uid,kind,folderId){
 }
 function snapshotFolder(f,kind,ownerUid){
  let defaultDays=[];try{const state=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+ownerUid)||'{}');defaultDays=state[kind+'PlanMeta']?.days||[]}catch{}
- const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done}))};
+ const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map((c,i)=>({id:String(c.id||'legacy-'+i).slice(0,110),text:String(c.text||'').slice(0,180),done:!!c.done}))};
  const json=JSON.stringify(value);if(json.length>27000)throw Error(tx('حجم این پوشه برای اشتراک خیلی زیاد است.','This folder exceeds the sharing limit.'));return json;
 }
 function panel(html,title){
@@ -32,7 +32,7 @@ function panel(html,title){
  overlay.querySelector('[data-wellshare-close]')?.focus({preventScroll:true});
  return overlay
 }
-function close(){if(!dialog)return;document.removeEventListener('keydown',dialog.__key,true);dialog.remove();dialog=null;document.body.style.overflow=priorOverflow}
+function close(){if(!dialog)return;try{dialog.__dispose?.()}catch{}document.removeEventListener('keydown',dialog.__key,true);dialog.remove();dialog=null;document.body.style.overflow=priorOverflow}
 function msg(root,value,error=false){const e=root?.querySelector('.wellshare-message');if(e){e.textContent=value;e.classList.toggle('is-error',error)}}
 async function shareFolder(kind,folderId){
  let x,folder,existing=null;
@@ -47,10 +47,11 @@ async function shareFolder(kind,folderId){
  const html='<p class="wellshare-description">'+tx('فقط همین پوشه و محتوای برنامه برای دوستی که انتخاب می‌کنی فرستاده می‌شود؛ اطلاعات وزن و سایر برنامه‌ها خصوصی می‌مانند. دوستت باید دعوت را بپذیرد.','Only this folder is shared; other wellness information stays private. Your friend must accept.')+'</p>'+
  (existing?'<p class="wellshare-current">'+tx('وضعیت فعلی: ','Current status: ')+esc(existing.status==='accepted'?'پذیرفته شده':existing.status==='declined'?'رد شده':'در انتظار پذیرش')+'</p>':'')+
  (rows.length?'<fieldset class="wellshare-friends"><legend>'+tx('یک دوست انتخاب کن','Choose one friend')+'</legend>'+rows.map((f,i)=>'<label><input type="radio" name="wellshare-friend" value="'+esc(f.uid)+'" '+((existing?existing.friendUid===f.uid:i===0)?'checked':'')+'><span><strong>'+esc(f.name||f.username||tx('دوست','Friend'))+'</strong><small>'+esc(f.username?'@'+f.username:'')+'</small></span></label>').join('')+'</fieldset>':'<p class="wellshare-empty">'+tx('دوست تأییدشده‌ای برای انتخاب وجود ندارد.','No accepted friends are available.')+'</p>')+
- '<div class="wellshare-actions">'+(rows.length?'<button class="wellshare-primary" type="button" data-wellshare-send>'+tx('اشتراک با دوست','Share with friend')+'</button>':'')+(existing?'<button class="wellshare-danger" type="button" data-wellshare-revoke>'+tx('لغو اشتراک','Revoke access')+'</button>':'')+'<button type="button" data-wellshare-close>'+tx('بستن','Close')+'</button></div><p class="wellshare-message" role="status"></p>';
+ '<div class="wellshare-actions">'+(rows.length?'<button class="wellshare-primary" type="button" data-wellshare-send>'+tx('اشتراک با دوست','Share with friend')+'</button>':'')+(existing&&existing.status==='accepted'?'<button type="button" data-wellshare-open-shared>'+tx('اجرای مشترک برنامه','Open shared plan')+'</button>':'')+(existing?'<button class="wellshare-danger" type="button" data-wellshare-revoke>'+tx('لغو اشتراک','Revoke access')+'</button>':'')+'<button type="button" data-wellshare-close>'+tx('بستن','Close')+'</button></div><p class="wellshare-message" role="status"></p>';
  const overlay=panel(html,title);
  const content=overlay.querySelector('.wellshare-content');
  overlay.addEventListener('click',async e=>{
+  if(e.target.closest('[data-wellshare-open-shared]')){close();await openReceived(shareId(x.user.uid,kind,folderId));return}
   if(e.target.closest('[data-wellshare-send]')){
    const target=content.querySelector('[name=wellshare-friend]:checked')?.value;
    if(!target||!rows.some(f=>f.uid===target)){msg(content,tx('یکی از دوستان را انتخاب کن.','Select a friend.'),true);return}
@@ -83,7 +84,7 @@ async function refresh(){
  })().finally(()=>{loading=null});return loading
 }
 function receivedFolders(kind){return received.filter(r=>r.kind===kind&&r.status==='accepted').map(r=>({id:r.id,title:r.title,ownerUid:r.ownerUid}))}
-function readPayload(row){try{const d=JSON.parse(row.payloadJson||'{}');return{title:String(d.title||row.title||'').slice(0,80),programName:String(d.programName||'').slice(0,100),description:String(d.description||'').slice(0,5000),note:String(d.note||'').slice(0,5000),days:Array.isArray(d.days)?d.days.filter(x=>days.includes(x)||x==='همه روزها').slice(0,9):[],checks:Array.isArray(d.checks)?d.checks.slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done})):[]}}catch{return null}}
+function readPayload(row){try{const d=JSON.parse(row.payloadJson||'{}');return{title:String(d.title||row.title||'').slice(0,80),programName:String(d.programName||'').slice(0,100),description:String(d.description||'').slice(0,5000),note:String(d.note||'').slice(0,5000),days:Array.isArray(d.days)?d.days.filter(x=>days.includes(x)||x==='همه روزها').slice(0,9):[],checks:Array.isArray(d.checks)?d.checks.slice(0,90).map((c,i)=>({id:String(c.id||'legacy-'+i).slice(0,110),text:String(c.text||'').slice(0,180),done:!!c.done})):[]}}catch{return null}}
 async function openReceived(id){
  try{const x=await signed(),snap=await x.fs.getDoc(x.fs.doc(x.db,collectionName,id));if(!snap.exists())throw Error('این اشتراک دیگر وجود ندارد.');
  const share=snap.data();if(share.friendUid!==x.user.uid||share.status!=='accepted')throw Error('به این پوشه دسترسی نداری.');
