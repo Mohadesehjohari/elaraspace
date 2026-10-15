@@ -357,7 +357,7 @@ function renderSecurity(){
     const mountTrigger=()=>{const theme=document.getElementById('theme-toggle'),actions=document.querySelector('.topbar-actions');if(!actions)return false;if(theme){theme.insertAdjacentElement('afterend',trigger)}else actions.append(trigger);return true};
     mountTrigger();setTimeout(mountTrigger,0);setTimeout(mountTrigger,250);setTimeout(mountTrigger,1000);
     root=document.createElement('div');root.className='elara-private-drawer hidden';
-    root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div id="drawer-profile-summary" class="drawer-profile-summary"></div><button type="button" class="drawer-close" data-drawer-close aria-label="بستن">×</button></header><nav class="drawer-menu"><button data-drawer-nav="account">${icon('user')}<b>پروفایل</b><small>نمایش و ویرایش هویت</small></button><button data-drawer-nav="blocked">${icon('shield')}<b>بلاک‌شده‌ها</b><small>مدیریت حساب‌های مسدود</small></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<b>کمد</b><small>آواتار، فریم و بنر</small></button><button type="button" data-drawer-nav="settings">${icon('settings')}<b>تنظیمات</b><small>حساب، حریم خصوصی، زبان و ظاهر</small></button><button type="button" data-drawer-action="store">${icon('spark')}<b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></button><button type="button" class="drawer-mobile-reports" data-drawer-action="reports">${icon('chart')}<b>گزارش‌ها</b><small>میانبر گزارش‌ها در موبایل</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="settings" class="hidden"><div id="drawer-settings-area"></div></section><section data-drawer-section="blocked" class="hidden"><div id="drawer-blocked-area"></div></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="security" class="hidden"><div id="drawer-security-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="language" class="hidden"><div id="drawer-language-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
+    root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div id="drawer-profile-summary" class="drawer-profile-summary"></div><button type="button" class="drawer-close" data-drawer-close aria-label="بستن">×</button></header><nav class="drawer-menu"><button data-drawer-nav="account">${icon('user')}<b>پروفایل</b><small>نمایش و ویرایش هویت</small></button><button data-drawer-nav="blocked">${icon('shield')}<b>بلاک‌شده‌ها</b><small>مدیریت حساب‌های مسدود</small></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<b>کمد</b><small>آواتار، فریم و بنر</small></button><button type="button" data-drawer-nav="settings">${icon('settings')}<b>تنظیمات</b><small>حساب، حریم خصوصی، زبان و ظاهر</small></button><button type="button" data-drawer-nav="appearance">${icon('spark')}<b>تم‌های سایت</b><small>دیفالت، کهکشان یاسی، دارک و لایت</small></button><button type="button" data-drawer-action="store">${icon('spark')}<b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></button><button type="button" class="drawer-mobile-reports" data-drawer-action="reports">${icon('chart')}<b>گزارش‌ها</b><small>میانبر گزارش‌ها در موبایل</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="settings" class="hidden"><div id="drawer-settings-area"></div></section><section data-drawer-section="blocked" class="hidden"><div id="drawer-blocked-area"></div></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="security" class="hidden"><div id="drawer-security-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="language" class="hidden"><div id="drawer-language-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
     document.body.append(root);panel=root.querySelector('.elara-private-drawer-panel');
     root.querySelector('.elara-private-drawer-scrim').addEventListener('click',close);root.querySelector('[data-drawer-close]').addEventListener('click',close);
     panel.tabIndex=-1;document.addEventListener('keydown',trapDrawerKey,true);
@@ -365,12 +365,33 @@ function renderSecurity(){
     removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
     const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
-    renderProfile();renderHub();updateCalendarLabels();
+    renderProfile();renderHub();updateCalendarLabels();syncQuickAppearance();
     window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
     window.visualViewport?.addEventListener?.('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
   }
 
+  function syncQuickAppearance(){
+    const p=pref(),active=p.themeVariant||(p.color==='violet'?'default':p.color);
+    const mode=localStorage.getItem('elara_amoled')==='yes'?'amoled':p.mode==='system'?
+      (window.matchMedia?.('(prefers-color-scheme: light)')?.matches?'light':'dark'):p.mode;
+    document.querySelectorAll('[data-elara-theme-quick]').forEach(button=>{
+      const selected=button.dataset.elaraThemeQuick===active;
+      button.setAttribute('aria-pressed',String(selected));
+    });
+    document.querySelectorAll('[data-elara-mode-quick]').forEach(button=>{
+      button.setAttribute('aria-pressed',String(button.dataset.elaraModeQuick===mode));
+    });
+  }
+  window.addEventListener('elara:theme-changed',syncQuickAppearance);
+  window.addEventListener('elara:open',syncQuickAppearance);
+
   document.addEventListener('click',async e=>{
+    const appearance=e.target.closest('[data-elara-open-appearance]');
+    if(appearance){e.preventDefault();if(!root)build();open('appearance');return}
+    const quickTheme=e.target.closest('[data-elara-theme-quick]');
+    if(quickTheme){e.preventDefault();if(['default','violet'].includes(quickTheme.dataset.elaraThemeQuick)){setColor(quickTheme.dataset.elaraThemeQuick);syncQuickAppearance()}return}
+    const quickMode=e.target.closest('[data-elara-mode-quick]');
+    if(quickMode){e.preventDefault();if(['dark','light'].includes(quickMode.dataset.elaraModeQuick)){setMode(quickMode.dataset.elaraModeQuick);syncQuickAppearance()}return}
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
     const wardrobeButton=e.target.closest('[data-approved-wardrobe]');
     if(wardrobeButton){e.preventDefault();window.ElaraWardrobeUI?.open?.();return}
