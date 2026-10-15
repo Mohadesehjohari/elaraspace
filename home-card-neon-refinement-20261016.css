@@ -481,6 +481,9 @@ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row {
     gap:2px!important;
     min-height:29px!important;
   }
+  html body #panel-home.ref-home.owner-art-home .owner-home-tasks > header [data-home-quick="task"] {
+    order:-1!important;
+  }
   html body #panel-home.ref-home.owner-art-home .owner-home-tasks > header .ref-view-all-button {
     order:0!important;
     margin:0!important;
