@@ -44,6 +44,14 @@ async function run(width){
  await page.waitForFunction(()=>window.ElaraSocialView&&window.ElaraSocialGroupsUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:25000});
  await assertTab(page,'groups',width);
  await page.waitForSelector('.groups-r4 .g4-hero',{timeout:10000});
+ const hitbox=await page.evaluate(()=>{
+  const tab=document.querySelector('#elara-social-page .social-tabs [data-social-view="chats"]');
+  const r=tab.getBoundingClientRect();
+  const target=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+  const topbar=document.querySelector('.workspace>.topbar.ref-topbar');
+  return {ok:!!target&&(target===tab||tab.contains(target)),target:target?.className?.baseVal||target?.className||target?.tagName,headerBottom:Math.round(topbar?.getBoundingClientRect().bottom||0),tabTop:Math.round(r.top)};
+ });
+ assert.ok(hitbox.ok,width+': Friends navigation is still covered by another layer: '+JSON.stringify(hitbox));
  // Several social service updates must not make the current tab impossible to leave.
  await page.evaluate(()=>{for(let i=0;i<25;i++)window.dispatchEvent(new Event('elara:social-updated'))});
  await page.waitForTimeout(350);
