@@ -268,3 +268,66 @@
 
 .elwp-view-folder-symbol svg{display:block;width:47px;height:47px;filter:drop-shadow(0 0 7px #36f6a77a)}
 @media(max-width:600px){.elwp-view-folder-symbol svg{width:36px;height:36px}}
+
+
+/* One-friend sharing: clean, explicit consent and read-only recipient view. */
+.elwp-folder-view-overlay .elwp-footer{flex-wrap:wrap}
+.elwp-folder-view-overlay .elwp-view-share{min-height:48px;padding:9px 16px!important;border:1px solid #2ff6b2!important;border-radius:11px!important;background:#065b4c!important;color:#defff3!important;flex:1;min-width:155px;font-size:14px!important;font-weight:850!important}
+.elwp-folder-view-overlay .elwp-view-share:hover{box-shadow:0 0 16px #24f6af45}
+#panel-exercise #well01-dashboard .well01-plan footer{flex-wrap:wrap;gap:6px}
+#panel-exercise #well01-dashboard .well01-plan footer .well01-plan-link{flex:1 1 auto;white-space:nowrap;font-size:.68rem!important}
+#panel-exercise #well01-dashboard .well01-folder-received{border-color:#36d8ba!important;background:linear-gradient(130deg,#075f4e,#063b42)!important}
+#panel-exercise #well01-dashboard .well01-shared-indicator{flex:none;color:#baffde;font-size:18px}
+.wellshare-overlay{position:fixed;inset:0;z-index:2147483100;display:grid;place-items:center;padding:16px;background:#00151de8;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#eafff8;font-family:inherit;direction:rtl}
+.wellshare-overlay *{box-sizing:border-box}
+.wellshare-dialog{width:min(850px,96vw);max-height:94dvh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #16dbaa;border-radius:21px;background:radial-gradient(circle at 70% 0,#0b625580,transparent 40%),linear-gradient(145deg,#062d38,#021b29);box-shadow:0 20px 100px #000c,0 0 35px #10e8a629;text-align:right}
+.wellshare-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:18px;flex:none;padding:18px 24px;border-bottom:1px solid #318e7990;background:linear-gradient(90deg,#02282ca9,#033c33b1),url('assets/ui/workout_banner_main.webp') center/cover}
+.wellshare-dialog header small{font-size:11px;font-weight:850;letter-spacing:.1em;color:#56ffd0}
+.wellshare-dialog header h2{margin:5px 0;font-size:clamp(18px,2.2vw,25px);color:#fff}
+.wellshare-dialog header button{min-width:42px;min-height:42px;border-radius:10px;border:1px solid #35a98e;background:#05352d;color:#fff;font-size:23px;cursor:pointer}
+.wellshare-content{overflow:auto;overscroll-behavior:contain;min-height:0;padding:22px;scrollbar-width:thin;scrollbar-color:#1e9c81 transparent}
+.wellshare-description{color:#c1e9de;font-size:13px;line-height:2;margin:0 0 17px}
+.wellshare-current{color:#5cf5c1;padding:11px;border:1px solid #226e59;border-radius:12px;background:#073f36}
+.wellshare-friends{display:grid;gap:8px;margin:15px 0;padding:12px;border:1px solid #2e8b70;border-radius:15px}
+.wellshare-friends legend{font-weight:800;padding:0 9px}
+.wellshare-friends label{display:flex;flex-direction:row;align-items:center;gap:12px;padding:11px 13px;border:1px solid #296d67;border-radius:12px;background:#062d33;cursor:pointer}
+.wellshare-friends label:has(input:checked){border-color:#1affbc;background:#055241}
+.wellshare-friends label input{accent-color:#19efb2;width:19px;height:19px;flex:none}
+.wellshare-friends label>span{display:grid;gap:3px}
+.wellshare-friends label strong{font-size:13px;color:#f0fff8}
+.wellshare-friends label small{font-size:11px;color:#a6d4c6}
+.wellshare-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px}
+.wellshare-actions button,.wellshare-inbox-row button{min-height:43px;padding:8px 14px;border:1px solid #36987b;border-radius:11px;background:#093c3b;color:#eafff8;font-weight:800;cursor:pointer}
+.wellshare-actions .wellshare-primary,.wellshare-inbox-row [data-wellshare-accept],.wellshare-inbox-row [data-wellshare-open]{border-color:#30f3b7;background:linear-gradient(120deg,#18b98d,#087258);color:white}
+.wellshare-actions .wellshare-danger,.wellshare-inbox-row [data-wellshare-decline]{border-color:#c36e74;background:#55272d;color:#ffbfc0}
+.wellshare-dialog button:disabled{opacity:.5;cursor:wait}
+.wellshare-dialog button:focus-visible,.wellshare-dialog input:focus-visible{outline:2px solid #8fffe0;outline-offset:2px}
+.wellshare-message{min-height:24px;color:#50ffbd;font-size:12px;line-height:1.8}
+.wellshare-message.is-error{color:#ffb4b4}
+.wellshare-empty{border:1px dashed #236f65;border-radius:13px;padding:16px;color:#b4d9cf}
+.wellshare-inbox-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;margin:8px 0;border:1px solid #33796e;border-radius:13px;background:#062d37}
+.wellshare-inbox-row>div:first-child{display:grid;gap:6px}
+.wellshare-inbox-row strong{color:#eafff9;font-size:14px}
+.wellshare-inbox-row small{color:#abdbca;font-size:12px}
+.wellshare-inbox-row>div:last-child{display:flex;gap:7px;flex-wrap:wrap}
+.wellshare-content>h3{margin:5px 0 16px;font-size:20px;color:white}
+.wellshare-view-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:13px}
+.wellshare-view-grid>section{min-width:0;min-height:165px;padding:13px;border:1px solid #216e65;border-radius:13px;background:#032939}
+.wellshare-view-grid h4{margin:0 0 12px;color:#76ffce;font-size:15px}
+.wellshare-prose{white-space:normal;overflow-wrap:anywhere;line-height:2.1;font-size:13px;color:#e4fff4;max-height:370px;overflow:auto}
+.wellshare-days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.wellshare-days span{padding:9px 5px;border:1px solid #2d6272;border-radius:9px;text-align:center;font-size:11px;color:#b6d1cd}
+.wellshare-days span.active{background:#08634d;border-color:#24f6b5;color:white}
+.wellshare-checks{display:grid;gap:7px;list-style:none;padding:0;margin:0;max-height:330px;overflow:auto}
+.wellshare-checks li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:#062a30;border:1px solid #225a60;border-radius:10px;font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.wellshare-checks li>span:first-child{color:#57ffd1;font-size:19px}
+@media(max-width:650px){
+ .wellshare-overlay{padding:0}
+ .wellshare-dialog{border-radius:0;width:100vw;height:100dvh;max-height:100dvh}
+ .wellshare-dialog>header{padding:15px}
+ .wellshare-content{padding:14px}
+ .wellshare-view-grid{grid-template-columns:1fr}
+ .wellshare-inbox-row{flex-direction:column;align-items:stretch}
+ .elwp-folder-view-overlay .elwp-footer{gap:7px}
+ .elwp-folder-view-overlay .elwp-view-share{min-width:0;flex:1 1 140px}
+}
