@@ -16,8 +16,9 @@ function shareId(uid,kind,folderId){if(!kinds.includes(kind)||!/^[a-zA-Z0-9_-]{1
 function localFolder(uid,kind,folderId){
  try{const s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{},rows=Array.isArray(s[kind+'PlanFolders'])?s[kind+'PlanFolders']:[];return rows.find(f=>String(f?.id)===String(folderId))||null}catch{return null}
 }
-function snapshotFolder(f,kind){
- const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:Array.isArray(f.days)?f.days.filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9):[],checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done}))};
+function snapshotFolder(f,kind,ownerUid){
+ let defaultDays=[];try{const state=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+ownerUid)||'{}');defaultDays=state[kind+'PlanMeta']?.days||[]}catch{}
+ const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done}))};
  const json=JSON.stringify(value);if(json.length>27000)throw Error(tx('حجم این پوشه برای اشتراک خیلی زیاد است.','This folder exceeds the sharing limit.'));return json;
 }
 function panel(html,title){
@@ -54,7 +55,7 @@ async function shareFolder(kind,folderId){
    const btn=e.target.closest('button');btn.disabled=true;
    try{
     const current=localFolder(x.user.uid,kind,folderId);if(!current)throw Error(tx('پوشه حذف شده است.','Folder no longer exists.'));
-    const payloadJson=snapshotFolder(current,kind),r=x.fs.doc(x.db,collectionName,shareId(x.user.uid,kind,folderId));
+    const payloadJson=snapshotFolder(current,kind,x.user.uid),r=x.fs.doc(x.db,collectionName,shareId(x.user.uid,kind,folderId));
     if(existing){await x.fs.updateDoc(r,{friendUid:target,title:String(current.title).slice(0,80),payloadJson,status:existing.friendUid===target&&existing.status==='accepted'?'accepted':'pending',updatedAt:x.fs.serverTimestamp()})}
     else{await x.fs.setDoc(r,{ownerUid:x.user.uid,friendUid:target,folderId:String(folderId),kind,title:String(current.title).slice(0,80),payloadJson,status:'pending',createdAt:x.fs.serverTimestamp(),updatedAt:x.fs.serverTimestamp()})}
     msg(content,tx('درخواست اشتراک ثبت شد. دوستت می‌تواند از بخش دریافتی‌ها آن را بپذیرد.','Invite sent. Your friend can accept it in Received folders.'));
@@ -110,7 +111,7 @@ async function syncOwned(kind){
  try{const x=await signed(),snaps=await x.fs.getDocs(x.fs.query(x.fs.collection(x.db,collectionName),x.fs.where('ownerUid','==',x.user.uid)));
   for(const item of snaps.docs){const share=item.data();if(share.ownerUid!==x.user.uid||share.kind!==kind)continue;const folder=localFolder(x.user.uid,kind,share.folderId);
    if(!folder){await x.fs.deleteDoc(item.ref);continue}
-   const payloadJson=snapshotFolder(folder,kind),title=String(folder.title||'').slice(0,80);
+   const payloadJson=snapshotFolder(folder,kind,x.user.uid),title=String(folder.title||'').slice(0,80);
    if(share.payloadJson!==payloadJson||share.title!==title)await x.fs.updateDoc(item.ref,{payloadJson,title,updatedAt:x.fs.serverTimestamp()});
   }
  }catch(e){if(e?.code!=='permission-denied')console.warn('Wellness folder sync:',e?.message||e)}
