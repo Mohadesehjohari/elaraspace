@@ -9,6 +9,7 @@ on:
       - 'social-challenges-ui.js'
       - 'boot.js'
       - 'index.html'
+      - 'social-topbar-hitbox-20261016.css'
       - 'tests/groups-tab-navigation-escape-browser.mjs'
       - '.github/workflows/social-groups-tab-escape.yml'
   push:
@@ -21,6 +22,7 @@ on:
       - 'social-challenges-ui.js'
       - 'boot.js'
       - 'index.html'
+      - 'social-topbar-hitbox-20261016.css'
       - 'tests/groups-tab-navigation-escape-browser.mjs'
   workflow_dispatch:
 permissions:
