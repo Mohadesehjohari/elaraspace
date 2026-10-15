@@ -22,10 +22,18 @@ assert.match(page, /data-elara-theme-quick="violet"/);
 assert.match(page, /data-elara-mode-quick="dark"/);
 assert.match(page, /data-elara-mode-quick="light"/);
 assert.match(page, /data-elara-open-appearance/);
-assert.match(page, /drawer\.js\?v=20261015-theme-settings-access-v1/);
+assert.match(page, /drawer\.js\?v=20261016-theme-gallery-settings-v1/);
 assert.match(drawer, /data-drawer-nav="appearance"/);
 assert.match(drawer, /const quickTheme=e\.target\.closest/);
 assert.match(drawer, /const quickMode=e\.target\.closest/);
+const themeNavMatches=drawer.match(/data-drawer-nav="appearance"/g)||[];
+assert.equal(themeNavMatches.length,1,'Site themes must appear only inside Settings, not as a separate menu entry');
+assert.match(drawer,/data-drawer-nav="appearance"[^\n]*<b>تم‌های سایت<\/b>/,'Nested Settings tile is missing');
+assert.match(drawer,/sectionHead\('تم‌های سایت',[^\n]*'settings'\)/,'Appearance Back must return to Settings');
+assert.match(drawer,/<strong>تم‌های رنگی<\/strong>/,'Image theme gallery label must remain');
+assert.match(page,/drawer\.js\?v=20261016-theme-gallery-settings-v1/,'Drawer version must bypass cache');
+assert.match(drawer,/\['violet','کهکشان یاسی'\]/,'Original Galaxy Lilac tile must remain');
+
 
 
 function runtime(saved){
