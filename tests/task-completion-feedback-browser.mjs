@@ -47,14 +47,16 @@ try{
   assert.equal(await page.locator('#task-list>.astra-task-row').last().getAttribute('data-key'),'qa-multi','today completed task should sort below active rows');
   assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-multi"]').count(),0,'today task was archived before midnight');
   await page.waitForFunction(()=>!!document.querySelector('#task-checked-archive [data-task-archive-id="qa-previous"]'));
+  await page.locator('#task-checked-archive summary').click();
   const archive=await page.locator('#task-checked-archive [data-task-archive-id="qa-previous"]').evaluate(x=>{
    const row=x.getBoundingClientRect(),button=x.querySelector('.task-archive-undo').getBoundingClientRect(),img=x.querySelector('.elara-uploaded-check').getBoundingClientRect();
    return {height:row.height,buttonWidth:button.width,imageWidth:img.width,imageHeight:img.height}
   });
   assert.ok(archive.height<=110,'archive row too tall '+JSON.stringify(archive));
   assert.ok(archive.imageWidth>=archive.buttonWidth*.9,'uploaded tick does not fill check tile '+JSON.stringify(archive));
-  // The completed archive is intentionally a collapsed <details> until explicitly expanded.
-  await page.locator('#task-checked-archive summary').click();
+  assert.ok(archive.height>0,'archive must be measurable when expanded');
+  const archiveRadius=await page.locator('#task-checked-archive .task-archive-row').first().evaluate(x=>parseFloat(getComputedStyle(x).borderTopLeftRadius));
+  assert.ok(archiveRadius>=18,'archive corner radius is too sharp');
   await page.locator('#task-checked-archive [data-task-archive-id="qa-previous"] .task-archive-undo').click();
   await page.waitForFunction(day=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='qa-previous')?.dailyProgress?.[day]===0,yesterday);
   assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="qa-previous"]').count(),0,'restored prior-day occurrence remained archived');
@@ -62,6 +64,17 @@ try{
   await page.waitForFunction(day=>JSON.parse(localStorage.getItem('elara_space_v1')).tasks.find(t=>t.id==='qa-multi')?.dailyProgress?.[day]===0,day);
   assert.ok((await row('qa-multi').locator('.task-round-count').textContent()).includes('۰/۳'),'restore from today completed must reset to zero');
 
+  const addMain=page.locator('#elara-task-add-main');
+  if(width<=767){const box=await addMain.boundingBox();assert.ok(box&&box.width>=250&&box.height>=54,'mobile add-task button is too small');}
+  await addMain.click();
+  await page.waitForSelector('#task-form:not([hidden])');
+  const composer=await page.evaluate(()=>{
+   const form=document.querySelector('#task-form'),descriptions=form?.querySelector(':scope>.task-description-fields'),grid=form?.querySelector(':scope>.form-grid'),title=form?.querySelector(':scope>.form-row');
+   return {isBefore:!!descriptions&&!!grid&&!!title&&!!(title.compareDocumentPosition(descriptions)&Node.DOCUMENT_POSITION_FOLLOWING)&&!!(descriptions.compareDocumentPosition(grid)&Node.DOCUMENT_POSITION_FOLLOWING),submitWidth:form?.querySelector('#task-submit')?.getBoundingClientRect().width||0};
+  });
+  assert.ok(composer.isBefore,'short/full descriptions should be between title and other settings');
+  if(width<=767)assert.ok(composer.submitWidth>=250,'mobile form submit button too narrow');
+  await page.locator('[data-composer-close]').click();
   const toolbar=await page.locator('#astra-task-toolbar').boundingBox();
   const filter=await page.locator('#elara-task-filter-quick [data-task-more-filter]').boundingBox();
   assert.ok(filter&&toolbar&&filter.y<=toolbar.y+1,'Filter button should appear above toolbar');
