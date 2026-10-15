@@ -889,6 +889,7 @@
       state.activeFocus=null;state.focusPlanProgress=sessionIndex<sessionCount?{sequenceId,sessionIndex:sessionIndex+1,sessionCount,focusMin,breakMin,autoBreak,tag,waiting:'focus'}:null;
     }
     writeState(state);
+    if(fresh)window.dispatchEvent(new CustomEvent('elara:fox-focus-completed',{detail:{sessionId:active.id,minutes,xpAwarded:15}}));
     notify(focusT(`${fa(minutes)} دقیقه تمرکز کامل شد؛ ۱۵ XP گرفتی.`,`${minutes} minutes of focus complete — +15 XP.`));
     if(fresh){
       window.ElaraNotify?.push?.({type:'focus',title:focusT('تمرکز کامل شد 🧠⚡','Focus complete 🧠⚡'),message:focusT(`${fa(minutes)} دقیقه Deep Work ثبت شد${tag?' · #'+tag:''}. دمت گرم 👊`,`${minutes} minutes of Deep Work logged${tag?' · #'+tag:''}. Nice work 👊`),dedupeKey:'focus-complete:'+active.id,meta:{durationMin:minutes,tag,sessionIndex,sessionCount}});

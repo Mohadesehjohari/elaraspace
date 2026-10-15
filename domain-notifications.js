@@ -21,7 +21,7 @@ function snap(){
 function readCursor(){try{return JSON.parse(localStorage.getItem(key())||'null')}catch{return null}}
 function saveCursor(v){try{localStorage.setItem(key(),JSON.stringify(v))}catch{}}
 function tt(fa,en){return window.ElaraI18n?.t?.(fa,en)||fa}
-function notify(input){window.ElaraNotify?.push?.(input)}
+function notify(input){window.ElaraNotify?.push?.(input);window.dispatchEvent(new CustomEvent('elara:domain-milestone',{detail:{...input}}))}
 function compare(prev,next){
  const s=state(),bookMap=new Map(arr(s.books).map(x=>[String(x.id),x])),goalMap=new Map(arr(s.goals).map(x=>[String(x.id),x])),habitMap=new Map(arr(s.habits).map(x=>[String(x.id),x]));
  for(const id of next.finishedBooks)if(!prev.finishedBooks?.includes(id)){const b=bookMap.get(id);notify({type:'book',title:tt('کتاب تموم شد 😍📚','Book finished 😍📚'),message:tt('دمت گرم! «','Nice! “')+String(b?.title||tt('یک کتاب','a book'))+tt('» رفت تو قفسهٔ خوانده‌شده.','” moved to Finished.'),dedupeKey:'book-finished:'+id})}
