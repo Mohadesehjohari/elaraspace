@@ -1,0 +1,168 @@
+/* Home mobile geometry only.
+   Reference: Goals / Daily Streak / Wellness stacked at left,
+   Today Tasks spanning all three rows at right.
+   No colors, artwork, navigation, search, header or desktop rules. */
+@media (max-width:700px) {
+  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid {
+    display:grid!important;
+    direction:ltr!important;
+    grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)!important;
+    grid-template-areas:"goals tasks" "streak tasks" "wellness tasks"!important;
+    grid-template-rows:
+      clamp(185px,45.7vw,213px)
+      clamp(110px,26.4vw,125px)
+      clamp(117px,28vw,136px)!important;
+    grid-auto-flow:row!important;
+    grid-auto-rows:0!important;
+    align-items:stretch!important;
+    gap:8px!important;
+    min-width:0!important;
+    width:100%!important;
+  }
+  /* Card grid-area names are already set by the canonical Home renderer.
+     Keep its DOM, content, action buttons and scroll regions untouched. */
+  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > .owner-home-goals,
+  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > .owner-home-tasks,
+  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > #ref-streak-card,
+  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > #ref-wellness-card {
+    box-sizing:border-box!important;
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    align-self:stretch!important;
+    min-width:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+  html body #panel-home.ref-home.owner-art-home .ref-home-grid > .owner-home-goals,
+  html body #panel-home.ref-home.owner-art-home .ref-home-grid > .owner-home-tasks,
+  html body #panel-home.ref-home.owner-art-home .ref-home-grid > #ref-wellness-card {
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > #ref-streak-card {
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(0,1fr) 27px!important;
+    padding:27px 6px 4px!important;
+  }
+  /* Keep the task progress visible and scroll only the task records. */
+  html body #panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks {
+    flex:1 1 auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:hidden!important;
+  }
+  html body #panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks > .ref-task-list {
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  /* The health summary and its three metric cells occupy one horizontal row. */
+  html body #panel-home.ref-home.owner-art-home #ref-wellness-data {
+    display:grid!important;
+    direction:ltr!important;
+    grid-template-columns:minmax(0,.9fr) minmax(0,1.8fr)!important;
+    grid-template-rows:minmax(0,1fr)!important;
+    gap:3px!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    height:auto!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  html body #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-health-main {
+    grid-area:1 / 1 / 2 / 2!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:center!important;
+    min-width:0!important;
+    width:100%!important;
+    min-height:0!important;
+    height:100%!important;
+    max-height:none!important;
+    gap:2px!important;
+    padding:0!important;
+  }
+  html body #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-health-copy {
+    min-width:0!important;
+    width:100%!important;
+    justify-items:center!important;
+    text-align:center!important;
+  }
+  html body #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-summaries {
+    grid-area:1 / 2 / 2 / 3!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-template-rows:minmax(0,1fr)!important;
+    align-self:stretch!important;
+    min-width:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    gap:2px!important;
+  }
+  html body #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell {
+    box-sizing:border-box!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:100%!important;
+    max-height:none!important;
+  }
+}
+/* On very narrow phones, remove fixed inner dimensions belonging to the
+   old single-column layout; only geometry is reduced. */
+@media (max-width:359px) {
+  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary {
+    display:grid!important;
+    grid-template-columns:36px minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    gap:1px 4px!important;
+    overflow:hidden!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-flame {
+    width:36px!important;
+    height:36px!important;
+    max-width:36px!important;
+    max-height:36px!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-days {
+    grid-column:1!important;
+    grid-row:2!important;
+    width:100%!important;
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    gap:1px!important;
+    min-height:0!important;
+    height:27px!important;
+    max-height:27px!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-day-mark {
+    width:16px!important;
+    height:16px!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-health-main {
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+  }
+  html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-health-ring {
+    width:42px!important;
+    height:42px!important;
+    min-width:0!important;
+    min-height:0!important;
+    max-width:100%!important;
+    max-height:none!important;
+  }
+}
