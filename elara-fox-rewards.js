@@ -157,6 +157,7 @@ window.addEventListener('elara:leitner-review-committed',onWord);
 window.addEventListener('elara:domain-milestone',onMilestone);
 window.addEventListener('elara:fox-focus-completed',onFocus);
 window.addEventListener('elara:data-changed',onXp);
+window.addEventListener('elara:data-changed',()=>{requestAnimationFrame(renderCompanions);setTimeout(renderCompanions,90)});
 window.addEventListener('elara:state-committed',onXp);
 window.addEventListener('elara:account-ready',()=>{dismiss(true);initial();sync()});
 window.addEventListener('elara:hydrate',()=>{dismiss(true);initial();sync()});
