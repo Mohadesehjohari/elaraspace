@@ -256,3 +256,12 @@
  #panel-library-shelves #lib02-scene .lib06-custom-head{gap:10px;justify-content:space-between}
  #panel-library-shelves #lib02-scene .lib06-case-tools button{min-height:37px;min-width:37px}
 }
+
+/* Retire old duplicate launcher/task layout under the new owner reference
+   dashboard. All four destinations exist in the current Library shortcuts. */
+html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{
+ display:none!important;
+}
+html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="book"]{
+ display:none!important;
+}
