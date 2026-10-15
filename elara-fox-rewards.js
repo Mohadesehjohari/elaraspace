@@ -1,86 +1,168 @@
-/* Elara Fox rewards — display-only reactions to canonical saved progress. No XP writes. */
+/* ELARA FOX — visual-only companion and rewards. Canonical modules own all data and XP. */
 (()=>{'use strict';
- const $=s=>document.querySelector(s);
- const en=()=>document.documentElement.lang==='en';
- const tx=(fa,english)=>en()?english:fa;
- const images=Object.freeze({celebrate:'assets/mascot/fox-celebrate.webp',thoughtful:'assets/mascot/fox-thoughtful.webp',focus:'assets/mascot/fox-focus.webp',library:'assets/mascot/fox-library.webp',goals:'assets/mascot/fox-goals.webp',habits:'assets/mascot/fox-habits.webp',sport:'assets/mascot/fox-sport.webp'});
- const queue=[];let current=null,focusReturn=null,lastLeitner='',lastXp=null,account='';
- function who(){return String(window.ElaraAccount?.user?.uid||'local')}
- function readXp(){try{return Math.max(0,Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').xp)||0)}catch{return 0}}
- function n(value){return Number(value||0).toLocaleString(en()?'en-US':'fa-IR')}
- function make(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!==undefined)el.textContent=String(txt);return el}
- function resetBaseline(){account=who();lastXp=readXp();lastLeitner='';queue.length=0}
- function close(){if(!current)return;const box=current;current=null;box.remove();if(focusReturn?.isConnected)focusReturn.focus({preventScroll:true});focusReturn=null;while(queue.length&&!current){const next=queue.shift();show(next)}}
- function show(data){
-  if(current){if(queue.length<4)queue.push(data);return}
-  if(document.querySelector('[data-elara-reward-modal]'))return;
-  focusReturn=document.activeElement;
-  const backdrop=make('div','elara-fox-overlay');backdrop.dataset.elaraRewardModal='';const panel=make('section','elara-fox-dialog');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.tabIndex=-1;
-  const headingId='elara-fox-heading';panel.setAttribute('aria-labelledby',headingId);
-  const x=make('button','elara-fox-close','×');x.type='button';x.setAttribute('aria-label',tx('بستن','Close'));x.onclick=close;panel.append(x);
-  const img=make('img','elara-fox-image');img.src=images[data.image]||images.celebrate;img.alt='';img.width=208;img.height=208;img.decoding='async';img.onerror=()=>{img.onerror=null;img.src='assets/mascot/fox-fallback.svg'};panel.append(img);
-  panel.append(make('div','elara-fox-eyebrow',data.eyebrow||'ELARA SPACE'));
-  const h=make('h2','',data.title);h.id=headingId;panel.append(h);
-  panel.append(make('p','',data.description));
-  if(data.tags?.length){const meta=make('div','elara-fox-meta');data.tags.forEach(t=>meta.append(make('span','',t)));panel.append(meta)}
-  const actions=make('div','elara-fox-actions');
-  const later=make('button','elara-fox-action',data.secondary||tx('بستن','Close'));later.type='button';later.onclick=close;
-  const primary=make('button','elara-fox-action primary',data.primary||tx('ادامه','Continue'));primary.type='button';primary.onclick=()=>{close();if(data.goTo==='leitner')document.querySelector('#l3-review-scene [data-l3-exit]')?.click()};
-  actions.append(later,primary);panel.append(actions);backdrop.append(panel);document.body.append(backdrop);current=backdrop;primary.focus({preventScroll:true});
-  backdrop.addEventListener('click',e=>{if(e.target===backdrop)close()});
+const ROOT='assets/ui/',FALLBACK='assets/mascot/fox-fallback.svg',KEY='elara_fox_options_v1';
+const ART=Object.freeze({celebrate:'fox-celebrate.webp',mission:'fox-mission.webp',language:'fox-language.webp',library:'fox-library.webp',sport:'fox-sport.webp',focus:'fox-focus.webp',habits:'fox-habits.webp',goals:'fox-goals.webp',tasks:'fox-tasks.webp',progress:'fox-progress.webp',thoughtful:'fox-thoughtful.webp',sleep:'fox-sleep.webp',surprised:'fox-surprised.webp',loved:'fox-loved.webp',sad:'fox-sad.webp'});
+const $=s=>document.querySelector(s),en=()=>document.documentElement.lang==='en',t=(fa,eng)=>en()?eng:fa,fmt=n=>Number(n||0).toLocaleString(en()?'en-US':'fa-IR');
+const options=()=>{try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');return {visible:o.visible!==false,celebrations:o.celebrations!==false}}catch{return {visible:true,celebrations:true}}};
+let queue=[],active=null,restoreFocus=null,account='',xpBaseline=null,lastWord='',syncQueued=false;
+const seen=new Set();
+function person(){return String(window.ElaraAccount?.user?.uid||'local')}
+function xp(){try{return Math.max(0,Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').xp)||0)}catch{return 0}}
+function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e}
+function art(el,name){el.src=ROOT+(ART[name]||ART.celebrate);el.onerror=()=>{el.onerror=null;el.src=FALLBACK};el.alt='';el.loading='lazy';el.decoding='async'}
+function initial(){account=person();xpBaseline=xp();queue=[];lastWord='';seen.clear()}
+function allow(kind='major'){const o=options();return o.visible&&(kind==='companion'||o.celebrations)}
+function dismiss(clearQueue=false){
+ if(clearQueue)queue=[];
+ if(!active)return;
+ const old=active;active=null;old.remove();
+ document.body.classList.remove('elara-fox-modal-open');
+ if(restoreFocus?.isConnected)restoreFocus.focus({preventScroll:true});
+ restoreFocus=null;
+ if(queue.length){const next=queue.shift();open(next)}
+}
+function open(data){
+ if(!allow()||document.documentElement.hasAttribute('data-elara-booting'))return false;
+ if(active){if(queue.length<3&&!queue.some(x=>x.key===data.key))queue.push(data);return true}
+ if(!document.body)return false;
+ restoreFocus=document.activeElement;
+ const shade=node('div','elara-fox-overlay');shade.dataset.elaraRewardModal='1';
+ const dialog=node('section','elara-fox-dialog');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','elara-fox-title');
+ const close=node('button','elara-fox-close','×');close.type='button';close.setAttribute('aria-label',t('بستن','Close'));close.addEventListener('click',()=>dismiss());dialog.append(close);
+ const img=node('img','elara-fox-image');art(img,data.image||'celebrate');img.width=194;img.height=194;dialog.append(img);
+ dialog.append(node('div','elara-fox-eyebrow',data.kicker||'ELARA · YOUR PERSONAL COSMOS'));
+ const h=node('h2','',data.title);h.id='elara-fox-title';dialog.append(h);
+ dialog.append(node('p','',data.description));
+ if(data.tags?.length){const pills=node('div','elara-fox-meta');for(const label of data.tags.filter(Boolean))pills.append(node('span','',label));dialog.append(pills)}
+ const actions=node('div','elara-fox-actions'),secondary=node('button','elara-fox-action',data.secondary||t('بستن','Close'));
+ secondary.type='button';secondary.addEventListener('click',()=>dismiss());
+ const primary=node('button','elara-fox-action primary',data.primary||t('ادامه','Continue'));primary.type='button';
+ primary.addEventListener('click',()=>{dismiss();if(data.go==='leitner')document.querySelector('#l3-review-scene [data-l3-exit]')?.click();else if(data.go&&typeof window.ElaraOpen==='function')window.ElaraOpen(data.go,{history:'push'})});
+ actions.append(secondary,primary);dialog.append(actions);shade.append(dialog);document.body.append(shade);active=shade;
+ document.body.classList.add('elara-fox-modal-open');primary.focus({preventScroll:true});
+ shade.addEventListener('click',e=>{if(e.target===shade)dismiss()});
+ return true;
+}
+function reward(key,config){
+ if(!allow()||seen.has(key))return false;
+ seen.add(key);
+ return open({key,...config});
+}
+function onWord(event){
+ const d=event.detail||{};
+ if(!d.wasDue||Number(d.dueBefore)<=0||Number(d.dueRemaining)!==0)return;
+ const key=person()+':'+String(d.wordId||'');if(lastWord===key)return;lastWord=key;
+ reward('leitner:'+key,{image:'celebrate',kicker:t('لایتنر · پایان مرور','LEITNER · SESSION COMPLETE'),
+  title:t('مرور امروز تموم شد!','Today’s review is complete!'),
+  description:t('همهٔ واژه‌های موعددار رو مرور کردی. قدم‌به‌قدم یادگیری ماندگار می‌شه.','You reviewed all due words. Your learning grows one step at a time.'),
+  tags:[t('واژهٔ باقی‌مانده: ','Words left: ')+fmt(0),...(d.xpAwarded>0?[t('پاداش آخرین واژه: ','Last word reward: ')+'+'+fmt(d.xpAwarded)+' XP']:[])],
+  primary:t('بازگشت به لایتنر','Back to Leitner'),secondary:t('همین‌جا بمون','Stay here'),go:'leitner'});
+}
+function onXp(){
+ const me=person(),value=xp();
+ if(me!==account){dismiss(true);initial();return}
+ if(xpBaseline===null){xpBaseline=value;return}
+ const before=xpBaseline;xpBaseline=value;if(value<=before)return;
+ const levels=window.ElaraLevels;if(typeof levels?.level!=='function')return;
+ const oldLevel=levels.level(before),newLevel=levels.level(value);if(newLevel<=oldLevel)return;
+ reward('level:'+me+':'+newLevel,{image:'surprised',kicker:t('ارتقای سطح','LEVEL UP'),
+  title:t('سطح '+fmt(newLevel)+' مبارک!','Welcome to level '+fmt(newLevel)+'!'),
+  description:t('این نتیجهٔ تلاش واقعی خودته. روباه الارا بهت افتخار می‌کنه!','This is the result of real progress. Your fox companion is cheering for you!'),
+  tags:[levels.titleForLevel?.(newLevel)||'',...(newLevel>oldLevel+1?[t('+'+fmt(newLevel-oldLevel)+' سطح','+'+fmt(newLevel-oldLevel)+' levels')]:[])],
+  primary:t('ادامهٔ مسیر','Keep going'),secondary:t('باشه','Got it')});
+}
+function onMilestone(event){
+ const d=event.detail||{},type=String(d.type||''),key=String(d.dedupeKey||'');
+ if(!key)return;
+ const base={description:String(d.message||''),primary:t('ادامه بده','Keep going')};
+ if(type==='book')return reward('domain:'+key,{...base,image:'library',kicker:t('کتابخانه','LIBRARY'),title:t('یه کتاب دیگه تموم شد!','Book completed!')});
+ if(type==='goal')return reward('domain:'+key,{...base,image:'goals',kicker:t('اهداف','GOALS'),title:t('به هدفت رسیدی!','Goal achieved!')});
+ if(type==='habit')return reward('domain:'+key,{...base,image:'habits',kicker:t('تداوم','STREAK'),title:t('استریکت رشد کرد!','Your streak grew!')});
+ if(type==='system'&&key.startsWith('workout:')){
+  if(!key.endsWith(':20'))return;
+  return reward('domain:'+key,{...base,image:'sport',kicker:t('ورزش','WELLNESS'),title:t('۲۰ دقیقه فعالیت!','20 minutes of activity!')});
  }
- function onWord(e){
-  const d=e.detail||{};if(!d.wasDue||!(d.dueBefore>0)||d.dueRemaining!==0)return;
-  const key=who()+':'+String(d.wordId||'');
-  if(key===lastLeitner)return;lastLeitner=key;
-  show({image:'celebrate',eyebrow:tx('مسیر یادگیری','LEARNING PATH'),title:tx('مرور امروز کامل شد!','Today’s review is complete!'),
-   description:tx('همهٔ واژه‌های سررسیدشده را مرور کردی. فردا هم با هم ادامه می‌دهیم.','You reviewed every due word. We’ll keep going together tomorrow.'),
-   tags:[tx('واژهٔ باقی‌مانده: ۰','Words remaining: 0'),...(d.xpAwarded>0?['+'+n(d.xpAwarded)+' XP']:[])],
-   primary:tx('بازگشت به لایتنر','Back to Leitner'),secondary:tx('همین‌جا بمان','Stay here'),goTo:'leitner'});
+}
+function onFocus(event){
+ const d=event.detail||{};if(!d.sessionId||!Number.isFinite(Number(d.minutes)))return;
+ reward('focus:'+person()+':'+d.sessionId,{image:'focus',kicker:t('تمرکز','FOCUS'),
+  title:t('جلسهٔ تمرکز کامل شد!','Focus session complete!'),
+  description:t('برای خودت وقت گذاشتی. حالا یه استراحت کوتاه هم حقته.','You showed up for yourself. Enjoy a well-earned break.'),
+  tags:[fmt(d.minutes)+t(' دقیقه تمرکز',' minutes focused'),...(d.xpAwarded>0?['+'+fmt(d.xpAwarded)+' XP']:[])],
+  primary:t('عالیه','Nice!'),secondary:t('بستن','Close')});
+}
+function onKeys(event){
+ if(!active)return;
+ if(event.key==='Escape'){event.stopPropagation();event.preventDefault();dismiss();return}
+ if(event.key!=='Tab')return;
+ const buttons=[...active.querySelectorAll('button:not([disabled])')];
+ if(!buttons.length)return;const first=buttons[0],last=buttons[buttons.length-1];
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+}
+const placements=[
+ ['home','#panel-home .elara-hero','loved','home'],
+ ['language','#panel-language .elara-language-hero','language','hero'],
+ ['leitner','#panel-words .l2-leitner-hero','language','hero'],
+ ['library','#panel-books .lib01-hero','library','hero'],
+ ['wellness','#panel-exercise .well01-hero','sport','hero'],
+ ['missions','#panel-missions .rpg-level','mission','level'],
+ ['habits','#panel-habits > .section-heading','habits','heading'],
+ ['goals','#panel-goals > .section-heading','goals','heading'],
+ ['tasks','#panel-tasks > .section-heading','tasks','heading']
+];
+function renderCompanions(){
+ const enabled=allow('companion');
+ for(const [area,sel,pose,place] of placements){
+  const host=$(sel);if(!host)continue;
+  let img=host.querySelector(':scope > .elara-fox-companion');
+  if(!enabled){img?.remove();continue}
+  if(img)continue;
+  img=node('img','elara-fox-companion elara-fox-companion--'+place);
+  img.dataset.foxArea=area;art(img,pose);img.width=120;img.height=120;img.setAttribute('aria-hidden','true');img.fetchPriority='low';
+  host.append(img);
  }
- function onXp(){
-  const scope=who();const xp=readXp();if(account!==scope){resetBaseline();return}
-  if(lastXp===null){lastXp=xp;return}
-  const before=lastXp;lastXp=xp;if(xp<=before)return;
-  const registry=window.ElaraLevels;if(!registry?.level)return;
-  const previous=registry.level(before),now=registry.level(xp);if(now<=previous)return;
-  show({image:'celebrate',eyebrow:tx('سفر کهکشانی تو','YOUR COSMIC JOURNEY'),title:tx('سطح جدید باز شد!','Level up!'),
-    description:tx('پیشرفت واقعی‌ات تو را به سطح '+n(now)+' رساند. عالی ادامه می‌دهی!','Your progress brought you to level '+n(now)+'. Keep going!'),
-    tags:[tx('سطح ','Level ')+n(now),registry.titleForLevel?.(now)||''],primary:tx('ادامهٔ مسیر','Keep going')});
+}
+function settings(){
+ const root=$('#panel-settings');if(!root)return;
+ let card=root.querySelector('#elara-fox-settings');
+ if(!card){
+  card=node('section','surface settings-card elara-fox-settings');card.id='elara-fox-settings';card.setAttribute('aria-label',t('شخصیت الارا','Elara mascot'));
+  root.append(card);
  }
-
- function onMilestone(e){
-  const d=e.detail||{},key=String(d.dedupeKey||''),type=String(d.type||'');
-  if(type==='book'){
-   show({image:'library',eyebrow:tx('کتابخانه','LIBRARY'),title:tx('یک کتاب دیگر تمام شد!','Book completed!'),description:String(d.message||tx('چه خوب که برای مطالعه وقت گذاشتی.','Your reading journey keeps growing.')),primary:tx('چه عالی!','Nice!')});
-  }else if(type==='goal'){
-   show({image:'goals',eyebrow:tx('اهداف','GOALS'),title:tx('به هدفت رسیدی!','Goal achieved!'),description:String(d.message||tx('این موفقیت نتیجهٔ قدم‌های خودته.','Every step brought you here.')),primary:tx('ادامهٔ مسیر','Keep going')});
-  }else if(type==='habit'){
-   show({image:'habits',eyebrow:tx('تداوم واقعی','YOUR STREAK'),title:tx('استریکت رشد کرد!','Your streak is growing!'),description:String(d.message||tx('همین قدم‌های پیوسته مهم‌اند.','Consistency matters.')),primary:tx('ادامه بده','Keep it up')});
-  }else if(type==='system'&&key.startsWith('workout:')){
-   show({image:'sport',eyebrow:tx('ورزش و سلامت','WELLNESS'),title:tx('آفرین به تلاشت!','Great workout!'),description:String(d.message||tx('حرکت امروزت ثبت شد.','Your exercise is logged.')),primary:tx('عالیه','Great')});
-  }
+ const o=options();
+ card.replaceChildren();
+ const head=node('div','elara-fox-settings-head'),img=node('img','elara-fox-settings-image');art(img,'thoughtful');img.width=66;img.height=66;
+ const heading=node('div');heading.append(node('h2','',t('همراه الارا','Your Elara companion')));heading.append(node('p','muted',t('جای روباه و تبریک‌های پیشرفت رو به سلیقهٔ خودت تنظیم کن.','Choose how your fox companion celebrates your progress.')));
+ head.append(img,heading);card.append(head);
+ for(const [name,fa,eng,value] of [['visible','نمایش کاراکتر در صفحات','Show mascot in pages',o.visible],['celebrations','نمایش پاپ‌آپ‌های تبریک','Show celebration popups',o.celebrations]]){
+  const label=node('label','elara-fox-settings-toggle'),span=node('span','',t(fa,eng)),input=node('input');input.type='checkbox';input.checked=value;input.dataset.foxSetting=name;
+  label.append(span,input);card.append(label);
  }
- function onFocus(e){const d=e.detail||{};if(!d.sessionId||!Number.isFinite(Number(d.minutes)))return;
-  show({image:'focus',eyebrow:tx('تمرکز','FOCUS'),title:tx('جلسهٔ تمرکز تمام شد!','Focus session complete!'),
-   description:tx('با حوصله جلو رفتی؛ حالا وقت یک استراحت کوتاه است.','Great deep work. Take a short, deserved break.'),
-   tags:[n(d.minutes)+tx(' دقیقه تمرکز',' minutes of focus'),...(d.xpAwarded>0?['+'+n(d.xpAwarded)+' XP']:[])],
-   primary:tx('ادامه','Continue'),secondary:tx('بستن','Close')});}
-
- function onKey(e){if(!current)return;if(e.key==='Escape'){e.preventDefault();close();return}if(e.key==='Tab'){
-  const list=[...current.querySelectorAll('button:not([disabled])')];if(!list.length)return;const first=list[0],last=list[list.length-1];
-  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
-  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
- }}
- window.addEventListener('elara:leitner-review-committed',onWord);
- window.addEventListener('elara:domain-milestone',onMilestone);
- window.addEventListener('elara:fox-focus-completed',onFocus);
- window.addEventListener('elara:data-changed',onXp);
- window.addEventListener('elara:state-committed',onXp);
- window.addEventListener('elara:account-ready',resetBaseline);
- window.addEventListener('elara:hydrate',resetBaseline);
- window.addEventListener('elara:logout',()=>{if(current)close();resetBaseline()});
- document.addEventListener('keydown',onKey,true);
- resetBaseline();
- window.ElaraFoxRewards={show,close,get active(){return !!current}};
+ const preview=node('button','quiet-button elara-fox-preview',t('پیش‌نمایش تبریک','Preview celebration'));preview.type='button';preview.dataset.foxPreview='1';preview.disabled=!o.visible||!o.celebrations;card.append(preview);
+}
+function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;renderCompanions();settings()})}
+function setOption(field,value){
+ const o=options();o[field]=!!value;try{localStorage.setItem(KEY,JSON.stringify(o))}catch{}
+ if(!o.visible||!o.celebrations)dismiss(true);
+ sync();
+}
+function preview(){
+ reward('preview:'+Date.now(),{image:'celebrate',kicker:'ELARA SPACE',title:t('آفرین!','Well done!'),description:t('این فقط پیش‌نمایش طراحی تبریکه و هیچ امتیازی اضافه نمی‌کنه.','This is a visual preview only. No XP is awarded.'),primary:t('متوجه شدم','Got it')});
+}
+document.addEventListener('change',e=>{const el=e.target.closest?.('#elara-fox-settings [data-fox-setting]');if(el)setOption(el.dataset.foxSetting,el.checked)});
+document.addEventListener('click',e=>{if(e.target.closest?.('[data-fox-preview]'))preview()});
+document.addEventListener('keydown',onKeys,true);
+window.addEventListener('elara:leitner-review-committed',onWord);
+window.addEventListener('elara:domain-milestone',onMilestone);
+window.addEventListener('elara:fox-focus-completed',onFocus);
+window.addEventListener('elara:data-changed',onXp);
+window.addEventListener('elara:state-committed',onXp);
+window.addEventListener('elara:account-ready',()=>{dismiss(true);initial();sync()});
+window.addEventListener('elara:hydrate',()=>{dismiss(true);initial();sync()});
+window.addEventListener('elara:logout',()=>{dismiss(true);initial();sync()});
+for(const evt of ['elara:open','elara:secondary-ready','elara:visual-ready','elara:locale-changed'])window.addEventListener(evt,()=>{sync();setTimeout(sync,100)});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});else sync();
+initial();
+window.ElaraFoxRewards=Object.freeze({show:reward,close:dismiss,refresh:sync,asset:name=>ROOT+(ART[name]||ART.celebrate),get active(){return !!active},get options(){return options()}});
 })();
