@@ -62,7 +62,7 @@ document.addEventListener('click',async e=>{
  if(e.target.closest('[data-social-view]'))setTimeout(mount,90)
 });
 setInterval(()=>{document.querySelectorAll('[data-challenge-expiry]').forEach(el=>{const left=Math.max(0,Math.ceil((Number(el.dataset.challengeExpiry)-Date.now())/1000));el.textContent=left+'s';if(left<=0){el.closest('.social-challenge-card')?.classList.add('is-expired')}})},1000);
-for(const event of ['elara:social-updated','elara:locale-changed','elara:state-committed','elara:wellness-saved'])window.addEventListener(event,()=>setTimeout(mount,90));
+for(const event of ['elara:social-tab-changed','elara:social-updated','elara:locale-changed','elara:state-committed','elara:wellness-saved'])window.addEventListener(event,()=>setTimeout(mount,90));
 window.addEventListener('elara:open',e=>{if(e.detail?.tab==='social')setTimeout(mount,120)});
 window.addEventListener('hashchange',()=>setTimeout(mount,140));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,300),{once:true});else setTimeout(mount,300);
