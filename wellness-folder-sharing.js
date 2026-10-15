@@ -37,8 +37,10 @@ function msg(root,value,error=false){const e=root?.querySelector('.wellshare-mes
 async function shareFolder(kind,folderId){
  let x,folder,existing=null;
  try{x=await signed();folder=localFolder(x.user.uid,kind,folderId);if(!folder)throw Error(tx('پوشه پیدا نشد.','Folder not found.'));
- const ref=x.fs.doc(x.db,collectionName,shareId(x.user.uid,kind,folderId)),snap=await x.fs.getDoc(ref);
- existing=snap.exists()?snap.data():null;
+ const ref=x.fs.doc(x.db,collectionName,shareId(x.user.uid,kind,folderId));
+ try{const snap=await x.fs.getDoc(ref);existing=snap.exists()?snap.data():null}catch(error){if(error?.code!=='permission-denied')throw error;existing=null}
+ // Firestore rules can deny a get for a document that does not yet exist.
+ // Creation is authorized separately and will still fail safely if backend rules are absent.
  }catch(e){window.ElaraDialog?.alert?.(e.message||String(e),{title:'اشتراک پوشه'});return}
  const rows=friends().filter(f=>f.uid!==x.user.uid);
  const title=tx('اشتراک پوشه با یک دوست','Share folder with one friend');
