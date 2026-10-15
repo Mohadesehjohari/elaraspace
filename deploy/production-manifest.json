@@ -245,7 +245,8 @@
     "assets/ui/daily-streak-background.webp",
     "task-mobile-toolbar-popup-20261015.css",
     "freedom-r32-neon-single-banner.css",
-    "assets/ui/Plans & Dreams.webp"
+    "assets/ui/Plans & Dreams.webp",
+    "freedom-r33-banner-guard.css"
   ],
   "files": [
     ".htaccess",
@@ -607,6 +608,7 @@
     "assets/ui/daily-streak-background.webp",
     "task-mobile-toolbar-popup-20261015.css",
     "freedom-r32-neon-single-banner.css",
-    "assets/ui/Plans & Dreams.webp"
+    "assets/ui/Plans & Dreams.webp",
+    "freedom-r33-banner-guard.css"
   ]
 }
