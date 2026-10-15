@@ -50,130 +50,16 @@ jobs:
           if git diff --name-only origin/main...HEAD | grep -E '^(storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js)$'; then
             echo "::error::Protected shared modules were touched"; exit 1
           fi
-          # This feature adds a single isolated rules collection. Ensure no existing
-          # Firestore authorization paths were changed; emulator tests run separately.
-          if git diff --name-only origin/main...HEAD | grep -q '^firestore.rules      - name: Install Chromium
-        run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Serve PR and baseline independently
-        run: |
-          python3 -m http.server 4173 >/tmp/well01-current.log 2>&1 &
-          python3 -m http.server 4174 --directory baseline >/tmp/well01-base.log 2>&1 &
-          sleep 3
-          curl -fLsS http://127.0.0.1:4173/well01-wellness-dashboard.js >/dev/null
-      - name: Visual and functional cross-viewport acceptance
-        env:
-          ELARA_TEST_URL: http://127.0.0.1:4173
-          ELARA_BASELINE_URL: http://127.0.0.1:4174
-        run: timeout 600s node tests/well01-wellness-dashboard-browser.mjs
-      - name: Existing private wellness notes
-        if: always()
-        run: timeout 240s node tests/wellness-notes-browser.mjs
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: well01-before-after-${{ github.sha }}
-          path: browser-artifacts/well01/*.png
-          if-no-files-found: warn
-          retention-days: 30
-
-  wellness-reference-live:
-    name: Training nutrition sleep - live release acceptance
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 23
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Confirm the published workout, nutrition and sleep JS/CSS match main
-        run: |
-          set -euo pipefail
-          base="https://mohadesehjohari.github.io/elaraspace"
-          for i in $(seq 1 45); do
-            good=1
-            for asset in boot.js wellness-reference-popups-20261012.js wellness-reference-popups-20261012.css; do
-              if ! curl -fLsS --retry 2 -H 'Cache-Control: no-cache' "$base/$asset?release=$GITHUB_SHA" -o "/tmp/elara-live-${asset//\//_}"; then
-                good=0
-                break
-              fi
-              if ! cmp -s "$asset" "/tmp/elara-live-${asset//\//_}"; then good=0; break; fi
-            done
-            if [ "$good" -eq 1 ]; then
-              echo "LIVE_WELLNESS_ASSETS_VERIFIED $GITHUB_SHA"
-              exit 0
-            fi
-            echo "Waiting for matching Pages wellness assets $i/45"
-            sleep 20
-          done
-          echo '::error::Live wellness JavaScript or CSS does not match main.'
-          exit 1
-      - name: Install Chromium
-        run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Test real live private workout plan, nutrition plan, folders, sleep and popups
-        env:
-          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
-        run: timeout 300s node tests/wellness-notes-browser.mjs
-
-  production-verification:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Wait for exact deployed GitHub Pages bytes
-        run: |
-          set -euo pipefail
-          base="https://mohadesehjohari.github.io/elaraspace"
-          for i in $(seq 1 45); do
-            curl -fLsS -H "Cache-Control: no-cache" "$base/index.html?well01=$GITHUB_SHA" -o /tmp/well01-live-index.html || true
-            curl -fLsS -H "Cache-Control: no-cache" "$base/approved-wellness.js?well01=$GITHUB_SHA" -o /tmp/well01-live-editor.js || true
-            curl -fLsS -H "Cache-Control: no-cache" "$base/boot.js?well01=$GITHUB_SHA" -o /tmp/well01-live-boot.js || true
-            curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.js?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.js || true
-            curl -fLsS -H "Cache-Control: no-cache" "$base/well01-wellness-dashboard.css?well01=$GITHUB_SHA" -o /tmp/well01-live-dashboard.css || true
-            if cmp -s index.html /tmp/well01-live-index.html && cmp -s approved-wellness.js /tmp/well01-live-editor.js && cmp -s boot.js /tmp/well01-live-boot.js && cmp -s well01-wellness-dashboard.js /tmp/well01-live-dashboard.js && cmp -s well01-wellness-dashboard.css /tmp/well01-live-dashboard.css; then
-              echo "GitHub Pages contains exact main release files: $GITHUB_SHA"
-              exit 0
-            fi
-            echo "Waiting for GitHub Pages deployment $i/45"
-            sleep 20
-          done
-          echo "::error::GitHub Pages never served the expected main bytes"
-          exit 1
-      - name: Install Playwright Chromium
-        run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Verify real production routes, viewport screenshots, privacy, and persistence
-        env:
-          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace
-        run: |
-          timeout 600s node tests/well01-wellness-dashboard-browser.mjs
-          timeout 240s node tests/wellness-notes-browser.mjs
-          echo "LIVE_VERIFIED $GITHUB_SHA"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: well01-production-screenshots-${{ github.sha }}
-          path: browser-artifacts/well01/after-*.png
-          if-no-files-found: warn
-          retention-days: 30
-; then
+          # This feature adds exactly one isolated Firestore collection.
+          if git diff --name-only origin/main...HEAD | grep -q '^firestore.rules$'; then
             node - <<'NODE'
           const fs=require('node:fs');
           const assert=require('node:assert/strict');
           const base=fs.readFileSync('baseline/firestore.rules','utf8');
           const now=fs.readFileSync('firestore.rules','utf8');
           const newSection=/\n    \/\/ One private wellness plan folder[\s\S]*?(?=    match \/collabSpaces\/\{spaceId\} \{)/;
-          assert.match(now,newSection,'isolated wellness share rules block missing');
-          assert.equal(now.replace(newSection,''),base,'unrelated Firestore rules changed');
+          assert.match(now,newSection);
+          assert.equal(now.replace(newSection,''),base,'Existing Firestore rules must be preserved');
           NODE
           fi
       - name: Install Chromium
