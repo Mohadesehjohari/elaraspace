@@ -288,3 +288,46 @@ html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="b
 #panel-library-shelves > .feature-subpage-head .feature-back{
  border-color:#ffe2a893;background:#0b1923c9;color:#ffe6ba;
 }
+
+/* LIB-07 reference finish: every bookshelf is the owner's original high-resolution
+   wooden alcove; the purple old library-card illustration must never show through. */
+#panel-library-shelves #lib02-scene .lib02-shelves .lib02-shelf .lib02-wood,
+#panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-wood{
+ background-color:#241107!important;
+ background-image:
+  linear-gradient(90deg,rgba(21,9,3,.27),rgba(18,8,3,.1) 55%,rgba(19,8,2,.23)),
+  url("assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp")!important;
+ background-repeat:no-repeat!important;
+ background-position:center center!important;
+ background-size:100% 100%,cover!important;
+}
+/* A shelf with zero books remains a tangible, full-height wooden shelf. */
+#panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-wood-row{
+ min-height:390px;
+}
+#panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-empty{
+ min-height:285px;
+}
+/* One single, accessible editor disclosure instead of old UI fragments. */
+#panel-library-shelves > :is(#book-form,#book-list,#book-empty,.bookshelf-filter,.library-enhancement-tools){
+ display:none!important;
+}
+#panel-library-shelves > .lib06-legacy-tools{
+ display:block!important;
+}
+#panel-library-shelves .lib06-legacy-tools .lib06-legacy-body > :is(#book-form,#book-list,#book-empty,.bookshelf-filter,.library-enhancement-tools){
+ display:block;
+}
+/* Consistent warm controls; do not recolor book cover artwork. */
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+ :is(.feature-back,.quiet-button,.lib01-tab,[data-lib02-new-shelf],[data-lib02-add]){
+ border-color:#b88a5099;
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+ :is(.feature-back,.lib01-tab,.lib06-case-tools button):focus-visible{
+ outline:2px solid #ffe09a;outline-offset:3px;
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-wood-row{min-height:300px}
+ #panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-empty{min-height:225px}
+}
