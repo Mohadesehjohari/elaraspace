@@ -521,14 +521,16 @@
       }
       if(task.recurrenceRule){
         task.occurrenceDone=dateList(task.occurrenceDone);task.occurrenceRewardDays=dateList(task.occurrenceRewardDays);
-        if(task.occurrenceDone.includes(now)){task.occurrenceDone=task.occurrenceDone.filter(x=>x!==now);removeCompletion(state,task,now)}
-        else{task.occurrenceDone.push(now);recordCompletion(state,task,now);if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}}
+        if(!task.occurrenceDone.includes(now))task.occurrenceDone.push(now);
+        recordCompletion(state,task,now);
+        if(!task.occurrenceRewardDays.includes(now)){task.occurrenceRewardDays.push(now);state.xp=Number(state.xp||0)+10}
       }else{
-        const oldDate=task.doneAt;task.completed=!task.completed;task.doneAt=task.completed?now:null;
-        if(task.completed){recordCompletion(state,task,now);if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}}
-        else if(oldDate){removeCompletion(state,task,oldDate)}
+        task.completed=true;task.doneAt=now;
+        recordCompletion(state,task,now);
+        if(!task.xpAwarded){task.xpAwarded=true;state.xp=Number(state.xp||0)+10}
       }
-      window.ElaraLinkedTasks?.syncSourcesFromTasks(state,now);writeState(state);renderTasks();return;
+      task.workflowStatus='';if(task.workflowDates)delete task.workflowDates[now];
+      window.ElaraLinkedTasks?.syncSourcesFromTasks?.(state,now);writeState(state);renderTasks();return;
     }
     if(action==='view-task'){await openTaskDetails(task,{collapsed:true});return}
     if(action==='edit-task'){await openTaskDetails(task,{collapsed:false});return;}
@@ -548,14 +550,16 @@
     else t.workflowStatus=value||'';
     writeState(s);renderTasks();
   }
-  function closeTaskDecision(){document.querySelectorAll('.elara-task-decision').forEach(x=>x.remove())}
-  function showTaskDecision(id,date){
+  function closeTaskDecision(){document.querySelectorAll('.elara-task-decision-row').forEach(x=>x.remove());document.querySelectorAll('.elara-task-decision').forEach(x=>x.remove())}
+  function showTaskDecision(id,date,trigger=null){
     const t=ensureState(readState()).tasks.find(x=>String(x.id)===String(id));if(!t)return;
     if(t.sourceCompletionLocked){notify('وضعیت این تسک در بخش اصلی آن مدیریت می‌شود.');return}
+    if(taskDone(t,date)){closeTaskDecision();void taskAction('undo-task',id,date);return}
+    // The active task row may be in Home while a hidden Tasks page also contains it.
     if(flashFor(id,date))return;
-    if(taskDone(t,date)){void taskAction('undo-task',id,date);return}
-    const btn=document.querySelector('#task-list [data-phase2-action="toggle-task"][data-id="'+CSS.escape(String(id))+'"],#panel-home [data-ref-task="'+CSS.escape(String(id))+'"],#task-organizer [data-org-toggle][data-id="'+CSS.escape(String(id))+'"]');
-    const row=btn?.closest('.astra-task-row,.ref-task-row,.org-task-row');
+    const selector='#task-list [data-phase2-action="toggle-task"][data-id="'+CSS.escape(String(id))+'"],#panel-home [data-ref-task="'+CSS.escape(String(id))+'"],#task-organizer [data-org-toggle][data-id="'+CSS.escape(String(id))+'"]';
+    const btn=trigger?.isConnected?trigger:[...document.querySelectorAll(selector)].find(x=>x.getClientRects().length);
+    const row=btn?.closest('.astra-task-row,.ref-task-row,.org-task-row,.feature-section-task-row,.task-board-card');
     if(!row){void taskAction('commit-task',id,date);return}
     if(document.querySelector('.elara-task-decision[data-task-for="'+CSS.escape(String(id))+'"]')){closeTaskDecision();return}
     closeTaskDecision();
@@ -567,8 +571,16 @@
       '<button type="button" data-task-decision="later" data-id="'+esc(id)+'" data-day="'+esc(date)+'">◷ بعداً انجام می‌دم</button>'+
       '<button type="button" data-task-decision="declined" data-id="'+esc(id)+'" data-day="'+esc(date)+'">× انجام نمی‌دم</button>'+
       '<button type="button" data-task-decision="cancel">بستن</button></div>';
-    // Render in a fixed anchored portal: the compact task row itself clips overflow.
+    // In mobile view decisions belong directly below the task, not a floating portal.
     box.dataset.taskFor=String(id);
+    if(window.matchMedia('(max-width:767px)').matches){
+      if(row.matches('.astra-task-row')&&row.parentElement?.tagName==='UL'){
+        const holder=document.createElement('li');holder.className='elara-task-decision-row';
+        holder.setAttribute('role','presentation');holder.append(box);row.after(holder);
+      }else{row.append(box)}
+      requestAnimationFrame(()=>box.scrollIntoView({block:'nearest',behavior:'smooth'}));
+      return;
+    }
     const rect=row.getBoundingClientRect();
     const width=Math.min(Math.max(280,rect.width),Math.max(260,innerWidth-16));
     box.style.setProperty('position','fixed','important');
@@ -689,7 +701,7 @@
     if(check){
       event.preventDefault();event.stopImmediatePropagation();
       const id=check.dataset.id||check.dataset.refTask;
-      showTaskDecision(id,check.dataset.taskDate||window.ElaraHomeDay||taskOccurrenceDate||today());
+      showTaskDecision(id,check.dataset.taskDate||window.ElaraHomeDay||taskOccurrenceDate||today(),check);
       return;
     }
     // The same native composer must open from mobile and desktop regardless of stale listeners.
