@@ -82,6 +82,8 @@ try {
     return s.bookShelves.includes('قفسه من')&&s.books.find(b=>b.id==='lib06-want')?.customShelf==='قفسه من';
    });
    await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>typeof window.ElaraOpen==='function',null,{timeout:30000});
+   await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));
    await page.waitForFunction(()=>!!document.querySelector('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"] [data-lib02-book="lib06-want"]'),null,{timeout:30000});
    assert.equal(await page.locator('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"]').count(),1,'renamed shelf must survive refresh');
    const removal=page.locator('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"] [data-lib02-remove-shelf]');
