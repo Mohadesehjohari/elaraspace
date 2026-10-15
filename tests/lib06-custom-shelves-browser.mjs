@@ -103,6 +103,15 @@ try {
   if(width===1440){
    await page.evaluate(()=>window.ElaraOpen('books',{history:'push'}));
    await page.locator('#panel-books:not(.hidden) #lib01-overview').waitFor();
+   const oldUi=await page.evaluate(()=>({
+     oldLaunchers:getComputedStyle(document.querySelector('#panel-books > .feature-hub-launchers[data-hub-kind="library"]')).display,
+     oldTasks:getComputedStyle(document.querySelector('#panel-books > .feature-section-tasks[data-section-task-shelf="book"]')).display
+   }));
+   assert.equal(oldUi.oldLaunchers,'none','legacy duplicate library launcher tiles must not be visible');
+   assert.equal(oldUi.oldTasks,'none','legacy duplicate library task panel must not be visible');
+   await page.locator('#lib01-overview [data-lib01-add]').click();
+   await page.locator('#panel-library-shelves .lib06-legacy-tools[open] #book-form').waitFor({timeout:15000});
+   await page.evaluate(()=>window.ElaraOpen('books',{history:'push'}));
    const palette=await page.locator('#lib01-overview .lib01-focus-dial').evaluate(el=>{
      const ring=getComputedStyle(el).backgroundImage;
      const button=getComputedStyle(el.querySelector('button')).backgroundImage;
