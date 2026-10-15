@@ -21,10 +21,8 @@ function hero(panel){
 function toolbar(){
  return '<nav class="lib01-shortcuts" aria-label="'+t('مسیرهای کتابخانه','Library shortcuts')+'">'+
  nav('books',t('نمای کلی','Overview'),'⌂',true)+
- nav('library-shelves',t('کتاب‌های من','My books'),'▣')+
  nav('library-search',t('جست‌وجو','Search'),'⌕')+
  nav('library-clips',t('بریده‌های من','My clips'),'❝')+
- '<button type="button" class="lib01-tab" data-lib01-route="library-clips"><span aria-hidden="true">❞</span>'+t('نقل‌قول‌ها','Quotes')+'</button>'+
  nav('library-shelves',t('قفسه‌ها','Shelves'),'▤')+
  '<button type="button" class="lib01-tab" data-lib01-explore="authors"><span aria-hidden="true">♙</span>'+t('نویسندگان','Authors')+'</button>'+
  '<button type="button" class="lib01-tab" data-lib01-explore="genres"><span aria-hidden="true">◇</span>'+t('ژانرها','Genres')+'</button></nav>'+
