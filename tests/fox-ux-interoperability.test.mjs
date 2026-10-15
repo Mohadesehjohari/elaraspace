@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const s=read('elara-fox-rewards.js'),m=read('mission-celebration.js');
+assert.match(s,/aria-describedby/);
+assert.match(s,/ElaraMissionCelebration/);
+assert.match(m,/ElaraFoxRewards\?\.options/);
+assert.match(m,/assets\/ui\/fox-mission\.webp/);
+assert.match(s,/elara-fox-companion/);
+assert.match(s,/assets\/ui\//);
+console.log('FOX_UX_INTEROPERABILITY_PASS');

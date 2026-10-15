@@ -1,0 +1,25 @@
+name: Fox companion browser acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node tests/fox-rewards-contract.test.mjs
+          node tests/fox-ux-interoperability.test.mjs
+          node --check tests/fox-rewards-browser.mjs
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/fox-browser.log 2>&1 &
+          sleep 3
+      - run: node tests/fox-rewards-browser.mjs

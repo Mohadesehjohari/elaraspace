@@ -27,12 +27,12 @@ function open(data){
  if(!document.body)return false;
  restoreFocus=document.activeElement;
  const shade=node('div','elara-fox-overlay');shade.dataset.elaraRewardModal='1';
- const dialog=node('section','elara-fox-dialog');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','elara-fox-title');
+ const dialog=node('section','elara-fox-dialog');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','elara-fox-title');dialog.setAttribute('aria-describedby','elara-fox-desc');
  const close=node('button','elara-fox-close','×');close.type='button';close.setAttribute('aria-label',t('بستن','Close'));close.addEventListener('click',()=>dismiss());dialog.append(close);
  const img=node('img','elara-fox-image');art(img,data.image||'celebrate');img.width=194;img.height=194;dialog.append(img);
  dialog.append(node('div','elara-fox-eyebrow',data.kicker||'ELARA · YOUR PERSONAL COSMOS'));
  const h=node('h2','',data.title);h.id='elara-fox-title';dialog.append(h);
- dialog.append(node('p','',data.description));
+ const desc=node('p','',data.description);desc.id='elara-fox-desc';dialog.append(desc);
  if(data.tags?.length){const pills=node('div','elara-fox-meta');for(const label of data.tags.filter(Boolean))pills.append(node('span','',label));dialog.append(pills)}
  const actions=node('div','elara-fox-actions'),secondary=node('button','elara-fox-action',data.secondary||t('بستن','Close'));
  secondary.type='button';secondary.addEventListener('click',()=>dismiss());
@@ -144,7 +144,7 @@ function settings(){
 function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;renderCompanions();settings()})}
 function setOption(field,value){
  const o=options();o[field]=!!value;try{localStorage.setItem(KEY,JSON.stringify(o))}catch{}
- if(!o.visible||!o.celebrations)dismiss(true);
+ if(!o.visible||!o.celebrations){dismiss(true);window.ElaraMissionCelebration?.close?.()}
  sync();
 }
 function preview(){
