@@ -116,6 +116,7 @@
     }
   }
   function show(section='home'){
+    if(section==='appearance')section='settings'; // Legacy appearance links now open Settings.
     current=section;
     if(root)root.dataset.mobileSection=section;
     if(panel)panel.dataset.mobileSection=section;
@@ -160,8 +161,9 @@
   function renderSettings(){
     const host=$('drawer-settings-area');if(!host)return;
     host.innerHTML=sectionHead('تنظیمات پروفایل','حساب، حریم خصوصی و تجربهٔ Elara را از همین پروفایل مدیریت کن.')+
+      '<section class="elara-theme-settings-inline" aria-label="تم‌های سایت"><div id="drawer-settings-theme-area"></div></section>'+
+      '<h3 class="elara-settings-other-title">سایر تنظیمات</h3>'+
       '<div class="drawer-settings-grid">'+
-      '<button type="button" data-drawer-nav="appearance">'+icon('spark')+'<span><b>تم‌های سایت</b><small>دیفالت، کهکشان یاسی، دارک و لایت</small></span></button>'+ 
       '<button type="button" data-drawer-nav="security">'+icon('lock')+'<span><b>حساب کاربری</b><small>ایمیل، رمز و امنیت</small></span></button>'+
       '<button type="button" data-drawer-nav="privacy">'+icon('shield')+'<span><b>حریم خصوصی</b><small>نمایش و اشتراک فعالیت</small></span></button>'+
       '<button type="button" data-drawer-nav="blocked">'+icon('shield')+'<span><b>بلاک‌شده‌ها</b><small>مدیریت حساب‌های مسدود</small></span></button>'+
@@ -173,6 +175,7 @@
       '<button type="button" data-drawer-action="store">'+icon('spark')+'<span><b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></span></button>'+
       '<button type="button" class="danger" data-drawer-action="logout">'+icon('logout')+'<span><b>خروج از حساب</b><small>خروج امن از Elara</small></span></button>'+
       '</div>';
+    renderAppearance('drawer-settings-theme-area');
   }
   function renderBlocked(){
     const host=$('drawer-blocked-area');if(!host)return;const blocked=Array.isArray(window.ElaraSocial?.blocked)?window.ElaraSocial.blocked:[];
@@ -280,15 +283,29 @@ function renderSecurity(){
     const host=$('drawer-notification-area');if(!host)return;const rows=notificationRows();
     host.innerHTML=`${sectionHead('نوتیف و پیام‌ها','اعلان‌ها و تاریخچهٔ سیستم.')}<div class="drawer-notifications">${rows.length?rows.map(x=>`<div><strong>${esc(x.title||x.message||'پیام')}</strong><small>${esc(x.meta||x.createdAt||'')}</small></div>`).join(''):'<p class="muted">هنوز اعلان ثبت‌شده‌ای وجود ندارد.</p>'}</div>`;
   }
-  function renderAppearance(){
-    const host=$('drawer-appearance-area');if(!host)return;const p=pref(),style=p.style||'default',amoled=localStorage.getItem('elara_amoled')==='yes',mode=amoled?'amoled':p.mode;
-    const themeArt={mode:{dark:'assets/ui/theme_dark.webp',light:'assets/ui/theme_white.webp',system:'assets/ui/theme.webp',amoled:'assets/ui/theme_dark.webp'},style:{default:'assets/ui/theme.webp',minimal:'assets/ui/theme_minimal.webp',rugged:'assets/ui/city_theme.webp',anime:'assets/ui/theme_spring.webp'},color:{default:'assets/ui/theme.webp',violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',red:'assets/ui/theme_red.webp',orange:'assets/ui/theme_orange.webp',green:'assets/ui/theme_forest_green.webp',black:'assets/ui/theme_dark.webp',white:'assets/ui/theme_white.webp'}};
-    const preview=(src,cls='')=>`<span class="pass4-theme-preview ${cls}"><img class="pass4-theme-art" src="${src}" alt="" loading="eager" decoding="async" fetchpriority="low"></span>`;
-    const modeTile=(key,label,desc)=>`<button type="button" class="pass4-theme-tile ${mode===key?'active':''}" data-drawer-mode="${key}" aria-pressed="${mode===key}">${preview(themeArt.mode[key],'mode-'+key)}<b>${label}</b><small>${desc}</small></button>`;
-    const styleTile=(key,label,desc)=>`<button type="button" class="pass4-theme-tile ${style===key?'active':''}" data-drawer-style="${key}" aria-pressed="${style===key}">${preview(themeArt.style[key],'style-'+key)}<b>${label}</b><small>${desc}</small></button>`;
+  function renderAppearance(target='drawer-settings-theme-area'){
+    const host=$(target)||$('drawer-appearance-area');if(!host)return;
+    const embedded=host.id==='drawer-settings-theme-area';
+    const p=pref(),style=p.style||'default',amoled=localStorage.getItem('elara_amoled')==='yes',mode=amoled?'amoled':p.mode;
+    const themeArt={mode:{dark:'assets/ui/theme_dark.webp',light:'assets/ui/theme_white.webp',system:'assets/ui/theme.webp',amoled:'assets/ui/theme_dark.webp'},style:{default:'assets/ui/theme.webp',minimal:'assets/ui/theme_minimal.webp',rugged:'assets/ui/city_theme.webp',anime:'assets/ui/theme_spring.webp'},color:{default:'assets/ui/theme_dark.webp',violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',red:'assets/ui/theme_red.webp',orange:'assets/ui/theme_orange.webp',green:'assets/ui/theme_forest_green.webp',black:'assets/ui/theme_dark.webp',white:'assets/ui/theme_white.webp'}};
+    // Mode and Style are text-only controls; only actual themes show artwork.
+    const modeTile=(key,label)=>`<button type="button" class="elara-mode-choice ${mode===key?'active':''}" data-drawer-mode="${key}" aria-pressed="${mode===key}">${label}</button>`;
+    const styleTile=(key,label)=>`<button type="button" class="elara-style-choice ${style===key?'active':''}" data-drawer-style="${key}" aria-pressed="${style===key}">${label}</button>`;
     const activeColor=p.themeVariant||(p.color==='violet'?'default':p.color);
-    const colors=[['default','دیفالت (ظاهر فعلی)'],['violet','کهکشان یاسی'],['blue','مهتاب نیلی'],['pink','شفق صورتی'],['red','کسوف سرخ'],['orange','سپیده‌ی آتش'],['green','جنگل زمردی'],['black','شب بی‌انتها'],['white','برفِ مهتاب']];
-    host.innerHTML=`${sectionHead('تم‌های سایت','انتخاب «کهکشان یاسی» تم سراسری نئونی را فعال می‌کند؛ دیفالت ظاهر فعلی است.','settings')}<section class="pass4-appearance-group"><header><strong>Mode</strong><small>روشنایی و پس‌زمینه</small></header><div class="pass4-theme-grid">${modeTile('dark','Dark','تاریک استاندارد')}${modeTile('light','Light','روشن و خوانا')}${modeTile('system','System','هماهنگ با دستگاه')}${modeTile('amoled','AMOLED','مشکی خالص')}</div></section><section class="pass4-appearance-group"><header><strong>Style</strong><small>فرم کارت‌ها و بافت رابط</small></header><div class="pass4-theme-grid">${styleTile('default','کهکشان الارا','فضایی، نئونی و سینمایی')}${styleTile('minimal','مهِ ستاره‌ای','ساده، نرم و آرام')}${styleTile('rugged','شهر نیمه‌شب','شهری، عمیق و پرقدرت')}${styleTile('anime','شکوفه‌های رؤیایی','روشن، لطیف و جادویی')}</div></section><section class="pass4-appearance-group"><header><strong>تم‌های رنگی</strong><small>کهکشان یاسی تم کامل نئونی است؛ رنگ‌های دیگر فعلاً رنگ تأکیدی دارند</small></header><div class="pass4-accent-grid">${colors.map(([key,label])=>`<button type="button" data-drawer-color="${key}" class="pass4-accent-tile ${activeColor===key?'active':''}" aria-pressed="${activeColor===key}"><img class="pass4-accent-art" src="${themeArt.color[key]}" alt="" loading="lazy" decoding="async"><b>${label}</b></button>`).join('')}</div></section>`;
+    const colors=[['default','شب‌های بی‌انتها'],['violet','کهکشان یاسی'],['blue','مهتاب نیلی'],['pink','شفق صورتی'],['red','کسوف سرخ'],['orange','سپیده‌ی آتش'],['green','جنگل زمردی'],['white','برف مهتاب']];
+    host.innerHTML=`${embedded?'':sectionHead('تم‌های سایت','رنگ محیط و حالت نمایش را انتخاب کن.','settings')}
+      <section class="pass4-appearance-group elara-theme-gallery">
+        <header><strong>تم‌های سایت</strong><small>رنگ‌بندی محیط سایت؛ رنگ‌های مخصوص تسک‌ها حفظ می‌شوند</small></header>
+        <div class="pass4-accent-grid">${colors.map(([key,label])=>`<button type="button" data-drawer-color="${key}" class="pass4-accent-tile elara-theme-card ${activeColor===key?'active':''}" aria-pressed="${activeColor===key}"><img class="pass4-accent-art" src="${themeArt.color[key]}" alt="" loading="lazy" decoding="async"><b>${label}</b></button>`).join('')}</div>
+      </section>
+      <section class="pass4-appearance-group elara-mode-group">
+        <header><strong>حالت نمایش</strong><small>مستقل از تم رنگی</small></header>
+        <div class="elara-appearance-options">${modeTile('dark','دارک')}${modeTile('light','لایت')}${modeTile('system','سیستم')}${modeTile('amoled','مشکی خالص')}</div>
+      </section>
+      <section class="pass4-appearance-group elara-style-group">
+        <header><strong>سبک ظاهری</strong><small>فقط شکل کارت‌ها و رابط؛ بدون تصویر</small></header>
+        <div class="elara-appearance-options">${styleTile('default','کهکشان الارا')}${styleTile('minimal','مه ستاره‌ای')}${styleTile('rugged','شهر نیمه‌شب')}${styleTile('anime','شکوفه‌های رؤیایی')}</div>
+      </section>`;
   }
   function renderLanguage(){
     const host=$('drawer-language-area');if(!host)return;const p=pref(),language=(p.language==='en'?'en':'fa');
@@ -334,7 +351,8 @@ function renderSecurity(){
     renderAppearance();
   }
   function setColor(color){
-    // Never turn existing users' legacy 'violet' preference neon automatically.
+    if(!['default','violet','blue','pink','red','orange','green','white'].includes(color))return;
+    // Legacy violet preferences stay unchanged until the lilac tile is selected.
     // The new default option keeps the exact previous accent and visual styling.
     const patch={color:color==='default'?'violet':color,themeVariant:color,...(color==='default'?{style:'default'}:{})};
     if(window.ElaraSetAppearance)window.ElaraSetAppearance(patch);
@@ -387,7 +405,7 @@ function renderSecurity(){
 
   document.addEventListener('click',async e=>{
     const appearance=e.target.closest('[data-elara-open-appearance]');
-    if(appearance){e.preventDefault();if(!root)build();open('appearance');return}
+    if(appearance){e.preventDefault();if(!root)build();open('settings');return}
     const quickTheme=e.target.closest('[data-elara-theme-quick]');
     if(quickTheme){e.preventDefault();if(['default','violet'].includes(quickTheme.dataset.elaraThemeQuick)){setColor(quickTheme.dataset.elaraThemeQuick);syncQuickAppearance()}return}
     const quickMode=e.target.closest('[data-elara-mode-quick]');
@@ -461,7 +479,7 @@ function renderSecurity(){
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
   window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance};
-  window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance};
+  window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance,renderSettings};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
 })();

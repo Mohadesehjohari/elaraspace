@@ -1,0 +1,59 @@
+/* Appearance is embedded inside Settings. All new rules target only its controls. */
+#drawer-settings-area .elara-theme-settings-inline{
+  border:1px solid var(--border);border-radius:16px;
+  background:color-mix(in srgb,var(--surface2) 65%,var(--surface));
+  padding:clamp(10px,2vw,18px);margin:12px 0 20px;min-width:0;
+}
+#drawer-settings-area .elara-settings-other-title{
+  margin:15px 3px 10px;font-size:.91rem;font-weight:750;color:var(--text);
+}
+#drawer-settings-area .pass4-appearance-group{margin:6px 0 18px;gap:10px}
+#drawer-settings-area .pass4-appearance-group:last-child{margin-bottom:2px}
+#drawer-settings-area .pass4-appearance-group>header{align-items:start;flex-direction:column;gap:3px}
+#drawer-settings-area .pass4-appearance-group>header strong{font-size:.86rem;line-height:1.65}
+#drawer-settings-area .pass4-appearance-group>header small{font-size:.69rem;line-height:1.8}
+#drawer-settings-area .elara-theme-gallery .pass4-accent-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+}
+#drawer-settings-area .elara-theme-card{
+  display:grid;grid-template-columns:1fr;gap:7px;min-width:0;
+  padding:8px;border-radius:13px;text-align:center;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text);font:inherit;cursor:pointer;
+}
+#drawer-settings-area .elara-theme-card .pass4-accent-art{
+  width:100%;height:clamp(65px,8vw,100px);object-fit:cover;border-radius:9px;
+  border:1px solid color-mix(in srgb,var(--border) 60%,transparent);
+}
+#drawer-settings-area .elara-theme-card b{font-size:clamp(.71rem,.82vw,.81rem);line-height:1.7}
+#drawer-settings-area .elara-theme-card.active,
+#drawer-settings-area .elara-theme-card[aria-pressed="true"]{
+  border-color:var(--elara-accent);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--elara-accent) 25%,transparent);
+}
+#drawer-settings-area .elara-appearance-options{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+}
+#drawer-settings-area :is(.elara-mode-choice,.elara-style-choice){
+  min-width:0;min-height:42px;padding:8px 5px;
+  border:1px solid var(--border);border-radius:10px;
+  background:var(--surface2);color:var(--text);font:inherit;
+  font-size:clamp(.65rem,.82vw,.76rem);line-height:1.55;text-align:center;
+  cursor:pointer;overflow-wrap:anywhere;
+}
+#drawer-settings-area :is(.elara-mode-choice,.elara-style-choice)[aria-pressed="true"]{
+  border-color:var(--elara-accent);
+  background:color-mix(in srgb,var(--elara-accent) 14%,var(--surface2));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--elara-accent) 18%,transparent);
+}
+#drawer-settings-area :is(.elara-theme-card,.elara-mode-choice,.elara-style-choice):focus-visible{
+  outline:2px solid var(--elara-accent);outline-offset:3px;
+}
+@media(max-width:700px){
+  #drawer-settings-area .elara-theme-gallery .pass4-accent-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #drawer-settings-area .elara-appearance-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #drawer-settings-area .elara-theme-card .pass4-accent-art{height:80px}
+}
+@media(min-width:1100px){
+  #drawer-settings-area .elara-theme-gallery .pass4-accent-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}

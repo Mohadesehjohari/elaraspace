@@ -10,16 +10,16 @@ body[data-elara-theme="violet"] {
   --neon-cyan:#49d6ff;
   --neon-glow:rgba(165,96,255,.25);
   --neon-ink:#f5efff;
-  --neon-panel:linear-gradient(155deg,rgba(18,30,73,.96),rgba(17,11,47,.97));
-  --neon-raised:linear-gradient(140deg,rgba(32,32,88,.97),rgba(15,21,57,.97));
-  --neon-field:linear-gradient(180deg,rgba(3,13,37,.98),rgba(7,17,45,.98));
+  --neon-panel:linear-gradient(155deg,rgba(26,13,52,.96),rgba(12,8,24,.98));
+  --neon-raised:linear-gradient(140deg,rgba(39,18,72,.97),rgba(18,12,38,.97));
+  --neon-field:linear-gradient(180deg,rgba(6,4,17,.98),rgba(15,9,34,.98));
   --neon-outline:rgba(159,117,255,.67);
   --neon-halo:0 0 0 1px rgba(84,163,255,.16),0 10px 32px rgba(1,2,26,.28),0 0 22px rgba(140,72,255,.12);
-  --bg:#06091c !important;
-  --surface:#121638 !important;
-  --surface2:#20204d !important;
-  --border:#6558bf !important;
-  --input:#07152f !important;
+  --bg:#07040f !important;
+  --surface:#1a102e !important;
+  --surface2:#281a44 !important;
+  --border:#7755ad !important;
+  --input:#0e0920 !important;
   --text:#f5efff !important;
   --muted:#b9b2e6 !important;
   --accent:#bb91ff !important;
@@ -29,7 +29,7 @@ body[data-elara-theme="violet"] {
   color-scheme:dark;
   background:radial-gradient(ellipse at 78% 0%,rgba(113,58,213,.38),transparent 32%),
     radial-gradient(ellipse at 14% 34%,rgba(39,102,226,.22),transparent 37%),
-    linear-gradient(158deg,#050c28 0%,#0c0b2b 53%,#05081a 100%) fixed !important;
+    linear-gradient(158deg,#05030c 0%,#130927 53%,#080411 100%) fixed !important;
   color:var(--text);
 }
 body[data-elara-theme="violet"].light {
@@ -120,15 +120,13 @@ html body[data-elara-theme="violet"] #main :is(
   box-shadow:var(--neon-halo) !important;
 }
 html body[data-elara-theme="violet"] #main :is(
-  .ref-task-row,.ref-habit-row,.astra-task-row,.task-archive-row,
-  .feature-section-task-row,.well01-task-row,.elara-item,
   .library-clip-card,.friends-f2-preview-row,.friends-f2-leader
 ) {
   border-color:color-mix(in srgb,var(--neon-lilac) 50%,var(--border)) !important;
   color:var(--text) !important;
 }
 html body[data-elara-theme="violet"] #main :is(
-  .feature-section-task-row,.well01-task-row,.elara-reports-today-rows>div
+  .elara-reports-today-rows>div
 ) {
   background:var(--neon-raised) !important;
 }
@@ -205,7 +203,6 @@ html body[data-elara-theme="violet"] :is(
 html body[data-elara-theme="violet"] :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
 ) :is(
-  button[aria-pressed="true"],button[aria-selected="true"],
   .lib01-tab.is-current,.lr4-pill.is-current,
   .pass4-accent-tile.active,.pass4-theme-tile.active
 ):not(.elara-dialog-danger):not(.danger):not([class*="delete"]) {
@@ -231,7 +228,8 @@ html body[data-elara-theme="violet"] :is(
   color:var(--text) !important;
 }
 
-/* Hard-coded visual owners that previously ignored the global variables. */
+/* Hard-coded visual owners that previously ignored the global variables.
+   The original category/task/habit colors remain controlled by their owners. */
 html body[data-elara-theme="violet"] #main :is(
   #panel-reports,#panel-reports-today,#panel-books,
   #panel-language,#panel-exercise,#panel-focus-pomodoro
@@ -246,9 +244,9 @@ html body[data-elara-theme="violet"] #main :is(
   color:var(--text) !important;
 }
 html body[data-elara-theme="violet"] #panel-tasks#panel-tasks :is(
-  #task-list>.astra-task-row,.task-streak-summary,
+  .task-streak-summary,
   .astra-task-filters.filters-expanded .list-toolbar,
-  .task-archive-row,.astra-task-view-controls button
+  .astra-task-view-controls button
 ) {
   border-color:var(--neon-outline) !important;
   background:var(--neon-panel) !important;
