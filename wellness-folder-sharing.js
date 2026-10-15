@@ -5,7 +5,7 @@ const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const kinds=['workout','nutrition'],days=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
 const collectionName='wellnessFolderShares';
 const friends=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends.filter(f=>f&&f.uid):[];
-let apiPromise=null,received=[],loadedUid='',loading=null,lastFingerprint='',dialog=null,priorOverflow='';
+let apiPromise=null,received=[],loadedUid='',loading=null,lastFingerprint='',shareError=null,dialog=null,priorOverflow='';
 const api=()=>apiPromise||(apiPromise=Promise.all([
  import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
  import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js'),
@@ -76,8 +76,8 @@ async function refresh(){
     if((await api()).auth.currentUser?.uid!==user.uid)return;
     const rows=snaps.docs.map(d=>({id:d.id,...d.data()})).filter(x=>kinds.includes(x.kind)&&x.friendUid===user.uid);
     const fingerprint=JSON.stringify(rows.map(r=>[r.id,r.status,r.title,r.updatedAt?.seconds||0,r.payloadJson]));
-    received=rows;loadedUid=user.uid;if(fingerprint!==lastFingerprint){lastFingerprint=fingerprint;window.dispatchEvent(new Event('elara:wellness-shares-updated'))}
-  }catch(err){if(loadedUid){received=[];loadedUid='';lastFingerprint='';window.dispatchEvent(new Event('elara:wellness-shares-updated'))}if(err?.code!=='permission-denied')console.warn('Wellness shares:',err?.message||err)}
+    received=rows;loadedUid=user.uid;shareError=null;if(fingerprint!==lastFingerprint){lastFingerprint=fingerprint;window.dispatchEvent(new Event('elara:wellness-shares-updated'))}
+  }catch(err){shareError=err;if(loadedUid){received=[];loadedUid='';lastFingerprint='';window.dispatchEvent(new Event('elara:wellness-shares-updated'))}if(err?.code!=='permission-denied')console.warn('Wellness shares:',err?.message||err)}
  })().finally(()=>{loading=null});return loading
 }
 function receivedFolders(kind){return received.filter(r=>r.kind===kind&&r.status==='accepted').map(r=>({id:r.id,title:r.title,ownerUid:r.ownerUid}))}
@@ -90,7 +90,7 @@ async function openReceived(id){
  }catch(e){window.ElaraDialog?.alert?.(e.message||String(e),{title:'پوشه مشترک'});void refresh()}
 }
 async function openInbox(){
- let x;try{x=await signed();await refresh()}catch(e){window.ElaraDialog?.alert?.(e.message||String(e));return}
+ let x;try{x=await signed();await refresh();if(shareError)throw Error(shareError.code==='permission-denied'?tx('قوانین اشتراک پوشه هنوز روی Firestore منتشر نشده‌اند یا دسترسی این حساب مجاز نیست.','Folder-sharing Firestore rules are not deployed or access is denied.'):shareError.message)}catch(e){window.ElaraDialog?.alert?.(e.message||String(e));return}
  const rows=received.slice(),html='<p class="wellshare-description">'+tx('دعوت‌های دریافتی را می‌توانی بپذیری یا رد کنی. پوشه‌های پذیرفته‌شده فقط برای مشاهده در ورزش و تغذیه ظاهر می‌شوند.','Accept or decline invitations. Accepted folders appear read-only in Wellness.')+'</p>'+
  (rows.length?rows.map(r=>'<article class="wellshare-inbox-row" data-wellshare-row="'+esc(r.id)+'"><div><strong>'+esc(r.title||'پوشه')+'</strong><small>'+esc(r.status==='accepted'?'پذیرفته شده':r.status==='declined'?'رد شده':'در انتظار پاسخ')+'</small></div><div>'+(r.status==='pending'?'<button data-wellshare-accept="'+esc(r.id)+'">پذیرش</button><button data-wellshare-decline="'+esc(r.id)+'">رد</button>':r.status==='accepted'?'<button data-wellshare-open="'+esc(r.id)+'">مشاهده</button>':'')+'</div></article>').join(''):'<p class="wellshare-empty">'+tx('هنوز پوشه‌ای از دوستان دریافت نکرده‌ای.','No shared folders received yet.')+'</p>')+
  '<p class="wellshare-message" role="status"></p>';
@@ -125,7 +125,7 @@ window.addEventListener('elara:wellness-saved',e=>{if(e.detail?.workoutPlanFolde
 window.addEventListener('elara:open',e=>{if(['exercise','wellness-exercise'].includes(e.detail?.tab))setTimeout(()=>void refresh(),150)});
 window.addEventListener('elara:account-ready',()=>setTimeout(()=>void refresh(),550));
 window.addEventListener('elara:social-updated',()=>void refresh());
-window.addEventListener('elara:logout',()=>{received=[];loadedUid='';lastFingerprint='';close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
+window.addEventListener('elara:logout',()=>{received=[];loadedUid='';lastFingerprint='';shareError=null;close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
 window.ElaraWellnessShare={shareFolder,openInbox,openReceived,receivedFolders,refresh,syncOwned};
 setTimeout(()=>void refresh(),1300);
 })();
