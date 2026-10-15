@@ -30,7 +30,7 @@ function customCases(names,books){
   const owned=books.filter(b=>b.customShelf===name),attr=esc(name);
   const content=owned.length?owned.map(book).join(''):'<div class="lib02-empty"><span aria-hidden="true">✧</span><p>'+t('این قفسه هنوز کتابی ندارد.','This custom shelf has no books yet.')+'</p><button type="button" data-lib02-assign="'+attr+'">'+t('قرار دادن کتاب در قفسه','Put a book on this shelf')+'</button></div>';
   return '<section class="lib02-custom-case" data-lib02-custom-shelf="'+attr+'" aria-label="'+t('قفسه شخصی ','Custom shelf ')+attr+'">'+
-   '<div class="lib02-shelf-head lib06-custom-head"><h3 data-elara-ugc dir="auto">▣ '+attr+'</h3><div class="lib06-case-tools"><span>'+fa(owned.length)+' '+t('کتاب','books')+'</span><button type="button" data-lib02-custom="'+attr+'" aria-label="'+t('نمایش کتاب‌های قفسه ','View books on shelf ')+attr+'">▤</button><button type="button" data-lib02-assign="'+attr+'" aria-label="'+t('افزودن کتاب به ','Add a book to ')+attr+'">＋</button><button type="button" data-lib02-rename="'+attr+'" aria-label="'+t('تغییر نام قفسه ','Rename shelf ')+attr+'">✎</button></div></div>'+
+   '<div class="lib02-shelf-head lib06-custom-head"><h3 data-elara-ugc dir="auto">▣ '+attr+'</h3><div class="lib06-case-tools"><span>'+fa(owned.length)+' '+t('کتاب','books')+'</span><button type="button" data-lib02-assign="'+attr+'" aria-label="'+t('افزودن کتاب به ','Add a book to ')+attr+'">＋</button><button type="button" data-lib02-rename="'+attr+'" aria-label="'+t('تغییر نام قفسه ','Rename shelf ')+attr+'">✎</button><button type="button" data-lib02-remove-shelf="'+attr+'" aria-label="'+t('حذف قفسه ','Delete shelf ')+attr+'">×</button></div></div>'+
    '<div class="lib02-wood"><div class="lib02-wood-row">'+content+'</div><div class="lib02-wood-divider" aria-hidden="true"></div><div class="lib02-wood-base" aria-hidden="true"></div></div></section>'
  }).join('')+'</div>';
 }
@@ -65,8 +65,7 @@ function quote(s,bs){
 function render(){
  const host=$('#lib02-scene'),panel=$('#panel-library-shelves');if(!host||!panel)return;
  const s=state(),bs=normalized(s),custom=Array.isArray(s.bookShelves)?s.bookShelves:[];
- host.innerHTML='<section class="lib02-hero"><div><span>ELARA · PERSONAL SHELVES</span><h1>▣ '+t('قفسه‌ها','Bookshelves')+'</h1><p>'+t('کتاب‌هایت را روی قفسه‌های خودت ببین؛ هر جلد، بخشی از مسیر توست.','Every book has a place in your journey.')+'</p></div></section>'+
- '<div class="lib02-actions"><button type="button" class="lib02-primary" data-lib02-add>＋ '+t('افزودن کتاب','Add book')+'</button><button type="button" data-lib02-new-shelf>▤ '+t('قفسه جدید','New custom shelf')+'</button><button type="button" data-lib02-library>← '+t('بازگشت به کتابخانه','Back to library')+'</button></div>'+
+ host.innerHTML='<div class="lib02-actions"><button type="button" class="lib02-primary" data-lib02-add>＋ '+t('افزودن کتاب','Add book')+'</button><button type="button" data-lib02-new-shelf>▤ '+t('قفسه جدید','New custom shelf')+'</button><button type="button" data-lib02-library>← '+t('بازگشت به کتابخانه','Back to library')+'</button></div>'+
  '<div class="lib02-metrics">'+
  [[bs.length,t('کتاب در کتابخانه','Total books'),'▣'],[bs.filter(b=>b.shelf==='reading').length,t('در حال مطالعه','Reading'),'📖'],[bs.filter(b=>b.shelf==='want').length,t('خواهم خواند','To read'),'🔖'],[bs.filter(b=>b.shelf==='finished').length,t('خوانده‌ام','Finished'),'✓']].map(([n,label,ic])=>'<div><span>'+ic+'</span><strong>'+fa(n)+'</strong><small>'+label+'</small></div>').join('')+'</div>'+
  '<div class="lib02-mobile-picker" role="group" aria-label="'+t('انتخاب وضعیت مطالعه','Choose reading status')+'">'+statuses.map(x=>'<button type="button" aria-pressed="'+(x.id===selected)+'" data-lib02-picker="'+x.id+'">'+x.icon+' '+t(x.fa,x.en)+'</button>').join('')+'</div>'+
@@ -123,17 +122,23 @@ document.addEventListener('click',async event=>{
   if(!latest.bookShelves?.includes(shelfName))return;
   const index=(latest.books||[]).findIndex(b=>String(b.id)===select.value);
   if(index<0)return;
-  latest.books[index]={...latest.books[index],customShelf:shelfName};
-  emit(latest);schedule();return;
+  const updated=latest.books.slice();updated[index]={...updated[index],customShelf:shelfName};
+  window.ElaraReading.commit(updated);schedule();return;
+ }
+ const removeShelf=event.target.closest('[data-lib02-remove-shelf]');
+ if(removeShelf){
+  event.preventDefault();
+  const name=removeShelf.dataset.lib02RemoveShelf;
+  if(!state().bookShelves?.includes(name))return;
+  if(!await window.ElaraDialog.confirm(t('این قفسه حذف شود؟ کتاب‌ها در کتابخانه می‌مانند.','Delete shelf? The books remain in the library.'),{title:t('حذف قفسه','Delete shelf'),confirmText:t('حذف','Delete'),danger:true}))return;
+  const fresh=state();if(!fresh.bookShelves?.includes(name))return;
+  fresh.bookShelves=fresh.bookShelves.filter(x=>x!==name);
+  fresh.books=(fresh.books||[]).map(x=>x.customShelf===name?{...x,customShelf:''}:x);
+  window.ElaraLinkedTasks?.syncCoreState?.(fresh);
+  emit(fresh);schedule();return;
  }
  const rename=event.target.closest('[data-lib02-rename]');
  if(rename){event.preventDefault();await window.ElaraLibraryEnhancements.renameShelf(rename.dataset.lib02Rename);schedule();return}
- const custom=event.target.closest('[data-lib02-custom]');
- if(custom){event.preventDefault();const query=custom.dataset.lib02Custom;
- const matching=normalized(state()).filter(b=>b.customShelf===query);
- const box=document.createElement('div');box.className='lib02-custom-dialog';
- box.innerHTML=matching.length?matching.map(b=>'<button type="button" data-reading-book="'+esc(b.id)+'">'+esc(b.title)+'</button>').join(''):'<p>'+t('در این قفسه کتابی ثبت نشده.','No books in this custom shelf yet.')+'</p>';
- await window.ElaraDialog?.open?.({title:query,content:box,actions:[{label:t('بستن','Close'),value:false}]});return}
  const del=event.target.closest('[data-lib02-delete]');
  if(del){event.preventDefault();if(await window.ElaraDialog?.confirm?.(t('این کتاب حذف شود؟','Delete this book?'),{title:t('حذف کتاب','Delete book'),danger:true,confirmText:t('حذف','Delete')}))saveBooks(all=>{const i=all.findIndex(x=>x.id===del.dataset.lib02Delete);if(i<0)return false;all.splice(i,1)});}
 });
