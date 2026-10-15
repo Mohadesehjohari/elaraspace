@@ -1,0 +1,20 @@
+/* Elara Fox — scoped interactive reward surfaces; user-selected Midnight layout remains untouched. */
+.elara-fox-overlay { position:fixed; inset:0; z-index:2147483600; display:grid; place-items:center; padding:20px; background:rgba(2,8,26,.76); backdrop-filter:blur(6px); box-sizing:border-box; }
+.elara-fox-overlay *, .elara-fox-overlay *::before { box-sizing:border-box; }
+.elara-fox-dialog { position:relative; width:min(100%,430px); max-height:min(92dvh,750px); overflow-y:auto; border:1px solid #7960c0; border-radius:25px; background:radial-gradient(ellipse at 50% 0%,#50378a 0%,#1b2451 40%,#0b1733 90%); box-shadow:0 30px 90px #000a,0 0 40px #743af63d; color:#f8f4ff; text-align:center; direction:rtl; padding:26px 25px 24px; outline:none; animation:fox-arrive .28s cubic-bezier(.2,.9,.3,1.1) both; }
+.elara-fox-close { position:absolute; top:14px; inset-inline-end:14px; display:grid; place-items:center; width:34px; height:34px; background:#ffffff17; color:#f3ebff; border:1px solid #ffffff36; border-radius:50%; cursor:pointer; font:700 22px/1 sans-serif; }
+.elara-fox-close:focus-visible, .elara-fox-action:focus-visible {outline:3px solid #b8ecff;outline-offset:3px}
+.elara-fox-image {display:block; width:clamp(120px,32vw,166px); height:auto; max-height:172px; object-fit:contain; margin:-6px auto 10px; filter:drop-shadow(0 11px 17px #08072777)}
+.elara-fox-eyebrow { font:800 11px/1.6 inherit; color:#ffd77d; letter-spacing:.035em; margin:0 0 3px; }
+.elara-fox-dialog h2 {font-size:clamp(22px,5vw,28px);line-height:1.45; font-weight:900; color:#fff5c8; margin:4px 0 10px;}
+.elara-fox-dialog p {font-size:14px;line-height:1.9;color:#d8d9f2;margin:0 auto 17px;max-width:36ch}
+.elara-fox-meta {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 22px}
+.elara-fox-meta span {border:1px solid #eac86a77;border-radius:999px;background:#eabb3819;color:#ffe4a4;padding:6px 12px;font-size:13px;font-weight:850;unicode-bidi:plaintext}
+.elara-fox-actions {display:flex;justify-content:center;gap:10px}
+.elara-fox-action {min-height:44px;flex:1; padding:10px 13px; cursor:pointer;border-radius:13px;border:1px solid #b599f1;font:800 14px/1.4 inherit;color:#e6ddfb;background:#ffffff10}
+.elara-fox-action.primary {background:linear-gradient(130deg,#ffe68c,#f5b948);color:#231746;border-color:#ffe2a1;box-shadow:0 5px 16px #e7a13a30}
+.mission-celebration {display:flex;align-items:center;gap:12px;min-width:0}
+.mission-celebration-fox {width:78px;height:78px;object-fit:contain;flex:0 0 78px;align-self:center;filter:drop-shadow(0 4px 7px #110d4670)}
+@keyframes fox-arrive{from{opacity:0;transform:translateY(17px) scale(.94)}to{opacity:1;transform:none}}
+@media(max-width:550px) {.elara-fox-overlay{padding:12px}.elara-fox-dialog{padding:22px 17px 19px;border-radius:21px;max-height:87dvh}.mission-celebration-fox{width:62px;height:62px;flex-basis:62px}}
+@media(prefers-reduced-motion:reduce){.elara-fox-dialog{animation:none}.elara-fox-overlay{backdrop-filter:none}}
