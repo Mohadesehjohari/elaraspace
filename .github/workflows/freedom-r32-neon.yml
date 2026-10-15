@@ -1,0 +1,59 @@
+name: Freedom R32 Single Banner Neon
+on:
+  push:
+    branches:
+      - freedom-r32-single-hero-neon-rename-20261015
+  pull_request:
+    paths:
+      - 'freedom-r32-*'
+      - 'freedom-dashboard-r2026.js'
+      - 'freedom-enhancements.js'
+      - 'freedom-r30-pages.js'
+      - 'freedom-r31-remaining.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  neon-freedom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate deployment, icon asset and JavaScript
+        run: |
+          node --check boot.js
+          node --check freedom-dashboard-r2026.js
+          node --check freedom-enhancements.js
+          node --check freedom-r30-pages.js
+          node --check freedom-r31-remaining.js
+          node --check tests/freedom-r32-single-banner.mjs
+          test -s 'assets/ui/Plans & Dreams.webp'
+          node - <<'NODE'
+          const assert=require('node:assert/strict'),fs=require('node:fs');
+          const m=require('./deploy/production-manifest.json');
+          for(const f of ['freedom-r32-neon-single-banner.css','assets/ui/Plans & Dreams.webp'])assert(m.required.includes(f)&&m.files.includes(f),'missing asset: '+f);
+          const boot=fs.readFileSync('boot.js','utf8'),css=fs.readFileSync('freedom-r32-neon-single-banner.css','utf8'),js=fs.readFileSync('freedom-dashboard-r2026.js','utf8');
+          assert(boot.includes("'freedom-r32-neon-single-banner.css'"));
+          assert(css.includes('#panel-freedom.freedom-subpage-open .freedom-hero'));
+          assert(js.includes("'Plans & Dreams.webp'"));
+          assert(js.includes("'تابلوی رؤیاها'")&&js.includes("'بازتاب‌های من'"));
+          console.log('R32_STATIC_PASS');
+          NODE
+      - name: Install browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve site
+        run: |
+          python3 -m http.server 4173 >/tmp/freedom-r32.log 2>&1 &
+          sleep 2
+      - name: Verify seven pages and responsive layout
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 420s node tests/freedom-r32-single-banner.mjs
