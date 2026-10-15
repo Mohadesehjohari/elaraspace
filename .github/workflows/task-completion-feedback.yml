@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'phase2.js'
+      - 'task-mobile-toolbar-popup-20261015.css'
       - 'task-single-row-20261015.css'
       - 'task-composer-reference-20261015.css'
       - 'task-cross-links-20261012.js'
@@ -18,6 +19,7 @@ on:
   pull_request:
     paths:
       - 'phase2.js'
+      - 'task-mobile-toolbar-popup-20261015.css'
       - 'task-single-row-20261015.css'
       - 'task-composer-reference-20261015.css'
       - 'task-cross-links-20261012.js'
