@@ -17,7 +17,7 @@ async function open(width,height){
  const page=await browser.newPage({viewport:{width,height}});await wire(page);
  await page.goto(base+'/?library-stage4='+Date.now()+'#books',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraLibraryEnhancements&&window.ElaraFeatureHubs&&document.querySelector('#library-clips')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
- await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));await page.waitForSelector('#panel-library-shelves:not(.hidden) .library-enhancement-tools');
+ await page.evaluate(()=>window.ElaraOpen('library-shelves',{history:'replace'}));await page.waitForSelector('#panel-library-shelves:not(.hidden) .library-enhancement-tools',{state:'attached'});await page.locator('#panel-library-shelves .lib06-legacy-tools').evaluate(d=>{d.open=true});
  return page;
 }
 const page=await open(390,844);

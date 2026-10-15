@@ -21,10 +21,8 @@ function hero(panel){
 function toolbar(){
  return '<nav class="lib01-shortcuts" aria-label="'+t('مسیرهای کتابخانه','Library shortcuts')+'">'+
  nav('books',t('نمای کلی','Overview'),'⌂',true)+
- nav('library-shelves',t('کتاب‌های من','My books'),'▣')+
  nav('library-search',t('جست‌وجو','Search'),'⌕')+
  nav('library-clips',t('بریده‌های من','My clips'),'❝')+
- '<button type="button" class="lib01-tab" data-lib01-route="library-clips"><span aria-hidden="true">❞</span>'+t('نقل‌قول‌ها','Quotes')+'</button>'+
  nav('library-shelves',t('قفسه‌ها','Shelves'),'▤')+
  '<button type="button" class="lib01-tab" data-lib01-explore="authors"><span aria-hidden="true">♙</span>'+t('نویسندگان','Authors')+'</button>'+
  '<button type="button" class="lib01-tab" data-lib01-explore="genres"><span aria-hidden="true">◇</span>'+t('ژانرها','Genres')+'</button></nav>'+
@@ -111,7 +109,13 @@ document.addEventListener('click',e=>{
  const route=e.target.closest('#lib01-overview [data-lib01-route]');
  if(route){e.preventDefault();window.ElaraOpen?.(route.dataset.lib01Route,{history:'push'});return}
  const add=e.target.closest('#lib01-overview [data-lib01-add]');
- if(add){e.preventDefault();window.ElaraOpen?.('library-shelves',{history:'push'});setTimeout(()=>$('#book-title')?.focus(),150);return}
+ if(add){
+  e.preventDefault();window.ElaraOpen?.('library-shelves',{history:'push'});
+  setTimeout(()=>{const button=$('#lib02-scene [data-lib02-add]');if(button)button.click();
+   else {const tools=$('#panel-library-shelves > .lib06-legacy-tools');if(tools)tools.open=true;$('#book-title')?.focus({preventScroll:true})}
+  },180);
+  return;
+ }
  const bookmark=e.target.closest('#lib01-overview [data-lib01-bookmark]');
  if(bookmark){
   e.preventDefault();const s=state(),bs=Array.isArray(s.books)?s.books:[],i=bs.findIndex(b=>String(b.id)===bookmark.dataset.lib01Bookmark);
