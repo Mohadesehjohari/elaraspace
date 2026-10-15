@@ -14,6 +14,8 @@ let groupQuery='',groupFilter='all';
 // Share pending queries and give each attempt a finite deadline so tabs never hang.
 const GROUP_LOAD_TIMEOUT_MS=8000;
 let pendingGroupLoad=null,pendingGroupUid='',groupMountTimer=null;
+// Avoid an immediate retry storm if Firebase rejects a missing-index/permission query.
+let retryAllowedAt=0,lastLoadError='';
 function groupData(service,force=false){
  const uid=String(current()?.uid||'');
  if(force||pendingGroupUid!==uid){pendingGroupLoad=null;pendingGroupUid=uid}
@@ -84,6 +86,13 @@ async function mount(force=false){
   groupSyncMessage(section,t('گروه‌هات همین‌جا نمایش داده می‌شن؛ منتظر اتصال حساب هستیم.','Your groups will appear here as soon as your account connects.'));
   return;
  }
+ if(force){retryAllowedAt=0;lastLoadError=''}
+ if(!force&&Date.now()<retryAllowedAt){
+  section.dataset.g4Loading='false';
+  section.dataset.g4Availability='waiting';
+  groupSyncMessage(section,lastLoadError||t('گروه‌ها فعلاً همگام نشده‌اند؛ از دکمهٔ تازه‌سازی استفاده کن.','Groups are not synced yet. Refresh to retry.'));
+  return;
+ }
  if(!force&&section.dataset.g4Loading==='true')return;
  const token=++renderToken;
  section.dataset.g4Loading='true';
@@ -104,13 +113,16 @@ async function mount(force=false){
   section.dataset.g4Availability='waiting';
   const missingIndex=/COLLECTION_GROUP_ASC|requires (?:a |an )?index|failed-precondition|collection.group.*index/i.test(String(error?.message||''));
   console.warn('Elara groups sync:',missingIndex?'Missing membership index':error);
-  groupSyncMessage(section,missingIndex?t('فهرست گروه‌ها هنوز همگام نشده؛ ایندکس عضویت باید در Firebase فعال شود.','The group list is waiting for its Firebase membership index.'):t('گروه‌ها فعلاً همگام نشده‌اند؛ طراحی صفحه آماده است و می‌توانی دوباره تلاش کنی.','Your groups have not synced yet. The page is ready; try refreshing.'));
+  retryAllowedAt=Date.now()+30000;
+  lastLoadError=missingIndex?t('فهرست گروه‌ها هنوز همگام نشده؛ ایندکس عضویت باید در Firebase فعال شود.','The group list is waiting for its Firebase membership index.'):t('گروه‌ها فعلاً همگام نشده‌اند؛ طراحی صفحه آماده است و می‌توانی دوباره تلاش کنی.','Your groups have not synced yet. The page is ready; try refreshing.');
+  groupSyncMessage(section,lastLoadError);
   return;
  }finally{
   if(deadline!==null)clearTimeout(deadline);
  }
  if(token!==renderToken||!section.isConnected||!activeGroupsTab(root))return;
  section.dataset.g4Loading='false';
+ retryAllowedAt=0;lastLoadError='';
  section.dataset.g4Availability='ready';
  groups=[...groups].sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
  const unread=groups.filter(g=>!!g.unread).length,own=groups.filter(g=>g.role==='owner').length;
