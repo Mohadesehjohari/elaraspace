@@ -1,0 +1,64 @@
+/* Regression: the pre-existing appearance must stay unchanged until opt-in. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const design=read('elara-design.js');
+const drawer=read('drawer.js');
+const core=read('app.js');
+const css=read('neon-lavender-theme.css');
+const page=read('index.html');
+assert.match(page,/neon-lavender-theme\.css\?v=20261015-neon-lavender-v1/);
+assert.ok(page.indexOf('neon-lavender-theme.css')>page.indexOf('task-composer-reference-20261015.css'),'theme override must come last');
+assert.match(css,/body\[data-elara-theme="violet"\]\.light/);
+assert.match(css,/body\[data-elara-theme="violet"\]\.dark\.amoled/);
+assert.match(css,/#task-composer-shell#task-composer-shell/);
+assert.match(css,/#panel-tasks#panel-tasks/);
+assert.match(core,/window\.ElaraApplyTheme/);
+assert.match(drawer,/دیفالت \(ظاهر فعلی\)/);
+
+function runtime(saved){
+  const memory=new Map(Object.entries(saved||{}));
+  const storage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value))};
+  const classes=new Set();
+  const body={classList:{toggle:(name,active)=>{if(active)classes.add(name);else classes.delete(name)},add:name=>classes.add(name),remove:name=>classes.delete(name)},dataset:{}};
+  const element={style:{setProperty(){}},dataset:{}};
+  const doc={readyState:'loading',body,documentElement:element,addEventListener(){},querySelector(){return null},querySelectorAll(){return []},getElementById(){return null}};
+  const events=[];
+  const fakeWindow={dispatchEvent:e=>events.push(e),addEventListener(){},matchMedia:()=>({matches:false,addEventListener(){}}),ElaraIcons:{icon:()=>''}};
+  const ctx={window:fakeWindow,document:doc,localStorage:storage,matchMedia:()=>({matches:false}),CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts?.detail}},Event:class{constructor(type){this.type=type}},CSS:{escape:x=>String(x)},NodeFilter:{SHOW_TEXT:4},crypto:{randomUUID:()=> 'test-id'},setTimeout:()=>0,console};
+  vm.runInNewContext(design,ctx);
+  vm.runInNewContext(drawer,ctx);
+  return {body,classes,storage,window:fakeWindow,events};
+}
+let r=runtime({'elara_preferences_v2':JSON.stringify({mode:'dark',color:'violet'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'default','existing violet users must NOT suddenly become neon');
+assert.equal(r.classes.has('dark'),true);
+r.window.ElaraDrawerTest.setColor('violet');
+assert.equal(r.body.dataset.elaraTheme,'violet');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).themeVariant,'violet');
+r.window.ElaraDrawerTest.setMode('light');
+assert.equal(r.body.dataset.elaraTheme,'violet');
+assert.equal(r.classes.has('light'),true);
+assert.equal(r.classes.has('dark'),false);
+r.window.ElaraDrawerTest.setMode('dark');
+assert.equal(r.classes.has('dark'),true);
+r.window.ElaraDrawerTest.setMode('amoled');
+assert.equal(r.classes.has('amoled'),true);
+assert.equal(r.storage.getItem('elara_amoled'),'yes');
+r.window.ElaraDrawerTest.setColor('default');
+assert.equal(r.body.dataset.elaraTheme,'default');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).themeVariant,'default');
+r=runtime({'elara_preferences_v2':JSON.stringify({mode:'light',color:'blue'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'blue','other existing accents must remain untouched');
+assert.equal(r.classes.has('light'),true);
+r.window.ElaraDrawerTest.setColor('violet');
+assert.equal(r.body.dataset.elaraTheme,'violet');
+r.window.ElaraDrawerTest.setMode('light');
+assert.equal(r.classes.has('light'),true);
+assert.ok(r.events.some(e=>e.type==='elara:theme-changed'));
+console.log('Neon Lavender / Default migration + Dark/Light/AMOLED preference tests passed.');
