@@ -282,12 +282,13 @@ function renderSecurity(){
   }
   function renderAppearance(){
     const host=$('drawer-appearance-area');if(!host)return;const p=pref(),style=p.style||'default',amoled=localStorage.getItem('elara_amoled')==='yes',mode=amoled?'amoled':p.mode;
-    const themeArt={mode:{dark:'assets/ui/theme_dark.webp',light:'assets/ui/theme_white.webp',system:'assets/ui/theme.webp',amoled:'assets/ui/theme_dark.webp'},style:{default:'assets/ui/theme.webp',minimal:'assets/ui/theme_minimal.webp',rugged:'assets/ui/city_theme.webp',anime:'assets/ui/theme_spring.webp'},color:{violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',red:'assets/ui/theme_red.webp',orange:'assets/ui/theme_orange.webp',green:'assets/ui/theme_forest_green.webp',black:'assets/ui/theme_dark.webp',white:'assets/ui/theme_white.webp'}};
+    const themeArt={mode:{dark:'assets/ui/theme_dark.webp',light:'assets/ui/theme_white.webp',system:'assets/ui/theme.webp',amoled:'assets/ui/theme_dark.webp'},style:{default:'assets/ui/theme.webp',minimal:'assets/ui/theme_minimal.webp',rugged:'assets/ui/city_theme.webp',anime:'assets/ui/theme_spring.webp'},color:{default:'assets/ui/theme.webp',violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',red:'assets/ui/theme_red.webp',orange:'assets/ui/theme_orange.webp',green:'assets/ui/theme_forest_green.webp',black:'assets/ui/theme_dark.webp',white:'assets/ui/theme_white.webp'}};
     const preview=(src,cls='')=>`<span class="pass4-theme-preview ${cls}"><img class="pass4-theme-art" src="${src}" alt="" loading="eager" decoding="async" fetchpriority="low"></span>`;
     const modeTile=(key,label,desc)=>`<button type="button" class="pass4-theme-tile ${mode===key?'active':''}" data-drawer-mode="${key}" aria-pressed="${mode===key}">${preview(themeArt.mode[key],'mode-'+key)}<b>${label}</b><small>${desc}</small></button>`;
     const styleTile=(key,label,desc)=>`<button type="button" class="pass4-theme-tile ${style===key?'active':''}" data-drawer-style="${key}" aria-pressed="${style===key}">${preview(themeArt.style[key],'style-'+key)}<b>${label}</b><small>${desc}</small></button>`;
-    const colors=[['violet','کهکشان یاسی'],['blue','مهتاب نیلی'],['pink','شفق صورتی'],['red','کسوف سرخ'],['orange','سپیده‌ی آتش'],['green','جنگل زمردی'],['black','شب بی‌انتها'],['white','برفِ مهتاب']];
-    host.innerHTML=`${sectionHead('ظاهر و تم‌ها','Mode، Style و Accent را با پیش‌نمایش واقعی انتخاب کن.')}<section class="pass4-appearance-group"><header><strong>Mode</strong><small>روشنایی و پس‌زمینه</small></header><div class="pass4-theme-grid">${modeTile('dark','Dark','تاریک استاندارد')}${modeTile('light','Light','روشن و خوانا')}${modeTile('system','System','هماهنگ با دستگاه')}${modeTile('amoled','AMOLED','مشکی خالص')}</div></section><section class="pass4-appearance-group"><header><strong>Style</strong><small>فرم کارت‌ها و بافت رابط</small></header><div class="pass4-theme-grid">${styleTile('default','کهکشان الارا','فضایی، نئونی و سینمایی')}${styleTile('minimal','مهِ ستاره‌ای','ساده، نرم و آرام')}${styleTile('rugged','شهر نیمه‌شب','شهری، عمیق و پرقدرت')}${styleTile('anime','شکوفه‌های رؤیایی','روشن، لطیف و جادویی')}</div></section><section class="pass4-appearance-group"><header><strong>Accent</strong><small>رنگ تأکیدی رابط</small></header><div class="pass4-accent-grid">${colors.map(([key,label])=>`<button type="button" data-drawer-color="${key}" class="pass4-accent-tile ${p.color===key?'active':''}" aria-pressed="${p.color===key}"><img class="pass4-accent-art" src="${themeArt.color[key]}" alt="" loading="lazy" decoding="async"><b>${label}</b></button>`).join('')}</div></section>`;
+    const activeColor=p.themeVariant||(p.color==='violet'?'default':p.color);
+    const colors=[['default','دیفالت (ظاهر فعلی)'],['violet','کهکشان یاسی'],['blue','مهتاب نیلی'],['pink','شفق صورتی'],['red','کسوف سرخ'],['orange','سپیده‌ی آتش'],['green','جنگل زمردی'],['black','شب بی‌انتها'],['white','برفِ مهتاب']];
+    host.innerHTML=`${sectionHead('ظاهر و تم‌ها','Mode، Style و Accent را با پیش‌نمایش واقعی انتخاب کن.')}<section class="pass4-appearance-group"><header><strong>Mode</strong><small>روشنایی و پس‌زمینه</small></header><div class="pass4-theme-grid">${modeTile('dark','Dark','تاریک استاندارد')}${modeTile('light','Light','روشن و خوانا')}${modeTile('system','System','هماهنگ با دستگاه')}${modeTile('amoled','AMOLED','مشکی خالص')}</div></section><section class="pass4-appearance-group"><header><strong>Style</strong><small>فرم کارت‌ها و بافت رابط</small></header><div class="pass4-theme-grid">${styleTile('default','کهکشان الارا','فضایی، نئونی و سینمایی')}${styleTile('minimal','مهِ ستاره‌ای','ساده، نرم و آرام')}${styleTile('rugged','شهر نیمه‌شب','شهری، عمیق و پرقدرت')}${styleTile('anime','شکوفه‌های رؤیایی','روشن، لطیف و جادویی')}</div></section><section class="pass4-appearance-group"><header><strong>Accent</strong><small>رنگ تأکیدی رابط</small></header><div class="pass4-accent-grid">${colors.map(([key,label])=>`<button type="button" data-drawer-color="${key}" class="pass4-accent-tile ${activeColor===key?'active':''}" aria-pressed="${activeColor===key}"><img class="pass4-accent-art" src="${themeArt.color[key]}" alt="" loading="lazy" decoding="async"><b>${label}</b></button>`).join('')}</div></section>`;
   }
   function renderLanguage(){
     const host=$('drawer-language-area');if(!host)return;const p=pref(),language=(p.language==='en'?'en':'fa');
@@ -320,13 +321,29 @@ function renderSecurity(){
     data.tasks.unshift({id:makeId(),text:title,shortDescription:'',description:'',date:'',time:'',priority:'4',folder:kind==='folder'?collection:'',list:kind==='list'?collection:'',tag:'',completed:false,doneAt:null,xpAwarded:false,createdAt:Date.now(),recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],skippedDates:[],occurrenceOverrides:{}});
     write(data);renderFolders();
   }
-  function setStyle(style){savePref({style});document.body.dataset.elaraStyle=style;renderAppearance()}
+  function setStyle(style){if(window.ElaraSetAppearance)window.ElaraSetAppearance({style});else savePref({style});document.body.dataset.elaraStyle=style;renderAppearance()}
   function setMode(mode){
-    if(mode==='amoled'){localStorage.setItem('elara_amoled','yes');document.querySelector('[data-mode="dark"]')?.click();savePref({mode:'dark'});document.body.classList.add('amoled')}
-    else{localStorage.setItem('elara_amoled','no');document.body.classList.remove('amoled');document.querySelector(`[data-mode="${CSS.escape(mode)}"]`)?.click();savePref({mode})}
+    const amoled=mode==='amoled';
+    localStorage.setItem('elara_amoled',amoled?'yes':'no');
+    document.body.classList.toggle('amoled',amoled);
+    if(window.ElaraSetAppearance)window.ElaraSetAppearance({mode:amoled?'dark':mode});
+    else {
+      document.querySelector(`[data-mode="${CSS.escape(amoled?'dark':mode)}"]`)?.click();
+      savePref({mode:amoled?'dark':mode});
+    }
     renderAppearance();
   }
-  function setColor(color){document.querySelector(`[data-color="${CSS.escape(color)}"]`)?.click();savePref({color});renderAppearance()}
+  function setColor(color){
+    // Never turn existing users' legacy 'violet' preference neon automatically.
+    // The new default option keeps the exact previous accent and visual styling.
+    const patch={color:color==='default'?'violet':color,themeVariant:color};
+    if(window.ElaraSetAppearance)window.ElaraSetAppearance(patch);
+    else {
+      if(color!=='default')document.querySelector(`[data-color="${CSS.escape(color)}"]`)?.click();
+      savePref(patch);document.body.dataset.elaraTheme=color;
+    }
+    renderAppearance();
+  }
   function removeLegacyMore(){
     document.getElementById('elara-more-drawer')?.remove();
     document.querySelectorAll('[data-elara-more],.elara-more-trigger').forEach(x=>x.remove());
