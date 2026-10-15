@@ -1,0 +1,35 @@
+/* R33 single-banner correction.
+ * Global-page-banner moves the legacy Freedom art out of .freedom-root
+ * and can create an extra generated hero. Hide every direct global banner
+ * while a Freedom inner page is open, not only .freedom-root .freedom-hero.
+ * This CSS loads after both the global hero and Freedom detail styles.
+ */
+html body #main #panel-freedom.freedom-subpage-open > .elara-global-hero,
+html body #main #panel-freedom.freedom-subpage-open > .freedom-hero,
+html body #main #panel-freedom.freedom-subpage-open > [data-elara-page-hero="freedom"],
+html body #main #panel-freedom.freedom-subpage-open .freedom-root .freedom-hero,
+html body #main #panel-freedom [data-elara-freedom-detail-hidden="true"]{
+  display:none!important;
+  visibility:hidden!important;
+  height:0!important;min-height:0!important;max-height:0!important;
+  margin:0!important;padding:0!important;
+  border:0!important;box-shadow:none!important;
+}
+html body #main #panel-freedom.freedom-subpage-open > .freedom-root{
+  display:none!important;
+}
+html body #main #panel-freedom.freedom-subpage-open > .freedom-subpage-shell{
+  display:block!important;
+  margin-top:0!important;
+  padding-top:0!important;
+}
+html body #main #panel-freedom.freedom-subpage-open .r30-hero,
+html body #main #panel-freedom.freedom-subpage-open .r31-hero{
+  display:flex!important;
+  visibility:visible!important;
+}
+@media(max-width:700px){
+ html body #main #panel-freedom.freedom-subpage-open > .freedom-subpage-shell{
+  margin-top:0!important;padding-top:0!important;
+ }
+}

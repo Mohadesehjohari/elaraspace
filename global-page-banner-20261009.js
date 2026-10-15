@@ -38,6 +38,38 @@ function update(){
   const panel=document.getElementById('panel-'+route);
   if(!panel)continue;
   panel.dataset.elaraBannerPage=route;
+  // Freedom detail pages own their single hero. Never create or move the
+  // global Freedom banner above an active detail page (including fallback art).
+  if(route==='freedom'){
+   const inDetail=panel.classList.contains('freedom-subpage-open')||
+    !!panel.querySelector(':scope > .freedom-subpage-shell');
+   if(inDetail){
+    panel.querySelectorAll('[data-elara-page-hero="freedom"],.freedom-hero,.elara-global-hero.elara-generated-hero').forEach(banner=>{
+     if(banner.closest('.freedom-subpage-shell'))return;
+     if(banner.dataset.elaraFreedomDetailHidden!=='true'){
+      banner.dataset.elaraFreedomDetailHidden='true';
+      banner.dataset.elaraFreedomPreviousDisplay=banner.style.getPropertyValue('display')||'';
+      banner.dataset.elaraFreedomPreviousPriority=banner.style.getPropertyPriority('display')||'';
+      banner.dataset.elaraFreedomPreviousAriaHidden=banner.getAttribute('aria-hidden')??'';
+     }
+     banner.hidden=true;banner.inert=true;banner.setAttribute('aria-hidden','true');
+     banner.style.setProperty('display','none','important');
+    });
+    continue;
+   }
+   panel.querySelectorAll('[data-elara-freedom-detail-hidden="true"]').forEach(banner=>{
+    banner.hidden=false;banner.inert=false;
+    const old=banner.dataset.elaraFreedomPreviousDisplay||'';
+    if(old)banner.style.setProperty('display',old,banner.dataset.elaraFreedomPreviousPriority||'');
+    else banner.style.removeProperty('display');
+    const aria=banner.dataset.elaraFreedomPreviousAriaHidden;
+    if(aria)banner.setAttribute('aria-hidden',aria);else banner.removeAttribute('aria-hidden');
+    delete banner.dataset.elaraFreedomDetailHidden;
+    delete banner.dataset.elaraFreedomPreviousDisplay;
+    delete banner.dataset.elaraFreedomPreviousPriority;
+    delete banner.dataset.elaraFreedomPreviousAriaHidden;
+   });
+  }
   let hero=route==='tasks'?panel.querySelector('#astra-task-hero'):panel.querySelector('[data-elara-page-hero="'+route+'"]');
   if(!hero)hero=panel.querySelector(choices[route]||'.feature-hub-hero,.elara-hero');
   if(!hero&&route==='social'||!hero&&route==='ranking'){
