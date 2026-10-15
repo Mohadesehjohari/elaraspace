@@ -32,7 +32,7 @@ try{
   });
   assert.ok(m.scroll<=m.viewport+2,width+': horizontal overflow '+JSON.stringify(m));
   assert.ok(m.header&&!m.duplicateHero,width+': must keep reference subpage header without old duplicate hero');
-  assert.match(m.headerArt||'',/librairy_banner_main\.webp/,width+': canonical header must show owner's library artwork');
+  assert.match(m.headerArt||'',/librairy_banner_main\.webp/,width+": canonical header must show owner library artwork");
   assert.equal(m.shelf.length,3,width+': must preserve all reading statuses');
   assert.ok(m.legacyForm&&m.legacyList&&m.legacyShelfTools,width+': canonical actions missing');
   assert.deepEqual(m.shelf.map(x=>x.count),empty?[0,0,0]:[1,1,1],width+': fixture statuses mismatch');
