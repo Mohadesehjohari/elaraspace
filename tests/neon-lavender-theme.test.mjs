@@ -22,7 +22,7 @@ assert.match(page, /data-elara-theme-quick="violet"/);
 assert.match(page, /data-elara-mode-quick="dark"/);
 assert.match(page, /data-elara-mode-quick="light"/);
 assert.match(page, /data-elara-open-appearance/);
-assert.match(page, /drawer\.js\?v=20261015-theme-settings-access-v1/);
+assert.match(page, /drawer\.js\?v=20261016-theme-gallery-settings-v1/);
 assert.match(drawer, /data-drawer-nav="appearance"/);
 assert.match(drawer, /const quickTheme=e\.target\.closest/);
 assert.match(drawer, /const quickMode=e\.target\.closest/);
