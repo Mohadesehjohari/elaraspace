@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261015-task-desktop-inline-r2';
+  const BUILD='20261015-today-history-v4';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${/^(focus-ambience\.js|feature-hubs-2026\.js)$/.test(name)?'20261015-focus04-inline-v1':name==='language-custom-classes.js'?'20261015-class-popup-v3':/^(social-messaging-ui\.js|friends-chats-redesign\.css)$/.test(name)?'20261012-chats-r1':BUILD}`;
