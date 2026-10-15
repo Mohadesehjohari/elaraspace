@@ -1,0 +1,53 @@
+name: Freedom R33 Global Banner Regression
+on:
+  push:
+    branches:
+      - freedom-r33-root-banner-guard-20261015
+  pull_request:
+    paths:
+      - 'global-page-banner-20261009.js'
+      - 'freedom-r33-banner-guard.css'
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
+      - 'tests/freedom-r33-banner-guard.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  global-banner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax and registration
+        run: |
+          node --check global-page-banner-20261009.js
+          node --check boot.js
+          node --check tests/freedom-r33-banner-guard.mjs
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('node:assert/strict');
+          const script=fs.readFileSync('global-page-banner-20261009.js','utf8');
+          const css=fs.readFileSync('freedom-r33-banner-guard.css','utf8');
+          const boot=fs.readFileSync('boot.js','utf8');
+          const m=require('./deploy/production-manifest.json');
+          assert(script.includes("route==='freedom'")&&script.includes("if(inDetail)")&&script.includes("continue;"));
+          assert(css.includes('#panel-freedom.freedom-subpage-open > .elara-global-hero'));
+          assert(boot.includes("'freedom-r33-banner-guard.css'"));
+          assert(m.files.includes('freedom-r33-banner-guard.css')&&m.required.includes('freedom-r33-banner-guard.css'));
+          NODE
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-freedom-r33.log 2>&1 &
+          sleep 2
+      - name: Verify seven tabs and back button
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 350s node tests/freedom-r33-banner-guard.mjs
