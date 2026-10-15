@@ -158,6 +158,7 @@ for(const width of widths){
   const folderModal=page.locator('.elwp-folder-view-overlay .elwp-dialog');
   await folderModal.waitFor();
   assert.match(await folderModal.locator('.elwp-view-description').innerText(),/برنامه قدرتی/);
+  assert.equal(await folderModal.locator('[data-wellness-folder-share="workout"]').count(),1,'share action available on own folder');
   assert.match(await folderModal.locator('.elwp-view-notes').innerText(),/یادداشت مربی/);
   assert.equal(await folderModal.locator('.elwp-view-day.is-selected').count(),3);
   const modalBox=await folderModal.boundingBox();
@@ -180,6 +181,15 @@ for(const width of widths){
   for(const kind of ['water','sleep','weight','exercise','analysis']){
    await dash.locator('.well01-shortcut[data-feature-route="wellness-'+kind+'"]').click();
    await page.waitForSelector('#panel-wellness-'+kind+':not(.hidden)',{timeout:10000});
+    if(kind==='weight'){
+     const skin=await page.evaluate(()=>{
+       const hero=document.querySelector('#panel-wellness-weight > .feature-subpage-head'),card=document.querySelector('#panel-wellness-weight .wellness-weight-route-card');
+       const style=getComputedStyle(hero);return{height:hero.getBoundingClientRect().height,image:style.backgroundImage,cardBorder:card?getComputedStyle(card).borderColor:''}
+     });
+     assert.ok(skin.height>=200,'weight banner uses full wellness hero proportions');
+     assert.match(skin.image,/workout_banner_main.webp/,'weight banner reuses wellness hero artwork');
+     assert.ok(skin.cardBorder&&skin.cardBorder!=='rgb(110, 91, 238)','weight card uses its own green theme');
+    }
    await page.locator('#panel-wellness-'+kind+' .feature-subpage-head [data-feature-route="exercise"]').click();
    await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard');
   }
