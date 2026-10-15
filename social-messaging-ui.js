@@ -83,7 +83,7 @@ document.addEventListener('input',e=>{if(e.target.matches('[data-dm-search]')){q
 document.addEventListener('keydown',e=>{if(e.target.matches('.social-chat-compose textarea')&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();e.target.form?.requestSubmit()}});
 document.addEventListener('submit',async e=>{const f=e.target.closest('.social-chat-compose');if(!f)return;e.preventDefault();if(busy||!eligible(active))return;const field=f.elements.text,value=field.value.trim(),id=active;if(!value)return;busy=true;const b=f.querySelector('[type="submit"]');b.disabled=true;status(t('در حال ارسال...','Sending...'));
  try{await api().send(id,value);field.value='';putDraft(id,'');window.ElaraProfileRelations?.clearHidden?.(id);status('');void mount()}catch(error){status(String(error?.message||error))}finally{busy=false;if(b.isConnected)b.disabled=false}});
-for(const n of ['elara:social-updated','elara:presence-updated','elara:chat-hidden','elara:locale-changed','elara:logout'])window.addEventListener(n,()=>setTimeout(mount,60));
+for(const n of ['elara:social-tab-changed','elara:social-updated','elara:presence-updated','elara:chat-hidden','elara:locale-changed','elara:logout'])window.addEventListener(n,()=>setTimeout(mount,60));
 window.addEventListener('hashchange',()=>setTimeout(mount,120));
 const observer=new MutationObserver(()=>{if(document.getElementById('elara-social-page')){observer.disconnect();setTimeout(mount,60)}});if(!document.getElementById('elara-social-page'))observer.observe(document.documentElement,{subtree:true,childList:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,180),{once:true});else setTimeout(mount,180);
