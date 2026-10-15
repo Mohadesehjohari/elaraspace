@@ -17,6 +17,16 @@ assert.match(css,/#task-composer-shell#task-composer-shell/);
 assert.match(css,/#panel-tasks#panel-tasks/);
 assert.match(core,/window\.ElaraApplyTheme/);
 assert.match(drawer,/دیفالت \(ظاهر فعلی\)/);
+assert.match(page, /data-elara-theme-quick="default"/);
+assert.match(page, /data-elara-theme-quick="violet"/);
+assert.match(page, /data-elara-mode-quick="dark"/);
+assert.match(page, /data-elara-mode-quick="light"/);
+assert.match(page, /data-elara-open-appearance/);
+assert.match(page, /drawer\.js\?v=20261015-theme-settings-access-v1/);
+assert.match(drawer, /data-drawer-nav="appearance"/);
+assert.match(drawer, /const quickTheme=e\.target\.closest/);
+assert.match(drawer, /const quickMode=e\.target\.closest/);
+
 
 function runtime(saved){
   const memory=new Map(Object.entries(saved||{}));
