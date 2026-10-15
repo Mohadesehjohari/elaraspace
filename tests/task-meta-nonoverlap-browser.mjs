@@ -3,7 +3,8 @@ import {chromium} from 'playwright';
 const base=(process.env.ELARA_TEST_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
 const day=new Date(),date=[day.getFullYear(),String(day.getMonth()+1).padStart(2,'0'),String(day.getDate()).padStart(2,'0')].join('-');
 const seed={version:1,theme:'dark',xp:0,goals:[],habits:[],books:[],words:[],folders:['شخصی','ورزش','مطالعه'],tags:[],taskLists:['عادت','مطالعهٔ روزانه'],taskListDetails:{'عادت':{folder:'شخصی',description:''},'مطالعهٔ روزانه':{folder:'مطالعه',description:''}},tasks:[
- ...Array.from({length:8},(_,i)=>({id:'meta-chip-qa-'+i,text:'برنامهٔ روزانهٔ تسک '+(i+1),date,priority:String(i%4+1),list:i%3===0?'عادت':i%3===1?'مطالعهٔ روزانه':'',folder:i%3===0?'شخصی':i%3===1?'مطالعه':'ورزش',time:i%2===0?'08:30':'20:45',completed:false,createdAt:1,recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],dailyTarget:1,dailyProgress:{}}))
+ ...Array.from({length:8},(_,i)=>({id:'meta-chip-qa-'+i,text:'برنامهٔ روزانهٔ تسک '+(i+1),date,priority:String(i%4+1),list:i%3===0?'عادت':i%3===1?'مطالعهٔ روزانه':'',folder:i%3===0?'شخصی':i%3===1?'مطالعه':'ورزش',time:i%2===0?'08:30':'20:45',completed:false,createdAt:1,recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],dailyTarget:1,dailyProgress:{}})),
+ {id:'meta-no-folder',text:'تسک بدون پوشه',date,priority:'2',list:'',folder:'',time:'14:00',completed:false,createdAt:1,recurrenceRule:null,occurrenceDone:[],occurrenceRewardDays:[],dailyTarget:1,dailyProgress:{}}
 ]};
 const browser=await chromium.launch({headless:true});
 function metrics(page){return page.evaluate(()=>{
@@ -13,7 +14,7 @@ function metrics(page){return page.evaluate(()=>{
  return {vp:innerWidth,pageWidth:document.documentElement.scrollWidth,rows:rows.map(row=>{
   const title=row.querySelector(':scope > .item-content'),menu=row.querySelector(':scope > .astra-task-more'),check=row.querySelector(':scope > .check-button'),meta=row.querySelector(':scope > .elara-task-meta-grid'),path=meta?.querySelector('.elara-task-path-link'),priority=meta?.querySelector('.elara-compact-priority'),timing=meta?.querySelector('.elara-task-timing'),status=row.querySelector(':scope > .astra-task-status');
   const bounds={row:rect(row),title:title?rect(title):null,menu:menu?rect(menu):null,check:check?rect(check):null,meta:meta?rect(meta):null,path:path?rect(path):null,priority:priority?rect(priority):null,timing:timing?rect(timing):null,status:status?rect(status):null};
-  return {id:row.dataset.key,bounds,hasPath:!!path,hasPriority:!!priority,priorityText:priority?.textContent,metaDisplay:meta?getComputedStyle(meta).display:'missing',rowDisplay:getComputedStyle(row).display,collisions:meta&&path&&priority&&timing?{pathPriority:intersects(bounds.path,bounds.priority),pathTiming:intersects(bounds.path,bounds.timing),priorityTiming:intersects(bounds.priority,bounds.timing),statusMeta:status?intersects(bounds.status,bounds.meta):false,titleStatus:title&&status?intersects(bounds.title,bounds.status):false,titleMeta:title?intersects(bounds.title,bounds.meta):false,checkTitle:check&&title?intersects(bounds.check,bounds.title):false,metaMenu:menu?intersects(bounds.meta,bounds.menu):false}:null};
+  return {id:row.dataset.key,bounds,hasPath:!!path,hasPriority:!!priority,priorityText:priority?.textContent,metaDisplay:meta?getComputedStyle(meta).display:'missing',rowDisplay:getComputedStyle(row).display,collisions:meta&&priority?{pathPriority:path?intersects(bounds.path,bounds.priority):false,pathTiming:path&&timing?intersects(bounds.path,bounds.timing):false,priorityTiming:timing?intersects(bounds.priority,bounds.timing):false,statusMeta:status?intersects(bounds.status,bounds.meta):false,titleStatus:title&&status?intersects(bounds.title,bounds.status):false,titleMeta:title?intersects(bounds.title,bounds.meta):false,checkTitle:check&&title?intersects(bounds.check,bounds.title):false,metaMenu:menu?intersects(bounds.meta,bounds.menu):false}:null};
  })}
 })}
 try{
@@ -32,7 +33,9 @@ try{
   for(const row of data.rows){
    assert.equal(row.metaDisplay,'flex',width+' task metadata is not one inline row: '+JSON.stringify(row));
    assert.equal(row.rowDisplay,'grid',width+' task is not single-row grid'); const b=row.bounds; const center=a=>(a.top+a.bottom)/2; assert.ok(Math.abs(center(b.check)-center(b.meta))<30&&Math.abs(center(b.status)-center(b.meta))<23&&Math.abs(center(b.title)-center(b.meta))<30,'task controls not on ONE horizontal line at '+width+': '+JSON.stringify(row)); if(width>=921)assert.ok(b.meta.width>=180,'desktop meta too narrow '+width+': '+JSON.stringify(row));
-   assert.ok(row.hasPath&&row.hasPriority,'path/priority badge missing: '+JSON.stringify(row));
+   assert.ok(row.hasPriority,'priority badge missing: '+JSON.stringify(row));
+   if(row.id==='meta-no-folder')assert.equal(row.hasPath,false,'phantom without-folder path chip was rendered');
+   else assert.equal(row.hasPath,true,'real path missing from row');
    assert.match(row.priorityText,/^P[1-4]$/);
    assert.ok(row.bounds.meta.width>0,'metadata zero width '+JSON.stringify(row));
    assert.ok(row.bounds.meta.left>=row.bounds.row.left-1&&row.bounds.meta.right<=row.bounds.row.right+1,'meta out of task card '+JSON.stringify(row));

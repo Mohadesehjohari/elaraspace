@@ -39,21 +39,21 @@ try{
         await page.waitForFunction(taskId=>!!window.ElaraTasks&&!!document.querySelector('#task-list .astra-task-row[data-key="'+taskId+'"]'),id,{timeout:30000});
         assert.equal(await progress(id),n,id+' reload erased round '+n);
       } else {
-        await page.waitForFunction(taskId=>!!document.querySelector('#task-checked-archive [data-task-archive-id="'+taskId+'"]'),id);
+        await page.waitForFunction(taskId=>!!document.querySelector('#task-list .astra-task-row.done-today[data-key="'+taskId+'"]'),id);
+        assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"]').count(),0,'today completed rounds may not archive');
+        await page.waitForTimeout(3100);
       }
     }
   }
-  // Restoring a fully completed 3/3 task from archive resets the whole day to zero;
-  // the inline ↶ button still decreases just one round.
-  const archive=page.locator('#task-checked-archive [data-task-archive-id="qa-normal"]');
-  await page.locator('#task-checked-archive summary').click();
-  await archive.locator('[data-phase2-action="undo-task"]').click();
+  // The completed task stays in today's list and can be undone there.
+  // The inline ↶ button on a PARTIALLY complete task decreases one round.
+  await row('qa-normal').locator('.check-button').click();
   await page.waitForFunction(day=>{
    const s=JSON.parse(localStorage.getItem('elara_space_v1'));
    const t=s.tasks.find(x=>x.id==='qa-normal');
    return t&&!t.completed&&t.dailyProgress?.[day]===0;
   },date);
-  assert.equal(await progress('qa-normal'),0,'archive restore must reset 3/3 to 0/3');
+  assert.equal(await progress('qa-normal'),0,'today completion restore must reset 3/3 to 0/3');
   assert.ok((await row('qa-normal').locator('.task-round-count').textContent()).includes('۰/۳'),'restored task should display ۰/۳');
   assert.deepEqual(errors,[],'Uncaught JS errors: '+errors.join(';'));
   console.log('TASK_DAILY_ROUNDS_PASS: 0/3 → 1/3 → 2/3 → completed, persisting across reload, recurrence and linked goals');

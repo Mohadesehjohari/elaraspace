@@ -4,6 +4,10 @@ on:
     branches: [main]
     paths:
       - 'phase2.js'
+      - 'task-single-row-20261015.css'
+      - 'task-composer-reference-20261015.css'
+      - 'task-cross-links-20261012.js'
+      - 'tests/task-date-completion-browser.mjs'
       - 'task-completion-polish-20261014.css'
       - 'task-organizer-20261012.js'
       - 'task-collections.js'
@@ -14,6 +18,10 @@ on:
   pull_request:
     paths:
       - 'phase2.js'
+      - 'task-single-row-20261015.css'
+      - 'task-composer-reference-20261015.css'
+      - 'task-cross-links-20261012.js'
+      - 'tests/task-date-completion-browser.mjs'
       - 'task-completion-polish-20261014.css'
       - 'tests/task-completion-feedback-browser.mjs'
       - '.github/workflows/task-completion-feedback.yml'
@@ -32,6 +40,8 @@ jobs:
       - name: Syntax and compiled CSS existence
         run: |
           node --check phase2.js
+          node --check task-cross-links-20261012.js
+          node --check tests/task-date-completion-browser.mjs
           node --check task-organizer-20261012.js
           node --check task-collections.js
           node --check tests/task-completion-feedback-browser.mjs
@@ -50,4 +60,5 @@ jobs:
         run: |
           timeout 220s node tests/task-completion-feedback-browser.mjs
           timeout 220s node tests/task-daily-rounds-browser.mjs
+          timeout 220s node tests/task-date-completion-browser.mjs
           timeout 220s node tests/task-collections-browser.mjs
