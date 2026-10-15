@@ -52,6 +52,7 @@ r.window.ElaraDrawerTest.setColor('default');
 assert.equal(r.body.dataset.elaraTheme,'default');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).themeVariant,'default');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default','Default must reset style to the existing appearance');
 r=runtime({'elara_preferences_v2':JSON.stringify({mode:'light',color:'blue'})});
 r.window.ElaraApplyTheme();
 assert.equal(r.body.dataset.elaraTheme,'blue','other existing accents must remain untouched');
