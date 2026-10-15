@@ -192,7 +192,7 @@ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar #ref-h
 /* HOME-STRUCTURE-20261015 — reference-only placement and sizing of four existing cards.
    Goals / Streak / Wellness on the LEFT, tall Today Tasks on the RIGHT.
    Artwork, colors, components, navigation, search, hero and account UI are unchanged. */
-@media (min-width:360px) {
+@media (min-width:360px) and (max-width:700px) {
   html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid {
     --home-goals-row:clamp(195px,49vw,245px);
     --home-streak-row:clamp(108px,28vw,145px);
@@ -409,36 +409,5 @@ body:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar #ref-h
   }
   html body #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell {
     padding:2px 1px!important;
-  }
-}
-@media (min-width:701px) {
-  html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid {
-    --home-goals-row:245px;
-    --home-streak-row:148px;
-    --home-wellness-row:160px;
-    column-gap:12px!important;
-    row-gap:12px!important;
-  }
-  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card {
-    grid-template-columns:minmax(0,1fr)!important;
-    grid-template-rows:minmax(0,1fr) 39px!important;
-    padding:30px 12px 8px!important;
-  }
-  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-summary {
-    grid-template-columns:70px minmax(0,1fr)!important;
-    grid-template-rows:auto auto!important;
-    height:68px!important;
-    min-height:0!important;
-    max-height:68px!important;
-  }
-  html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-flame {
-    width:68px!important;
-    height:68px!important;
-    max-width:68px!important;
-    max-height:68px!important;
-  }
-  html body #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-days {
-    grid-column:1!important;
-    grid-row:2!important;
   }
 }
