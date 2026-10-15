@@ -139,6 +139,9 @@ function homeStructure(){
  document.getElementById('ref-home-quote-card')?.remove();
  for(const cardNode of [streakCard,tasks,wellness,goals])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==grid)grid.append(cardNode)}
  for(const cardNode of [ranks,habits,achievements])if(cardNode){cardNode.hidden=false;if(cardNode.parentElement!==bottom)bottom.append(cardNode)}
+ // Mobile: Habits follows the four-card grid, before Quick Access and Ranking.
+ // Return it to its original bottom-grid parent on desktop/tablet.
+ if(isMobile() && habits && quick && habits.nextElementSibling!==quick)panel.insertBefore(habits,quick);
  // Reference dashboard keeps Habits in the lower middle card. Missions/Friends remain reachable
  // through Achievements, Quick Access and the sidebar without duplicating extra Home cards.
  for(const cardNode of [missions,activity,social,theme])if(cardNode)cardNode.hidden=true;
@@ -171,7 +174,7 @@ function libraryFocus(){
  // Clean up a stale old Library focus wrapper, but never relocate the real timer.
  const legacy=$('ref-library-focus');if(legacy)legacy.remove();
 }
-function renderTasks(){const host=$('elara-home-tasks');if(!host)return;const s=read(),raw=arr(s.tasks).filter(t=>due(t)),items=raw.map(t=>window.ElaraTasks?.taskView(t,selected())||t).sort((a,b)=>Number(!!a.linkedTask)-Number(!!b.linkedTask)||(Number(a.priority)||4)-(Number(b.priority)||4)),all=raw,completed=all.filter(t=>done(t)).length;
+function renderTasks(){const host=$('elara-home-tasks');if(!host)return;const s=read(),raw=arr(s.tasks).filter(t=>due(t)),items=raw.map(t=>window.ElaraTasks?.taskView(t,selected())||t).sort((a,b)=>Number(done(a))-Number(done(b))||(Number(a.priority)||4)-(Number(b.priority)||4)||Number(!!a.linkedTask)-Number(!!b.linkedTask)),all=raw,completed=all.filter(t=>done(t)).length;
  const empty='امروز سبک و آزاده 😎 یه کار کوچیک اضافه کن و استارت بزن.',footer='',sourceClass=t=>{const g=String(t?.sourceGroup||'');return ['goal','exercise','language','book','focus','habit'].includes(g)?' source-'+g:''};
  const pct=all.length?Math.round(completed/all.length*100):0;window.ElaraDOM.patch(host,`<div class="ref-card-count"><span>${fa(completed)} از ${fa(all.length)} انجام شد</span><b>${fa(pct)}٪</b></div><div class="ref-task-progress" aria-hidden="true"><i style="width:${pct}%"></i></div><div class="ref-task-list" tabindex="0" role="region" aria-label="فهرست کارهای امروز">${items.length?items.map(t=>{const checks=arr(t.checklist).filter(x=>x&&String(x.text||x.title||'').trim()).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)),group=String(t.sourceGroup||'personal');return `<div data-key="${esc(t.id)}" data-task-source="${esc(group)}" class="ref-task-row${sourceClass(t)} ${done(t)?'done':''}${checks.length?' has-subtasks':''}"><button type="button" data-ref-task="${esc(t.id)}" aria-label="تکمیل ${esc(t.text||t.title||'کار')}" class="ref-task-check" aria-pressed="${done(t)}">${done(t)?art(UI_ASSETS.taskCheck,'ref-task-check-art',''):''}</button><div class="ref-task-copy"><strong title="${esc(t.text||t.title||'')}">${esc(t.text||t.title||'بدون عنوان')}</strong>${checks.length?`<div class="ref-task-subitems">${checks.slice(0,2).map(item=>`<button type="button" class="${item.done?'done':''}" data-task-check-toggle data-task-id="${esc(t.id)}" data-check-id="${esc(item.id)}" aria-pressed="${item.done}" aria-label="${item.done?'بازگرداندن':'تکمیل'} ${esc(item.text||item.title||'')}"><i class="ref-task-subitem-check" aria-hidden="true">${item.done?art(UI_ASSETS.taskCheck,'ref-task-check-art',''):''}</i><b>${esc(item.text||item.title||'')}</b></button>`).join('')}${checks.length>2?`<small>+${fa(checks.length-2)} مورد دیگر</small>`:''}</div>`:''}</div><span class="ref-priority p${Math.min(4,Math.max(1,Number(t.priority)||4))}">${sessionTarget(t)>1?fa(sessionCount(t))+'/'+fa(sessionTarget(t)):'P'+Math.min(4,Math.max(1,Number(t.priority)||4))}</span></div>`}).join(''):`<p class="ref-empty">${empty}</p>`}</div>${footer}`)}
 function renderHabits(){const host=$('elara-home-habits');if(!host)return;const all=arr(read().habits).filter(h=>window.ElaraSchedule.habitDue(h,selected())).map(h=>window.ElaraTasks?.habitView(h,selected())||h),compact=isMobile(),s=all.slice(0,5),d=selected(),n=all.filter(h=>arr(h.days).includes(d)).length;
@@ -193,7 +196,7 @@ function renderGoals(){
  // Keep every real record untouched in canonical data; the See All route is
  // always available and avoids piling seven long Persian names over artwork.
  const mobilePreview=isMobile();
- const visibleGoals=mobilePreview?goals.slice(0,2):goals;
+ const visibleGoals=mobilePreview?goals.slice(0,4):goals;
  const wrap=element('div','ref-goals-scroll');
  for(const g of visibleGoals){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
@@ -203,7 +206,7 @@ function renderGoals(){
   const main=element('button','ref-goal-main');main.type='button';main.dataset.elaraTab='goals';main.innerHTML='<strong>'+esc(g.title||g.name||'هدف')+'</strong><i class="elara-track"><i style="width:'+p+'%"></i></i>';
   const pct=element('b','');pct.textContent=fa(p)+'٪';row.append(check,main,pct);wrap.append(row);
  }
- const more=mobilePreview?'<button type="button" class="ref-home-goals-see-all" data-elara-tab="goals" aria-label="دیدن همهٔ هدف‌ها">دیدن همهٔ هدف‌ها ←'+(goals.length>visibleGoals.length?' ('+fa(goals.length)+')':'')+'</button>':'';
+ const more=''; // See All is already present in the card header; no second mobile footer.
  window.ElaraDOM.patch(host,overview+wrap.outerHTML+more)
 }
 function renderMissions(){const host=$('elara-home-missions');if(!host)return;const compact=isMobile(),ms=arr(window.ElaraMissions?.snapshot?.()).slice(0,3);window.ElaraDOM.patch(host,ms.length?ms.map(m=>`<div class="ref-mission-row"><span class="ref-mission-check" aria-hidden="true">${m.completed?art(UI_ASSETS.taskCheck,'ref-mission-check-art','انجام‌شده'):'<i></i>'}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${compact?'':esc(m.detail||'')+(m.detail?' · ':'')}${fa(m.amount)} / ${fa(m.target)}</small></div><b class="ref-mission-reward">${art(UI_ASSETS.achievement,'ref-reward-star','')}+${fa(m.rewardXp)} XP</b></div>`).join(''):'<p class="ref-empty">فعلاً مأموریتی نداری 🫡 یه کم جلو برو؛ مأموریت بعدی خودش پیداش می‌شه.</p>')}
@@ -211,7 +214,8 @@ function wellness(){const target=$('ref-wellness-data');if(!target)return;const 
  const day=selected(),water=Number(s.water?.[day]||0),goal=Math.max(1,Number(s.goal)||2000),glassMl=Math.max(100,Number(s.glassMl)||250),waterGlasses=Math.round((water/glassMl)*10)/10,waterGoalGlasses=Math.max(1,Math.round(goal/glassMl)),sleep=arr(s.sleep).filter(x=>x.date===day).reduce((n,x)=>{const a=Date.parse(day+'T'+x.bed+':00'),b=Date.parse(day+'T'+x.wake+':00');return n+(Number.isFinite(a)&&Number.isFinite(b)?Math.max(0,Math.min(1440,Math.round(((b<=a?b+86400000:b)-a)/60000))):0)},0),workout=arr(s.workouts).filter(x=>x.date===day).reduce((n,x)=>n+(Number(x.minutes)||0),0);
  const waterPct=Math.min(100,Math.round(water/goal*100)),sleepPct=Math.min(100,Math.round(sleep/(7.5*60)*100)),workoutPct=Math.min(100,Math.round(workout/30*100)),score=Math.round((waterPct+sleepPct+workoutPct)/3),mood=score>=80?'عالی است!':score>=55?'رو به جلو':score>0?'در حال ساخت':'آمادهٔ ثبت';
  const cells=[['آب',u?`${fa(waterGlasses)} / ${fa(waterGoalGlasses)}`:'—','لیوان','wellness-water',UI_ASSETS.water],['خواب',sleep?fa(Math.round(sleep/6)/10):'—','ساعت','wellness-sleep',UI_ASSETS.sleep],['ورزش',workout?fa(workout):'—','دقیقه','wellness-workouts',UI_ASSETS.exercise]];
- window.ElaraDOM.patch(target,`<div class="ref-health-main"><div class="ref-health-ring" style="--health-score:${score}" role="img" aria-label="سلامت امروز ${fa(score)} درصد"><strong>${fa(score)}٪</strong></div><div class="ref-health-copy"><small>حال امروز</small><strong>${mood}</strong><button type="button" data-elara-tab="exercise">جزئیات ←</button></div></div><div class="ref-wellness-summaries">${cells.map(([label,value,unit,section,asset])=>`<button type="button" data-ref-exercise="${section}" class="ref-wellness-cell"><span>${art(asset,'elara-wellness-art','')}</span><small>${label}</small><strong>${value}</strong><small>${unit}</small></button>`).join('')}</div>`);
+ const moodMarkup=isMobile()&&mood==='آمادهٔ ثبت'?'':'<strong>'+esc(mood)+'</strong>';
+ window.ElaraDOM.patch(target,`<div class="ref-health-main"><div class="ref-health-ring" style="--health-score:${score}" role="img" aria-label="سلامت امروز ${fa(score)} درصد"><strong>${fa(score)}٪</strong></div><div class="ref-health-copy"><small>حال امروز</small>${moodMarkup}<button type="button" data-elara-tab="exercise">جزئیات ←</button></div></div><div class="ref-wellness-summaries">${cells.map(([label,value,unit,section,asset])=>`<button type="button" data-ref-exercise="${section}" class="ref-wellness-cell"><span>${art(asset,'elara-wellness-art','')}</span><small>${label}</small><strong>${value}</strong><small>${unit}</small></button>`).join('')}</div>`);
 }
 
 function streakView(){const root=$('ref-streak-card');if(!root)return;const n=streak(),dates=activityDates(),d=new Date(selected()+'T12:00:00');const days=Array.from({length:7},(_,i)=>{const v=new Date(d);v.setDate(v.getDate()-3+i);const key=iso(v);return `<button type="button" data-home-date="${key}" aria-pressed="${key===selected()}" aria-label="${v.toLocaleDateString('fa-IR',{dateStyle:'full'})}" class="ref-streak-day ${dates.has(key)?'done':''} ${key===selected()?'today':''}"><span class="ref-day-mark"><i class="ref-weekday-check" aria-hidden="true"></i></span><b>${v.toLocaleDateString('fa-IR',{weekday:'narrow'})}</b><strong>${v.toLocaleDateString('fa-IR',{day:'numeric'})}</strong></button>`}).join('');window.ElaraDOM.patch(root,`<div class="ref-streak-summary">${art(UI_ASSETS.flame,'ref-streak-flame','')}<strong>${fa(n)}</strong><small>روز متوالی<span>به مسیرت ادامه بده!</span></small></div><div class="ref-streak-days">${days}</div><div class="ref-day-tools"><button type="button" data-home-calendar>تقویم</button><button type="button" data-home-date="${today()}">امروز</button><small>${d.toLocaleDateString('fa-IR',{month:'long',day:'numeric'})}</small></div>`);
@@ -297,6 +301,38 @@ function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar
  const theme=$('theme-toggle');if(theme){theme.classList.add('ref-theme-art-control');syncThemeArtwork(theme)}
  document.getElementById('ref-header-settings')?.remove();
  let notify=$('ref-header-notifications');if(!notify){notify=element('button','icon-button ref-header-notifications','ref-header-notifications');notify.type='button';notify.setAttribute('aria-label','اعلان‌ها');actions.append(notify)}const unread=Number(window.ElaraNotify?.unreadCount?.()??unreadNotifications())||0;notify.dataset.unreadCount=String(unread);window.ElaraDOM.patch(notify,art(unread>0?UI_ASSETS.notificationUnread:UI_ASSETS.notificationRead,'ref-header-art ref-notification-art',''));
+ // Reuse the existing search input/results: on Home mobile only, open it from
+ // an icon immediately to the right of the notification bell.
+ let searchTrigger=$('ref-header-search-trigger');
+ if(!searchTrigger && search){
+  searchTrigger=element('button','icon-button ref-header-search-trigger','ref-header-search-trigger');
+  searchTrigger.type='button';
+  searchTrigger.style.display='none'; // Mobile stylesheet reveals it; no desktop UI change.
+  searchTrigger.setAttribute('aria-label','باز کردن جستجو');
+  searchTrigger.setAttribute('aria-controls','ref-header-search');
+  searchTrigger.setAttribute('aria-expanded','false');
+  searchTrigger.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>';
+  actions.insertBefore(searchTrigger,notify);
+  const closeSearch=()=>{
+   search.classList.remove('is-open');
+   searchTrigger.setAttribute('aria-expanded','false');
+   const results=$('ref-search-results');if(results)results.hidden=true;
+  };
+  searchTrigger.addEventListener('click',event=>{
+   event.preventDefault();event.stopPropagation();
+   const open=!search.classList.contains('is-open');
+   if(!open){closeSearch();return}
+   search.classList.add('is-open');
+   searchTrigger.setAttribute('aria-expanded','true');
+   $('ref-search-input')?.focus();
+  });
+  document.addEventListener('click',event=>{
+   if(!searchTrigger.contains(event.target)&&!search.contains(event.target))closeSearch();
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSearch()});
+  window.addEventListener('elara:open',closeSearch);
+  window.addEventListener('resize',()=>{if(!isMobile())closeSearch()},{passive:true});
+ }
  document.getElementById('ref-header-edit')?.remove();
 }
 function renderDynamic(kind='all'){accountHeader();if(kind==='task'){renderTasks();renderMissions();streakView();renderAchievements();return}if(kind==='habit'){renderHabits();renderMissions();streakView();renderAchievements();return}if(kind==='goal'){renderGoals();renderAchievements();return}renderTasks();renderHabits();renderGoals();renderMissions();wellness();streakView();renderAchievements()}
