@@ -265,3 +265,26 @@ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{
 html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="book"]{
  display:none!important;
 }
+
+/* The canonical Bookshelves subpage header now carries the illustrated banner:
+   one hero, not the older duplicate intro inside #lib02-scene. */
+#panel-library-shelves > .feature-subpage-head{
+ min-height:clamp(145px,13vw,215px);
+ display:flex;align-items:center;gap:15px;flex-wrap:wrap;
+ padding:clamp(15px,2.1vw,30px);
+ border:1px solid #b1844d92;border-radius:16px;
+ background-image:linear-gradient(90deg,#080c13de,#0a131bb3 55%,#120c0a94),
+ url("assets/ui/librairy_banner_main.webp");
+ background-position:center,center 54%;background-size:cover;background-repeat:no-repeat;
+ box-shadow:0 12px 29px #000b;overflow:hidden;
+}
+#panel-library-shelves > .feature-subpage-head h1{
+ color:#fff6e7;text-shadow:0 3px 14px #000e;
+ font-size:clamp(25px,3vw,40px);
+}
+#panel-library-shelves > .feature-subpage-head :is(p,small){
+ color:#f9dfb7;text-shadow:0 3px 9px #000d;
+}
+#panel-library-shelves > .feature-subpage-head .feature-back{
+ border-color:#ffe2a893;background:#0b1923c9;color:#ffe6ba;
+}
