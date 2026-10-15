@@ -1,0 +1,150 @@
+/* R32: one banner per Freedom detail page; reference-inspired neon violet / cyan / pink polish.
+   Works with R30/R31 markup. Never changes saved IDs or private records. */
+
+/* Home's Freedom banner must not sit above a detail page banner. */
+#panel-freedom.freedom-subpage-open > .freedom-hero,
+#panel-freedom.freedom-subpage-open .freedom-hero,
+#panel-freedom.freedom-subpage-open > .global-page-banner,
+#panel-freedom.freedom-subpage-open > .page-hero-banner{display:none!important}
+#panel-freedom.freedom-subpage-open > .freedom-root{display:none!important}
+#panel-freedom.freedom-subpage-open{background:radial-gradient(ellipse at 92% 25%,#3c156849,transparent 48%),radial-gradient(ellipse at 15% 80%,#2a3f7a38,transparent 55%),#030c21!important;isolation:isolate}
+#panel-freedom.freedom-subpage-open .freedom-subpage-shell{margin-block-start:0!important;padding-block-start:0!important;max-width:100%!important;overflow-x:clip!important}
+#panel-freedom.freedom-subpage-open .r30-content,
+#panel-freedom.freedom-subpage-open .r31-content{gap:14px!important;padding:14px 5px 30px!important;min-width:0!important}
+
+/* Single fantasy hero and an unmistakable back action. */
+#panel-freedom .r30-hero,#panel-freedom .r31-hero{
+  border:1.5px solid #9564ff!important;
+  border-radius:18px!important;
+  box-shadow:0 0 0 1px #398bff6b,0 0 20px #9e43ed65,0 15px 35px #020920bd!important;
+  min-height:clamp(185px,19vw,285px)!important;
+  background-color:#071329!important;
+}
+#panel-freedom .r30-hero::after,#panel-freedom .r31-hero::after{
+  background:linear-gradient(270deg,#030b25ef 0%,#071432aa 35%,#07122b08 74%)!important;
+}
+#panel-freedom .r30-hero h1,#panel-freedom .r31-hero h1{color:#fff!important;text-shadow:0 1px 13px #0b0425,0 0 20px #a154f654!important}
+#panel-freedom .r30-hero-copy p,#panel-freedom .r31-hero-copy p{color:#f2e9ff!important}
+#panel-freedom .r30-hero-copy small,#panel-freedom .r31-hero-copy>span{color:#dbaaff!important}
+#panel-freedom .r30-back,#panel-freedom .r31-back{
+ position:absolute!important;top:17px!important;left:17px!important;right:auto!important;
+ display:inline-flex!important;justify-content:center!important;align-items:center!important;
+ width:auto!important;max-width:170px!important;min-height:43px!important;
+ padding:9px 15px!important;color:#fff!important;font-weight:750!important;
+ border:1px solid #c578ff!important;border-radius:13px!important;
+ background:linear-gradient(115deg,#372176e8,#102e67e8)!important;
+ box-shadow:0 0 14px #823be38f,inset 0 1px #ffffff3d!important;
+ z-index:3!important;white-space:nowrap!important;
+}
+#panel-freedom .r30-back:hover,#panel-freedom .r31-back:hover{background:linear-gradient(110deg,#a539f2,#4663ed)!important}
+#panel-freedom .r30-hero-vision .r30-hero-mark{
+ width:42px;height:42px;display:inline-block!important;vertical-align:middle!important;
+ font-size:0!important;background:url("assets/ui/Plans%20%26%20Dreams.webp") center/contain no-repeat!important;
+ filter:drop-shadow(0 0 9px #ab5cff)!important;
+}
+
+/* Reference-inspired category tabs with active magenta/pink retained. */
+#panel-freedom .r30-tabs,#panel-freedom .r31-tabs{
+ direction:rtl!important;display:flex!important;gap:9px!important;
+ padding:8px!important;max-width:100%!important;
+ border:1px solid #6846d7bd!important;border-radius:17px!important;
+ background:linear-gradient(100deg,#0b1d49e8,#111349ea 55%,#0d2751e9)!important;
+ box-shadow:0 0 20px #8734e844,inset 0 0 14px #8130dd21!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ overscroll-behavior-inline:contain;
+ scrollbar-width:thin!important;scrollbar-color:#8455d5 transparent!important;
+}
+#panel-freedom .r30-tabs button,#panel-freedom .r31-tabs button{
+ color:#e8eaff!important;background:linear-gradient(130deg,#071938,#0d1744)!important;
+ border:1px solid #6853d6!important;border-radius:12px!important;
+ min-height:43px!important;padding:10px 14px!important;
+ box-shadow:inset 0 1px #bfc5ff12!important;
+ font-size:clamp(11px,.84vw,13px)!important;
+}
+#panel-freedom .r30-tabs button.selected,#panel-freedom .r31-tabs button.selected{
+ color:#fff!important;
+ background:linear-gradient(112deg,#f35cb4,#a137ed 45%,#4f75ff)!important;
+ border-color:#fda1ed!important;
+ box-shadow:0 0 18px #b54df2aa,0 0 6px #f06cb9a8!important;
+}
+#panel-freedom .r30-tabs button:hover,#panel-freedom .r31-tabs button:hover{
+ border-color:#e49dff!important;box-shadow:0 0 12px #9452f683!important;
+}
+#panel-freedom .r30-panel,#panel-freedom .r31-panel{
+ border:1px solid #875bef!important;border-radius:17px!important;
+ background:radial-gradient(ellipse at 100% 0%,#431e8561,transparent 57%),linear-gradient(150deg,#081941fa 0%,#06172fff 72%)!important;
+ box-shadow:inset 0 0 0 1px #738cf324,0 0 15px #8e37db48,0 12px 24px #01051a7a!important;
+}
+#panel-freedom .r30-panel>h2,#panel-freedom .r31-panel>h2{
+ padding-bottom:9px!important;border-bottom:1px solid #9c64ff63!important;
+ text-shadow:0 0 12px #a759ee75!important;color:#f7eafe!important;
+}
+#panel-freedom .r30-empty,#panel-freedom .r31-empty{
+ border:1px dashed #8657dfc5!important;
+ background:radial-gradient(ellipse at 50% 20%,#431ca65c,transparent 72%),#081734dd!important;
+ border-radius:13px!important;
+}
+#panel-freedom .r30-empty>span,#panel-freedom .r31-empty>span{color:#dc92ff!important;text-shadow:0 0 17px #a84bff!important}
+#panel-freedom .r30-category-list button,#panel-freedom .r31-cat-grid button,
+#panel-freedom .r30-mind button,#panel-freedom .r31-experience-row,
+#panel-freedom .r30-diary-entry,#panel-freedom .r30-vision-cats button{
+ background:linear-gradient(105deg,#0b2149,#0e1b3fd9)!important;
+ border:1px solid #3c5acb9c!important;border-radius:11px!important;
+}
+#panel-freedom .r30-category-list button:hover,#panel-freedom .r31-cat-grid button:hover,
+#panel-freedom .r30-mind button:hover,#panel-freedom .r31-experience-row:hover{
+ border-color:#bf79ff!important;box-shadow:0 0 12px #9556ef55!important;
+}
+#panel-freedom .r30-compose,#panel-freedom .r31-art-studio{
+ background:radial-gradient(ellipse at 80% 25%,#57279070,transparent 60%),linear-gradient(145deg,#0b1c45ed,#070f2bec)!important;
+}
+#panel-freedom .r30-compose-actions .r30-primary,#panel-freedom .r30-primary,#panel-freedom .r31-primary{
+ background:linear-gradient(105deg,#fa60b5,#a442f3 49%,#3e8cfc)!important;
+ border-color:#f7a0ff!important;color:white!important;
+ box-shadow:0 0 18px #a64af182!important;
+}
+#panel-freedom .r30-insp-spot,#panel-freedom .r30-vision-canvas{
+ border:1px solid #724bd7!important;box-shadow:inset 0 0 15px #732cd04a!important;
+}
+#panel-freedom .r30-gallery-grid,#panel-freedom .r31-gallery-grid{max-width:100%!important}
+#panel-freedom .r30-shell,#panel-freedom .r31-shell{overflow-x:clip!important}
+#panel-freedom .r30-content>*,#panel-freedom .r31-content>*{min-width:0!important}
+
+/* Freedom landing cards: same glow; preserve varied cyan / blue / magenta accents. */
+#panel-freedom:not(.freedom-subpage-open) .fd-tile{
+ border:1px solid #6355cc!important;background:linear-gradient(140deg,#0a1a3a,#130f3ddc)!important;
+ box-shadow:inset 0 0 0 1px #67b3f41c,0 0 10px #974cff3b!important;border-radius:15px!important;
+}
+#panel-freedom:not(.freedom-subpage-open) .fd-tile:nth-child(3n+1){border-color:#8a5aea!important}
+#panel-freedom:not(.freedom-subpage-open) .fd-tile:nth-child(3n+2){border-color:#526de1!important}
+#panel-freedom:not(.freedom-subpage-open) .fd-tile:nth-child(3n){border-color:#d55cae!important}
+#panel-freedom:not(.freedom-subpage-open) .fd-tile:hover,
+#panel-freedom:not(.freedom-subpage-open) .fd-tile:focus-visible{
+ transform:translateY(-2px)!important;border-color:#e7a1ff!important;box-shadow:0 0 22px #a14cff9a!important;
+}
+#panel-freedom:not(.freedom-subpage-open) .fd-tile-image img{
+ filter:drop-shadow(0 0 10px #9753ed8a)!important;
+}
+#panel-freedom:not(.freedom-subpage-open) .fd-panel{
+ border-color:#7251c2!important;box-shadow:inset 0 1px #ffffff12,0 0 11px #8149eb26!important;
+}
+
+@media(max-width:760px){
+ #panel-freedom.freedom-subpage-open{padding:0 7px calc(100px + env(safe-area-inset-bottom,0px))!important}
+ #panel-freedom .r30-hero,#panel-freedom .r31-hero{
+  min-height:210px!important;padding:45px 13px 18px!important;border-radius:14px!important;
+ }
+ #panel-freedom .r30-hero-copy,#panel-freedom .r31-hero-copy{
+  max-width:95%!important;margin-top:9px!important;padding-inline:5px!important;
+ }
+ #panel-freedom .r30-hero h1,#panel-freedom .r31-hero h1{font-size:clamp(23px,5.8vw,29px)!important}
+ #panel-freedom .r30-back,#panel-freedom .r31-back{
+  position:absolute!important;top:9px!important;left:9px!important;
+  min-height:35px!important;padding:6px 10px!important;font-size:11px!important;
+ }
+ #panel-freedom .r30-content,#panel-freedom .r31-content{padding:10px 0 20px!important;gap:10px!important}
+ #panel-freedom .r30-tabs,#panel-freedom .r31-tabs{border-radius:13px!important;padding:6px!important;gap:6px!important}
+ #panel-freedom .r30-tabs button,#panel-freedom .r31-tabs button{font-size:11px!important;min-height:38px!important;padding:8px 11px!important}
+ #panel-freedom .r30-panel,#panel-freedom .r31-panel{border-radius:13px!important;padding:11px!important}
+}
+@media(prefers-reduced-motion:reduce){#panel-freedom .r30-shell *,#panel-freedom .r31-shell *{transition:none!important;scroll-behavior:auto!important}}
