@@ -83,7 +83,7 @@
 .lib06-book-picker label{display:grid;gap:8px;font-size:14px}
 .lib06-book-picker select{
  min-height:42px;padding:8px 10px;border:1px solid #ae7c49;border-radius:9px;
- background:#091a24;color:#fff2d7;font:inherit
+ background:#091a24;color:#fff2d7;font-family:inherit;
 }
 /* Canonical editor, status filters and book list still exist, but no longer sit
    as a second, older full library interface beneath the new wooden shelves. */
@@ -205,4 +205,54 @@
 }
 @media(prefers-reduced-motion:reduce){
  #panel-library-shelves #lib02-scene .lib02-custom-case *{animation:none!important;transition:none!important}
+}
+
+/* Final palette audit: no violet accents inside Library—including its inline Pomodoro. */
+#panel-books #lib01-overview .lib01-focus-dial{
+ background:radial-gradient(circle at center,#07131a 0 62%,transparent 64%),conic-gradient(from 20deg,#ffe5a4 0%,#ffbd67 22%,#2dc4bc 42%,#39aab9 67%,#0a2631 88%,#ffe5a4 100%);
+ box-shadow:0 0 25px #f2b86062,inset 0 0 18px #000c;
+}
+#panel-books #lib01-overview .lib01-focus-dial button{
+ border:2px solid #ffe4a7;
+ background:radial-gradient(circle at 30% 20%,#fff0b5,#f4b15b 48%,#be783b 100%);
+ box-shadow:0 0 19px #f7c37778,0 3px 13px #0009;
+ color:#271405;
+}
+#panel-books #lib01-overview .lib01-clip.paper-2{
+ background:linear-gradient(145deg,#fff3ce,#dfc998);
+ color:#3c2b1b;
+}
+#panel-books #lib01-overview .lib01-clip.paper-2 :is(strong,p,small){
+ color:#42341d;
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+ border:1px solid #b68b548c;
+ background:linear-gradient(145deg,#081c28,#111923 63%,#2e1c12);
+ color:#f9e8ca;
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+ filter:sepia(.9) saturate(1.65) hue-rotate(332deg) drop-shadow(0 3px 12px #e5a45235);
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card:hover{
+ border-color:#ffdca3;
+ box-shadow:0 7px 20px #000a,inset 0 0 15px #ae713526;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib06-case-tools button:focus-visible{
+ outline:3px solid #ffe4a1;outline-offset:3px;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-base,
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-divider{
+ background-color:#7f4a21;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book-info{
+ overflow-wrap:anywhere;
+}
+#panel-library-shelves #lib02-scene .lib06-custom-head .lib06-case-tools button[data-lib02-remove-shelf]{
+ color:#ffe1b3;
+ background:linear-gradient(155deg,#422015,#1d1410);
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid{width:100%;max-width:100%}
+ #panel-library-shelves #lib02-scene .lib06-custom-head{gap:10px;justify-content:space-between}
+ #panel-library-shelves #lib02-scene .lib06-case-tools button{min-height:37px;min-width:37px}
 }
