@@ -1,0 +1,37 @@
+name: Fox rewards contracts
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'phase2.js'
+      - 'domain-notifications.js'
+      - 'mission-celebration.js'
+      - 'elara-fox-rewards.js'
+      - 'elara-fox-rewards.css'
+      - 'tests/fox-rewards-contract.test.mjs'
+      - '.github/workflows/fox-rewards-check.yml'
+  pull_request:
+    paths:
+      - 'app.js'
+      - 'phase2.js'
+      - 'domain-notifications.js'
+      - 'mission-celebration.js'
+      - 'elara-fox-rewards.js'
+      - 'tests/fox-rewards-contract.test.mjs'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check app.js
+          node --check phase2.js
+          node --check domain-notifications.js
+          node --check mission-celebration.js
+          node --check elara-fox-rewards.js
+          node tests/fox-rewards-contract.test.mjs
