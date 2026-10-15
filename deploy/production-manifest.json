@@ -242,7 +242,8 @@
     "task-composer-reference-20261015.js",
     "task-mobile-hero-corner-20261015.css",
     "assets/ui/task-header-banner-bg.webp",
-    "assets/ui/daily-streak-background.webp"
+    "assets/ui/daily-streak-background.webp",
+    "task-mobile-toolbar-popup-20261015.css"
   ],
   "files": [
     ".htaccess",
@@ -601,6 +602,7 @@
     "task-composer-reference-20261015.js",
     "task-mobile-hero-corner-20261015.css",
     "assets/ui/task-header-banner-bg.webp",
-    "assets/ui/daily-streak-background.webp"
+    "assets/ui/daily-streak-background.webp",
+    "task-mobile-toolbar-popup-20261015.css"
   ]
 }
