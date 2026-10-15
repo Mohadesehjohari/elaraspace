@@ -7,6 +7,7 @@ on:
       - lib01-library-dashboard.js
       - library-final-walnut-06.css
       - tests/lib06-custom-shelves-browser.mjs
+      - tests/lib02-wooden-shelves-browser.mjs
       - tests/library-stage4-browser.mjs
       - .github/workflows/lib06-custom-walnut.yml
   push:
@@ -17,6 +18,7 @@ on:
       - lib01-library-dashboard.js
       - library-final-walnut-06.css
       - tests/lib06-custom-shelves-browser.mjs
+      - tests/lib02-wooden-shelves-browser.mjs
       - tests/library-stage4-browser.mjs
       - .github/workflows/lib06-custom-walnut.yml
 permissions:
