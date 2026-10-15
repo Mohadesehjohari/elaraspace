@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-label="Elara fox mascot">
+<defs><linearGradient id="coat" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6037b6"/><stop offset=".54" stop-color="#40267d"/><stop offset="1" stop-color="#24134b"/></linearGradient><linearGradient id="cream" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8e6"/><stop offset="1" stop-color="#f4dbba"/></linearGradient><radialGradient id="iris"><stop stop-color="#ffd066"/><stop offset=".52" stop-color="#7e4f9c"/><stop offset="1" stop-color="#20143e"/></radialGradient></defs>
+<g stroke="#221044" stroke-width="5" stroke-linejoin="round">
+<path d="M141 261C87 232 34 245 27 186C5 238 6 311 59 328C110 346 149 313 173 277Z" fill="url(#coat)"/>
+<path d="M36 207C63 244 101 242 141 258L166 277C118 279 95 321 59 303C28 287 25 251 36 207Z" fill="url(#cream)" stroke="none"/>
+<path d="M161 290Q157 224 227 226Q309 225 310 301L296 349Q281 357 266 341L242 307L205 345Q193 360 180 347Z" fill="url(#coat)"/>
+<path d="M155 167Q111 97 107 43Q157 52 206 123Z" fill="url(#coat)"/>
+<path d="M142 135Q125 100 124 73Q161 88 178 131Z" fill="url(#cream)" stroke="none"/>
+<path d="M244 122Q274 53 314 35Q340 108 306 170Z" fill="url(#coat)"/>
+<path d="M276 124Q291 74 304 63Q323 116 293 143Z" fill="url(#cream)" stroke="none"/>
+<path d="M153 116C176 85 226 92 255 105C310 111 337 161 324 220C304 264 247 277 204 269C158 258 124 226 127 182Q128 149 153 116Z" fill="url(#coat)"/>
+<path d="M127 207Q143 181 165 194Q181 174 209 188Q230 206 251 198Q288 174 317 188Q315 247 252 257Q211 273 179 249Q153 253 127 207Z" fill="url(#cream)" stroke="none"/>
+<ellipse cx="174" cy="177" rx="23" ry="31" fill="#fffdfc"/><ellipse cx="265" cy="177" rx="23" ry="31" fill="#fffdfc"/>
+<ellipse cx="177" cy="181" rx="17" ry="25" fill="url(#iris)" stroke="none"/><ellipse cx="262" cy="181" rx="17" ry="25" fill="url(#iris)" stroke="none"/>
+<ellipse cx="173" cy="169" rx="7" ry="9" fill="#fff" stroke="none"/><ellipse cx="258" cy="169" rx="7" ry="9" fill="#fff" stroke="none"/>
+<path d="M210 208Q220 200 230 208Q225 217 219 218Q213 218 210 208Z" fill="#261333"/>
+<path d="M200 222Q220 250 244 221Q227 261 211 244Z" fill="#ed6b7d" stroke-width="3"/>
+<path d="M205 144Q186 132 168 139M248 140Q264 132 280 146" fill="none" stroke="#fff6e8" stroke-width="6" stroke-linecap="round"/>
+<path d="M191 265Q220 283 248 262L266 324Q233 335 214 306Q198 336 180 317Z" fill="url(#cream)" stroke="none"/>
+<path d="M277 270Q302 256 317 228Q349 205 360 228Q368 251 336 267Q321 288 298 294Z" fill="url(#coat)"/>
+<path d="M178 284Q156 277 149 302Q156 328 182 316Z" fill="url(#coat)"/>
+<path d="M179 330Q190 347 204 346L205 361Q175 367 167 354Z" fill="url(#coat)"/>
+<path d="M277 333Q283 348 297 341Q307 356 296 364L273 361Z" fill="url(#coat)"/>
+</g>
+<path d="M214 120Q199 101 215 84Q207 101 219 107Q230 108 236 96Q237 119 214 120Z" fill="#ffd36a"/>
+<path d="M74 225l8 16 18 3-13 12 3 18-16-9-15 9 3-18-13-12 18-3Z" fill="#ffca51" stroke="#f4a51f" stroke-width="3"/>
+<path d="M346 85l7 15 17 2-12 12 3 17-15-8-15 8 3-17-12-12 17-2Z" fill="#ffcf57"/>
+<path d="M361 166l3 7 8 1-6 5 1 8-6-4-6 4 1-8-6-5 8-1Z" fill="#ffd36a"/>
+</svg>

@@ -18,7 +18,7 @@
   const backdrop=make('div','elara-fox-overlay');backdrop.dataset.elaraRewardModal='';const panel=make('section','elara-fox-dialog');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.tabIndex=-1;
   const headingId='elara-fox-heading';panel.setAttribute('aria-labelledby',headingId);
   const x=make('button','elara-fox-close','×');x.type='button';x.setAttribute('aria-label',tx('بستن','Close'));x.onclick=close;panel.append(x);
-  const img=make('img','elara-fox-image');img.src=images[data.image]||images.celebrate;img.alt='';img.width=208;img.height=208;img.decoding='async';panel.append(img);
+  const img=make('img','elara-fox-image');img.src=images[data.image]||images.celebrate;img.alt='';img.width=208;img.height=208;img.decoding='async';img.onerror=()=>{img.onerror=null;img.src='assets/mascot/fox-fallback.svg'};panel.append(img);
   panel.append(make('div','elara-fox-eyebrow',data.eyebrow||'ELARA SPACE'));
   const h=make('h2','',data.title);h.id=headingId;panel.append(h);
   panel.append(make('p','',data.description));
