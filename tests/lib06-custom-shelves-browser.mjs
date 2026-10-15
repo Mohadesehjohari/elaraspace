@@ -51,6 +51,7 @@ try {
   assert.equal(values.editor,true,'canonical editor still available '+width);
   assert.equal(values.collapsed,true,'old duplicate book UI should be collapsed '+width);
   assert.equal(values.oldTags,0,'obsolete chips still present '+width);
+  assert.equal(await page.locator('#lib02-scene .lib02-hero').count(),0,'duplicate old shelf hero must not return '+width);
   for(const bg of values.bg){
    assert.match(bg,/Cinematic(?:%20|\s)Gothic(?:%20|\s)Library(?:%20|\s)Alcove\.webp/,'original wooden image missing '+width);
    assert.doesNotMatch(bg,/library-card-background\.webp/,'purple older image visible '+width);
@@ -83,6 +84,17 @@ try {
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!document.querySelector('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"] [data-lib02-book="lib06-want"]'),null,{timeout:30000});
    assert.equal(await page.locator('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"]').count(),1,'renamed shelf must survive refresh');
+   const removal=page.locator('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"] [data-lib02-remove-shelf]');
+   await removal.click();
+   await page.getByRole('button',{name:'حذف',exact:true}).click();
+   await page.waitForFunction(()=>{
+    const q=JSON.parse(localStorage.getItem('elara_space_v1'));
+    return !q.bookShelves.includes('قفسه من')&&q.books.some(x=>x.id==='lib06-want'&&!x.customShelf);
+   });
+   assert.equal(await page.locator('.lib02-custom-case[data-lib02-custom-shelf="قفسه من"]').count(),0,'deleted custom case persists');
+   assert.ok((await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books)).some(x=>x.id==='lib06-want'),'deletion must never remove actual book');
+   console.log('LIB06_DELETE_SHELF_KEEP_BOOK_PASS');
+
    console.log('LIB06_CREATE_ASSIGN_RENAME_RELOAD_PASS');
    const old=page.locator('#panel-library-shelves .lib06-legacy-tools');
    await old.locator('summary').click();
@@ -91,6 +103,13 @@ try {
   if(width===1440){
    await page.evaluate(()=>window.ElaraOpen('books',{history:'push'}));
    await page.locator('#panel-books:not(.hidden) #lib01-overview').waitFor();
+   const palette=await page.locator('#lib01-overview .lib01-focus-dial').evaluate(el=>{
+     const ring=getComputedStyle(el).backgroundImage;
+     const button=getComputedStyle(el.querySelector('button')).backgroundImage;
+     return {ring,button};
+   });
+   assert.doesNotMatch(palette.ring,/#8656fa|#2a9bff|134, 86, 250|42, 155, 255/i,'purple focus dial persists in library');
+   assert.doesNotMatch(palette.button,/#ab6dff|#4c28dd|171, 109, 255|76, 40, 221/i,'purple focus play button persists in library');
    assert.equal(await page.locator('#lib01-overview [data-lib01-route="library-clips"]').count(),1,'duplicate clips tab');
    assert.equal(await page.locator('#lib01-overview [data-lib01-route="library-shelves"]').count(),1,'duplicate shelves tab');
    for(const route of ['library-clips','library-search','library-reports']){
