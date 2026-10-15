@@ -239,7 +239,10 @@
     "freedom-r31-remaining.js",
     "freedom-r31-remaining.css",
     "task-composer-reference-20261015.css",
-    "task-composer-reference-20261015.js"
+    "task-composer-reference-20261015.js",
+    "task-mobile-hero-corner-20261015.css",
+    "assets/ui/task-header-banner-bg.webp",
+    "assets/ui/daily-streak-background.webp"
   ],
   "files": [
     ".htaccess",
@@ -595,6 +598,9 @@
     "freedom-r31-remaining.js",
     "freedom-r31-remaining.css",
     "task-composer-reference-20261015.css",
-    "task-composer-reference-20261015.js"
+    "task-composer-reference-20261015.js",
+    "task-mobile-hero-corner-20261015.css",
+    "assets/ui/task-header-banner-bg.webp",
+    "assets/ui/daily-streak-background.webp"
   ]
 }
