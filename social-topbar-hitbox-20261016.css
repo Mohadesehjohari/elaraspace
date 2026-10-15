@@ -1,0 +1,27 @@
+/* Social navigation pointer-hitbox fix.
+   The global cinematic-header owner positions Topbar absolutely over route content.
+   On wide Social screens, its full-width box can cover the real Friends tab strip,
+   swallowing pointer clicks even though the tabs are visible. Reserve layout
+   height for the header only on this route; preserve Home/Tasks overlays. */
+@media (min-width:701px){
+ html body .workspace:has(#panel-social:not(.hidden)) > .topbar.ref-topbar,
+ html body.dark .workspace:has(#panel-social:not(.hidden)) > .topbar.ref-topbar{
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:66px!important;
+  min-height:66px!important;
+  max-height:66px!important;
+  z-index:20!important;
+ }
+ html body .workspace:has(#panel-social:not(.hidden)) > #main,
+ html body .workspace:has(#panel-social:not(.hidden)) > main{
+  position:relative!important;
+  z-index:1!important;
+ }
+}
