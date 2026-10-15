@@ -32,7 +32,7 @@ jobs:
           node --check elara-design.js
           node --check feature-hubs-2026.js
           node --check tests/focus05-back-modern-route-browser.mjs
-          ! grep -q "hub(parent," feature-hubs-2026.js
+          ! grep -q "card('focus-pomodoro'" feature-hubs-2026.js
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
