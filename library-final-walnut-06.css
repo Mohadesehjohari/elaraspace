@@ -3,7 +3,7 @@
 :is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports){
  --lib06-night:#071721;--lib06-deep:#091b25;--lib06-walnut:#2e170e;
  --lib06-amber:#f2c47d;--lib06-cream:#ffefcf;--lib06-line:#b5844e85;
- --accent:#f2c47d;--accent-strong:#d89a50;--primary:#ebbd75;--purple:#f2c47d;
+ --elara-accent:#f2c47d;--accent:#f2c47d;--accent-strong:#d89a50;--primary:#ebbd75;--purple:#f2c47d;
  color:#f8edda;accent-color:#ecc17f;
 }
 /* A new custom shelf is a real independent bookcase—not the old small chip/tag. */
