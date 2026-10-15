@@ -1,0 +1,92 @@
+name: LIB-06 Custom Walnut Shelves Final
+on:
+  pull_request:
+    paths:
+      - index.html
+      - lib02-wooden-shelves.js
+      - lib01-library-dashboard.js
+      - library-final-walnut-06.css
+      - tests/lib06-custom-shelves-browser.mjs
+      - tests/library-stage4-browser.mjs
+      - .github/workflows/lib06-custom-walnut.yml
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - lib02-wooden-shelves.js
+      - lib01-library-dashboard.js
+      - library-final-walnut-06.css
+      - tests/lib06-custom-shelves-browser.mjs
+      - tests/library-stage4-browser.mjs
+      - .github/workflows/lib06-custom-walnut.yml
+permissions:
+  contents: read
+jobs:
+  candidate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and original asset presence
+        run: |
+          node --check lib02-wooden-shelves.js
+          node --check lib01-library-dashboard.js
+          node --check tests/lib06-custom-shelves-browser.mjs
+          test -s "assets/ui/Cinematic Gothic Library Alcove.webp"
+          grep -q 'library-final-walnut-06.css' index.html
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Seven responsive custom shelf cases, legacy management and real library routes
+        run: |
+          python3 -m http.server 4173 >/tmp/lib06-http.log 2>&1 &
+          sleep 3
+          timeout 420s node tests/lib06-custom-shelves-browser.mjs
+          timeout 420s node tests/lib02-wooden-shelves-browser.mjs
+          timeout 350s node tests/library-stage4-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib06-candidate-screenshots
+          path: browser-artifacts/lib06/*.png
+          retention-days: 20
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact public files and original full resolution WebP
+        run: |
+          set -euo pipefail
+          good=false
+          for attempt in $(seq 1 85); do
+            good=true
+            for path in index.html lib02-wooden-shelves.js lib01-library-dashboard.js library-final-walnut-06.css "assets/ui/Cinematic Gothic Library Alcove.webp"; do
+              tmp="/tmp/lib06-$(basename "$path")"
+              if ! curl -fLsS --max-time 20 "https://mohadesehjohari.github.io/elaraspace/${path// /%20}?sha=$GITHUB_SHA&attempt=$attempt" -o "$tmp" || ! cmp -s "$path" "$tmp";then good=false;break;fi
+            done
+            if [ "$good" = true ];then echo "LIB06_LIVE_EXACT_BYTES_PASS sha=$GITHUB_SHA";break;fi
+            sleep 8
+          done
+          if [ "$good" != true ];then echo "::error::Published files differ from the merged commit";exit 1;fi
+      - name: Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install chromium
+      - name: Seven live layouts with real canonical book model
+        run: ELARA_TEST_URL=https://mohadesehjohari.github.io/elaraspace timeout 420s node tests/lib06-custom-shelves-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lib06-live-screenshots
+          path: browser-artifacts/lib06/*.png
+          retention-days: 30

@@ -1,0 +1,258 @@
+/* LIB-06 FINAL — only canonical library routes; no duplicated fantasy/purple theme.
+   User's original high-resolution uploaded WebP is reused directly, never re-encoded. */
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports){
+ --lib06-night:#071721;--lib06-deep:#091b25;--lib06-walnut:#2e170e;
+ --lib06-amber:#f2c47d;--lib06-cream:#ffefcf;--lib06-line:#b5844e85;
+ --accent:#f2c47d;--accent-strong:#d89a50;--primary:#ebbd75;--purple:#f2c47d;
+ color:#f8edda;accent-color:#ecc17f;
+}
+/* A new custom shelf is a real independent bookcase—not the old small chip/tag. */
+#panel-library-shelves #lib02-scene .lib02-personal{
+ display:block;min-width:0;margin:20px 0 17px;padding:0;
+ border:0;background:transparent;box-shadow:none;
+}
+#panel-library-shelves #lib02-scene .lib06-personal-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+ margin:0 0 12px;padding:12px 15px;border:1px solid #a67c4d8c;border-radius:13px;
+ background:linear-gradient(135deg,#0a1b23f2,#251810ee);
+ box-shadow:0 9px 23px #0008
+}
+#panel-library-shelves #lib02-scene .lib06-personal-heading h2{
+ color:#ffe1a1;font-size:clamp(16px,1.3vw,21px);margin:0
+}
+#panel-library-shelves #lib02-scene .lib06-personal-heading p{
+ margin:0;font-size:12px;color:#dccbad;line-height:1.6
+}
+#panel-library-shelves #lib02-scene .lib06-custom-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:12px;align-items:stretch;direction:rtl
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case{
+ min-width:0;position:relative;isolation:isolate;
+ padding:10px 10px 17px;border:2px solid #b66a2b;border-radius:11px 11px 4px 4px;
+ background:linear-gradient(90deg,#32180b,#ad5b24 2%,#28130a 4.5%,#170c08 7%,#1f100b 93%,#9e4c1b 97%,#2d1108);
+ box-shadow:inset 0 0 34px #000b,0 0 0 1px #f7a54e2d,0 14px 30px #000d
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case::before{
+ content:"";position:absolute;inset:0 4px;border-inline:1px solid #c4824385;
+ pointer-events:none
+}
+#panel-library-shelves #lib02-scene .lib06-custom-head{
+ min-height:66px;display:flex;justify-content:space-between;
+ gap:7px;flex-wrap:wrap;padding:8px 10px;align-items:center
+}
+#panel-library-shelves #lib02-scene .lib06-custom-head h3{
+ min-width:0;max-width:100%;margin:0;
+ overflow-wrap:anywhere;color:#fff1d4;
+ font-size:clamp(14px,1.22vw,21px);line-height:1.45;font-weight:850
+}
+#panel-library-shelves #lib02-scene .lib06-case-tools{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+#panel-library-shelves #lib02-scene .lib06-case-tools span{
+ border:1px solid #b68549a6;color:#f8dda9;background:#100d0bbf;
+ border-radius:12px;padding:4px 8px;font-size:10px;white-space:nowrap
+}
+#panel-library-shelves #lib02-scene .lib06-case-tools button{
+ display:grid;place-items:center;min-height:31px;min-width:31px;padding:4px 6px;
+ background:linear-gradient(155deg,#50321c,#19170f);border:1px solid #cd975a9f;
+ border-radius:8px;color:#ffe2a5;font-size:17px;line-height:1.2;
+ cursor:pointer;box-shadow:inset 0 1px #ffe3ad32
+}
+#panel-library-shelves #lib02-scene .lib06-case-tools button:hover{
+ background:linear-gradient(155deg,#785027,#342318);border-color:#ffe4a7
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood{
+ min-height:420px;
+ background-color:#241107;
+ background-image:linear-gradient(90deg,rgba(23,8,2,.13),rgba(18,7,2,.04) 50%,rgba(20,8,2,.13)),url("assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp");
+ background-position:center,center;background-size:100% 100%,cover;background-repeat:no-repeat;
+ box-shadow:inset 0 0 22px #0008,inset 0 0 8px #e4875147
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-row{min-height:390px}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-custom{display:none}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book{min-height:137px}
+#panel-library-shelves #lib02-scene .lib06-no-custom{
+ display:grid;justify-items:center;gap:8px;text-align:center;padding:32px 13px;
+ border-radius:14px;border:1px dashed #ad7f48a4;
+ background:linear-gradient(150deg,#111c22f0,#2c180fea)
+}
+#panel-library-shelves #lib02-scene .lib06-no-custom span{font-size:27px;color:#ffd692}
+#panel-library-shelves #lib02-scene .lib06-no-custom p{
+ color:#e1d0b5;font-size:13px;line-height:1.8;margin:0
+}
+.lib06-book-picker{display:grid;gap:13px;min-width:min(460px,78vw);color:#f6e6cd}
+.lib06-book-picker label{display:grid;gap:8px;font-size:14px}
+.lib06-book-picker select{
+ min-height:42px;padding:8px 10px;border:1px solid #ae7c49;border-radius:9px;
+ background:#091a24;color:#fff2d7;font-family:inherit;
+}
+/* Canonical editor, status filters and book list still exist, but no longer sit
+   as a second, older full library interface beneath the new wooden shelves. */
+#panel-library-shelves > .lib06-legacy-tools{
+ display:block;min-width:0;clear:both;margin:16px 0 24px;
+ border:1px solid #a9814f8a;border-radius:14px;
+ background:linear-gradient(145deg,#081924ec,#28190fee);
+ box-shadow:0 7px 19px #0009;color:#f8e9d2;
+}
+#panel-library-shelves > .lib06-legacy-tools > summary{
+ padding:14px 17px;cursor:pointer;list-style-position:inside;
+ color:#ffe1a0;font-size:clamp(13px,1.1vw,16px);font-weight:800
+}
+#panel-library-shelves > .lib06-legacy-tools > summary:hover{
+ background:#4e301a44;border-radius:13px
+}
+#panel-library-shelves > .lib06-legacy-tools .lib06-legacy-body{
+ display:grid;gap:13px;padding:14px;border-top:1px solid #a9814f70
+}
+#panel-library-shelves .lib06-legacy-tools :is(.library-enhancement-tools,#book-form,.bookshelf-filter,#book-list){
+ min-width:0;border-color:#b3895980;background:linear-gradient(150deg,#0b1b25,#21180fee);
+ color:#faead0;border-radius:12px
+}
+#panel-library-shelves .lib06-legacy-tools .library-enhancement-tools{
+ display:grid;gap:10px;padding:14px
+}
+#panel-library-shelves .lib06-legacy-tools :is(input,select,textarea){
+ background:#0b2028;color:#fff3de;border-color:#937950;accent-color:#f2c47d
+}
+/* Unified walnut/amber palette across overview, clips, search, reports and book management. */
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(.elara-card,.surface,.card,.lib01-card,.library-clips,.library-clips-grid .library-clip-card,.library-search-launch,.library-report-live,.library-enhancement-tools){
+ border-color:#9873488f;
+ color:#fbefdb;
+}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(.elara-card,.surface,.library-clip-card,.library-search-launch,.library-report-live){
+ background:linear-gradient(150deg,#081b25f2,#151b1df4 60%,#2d1b10ee);
+ box-shadow:0 10px 25px #0008,inset 0 1px #ffe4ae12
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(h1,h2,h3){text-shadow:0 2px 8px #0009}
+:is(#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(.feature-subpage-head,.library-clips > header){
+ border-color:#ae8548a6;color:#ffefcd
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(button.primary-button,button[type="submit"],.lib01-add){
+ color:#302010!important;border:1px solid #fbe1a7!important;
+ background:linear-gradient(125deg,#ffe6b2,#e9af5b)!important;
+ box-shadow:inset 0 1px #fff3ce,0 3px 11px #0007
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(.quiet-button,.feature-back,.lib01-tab,.library-shelf-chip button){
+ border-color:#b58a528e;color:#ffe9c1;
+ background:linear-gradient(125deg,#081d29,#2b1b11)
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(input,select,textarea){
+ accent-color:#f2c47d;border-color:#907751;
+}
+:is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
+:is(a,button,[role="button"]):focus-visible{
+ outline:3px solid #ffdc8d;outline-offset:3px
+}
+#panel-books #lib01-overview :is(.lib01-tab.is-current,.lib01-add){
+ color:#352211!important;background:linear-gradient(125deg,#ffe4a5,#ebb15c)!important;
+ border-color:#ffe4a8!important
+}
+#panel-books #lib01-overview .lib01-shelves{
+ background-image:linear-gradient(90deg,#0c100d92,#0c1b22d9),url("assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp");
+ background-position:center;background-size:cover
+}
+#panel-books #lib01-overview :is(.lib01-card,.lib01-stat,.lib01-clips,.lib01-tasks,.lib01-report){
+ background-color:#091a22;border-color:#a9824a78
+}
+#panel-books #lib01-overview .lib01-ring{
+ background:conic-gradient(#ffdb90 calc(var(--lib01-progress,0) * 1%),#16535a 0);
+}
+#panel-books #lib01-overview :is(.lib01-status,.lib01-focus,.lib01-report) :is(h2,strong){
+ color:#fff0cc
+}
+#panel-library-clips :is(.library-clip-card,.library-clips-grid article){
+ border-color:#b38b56a6;background:#101e25;color:#faebd5
+}
+#panel-library-clips :is(.library-clip-card .clip-tag,.library-clips .clip-label){color:#ffcf86}
+#panel-library-reports :is(.library-report-live,.library-report-live canvas,.reading-stats){
+ border-color:#ae8750aa;color:#ffedd0
+}
+#panel-library-search .library-search-launch{
+ border-color:#c191529f;color:#ffebc8
+}
+/* Render at reference breakpoints; custom cases remain visible on phones,
+   unlike the hidden non-selected canonical status bookcases. */
+@media(min-width:701px) and (max-width:1150px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book{
+  grid-template-columns:minmax(62px,80px) minmax(0,1fr);gap:7px
+ }
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid{grid-template-columns:1fr;gap:14px}
+ #panel-library-shelves #lib02-scene .lib02-custom-case{display:block;width:100%;padding:11px 11px 18px}
+ #panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood{min-height:330px}
+ #panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-row{min-height:300px}
+ #panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book{
+  grid-template-columns:clamp(82px,26vw,125px) minmax(0,1fr);
+  gap:12px;min-height:157px;padding:10px 20px 16px 7px
+ }
+ #panel-library-shelves #lib02-scene .lib06-personal-heading{padding:12px}
+ #panel-library-shelves #lib02-scene .lib06-personal-heading h2{font-size:18px}
+ #panel-library-shelves #lib02-scene .lib06-custom-head h3{font-size:17px}
+ #panel-library-shelves .lib06-legacy-tools .lib06-legacy-body{padding:9px}
+}
+@media(max-width:355px){
+ #panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book{
+  grid-template-columns:78px minmax(0,1fr);gap:7px
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-library-shelves #lib02-scene .lib02-custom-case *{animation:none!important;transition:none!important}
+}
+
+/* Final palette audit: no violet accents inside Library—including its inline Pomodoro. */
+#panel-books #lib01-overview .lib01-focus-dial{
+ background:radial-gradient(circle at center,#07131a 0 62%,transparent 64%),conic-gradient(from 20deg,#ffe5a4 0%,#ffbd67 22%,#2dc4bc 42%,#39aab9 67%,#0a2631 88%,#ffe5a4 100%);
+ box-shadow:0 0 25px #f2b86062,inset 0 0 18px #000c;
+}
+#panel-books #lib01-overview .lib01-focus-dial button{
+ border:2px solid #ffe4a7;
+ background:radial-gradient(circle at 30% 20%,#fff0b5,#f4b15b 48%,#be783b 100%);
+ box-shadow:0 0 19px #f7c37778,0 3px 13px #0009;
+ color:#271405;
+}
+#panel-books #lib01-overview .lib01-clip.paper-2{
+ background:linear-gradient(145deg,#fff3ce,#dfc998);
+ color:#3c2b1b;
+}
+#panel-books #lib01-overview .lib01-clip.paper-2 :is(strong,p,small){
+ color:#42341d;
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+ border:1px solid #b68b548c;
+ background:linear-gradient(145deg,#081c28,#111923 63%,#2e1c12);
+ color:#f9e8ca;
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+ filter:sepia(.9) saturate(1.65) hue-rotate(332deg) drop-shadow(0 3px 12px #e5a45235);
+}
+#panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card:hover{
+ border-color:#ffdca3;
+ box-shadow:0 7px 20px #000a,inset 0 0 15px #ae713526;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib06-case-tools button:focus-visible{
+ outline:3px solid #ffe4a1;outline-offset:3px;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-base,
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood-divider{
+ background-color:#7f4a21;
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-book-info{
+ overflow-wrap:anywhere;
+}
+#panel-library-shelves #lib02-scene .lib06-custom-head .lib06-case-tools button[data-lib02-remove-shelf]{
+ color:#ffe1b3;
+ background:linear-gradient(155deg,#422015,#1d1410);
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid{width:100%;max-width:100%}
+ #panel-library-shelves #lib02-scene .lib06-custom-head{gap:10px;justify-content:space-between}
+ #panel-library-shelves #lib02-scene .lib06-case-tools button{min-height:37px;min-width:37px}
+}
