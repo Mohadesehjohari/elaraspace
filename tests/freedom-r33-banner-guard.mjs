@@ -42,6 +42,7 @@ try{
    assert.equal(q.globalVisible,0,kind+' has no extra global banner '+JSON.stringify(q));
    assert.equal(q.ownVisible,1,kind+' has exactly one visible detail hero');
    assert.ok(q.docWidth<=q.viewport+3,kind+' no horizontal page overflow');
+   await p.evaluate(()=>document.getElementById('r33-regression-global-hero')?.remove());
    await p.locator('#panel-freedom .r30-back,#panel-freedom .r31-back').click();
    await p.waitForFunction(()=>!document.querySelector('#panel-freedom .freedom-subpage-shell'),null,{timeout:15000});
    await p.evaluate(()=>{window.ElaraGlobalBanners.refresh()});
@@ -53,8 +54,6 @@ try{
    });
    assert.equal(home.detail,false,'back clears detail mode');
    assert.equal(home.visible,1,'primary Freedom banner returns on back navigation');
-   // Cleanup injected fallback banner before opening the next detail view.
-   await p.evaluate(()=>document.getElementById('r33-regression-global-hero')?.remove());
    await p.evaluate(()=>window.ElaraGlobalBanners.refresh());
   }
   assert.deepEqual(errors,[],width+' no JavaScript runtime errors');
