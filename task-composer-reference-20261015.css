@@ -367,3 +367,37 @@ html body #task-composer-shell#task-composer-shell :is(button,input,select,texta
 html body.elara-task-modal-open>#elara-dialog-root:not(.hidden){
  z-index:2147483400!important
 }
+
+/* The descriptions are primary inputs, not hidden behind the settings accordion.
+   They now follow the title, before folder/list/date/priority. */
+html body #task-composer-shell#task-composer-shell #task-form>.task-description-fields{
+ display:grid!important;grid-template-columns:1fr!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ order:0!important;gap:10px!important;margin:0!important;
+ padding:12px!important;border:1px solid #386eb4!important;border-radius:17px!important;
+ background:linear-gradient(145deg,#0f2650dd,#091b3eea)!important;
+ box-sizing:border-box!important;
+}
+html body #task-composer-shell#task-composer-shell #task-form>.task-description-fields label{
+ display:grid!important;gap:7px!important;font-size:14px!important;color:#dcdeff!important;font-weight:850!important;
+}
+html body #task-composer-shell#task-composer-shell #task-form>.task-description-fields textarea{
+ box-sizing:border-box!important;min-height:73px!important;resize:vertical!important;
+}
+html body #task-composer-shell#task-composer-shell #task-form #task-description{
+ min-height:118px!important;
+}
+@media(max-width:640px){
+ html body #task-composer-shell#task-composer-shell #task-form>.form-row{
+  grid-template-columns:85px minmax(0,1fr)!important;
+ }
+ html body #task-composer-shell#task-composer-shell #task-form>.form-row>#task-submit{
+  grid-column:1 / -1!important;width:100%!important;
+  min-height:59px!important;height:59px!important;
+  padding:9px 16px!important;border-radius:17px!important;
+  font-size:18px!important;box-shadow:0 0 20px #9854ff88!important;
+ }
+ html body #task-composer-shell#task-composer-shell #task-form>.task-description-fields{
+  padding:12px 10px!important;gap:10px!important;
+ }
+}
