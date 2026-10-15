@@ -121,8 +121,8 @@ try {
    });
    assert.doesNotMatch(palette.ring,/#8656fa|#2a9bff|134, 86, 250|42, 155, 255/i,'purple focus dial persists in library');
    assert.doesNotMatch(palette.button,/#ab6dff|#4c28dd|171, 109, 255|76, 40, 221/i,'purple focus play button persists in library');
-   assert.equal(await page.locator('#lib01-overview .lib01-tabs .lib01-tab[data-lib01-route="library-clips"]').count(),1,'duplicate clips tab');
-   assert.equal(await page.locator('#lib01-overview .lib01-tabs .lib01-tab[data-lib01-route="library-shelves"]').count(),1,'duplicate shelves tab');
+   assert.equal(await page.locator('#lib01-overview .lib01-shortcuts .lib01-tab[data-lib01-route="library-clips"]').count(),1,'duplicate clips tab');
+   assert.equal(await page.locator('#lib01-overview .lib01-shortcuts .lib01-tab[data-lib01-route="library-shelves"]').count(),1,'duplicate shelves tab');
    for(const route of ['library-clips','library-search','library-reports']){
     await page.evaluate(x=>window.ElaraOpen(x,{history:'push'}),route);
     await page.locator('#panel-'+route+':not(.hidden)').waitFor();
