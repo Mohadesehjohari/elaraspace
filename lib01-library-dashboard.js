@@ -109,7 +109,13 @@ document.addEventListener('click',e=>{
  const route=e.target.closest('#lib01-overview [data-lib01-route]');
  if(route){e.preventDefault();window.ElaraOpen?.(route.dataset.lib01Route,{history:'push'});return}
  const add=e.target.closest('#lib01-overview [data-lib01-add]');
- if(add){e.preventDefault();window.ElaraOpen?.('library-shelves',{history:'push'});setTimeout(()=>$('#book-title')?.focus(),150);return}
+ if(add){
+  e.preventDefault();window.ElaraOpen?.('library-shelves',{history:'push'});
+  setTimeout(()=>{const button=$('#lib02-scene [data-lib02-add]');if(button)button.click();
+   else {const tools=$('#panel-library-shelves > .lib06-legacy-tools');if(tools)tools.open=true;$('#book-title')?.focus({preventScroll:true})}
+  },180);
+  return;
+ }
  const bookmark=e.target.closest('#lib01-overview [data-lib01-bookmark]');
  if(bookmark){
   e.preventDefault();const s=state(),bs=Array.isArray(s.books)?s.books:[],i=bs.findIndex(b=>String(b.id)===bookmark.dataset.lib01Bookmark);
