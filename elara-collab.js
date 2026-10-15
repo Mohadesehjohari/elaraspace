@@ -195,12 +195,62 @@ function mountWordShareControl(){
  select.innerHTML='<option value="">'+tx('فقط لایتنر من','My Leitner only')+'</option>'+rows.map(p=>'<option value="'+esc(p.uid)+'">'+tx('من + ','Me + ')+esc(p.name||p.username||tx('دوست','Friend'))+'</option>').join('');
  if(rows.some(p=>p.uid===current))select.value=current
 }
-let syncTimer=null,progressCache=new Map();
+// Share task definitions from the owner while keeping completion/checklist progress
+// personal to each participant. Membership and access remain governed by Firestore.
+let syncTimer=null,progressCache=new Map(),taskPayloadCache=new Map(),taskSubscriptions=new Map();
+function applySharedTaskSnapshot(spaceId,space){
+ if(space?.kind!=='task'||space.ownerUid===me())return;
+ let incoming;try{incoming=payloadFor('task',JSON.parse(space.payloadJson||'{}'))}catch{return}
+ const state=readLocal(),row=state.tasks.find(t=>t?.collabSpaceId===spaceId);
+ if(!row)return;
+ const oldChecks=new Map((Array.isArray(row.checklist)?row.checklist:[]).map(x=>[String(x.id),!!x.done]));
+ incoming.checklist=incoming.checklist.map(item=>({...item,done:oldChecks.get(String(item.id))||false}));
+ let changed=false;
+ for(const key of ['text','shortDescription','description','date','time','priority','list','folder','tag','dailyTarget','recurrenceRule','sourceGroup','checklist']){
+  if(JSON.stringify(row[key]??null)!==JSON.stringify(incoming[key]??null)){row[key]=incoming[key];changed=true}
+ }
+ if(changed)writeLocal(state);
+}
+function maintainTaskSubscriptions(){
+ const uid=me();
+ if(!uid||!auth.currentUser?.emailVerified){
+  for(const off of taskSubscriptions.values())try{off()}catch{}
+  taskSubscriptions.clear();return;
+ }
+ const needed=new Set(readLocal().tasks.filter(t=>t?.collabSpaceId&&t.collabRole==='member').map(t=>String(t.collabSpaceId)));
+ for(const [key,off] of taskSubscriptions)if(!needed.has(key)){try{off()}catch{}taskSubscriptions.delete(key)}
+ for(const key of needed)if(!taskSubscriptions.has(key)){
+  const off=onSnapshot(doc(db,'collabSpaces',key),snap=>{if(snap.exists()&&me()===uid)applySharedTaskSnapshot(key,snap.data())},error=>{
+   if(error?.code!=='permission-denied')console.warn('Shared task stream:',error?.code||error?.message)
+  });
+  taskSubscriptions.set(key,off);
+ }
+}
+async function syncOwnedTaskPayload(uid,task){
+ if(task.collabRole!=='owner'||task.collabOwnerUid!==uid)return;
+ const key=String(task.collabSpaceId),payloadJson=JSON.stringify(payloadFor('task',task)),title=entityTitle('task',task);
+ if(payloadJson.length>12000||taskPayloadCache.get(key)===payloadJson)return;
+ const ref=doc(db,'collabSpaces',key);
+ try{
+  const existing=await getDoc(ref);
+  if(!existing.exists()||existing.data()?.ownerUid!==uid||existing.data()?.kind!=='task')return;
+  if(existing.data().payloadJson!==payloadJson||existing.data().title!==title)
+   await updateDoc(ref,{payloadJson,title,updatedAt:serverTimestamp()});
+  taskPayloadCache.set(key,payloadJson);
+ }catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Shared task content:',error?.code||error?.message)}
+}
 async function syncProgress(){
  const uid=me();if(!uid||!auth.currentUser?.emailVerified)return;const s=readLocal(),sets=[['task',s.tasks],['habit',s.habits],['goal',s.goals],['language-class',s.languageClasses],['leitner-word',s.words]];
- for(const [kind,rows] of sets)for(const row of rows){if(!row?.collabSpaceId)continue;const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;if(progressCache.get(row.collabSpaceId)===key)continue;try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}}
+ for(const [kind,rows] of sets)for(const row of rows){
+  if(!row?.collabSpaceId)continue;
+  if(kind==='task')await syncOwnedTaskPayload(uid,row);
+  const p=progressFor(kind,row),key=row.collabSpaceId+'|'+p.completed+'|'+p.total+'|'+p.percent;
+  if(progressCache.get(row.collabSpaceId)===key)continue;
+  try{await updateDoc(doc(db,'collabSpaces',String(row.collabSpaceId),'members',uid),{localEntityId:String(row.id||''),progressCompleted:p.completed,progressTotal:p.total,progressPercent:p.percent,updatedAt:serverTimestamp()});progressCache.set(row.collabSpaceId,key)}
+  catch(error){if(error?.code!=='permission-denied'&&error?.code!=='not-found')console.warn('Elara collab progress:',error.code||error.message)}
+ }
 }
-function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncProgress(),700)}
+function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>{maintainTaskSubscriptions();void syncProgress()},700)}
 async function handleJoinFromUrl(){
  const url=new URL(location.href),token=url.searchParams.get('elaraJoin');if(!token||!auth.currentUser?.emailVerified)return;
  try{const ok=await window.ElaraDialog.confirm(tx('به این فضای مشترک اضافه شوی؟','Join this shared space?'),{title:tx('دعوت همکاری','Collaboration invite'),confirmText:tx('عضو می‌شوم','Join')});if(ok){await joinLink(token);window.ElaraNotify?.push?.({type:'social',title:tx('عضویت انجام شد 🤝','Joined 🤝'),message:tx('مورد مشترک به فضای تو اضافه شد.','The shared item was added to your space.'),dedupeKey:'collab-join:'+token})}}catch(error){await window.ElaraDialog.alert(error.message||String(error),{title:tx('عضویت انجام نشد','Could not join')})}finally{url.searchParams.delete('elaraJoin');history.replaceState(history.state,'',url.pathname+(url.searchParams.toString()?'?'+url.searchParams.toString():'')+url.hash)}
@@ -217,7 +267,7 @@ for(const ev of ['elara:data-changed','elara:state-committed','elara:collab-loca
 onAuthStateChanged(auth,user=>{stopInviteRealtime();if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
 window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified){startInviteRealtime(user.uid);setTimeout(()=>{void handleJoinFromUrl();mountWordShareControl();scheduleSync()},100)}});
 window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
-window.addEventListener('elara:logout',stopInviteRealtime);
+window.addEventListener('elara:logout',()=>{stopInviteRealtime();for(const off of taskSubscriptions.values())try{off()}catch{}taskSubscriptions.clear();taskPayloadCache.clear();progressCache.clear()});
 setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
 window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};

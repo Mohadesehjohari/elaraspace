@@ -15,6 +15,20 @@ const time=ms=>ms?new Date(ms).toLocaleTimeString(document.documentElement.lang=
 const date=ms=>ms?new Date(ms).toLocaleDateString(document.documentElement.lang==='en'?'en-US':'fa-IR',{month:'long',day:'numeric'}):'';
 const num=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
 let generation=0,threadVersion=0,stop=null,active='',conversations=[],query='',filter='all',chooseNew=false,busy=false,sessionOwner='';
+let stopInbox=null,inboxOwner='',inboxTimer=null,pendingInboxRefresh=false;
+function unwatchInbox(){try{stopInbox?.()}catch{}stopInbox=null;inboxOwner='';clearTimeout(inboxTimer);pendingInboxRefresh=false}
+function queueInboxRefresh(){
+ clearTimeout(inboxTimer);
+ if(!root())return;
+ if(busy||document.activeElement?.matches?.('.social-chat-compose textarea')){pendingInboxRefresh=true;return}
+ pendingInboxRefresh=false;inboxTimer=setTimeout(()=>void mount(),160);
+}
+function watchInbox(){
+ if(inboxOwner===owner()&&stopInbox)return;
+ unwatchInbox();if(!me()||!api()?.watchInbox)return;
+ inboxOwner=owner();
+ stopInbox=api().watchInbox(queueInboxRefresh,err=>status(String(err?.message||err)));
+}
 function root(){const r=document.getElementById('elara-social-page');return r?.querySelector('[data-social-view="chats"][aria-selected="true"]')?r:null}
 function section(){return root()?.querySelector('.social-dm-section')}
 function person(id){return conversations.find(x=>x.other===id)?.person||friend(id)||{uid:id,name:t('دوست','Friend')}}
@@ -54,10 +68,11 @@ async function showThread(s,id){stopThread();const version=threadVersion,host=s.
  if(version!==threadVersion||!host.isConnected)return;
  try{stop=api().listen(id,arr=>{if(version!==threadVersion||!host.isConnected)return;messageRender(messages,arr);if(arr.some(m=>m.sender!==me()?.uid))Promise.resolve(api().markRead?.(id)).catch(()=>{})},err=>{if(host.isConnected)info.textContent=String(err?.message||err)})}catch(error){info.textContent=String(error?.message||error)}
 }
-async function mount(){const r=root(),service=api();if(!r||!service){stopThread();document.querySelector('#elara-social-page .social-dm-section')?.remove();return}const grid=r.querySelector('.social-reference-grid');if(!grid)return;
+async function mount(){const r=root(),service=api();if(!r||!service){stopThread();unwatchInbox();document.querySelector('#elara-social-page .social-dm-section')?.remove();return}const grid=r.querySelector('.social-reference-grid');if(!grid)return;
  let s=grid.querySelector('.social-dm-section');if(!s){s=document.createElement('section');s.className='elara-card social-section social-dm-section';s.dataset.elaraI18n='off';grid.prepend(s)}
  const token=++generation;if(sessionOwner!==owner()){sessionOwner=owner();active='';conversations=[];query='';filter='all';chooseNew=false;stopThread()}
- if(!me()){s.innerHTML='<div class="dm-loading">'+ico('shield')+'<h2>'+t('برای گفتگو وارد حساب شو','Sign in to chat')+'</h2></div>';return}
+ if(!me()){unwatchInbox();s.innerHTML='<div class="dm-loading">'+ico('shield')+'<h2>'+t('برای گفتگو وارد حساب شو','Sign in to chat')+'</h2></div>';return}
+  watchInbox();
  if(!s.querySelector('.dm-voyage'))s.innerHTML='<div class="dm-loading">'+ico('chat')+'<p>'+t('در حال بارگذاری گفتگوها...','Loading chats...')+'</p></div>';
  try{const data=await service.list();if(token!==generation||!s.isConnected)return;conversations=(Array.isArray(data)?data:[]).filter(row=>{const hidden=Number(window.ElaraProfileRelations?.hiddenAt?.(row.other)||0);if(!hidden)return true;if(Number(row.updatedAt||0)>hidden){window.ElaraProfileRelations?.clearHidden?.(row.other);return true}return false});}
  catch(error){if(token===generation&&s.isConnected)s.innerHTML='<div class="dm-loading"><h2>'+t('خطا در بارگذاری گفتگوها','Chats failed to load')+'</h2><p>'+esc(error?.message||error)+'</p><button type="button" class="dm-primary" data-dm-retry>'+t('تلاش دوباره','Retry')+'</button></div>';return}
@@ -81,8 +96,9 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-social-ope
 });
 document.addEventListener('input',e=>{if(e.target.matches('[data-dm-search]')){query=e.target.value;applyFilters()}if(e.target.matches('.social-chat-compose textarea')){if(active)putDraft(active,e.target.value);e.target.style.height='auto';e.target.style.height=Math.min(128,e.target.scrollHeight)+'px'}});
 document.addEventListener('keydown',e=>{if(e.target.matches('.social-chat-compose textarea')&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();e.target.form?.requestSubmit()}});
+document.addEventListener('focusout',e=>{if(e.target.matches?.('.social-chat-compose textarea')&&pendingInboxRefresh)queueInboxRefresh()});
 document.addEventListener('submit',async e=>{const f=e.target.closest('.social-chat-compose');if(!f)return;e.preventDefault();if(busy||!eligible(active))return;const field=f.elements.text,value=field.value.trim(),id=active;if(!value)return;busy=true;const b=f.querySelector('[type="submit"]');b.disabled=true;status(t('در حال ارسال...','Sending...'));
- try{await api().send(id,value);field.value='';putDraft(id,'');window.ElaraProfileRelations?.clearHidden?.(id);status('');void mount()}catch(error){status(String(error?.message||error))}finally{busy=false;if(b.isConnected)b.disabled=false}});
+ try{await api().send(id,value);field.value='';putDraft(id,'');window.ElaraProfileRelations?.clearHidden?.(id);status('');void mount()}catch(error){status(String(error?.message||error))}finally{busy=false;if(b.isConnected)b.disabled=false;if(pendingInboxRefresh)queueInboxRefresh()}});
 for(const n of ['elara:social-tab-changed','elara:social-updated','elara:presence-updated','elara:chat-hidden','elara:locale-changed','elara:logout'])window.addEventListener(n,()=>setTimeout(mount,60));
 window.addEventListener('hashchange',()=>setTimeout(mount,120));
 const observer=new MutationObserver(()=>{if(document.getElementById('elara-social-page')){observer.disconnect();setTimeout(mount,60)}});if(!document.getElementById('elara-social-page'))observer.observe(document.documentElement,{subtree:true,childList:true});

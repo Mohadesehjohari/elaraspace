@@ -21,7 +21,12 @@ async function resolveUsernameIdentity(value){
  const username=normalizeUsername(value);if(!usernameValid(username))throw Error('نام کاربری معتبر وارد کن.');
  const claim=await getDoc(doc(db,'usernames',username));if(!claim.exists())throw Error('این نام کاربری پیدا نشد.');
  const claimedUid=String(claim.data()?.uid||'');if(!claimedUid)throw identityIntegrityError('claim-uid-missing','شاخص نام کاربری شناسهٔ مالک معتبر ندارد.');
- let profileSnap;try{profileSnap=await getDoc(doc(db,'profiles',claimedUid))}catch(error){if(error?.code==='permission-denied')throw identityIntegrityError('profile-verification-denied','برای امنیت، مالک این نام کاربری قابل تأیید نبود.');throw error}
+ let profileSnap;try{profileSnap=await getDoc(doc(db,'profiles',claimedUid))}catch(error){
+  // A private profile is deliberately inaccessible until a friend request exists.
+  // Username claims are owner-bound; verify the canonical profile after the request.
+  if(error?.code==='permission-denied')return {uid:claimedUid,username,profile:{username,name:username},self:claimedUid===uid,verifyAfterRequest:true};
+  throw error
+ }
  if(!profileSnap.exists())throw identityIntegrityError('claim-profile-missing','این شاخص به پروفایل موجودی اشاره نمی‌کند.');
  const profileData=profileSnap.data(),canonical=normalizeUsername(profileData?.username);
  if(canonical!==username)throw identityIntegrityError('claim-profile-mismatch','شاخص @'+username+' با نام کاربری canonical پروفایل مقصد همخوان نیست؛ پروفایل باز نشد.');
@@ -198,10 +203,14 @@ function acceptedFriend(other){return !!uid&&!blockedByMe(other)&&state.friends.
 async function ensureDm(other){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
  if(!acceptedFriend(other))throw Error('گفتگوی خصوصی فقط بین دوستان تأییدشده فعال است.');
- const id=dmId(other),ref=doc(db,'conversations',id),snap=await getDoc(ref);
- if(!snap.exists()){
-  const members=[uid,other].sort();
+ const id=dmId(other),ref=doc(db,'conversations',id),members=[uid,other].sort();
+ // A missing DM cannot be read under participant-only rules: create first.
+ try{
   await setDoc(ref,{kind:'dm',members,createdBy:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''});
+ }catch(error){
+  if(error?.code!=='permission-denied'&&error?.code!=='already-exists')throw error;
+  let existing;try{existing=await getDoc(ref)}catch{throw error}
+  if(!existing.exists()||existing.data()?.kind!=='dm'||JSON.stringify(existing.data()?.members)!==JSON.stringify(members))throw error;
  }
  return id;
 }
@@ -231,12 +240,20 @@ async function sendDm(other,value){
  const text=String(value||'').trim();if(!text)throw Error('پیام خالی ارسال نمی‌شود.');if(text.length>2000)throw Error('پیام باید حداکثر ۲۰۰۰ نویسه باشد.');
  const cid=await ensureDm(other),now=Date.now(),previous=dmLastSend.get(cid)||0;if(now-previous<550)throw Error('پیام‌ها را کمی آهسته‌تر بفرست.');
  const messages=collection(db,'conversations',cid,'messages');
- await addDoc(messages,{sender:uid,text,createdAt:serverTimestamp()});
- await updateDoc(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});dmLastSend.set(cid,Date.now());
+ // Atomic delivery of message and its inbox preview.
+ const batch=writeBatch(db);
+ batch.set(doc(messages),{sender:uid,text,createdAt:serverTimestamp()});
+ batch.update(doc(db,'conversations',cid),{lastText:text.slice(0,280),lastSender:uid,updatedAt:serverTimestamp()});
+ await batch.commit();dmLastSend.set(cid,Date.now());
  window.ElaraNotify?.push?.({type:'social',title:'پیام ارسال شد',message:'پیامت رفت 🚀',dedupeKey:'dm-sent:'+cid+':'+Date.now()});
  return cid;
 }
-window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm,markRead:markDmRead};
+function watchDmInbox(onChange,onError){
+ if(!uid||!auth.currentUser?.emailVerified)return()=>{};
+ const owner=uid;
+ return onSnapshot(query(collection(db,'conversations'),where('members','array-contains',owner)),()=>{if(uid===owner&&auth.currentUser?.uid===owner)onChange?.()},error=>onError?.(error));
+}
+window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm,markRead:markDmRead,watchInbox:watchDmInbox};
 
 const groupFriendIds=()=>new Set(state.friends.map(p=>p.uid));
 async function createGroup(title,members=[]){
@@ -547,6 +564,13 @@ async function addFriend(value){
    // Firestore get rule cannot authorize a missing resource; direct setDoc lets create
    // rules validate first-time requests and update rules handle legacy declined docs.
    await setDoc(doc(db,'friendRequests',request.id),{from:uid,to,status:'pending'});
+   if(identity.verifyAfterRequest){
+    const verified=await getDoc(doc(db,'profiles',to));
+    if(!verified.exists()||normalizeUsername(verified.data()?.username)!==username){
+     await deleteDoc(doc(db,'friendRequests',request.id)).catch(()=>{});
+     throw identityIntegrityError('request-profile-mismatch','نام کاربری با پروفایل مقصد مطابقت ندارد.')
+    }
+   }
    state.requests=[...state.requests.filter(r=>r.id!==request.id),request];render();
    await refresh();return to;
  }catch(error){

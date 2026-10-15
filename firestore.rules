@@ -1065,6 +1065,30 @@ service cloud.firestore {
           )
         );
       allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
+
+      // A participant may only write their OWN completion state; both may read progress
+      // once the recipient explicitly accepts. Other wellness data is never exposed.
+      match /progress/{participantUid} {
+        function sharePath() {
+          return /databases/$(database)/documents/wellnessFolderShares/$(shareId);
+        }
+        function acceptedParticipant() {
+          return signed() && exists(sharePath())
+            && get(sharePath()).data.status == 'accepted'
+            && (get(sharePath()).data.ownerUid == request.auth.uid
+              || get(sharePath()).data.friendUid == request.auth.uid);
+        }
+        allow get, list: if acceptedParticipant();
+        allow create, update: if acceptedParticipant()
+          && participantUid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid','doneIds','updatedAt'])
+          && request.resource.data.keys().hasAll(['uid','doneIds','updatedAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.doneIds is list
+          && request.resource.data.doneIds.size() <= 90
+          && request.resource.data.updatedAt == request.time;
+        allow delete: if acceptedParticipant() && participantUid == request.auth.uid;
+      }
     }
 
     match /collabSpaces/{spaceId} {

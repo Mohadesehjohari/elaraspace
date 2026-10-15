@@ -18,7 +18,7 @@ function localFolder(uid,kind,folderId){
 }
 function snapshotFolder(f,kind,ownerUid){
  let defaultDays=[];try{const state=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+ownerUid)||'{}');defaultDays=state[kind+'PlanMeta']?.days||[]}catch{}
- const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done}))};
+ const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map((c,i)=>({id:String(c.id||'legacy-'+i).slice(0,110),text:String(c.text||'').slice(0,180),done:!!c.done}))};
  const json=JSON.stringify(value);if(json.length>27000)throw Error(tx('حجم این پوشه برای اشتراک خیلی زیاد است.','This folder exceeds the sharing limit.'));return json;
 }
 function panel(html,title){
@@ -32,7 +32,7 @@ function panel(html,title){
  overlay.querySelector('[data-wellshare-close]')?.focus({preventScroll:true});
  return overlay
 }
-function close(){if(!dialog)return;document.removeEventListener('keydown',dialog.__key,true);dialog.remove();dialog=null;document.body.style.overflow=priorOverflow}
+function close(){if(!dialog)return;try{dialog.__dispose?.()}catch{}document.removeEventListener('keydown',dialog.__key,true);dialog.remove();dialog=null;document.body.style.overflow=priorOverflow}
 function msg(root,value,error=false){const e=root?.querySelector('.wellshare-message');if(e){e.textContent=value;e.classList.toggle('is-error',error)}}
 async function shareFolder(kind,folderId){
  let x,folder,existing=null;
@@ -47,10 +47,11 @@ async function shareFolder(kind,folderId){
  const html='<p class="wellshare-description">'+tx('فقط همین پوشه و محتوای برنامه برای دوستی که انتخاب می‌کنی فرستاده می‌شود؛ اطلاعات وزن و سایر برنامه‌ها خصوصی می‌مانند. دوستت باید دعوت را بپذیرد.','Only this folder is shared; other wellness information stays private. Your friend must accept.')+'</p>'+
  (existing?'<p class="wellshare-current">'+tx('وضعیت فعلی: ','Current status: ')+esc(existing.status==='accepted'?'پذیرفته شده':existing.status==='declined'?'رد شده':'در انتظار پذیرش')+'</p>':'')+
  (rows.length?'<fieldset class="wellshare-friends"><legend>'+tx('یک دوست انتخاب کن','Choose one friend')+'</legend>'+rows.map((f,i)=>'<label><input type="radio" name="wellshare-friend" value="'+esc(f.uid)+'" '+((existing?existing.friendUid===f.uid:i===0)?'checked':'')+'><span><strong>'+esc(f.name||f.username||tx('دوست','Friend'))+'</strong><small>'+esc(f.username?'@'+f.username:'')+'</small></span></label>').join('')+'</fieldset>':'<p class="wellshare-empty">'+tx('دوست تأییدشده‌ای برای انتخاب وجود ندارد.','No accepted friends are available.')+'</p>')+
- '<div class="wellshare-actions">'+(rows.length?'<button class="wellshare-primary" type="button" data-wellshare-send>'+tx('اشتراک با دوست','Share with friend')+'</button>':'')+(existing?'<button class="wellshare-danger" type="button" data-wellshare-revoke>'+tx('لغو اشتراک','Revoke access')+'</button>':'')+'<button type="button" data-wellshare-close>'+tx('بستن','Close')+'</button></div><p class="wellshare-message" role="status"></p>';
+ '<div class="wellshare-actions">'+(rows.length?'<button class="wellshare-primary" type="button" data-wellshare-send>'+tx('اشتراک با دوست','Share with friend')+'</button>':'')+(existing&&existing.status==='accepted'?'<button type="button" data-wellshare-open-shared>'+tx('اجرای مشترک برنامه','Open shared plan')+'</button>':'')+(existing?'<button class="wellshare-danger" type="button" data-wellshare-revoke>'+tx('لغو اشتراک','Revoke access')+'</button>':'')+'<button type="button" data-wellshare-close>'+tx('بستن','Close')+'</button></div><p class="wellshare-message" role="status"></p>';
  const overlay=panel(html,title);
  const content=overlay.querySelector('.wellshare-content');
  overlay.addEventListener('click',async e=>{
+  if(e.target.closest('[data-wellshare-open-shared]')){close();await openReceived(shareId(x.user.uid,kind,folderId));return}
   if(e.target.closest('[data-wellshare-send]')){
    const target=content.querySelector('[name=wellshare-friend]:checked')?.value;
    if(!target||!rows.some(f=>f.uid===target)){msg(content,tx('یکی از دوستان را انتخاب کن.','Select a friend.'),true);return}
@@ -82,14 +83,79 @@ async function refresh(){
   }catch(err){shareError=err;if(loadedUid){received=[];loadedUid='';lastFingerprint='';window.dispatchEvent(new Event('elara:wellness-shares-updated'))}if(err?.code!=='permission-denied')console.warn('Wellness shares:',err?.message||err)}
  })().finally(()=>{loading=null});return loading
 }
+// Keep incoming invites and accepted folders current without a manual refresh.
+let stopReceived=null,receivedWatcherUid='';
+function stopReceivedWatch(){try{stopReceived?.()}catch{}stopReceived=null;receivedWatcherUid=''}
+async function watchReceived(){
+ let x;try{x=await signed()}catch{return}
+ if(receivedWatcherUid===x.user.uid&&stopReceived)return;
+ stopReceivedWatch();receivedWatcherUid=x.user.uid;
+ const inbox=x.fs.query(x.fs.collection(x.db,collectionName),x.fs.where('friendUid','==',x.user.uid));
+ stopReceived=x.fs.onSnapshot(inbox,snap=>{
+  if(x.auth.currentUser?.uid!==x.user.uid)return;
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>kinds.includes(r.kind)&&r.friendUid===x.user.uid);
+  const fingerprint=JSON.stringify(rows.map(r=>[r.id,r.status,r.title,r.updatedAt?.seconds||0,r.payloadJson]));
+  const previous=new Set(received.filter(r=>r.status==='pending').map(r=>r.id));
+  received=rows;loadedUid=x.user.uid;shareError=null;
+  if(fingerprint!==lastFingerprint){
+   lastFingerprint=fingerprint;window.dispatchEvent(new Event('elara:wellness-shares-updated'));
+   for(const r of rows.filter(r=>r.status==='pending'&&!previous.has(r.id))){
+    window.ElaraNotify?.push?.({type:'social',title:tx('دعوت برنامه مشترک','Shared plan invite'),message:r.title||tx('پوشه ورزشی','Wellness folder'),dedupeKey:'wellshare-invite:'+r.id,reopen:true});
+   }
+  }
+ },error=>{shareError=error;console.warn('Wellness invite stream:',error?.code||error?.message);window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
+}
 function receivedFolders(kind){return received.filter(r=>r.kind===kind&&r.status==='accepted').map(r=>({id:r.id,title:r.title,ownerUid:r.ownerUid}))}
-function readPayload(row){try{const d=JSON.parse(row.payloadJson||'{}');return{title:String(d.title||row.title||'').slice(0,80),programName:String(d.programName||'').slice(0,100),description:String(d.description||'').slice(0,5000),note:String(d.note||'').slice(0,5000),days:Array.isArray(d.days)?d.days.filter(x=>days.includes(x)||x==='همه روزها').slice(0,9):[],checks:Array.isArray(d.checks)?d.checks.slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done})):[]}}catch{return null}}
+function readPayload(row){try{const d=JSON.parse(row.payloadJson||'{}');return{title:String(d.title||row.title||'').slice(0,80),programName:String(d.programName||'').slice(0,100),description:String(d.description||'').slice(0,5000),note:String(d.note||'').slice(0,5000),days:Array.isArray(d.days)?d.days.filter(x=>days.includes(x)||x==='همه روزها').slice(0,9):[],checks:Array.isArray(d.checks)?d.checks.slice(0,90).map((c,i)=>({id:String(c.id||'legacy-'+i).slice(0,110),text:String(c.text||'').slice(0,180),done:!!c.done})):[]}}catch{return null}}
+// Each participant records their own checklist progress; plan edits and progress stream live.
 async function openReceived(id){
- try{const x=await signed(),snap=await x.fs.getDoc(x.fs.doc(x.db,collectionName,id));if(!snap.exists())throw Error('این اشتراک دیگر وجود ندارد.');
- const share=snap.data();if(share.friendUid!==x.user.uid||share.status!=='accepted')throw Error('به این پوشه دسترسی نداری.');
- const f=readPayload(share);if(!f)throw Error('محتوای پوشه معتبر نیست.');
- panel('<p class="wellshare-description">'+tx('این پوشه فقط برای مشاهده با تو مشترک شده است.','This folder is shared with you as read-only.')+'</p><h3>'+esc(f.programName||f.title)+'</h3><div class="wellshare-view-grid"><section><h4>توضیحات برنامه</h4><div class="wellshare-prose" data-elara-ugc dir="auto">'+esc(f.description||'توضیحی ثبت نشده است.').replace(/\n/g,'<br>')+'</div></section><section><h4>روزهای هفته</h4><div class="wellshare-days">'+days.map(d=>'<span class="'+(f.days.includes(d)||f.days.includes('همه روزها')?'active':'')+'">'+d+'</span>').join('')+'</div></section><section><h4>تسک‌ها</h4><ul class="wellshare-checks">'+f.checks.map(c=>'<li><span aria-hidden="true">'+(c.done?'☑':'□')+'</span><span>'+esc(c.text)+'</span></li>').join('')+'</ul></section><section><h4>یادداشت‌ها</h4><div class="wellshare-prose" data-elara-ugc dir="auto">'+esc(f.note||'یادداشتی ثبت نشده است.').replace(/\n/g,'<br>')+'</div></section></div>',f.title);
- }catch(e){window.ElaraDialog?.alert?.(e.message||String(e),{title:'پوشه مشترک'});void refresh()}
+ try{
+  const x=await signed(),ref=x.fs.doc(x.db,collectionName,String(id)),snap=await x.fs.getDoc(ref);
+  if(!snap.exists())throw Error(tx('این اشتراک دیگر وجود ندارد.','This share no longer exists.'));
+  const share=snap.data(),isOwner=share.ownerUid===x.user.uid;
+  if(!isOwner&&share.friendUid!==x.user.uid)throw Error(tx('به این پوشه دسترسی نداری.','Access denied.'));
+  if(share.status!=='accepted')throw Error(tx('ابتدا دعوت باید پذیرفته شود.','The invitation must be accepted first.'));
+  let liveShare=share,folder=readPayload(share),progress={},saving=false,revoked=false;
+  if(!folder)throw Error(tx('محتوای پوشه معتبر نیست.','Invalid shared folder.'));
+  const overlay=panel('<p class="wellshare-description">'+tx('هر نفر چک‌لیست خودش را تکمیل می‌کند؛ پیشرفت هر دو نفر هم‌زمان دیده می‌شود.','Each friend checks off their own tasks; progress updates live for both.')+'</p><div data-wellshare-live></div><p class="wellshare-message" role="status"></p>',folder.title);
+  function render(){
+   if(!overlay.isConnected||!folder)return;
+   const otherUid=isOwner?liveShare.friendUid:liveShare.ownerUid;
+   const own=Array.isArray(progress[x.user.uid]?.doneIds)?progress[x.user.uid].doneIds:(isOwner?folder.checks.filter(c=>c.done).map(c=>c.id):[]);
+   const other=Array.isArray(progress[otherUid]?.doneIds)?progress[otherUid].doneIds:[];
+   const a=new Set(own),b=new Set(other),items=folder.checks,valid=new Set(items.map(c=>c.id));
+   overlay.querySelector('[data-wellshare-live]').innerHTML='<h3 data-elara-ugc dir="auto">'+esc(folder.programName||folder.title)+'</h3>'+
+    '<div class="wellshare-view-grid"><section><h4>'+tx('توضیحات برنامه','Plan details')+'</h4><div class="wellshare-prose" data-elara-ugc dir="auto">'+esc(folder.description||tx('توضیحی ثبت نشده است.','No description.')).replace(/\n/g,'<br>')+'</div></section>'+
+    '<section><h4>'+tx('روزهای هفته','Weekdays')+'</h4><div class="wellshare-days">'+days.map(d=>'<span class="'+(folder.days.includes(d)||folder.days.includes('همه روزها')?'active':'')+'">'+d+'</span>').join('')+'</div></section></div>'+
+    '<section class="wellshare-team"><h4>'+tx('انجام برنامه با دوست','Do the plan together')+'</h4><p class="wellshare-team-count">'+tx('من','Me')+': '+[...a].filter(k=>valid.has(k)).length+'/'+items.length+' · '+tx('دوستم','Friend')+': '+[...b].filter(k=>valid.has(k)).length+'/'+items.length+'</p>'+
+    '<ul class="wellshare-checks">'+items.map(item=>'<li class="wellshare-team-item"><label><input type="checkbox" data-wellshare-toggle="'+esc(item.id)+'" '+(a.has(item.id)?'checked':'')+(revoked?' disabled':'')+'><span data-elara-ugc dir="auto">'+esc(item.text)+'</span></label><small>'+tx('دوستم','Friend')+': '+(b.has(item.id)?'✓':'○')+'</small></li>').join('')+'</ul></section>'+
+    '<section><h4>'+tx('یادداشت‌ها','Notes')+'</h4><div class="wellshare-prose" data-elara-ugc dir="auto">'+esc(folder.note||'').replace(/\n/g,'<br>')+'</div></section>';
+  }
+  const unsubscribeShare=x.fs.onSnapshot(ref,newSnap=>{
+   if(!newSnap.exists()||newSnap.data()?.status!=='accepted'||(newSnap.data()?.ownerUid!==x.user.uid&&newSnap.data()?.friendUid!==x.user.uid)){
+    revoked=true;msg(overlay,tx('اشتراک بسته یا لغو شده است.','The share was revoked or closed.'),true);
+    overlay.querySelectorAll('[data-wellshare-toggle]').forEach(el=>el.disabled=true);return;
+   }
+   liveShare=newSnap.data();folder=readPayload(liveShare);if(folder)render();
+  },error=>msg(overlay,error.message||String(error),true));
+  const unsubscribeProgress=x.fs.onSnapshot(x.fs.collection(ref,'progress'),progressSnap=>{
+   progress={};progressSnap.docs.forEach(d=>{progress[d.id]=d.data()});render();
+  },error=>msg(overlay,error.message||String(error),true));
+  overlay.__dispose=()=>{unsubscribeShare();unsubscribeProgress()};
+  overlay.addEventListener('change',async e=>{
+   const input=e.target.closest('[data-wellshare-toggle]');
+   if(!input||saving||revoked||!folder)return;
+   const valid=new Set(folder.checks.map(c=>c.id)),mine=x.user.uid;
+   const saved=progress[mine]?.doneIds,initial=Array.isArray(saved)?saved:(isOwner?folder.checks.filter(c=>c.done).map(c=>c.id):[]);
+   const next=new Set(initial.filter(k=>valid.has(k)));
+   if(input.checked)next.add(input.dataset.wellshareToggle);else next.delete(input.dataset.wellshareToggle);
+   const prior=progress[mine];progress[mine]={uid:mine,doneIds:[...next]};render();saving=true;
+   try{await x.fs.setDoc(x.fs.doc(ref,'progress',mine),{uid:mine,doneIds:[...next].slice(0,90),updatedAt:x.fs.serverTimestamp()});msg(overlay,'')}
+   catch(error){progress[mine]=prior;render();msg(overlay,error.message||String(error),true)}
+   finally{saving=false}
+  });
+  render();
+ }catch(e){window.ElaraDialog?.alert?.(e.message||String(e),{title:tx('پوشه مشترک','Shared folder')});void refresh()}
 }
 async function openInbox(){
  let x;try{x=await signed();await refresh();if(shareError)throw Error(shareError.code==='permission-denied'?tx('قوانین اشتراک پوشه هنوز روی Firestore منتشر نشده‌اند یا دسترسی این حساب مجاز نیست.','Folder-sharing Firestore rules are not deployed or access is denied.'):shareError.message)}catch(e){window.ElaraDialog?.alert?.(e.message||String(e));return}
@@ -125,9 +191,9 @@ document.addEventListener('click',e=>{
 });
 window.addEventListener('elara:wellness-saved',e=>{if(e.detail?.workoutPlanFolders)void syncOwned('workout');if(e.detail?.nutritionPlanFolders)void syncOwned('nutrition')});
 window.addEventListener('elara:open',e=>{if(['exercise','wellness-exercise'].includes(e.detail?.tab))setTimeout(()=>void refresh(),150)});
-window.addEventListener('elara:account-ready',()=>setTimeout(()=>void refresh(),550));
+window.addEventListener('elara:account-ready',()=>setTimeout(()=>{void refresh();void watchReceived()},550));
 window.addEventListener('elara:social-updated',()=>void refresh());
-window.addEventListener('elara:logout',()=>{received=[];loadedUid='';lastFingerprint='';shareError=null;close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
+window.addEventListener('elara:logout',()=>{stopReceivedWatch();received=[];loadedUid='';lastFingerprint='';shareError=null;close();window.dispatchEvent(new Event('elara:wellness-shares-updated'))});
 window.ElaraWellnessShare={shareFolder,openInbox,openReceived,receivedFolders,refresh,syncOwned};
-setTimeout(()=>void refresh(),1300);
+setTimeout(()=>{void refresh();void watchReceived()},1300);
 })();
