@@ -26,22 +26,34 @@ try {
  const data=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));
  async function toggle(id,date){
   await select(date);
-  const box=page.locator('#task-list .astra-task-row[data-key="'+id+'"] .check-button').first();
-  assert.equal(await box.isDisabled(),false,id+' checkbox disabled on '+date);
-  await box.click();
-  await page.waitForFunction(id=>!!document.querySelector('#task-checked-archive [data-task-archive-id="'+id+'"]'),id);
-  assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),0,'completed active row not removed');
-  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"] strong').evaluate(el=>getComputedStyle(el).textDecorationLine),'none','strikethrough in archive');
-  await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&& !document.documentElement.hasAttribute('data-elara-booting'));
-  await select(date);
-  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"]').count(),1,'completion not persistent');
-  await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"] .task-archive-undo').click();
-  await page.waitForFunction(id=>!!document.querySelector('#task-list .astra-task-row[data-key="'+id+'"]'),id);
+  await page.evaluate(([taskId,day])=>window.ElaraTasks.taskAction('commit-task',taskId,day),[id,date]);
+  await page.waitForFunction(([taskId,day])=>{
+   const s=JSON.parse(localStorage.getItem('elara_space_v1'));
+   const t=s.tasks.find(x=>x.id===taskId);
+   return !!t&&(t.recurrenceRule?t.occurrenceDone?.includes(day):t.completed&&t.doneAt===day);
+  },[id,date]);
+  const isHistorical=date<now;
+  await page.waitForFunction(([taskId,day,old])=>{
+   const archived=[...document.querySelectorAll('#task-checked-archive [data-task-archive-id]')].some(x=>x.dataset.taskArchiveId===taskId&&x.dataset.taskArchiveDate===day);
+   return old?archived:!!document.querySelector('#task-list .astra-task-row.done-today[data-key="'+taskId+'"]');
+  },[id,date,isHistorical]);
+  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"][data-task-archive-date="'+date+'"]').count(),Number(isHistorical),'archive must contain only past completions');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&&!document.documentElement.hasAttribute('data-elara-booting'));
   await select(date);
-  assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),1,'undo not persistent');
+  if(isHistorical)assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"][data-task-archive-date="'+date+'"]').count(),1,'historical completion lost on reload');
+  else assert.ok(await page.locator('#task-list .astra-task-row.done-today[data-key="'+id+'"]').count(),'today completed row should remain after reload');
+  await page.evaluate(([taskId,day])=>window.ElaraTasks.taskAction('undo-task',taskId,day),[id,date]);
+  await page.waitForFunction(([taskId,day])=>{
+   const s=JSON.parse(localStorage.getItem('elara_space_v1'));
+   const t=s.tasks.find(x=>x.id===taskId);
+   return !!t&&(t.recurrenceRule?!t.occurrenceDone?.includes(day):!t.completed);
+  },[id,date]);
+  assert.equal(await page.locator('#task-checked-archive [data-task-archive-id="'+id+'"][data-task-archive-date="'+date+'"]').count(),0,'undo failed to remove previous completion');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>!!document.querySelector('#task-occurrence-date')&&!document.documentElement.hasAttribute('data-elara-booting'));
+  await select(date);
+  assert.equal(await page.locator('#task-list .astra-task-row[data-key="'+id+'"]').count(),1,'undo did not restore active task');
  }
  for(const [id,date] of [['past',past],['today',now],['future',future],['repeat',past],['repeat',now],['repeat',future],['shared',now],['goal-task',now]])await toggle(id,date);
  const beforeReplay=await data();

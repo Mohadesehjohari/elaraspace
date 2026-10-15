@@ -1,0 +1,54 @@
+name: Freedom R30 Four Reference Pages
+on:
+  push:
+    branches:
+      - freedom-r30-four-reference-dashboards-20261015
+  pull_request:
+    paths:
+      - 'freedom-r30-pages.js'
+      - 'freedom-r30-pages.css'
+      - 'freedom-enhancements.js'
+      - 'boot.js'
+      - 'index.html'
+      - 'deploy/production-manifest.json'
+      - 'tests/freedom-r30-browser.mjs'
+      - '.github/workflows/freedom-r30-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax and production assets
+        run: |
+          node --check freedom-r30-pages.js
+          node --check freedom-enhancements.js
+          node --check boot.js
+          node --check tests/freedom-r30-browser.mjs
+          node -e "let m=require('./deploy/production-manifest.json');for(let f of ['freedom-r30-pages.js','freedom-r30-pages.css']){if(!m.files.includes(f)||!m.required.includes(f))process.exit(1)}"
+          for n in 'Ideas.webp' 'Inspirations.webp' 'Vision_Board.webp' 'free_notes.webp' 'banner_dream_tree.webp' 'banner_new_dawn.webp'; do test -s "assets/ui/$n"; done
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve candidate
+        run: |
+          python3 -m http.server 4173 >/tmp/freedom-r30.log 2>&1 &
+          sleep 2
+      - name: Verify four reference pages and persistence on eight widths
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 400s node tests/freedom-r30-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: freedom-r30-mobile-desktop-references
+          path: browser-artifacts/freedom-r30-*.png
+          retention-days: 14
+          if-no-files-found: warn

@@ -3,7 +3,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'task-single-row-20261015.css'
+      - 'deploy/production-manifest.json'
       - 'task-cross-links-20261012.js'
+      - 'task-single-row-20261015.css'
       - 'task-layout-hotfix-20261012.css'
       - 'tests/task-meta-nonoverlap-browser.mjs'
       - '.github/workflows/task-meta-nonoverlap.yml'
@@ -30,6 +33,8 @@ jobs:
           node --check task-cross-links-20261012.js
           node --check tests/task-meta-nonoverlap-browser.mjs
           test -s task-layout-hotfix-20261012.css
+          test -s task-single-row-20261015.css
+          node tests/deployment-contract.test.mjs
       - name: Install Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0

@@ -49,41 +49,28 @@ function syncState(){
 }
 function markup(){
  const cfg=read();
- return `<section id="focus-ambience" class="focus-ambience surface" data-elara-i18n="off" data-mode="${cfg.mode}">
-  <div class="focus-garden" aria-hidden="true">
-   <span class="focus-sun"></span><span class="focus-cloud c1"></span><span class="focus-cloud c2"></span>
-   <span class="focus-tree"><i class="trunk"></i><i class="crown crown-a"></i><i class="crown crown-b"></i><i class="crown crown-c"></i></span>
-   <span class="focus-hill hill-a"></span><span class="focus-hill hill-b"></span>
-   <span class="flower f1">✿</span><span class="flower f2">✿</span><span class="flower f3">✿</span><span class="flower f4">✿</span><span class="flower f5">✿</span>
-   <span class="focus-butterfly">⌁</span>
-  </div>
-  <div class="focus-ambience-copy"><small>FOCUS AMBIENCE</small><h2>${t('فضای آرام پومودورو','Pomodoro ambience')}</h2><p>${t('برای تمرکز، یک صدای خیلی ملایم و منظرهٔ بهاری انتخاب کن.','Choose a gentle soundscape and a spring scene for focus.')}</p></div>
+ return `<section id="focus-ambience" class="focus-ambience focus-inline-ambience" data-elara-i18n="off" data-mode="${cfg.mode}">
   <div class="focus-ambience-modes" role="group" aria-label="${t('انتخاب صدای محیطی','Choose ambience')}">
-   <button type="button" data-ambience-mode="quiet">🤫 <span>${t('ساکت','Quiet')}</span></button>
-   <button type="button" data-ambience-mode="rain">🌧️ <span>${t('باران','Rain')}</span></button>
-   <button type="button" data-ambience-mode="forest">🌿 <span>${t('جنگل','Forest')}</span></button>
-   <button type="button" data-ambience-mode="tone">🎧 <span>Focus Tone</span></button>
+   <button type="button" data-ambience-mode="quiet"><span class="focus-inline-icon">◌</span><span>${t('سکوت','Silence')}</span></button>
+   <button type="button" data-ambience-mode="rain"><span class="focus-inline-icon">☂</span><span>${t('باران','Rain')}</span></button>
+   <button type="button" data-ambience-mode="forest"><span class="focus-inline-icon">♧</span><span>${t('صدای جنگل','Forest sounds')}</span></button>
+   <button type="button" data-ambience-mode="tone"><span class="focus-inline-icon">♫</span><span>${t('موسیقی تمرکز','Focus tone')}</span></button>
   </div>
   <div class="focus-ambience-controls">
-   <button type="button" class="primary-button" data-ambience-play aria-pressed="false">${t('پخش صدا','Play sound')}</button>
-   <label>${t('صدا','Volume')} <input data-ambience-volume type="range" min="0" max="100" step="1" value="${cfg.volume}"></label>
-   <span>${t('اکنون:','Now:')} <strong data-ambience-now></strong></span>
+   <button type="button" data-ambience-play aria-pressed="false">${t('پخش صدا','Play sound')}</button>
+   <label>${t('بلندی صدا','Volume')} <input data-ambience-volume type="range" min="0" max="100" step="1" value="${cfg.volume}"></label>
+   <span>${t('در حال انتخاب:','Selected:')} <strong data-ambience-now></strong></span>
   </div>
-  <p class="focus-ambience-note">${t('صدا فقط بعد از لمس/کلیک شما فعال می‌شود و چیزی به سرور ارسال نمی‌شود.','Audio starts only after your click/tap and nothing is sent to a server.')}</p>
+  <p class="focus-ambience-note">${t('صدا پس از کلیک شما شروع می‌شود.','Audio begins after your click.')}</p>
  </section>`
 }
-function focusOwner(){
- const focus=document.getElementById('panel-focus'),books=document.getElementById('panel-books'),dedicated=document.getElementById('panel-focus-ambience'),pomodoro=document.getElementById('panel-focus-pomodoro');
- const card=focus?.querySelector('.focus-card')||pomodoro?.querySelector('.focus-card')||books?.querySelector('.focus-card')||document.querySelector('#ref-library-focus .focus-card');
- const panel=dedicated||card?.closest('#panel-focus,#panel-books,#panel-focus-pomodoro')||focus||books;
- return{panel,card,dedicated}
-}
 function mount(){
- const {panel,card,dedicated}=focusOwner();if(!panel||!card)return false;
+ const pomodoro=document.getElementById('panel-focus-pomodoro');
+ const card=pomodoro?.querySelector('.focus-ref-ambience');
+ if(!card)return false;
  let root=document.getElementById('focus-ambience');
- if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild;if(dedicated)dedicated.append(root);else{const history=panel.querySelector('.focus-history-card'),libraryFocus=card.closest('#ref-library-focus');if(libraryFocus)libraryFocus.insertAdjacentElement('afterend',root);else history?history.insertAdjacentElement('beforebegin',root):card.insertAdjacentElement('afterend',root)}}
- else if(dedicated&&root.parentElement!==dedicated)dedicated.append(root);
- else if(!dedicated&&root.parentElement!==panel&&!root.closest('#ref-library-focus')){const libraryFocus=card.closest('#ref-library-focus');libraryFocus?libraryFocus.insertAdjacentElement('afterend',root):card.insertAdjacentElement('afterend',root)}
+ if(!root){const wrap=document.createElement('div');wrap.innerHTML=markup();root=wrap.firstElementChild}
+ if(root.parentElement!==card)card.append(root);
  syncState();return true
 }
 document.addEventListener('click',e=>{
@@ -92,15 +79,21 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(!e.target.matches('[data-ambience-volume]'))return;write({volume:Number(e.target.value)});syncVolume();syncState()});
 let mountTimer=0,observer=null;
-function ensureMounted(delay=0){clearTimeout(mountTimer);mountTimer=setTimeout(()=>{if(!document.getElementById('focus-ambience'))mount();},delay)}
+function ensureMounted(delay=0){clearTimeout(mountTimer);mountTimer=setTimeout(()=>{mount();},delay)}
 window.addEventListener('elara:locale-changed',()=>{document.getElementById('focus-ambience')?.remove();ensureMounted(0)});
-window.addEventListener('elara:open',e=>{if(e.detail?.tab==='focus')ensureMounted(40)});
-window.addEventListener('hashchange',()=>{if(location.hash==='#focus')ensureMounted(40)});
+window.addEventListener('elara:open',e=>{
+ if(e.detail?.tab==='focus-ambience'){window.ElaraOpen?.('focus-pomodoro',{history:'replace'});ensureMounted(40);return}
+ if(e.detail?.tab==='focus-pomodoro'||e.detail?.tab==='focus')ensureMounted(40)
+});
+window.addEventListener('hashchange',()=>{
+ if(location.hash==='#focus-ambience'){window.ElaraOpen?.('focus-pomodoro',{history:'replace'});return}
+ if(location.hash==='#focus-pomodoro')ensureMounted(40)
+});
 window.addEventListener('elara:data-changed',()=>ensureMounted(25));
 window.addEventListener('elara:state-committed',()=>ensureMounted(25));
 window.addEventListener('elara:boot-watchdog',()=>ensureMounted(0));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing&&ctx?.state==='running')void ctx.suspend();else if(!document.hidden&&playing&&ctx?.state==='suspended')void ctx.resume()});
-const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const {panel,card}=focusOwner();if(panel&&card&&!document.getElementById('focus-ambience'))ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
+const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const card=document.querySelector('#panel-focus-pomodoro .focus-ref-ambience');if(card&&document.getElementById('focus-ambience')?.parentElement!==card)ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
 window.ElaraFocusAmbience={read,start:startAudio,stop:stopAudio,mount,get playing(){return playing}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

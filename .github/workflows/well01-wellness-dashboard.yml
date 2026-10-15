@@ -12,6 +12,8 @@ on:
       - well01-wellness-dashboard.css
       - approved-wellness.js
       - wellness-reference-popups-20261012.js
+      - wellness-folder-sharing.js
+      - tests/firestore-rules-emulator.mjs
       - wellness-reference-popups-20261012.css
       - tests/wellness-notes-browser.mjs
       - tests/well01-wellness-dashboard-browser.mjs
@@ -39,12 +41,26 @@ jobs:
           node --check boot.js
           node --check approved-wellness.js
           node --check well01-wellness-dashboard.js
+          node --check wellness-reference-popups-20261012.js
+          node --check wellness-folder-sharing.js
           node --check tests/well01-wellness-dashboard-browser.mjs
           node tests/wellness-analysis.test.cjs
           test -s assets/ui/workout_banner_main.webp
           test -s assets/ui/health-fitness-card-background.webp
-          if git diff --name-only origin/main...HEAD | grep -E '^(firestore.rules|storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js)$'; then
+          if git diff --name-only origin/main...HEAD | grep -E '^(storage.rules|firestore.indexes.json|cloud.js|elara-social.js|app.js|mobile-ia-2026-10-05.css|mobile-ia-2026-10-05.js|approved-navigation-extension.js|feature-hubs-2026.js)$'; then
             echo "::error::Protected shared modules were touched"; exit 1
+          fi
+          # This feature adds exactly one isolated Firestore collection.
+          if git diff --name-only origin/main...HEAD | grep -q '^firestore.rules$'; then
+            node - <<'NODE'
+          const fs=require('node:fs');
+          const assert=require('node:assert/strict');
+          const base=fs.readFileSync('baseline/firestore.rules','utf8');
+          const now=fs.readFileSync('firestore.rules','utf8');
+          const newSection=/\n    \/\/ One private wellness plan folder[\s\S]*?(?=    match \/collabSpaces\/\{spaceId\} \{)/;
+          assert.match(now,newSection);
+          assert.equal(now.replace(newSection,''),base,'Existing Firestore rules must be preserved');
+          NODE
           fi
       - name: Install Chromium
         run: |

@@ -1,0 +1,302 @@
+/* ELARA / NEON LAVENDER — opt-in appearance layer.
+   IMPORTANT: Every visual selector is gated by data-elara-theme="violet".
+   The existing Default appearance and every other accent remain untouched.
+   Load this stylesheet AFTER the page-owner stylesheets in index.html. */
+
+body[data-elara-theme="violet"] {
+  --neon-lilac:#b994ff;
+  --neon-violet:#8957ff;
+  --neon-blue:#40a6ff;
+  --neon-cyan:#49d6ff;
+  --neon-glow:rgba(165,96,255,.25);
+  --neon-ink:#f5efff;
+  --neon-panel:linear-gradient(155deg,rgba(18,30,73,.96),rgba(17,11,47,.97));
+  --neon-raised:linear-gradient(140deg,rgba(32,32,88,.97),rgba(15,21,57,.97));
+  --neon-field:linear-gradient(180deg,rgba(3,13,37,.98),rgba(7,17,45,.98));
+  --neon-outline:rgba(159,117,255,.67);
+  --neon-halo:0 0 0 1px rgba(84,163,255,.16),0 10px 32px rgba(1,2,26,.28),0 0 22px rgba(140,72,255,.12);
+  --bg:#06091c !important;
+  --surface:#121638 !important;
+  --surface2:#20204d !important;
+  --border:#6558bf !important;
+  --input:#07152f !important;
+  --text:#f5efff !important;
+  --muted:#b9b2e6 !important;
+  --accent:#bb91ff !important;
+  --accent2:#4dbdff !important;
+  --elara-accent:#bb91ff !important;
+  --shadow:0 16px 46px rgba(4,0,38,.45) !important;
+  color-scheme:dark;
+  background:radial-gradient(ellipse at 78% 0%,rgba(113,58,213,.38),transparent 32%),
+    radial-gradient(ellipse at 14% 34%,rgba(39,102,226,.22),transparent 37%),
+    linear-gradient(158deg,#050c28 0%,#0c0b2b 53%,#05081a 100%) fixed !important;
+  color:var(--text);
+}
+body[data-elara-theme="violet"].light {
+  --neon-lilac:#8554d4;
+  --neon-violet:#7440d8;
+  --neon-blue:#276bdf;
+  --neon-cyan:#167bbb;
+  --neon-glow:rgba(128,82,207,.17);
+  --neon-ink:#24113e;
+  --neon-panel:linear-gradient(155deg,rgba(255,252,255,.97),rgba(236,225,255,.96));
+  --neon-raised:linear-gradient(140deg,rgba(247,239,255,.98),rgba(229,225,255,.98));
+  --neon-field:linear-gradient(180deg,#fffaff,#f2ebff);
+  --neon-outline:rgba(128,85,201,.59);
+  --neon-halo:0 0 0 1px rgba(123,93,205,.1),0 10px 28px rgba(66,34,117,.1),0 0 20px rgba(165,96,255,.08);
+  --bg:#f3efff !important;
+  --surface:#fffaff !important;
+  --surface2:#eae1fb !important;
+  --border:#bea8e7 !important;
+  --input:#fffaff !important;
+  --text:#24153f !important;
+  --muted:#665782 !important;
+  --accent:#7844c7 !important;
+  --accent2:#316cc9 !important;
+  --elara-accent:#7844c7 !important;
+  --shadow:0 12px 30px rgba(66,34,117,.12) !important;
+  color-scheme:light;
+  background:radial-gradient(ellipse at 76% -4%,rgba(174,126,246,.25),transparent 37%),
+    radial-gradient(ellipse at 4% 36%,rgba(143,187,255,.20),transparent 45%),
+    linear-gradient(155deg,#faf6ff,#eeeaff 58%,#f6f1ff) fixed !important;
+  color:var(--text);
+}
+/* AMOLED remains truly black while using the lavender highlight system. */
+body[data-elara-theme="violet"].dark.amoled {
+  --bg:#000 !important;--surface:#090617 !important;--surface2:#16102b !important;--input:#03020b !important;
+  background:#000 !important;
+}
+
+/* The app shell: no untouched navy strips when switching themes. */
+html body[data-elara-theme="violet"] :is(.workspace,.shell,#main,main) {
+  color:var(--text);
+}
+html body[data-elara-theme="violet"] .workspace {background:transparent !important}
+html body[data-elara-theme="violet"] :is(.sidebar,.topbar,.ref-topbar,.bottom-nav) {
+  border-color:var(--neon-outline) !important;
+  box-shadow:0 4px 28px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] .sidebar {
+  background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 95%,transparent),color-mix(in srgb,var(--bg) 94%,transparent)) !important;
+}
+html body[data-elara-theme="violet"] .topbar:not(.elara-global-hero) {
+  background:color-mix(in srgb,var(--surface) 85%,transparent) !important;
+}
+html body[data-elara-theme="violet"] .bottom-nav {
+  background:color-mix(in srgb,var(--surface) 96%,transparent) !important;
+  backdrop-filter:blur(16px);
+}
+html body[data-elara-theme="violet"] :is(.nav-item.active,.nav-item[aria-current="page"],.bottom-nav button.active,.bottom-nav button[aria-current="page"]) {
+  background:linear-gradient(110deg,color-mix(in srgb,var(--neon-violet) 29%,var(--surface)),color-mix(in srgb,var(--neon-blue) 19%,var(--surface))) !important;
+  border-color:var(--neon-outline) !important;
+  color:var(--text) !important;
+  box-shadow:0 0 18px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] :is(.xp-pill,.icon-button,.elara-search,.elara-lang-shortcut,.elara-mode-shortcut) {
+  border-color:var(--neon-outline) !important;
+  background:var(--neon-field) !important;
+  color:var(--text) !important;
+}
+
+/* Structural cards and surfaces across Home, Tasks, Library, Language,
+   Wellness, Friends, Ranking, Reports, Goals, Blog, Freedom and Store.
+   Hero illustrations and image-backed cards deliberately keep their assets. */
+html body[data-elara-theme="violet"] #main :is(
+  .surface,.elara-card,.elara-stat,.ref-card,.ref-streak-card,.ref-ranks,.ref-habits,
+  .task-streak-summary,.task-board-card,.feature-section,.feature-hub-card,
+  .library-enhancement-tools,.library-custom-shelf,.library-clip-form,
+  .library-clip-card,.library-search-result,.lib01-report-metrics>div,
+  .lib01-shelves,.lib01-challenge,.lib02-metrics>div,
+  .lr4-panel,.lr4-summary article,.lr4-stat,.lr4-channel-card,.lr4-challenge-card,
+  .well01-card,.well01-report,.well01-metric,.well01-summary-item,
+  .elara-reports-section,.elara-reports-trends,.elara-reports-today-rows>div,
+  .friends-f2-kpi,.friends-f2-friend,.friends-f2-activity,
+  .social-section,.social-dm-recents,.social-dm-row,
+  .focus-ref-glass,.focus-history-card,.focus-cycle-config
+) {
+  color:var(--text) !important;
+  background:var(--neon-panel) !important;
+  border:1px solid var(--neon-outline) !important;
+  box-shadow:var(--neon-halo) !important;
+}
+html body[data-elara-theme="violet"] #main :is(
+  .ref-task-row,.ref-habit-row,.astra-task-row,.task-archive-row,
+  .feature-section-task-row,.well01-task-row,.elara-item,
+  .library-clip-card,.friends-f2-preview-row,.friends-f2-leader
+) {
+  border-color:color-mix(in srgb,var(--neon-lilac) 50%,var(--border)) !important;
+  color:var(--text) !important;
+}
+html body[data-elara-theme="violet"] #main :is(
+  .feature-section-task-row,.well01-task-row,.elara-reports-today-rows>div
+) {
+  background:var(--neon-raised) !important;
+}
+
+/* Existing cinematic hero/banner images remain intact; their frames and
+   interactive elements now share the chosen theme. */
+html body[data-elara-theme="violet"] #main :is(
+  .elara-hero,.ref-hero,.elara-global-hero,.feature-hero,
+  .feature-subpage-head,.lr4-route-hero,.well01-hero
+) {
+  border-color:var(--neon-outline) !important;
+  box-shadow:inset 0 0 0 1px var(--neon-glow),0 0 24px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] #main :is(
+  .ref-quick-card,.feature-launcher-card,.lib01-card,.lib01-book,
+  .well01-shortcut,.lr4-channel-art,.lr4-challenge-art
+) {
+  border-color:var(--neon-outline) !important;
+  box-shadow:0 0 0 1px var(--neon-glow),0 7px 22px var(--neon-glow) !important;
+}
+
+/* Input, select, date/time picker, textarea, search and focus state. */
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,.approved-wardrobe-window,
+  #task-composer-shell,.cloud-layer,.wellness-workout-dialog
+) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  background:var(--neon-field) !important;
+  border:1px solid var(--neon-outline) !important;
+  color:var(--text) !important;
+  box-shadow:inset 0 1px 7px color-mix(in srgb,var(--neon-blue) 9%,transparent) !important;
+}
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,.approved-wardrobe-window,
+  #task-composer-shell,.cloud-layer
+) :is(input,select,textarea)::placeholder {color:var(--muted) !important;opacity:1}
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell,.cloud-layer
+) :is(input,select,textarea):focus-visible {
+  outline:2px solid var(--neon-lilac) !important;
+  outline-offset:1px;
+  border-color:var(--neon-cyan) !important;
+  box-shadow:0 0 0 3px var(--neon-glow),0 0 20px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] :is(input[type="checkbox"],input[type="radio"]) {
+  accent-color:var(--neon-violet);
+}
+
+/* Buttons, toolbars, chips, tabs, hover/selected states.  Danger, success
+   and priority labels intentionally retain their semantic colors. */
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
+) :is(
+  .quiet-button,.mini-create,.feature-back,.elara-reports-button,
+  .lib01-tab,.lr4-pill,.lr4-back,.lr4-outline,.well01-subaction,
+  .astra-task-view-controls button,.astra-task-filters>summary,
+  .task-date-shortcuts button,.focus-presets button,.drawer-menu>button,
+  .pass4-theme-tile,.pass4-accent-tile,.elara-more-grid button,
+  .social-tabs [role="tab"]
+) {
+  border-color:var(--neon-outline) !important;
+  background:var(--neon-raised) !important;
+  color:var(--text) !important;
+  box-shadow:0 0 12px color-mix(in srgb,var(--neon-lilac) 12%,transparent) !important;
+}
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
+) :is(.primary-button,.lib01-add,.well01-play,.lr4-gradient,.friends-f2-hero-cta) {
+  background:linear-gradient(115deg,#d44eee 0%,#8854ff 53%,#348fff 100%) !important;
+  border:1px solid #bc99ff !important;
+  color:#fff !important;
+  box-shadow:0 0 0 1px rgba(181,140,255,.22),0 0 23px rgba(146,76,255,.42) !important;
+  text-shadow:0 1px 2px rgba(35,14,78,.55);
+}
+html body[data-elara-theme="violet"] :is(
+  #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
+) :is(
+  button[aria-pressed="true"],button[aria-selected="true"],
+  .lib01-tab.is-current,.lr4-pill.is-current,
+  .pass4-accent-tile.active,.pass4-theme-tile.active
+):not(.elara-dialog-danger):not(.danger):not([class*="delete"]) {
+  border-color:var(--neon-lilac) !important;
+  box-shadow:0 0 0 1px var(--neon-glow),0 0 18px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] :is(
+  .drawer-profile-head,.elara-private-drawer-panel,.elara-more-panel,
+  .elara-dialog-panel,.approved-wardrobe-window,.cloud-card,
+  .wellness-workout-dialog,.task-quick-move
+) {
+  background:var(--neon-panel) !important;
+  border-color:var(--neon-outline) !important;
+  color:var(--text) !important;
+  box-shadow:0 0 34px var(--neon-glow),0 22px 60px color-mix(in srgb,var(--bg) 65%,transparent) !important;
+}
+html body[data-elara-theme="violet"] :is(
+  .elara-dialog-head,.elara-dialog-actions,.drawer-menu>button,
+  .drawer-choice-grid>button,.pass4-theme-tile,.pass4-accent-tile
+) {
+  background:var(--neon-raised) !important;
+  border-color:var(--neon-outline) !important;
+  color:var(--text) !important;
+}
+
+/* Hard-coded visual owners that previously ignored the global variables. */
+html body[data-elara-theme="violet"] #main :is(
+  #panel-reports,#panel-reports-today,#panel-books,
+  #panel-language,#panel-exercise,#panel-focus-pomodoro
+) :is(
+  .elara-reports-periods,.elara-reports-insight-grid button,
+  .elara-reports-empty,.lib01-shelves button,.lib01-challenge button,
+  .lib01-report-metrics>div,.library-clip-card,.well01-metric,
+  .focus-ref-task select,.lr4-beautiful-empty,.lr4-mini-club
+) {
+  background:var(--neon-panel) !important;
+  border-color:var(--neon-outline) !important;
+  color:var(--text) !important;
+}
+html body[data-elara-theme="violet"] #panel-tasks#panel-tasks :is(
+  #task-list>.astra-task-row,.task-streak-summary,
+  .astra-task-filters.filters-expanded .list-toolbar,
+  .task-archive-row,.astra-task-view-controls button
+) {
+  border-color:var(--neon-outline) !important;
+  background:var(--neon-panel) !important;
+  color:var(--text) !important;
+  box-shadow:var(--neon-halo) !important;
+}
+html body[data-elara-theme="violet"] #panel-tasks#panel-tasks #elara-task-add-main {
+  background:linear-gradient(115deg,#d44eee,#8953ff 55%,#358fff) !important;
+  border-color:#c8a5ff !important;
+  color:#fff !important;
+  box-shadow:0 0 25px var(--neon-glow) !important;
+}
+html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell :is(
+  .task-composer-window,#task-form,.form-grid>div,.task-more-settings,
+  .repeat-controls>.daily-repeat-box,.repeat-controls>.recurrence-box
+) {
+  background:var(--neon-panel) !important;
+  border-color:var(--neon-outline) !important;
+  color:var(--text) !important;
+  box-shadow:var(--neon-halo) !important;
+}
+html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-submit {
+  color:#fff !important;
+  border:1px solid #c8a5ff !important;
+  background:linear-gradient(110deg,#dc59ee,#8856ff 55%,#309dff) !important;
+  box-shadow:0 0 23px rgba(146,76,255,.48) !important;
+}
+html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-form :is(input,select,textarea) {
+  border:1px solid var(--neon-outline) !important;
+  background:var(--neon-field) !important;
+  color:var(--text) !important;
+}
+
+/* Persistent readability on light mode: violet not glowing white-on-white. */
+html body[data-elara-theme="violet"].light #main :is(
+  .elara-card,.surface,.ref-card,.lr4-panel,.well01-card,
+  .elara-reports-section,.library-clip-card
+) {
+  color:var(--text) !important;
+}
+html body[data-elara-theme="violet"].light :is(
+  .elara-dialog-panel,.elara-private-drawer-panel,.task-composer-window
+) :is(h1,h2,h3,p,label,small,strong) {color:inherit}
+html body[data-elara-theme="violet"] :is(a,button,input,select,textarea):focus-visible {
+  outline-color:var(--neon-lilac);
+}
+@media(prefers-reduced-motion:reduce) {
+  body[data-elara-theme="violet"] *,body[data-elara-theme="violet"] *::before,body[data-elara-theme="violet"] *::after {
+    animation-duration:.01ms !important;transition-duration:.01ms !important;
+  }
+}
