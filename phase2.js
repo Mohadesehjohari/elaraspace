@@ -357,10 +357,10 @@
     // Today's completed tasks remain in the main list. Only completed
     // occurrences from earlier dates belong in the historical archive.
     const completedOnDate=t=>t.recurrenceRule?taskDone(t,now):!!t.completed&&(!t.doneAt||t.doneAt===now);
-    const completedBeforeDate=t=>!t.recurrenceRule&&!!t.completed&&validDate(t.doneAt)&&t.doneAt<now;
+    const completedBeforeDate=t=>!t.recurrenceRule&&!!t.completed&&validDate(t.doneAt)&&t.doneAt<today();
     const visible=state.tasks.filter(t=>{
       const v=taskView(t,now),done=completedOnDate(t),todayDue=t.recurrenceRule?applies(t,now):t.date===now,rule=safeRule(t.recurrenceRule,t.date),expired=!!(rule?.endDate&&rule.endDate<now);
-      if(completedBeforeDate(t)||(t.recurrenceRule&&!applies(t,now)))return false;
+      if(completedBeforeDate(t)||(t.recurrenceRule&&(!applies(t,now)||(now<today()&&done))))return false;
       if(taskFlowStatus(t,now))return false;
       if(['language','book','exercise','habit','social'].includes(activeTaskCategory)&&String(v.sourceGroup||t.sourceGroup||'')!==activeTaskCategory)return false;
       if(activeTaskCategory==='note'&&!(String(v.sourceGroup||t.sourceGroup||'')==='note'||/note|یادداشت/i.test([v.folder,v.list,v.tag].join(' '))))return false;
