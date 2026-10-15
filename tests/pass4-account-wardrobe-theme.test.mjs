@@ -152,7 +152,9 @@ dt.setMode('amoled');
 pref=JSON.parse(drawerMemory.get('elara_preferences_v2'));
 assert.equal(pref.mode,'dark','AMOLED must reuse existing dark preference schema');
 assert.equal(drawerMemory.get('elara_amoled'),'yes');
-for(const token of ["dark:'assets/ui/theme_dark.webp'","light:'assets/ui/theme_white.webp'","system:'assets/ui/theme.webp'","minimal:'assets/ui/theme_minimal.webp'","rugged:'assets/ui/city_theme.webp'","anime:'assets/ui/theme_spring.webp'","violet:'assets/ui/theme_galaxy_purple.webp'","blue:'assets/ui/theme_blue.webp'","green:'assets/ui/theme_forest_green.webp'","orange:'assets/ui/theme_orange.webp'"])assert.ok(drawerSource.includes(token),'Theme artwork mapping missing '+token);
+for(const token of ["default:'assets/ui/theme_dark.webp'","violet:'assets/ui/theme_galaxy_purple.webp'","blue:'assets/ui/theme_blue.webp'","pink:'assets/ui/theme_pink.webp'","red:'assets/ui/theme_red.webp'","green:'assets/ui/theme_forest_green.webp'","orange:'assets/ui/theme_orange.webp'"])assert.ok(drawerSource.includes(token),'Theme artwork mapping missing '+token);
+assert.ok(drawerSource.includes('elara-mode-choice'),'Mode must be text-only');
+assert.ok(drawerSource.includes('elara-style-choice'),'Style must be text-only');
 
 const forbidden=/[\u{1F300}-\u{1FAFF}☑⚙⌂♛♧◐☀☾◉◎▤◈◷◇✦✧▥▣◫⌕★]/u;
 for(const [name,source] of [['elara-design.css',designCss],['approved-visual.css',visualCss],['visual-fidelity-pass4.css',pass4Css]])assert.ok(!forbidden.test(source),name+' contains forbidden pictographic glyph');
