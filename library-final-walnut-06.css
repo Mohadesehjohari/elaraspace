@@ -219,8 +219,8 @@
  color:#271405;
 }
 #panel-books #lib01-overview .lib01-clip.paper-2{
- background:linear-gradient(145deg,#fff3ce,#dfc998);
- color:#3c2b1b;
+ background:linear-gradient(150deg,#eee2c9,#dccbac);
+ color:#483724;
 }
 #panel-books #lib01-overview .lib01-clip.paper-2 :is(strong,p,small){
  color:#42341d;
