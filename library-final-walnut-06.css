@@ -133,8 +133,8 @@
 :is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
 :is(button.primary-button,button[type="submit"],.lib01-add){
  color:#302010!important;border:1px solid #fbe1a7!important;
- background:linear-gradient(125deg,#ffe6b2,#e9af5b)!important;
- box-shadow:inset 0 1px #fff3ce,0 3px 11px #0007
+ background:linear-gradient(125deg,#e7c999,#d4a96e)!important;
+ box-shadow:0 3px 10px #0004
 }
 :is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
 :is(.quiet-button,.feature-back,.lib01-tab,.library-shelf-chip button){
@@ -150,8 +150,8 @@
  outline:3px solid #ffdc8d;outline-offset:3px
 }
 #panel-books #lib01-overview :is(.lib01-tab.is-current,.lib01-add){
- color:#352211!important;background:linear-gradient(125deg,#ffe4a5,#ebb15c)!important;
- border-color:#ffe4a8!important
+ color:#332416!important;background:#d8b781!important;
+ border-color:#e1c590!important
 }
 #panel-books #lib01-overview .lib01-shelves{
  background-image:linear-gradient(90deg,#0c100d92,#0c1b22d9),url("assets/ui/Cinematic%20Gothic%20Library%20Alcove.webp");
@@ -210,12 +210,12 @@
 /* Final palette audit: no violet accents inside Library—including its inline Pomodoro. */
 #panel-books #lib01-overview .lib01-focus-dial{
  background:radial-gradient(circle at center,#07131a 0 62%,transparent 64%),conic-gradient(from 20deg,#ffe5a4 0%,#ffbd67 22%,#2dc4bc 42%,#39aab9 67%,#0a2631 88%,#ffe5a4 100%);
- box-shadow:0 0 25px #f2b86062,inset 0 0 18px #000c;
+ box-shadow:0 5px 17px #0008,inset 0 0 15px #000a;
 }
 #panel-books #lib01-overview .lib01-focus-dial button{
  border:2px solid #ffe4a7;
  background:radial-gradient(circle at 30% 20%,#fff0b5,#f4b15b 48%,#be783b 100%);
- box-shadow:0 0 19px #f7c37778,0 3px 13px #0009;
+ box-shadow:0 3px 12px #0008;
  color:#271405;
 }
 #panel-books #lib01-overview .lib01-clip.paper-2{
@@ -303,10 +303,10 @@ html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="b
 }
 /* A shelf with zero books remains a tangible, full-height wooden shelf. */
 #panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-wood-row{
- min-height:390px;
+ min-height:350px;
 }
 #panel-library-shelves #lib02-scene .lib06-custom-grid .lib02-custom-case .lib02-empty{
- min-height:285px;
+ min-height:245px;
 }
 /* One single, accessible editor disclosure instead of old UI fragments. */
 #panel-library-shelves > :is(#book-form,#book-list,#book-empty,.bookshelf-filter,.library-enhancement-tools){
@@ -333,7 +333,7 @@ html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="b
 }
 
 
-/* Soft Cosmic pass / 2026-10-16 — preserve wooden shelf art, soften outlines. */
+/* Soft Cosmic R2 / 2026-10-16 — quiet wooden reading shelves. */
 #panel-books #lib01-overview .lib01-card{
  border-color:rgba(185,159,126,.21)!important;
  box-shadow:0 7px 20px rgba(0,0,0,.25)!important
@@ -370,3 +370,24 @@ html body #main #panel-books > .feature-section-tasks[data-section-task-shelf="b
 }
 :is(#panel-books,#panel-library-shelves,#panel-library-clips,#panel-library-search,#panel-library-reports)
  :is(h1,h2,h3){text-shadow:none}
+
+/* Let books and covers be the highlight instead of three nested gold frames. */
+#panel-library-shelves #lib02-scene .lib06-custom-grid{
+ gap:16px
+}
+#panel-library-shelves #lib02-scene .lib06-custom-head{
+ padding-inline:12px;gap:10px
+}
+#panel-library-shelves #lib02-scene .lib02-custom-case .lib02-wood{
+ box-shadow:inset 0 0 25px rgba(0,0,0,.65)!important
+}
+#panel-library-shelves #lib02-scene .lib06-case-tools button:not(:focus-visible){
+ box-shadow:none
+}
+#panel-books #lib01-overview .lib01-card h2{color:#f2e8d6}
+#panel-books #lib01-overview .lib01-book{
+ background:rgba(10,29,35,.7)!important
+}
+@media(max-width:700px){
+ #panel-library-shelves #lib02-scene .lib06-custom-grid{gap:17px}
+}
