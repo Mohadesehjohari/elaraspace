@@ -653,3 +653,122 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro :is(#timer-start,#timer-
     transition:none;
   }
 }
+
+/* FOCUS-08: warm walnut palette replaces remaining navy and cyan in default focus screen. */
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro{
+--focus-ink:#241711;--focus-panel:#2b1b16;--focus-wood:#301b14;--focus-teal:#c28a57;--focus-line:rgba(207,156,93,.54);--focus-muted:#decbb0;--focus-gold:#f0c786;--focus-gold-light:#ffe7b6;color:#fff0d9;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro:not(.hidden){
+background-color:#1c130f;background-image:linear-gradient(180deg,rgba(38,19,10,.12) 0%,rgba(31,17,13,.30) 27%,rgba(31,18,15,.66) 63%,rgba(26,16,13,.94) 100%),url("assets/ui/bg_focus_room.webp");border-color:#bc8c538e;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro > .feature-subpage-head{
+background:linear-gradient(95deg,rgba(41,20,13,.10),rgba(40,24,16,.40) 60%,rgba(29,17,13,.78));border-color:#deac6870;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-card::before{
+border-color:rgba(222,169,103,.51);background:radial-gradient(ellipse at 50% 5%,rgba(246,191,111,.17),transparent 55%),radial-gradient(ellipse at 75% 97%,rgba(142,79,49,.15),transparent 55%),linear-gradient(150deg,rgba(36,22,17,.96),rgba(44,29,22,.94) 64%,rgba(57,32,21,.92));box-shadow:inset 0 1px #ffe0a122,0 12px 29px #150b0a80;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display{
+background:radial-gradient(circle closest-side,#19120f 0 80%,#30221c 82%,transparent 84%),conic-gradient(from -38deg,#ffe7b3 0%,#f2c27d 18%,#c88a52 38%,#965739 57%,#b77648 73%,#e7b56c 87%,#ffe7b3 100%);box-shadow:0 0 0 5px #211711dc,0 0 28px #d6975138,0 0 40px #aa5d2b20,inset 0 0 20px #080503b8;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display::before{
+background:conic-gradient(from -90deg,#fff2c4 calc(var(--focus-elapsed,0) * 1turn),transparent 0);
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card #timer-display::after{
+background:#fff5cf;box-shadow:0 0 12px 4px #ffd690a8,0 0 23px #e3a760;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .focus-config,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-side .focus-ref-glass,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-ref-glass,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-history-card,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-ref-actual-sessions,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro > .focus-history-card{
+border-color:rgba(205,152,86,.67);color:#fff0d9;background:linear-gradient(145deg,#221711f7 0%,#2a1c16f7 56%,#3b2519f5 100%);box-shadow:inset 0 1px #ffe6b017,0 10px 27px #10090675;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-history-card,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-bottom > .focus-ref-actual-sessions{
+background:linear-gradient(150deg,#251710,#302019 68%,#422919)!important;border-color:#ad7949c7!important;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress{
+background:radial-gradient(circle closest-side,#241710 72%,transparent 73%),conic-gradient(#f3ca88 var(--focus-today-progress,0%),#66432b 0%);box-shadow:0 0 18px #f5c57b23,inset 0 0 13px #0e0705b3;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-progress small,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dt{
+color:#e6d2b5;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-stats-body dd,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-reading strong{
+color:#ffe0a3;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-config input,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-config select,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task select,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-task-open,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-settings-jump,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro #timer-reset,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro #elara-focus-expand,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-presets button,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-glass header button{
+border-color:#aa814e;background-color:#271b16;color:#fce7c3;color-scheme:dark;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-config .focus-cycle-config{
+background:linear-gradient(145deg,#2a1c16,#3c261b);border-color:#916d47c4;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button{
+border-color:#a47a49c8;background:linear-gradient(155deg,#261913,#312019 60%,#3b2418);color:#ffe7bd;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-card > .elara-focus-mode-options button[aria-pressed='true']{
+border-color:#ffe2a2;background:linear-gradient(155deg,#5b391f,#322116 75%);
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track{
+background:#513322;border-color:#b0875980;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-goal-track span{
+background:linear-gradient(90deg,#98623a,#db9b5a,#ffe0a0);
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-history{
+scrollbar-color:#a87a49 #2d1d16;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-history-row,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row{
+color:#f7e5c9;background:linear-gradient(105deg,#3b261c,#231913)!important;border-color:#98734796;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-history-row small,
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-session-row small{
+color:#e3cfb1;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-mode]{
+background:linear-gradient(150deg,#2d1c15,#3b261a 75%,#482b1a);border-color:#b98a50ab;color:#fff0d7;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-inline-icon{
+background:linear-gradient(150deg,#392719,#52321e);border-color:#a87945;color:#ffe0a0;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience [data-ambience-volume]{
+accent-color:#e5b16d;
+}
+
+body:not([data-elara-theme="violet"]):not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-empty{
+background:#302019ad;border-color:#9d7854a1;color:#ecd4b1;
+}
