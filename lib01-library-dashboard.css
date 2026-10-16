@@ -28,10 +28,10 @@ html body #main #panel-books #lib01-overview{display:block;box-sizing:border-box
 #panel-books #lib01-overview .lib01-add{flex:0 0 auto;min-width:142px;background:linear-gradient(130deg,#ffe1a3,#e9a454);border-color:#ffecb3;color:#2c1a0b;box-shadow:0 5px 19px #e9a4543c;font-weight:900}
 #panel-books #lib01-overview .lib01-grid{display:grid;grid-template-columns:minmax(215px,1fr) minmax(330px,1.72fr) minmax(215px,1fr);gap:12px;align-items:start}
 #panel-books #lib01-overview .lib01-col{display:grid;gap:12px;align-content:start;min-width:0}
-#panel-books #lib01-overview .lib01-card{position:relative;isolation:isolate;min-width:0;border:1px solid #4960706b;border-radius:16px;overflow:hidden;background:var(--lib01-panel);box-shadow:0 15px 34px #0006,inset 0 1px 0 #ffffff0a;color:var(--lib01-text);padding:14px;line-height:1.7}
-#panel-books #lib01-overview .lib01-card::before{content:"";height:1px;position:absolute;top:0;inset-inline:18px;background:linear-gradient(90deg,transparent,#dbb06d55,transparent);pointer-events:none}
-#panel-books #lib01-overview .lib01-card>header{display:flex;justify-content:space-between;align-items:center;gap:6px;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid #dae1de15}
-#panel-books #lib01-overview .lib01-card h2{font-size:clamp(13px,1.07vw,17px);font-weight:850;line-height:1.6;letter-spacing:0;margin:0;color:#fff5e7}
+#panel-books #lib01-overview .lib01-card{position:relative;isolation:isolate;min-width:0;border:1px solid rgba(133,159,170,.18);border-radius:16px;overflow:hidden;background:var(--lib01-panel);box-shadow:0 7px 22px #0004;color:var(--lib01-text);padding:14px;line-height:1.7}
+#panel-books #lib01-overview .lib01-card::before{content:none;display:none}
+#panel-books #lib01-overview .lib01-card>header{display:flex;justify-content:space-between;align-items:center;gap:6px;padding-bottom:5px;margin-bottom:10px;border-bottom:0}
+#panel-books #lib01-overview .lib01-card h2{font-size:clamp(14px,1.07vw,17px);font-weight:750;line-height:1.6;letter-spacing:0;margin:0;color:#fff5e7}
 #panel-books #lib01-overview .lib01-card header button,#panel-books #lib01-overview .lib01-card footer button,#panel-books #lib01-overview .lib01-empty button{border:0;background:transparent;color:#42e4dc;font-size:11px;padding:6px 0;font-weight:700}
 #panel-books #lib01-overview .lib01-status-main{display:grid;grid-template-columns:minmax(100px,1fr) minmax(85px,1fr);gap:6px;align-items:center;min-height:147px}
 #panel-books #lib01-overview .lib01-ring{width:100%;aspect-ratio:1;max-width:155px;margin:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;border-radius:50%;background:radial-gradient(circle at center,#07151b 0 57%,transparent 58%),conic-gradient(#afe78c calc(var(--lib01-progress)*1%),#17434a 0);box-shadow:inset 0 0 14px #000b,0 0 19px #8ef7bd22}
@@ -75,10 +75,10 @@ html body #main #panel-books #lib01-overview{display:block;box-sizing:border-box
 #panel-books #lib01-overview .lib01-data-note{color:#a5b7ba;font-size:10px;margin:10px 0 0;line-height:1.7}
 #panel-books #lib01-overview .lib01-focus{padding:12px}
 #panel-books #lib01-overview .lib01-focus-scene{min-height:236px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(180deg,#02080d36,#02080dac),url('assets/ui/bg_focus_room.webp') center 48%/cover;overflow:hidden}
-#panel-books #lib01-overview .lib01-focus-dial{width:185px;height:185px;border-radius:50%;position:relative;background:radial-gradient(circle at center,#050b17 0 62%,transparent 64%),conic-gradient(from 20deg,#ffcc70,#8656fa,#2a9bff,#54e8fc,#080e24 87%,#ffcc70);box-shadow:0 0 21px #895eff99,inset 0 0 16px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#panel-books #lib01-overview .lib01-focus-dial{width:185px;height:185px;border-radius:50%;position:relative;background:radial-gradient(circle at center,#050b17 0 62%,transparent 64%),conic-gradient(from 20deg,#ffcc70,#8656fa,#2a9bff,#54e8fc,#080e24 87%,#ffcc70);box-shadow:0 4px 18px #0007,inset 0 0 12px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
 #panel-books #lib01-overview .lib01-focus-dial strong{font:900 39px/1.2 Arial,sans-serif;direction:ltr;font-variant-numeric:tabular-nums;color:white}
 #panel-books #lib01-overview .lib01-focus-dial small{font-size:12px;color:#fff4db}
-#panel-books #lib01-overview .lib01-focus-dial button{position:absolute;bottom:-13px;width:53px;height:53px;border-radius:50%;border:2px solid #a6b2ff;background:radial-gradient(circle at 30% 20%,#ab6dff,#4c28dd 75%);color:white;font-size:21px;box-shadow:0 0 20px #8058ffad}
+#panel-books #lib01-overview .lib01-focus-dial button{position:absolute;bottom:-13px;width:53px;height:53px;border-radius:50%;border:2px solid #a6b2ff;background:radial-gradient(circle at 30% 20%,#ab6dff,#4c28dd 75%);color:white;font-size:21px;box-shadow:0 5px 16px #0008}
 #panel-books #lib01-overview .lib01-focus-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:15px}
 #panel-books #lib01-overview .lib01-focus-modes span{border:1px solid #33515e;background:#07141f;border-radius:8px;padding:9px 1px;text-align:center;font-size:9px;color:#f5e9d9;white-space:nowrap}
 #panel-books #lib01-overview .lib01-empty{min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px 9px;border:1px dashed #89744880;border-radius:12px;color:#cfcbbe}
@@ -190,3 +190,19 @@ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:11px!important}
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{font-size:9px!important}
 }
+
+
+/* Soft Cosmic pass / 2026-10-16 — reading room hierarchy at source. */
+#panel-books #lib01-overview .lib01-book{
+ border-color:rgba(150,173,165,.13);
+ background:linear-gradient(160deg,rgba(15,41,49,.74),rgba(9,27,37,.65))
+}
+#panel-books #lib01-overview .lib01-report-metrics>div{
+ border-color:rgba(129,158,163,.13);background:rgba(9,35,49,.54)
+}
+#panel-books #lib01-overview .lib01-tab:not(.is-current){
+ border-color:rgba(159,163,148,.18);box-shadow:none
+}
+#panel-books #lib01-overview .lib01-task-title,
+#panel-books #lib01-overview .lib01-book strong{font-size:12px}
+#panel-books #lib01-overview .lib01-data-note{font-size:11px}

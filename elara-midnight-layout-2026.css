@@ -3,7 +3,7 @@
 
 :root{
  --elara-bg:#02122a;--elara-bg2:#04172e;--elara-bg3:#061d39;--elara-panel:#0d274de6;
- --elara-panel2:#071a34f2;--elara-line:rgba(75,170,255,.25);--elara-line-strong:rgba(55,196,255,.58);
+ --elara-panel2:#071a34f2;--elara-line:rgba(75,170,255,.16);--elara-line-strong:rgba(55,196,255,.36);
  --elara-text:#f7faff;--elara-secondary:rgba(230,240,255,.78);--elara-muted:rgba(190,210,235,.55);
  --elara-cyan:#20d7ff;--elara-blue:#31bceb;--elara-purple:#9255ff;--elara-green:#18e0ba;
  --elara-orange:#ff943f;--elara-gold:#ffd067;--elara-pink:#ff5f9a;
@@ -24,7 +24,7 @@ body.dark main,body.dark #main{max-width:none!important;margin:0!important;paddi
 body.dark :where(.elara-card,.surface,.stat-card){
  background:linear-gradient(145deg,rgba(13,39,77,.90),rgba(4,20,42,.94))!important;
  border-color:var(--elara-line)!important;
- box-shadow:0 8px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important;
+ box-shadow:0 6px 20px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025)!important;
 }
 
 /* ================== SIDEBAR ================== */
@@ -165,7 +165,7 @@ body.dark #panel-home.ref-home .ref-home-grid>:where(.ref-streak-card,.ref-tasks
 body.dark #panel-home.ref-home .ref-card{
  padding:13px!important;border:1px solid var(--elara-line)!important;
  background:linear-gradient(145deg,rgba(13,39,77,.90),rgba(4,20,42,.94))!important;
- box-shadow:0 8px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important;
+ box-shadow:0 6px 20px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025)!important;
 }
 body.dark #panel-home.ref-home .ref-card>header{min-height:35px!important;padding-bottom:8px!important;margin-bottom:7px!important;border-bottom:1px solid rgba(75,170,255,.12)!important}
 body.dark #panel-home.ref-home .ref-card>header h2{font-size:.92rem!important;color:#f7faff!important;margin:0!important}
@@ -1086,4 +1086,24 @@ body.dark #panel-tasks .task-archive-row small{font-size:.63rem!important;color:
   min-height:137px!important;grid-template-rows:minmax(68px,auto) minmax(33px,auto)!important;
   align-content:center!important;gap:8px 7px!important
  }
+}
+
+
+/* Soft Cosmic pass / 2026-10-16 — shared quiet foundation; no geometry changes. */
+body.dark .sidebar .navigation .nav-item:not(.active):not([aria-current="page"]){
+ border-color:transparent!important;box-shadow:none!important
+}
+body.dark .sidebar .navigation .nav-item.active,
+body.dark .sidebar .navigation .nav-item[aria-current="page"]{
+ border-color:rgba(92,180,219,.28)!important;
+ background:linear-gradient(90deg,rgba(35,124,169,.16),rgba(22,80,135,.27))!important;
+ box-shadow:inset 2px 0 0 rgba(97,213,225,.75)!important
+}
+body.dark .workspace :where(h1,h2,h3){text-wrap:balance}
+body.dark .workspace :where(p,.muted){line-height:1.85}
+body.dark .workspace :where(.elara-card,.surface,.stat-card){
+ box-shadow:0 6px 19px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.02)!important
+}
+@media(prefers-reduced-motion:reduce){
+ body.dark .workspace :where(.elara-card,.surface,.stat-card,.ref-quick-card){transition:none!important}
 }

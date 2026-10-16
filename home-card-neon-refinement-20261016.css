@@ -3,8 +3,8 @@
    Never modify desktop dashboard grid columns, areas or primary card heights. */
 html body #panel-home.ref-home.owner-art-home {
   --home-win-gold:#ffda77;
-  --home-win-edge:rgba(255,204,93,.82);
-  --home-habit-purple:#c76aff;
+  --home-win-edge:rgba(255,204,93,.30);
+  --home-habit-purple:#ba9bd2;
 }
 /* Shared card header: the functional + is rightmost, See All sits beside it.
    Titles take the opposite edge; preserve all canonical routes/actions. */
@@ -636,4 +636,115 @@ html body #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row {
   html body #panel-home.ref-home.owner-art-home .ref-ranks #elara-home-ranks .ref-podium-person {
     padding:5px 2px!important;
   }
+}
+
+
+/* Soft Cosmic pass / 2026-10-16 — Home calm treatment.
+   Preserve fixed dashboard geometry, internal scrolling and every action. */
+html body.dark #panel-home.ref-home.owner-art-home{
+ --home-calm-edge:rgba(126,172,202,.20);
+ --home-calm-shadow:0 7px 21px rgba(1,10,24,.21)
+}
+html body.dark #panel-home.ref-home.owner-art-home :is(
+ .ref-tasks,.ref-wellness-card,.ref-goals,.ref-ranks,.ref-achievements,.ref-habits,.ref-quick-access){
+ border:1px solid var(--home-calm-edge)!important;
+ box-shadow:var(--home-calm-shadow)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home :is(.ref-tasks,.ref-wellness-card,.ref-goals){
+ background:linear-gradient(160deg,#10263e,#0a1c32)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card{
+ border:1px solid rgba(232,167,112,.28)!important;
+ box-shadow:var(--home-calm-shadow)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card::after{
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-card>header{
+ border-bottom-color:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-card>header h2{
+ text-shadow:none!important;font-weight:750!important;
+ font-size:clamp(.79rem,1.1vw,.96rem)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-quick-card{
+ border:1px solid rgba(142,185,211,.19)!important;
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-quick-card:hover,
+html body.dark #panel-home.ref-home.owner-art-home .ref-quick-card:focus-visible{
+ border-color:rgba(123,215,223,.53)!important;
+ box-shadow:0 6px 18px rgba(0,0,0,.24)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-task-row{
+ border-bottom-color:rgba(160,190,210,.09)!important;
+ background:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-task-row:last-child{
+ border-bottom-color:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-goal-row{
+ border-color:rgba(141,173,194,.13)!important;
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-achievements){
+ border:1px solid rgba(184,162,122,.26)!important;
+ background:linear-gradient(160deg,#16263a,#0b1b30)!important;
+ box-shadow:var(--home-calm-shadow)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > .ref-ranks{
+ background:linear-gradient(160deg,rgba(13,27,47,.88),rgba(10,25,44,.91)),
+ url('assets/ui/ranking_banner.webp') center/cover no-repeat!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-achievements)::before{
+ content:none!important;display:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-achievements) > header{
+ border-bottom-color:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-achievements) > header h2{
+ text-shadow:none!important;color:#e8e8e9!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-ranks #elara-home-ranks .ref-podium-person{
+ border-color:rgba(201,175,125,.16)!important;
+ background:rgba(12,26,44,.54)!important;box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-ranks #elara-home-ranks .ref-podium-person.place-1{
+ border-color:rgba(244,202,124,.43)!important;
+ background:linear-gradient(180deg,rgba(160,118,49,.16),rgba(12,27,43,.62))!important;
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-achievements-list .ref-achievement-row{
+ border-bottom-color:rgba(190,175,146,.09)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-achievements-list .ref-achievement-row:last-child{
+ border-bottom-color:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-achievements-list .ref-achievement-row > span:first-child{
+ text-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits{
+ background:radial-gradient(circle at 90% 0%,rgba(156,119,211,.09),transparent 52%),
+ linear-gradient(160deg,#142239,#0a1c32)!important;
+ border-color:rgba(178,148,210,.25)!important;
+ box-shadow:var(--home-calm-shadow)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits > header{
+ border-color:transparent!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits > header h2{
+ color:#e2d5ed!important;text-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits .ref-habit-row{
+ border:0!important;border-bottom:1px solid rgba(184,159,215,.10)!important;
+ border-radius:0!important;background:transparent!important;box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits .ref-habit-row:last-child{
+ border-bottom:0!important
+}
+html body.dark #panel-home.ref-home.owner-art-home :is(.ref-task-row,.ref-habit-row,.ref-goal-row) strong{
+ font-size:clamp(.70rem,.9vw,.81rem)!important;font-weight:650!important
+}
+html body.dark #panel-home.ref-home.owner-art-home :is(.ref-task-row,.ref-habit-row,.ref-goal-row):focus-within{
+ outline:1px solid rgba(111,213,220,.5);outline-offset:-1px
 }
