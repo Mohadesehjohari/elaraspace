@@ -95,7 +95,7 @@ function setDefaultMode(mode){
  // default can publish anything. No previous private item is auto-shared.
  for(const link of active())if(!Array.isArray(s.accountLinkSeen[link.id]))
    s.accountLinkSeen[link.id]=itemRows(s).map(x=>x.key).slice(-20000);
- s.accountLinkDefaultMode=mode;write(s);return true;
+ s.accountLinkDefaultMode=mode;write(s);window.dispatchEvent(new Event('elara:account-sharing-updated'));return true;
 }
 function setItemMode(kind,ids,mode){
  if(!sets.some(x=>x[0]===kind)||!['private','shared'].includes(mode))throw Error(language('نوع یا حالت اشتراک نامعتبر است.','Invalid selection.'));
@@ -113,7 +113,7 @@ function setItemMode(kind,ids,mode){
    s.accountLinkSeen[link.id]=mode==='shared'?seen.filter(x=>x!==key):[...new Set([...seen,key])].slice(-20000);
   }
  }
- write(s);scheduleSync();return found.length;
+ write(s);window.dispatchEvent(new Event('elara:account-sharing-updated'));scheduleSync();return found.length;
 }
 async function openManager(){
  verified();const s=read(),items=itemRows(s),host=document.createElement('section');
