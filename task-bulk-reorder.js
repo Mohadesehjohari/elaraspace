@@ -139,6 +139,7 @@ document.addEventListener('pointerdown',e=>{const handle=e.target.closest('[data
 document.addEventListener('pointermove',e=>{moveCardPress(e);dragMove(e)},true);
 document.addEventListener('pointerup',e=>{clearPress();dragEnd(e)},true);document.addEventListener('pointercancel',e=>{clearPress();if(drag){clearTimeout(drag.timer);drag.row.classList.remove('is-dragging');drag=null;document.getElementById('task-trash-drop')?.setAttribute('hidden','');document.body.classList.remove('task-reordering');window.ElaraTasks?.render?.()}},true);
 document.addEventListener('keydown',e=>{const h=e.target.closest?.('[data-task-drag]');if(h&&e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();shift(h.dataset.taskDrag,e.key==='ArrowUp'?-1:1)}if(e.key==='Escape'&&selecting){e.preventDefault();cancel()}},true);
+window.addEventListener('elara:account-sharing-updated',()=>window.ElaraTasks?.render?.());window.addEventListener('elara:account-links-updated',()=>window.ElaraTasks?.render?.());
 window.addEventListener('elara:data-changed',()=>setTimeout(decorate,0));window.addEventListener('elara:locale-changed',()=>{document.getElementById('task-bulk-toolbar')?.remove();setTimeout(ensureUi,0)});window.addEventListener('elara:open',e=>{if(e.detail?.tab==='tasks')setTimeout(ensureUi,50);else if(selecting)cancel()});window.addEventListener('hashchange',()=>{if(location.hash!=='#tasks'&&selecting)cancel();setTimeout(ensureUi,80)});
 let observer=null,mountAttempts=0;
 function start(){
