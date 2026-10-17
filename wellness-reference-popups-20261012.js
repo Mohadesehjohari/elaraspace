@@ -10,8 +10,8 @@ const today=()=>localDate(new Date());
 const faNum=n=>Number(n||0).toLocaleString('fa-IR',{maximumFractionDigits:1});
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const clone=o=>JSON.parse(JSON.stringify(o));
-function read(){try{const k=key();return k?JSON.parse(localStorage.getItem(k)||'{}')||{}:{}}catch{return {}}}
-function save(patch){const k=key();if(!k)return false;try{localStorage.setItem(k,JSON.stringify({...read(),...patch}));window.dispatchEvent(new CustomEvent('elara:wellness-saved',{detail:patch}));return true}catch{return false}}
+function read(){try{const k=key();return k?JSON.parse(window.ElaraCloudStorage.getItem(k)||'{}')||{}:{}}catch{return {}}}
+function save(patch){const k=key();if(!k)return false;try{window.ElaraCloudStorage.setItem(k,JSON.stringify({...read(),...patch}));window.dispatchEvent(new CustomEvent('elara:wellness-saved',{detail:patch}));return true}catch{return false}}
 const trainingDays=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
 const mealDays=['همه روزها','روزهای کاری',...trainingDays];
 const heading={workout:'برنامه تمرینی',nutrition:'برنامه تغذیه'};

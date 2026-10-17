@@ -5,10 +5,10 @@ const en=()=>document.documentElement.lang==='en',tx=(fa,english)=>en()?english:
 const num=n=>Number(n||0).toLocaleString(en()?'en-US':'fa-IR'),pct=n=>Math.max(0,Math.min(100,Math.round(Number(n)||0)));
 const date=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'),today=()=>window.ElaraSchedule?.today?.()||date(new Date());
 const dateOffset=(n,origin=new Date())=>{const d=new Date(origin);d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return date(d)};
-const state=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const state=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 const account=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const books=()=>list(window.ElaraLanguageBooks?.read?.());
-const journal=()=>{const id=account();if(!id)return[];try{return list(JSON.parse(localStorage.getItem('elara_language_journal_v1_'+id)||'[]')).filter(r=>r&&typeof r.date==='string'&&/^20\d\d-\d\d-\d\d$/.test(r.date)&&Number.isInteger(r.minutes)&&r.minutes>0&&r.minutes<=1440)}catch{return[]}};
+const journal=()=>{const id=account();if(!id)return[];try{return list(JSON.parse(window.ElaraCloudStorage.getItem('elara_language_journal_v1_'+id)||'[]')).filter(r=>r&&typeof r.date==='string'&&/^20\d\d-\d\d-\d\d$/.test(r.date)&&Number.isInteger(r.minutes)&&r.minutes>0&&r.minutes<=1440)}catch{return[]}};
 const classes=()=>list(state().languageClasses);
 const words=()=>list(state().words);
 const validImg=v=>/^data:image\/(?:png|webp|jpeg);base64,/i.test(String(v||''))&&String(v).length<=360000||/^https:\/\/covers\.openlibrary\.org\//i.test(String(v||''))?String(v):'';

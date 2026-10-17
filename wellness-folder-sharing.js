@@ -14,10 +14,10 @@ const api=()=>apiPromise||(apiPromise=Promise.all([
 async function signed(){const x=await api(),user=x.auth.currentUser;if(!user?.uid||!user.emailVerified)throw Error(tx('برای اشتراک پوشه باید وارد حساب تأییدشده شوی.','Sign in to a verified account first.'));return {...x,user}}
 function shareId(uid,kind,folderId){if(!kinds.includes(kind)||!/^[a-zA-Z0-9_-]{1,110}$/.test(folderId))throw Error(tx('شناسهٔ پوشه برای اشتراک معتبر نیست.','Folder ID is not shareable.'));return uid+'__'+kind+'__'+folderId}
 function localFolder(uid,kind,folderId){
- try{const s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{},rows=Array.isArray(s[kind+'PlanFolders'])?s[kind+'PlanFolders']:[];return rows.find(f=>String(f?.id)===String(folderId))||null}catch{return null}
+ try{const s=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{},rows=Array.isArray(s[kind+'PlanFolders'])?s[kind+'PlanFolders']:[];return rows.find(f=>String(f?.id)===String(folderId))||null}catch{return null}
 }
 function snapshotFolder(f,kind,ownerUid){
- let defaultDays=[];try{const state=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+ownerUid)||'{}');defaultDays=state[kind+'PlanMeta']?.days||[]}catch{}
+ let defaultDays=[];try{const state=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+ownerUid)||'{}');defaultDays=state[kind+'PlanMeta']?.days||[]}catch{}
  const value={title:String(f.title||'').slice(0,80),programName:String(f.programName||f.title||'').slice(0,100),description:String(f.description||'').slice(0,5000),note:String(f.note||'').slice(0,5000),days:(Array.isArray(f.days)?f.days:Array.isArray(defaultDays)?defaultDays:[]).filter(x=>days.includes(x)||x==='همه روزها'||x==='روزهای کاری').slice(0,9),checks:(Array.isArray(f.checks)?f.checks:[]).slice(0,90).map(c=>({text:String(c.text||'').slice(0,180),done:!!c.done}))};
  const json=JSON.stringify(value);if(json.length>27000)throw Error(tx('حجم این پوشه برای اشتراک خیلی زیاد است.','This folder exceeds the sharing limit.'));return json;
 }

@@ -19,7 +19,7 @@ const head=(kind,fa,en,description)=>{
  return panel.querySelector('[data-ui13-content="'+kind+'"]');
 };
 function taskRecords(){
- let s;try{s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{s={}}
+ let s;try{s=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{s={}}
  const d=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
  const rows=list(s.tasks).filter(t=>t&&t.sourceGroup==='language').sort((a,b)=>Number(window.ElaraTasks?.taskDone?.(a,d)||false)-Number(window.ElaraTasks?.taskDone?.(b,d)||false));
  return {rows,d};
@@ -111,7 +111,7 @@ async function renderChallenges(){
 
 // L3: full-screen story destination, stable ?leitner=review#words deep link, canonical #words dashboard. Canonical word handlers stay in app.js.
 const l3={total:0,history:[],preview:false,historyIndex:0,scene:null,flash:null,original:null,actions:null,forgot:null,known:null,focus:null,scrollY:0,swipeX:null,pointerX:null,pointerId:null,dragging:false,focusOn:false,focusMs:0,focusStarted:0,focusTicker:null,reportId:null,recordedMinutes:0,observer:null};
-function l3Due(){let d;try{d=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{d={}}
+function l3Due(){let d;try{d=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{d={}}
  const today=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
  return list(d.words).filter(w=>w&&(!w.due||String(w.due)<=today));}
 function l3Build(){
@@ -184,10 +184,10 @@ function l3CommitFocus(){
  const minutes=Math.floor(l3Seconds()/60);if(minutes<=l3.recordedMinutes)return;
  const uid=window.ElaraAccount?.user?.uid;if(!uid)return;
  const key='elara_language_journal_v1_'+uid,day=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
- let rows;try{rows=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(rows))rows=[]}catch{rows=[]}
+ let rows;try{rows=JSON.parse(window.ElaraCloudStorage.getItem(key)||'[]');if(!Array.isArray(rows))rows=[]}catch{rows=[]}
  const record={id:l3.reportId,date:day,minutes,words:l3.history.length,note:'مرور واژه‌ها · حالت تمرکز لایتنر'};
  const existing=rows.findIndex(row=>row?.id===record.id);if(existing>=0)rows[existing]=record;else rows.push(record);
- try{localStorage.setItem(key,JSON.stringify(rows));l3.recordedMinutes=minutes;window.dispatchEvent(new CustomEvent('elara:language-journal-changed',{detail:{uid,record}}))}catch(error){console.warn('Leitner study time was not saved',error)}
+ try{window.ElaraCloudStorage.setItem(key,JSON.stringify(rows));l3.recordedMinutes=minutes;window.dispatchEvent(new CustomEvent('elara:language-journal-changed',{detail:{uid,record}}))}catch(error){console.warn('Leitner study time was not saved',error)}
 }
 function l3StopFocus(){
  if(!l3.focusOn)return;l3.focusMs+=Date.now()-l3.focusStarted;l3.focusOn=false;
@@ -221,7 +221,7 @@ function renderLeitner(){
   host=document.createElement('div');host.className='l2-leitner-shell';host.dataset.l2Leitner='';
   panel.prepend(host);
  }
- let data;try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{data={}}
+ let data;try{data=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{data={}}
  const words=list(data.words),today=window.ElaraSchedule?.today?.()||new Date().toLocaleDateString('en-CA');
  const due=words.filter(w=>!w.due||w.due<=today);
  const boxes=[1,2,3,4,5].map(box=>words.filter(w=>Number(w.box||1)===box).length);

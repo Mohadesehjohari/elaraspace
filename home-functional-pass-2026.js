@@ -1,7 +1,7 @@
 /* Home-only controls: canonical task/goal forms and delegated actions own data, XP and persistence. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const read=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const read=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 const day=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 function canonicalClick(list,selector,attributes){const host=$(list);if(!host)return false;let button=host.querySelector(selector),temporary=false;if(!button){button=document.createElement('button');button.type='button';for(const [name,value] of Object.entries(attributes))button.dataset[name]=value;host.append(button);temporary=true}button.click();if(temporary)button.remove();return true}
 async function withDataHint(kind,fn){const prev=window.ElaraDataChangeHint;window.ElaraDataChangeHint=kind;try{return await fn()}finally{window.ElaraDataChangeHint=prev}}

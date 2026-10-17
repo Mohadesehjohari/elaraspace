@@ -18,8 +18,8 @@ const friendRows=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSoci
 const isFriend=uid=>friendRows().some(friend=>friend.uid===uid);
 const other=row=>row.from===ownUid()?row.to:row.from;
 let activeUid='',accountReady=false,links=new Map(),unsubs=[],inbound=[],outbound=[],syncTimer=null,syncing=false,accepting=new Set(),lastInbox=[];
-function read(){try{const value=JSON.parse(localStorage.getItem(STORE)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return{}}}
-function write(value){localStorage.setItem(STORE,JSON.stringify(value));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:value}));window.dispatchEvent(new Event('elara:data-changed'))}
+function read(){try{const value=JSON.parse(window.ElaraCloudStorage.getItem(STORE)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return{}}}
+function write(value){window.ElaraCloudStorage.setItem(STORE,JSON.stringify(value));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:value}));window.dispatchEvent(new Event('elara:data-changed'))}
 function verified(){if(!auth.currentUser?.emailVerified||!ownUid())throw Error(language('ابتدا وارد حساب تأییدشده شو.','Sign in to a verified account first.'));return ownUid()}
 function active(){
  const found=new Map();for(const row of links.values())if(row.status==='accepted'&&isFriend(other(row))&&!found.has(other(row)))found.set(other(row),row);

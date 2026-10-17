@@ -1,6 +1,6 @@
 /* Cross-site jump links to the canonical task folder and list; no duplicate task state. */
 (()=>{'use strict';
-const read=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}};
+const read=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}};
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
 let running=false;
 function decorate(){
