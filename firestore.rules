@@ -316,6 +316,23 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Browserless client keys: only the signed-in owner can see or edit them.
+    // The data is kept per-key rather than as one oversized shared document.
+    match /private/{uid}/clientKV/{entryId} {
+      allow get, list: if mine(uid);
+      allow create, update: if mine(uid)
+        && request.resource.data.keys().hasOnly(['key','value','updatedAt'])
+        && request.resource.data.keys().hasAll(['key','value','updatedAt'])
+        && request.resource.data.key is string
+        && request.resource.data.key.size() > 0
+        && request.resource.data.key.size() <= 250
+        && entryId == request.resource.data.key
+        && request.resource.data.value is string
+        && request.resource.data.value.size() <= 350000
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if mine(uid);
+    }
+
     match /presence/{uid} {
       allow get: if mine(uid) || (
         signed() && !blockedBetween(request.auth.uid, uid) && (
