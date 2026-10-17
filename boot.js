@@ -261,7 +261,7 @@
       ]);
       // Social has one canonical loader shared by background preload and dependent features.
       // It stays non-blocking for Home, while Profile/Friends can await the same promise.
-      void loadSocial().catch(error=>{
+      void loadSocial().then(()=>loadCollab()).then(()=>import(assetUrl('./account-link.js'))).catch(error=>{
         const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد: '+String(error?.message||error)
       });
       const optionalCloudModules=[
