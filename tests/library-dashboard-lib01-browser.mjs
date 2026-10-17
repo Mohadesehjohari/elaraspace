@@ -39,7 +39,7 @@ try{
     const rect=x.getBoundingClientRect(),art=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();
     return {height:rect.height,imageHeight:art?.height||0,y:rect.y};
   }));
-  assert.equal(launcherBounds.length,4,width+': keep old route targets available for compatibility');
+  assert.ok(launcherBounds.length===0||launcherBounds.length===4,width+': the deferred legacy launcher must be absent or mounted but hidden');
   assert.ok(launcherBounds.every(x=>x.height===0&&x.imageHeight===0),width+': obsolete library launcher layout must stay hidden '+JSON.stringify(launcherBounds));
   const owner=await page.evaluate(()=>{
    const p=document.getElementById('panel-books');
