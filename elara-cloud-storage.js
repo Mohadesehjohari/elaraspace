@@ -76,7 +76,8 @@
    for(let i=0;i<store.length;i++){
     const key=store.key(i);if(!key||!migratable(key,mine)||rows.has(key))continue;
     const value=store.getItem(key);
-    if(typeof value!=='string'||value.length>MAX)continue;
+    if(typeof value!=='string')continue;
+    if(value.length>MAX)throw Error('یک دادهٔ قدیمی این حساب از ظرفیت Cloud KV بیشتر است؛ قبل از تغییر نسخه، بکاپ بگیر و داده را تقسیم کن: '+key);
     await api.write(key,value);
     if(at!==epoch)return;
     rows.set(key,value);
@@ -93,6 +94,8 @@
   ++epoch;ready=false;uid='';transport=null;pending.clear();rows.clear();sessionRows.clear();
   clearTimeout(scheduled);scheduled=null;lastError=null;notify()
  }
+ window.addEventListener('online',()=>{if(ready&&pending.size)void flush().catch(error=>console.warn('Cloud KV reconnect:',error))});
+ window.addEventListener('pagehide',()=>{if(ready&&pending.size)void flush().catch(()=>{})});
  function loadMain(payload){rows.set(MAIN,typeof payload==='string'?payload:JSON.stringify(payload))}
  function inspect(){return{connected:ready,uid,pending:pending.size,error:lastError?.code||lastError?.message||null}}
  window.ElaraCloudStorage={getItem,setItem,removeItem,session,connect,disconnect,flush,loadMain,inspect};
