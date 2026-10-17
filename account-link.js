@@ -16,7 +16,10 @@ let activeUid='',accountReady=false,links=new Map(),unsubs=[],inbound=[],outboun
 function read(){try{const value=JSON.parse(localStorage.getItem(STORE)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return{}}}
 function write(value){localStorage.setItem(STORE,JSON.stringify(value));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:value}));window.dispatchEvent(new Event('elara:data-changed'))}
 function verified(){if(!auth.currentUser?.emailVerified||!ownUid())throw Error(language('ابتدا وارد حساب تأییدشده شو.','Sign in to a verified account first.'));return ownUid()}
-function active(){return [...links.values()].filter(row=>row.status==='accepted'&&isFriend(other(row)))}
+function active(){
+ const found=new Map();for(const row of links.values())if(row.status==='accepted'&&isFriend(other(row))&&!found.has(other(row)))found.set(other(row),row);
+ return [...found.values()];
+}
 function status(friendUid){const rows=[...links.values()].filter(x=>other(x)===friendUid);if(rows.some(x=>x.status==='accepted'&&isFriend(friendUid)))return'accepted';if(rows.some(x=>x.status==='pending'&&x.to===ownUid()))return'incoming';if(rows.some(x=>x.status==='pending'&&x.from===ownUid()))return'outgoing';return'none'}
 function requests(){return [...links.values()].filter(row=>row.status==='pending')}
 function announce(){window.dispatchEvent(new Event('elara:account-links-updated'));scheduleSync();void acceptLinkedInvites(lastInbox)}
@@ -114,9 +117,13 @@ async function syncNew(){
 }
 async function acceptLinkedInvites(rows){
  if(!accountReady||!activeUid||ownUid()!==activeUid)return;
- const allowed=new Set(active().map(other));
- for(const row of (Array.isArray(rows)?rows:[])){
-  if(row.to!==activeUid||!allowed.has(row.from)||row.status!=='pending'||accepting.has(row.id))continue;
+ const allowed=new Map(active().map(link=>[other(link),link]));
+ const pending=window.ElaraCollab?.pendingInvites?.()||rows;
+ for(const row of (Array.isArray(pending)?pending:[])){
+  const link=allowed.get(row.from);
+  if(row.to!==activeUid||!link||row.status!=='pending'||accepting.has(row.id))continue;
+  // Do not silently approve invitations created before the two-way link was accepted.
+  if(typeof row.createdAt?.toMillis!=='function'||typeof link.updatedAt?.toMillis!=='function'||row.createdAt.toMillis()<link.updatedAt.toMillis())continue;
   if(!sets.some(([kind])=>kind===row.kind))continue;
   accepting.add(row.id);
   try{
@@ -140,7 +147,7 @@ document.addEventListener('click',async event=>{
  }catch(error){await window.ElaraDialog?.alert?.(error.message||String(error),{title:language('اتصال حساب','Account link')})}
  finally{button.disabled=false}
 },true);
-window.addEventListener('elara:collab-inbox',event=>{lastInbox=event.detail?.rows||[];void acceptLinkedInvites(lastInbox)});
+window.addEventListener('elara:collab-inbox',event=>{lastInbox=window.ElaraCollab?.pendingInvites?.()||event.detail?.rows||[];void acceptLinkedInvites(lastInbox)});
 window.addEventListener('elara:data-changed',scheduleSync);
 window.addEventListener('elara:state-committed',scheduleSync);
 window.addEventListener('elara:social-updated',announce);
