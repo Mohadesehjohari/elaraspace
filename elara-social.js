@@ -218,10 +218,27 @@ function acceptedFriend(other){return !!uid&&!blockedByMe(other)&&state.friends.
 async function ensureDm(other){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
  if(!acceptedFriend(other))throw Error('گفتگوی خصوصی فقط بین دوستان تأییدشده فعال است.');
- const id=dmId(other),ref=doc(db,'conversations',id),snap=await getDoc(ref);
- if(!snap.exists()){
+ const id=dmId(other),ref=doc(db,'conversations',id);
+ let exists=false;
+ try{exists=(await getDoc(ref)).exists()}
+ catch(error){
+  // For a first-time chat the document is absent. Participant-only get rules
+  // cannot authorize that missing resource; the create rule must decide.
+  if(error?.code!=='permission-denied')throw error;
+ }
+ if(!exists){
   const members=[uid,other].sort();
-  await setDoc(ref,{kind:'dm',members,createdBy:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''});
+  try{
+   await setDoc(ref,{kind:'dm',members,createdBy:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''});
+  }catch(error){
+   // Another participant may have created the same deterministic conversation
+   // after our read. Never overwrite existing messages or metadata.
+   if(error?.code!=='permission-denied')throw error;
+   let winner=null;try{winner=await getDoc(ref)}catch{}
+   if(!winner?.exists())throw error;
+   const actual=winner.data()||{};
+   if(actual.kind!=='dm'||!Array.isArray(actual.members)||actual.members.length!==2||members.some(x=>!actual.members.includes(x)))throw error;
+  }
  }
  return id;
 }
