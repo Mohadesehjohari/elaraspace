@@ -43,6 +43,19 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
 }
 @media(min-width:701px){#elara-boot-screen .elara-skel-mobile-nav{display:none}}
 @media(prefers-reduced-motion:reduce){#elara-boot-screen .elara-skel-line,#elara-boot-screen .elara-skel-block{animation:none}}
+/* LIB-01 only: old Books forms, filters and clips must never paint on the overview.
+   They are retained for the dedicated Shelves/Clips routes; nothing is deleted. */
+html body #main #panel-books:not([data-lib01-paint-ready="true"]) > *{display:none!important}
+html body #main #panel-books:not(.hidden):not([data-lib01-paint-ready="true"])::before{
+ content:"در حال آماده‌سازی کتابخانهٔ جدید…";display:block;box-sizing:border-box;
+ margin:12px 0;padding:44px 16px;min-height:140px;width:100%;
+ border:1px solid #98724366;border-radius:16px;background:#0b1d2a;color:#f7dcae;
+ text-align:center;font:700 14px/1.8 Vazirmatn,Tahoma,Arial,sans-serif
+}
+html body #main #panel-books:not(.hidden)[data-lib01-paint-error="true"]::before{
+ content:"کتابخانهٔ جدید آماده نشد؛ لطفاً صفحه را دوباره بارگذاری کن."
+}
+html body #main #panel-books[data-lib01-paint-ready="true"] > :not(#lib01-overview):not(.elara-global-hero){display:none!important}
 /* The real FOCUS-03 owner unveils the canonical timer only when the new panel is ready. */
 #panel-focus-pomodoro:not([data-focus-ref-ready="true"]):not(.hidden) > .focus-card{visibility:hidden!important;pointer-events:none!important}
 </style>
@@ -145,7 +158,7 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <link rel="stylesheet" href="focus-room-fidelity.css?v=20261012-focus-bg-v1">
   <link rel="stylesheet" href="focus-two-mode.css?v=20261012-focus-two-modes-v1">
   <script defer src="focus-two-mode.js?v=20261014-freeze-hotfix-v1"></script>
-  <script defer src="lib01-library-dashboard.js?v=20261015-reference-library-no-dup-v3"></script>
+  <script defer src="lib01-library-dashboard.js?v=20261017-lib01-exclusive-owner-v1"></script>
   <!-- REPORTS-01 isolated assets; current navigators and subreports remain canonical. -->
   <link rel="stylesheet" href="reports-dashboard-01.css?v=20261012-reports-fidelity-v1">
   <script defer src="reports-dashboard-01.js?v=20261012-reports-fidelity-v1"></script>
