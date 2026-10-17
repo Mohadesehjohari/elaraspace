@@ -1,7 +1,7 @@
 /* Approved visual phase on the existing Elara app; no changes to account, XP or task schemas. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id),KEY='elara_space_v1',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&quot;'}[c]));
-const data=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}};
+const data=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}')}catch{return{}}};
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'guest';
 const safeList=a=>Array.isArray(a)?a:[];
 const profileSystem=()=>window.ElaraProfileSystem;
@@ -17,11 +17,11 @@ const LANGUAGE_BOOKS_KEY='elara_language_books_v2';
 const LANGUAGE_BOOKS_MIGRATION='elara_language_books_v2_migrated_';
 const currentLanguageUid=()=>String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'').trim();
 function canonicalLanguageRows(){
- try{const rows=JSON.parse(localStorage.getItem(LANGUAGE_BOOKS_KEY)||'[]');return safeList(rows).filter(row=>row&&typeof row==='object')}
+ try{const rows=JSON.parse(window.ElaraCloudStorage.getItem(LANGUAGE_BOOKS_KEY)||'[]');return safeList(rows).filter(row=>row&&typeof row==='object')}
  catch(error){console.error('Language books v2 read:',error);return[]}
 }
 function storeCanonicalLanguageRows(rows){
- try{localStorage.setItem(LANGUAGE_BOOKS_KEY,JSON.stringify(safeList(rows)));return true}
+ try{window.ElaraCloudStorage.setItem(LANGUAGE_BOOKS_KEY,JSON.stringify(safeList(rows)));return true}
  catch(error){console.error('Language books v2 write:',error);return false}
 }
 function ensureLanguageBookId(book,index=0){
@@ -31,13 +31,13 @@ function ensureLanguageBookId(book,index=0){
 }
 function migrateLegacyLanguageOwner(owner){
  const legacyOwner=String(owner||'guest'),marker=LANGUAGE_BOOKS_MIGRATION+legacyOwner;
- if(localStorage.getItem(marker)==='1')return false;
- let legacy=[];try{legacy=safeList(JSON.parse(localStorage.getItem('elara_language_books_v1_'+legacyOwner)||'[]'))}catch{}
- if(!legacy.length){localStorage.setItem(marker,'1');return false}
+ if(window.ElaraCloudStorage.getItem(marker)==='1')return false;
+ let legacy=[];try{legacy=safeList(JSON.parse(window.ElaraCloudStorage.getItem('elara_language_books_v1_'+legacyOwner)||'[]'))}catch{}
+ if(!legacy.length){window.ElaraCloudStorage.setItem(marker,'1');return false}
  const rows=canonicalLanguageRows(),seen=new Set(rows.map(x=>String(x.id||'')));let changed=false;
  legacy.forEach((raw,index)=>{const next=ensureLanguageBookId(raw,index),id=String(next.id);if(seen.has(id))return;seen.add(id);const {ownerUid,...clean}=next;rows.push(clean);changed=true});
  if(changed&&!storeCanonicalLanguageRows(rows))return false;
- localStorage.setItem(marker,'1');try{localStorage.removeItem('elara_language_books_v1_'+legacyOwner)}catch{};return changed
+ window.ElaraCloudStorage.setItem(marker,'1');try{window.ElaraCloudStorage.removeItem('elara_language_books_v1_'+legacyOwner)}catch{};return changed
 }
 function prepareLanguageBooks(){
  migrateLegacyLanguageOwner('guest');

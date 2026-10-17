@@ -7,7 +7,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const open=route=>window.ElaraOpen?.(route,{history:'push'});
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const read=()=>{try{const data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return data&&typeof data==='object'?data:{}}catch{return{}}};
+const read=()=>{try{const data=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return data&&typeof data==='object'?data:{}}catch{return{}}};
 
 function ensureStoreButton(){
  const actions=document.querySelector('.topbar .topbar-actions');if(!actions)return;
