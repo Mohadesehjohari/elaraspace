@@ -150,7 +150,7 @@ onAuthStateChanged(auth,user=>{
  if(!user?.emailVerified){accountReady=false;activeUid='';stop();return}
  watch(user.uid);
  // The account-ready event runs only after cloud.js hydrates this UID.
- if(document.body.classList.contains('cloud-ready')&&window.ElaraAccount?.user?.uid===user.uid)accountReady=true;
+ if(window.ElaraAccount?.loaded===true&&window.ElaraAccount?.user?.uid===user.uid)accountReady=true;
  scheduleSync();
 });
 window.ElaraAccountLink={status,requests,request,accept,decline,disconnect,activeWith:uid=>active().some(row=>other(row)===uid)};
