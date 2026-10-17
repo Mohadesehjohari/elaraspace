@@ -262,7 +262,14 @@ async function saveDmDraft(other,value){
 async function deleteDmDraft(other){
  const mine=socialOwner();await deleteDoc(doc(db,'private',mine,'dmDrafts',checkedSocialTarget(other)));return true
 }
-window.ElaraSocial.cloud={loadMeta:loadSocialMeta,saveMeta:saveSocialMeta};
+function watchSocialMeta(callback){
+ const mine=socialOwner();
+ return onSnapshot(collection(db,'private',mine,'socialMeta'),snaps=>{
+  if(auth.currentUser?.uid!==mine||uid!==mine)return;
+  callback(Object.fromEntries(snaps.docs.map(s=>[s.id,s.data()])));
+ },error=>console.warn('Social metadata realtime:',error.code||error.message))
+}
+window.ElaraSocial.cloud={loadMeta:loadSocialMeta,saveMeta:saveSocialMeta,watchMeta:watchSocialMeta};
 window.ElaraSocial.dmDrafts={load:loadDmDraft,save:saveDmDraft,clear:deleteDmDraft};
 
 const dmId=other=>[String(uid||''),String(other||'')].sort().join('__'),dmLastSend=new Map();
