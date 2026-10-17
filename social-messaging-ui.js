@@ -56,6 +56,8 @@ async function showThread(s,id){stopThread();const version=threadVersion,host=s.
 }
 async function mount(){const r=root(),service=api();if(!r||!service){stopThread();document.querySelector('#elara-social-page .social-dm-section')?.remove();return}const grid=r.querySelector('.social-reference-grid');if(!grid)return;
  let s=grid.querySelector('.social-dm-section');if(!s){s=document.createElement('section');s.className='elara-card social-section social-dm-section';s.dataset.elaraI18n='off';grid.prepend(s)}
+ // Replace the designed no-data placeholder only after the real Chats surface is mounted.
+ grid.querySelector('[data-social-slot="chats"]')?.remove();
  const token=++generation;if(sessionOwner!==owner()){sessionOwner=owner();active='';conversations=[];query='';filter='all';chooseNew=false;stopThread()}
  if(!me()){s.innerHTML='<div class="dm-loading">'+ico('shield')+'<h2>'+t('برای گفتگو وارد حساب شو','Sign in to chat')+'</h2></div>';return}
  if(!s.querySelector('.dm-voyage'))s.innerHTML='<div class="dm-loading">'+ico('chat')+'<p>'+t('در حال بارگذاری گفتگوها...','Loading chats...')+'</p></div>';
