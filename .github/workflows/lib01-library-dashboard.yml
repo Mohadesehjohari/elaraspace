@@ -6,6 +6,7 @@ on:
       - lib01-library-dashboard.js
       - lib01-library-dashboard.css
       - tests/library-dashboard-lib01-browser.mjs
+      - tests/library-first-paint-exclusive-browser.mjs
       - .github/workflows/lib01-library-dashboard.yml
   push:
     branches: [main]
@@ -31,6 +32,7 @@ jobs:
         run: |
           node --check lib01-library-dashboard.js
           node --check tests/library-dashboard-lib01-browser.mjs
+          node --check tests/library-first-paint-exclusive-browser.mjs
           test -s assets/ui/librairy_banner_main.webp
       - name: Install Chromium
         run: |
@@ -43,6 +45,7 @@ jobs:
           python3 -m http.server 4173 >/tmp/lib01-server.log 2>&1 &
           sleep 3
           timeout 420s node tests/library-dashboard-lib01-browser.mjs
+          timeout 210s node tests/library-first-paint-exclusive-browser.mjs
           timeout 300s node tests/library-stage4-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()

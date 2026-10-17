@@ -39,11 +39,17 @@ try{
     const rect=x.getBoundingClientRect(),art=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();
     return {height:rect.height,imageHeight:art?.height||0,y:rect.y};
   }));
-  assert.equal(launcherBounds.length,4,width+': four legacy library launcher routes must remain visible');
-  assert.ok(launcherBounds.every(x=>x.height>=(width<=700?160:188)&&x.imageHeight>=(width<=700?100:125)),width+': visual launcher compatibility '+JSON.stringify(launcherBounds));
+  assert.ok(launcherBounds.length===0||launcherBounds.length===4,width+': the deferred legacy launcher must be absent or mounted but hidden');
+  assert.ok(launcherBounds.every(x=>x.height===0&&x.imageHeight===0),width+': obsolete library launcher layout must stay hidden '+JSON.stringify(launcherBounds));
+  const owner=await page.evaluate(()=>{
+   const p=document.getElementById('panel-books');
+   return {ready:p.dataset.lib01PaintReady,legacy:[...p.children].filter(x=>!x.matches('#lib01-overview,.elara-global-hero')).filter(x=>getComputedStyle(x).display!=='none').map(x=>x.id||x.className)};
+  });
+  assert.equal(owner.ready,'true',width+': only the new owner may release first paint');
+  assert.deepEqual(owner.legacy,[],width+': old forms, clips or secondary sections remain visible');
   assert.equal(model.nHeroes,1,width+': extra visible banner');
   assert.match(model.image,/librairy_banner_main\.webp/,width+': approved library asset not used');
-  assert.equal(model.tabs,8,width+': incomplete eight library shortcuts');
+  assert.equal(model.tabs,6,width+': incomplete six canonical Library shortcuts');
   assert.ok(model.scroll<=model.viewport+2,width+': overflow '+JSON.stringify(model));
   assert.equal(model.continuing,empty?0:1,width+': continuing books must follow canonical status');
   assert.equal(model.clips,empty?0:1,width+': clips must come from canonical bookClips');
@@ -56,7 +62,11 @@ try{
    await page.locator('#timer-display').evaluate(el=>{el.textContent='13:42'});
    await page.waitForFunction(()=>document.querySelector('#lib01-overview [data-lib01-timer]')?.textContent==='13:42');
    await page.locator('#lib01-overview [data-lib01-route="library-shelves"]').first().click();
-   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form');
+   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form',{state:'attached'});
+   const disclosure=page.locator('#panel-library-shelves > .lib06-legacy-tools');
+   assert.equal(await disclosure.count(),1,'Book management must remain available in the Shelves disclosure');
+   await disclosure.evaluate(el=>{el.open=true});
+   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form:visible');
    const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books);
    assert.equal(stored.length,3,'dashboard changed book count');
    assert.equal(stored.find(x=>x.id==='book-01').currentPage,50,'dashboard modified reading progress');
