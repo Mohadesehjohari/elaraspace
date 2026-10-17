@@ -12,6 +12,12 @@ for(const width of [390,1440]){
  await page.goto((process.env.ELARA_TEST_URL||'http://127.0.0.1:4173')+'/#home',{waitUntil:'domcontentloaded',timeout:40000});
  await page.waitForFunction(()=>!!window.ElaraFoxRewards&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
  const loaded=await page.evaluate(async()=>{const i=new Image();i.src='assets/ui/fox-celebrate.webp';await i.decode();return i.naturalWidth});assert.ok(loaded>100);
+ assert.equal(await page.locator('.elara-fox-companion').count(),0,'No permanent fox on Home');
+ for(const route of ['language','exercise','words']){
+  await page.evaluate(r=>window.ElaraOpen(r,{history:'push'}),route);
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('.elara-fox-companion').count(),0,'No permanent fox on '+route);
+ }
  await page.evaluate(()=>window.ElaraOpen('settings',{history:'push'}));
  await page.waitForSelector('#elara-fox-settings [data-fox-preview]');
  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).xp);

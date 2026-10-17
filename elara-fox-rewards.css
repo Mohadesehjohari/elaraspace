@@ -13,13 +13,6 @@
 .elara-fox-action{flex:1;min-height:44px;border-radius:12px;border:1px solid #8e74d8;background:#ffffff12;color:#eee8ff;font-size:14px;font-weight:800;cursor:pointer;padding:10px}
 .elara-fox-action.primary{background:linear-gradient(135deg,#fff0a3,#f5ba4c);border-color:#ffe2a7;color:#24163f}
 .elara-fox-action:focus-visible,.elara-fox-close:focus-visible,#elara-fox-settings button:focus-visible{outline:3px solid #b7eaff;outline-offset:3px}
-.elara-fox-companion{position:absolute!important;z-index:3;display:block!important;width:clamp(68px,8vw,115px)!important;height:auto!important;max-height:125px!important;object-fit:contain!important;pointer-events:none!important;filter:drop-shadow(0 7px 14px #050b238a);inset-inline-end:14px;bottom:7px;margin:0!important;padding:0!important;border:0!important;background:none!important}
-#panel-home .elara-hero,#panel-language .elara-language-hero,#panel-words .l2-leitner-hero,#panel-books .lib01-hero,#panel-exercise .well01-hero,#panel-missions .rpg-level,#panel-habits>.section-heading,#panel-goals>.section-heading,#panel-tasks>.section-heading{position:relative}
-#panel-home .elara-hero>.elara-fox-companion{width:95px!important;inset-inline-end:auto;inset-inline-start:18px;bottom:8px}
-#panel-language .elara-language-hero>.elara-fox-companion,#panel-words .l2-leitner-hero>.elara-fox-companion,#panel-books .lib01-hero>.elara-fox-companion,#panel-exercise .well01-hero>.elara-fox-companion{inset-inline-end:auto;inset-inline-start:15px;bottom:5px}
-#panel-missions .rpg-level>.elara-fox-companion{width:104px!important;inset-inline-end:17px;bottom:12px}
-#panel-habits>.section-heading,#panel-goals>.section-heading,#panel-tasks>.section-heading{padding-inline-end:80px}
-#panel-habits>.section-heading>.elara-fox-companion,#panel-goals>.section-heading>.elara-fox-companion,#panel-tasks>.section-heading>.elara-fox-companion{width:74px!important;inset-inline-end:4px;bottom:0}
 #elara-fox-settings{margin-top:14px;max-width:900px;direction:rtl}
 .elara-fox-settings-head{display:flex;align-items:center;gap:13px;margin-bottom:14px}
 .elara-fox-settings-head img{width:66px;height:66px;object-fit:contain;flex:0 0 66px}
@@ -30,5 +23,5 @@
 .mission-celebration{display:flex;align-items:center;gap:10px;min-width:0}
 .mission-celebration-fox{width:76px!important;height:76px!important;flex:0 0 76px;object-fit:contain;filter:drop-shadow(0 5px 10px #18114199)}
 @keyframes elara-fox-rise{from{transform:translateY(15px) scale(.96);opacity:0}to{transform:none;opacity:1}}
-@media(max-width:700px){.elara-fox-dialog{padding:22px 17px 19px;border-radius:20px}.elara-fox-companion{width:68px!important;max-height:75px!important;bottom:5px}#panel-home .elara-hero>.elara-fox-companion{width:56px!important;bottom:8px;inset-inline-start:5px}#panel-missions .rpg-level>.elara-fox-companion{width:65px!important}#panel-habits>.section-heading,#panel-goals>.section-heading,#panel-tasks>.section-heading{padding-inline-end:67px}#panel-habits>.section-heading>.elara-fox-companion,#panel-goals>.section-heading>.elara-fox-companion,#panel-tasks>.section-heading>.elara-fox-companion{width:58px!important}.mission-celebration-fox{width:58px!important;height:58px!important;flex-basis:58px}}
+@media(max-width:700px){.elara-fox-dialog{padding:22px 17px 19px;border-radius:20px}.mission-celebration-fox{width:58px!important;height:58px!important;flex-basis:58px}}
 @media(prefers-reduced-motion:reduce){.elara-fox-dialog{animation:none}.elara-fox-overlay{backdrop-filter:none}}

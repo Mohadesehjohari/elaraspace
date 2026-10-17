@@ -100,48 +100,27 @@ function onKeys(event){
  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 }
-const placements=[
- ['home','#panel-home .elara-hero','loved','home'],
- ['language','#panel-language .elara-language-hero','language','hero'],
- ['leitner','#panel-words .l2-leitner-hero','language','hero'],
- ['library','#panel-books .lib01-hero','library','hero'],
- ['wellness','#panel-exercise .well01-hero','sport','hero'],
- ['missions','#panel-missions .rpg-level','mission','level'],
- ['habits','#panel-habits > .section-heading','habits','heading'],
- ['goals','#panel-goals > .section-heading','goals','heading'],
- ['tasks','#panel-tasks > .section-heading','tasks','heading']
-];
-function renderCompanions(){
- const enabled=allow('companion');
- for(const [area,sel,pose,place] of placements){
-  const host=$(sel);if(!host)continue;
-  let img=host.querySelector(':scope > .elara-fox-companion');
-  if(!enabled){img?.remove();continue}
-  if(img)continue;
-  img=node('img','elara-fox-companion elara-fox-companion--'+place);
-  img.dataset.foxArea=area;art(img,pose);img.width=120;img.height=120;img.setAttribute('aria-hidden','true');img.fetchPriority='low';
-  host.append(img);
- }
-}
+/* Product rule: no persistent fox in hero, header, pages or mission level card.
+   The mascot is reserved for actual progress feedback and optional preview. */
 function settings(){
  const root=$('#panel-settings');if(!root)return;
  let card=root.querySelector('#elara-fox-settings');
  if(!card){
-  card=node('section','surface settings-card elara-fox-settings');card.id='elara-fox-settings';card.setAttribute('aria-label',t('شخصیت الارا','Elara mascot'));
+  card=node('section','surface settings-card elara-fox-settings');card.id='elara-fox-settings';card.setAttribute('aria-label',t('تشویق‌های الارا','Elara celebrations'));
   root.append(card);
  }
  const o=options();
  card.replaceChildren();
  const head=node('div','elara-fox-settings-head'),img=node('img','elara-fox-settings-image');art(img,'thoughtful');img.width=66;img.height=66;
- const heading=node('div');heading.append(node('h2','',t('همراه الارا','Your Elara companion')));heading.append(node('p','muted',t('جای روباه و تبریک‌های پیشرفت رو به سلیقهٔ خودت تنظیم کن.','Choose how your fox companion celebrates your progress.')));
+ const heading=node('div');heading.append(node('h2','',t('تشویق‌های الارا','Elara celebrations')));heading.append(node('p','muted',t('روباه فقط هنگام دستاوردهای مهم ظاهر می‌شه. اینجا واکنش‌ها رو تنظیم کن.','Your fox appears only for real milestones. Customize its reactions here.')));
  head.append(img,heading);card.append(head);
- for(const [name,fa,eng,value] of [['visible','نمایش کاراکتر در صفحات','Show mascot in pages',o.visible],['celebrations','نمایش پاپ‌آپ‌های تبریک','Show celebration popups',o.celebrations]]){
+ for(const [name,fa,eng,value] of [['visible','فعال‌بودن واکنش‌های روباه','Enable fox reactions',o.visible],['celebrations','نمایش پاپ‌آپ‌های تبریک','Show celebration popups',o.celebrations]]){
   const label=node('label','elara-fox-settings-toggle'),span=node('span','',t(fa,eng)),input=node('input');input.type='checkbox';input.checked=value;input.dataset.foxSetting=name;
   label.append(span,input);card.append(label);
  }
  const preview=node('button','quiet-button elara-fox-preview',t('پیش‌نمایش تبریک','Preview celebration'));preview.type='button';preview.dataset.foxPreview='1';preview.disabled=!o.visible||!o.celebrations;card.append(preview);
 }
-function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;renderCompanions();settings()})}
+function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;settings()})}
 function setOption(field,value){
  const o=options();o[field]=!!value;try{localStorage.setItem(KEY,JSON.stringify(o))}catch{}
  if(!o.visible||!o.celebrations){dismiss(true);window.ElaraMissionCelebration?.close?.()}
@@ -157,7 +136,6 @@ window.addEventListener('elara:leitner-review-committed',onWord);
 window.addEventListener('elara:domain-milestone',onMilestone);
 window.addEventListener('elara:fox-focus-completed',onFocus);
 window.addEventListener('elara:data-changed',onXp);
-window.addEventListener('elara:data-changed',()=>{requestAnimationFrame(renderCompanions);setTimeout(renderCompanions,90)});
 window.addEventListener('elara:state-committed',onXp);
 window.addEventListener('elara:account-ready',()=>{dismiss(true);initial();sync()});
 window.addEventListener('elara:hydrate',()=>{dismiss(true);initial();sync()});

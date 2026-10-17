@@ -11,6 +11,8 @@ assert.match(js,/elara:fox-focus-completed/);
 assert.match(js,/elara:domain-milestone/);
 assert.match(js,/elara_fox_options_v1/);
 assert.match(js,/elara-fox-settings/);
+assert.doesNotMatch(js,/renderCompanions|const placements=/);
+assert.doesNotMatch(css,/elara-fox-companion|#panel-habits>\.section-heading/);
 assert.match(mission,/assets\/ui\/fox-mission\.webp/);
 assert.match(html,/elara-fox-rewards\.js/);
 assert.match(read('domain-notifications.js'),/elara:domain-milestone/);
