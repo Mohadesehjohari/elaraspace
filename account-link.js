@@ -7,6 +7,11 @@ import {getFirestore,collection,doc,getDoc,setDoc,updateDoc,query,where,onSnapsh
 
 const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
 const sets=[['task','tasks'],['habit','habits'],['goal','goals'],['language-class','languageClasses'],['leitner-word','words']];
+const kindTitles={'task':['تسک‌ها','Tasks'],'habit':['عادت‌ها','Habits'],'goal':['هدف‌ها','Goals'],'language-class':['کلاس‌های زبان','Language classes'],'leitner-word':['واژه‌های لایتنر','Leitner words']};
+const safeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ownItem=row=>row&&row.id!=null&&row.collabRole!=='member'&&!row.sourceManaged;
+const defaultMode=()=>read().accountLinkDefaultMode==='shared'?'shared':'private';
+const itemMode=(row,state)=>['private','shared'].includes(row?.accountLinkVisibility)?row.accountLinkVisibility:state?.accountLinkDefaultMode==='shared'?'shared':'private';
 const language=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const ownUid=()=>auth.currentUser?.uid||'';
 const friendRows=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
@@ -76,7 +81,72 @@ async function disconnect(friendUid){
  if(!confirmed)return false;
  await updateDoc(linkRef(row),{status:'revoked',updatedAt:serverTimestamp()});return true;
 }
-function itemRows(s){return sets.flatMap(([kind,key])=>(Array.isArray(s[key])?s[key]:[]).filter(row=>row&&row.id!=null&&row.collabRole!=='member'&&!row.sourceManaged).map(row=>({kind,row,key:kind+'|'+String(row.id)})))}
+function itemRows(s){return sets.flatMap(([kind,key])=>(Array.isArray(s[key])?s[key]:[]).filter(ownItem).map(row=>({kind,row,key:kind+'|'+String(row.id)})))}
+
+function setDefaultMode(mode){
+ if(!['private','shared'].includes(mode))throw Error(language('حالت اشتراک نامعتبر است.','Invalid sharing mode.'));
+ if(mode==='shared'&&!active().length)throw Error(language('ابتدا حساب یک دوست را متصل کن.','Link with a friend first.'));
+ const s=read(),old=s.accountLinkDefaultMode==='shared'?'shared':'private';
+ if(mode===old)return true;
+ // Existing records keep their OLD visibility. A new default is NEVER retroactive.
+ for(const {row} of itemRows(s))if(!['private','shared'].includes(row.accountLinkVisibility))row.accountLinkVisibility=old;
+ s.accountLinkDefaultMode=mode;write(s);return true;
+}
+function setItemMode(kind,ids,mode){
+ if(!sets.some(x=>x[0]===kind)||!['private','shared'].includes(mode))throw Error(language('نوع یا حالت اشتراک نامعتبر است.','Invalid selection.'));
+ if(mode==='shared'&&!active().length)throw Error(language('اول به یک دوست متصل شو.','Link with a friend before sharing.'));
+ const s=read(),field=sets.find(x=>x[0]===kind)[1],set=new Set((Array.isArray(ids)?ids:[]).map(String));
+ const found=(Array.isArray(s[field])?s[field]:[]).filter(row=>ownItem(row)&&set.has(String(row.id)));
+ if(!found.length)return 0;
+ s.accountLinkSeen=s.accountLinkSeen&&typeof s.accountLinkSeen==='object'&&!Array.isArray(s.accountLinkSeen)?s.accountLinkSeen:{};
+ for(const row of found){
+  const old=itemMode(row,s);row.accountLinkVisibility=mode;
+  if(old===mode)continue;
+  const key=kind+'|'+String(row.id);
+  for(const link of active()){
+   const seen=Array.isArray(s.accountLinkSeen[link.id])?s.accountLinkSeen[link.id]:[];
+   s.accountLinkSeen[link.id]=mode==='shared'?seen.filter(x=>x!==key):[...new Set([...seen,key])].slice(-20000);
+  }
+ }
+ write(s);scheduleSync();return found.length;
+}
+async function openManager(){
+ verified();const s=read(),items=itemRows(s),host=document.createElement('section');
+ host.className='account-share-manager';host.dataset.elaraI18n='off';
+ const peers=active().map(link=>friendRows().find(p=>p.uid===other(link))?.name||friendRows().find(p=>p.uid===other(link))?.username||other(link)).join('، ');
+ host.innerHTML='<p class="account-share-note">'+(peers?language('دوست متصل: ','Connected friend: ')+safeHtml(peers)+' · ':'')+
+ language('فقط موارد «مشترک» به حساب دوست می‌روند. «فقط من» جلوی ارسال بعدی را می‌گیرد، اما مواردی را که قبلاً ارسال شده‌اند از حساب دوست پاک نمی‌کند.','Only items marked Shared are delivered. Only me stops future deliveries but does not delete previously delivered copies.')+'</p>'+
+ '<label class="account-share-default">'+language('حالت پیش‌فرض برای موارد جدید','Default for NEW items')+' <select data-share-default><option value="private">'+language('🔒 فقط من','🔒 Only me')+'</option><option value="shared" '+(!active().length?'disabled':'')+'>'+language('🤝 مشترک','🤝 Shared')+'</option></select></label>'+
+ '<div class="account-share-actions"><button type="button" data-share-all>'+language('انتخاب همهٔ موارد','Select everything')+'</button><button type="button" data-share-clear>'+language('لغو انتخاب','Clear selection')+'</button><button type="button" data-share-mode="shared" '+(!active().length?'disabled':'')+'>'+language('🤝 مشترک کردن','🤝 Share selected')+'</button><button type="button" data-share-mode="private">'+language('🔒 فقط برای من','🔒 Only me')+'</button></div><p data-share-status role="status"></p>'+
+ sets.map(([kind])=>'<section class="account-share-group" data-share-group="'+kind+'"><header><strong>'+language(...kindTitles[kind])+'</strong><button type="button" data-share-group-all="'+kind+'">'+language('انتخاب همه','Select all')+'</button></header><div class="account-share-items">'+
+ items.filter(x=>x.kind===kind).map(({row})=>'<label><input type="checkbox" data-share-item data-kind="'+kind+'" value="'+safeHtml(row.id)+'"><span dir="auto">'+safeHtml(String(kind==='task'?row.text:kind==='leitner-word'?row.front:row.title||'').slice(0,160))+'</span><small>'+ (itemMode(row,s)==='shared'?language('🤝 مشترک','🤝 Shared'):language('🔒 فقط من','🔒 Only me'))+'</small></label>').join('')+'</div></section>').join('');
+ host.querySelector('[data-share-default]').value=defaultMode();
+ host.addEventListener('change',event=>{
+  if(!event.target.matches('[data-share-default]'))return;
+  try{setDefaultMode(event.target.value);host.querySelector('[data-share-status]').textContent=language('پیش‌فرض موارد جدید ذخیره شد.','New-item default saved.')}
+  catch(err){event.target.value=defaultMode();host.querySelector('[data-share-status]').textContent=err.message}
+ });
+ host.addEventListener('click',event=>{
+  const b=event.target.closest('button');if(!b)return;
+  if(b.hasAttribute('data-share-all'))host.querySelectorAll('[data-share-item]').forEach(x=>x.checked=true);
+  if(b.hasAttribute('data-share-clear'))host.querySelectorAll('[data-share-item]').forEach(x=>x.checked=false);
+  if(b.hasAttribute('data-share-group-all')){
+   const boxes=[...host.querySelectorAll('[data-share-group="'+b.dataset.shareGroupAll+'"] [data-share-item]')],all=boxes.every(x=>x.checked);boxes.forEach(x=>x.checked=!all);
+  }
+  if(b.hasAttribute('data-share-mode')){
+   const mode=b.dataset.shareMode,boxes=[...host.querySelectorAll('[data-share-item]:checked')],groups=new Map();
+   for(const x of boxes){if(!groups.has(x.dataset.kind))groups.set(x.dataset.kind,[]);groups.get(x.dataset.kind).push(x.value)}
+   if(!boxes.length){host.querySelector('[data-share-status]').textContent=language('چیزی انتخاب نشده است.','Select at least one item.');return}
+   try{
+    for(const [kind,ids] of groups)setItemMode(kind,ids,mode);
+    for(const x of boxes){x.closest('label').querySelector('small').textContent=mode==='shared'?language('🤝 مشترک','🤝 Shared'):language('🔒 فقط من','🔒 Only me');x.checked=false}
+    host.querySelector('[data-share-status]').textContent=language(boxes.length+' مورد تنظیم شد.',boxes.length+' items updated.');
+   }catch(err){host.querySelector('[data-share-status]').textContent=err.message}
+  }
+ });
+ await window.ElaraDialog.open({title:language('مدیریت اشتراک تسک‌ها و موارد','Shared or private items'),content:host,wide:true,actions:[{label:language('بستن','Close'),value:false}]});
+}
+
 function saveSeen(linkId,key=null){
  const s=read();s.accountLinkSeen=s.accountLinkSeen&&typeof s.accountLinkSeen==='object'&&!Array.isArray(s.accountLinkSeen)?s.accountLinkSeen:{};
  if(!Array.isArray(s.accountLinkSeen[linkId])){
@@ -99,12 +169,15 @@ async function syncNew(){
    const seen=new Set(s.accountLinkSeen[link.id]),partner=other(link);
    for(const item of itemRows(s)){
     if(!active().some(x=>x.id===link.id)||ownUid()!==activeUid)break;
-    if(seen.has(item.key))continue;
+    if(seen.has(item.key)||itemMode(item.row,s)!=='shared')continue;
     try{
+     // A queued item may have been switched to private since the scan.
+     const freshState=read(),fresh=itemRows(freshState).find(x=>x.key===item.key);
+     if(!fresh||itemMode(fresh.row,freshState)!=='shared')continue;
      const collaboration=await window.ElaraLoadCollab?.();
      if(!collaboration?.shareEntity)throw Error('Collaboration module not ready');
      // The recipient's accepted link is consent for automatically accepting this invitation.
-     await collaboration.shareEntity(item.kind,item.row,partner);
+     await collaboration.shareEntity(item.kind,fresh.row,partner);
      saveSeen(link.id,item.key);seen.add(item.key);
     }catch(error){
      console.warn('Account link delivery:',error.code||error.message);
@@ -135,6 +208,7 @@ async function acceptLinkedInvites(rows){
  }
 }
 document.addEventListener('click',async event=>{
+ const open=event.target.closest('[data-account-share-manager]');if(open){event.preventDefault();event.stopImmediatePropagation();void openManager().catch(error=>window.ElaraDialog?.alert?.(error.message||String(error)));return}
  const button=event.target.closest('[data-account-link-action]');if(!button)return;
  event.preventDefault();event.stopImmediatePropagation();
  if(button.disabled)return;button.disabled=true;
@@ -160,4 +234,4 @@ onAuthStateChanged(auth,user=>{
  if(window.ElaraAccount?.loaded===true&&window.ElaraAccount?.user?.uid===user.uid)accountReady=true;
  scheduleSync();
 });
-window.ElaraAccountLink={status,requests,request,accept,decline,disconnect,activeWith:uid=>active().some(row=>other(row)===uid)};
+window.ElaraAccountLink={status,requests,request,accept,decline,disconnect,openManager,setItemMode,setDefaultMode,defaultMode,activeWith:uid=>active().some(row=>other(row)===uid)};
