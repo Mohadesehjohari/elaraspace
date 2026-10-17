@@ -49,7 +49,7 @@ try{
   assert.deepEqual(owner.legacy,[],width+': old forms, clips or secondary sections remain visible');
   assert.equal(model.nHeroes,1,width+': extra visible banner');
   assert.match(model.image,/librairy_banner_main\.webp/,width+': approved library asset not used');
-  assert.equal(model.tabs,8,width+': incomplete eight library shortcuts');
+  assert.equal(model.tabs,6,width+': incomplete six canonical Library shortcuts');
   assert.ok(model.scroll<=model.viewport+2,width+': overflow '+JSON.stringify(model));
   assert.equal(model.continuing,empty?0:1,width+': continuing books must follow canonical status');
   assert.equal(model.clips,empty?0:1,width+': clips must come from canonical bookClips');
