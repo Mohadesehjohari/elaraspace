@@ -147,7 +147,7 @@ function beginPageWardrobeObserver(){
 function pageSettings(uid){
  if(!uid)return {name:'',bio:'',cover:'default',coverPhoto:'',corner:'default',cornerPhoto:'',interests:[]};
  try{
-  const p=JSON.parse(localStorage.getItem(pageKey(uid))||'{}');
+  const p=JSON.parse(window.ElaraCloudStorage.getItem(pageKey(uid))||'{}');
   return {name:typeof p.name==='string'?p.name.trim().slice(0,60):'',
     bio:typeof p.bio==='string'?p.bio.trim().slice(0,320):'',
     cover:p.cover==='gallery'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto||'')?'gallery':PAGE_ART.some(([id])=>id===p.cover)?p.cover:'default',coverPhoto:typeof p.coverPhoto==='string'&&/^data:image\/webp;base64,[a-zA-Z0-9+/=]{20,950000}$/.test(p.coverPhoto)?p.coverPhoto:'',corner:p.corner==='gallery'&&validPageCornerPhoto(p.cornerPhoto)?'gallery':safePageCorner(p.corner),cornerPhoto:validPageCornerPhoto(p.cornerPhoto),interests:cleanPageInterests(p.interests)};
@@ -224,7 +224,7 @@ async function openPageSettings(){
   if(form.elements.pageCornerFile?.files?.length){cornerPhoto=await pageCoverFromFile(form.elements.pageCornerFile.files[0],720,400,500000);corner='gallery'}
   const payload=JSON.stringify({name,bio,cover,coverPhoto,corner,cornerPhoto,interests});
   if(avatarPatch)P.writeWardrobe(avatarPatch);
-  localStorage.setItem(pageKey(uid),payload);
+  window.ElaraCloudStorage.setItem(pageKey(uid),payload);
   render();renderPageBannerWardrobe()
  }catch(error){await window.ElaraDialog.alert(String(error?.message||error),{title:t('ذخیره انجام نشد','Save failed')})}
 }
@@ -248,7 +248,7 @@ function pageTab(root,tab='all'){
 function pageLibraryClips(uid){
  if(!uid||uid!==window.ElaraAccount?.user?.uid)return [];
  try{
-  const raw=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');
+  const raw=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');
   const books=Array.isArray(raw.books)?raw.books:[],clips=Array.isArray(raw.bookClips)?raw.bookClips:[];
   return clips.filter(x=>x&&String(x.text||'').trim()).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0)).slice(0,3).map(c=>{
    const book=books.find(b=>String(b.id)===String(c.bookId));
@@ -429,7 +429,7 @@ document.addEventListener('change',async e=>{
   const cornerPhoto=await pageCoverFromFile(file,720,400,500000);
   if(uid!==window.ElaraAccount?.user?.uid)throw Error(t('حساب تغییر کرده؛ عکس ذخیره نشد.','Account changed; image was not saved.'));
   const data=JSON.stringify({...pageSettings(uid),corner:'gallery',cornerPhoto});
-  localStorage.setItem(pageKey(uid),data);
+  window.ElaraCloudStorage.setItem(pageKey(uid),data);
   render();
   document.querySelector('.page-wardrobe-banner')?.remove();
   renderPageBannerWardrobe();
@@ -453,7 +453,7 @@ document.addEventListener('click',async e=>{
  if(pageBannerPick){
   const uid=window.ElaraAccount?.user?.uid;if(!uid||pageBannerPick.disabled)return;
   const current=pageSettings(uid),id=pageBannerPick.dataset.pageCornerPick==='gallery'&&current.cornerPhoto?'gallery':safePageCorner(pageBannerPick.dataset.pageCornerPick);
-  try{localStorage.setItem(pageKey(uid),JSON.stringify({...pageSettings(uid),corner:id}));render();document.querySelector('.page-wardrobe-banner')?.remove();renderPageBannerWardrobe()}
+  try{window.ElaraCloudStorage.setItem(pageKey(uid),JSON.stringify({...pageSettings(uid),corner:id}));render();document.querySelector('.page-wardrobe-banner')?.remove();renderPageBannerWardrobe()}
   catch(error){await window.ElaraDialog?.alert?.(String(error?.message||error))}return
  }
  const editProfile=e.target.closest('[data-page-edit-profile],[data-page-edit-cover]');

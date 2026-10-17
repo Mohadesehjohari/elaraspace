@@ -5,10 +5,10 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
   const makeId=()=>crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2);
-  const read=()=>{try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{}}catch{return{}}};
-  const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
-  const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
-  const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
+  const read=()=>{try{const x=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{}}catch{return{}}};
+  const write=data=>{window.ElaraCloudStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
+  const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(window.ElaraCloudStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
+  const savePref=patch=>{const p={...pref(),...patch};window.ElaraCloudStorage.setItem(PREF,JSON.stringify(p));return p};
   let root,panel,current='home',accountGutters=null;
   function ensureProfileHubCSS(){
     if(document.getElementById('elara-profile-hub-reference-css'))return;
@@ -23,9 +23,9 @@
   const privacyKey=()=>`elara_privacy_local_v1_${privacyUid()||'guest'}`;
   const SHARE_KEYS=['task','habit','goal','mission','reading','language','exercise','focus','streak','ranking'];
   const validVisibility=value=>['private','friends','public'].includes(value)?value:null;
-  function legacyActivityVisibility(){const id=privacyUid();if(!id)return'private';const explicit=validVisibility(localStorage.getItem('elara_activity_visibility_'+id));if(explicit)return explicit;return localStorage.getItem('elara_share_activity_'+id)==='no'?'private':'friends'}
-  function readPrivacy(){let stored={};try{stored=JSON.parse(localStorage.getItem(privacyKey())||'{}')||{}}catch{}const fallback=legacyActivityVisibility(),base={showWellnessHome:true,cycle:'private'};for(const key of SHARE_KEYS)base[key]=fallback;return {...base,...stored,cycle:'private'}}
-  function writePrivacy(patch){try{localStorage.setItem(privacyKey(),JSON.stringify({...readPrivacy(),...patch,cycle:'private'}));return true}catch{return false}}
+  function legacyActivityVisibility(){const id=privacyUid();if(!id)return'private';const explicit=validVisibility(window.ElaraCloudStorage.getItem('elara_activity_visibility_'+id));if(explicit)return explicit;return window.ElaraCloudStorage.getItem('elara_share_activity_'+id)==='no'?'private':'friends'}
+  function readPrivacy(){let stored={};try{stored=JSON.parse(window.ElaraCloudStorage.getItem(privacyKey())||'{}')||{}}catch{}const fallback=legacyActivityVisibility(),base={showWellnessHome:true,cycle:'private'};for(const key of SHARE_KEYS)base[key]=fallback;return {...base,...stored,cycle:'private'}}
+  function writePrivacy(patch){try{window.ElaraCloudStorage.setItem(privacyKey(),JSON.stringify({...readPrivacy(),...patch,cycle:'private'}));return true}catch{return false}}
   function privacyVisibility(kind){const value=validVisibility(readPrivacy()[kind]);return value||legacyActivityVisibility()}
   function wellnessHomeVisible(){return true}
   window.ElaraPrivacyLocal={read:readPrivacy,write:writePrivacy,wellnessHomeVisible,visibility:privacyVisibility,categories:SHARE_KEYS.slice()};
@@ -265,7 +265,7 @@ function renderSecurity(){
     host.innerHTML=`${sectionHead('لیست‌ها، پوشه‌ها و تگ‌ها','هر لیست یا پوشه صفحهٔ مستقل خودش را دارد.')}<div class="drawer-manage-actions"><button type="button" class="primary-button" data-drawer-add="list">+ لیست</button><button type="button" class="primary-button" data-drawer-add="folder">+ پوشه</button><button type="button" class="quiet-button" data-drawer-add="tag">+ برچسب</button></div><div class="drawer-tags">${data.tags.map(t=>`<span>#${esc(t)}</span>`).join('')||'<small class="muted">هنوز برچسبی نداری.</small>'}</div><div class="drawer-collection-group"><h3>لیست‌ها</h3><div class="drawer-folders">${lists||'<p class="muted">هنوز لیستی نداری.</p>'}</div></div><div class="drawer-collection-group"><h3>پوشه‌ها</h3><div class="drawer-folders">${folders||'<p class="muted">اولین پوشه را اضافه کن.</p>'}</div></div>`;
   }
   function notificationRows(){
-    const data=ensureData(read()),local=(()=>{try{return JSON.parse(localStorage.getItem(NOTIF)||'[]')}catch{return[]}})();
+    const data=ensureData(read()),local=(()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem(NOTIF)||'[]')}catch{return[]}})();
     const claims=data.missionRewardClaims.slice(-30).reverse().map(key=>{
       const text=String(key),parts=text.split(':');
       return {title:'پاداش مأموریت دریافت شد',meta:parts.length>1?`${parts[0]} · ${parts.slice(1).join(':')}`:text};
@@ -273,10 +273,10 @@ function renderSecurity(){
     return [...local.slice(-30).reverse(),...claims].slice(0,50);
   }
   function markNotificationsRead(){
-    let rows;try{rows=JSON.parse(localStorage.getItem(NOTIF)||'[]')}catch{rows=[]}
+    let rows;try{rows=JSON.parse(window.ElaraCloudStorage.getItem(NOTIF)||'[]')}catch{rows=[]}
     if(!Array.isArray(rows))return false;let changed=false;
     const next=rows.map(row=>{if(!row||typeof row!=='object')return row;const unread=row.unread===true||row.read===false||row.status==='unread';if(!unread)return row;changed=true;return {...row,read:true,unread:false,...(row.status==='unread'?{status:'read'}:{})}});
-    if(changed){localStorage.setItem(NOTIF,JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:notifications-changed',{detail:{unread:0}}))}
+    if(changed){window.ElaraCloudStorage.setItem(NOTIF,JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:notifications-changed',{detail:{unread:0}}))}
     return changed;
   }
   function renderNotifications(){
@@ -286,7 +286,7 @@ function renderSecurity(){
   function renderAppearance(target='drawer-settings-theme-area'){
     const host=$(target)||$('drawer-appearance-area');if(!host)return;
     const embedded=host.id==='drawer-settings-theme-area';
-    const p=pref(),style=p.style||'default',amoled=localStorage.getItem('elara_amoled')==='yes',mode=amoled?'amoled':p.mode;
+    const p=pref(),style=p.style||'default',amoled=window.ElaraCloudStorage.getItem('elara_amoled')==='yes',mode=amoled?'amoled':p.mode;
     const themeArt={mode:{dark:'assets/ui/theme_dark.webp',light:'assets/ui/theme_white.webp',system:'assets/ui/theme.webp',amoled:'assets/ui/theme_dark.webp'},style:{default:'assets/ui/theme.webp',minimal:'assets/ui/theme_minimal.webp',rugged:'assets/ui/city_theme.webp',anime:'assets/ui/theme_spring.webp'},color:{default:'assets/ui/theme_dark.webp',violet:'assets/ui/theme_galaxy_purple.webp',blue:'assets/ui/theme_blue.webp',pink:'assets/ui/theme_pink.webp',red:'assets/ui/theme_red.webp',orange:'assets/ui/theme_orange.webp',green:'assets/ui/theme_forest_green.webp',black:'assets/ui/theme_dark.webp',white:'assets/ui/theme_white.webp'}};
     // Mode and Style are text-only controls; only actual themes show artwork.
     const modeTile=(key,label)=>`<button type="button" class="elara-mode-choice ${mode===key?'active':''}" data-drawer-mode="${key}" aria-pressed="${mode===key}">${label}</button>`;
@@ -315,14 +315,14 @@ function renderSecurity(){
     const host=$('drawer-help-area');if(!host)return;
     host.innerHTML=`${sectionHead('راهنما','راهنمای سریع بخش‌های اصلی Elara.')}<div class="drawer-help-list"><details open><summary>تسک‌ها</summary><p>روی عنوان تسک بزن تا توضیحات و همهٔ جزئیات را ببینی و همان‌جا ویرایش کنی.</p></details><details><summary>پوشه‌ها و تگ‌ها</summary><p>از همین منو پوشه بساز و داخل هر پوشه مستقیم تسک اضافه کن.</p></details><details><summary>پروفایل و دوستان</summary><p>پروفایل خودت در همین پنل است؛ پروفایل دوستان به شکل Popup وسط صفحه باز می‌شود.</p></details><details><summary>حریم خصوصی</summary><p>رمز عبور و نمایش عمومی پروفایل را از بخش امنیت و حساب مدیریت کن.</p></details></div>`;
   }
-  function calendarLabel(){return (localStorage.getItem('elara_calendar_pref')||'persian')==='persian'?'شمسی':'میلادی'}
+  function calendarLabel(){return (window.ElaraCloudStorage.getItem('elara_calendar_pref')||'persian')==='persian'?'شمسی':'میلادی'}
   function updateCalendarLabels(){
-    const type=localStorage.getItem('elara_calendar_pref')||'persian';document.documentElement.dataset.calendar=type;
+    const type=window.ElaraCloudStorage.getItem('elara_calendar_pref')||'persian';document.documentElement.dataset.calendar=type;
     const locale=type==='persian'?'fa-IR-u-ca-persian':'fa-IR-u-ca-gregory',value=new Intl.DateTimeFormat(locale,{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(new Date());
     if($('today-date'))$('today-date').textContent=value;if($('sidebar-date'))$('sidebar-date').textContent=value;if($('drawer-calendar-label'))$('drawer-calendar-label').textContent=calendarLabel();
   }
   function renderCalendar(){
-    const host=$('drawer-calendar-area');if(!host)return;const current=localStorage.getItem('elara_calendar_pref')||'persian';
+    const host=$('drawer-calendar-area');if(!host)return;const current=window.ElaraCloudStorage.getItem('elara_calendar_pref')||'persian';
     host.innerHTML=`${sectionHead('تقویم','نوع نمایش تاریخ در رابط کاربری.')}<div class="drawer-choice-grid"><button data-drawer-calendar="persian" class="${current==='persian'?'active':''}">شمسی / فارسی</button><button data-drawer-calendar="gregorian" class="${current==='gregorian'?'active':''}">میلادی</button></div>`;
   }
 
@@ -341,7 +341,7 @@ function renderSecurity(){
   function setStyle(style){if(window.ElaraSetAppearance)window.ElaraSetAppearance({style});else savePref({style});document.body.dataset.elaraStyle=style;renderAppearance()}
   function setMode(mode){
     const amoled=mode==='amoled';
-    localStorage.setItem('elara_amoled',amoled?'yes':'no');
+    window.ElaraCloudStorage.setItem('elara_amoled',amoled?'yes':'no');
     document.body.classList.toggle('amoled',amoled);
     if(window.ElaraSetAppearance)window.ElaraSetAppearance({mode:amoled?'dark':mode});
     else {
@@ -381,8 +381,8 @@ function renderSecurity(){
     panel.tabIndex=-1;document.addEventListener('keydown',trapDrawerKey,true);
     window.addEventListener('popstate',()=>{if(root&&!root.classList.contains('hidden')&&!history.state?.elaraDrawer)closeInternal()});
     removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
-    const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
-    const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
+    const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',window.ElaraCloudStorage.getItem('elara_amoled')==='yes');
+    const locale=p.language==='en'?'en':'fa';window.ElaraCloudStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
     renderProfile();renderHub();updateCalendarLabels();syncQuickAppearance();
     window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
     window.visualViewport?.addEventListener?.('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
@@ -390,7 +390,7 @@ function renderSecurity(){
 
   function syncQuickAppearance(){
     const p=pref(),active=p.themeVariant||(p.color==='violet'?'default':p.color);
-    const mode=localStorage.getItem('elara_amoled')==='yes'?'amoled':p.mode==='system'?
+    const mode=window.ElaraCloudStorage.getItem('elara_amoled')==='yes'?'amoled':p.mode==='system'?
       (window.matchMedia?.('(prefers-color-scheme: light)')?.matches?'light':'dark'):p.mode;
     document.querySelectorAll('[data-elara-theme-quick]').forEach(button=>{
       const selected=button.dataset.elaraThemeQuick===active;
@@ -415,7 +415,7 @@ function renderSecurity(){
     if(wardrobeButton){e.preventDefault();window.ElaraWardrobeUI?.open?.();return}
     const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
     const route=e.target.closest('[data-drawer-route]');if(route){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.(route.dataset.drawerRoute);return}
-    const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});localStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
+    const language=e.target.closest('[data-drawer-language]');if(language){const lang=language.dataset.drawerLanguage==='en'?'en':'fa';savePref({language:lang});window.ElaraCloudStorage.setItem('elara_locale_v1',lang);window.ElaraI18n?.set?.(lang);renderLanguage();return}
     const add=e.target.closest('[data-drawer-add]');if(add){await addNamed(add.dataset.drawerAdd);return}
     const unblock=e.target.closest('[data-social-unblock]');if(unblock){unblock.disabled=true;try{await window.ElaraSocial?.unblockUser?.(unblock.dataset.socialUnblock);renderPrivacy();renderBlocked()}catch(err){const status=$('drawer-privacy-area')?.querySelector('[data-privacy-status]');if(status)status.textContent=err?.message||'رفع مسدودیت انجام نشد.'}finally{unblock.disabled=false}return}
     const collection=e.target.closest('[data-open-task-collection]');if(collection){clearDrawerHistoryMarker();closeInternal();window.ElaraTaskCollections?.open?.(collection.dataset.openTaskCollection,collection.dataset.collectionName);return}
@@ -426,7 +426,7 @@ function renderSecurity(){
     const mode=e.target.closest('[data-drawer-mode]');if(mode){setMode(mode.dataset.drawerMode);return}
     const color=e.target.closest('[data-drawer-color]');if(color){setColor(color.dataset.drawerColor);return}
     const style=e.target.closest('[data-drawer-style]');if(style){setStyle(style.dataset.drawerStyle);return}
-    const cal=e.target.closest('[data-drawer-calendar]');if(cal){localStorage.setItem('elara_calendar_pref',cal.dataset.drawerCalendar);updateCalendarLabels();renderCalendar();return}
+    const cal=e.target.closest('[data-drawer-calendar]');if(cal){window.ElaraCloudStorage.setItem('elara_calendar_pref',cal.dataset.drawerCalendar);updateCalendarLabels();renderCalendar();return}
     if(e.target.closest('[data-drawer-reset-password]')){
       const area=e.target.closest('[data-drawer-section]'),status=area?.querySelector('[data-privacy-status]')||panel.querySelector('[data-privacy-status]');try{await window.ElaraAccount?.sendPasswordReset?.();if(status)status.textContent='لینک بازیابی به ایمیل حساب ارسال شد.'}catch(err){if(status)status.textContent=err.message||String(err)}return;
     }
@@ -442,8 +442,8 @@ function renderSecurity(){
     if(kind==='activity'){
       const id=privacyUid();if(!id){control.value='private';if(status)status.textContent='ابتدا وارد حساب شو.';return}
       const value=['private','friends','public'].includes(control.value)?control.value:'private';
-      localStorage.setItem('elara_activity_visibility_'+id,value);
-      localStorage.setItem('elara_share_activity_'+id,value==='private'?'no':'yes');
+      window.ElaraCloudStorage.setItem('elara_activity_visibility_'+id,value);
+      window.ElaraCloudStorage.setItem('elara_share_activity_'+id,value==='private'?'no':'yes');
       const mirror=$('elara-share-activity');if(mirror)mirror.checked=value!=='private';
       if(status)status.textContent=value==='private'?'فعالیت‌ها خصوصی ماندند.':value==='friends'?'خلاصهٔ فعالیت فقط برای دوستان قابل انتشار است.':'خلاصهٔ فعالیت می‌تواند عمومی منتشر شود.';return;
     }

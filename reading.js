@@ -35,8 +35,8 @@ function render(books,filter='all'){
  window.ElaraDOM.patch(report,'<header><h2>گزارش مطالعه</h2><div class="library-report-actions"><button type="button" class="primary-button" data-reading-report>گزارش مطالعه</button><button type="button" class="elara-link" data-elara-tab="reports">همه ←</button></div></header>'+stats(books)+chart(books));
  const visible=arr(books).filter(b=>filter==='all'||b.shelf===filter);window.ElaraDOM.patch(document.getElementById('book-list'),visible.map(card).join(''));document.getElementById('book-empty')?.classList.toggle('hidden',!!visible.length);
 }
-function commit(books){const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');state.books=books;window.ElaraLinkedTasks?.syncCoreState(state);localStorage.setItem('elara_space_v1',JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));render(books,document.getElementById('book-filter')?.value||'all')}
-function getBooks(){try{return arr(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').books)}catch{return[]}}
+function commit(books){const state=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');state.books=books;window.ElaraLinkedTasks?.syncCoreState(state);window.ElaraCloudStorage.setItem('elara_space_v1',JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));render(books,document.getElementById('book-filter')?.value||'all')}
+function getBooks(){try{return arr(JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}').books)}catch{return[]}}
 function openReport(){
  const books=getBooks().map(normalize).filter(b=>b.shelf==='reading'&&b.totalPages>0);
  const host=document.createElement('div');host.className='reading-report-picker';

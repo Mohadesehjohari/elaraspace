@@ -31,7 +31,7 @@ const PROFILE_THEMES=Object.freeze([
 ].map(Object.freeze));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const currentUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
-function currentXp(){try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return Number(window.ElaraSocial?.me?.xp??s?.xp??0)||0}catch{return Number(window.ElaraSocial?.me?.xp||0)||0}}
+function currentXp(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return Number(window.ElaraSocial?.me?.xp??s?.xp??0)||0}catch{return Number(window.ElaraSocial?.me?.xp||0)||0}}
 function fallbackLevelFromXp(xp){const value=Math.max(0,Number(xp)||0),threshold=l=>{const n=Math.max(1,Math.floor(Number(l)||1));if(n<=30)return(n-1)*70;const x=n-30;return 2030+70*x+25*x*x};let lo=1,hi=32;while(threshold(hi)<=value&&hi<100000)hi*=2;while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(threshold(mid)<=value)lo=mid;else hi=mid}return lo}
 const levelFromXp=xp=>{const registry=window.ElaraLevels?.level;if(typeof registry==='function'){const n=Number(registry(Number(xp)||0));if(Number.isFinite(n)&&n>=1)return Math.floor(n)}return fallbackLevelFromXp(xp)};
 const titleForLevel=level=>window.ElaraLevels?.titleForLevel?.(level)||TITLES[Math.min(10,Math.max(1,Number(level)||1))-1];
@@ -48,16 +48,16 @@ function bannerBy(value){if(!value)return null;const raw=String(value),aliases={
 function profileThemeBy(value){if(!value)return null;const id=String(value);return PROFILE_THEMES.find(x=>x.id===id)||null}
 function cleanPhoto(value){const s=String(value||'');return /^data:image\/(?:webp|png|jpeg);base64,/i.test(s)&&s.length<1500000?s:''}
 function normalizeWardrobe(value={}){const raw=value&&typeof value==='object'?value:{},shape=SHAPES.includes(raw.shape)?raw.shape:'circle',nameFont=Object.hasOwn(NAME_FONTS,raw.nameFont)?raw.nameFont:'default';return {avatarGroup:normalizeGroup(raw.avatarGroup),avatarLevel:normalizeLevel(raw.avatarLevel),frame:frameBy(raw.frame)?.id||null,banner:bannerBy(raw.banner)?.id||null,profileTheme:profileThemeBy(raw.profileTheme)?.id||null,shape,nameFont,photoMode:raw.photoMode==='upload'?'upload':'elara',photoCircle:cleanPhoto(raw.photoCircle),photoSquare:cleanPhoto(raw.photoSquare)}}
-function readWardrobe(uid=currentUid()||'guest'){try{return normalizeWardrobe(JSON.parse(localStorage.getItem(key(uid))||'{}'))}catch{return normalizeWardrobe()}}
-function writeWardrobe(patch={}){const uid=currentUid()||'guest',next=normalizeWardrobe({...readWardrobe(uid),...patch});localStorage.setItem(key(uid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:wardrobe-changed',{detail:{uid,wardrobe:next}}));return next}
+function readWardrobe(uid=currentUid()||'guest'){try{return normalizeWardrobe(JSON.parse(window.ElaraCloudStorage.getItem(key(uid))||'{}'))}catch{return normalizeWardrobe()}}
+function writeWardrobe(patch={}){const uid=currentUid()||'guest',next=normalizeWardrobe({...readWardrobe(uid),...patch});window.ElaraCloudStorage.setItem(key(uid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:wardrobe-changed',{detail:{uid,wardrobe:next}}));return next}
 function frameForLevel(level){const n=Math.min(10,Math.max(1,Number(level)||1));return n>=10?FRAMES[3]:n>=7?FRAMES[2]:n>=4?FRAMES[1]:FRAMES[0]}
 function frameVariantPath(frame,shape='circle'){const f=frameBy(frame);if(!f)return '';const mode=SHAPES.includes(shape)?shape:'circle';return 'assets/frames/'+f.id+'-'+mode+'.png'}
 const canEquipAvatar=(group,avatarLevel,userLevel)=>!!normalizeGroup(group)&&!!normalizeLevel(avatarLevel)&&Number(avatarLevel)<=Number(userLevel||0);
 const canEquipFrame=(frame,userLevel)=>{const f=frameBy(frame);return !!f&&f.required<=Number(userLevel||0)};
 const canEquipBanner=(banner,userLevel)=>{const b=bannerBy(banner);return !!b&&b.required<=Number(userLevel||0)};
 function privateKey(uid=currentUid()||'guest'){return PRIVATE_PREFIX+String(uid||'guest')}
-function readPrivate(uid=currentUid()||'guest'){try{const raw=JSON.parse(localStorage.getItem(privateKey(uid))||'{}');return {sex:['female','male','other'].includes(raw.sex)?raw.sex:'',periodEnabled:raw.periodEnabled!==false}}catch{return{sex:'',periodEnabled:true}}}
-function writePrivate(patch={}){const uid=currentUid()||'guest',next={...readPrivate(uid),...patch};if(!['female','male','other'].includes(next.sex))next.sex='';next.periodEnabled=next.periodEnabled!==false;localStorage.setItem(privateKey(uid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:profile-private-changed',{detail:{uid,profile:next}}));return next}
+function readPrivate(uid=currentUid()||'guest'){try{const raw=JSON.parse(window.ElaraCloudStorage.getItem(privateKey(uid))||'{}');return {sex:['female','male','other'].includes(raw.sex)?raw.sex:'',periodEnabled:raw.periodEnabled!==false}}catch{return{sex:'',periodEnabled:true}}}
+function writePrivate(patch={}){const uid=currentUid()||'guest',next={...readPrivate(uid),...patch};if(!['female','male','other'].includes(next.sex))next.sex='';next.periodEnabled=next.periodEnabled!==false;window.ElaraCloudStorage.setItem(privateKey(uid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('elara:profile-private-changed',{detail:{uid,profile:next}}));return next}
 function publicWardrobe(person={}){return normalizeWardrobe({avatarGroup:person.avatarGroup,avatarLevel:person.avatarLevel,frame:person.frame,banner:person.banner,profileTheme:person.profileTheme,shape:person.profileShape,nameFont:person.nameFont})}
 function viewModel(person={},opts={}){
  const self=opts.self??(!!currentUid()&&person?.uid===currentUid()),xp=Number(person?.xp??(self?currentXp():0))||0,level=levelFromXp(xp);

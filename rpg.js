@@ -5,7 +5,7 @@
   const $ = id => document.getElementById(id);
   const fa = value => Number(value).toLocaleString('fa-IR');
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-  const parse = () => { try { const result = JSON.parse(localStorage.getItem(STORE) || '{}'); return result && typeof result === 'object' ? result : {}; } catch { return {}; } };
+  const parse = () => { try { const result = JSON.parse(window.ElaraCloudStorage.getItem(STORE) || '{}'); return result && typeof result === 'object' ? result : {}; } catch { return {}; } };
   const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
   const streakCount=data=>{
     const dates=new Set(),day=today();
@@ -26,7 +26,7 @@
     const fallbackToday=tasks.filter(t => t?.recurrenceRule ? Array.isArray(t.occurrenceDone) && t.occurrenceDone.includes(day) : t?.completed && t.doneAt === day).length;
     const readingPages=books.reduce((n,b)=>n+(Array.isArray(b?.readingLogs)?b.readingLogs.filter(x=>x?.date===day).reduce((m,x)=>m+Math.max(0,Number(x.pagesRead)||0),0):0),0);
     const focusMinutes=(Array.isArray(data.focusSessions)?data.focusSessions:[]).filter(x=>x?.completed!==false&&new Date(Number(x.endedAt||x.startedAt||0)).toISOString().slice(0,10)===day).reduce((n,x)=>n+Math.max(0,Number(x.durationMin)||0),0);
-    let workoutMinutes=0;const me=uid();if(me)try{const w=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+me)||'{}');workoutMinutes=(Array.isArray(w.workouts)?w.workouts:[]).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.minutes)||0),0)}catch{}
+    let workoutMinutes=0;const me=uid();if(me)try{const w=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+me)||'{}');workoutMinutes=(Array.isArray(w.workouts)?w.workouts:[]).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.minutes)||0),0)}catch{}
     return {
       tasks: historyToday.size||fallbackToday,
       habits: habits.filter(h => Array.isArray(h?.days) && h.days.includes(day)).length,
@@ -66,7 +66,7 @@
     }
     if(!changed)return 0;
     data.missionRewardClaims=claims.slice(-5000);
-    localStorage.setItem(STORE,JSON.stringify(data));
+    window.ElaraCloudStorage.setItem(STORE,JSON.stringify(data));
     window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:data}));
     window.dispatchEvent(new Event('elara:data-changed'));
     for(const mission of newly)window.dispatchEvent(new CustomEvent('elara:mission-claimed',{detail:mission}));

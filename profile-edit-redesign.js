@@ -29,7 +29,7 @@
  ];
  const colors=[['blue','#078cff'],['violet','#ad18f7'],['pink','#fd39b3'],['sunset','#ff8740'],['mint','#03d99e'],['aurora','linear-gradient(135deg,#57eaff,#ef55c7,#ffac6b)']];
  const extraKey=uid=>'elara_profile_edit_extras_v1_'+uid;
- const safeLocal=uid=>{try{const v=JSON.parse(localStorage.getItem(extraKey(uid))||'{}');return {color:colors.some(c=>c[0]===v.color)?v.color:'blue',title:String(v.title||'').slice(0,50),customBanner:/^data:image\/(?:webp|png|jpeg);base64,/i.test(v.customBanner||'')&&v.customBanner.length<1000000?v.customBanner:''}}catch{return {color:'blue',title:'',customBanner:''}}};
+ const safeLocal=uid=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem(extraKey(uid))||'{}');return {color:colors.some(c=>c[0]===v.color)?v.color:'blue',title:String(v.title||'').slice(0,50),customBanner:/^data:image\/(?:webp|png|jpeg);base64,/i.test(v.customBanner||'')&&v.customBanner.length<1000000?v.customBanner:''}}catch{return {color:'blue',title:'',customBanner:''}}};
  const fileData=async(file,maxWidth,maxHeight,maxBytes)=>{
   if(!file||!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('تصویر باید PNG، JPG یا WEBP و حداکثر ۵ مگابایت باشد.');
   const url=URL.createObjectURL(file);
@@ -309,7 +309,7 @@
     if(draft.themeTouched)nextWardrobe.profileTheme=themes.find(t=>t.id===draft.theme)?.theme||null;
     try{
      P().writeWardrobe(nextWardrobe);
-     localStorage.setItem(extraKey(uid),JSON.stringify({color:draft.color,title:draft.title,customBanner:draft.customBanner}));
+     window.ElaraCloudStorage.setItem(extraKey(uid),JSON.stringify({color:draft.color,title:draft.title,customBanner:draft.customBanner}));
     }catch(err){status('اطلاعات اصلی در Firebase ذخیره شد، اما ذخیرهٔ ظاهر روی دستگاه ناموفق بود: '+String(err.message||err));return}
     person.name=draft.name;person.username=draft.username;person.bio=draft.bio;person.profilePublic=draft.profilePublic;
     Object.assign(savedWardrobe,P().readWardrobe(uid));Object.assign(savedExtras,safeLocal(uid));

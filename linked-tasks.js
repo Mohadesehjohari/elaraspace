@@ -16,7 +16,7 @@ const META={
 };
 let syncing=false;
 function ensure(s){if(!s||typeof s!=='object'||Array.isArray(s))s={};for(const k of ['tasks','habits','goals','books','words','taskCompletionHistory','linkedTaskDismissals'])if(!Array.isArray(s[k]))s[k]=[];return s}
-function readCore(){try{return ensure(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return ensure({})}}
+function readCore(){try{return ensure(JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}'))}catch{return ensure({})}}
 function keyOf(type,id,parent=''){return `${type}:${parent||''}:${id||''}`}
 function taskKey(t){return keyOf(t?.sourceType,t?.sourceId,t?.sourceParentId)}
 function completionKey(taskId,date){return String(taskId||'')+':'+String(date||'')}
@@ -137,7 +137,7 @@ function syncWorkoutRowsInState(input,rows,owner=''){
 }
 function currentUid(){return String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'')}
 function syncLanguageJournalState(state){
- const uid=currentUid();if(!uid)return false;let rows=[];try{rows=JSON.parse(localStorage.getItem('elara_language_journal_v1_'+uid)||'[]');if(!Array.isArray(rows))rows=[]}catch{rows=[]}
+ const uid=currentUid();if(!uid)return false;let rows=[];try{rows=JSON.parse(window.ElaraCloudStorage.getItem('elara_language_journal_v1_'+uid)||'[]');if(!Array.isArray(rows))rows=[]}catch{rows=[]}
  const valid=new Set();let changed=false;
  for(const row of rows){if(!row?.id||!validDate(row.date))continue;const id=String(row.id);valid.add(id);const minutes=Math.max(1,Number(row.minutes)||1),words=Math.max(0,Number(row.words)||0);
   changed=upsert(state,{sourceType:'language-log',sourceId:id,sourceOwner:uid,title:`تمرین زبان · ${minutes.toLocaleString('fa-IR')} دقیقه`,shortDescription:row.note||`${words.toLocaleString('fa-IR')} واژه تمرین شد`,date:row.date,completed:true,completedDate:row.date}).changed||changed;
@@ -146,11 +146,11 @@ function syncLanguageJournalState(state){
  return changed;
 }
 function syncWellnessState(state){
- const uid=currentUid();if(!uid)return false;let data={};try{data=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{}
+ const uid=currentUid();if(!uid)return false;let data={};try{data=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{}
  return syncWorkoutRowsInState(state,data.workouts||[],uid);
 }
 function commit(state){
- localStorage.setItem(KEY,JSON.stringify(state));
+ window.ElaraCloudStorage.setItem(KEY,JSON.stringify(state));
  window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));
  window.dispatchEvent(new Event('elara:data-changed'));
 }
@@ -161,7 +161,7 @@ function syncAll({fromTasks=false}={}){
 }
 function stateCommitted(event){
  if(syncing)return;syncing=true;
- try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=false;changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
+ try{const state=ensure(event?.detail&&typeof event.detail==='object'?event.detail:readCore());let changed=false;changed=syncCoreState(state)||changed;changed=syncLanguageJournalState(state)||changed;changed=syncWellnessState(state)||changed;if(changed){window.ElaraCloudStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:linked-state',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}}
  finally{syncing=false}
 }
 window.ElaraLinkedTasks={META,today,upsert,dismissTask,syncCoreState,syncLanguageJournalState,syncWorkoutRowsInState,syncSourcesFromTasks,syncAll};
