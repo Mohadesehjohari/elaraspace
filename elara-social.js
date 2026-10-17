@@ -53,23 +53,43 @@ async function visibleSocialStats(other){
 }
 async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
- const [incoming,outgoing,blockedSnaps,mutedSnaps,contextMuteSnaps]=await Promise.all([
+ // Friendship queries are essential; optional preference collections must never blank My Friends.
+ const [incoming,outgoing]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
-  getDocs(query(collection(db,'friendRequests'),where('from','==',mine))),
+  getDocs(query(collection(db,'friendRequests'),where('from','==',mine)))
+ ]);
+ const preferences=await Promise.allSettled([
   getDocs(query(collection(db,'blocks'),where('owner','==',mine))),
   getDocs(query(collection(db,'socialMutes'),where('owner','==',mine))),
   getDocs(query(collection(db,'socialContextMutes'),where('owner','==',mine)))
  ]);
- if(auth.currentUser?.uid!==mine)return;
- state.blocked=blockedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.muted=mutedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.contextMutes=contextMuteSnaps.docs.map(s=>({id:s.id,...s.data()}));const blockedIds=new Set(state.blocked.map(x=>x.target));
+ if(auth.currentUser?.uid!==mine||gen!==generation)return;
+ const [blockedSnaps,mutedSnaps,contextMuteSnaps]=preferences.map(r=>r.status==='fulfilled'?r.value:null);
+ if(blockedSnaps)state.blocked=blockedSnaps.docs.map(s=>({id:s.id,...s.data()}));
+ if(mutedSnaps)state.muted=mutedSnaps.docs.map(s=>({id:s.id,...s.data()}));
+ if(contextMuteSnaps)state.contextMutes=contextMuteSnaps.docs.map(s=>({id:s.id,...s.data()}));
+ for(const r of preferences)if(r.status==='rejected')console.warn('Optional social preferences unavailable:',r.reason?.code||r.reason?.message||r.reason);
+ const blockedIds=new Set(state.blocked.map(x=>x.target));
  const entries=new Map([...incoming.docs,...outgoing.docs].map(s=>[s.id,{id:s.id,...s.data()}]));
- const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;if(blockedIds.has(other))continue;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
- if(auth.currentUser?.uid!==mine)return;
+ const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;if(!other||blockedIds.has(other))continue;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}});else if(request.status==='accepted')enriched.push({...request,other,person:{uid:other,name:'دوست'}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
+ if(auth.currentUser?.uid!==mine||gen!==generation)return;
  state.requests=enriched;state.friends=enriched.filter(r=>r.status==='accepted').map(r=>r.person).filter((p,i,a)=>a.findIndex(v=>v.uid===p.uid)===i);
- await syncSocialStats();
- state.friends=await Promise.all(state.friends.map(async person=>{const stats=await visibleSocialStats(person.uid);return stats?{...person,...stats}:person}));
- const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
- if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';syncPresenceListeners();if(gen===generation)render();
+ // Show real accepted friends immediately. Slow/denied stats and activity reads are optional.
+ state.activities=[];state.error='';syncPresenceListeners();render();
+ void syncSocialStats();
+ const friendsAtLoad=[...state.friends];
+ const stats=await Promise.all(friendsAtLoad.map(async person=>[person.uid,await visibleSocialStats(person.uid)]));
+ if(auth.currentUser?.uid!==mine||gen!==generation)return;
+ const extraStats=new Map(stats);state.friends=state.friends.map(person=>({...person,...(extraStats.get(person.uid)||{})}));
+ const activityResults=await Promise.allSettled(friendsAtLoad.slice(0,12).map(async friend=>{
+  // Firestore rules reject a uid-only query: it could include private activities.
+  const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid),where('visibility','in',['friends','public'])));
+  return docs.docs.map(event=>{const a=event.data();return {id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0}});
+ }));
+ if(auth.currentUser?.uid!==mine||gen!==generation)return;
+ const acceptedIds=new Set(state.friends.map(p=>p.uid)),recent=[];
+ for(const result of activityResults){if(result.status==='fulfilled')recent.push(...result.value.filter(a=>acceptedIds.has(a.person.uid)));else console.warn('Optional friend activities unavailable:',result.reason?.code||result.reason?.message||result.reason)}
+ state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}}
 async function refresh(){
  const run=()=>refreshPass();
@@ -91,7 +111,7 @@ async function applyFriendRequestRealtime(mine){
  for(const request of entries.values()){
   const other=request.from===mine?request.to:request.from;if(!other||blockedIds.has(other))continue;
   let person=known.get(other)||null;
-  if(!person)try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}catch(error){console.warn('Realtime profile unavailable:',other,error.code||error.message)}
+  if(!person)try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()};else if(request.status==='accepted')person={uid:other,name:'دوست'}}catch(error){console.warn('Realtime profile unavailable:',other,error.code||error.message)}
   if(person)enriched.push({...request,other,person})
  }
  if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
