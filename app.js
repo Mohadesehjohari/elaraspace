@@ -10,7 +10,7 @@
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
-  const initial = () => ({version:1, tasks:[], pinnedFriendIds:[], habits:[], goals:[], languageClasses:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, focusPlanProgress:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
+  const initial = () => ({version:1, tasks:[], pinnedFriendIds:[], accountLinkSeen:{}, habits:[], goals:[], languageClasses:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, focusPlanProgress:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
   const uniqueNames = values => Array.isArray(values) ? [...new Set(values.map(v => asText(v,60)).filter(Boolean))].slice(0,250) : [];
   const normalize = raw => {
@@ -19,6 +19,7 @@
     data.theme = raw.theme === 'light' ? 'light' : 'dark';
     data.xp = Number.isFinite(Number(raw.xp)) ? Math.max(0,Math.min(9999999,Math.floor(Number(raw.xp)))) : 0;
     data.pinnedFriendIds = [...new Set((Array.isArray(raw.pinnedFriendIds)?raw.pinnedFriendIds:[]).map(v=>asText(v,128)).filter(Boolean))].slice(0,500);
+    data.accountLinkSeen = Object.fromEntries(Object.entries(raw.accountLinkSeen&&typeof raw.accountLinkSeen==='object'&&!Array.isArray(raw.accountLinkSeen)?raw.accountLinkSeen:{}).filter(([key,values])=>key.length<=280&&Array.isArray(values)).slice(0,5).map(([key,values])=>[key,[...new Set(values.map(v=>asText(v,300)).filter(Boolean))].slice(-20000)]));
     data.taskLists = uniqueNames(raw.taskLists);
     data.taskListDetails=Object.fromEntries(Object.entries(raw.taskListDetails&&typeof raw.taskListDetails==='object'&&!Array.isArray(raw.taskListDetails)?raw.taskListDetails:{}).filter(([key])=>data.taskLists.includes(key)).map(([key,v])=>[key,{description:asText(v?.description,2000),folder:asText(v?.folder,60)}]));
     data.folders = uniqueNames(raw.folders);
