@@ -18,6 +18,13 @@ function art(node,name,from='#071329bf',to='#061025df'){
  if(node.style.getPropertyValue('background-position')!=='center')node.style.setProperty('background-position','center','important');
  if(node.style.getPropertyValue('background-repeat')!=='no-repeat')node.style.setProperty('background-repeat','no-repeat','important');
 }
+/* Soft Cosmic R4 / 2026-10-17: functional task cards are image-free.
+   The previous version added an inline !important scenic background. */
+function clearTaskArtwork(node){
+ if(!node)return;
+ for(const key of ['background-image','background-size','background-position','background-repeat'])
+  node.style.removeProperty(key);
+}
 function decorate(){
  const panel=$('panel-home');if(!panel)return;
  panel.classList.add('owner-art-home');
@@ -26,10 +33,10 @@ function decorate(){
  const streak=$('ref-streak-card');
  if(streak){streak.classList.add('owner-home-streak');art(streak,'daily-streak-background','#100b1c40','#11112372')}
  const tasks=$('elara-home-tasks')?.closest('.elara-card');
- if(tasks){tasks.classList.add('owner-home-tasks');art(tasks,'tasks-card-background','#041a36c9','#061228df')}
+ if(tasks){tasks.classList.add('owner-home-tasks');clearTaskArtwork(tasks)}
  const goals=$('elara-home-goals')?.closest('.elara-card');
  if(goals){
-  goals.classList.add('owner-home-goals');art(goals,'goals-target-background','#06102735','#0610238b');
+  goals.classList.add('owner-home-goals');art(goals,'goals-target-background','#07182da8','#071728e2');
   const title=goals.querySelector(':scope > header h2');
   if(title&&!title.querySelector('.owner-home-goal-icon')){
    const img=document.createElement('img');img.className='owner-home-goal-icon';
@@ -37,7 +44,7 @@ function decorate(){
   }
  }
  const wellness=$('ref-wellness-card');
- if(wellness){wellness.classList.add('owner-home-wellness');art(wellness,'health-fitness-card-background','#05202e9c','#051b29b5')}
+ if(wellness){wellness.classList.add('owner-home-wellness');art(wellness,'health-fitness-card-background','#07212ec6','#071b28e5')}
  const ranking=$('elara-home-ranks')?.closest('.ref-ranks');
  if(ranking){ranking.classList.add('owner-home-ranking');art(ranking,'friends-ranking-bg')}
  for(const [route,name] of [['tasks','tasks-card-background'],['language','language-learning-background'],['books','library-card-background'],['exercise','health-fitness-card-background'],['social','friends-card-bg'],['freedom','freedom-card-bg']])
