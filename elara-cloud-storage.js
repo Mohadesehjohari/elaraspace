@@ -31,7 +31,7 @@
   if(!key.startsWith('elara_')||key===MAIN||key==='elara_precloud_backup')return false;
   // Never copy another account's data from a shared browser.
   const ownerTagged=key.endsWith('_'+mine)||key.includes('_'+mine+'_');
-  const prefs=new Set(['elara_locale_v1','elara_calendar_pref','elara_amoled','elara_task_strike_completed']);
+  const prefs=new Set(['elara_locale_v1','elara_preferences_v2','elara_calendar_pref','elara_amoled','elara_task_strike_completed']);
   return ownerTagged||prefs.has(key)
  };
  async function flush(){
