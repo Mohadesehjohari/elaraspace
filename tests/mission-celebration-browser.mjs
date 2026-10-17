@@ -10,7 +10,7 @@ for(const [width,height] of [[390,844],[1440,1000]]){
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')),d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');s.taskCompletionHistory=[{key:'t1:'+day,taskId:'t1',date:day,title:'QA task',completedAt:Date.now()}];localStorage.setItem('elara_space_v1',JSON.stringify(s));ElaraMissions.render()});
  await page.waitForSelector('[data-elara-reward-modal], [data-mission-celebration]');
  const modal=await page.locator('[data-elara-reward-modal]').count()>0;
- const first=await page.locator(modal?'[data-elara-reward-modal]':'[data-mission-celebration]').innerText();assert.match(first,/ماموریت کامل شد/);assert.match(first,/اولین قدم امروز/);assert.match(first,/(مأموریت بعدی:|دیدن مأموریت‌ها|ماموریت بعدی:)/);
+ const first=await page.locator(modal?'[data-elara-reward-modal]':'[data-mission-celebration]').innerText();assert.match(first,/م[أا]موریت کامل شد/);assert.match(first,/اولین قدم امروز/);assert.match(first,/(مأموریت بعدی:|دیدن مأموریت‌ها|ماموریت بعدی:)/);
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.ok(state.missionRewardClaims.some(x=>String(x).includes('first-task')),'mission claim missing');assert.equal(state.xp,20,'mission XP was not awarded exactly once');
  assert.ok((await page.evaluate(()=>ElaraNotify.read())).some(x=>String(x.dedupeKey).includes('first-task')),'mission notification missing');
  assert.equal(await page.evaluate(()=>window.__vibes||0),0,'mission vibration must be opt-in');
