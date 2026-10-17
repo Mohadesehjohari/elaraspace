@@ -99,9 +99,12 @@ try{
   assert.ok(m.grid.bottom<=m.quick.top+3,'Quick Access must immediately follow the main row');
   assert.ok(m.quick.bottom<=m.bottom.top+3,'Bottom cards must follow Quick Access');
   for(const [key,name] of Object.entries(assets)){
-    if(key==='hero')continue;
+    if(key==='hero'||key==='tasks')continue;
     assert.ok(m.cards[key]?.background.includes(name),'Real owner artwork not shown: '+key+' '+width);
   }
+  // The functional Tasks card is deliberately image-free on all viewports.
+  assert.ok(m.cards.tasks&&!m.cards.tasks.background.includes('url('),
+    'Unexpected photographic background on Home Tasks at '+width+': '+m.cards.tasks?.background);
   assert.equal(m.computedImages.hero.src,'assets/ui/'+assets.hero);
   assert.ok(m.computedImages.hero.naturalWidth>0&&m.computedImages.icon>0&&m.computedImages.flame>0,'Hero/Goals/Streak asset not decoded '+width);
   assert.ok(m.computedImages.flameGeometry?.display!=='none'&&m.computedImages.flameGeometry?.w>=30&&m.computedImages.flameGeometry?.h>=30,'Real streak flame must be visible/prominent on Home '+width);

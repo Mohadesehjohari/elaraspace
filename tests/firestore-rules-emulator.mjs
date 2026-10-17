@@ -37,6 +37,20 @@ try{
   await setDoc(ref(admin,'clubs/role_test_club/clubMembers/eve'),{uid:'eve',role:'member',joinedAt:Timestamp.now()});
  });
 
+ // Account-link consent: only accepted friends can request a link; only the
+ // recipient can accept, and either account can revoke. A link grants no
+ // access to the other account's private document.
+ const mutual=ref(alice,'accountLinks/alice__bob');
+ await assertSucceeds(setDoc(mutual,{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertFails(getDoc(ref(eve,'accountLinks/alice__bob')));
+ await assertSucceeds(getDoc(ref(bob,'accountLinks/alice__bob')));
+ await assertFails(updateDoc(mutual,{status:'accepted',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(bob,'accountLinks/alice__bob'),{status:'accepted',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(eve,'accountLinks/alice__bob'),{status:'revoked',updatedAt:serverTimestamp()}));
+ await assertFails(getDoc(ref(bob,'private/alice/app/main')));
+ await assertSucceeds(updateDoc(mutual,{status:'revoked',updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(eve,'accountLinks/eve__bob'),{from:'eve',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+
  // Profile privacy: owner/friend/public paths are readable, unrelated private profile is not.
  await assertSucceeds(getDoc(ref(alice,'profiles/alice')));
  await assertSucceeds(getDoc(ref(bob,'profiles/alice')));

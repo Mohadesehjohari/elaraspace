@@ -25,3 +25,26 @@
 @keyframes elara-fox-rise{from{transform:translateY(15px) scale(.96);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:700px){.elara-fox-dialog{padding:22px 17px 19px;border-radius:20px}.mission-celebration-fox{width:58px!important;height:58px!important;flex-basis:58px}}
 @media(prefers-reduced-motion:reduce){.elara-fox-dialog{animation:none}.elara-fox-overlay{backdrop-filter:none}}
+
+/* Milestone-specific award treatment. No mascot in permanent page layouts. */
+.elara-fox-dialog{--fox-accent:#ffd67d;--fox-halo:#ffd67d2a;border-color:color-mix(in srgb,var(--fox-accent) 60%,#7551ac);box-shadow:0 25px 80px #000b,0 0 43px var(--fox-halo)}
+.elara-fox-dialog::before{content:"✧";position:absolute;top:18px;inset-inline-start:22px;font-size:23px;color:var(--fox-accent);opacity:.72;pointer-events:none}
+.elara-fox-dialog--mission{--fox-accent:#ffcc62;--fox-halo:#f3bd4f45}
+.elara-fox-dialog--level{--fox-accent:#ffdd94;--fox-halo:#e9ad394d}
+.elara-fox-dialog--leitner{--fox-accent:#66e7f5;--fox-halo:#2ec8ed30}
+.elara-fox-dialog--focus{--fox-accent:#a9a3ff;--fox-halo:#847afa3d}
+.elara-fox-dialog--streak{--fox-accent:#ff9c6b;--fox-halo:#fa85523d}
+.elara-fox-dialog--goal{--fox-accent:#ffd67e;--fox-halo:#eac14e36}
+.elara-fox-dialog--library{--fox-accent:#b6b0ff;--fox-halo:#847afa34}
+.elara-fox-dialog--tasks{--fox-accent:#81dff4;--fox-halo:#3bc5e53b}
+.elara-fox-dialog--water,.elara-fox-dialog--wellness{--fox-accent:#71e9c9;--fox-halo:#20d8af35}
+.elara-fox-dialog .elara-fox-eyebrow{color:var(--fox-accent)}
+.elara-fox-dialog .elara-fox-meta span{border-color:color-mix(in srgb,var(--fox-accent) 43%,transparent);background:color-mix(in srgb,var(--fox-accent) 9%,transparent);color:#f6eefa}
+.elara-fox-dialog .elara-fox-action.primary{background:linear-gradient(125deg,color-mix(in srgb,var(--fox-accent) 65%,white),var(--fox-accent));border-color:var(--fox-accent)}
+.elara-fox-dialog #elara-fox-desc{white-space:pre-line}
+.elara-fox-preview-gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+.elara-fox-sample{cursor:pointer;border-radius:12px;border:1px solid #9383bd77;background:#ffffff0a;color:inherit;min-height:38px;padding:7px 12px;font:inherit;font-size:13px}
+.elara-fox-sample:hover:not(:disabled){border-color:#c6b9f7;background:#9475d020}
+.elara-fox-sample:focus-visible{outline:3px solid #9fe9ff;outline-offset:2px}
+.elara-fox-sample:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:480px){.elara-fox-preview-gallery{gap:6px}.elara-fox-sample{font-size:12px;min-height:38px;padding:6px 9px}}

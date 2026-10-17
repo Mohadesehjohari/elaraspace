@@ -1099,6 +1099,48 @@ service cloud.firestore {
       allow delete: if signed() && resource.data.ownerUid == request.auth.uid;
     }
 
+    // A friendship-wide link is a two-party, revocable consent record.
+    // It never gives either account read/write access to the other's private documents.
+    match /accountLinks/{linkId} {
+      allow get, list: if signed()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['from','to','status','createdAt','updatedAt'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid
+        && request.resource.data.to.size() > 0
+        && request.resource.data.to.size() <= 128
+        && linkId == request.auth.uid + '__' + request.resource.data.to
+        && friendOf(request.resource.data.to)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if signed()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid)
+        && request.resource.data.from == resource.data.from
+        && request.resource.data.to == resource.data.to
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && (
+          (resource.data.to == request.auth.uid
+           && resource.data.status == 'pending'
+           && request.resource.data.status in ['accepted','declined']
+           && (request.resource.data.status == 'declined' || friendOf(resource.data.from)))
+          ||
+          (resource.data.status == 'accepted'
+           && request.resource.data.status == 'revoked')
+          ||
+          (resource.data.from == request.auth.uid
+           && resource.data.status in ['declined','revoked']
+           && request.resource.data.status == 'pending'
+           && friendOf(resource.data.to))
+        );
+      allow delete: if signed()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
     match /collabSpaces/{spaceId} {
       allow get: if isCollabMember(spaceId);
       allow list: if false;

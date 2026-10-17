@@ -918,3 +918,67 @@ html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-h
   font-size:1.03rem!important
  }
 }
+
+
+/* Soft Cosmic R4 / 2026-10-17 — no scenic art behind work lists.
+   Don't change card geometry or the controls; use artwork only for inspiration. */
+html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid>.owner-home-tasks.ref-tasks{
+ background:linear-gradient(156deg,#10273d,#0b1d31)!important;
+ border-color:rgba(127,172,194,.19)!important;
+ box-shadow:0 5px 18px rgba(0,0,0,.16)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row{
+ background:rgba(13,42,63,.22)!important;
+ border-bottom:1px solid rgba(135,173,195,.09)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row:last-child{
+ border-bottom:0!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row strong{
+ text-shadow:none!important;color:#eef4f9!important;line-height:1.6!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-card-count{
+ color:#adbfce!important;text-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-progress{
+ background:rgba(134,176,202,.12)!important;box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-priority{
+ box-shadow:none!important;filter:none!important
+}
+/* Goals and Wellness retain photographs, with darker inline art overlays
+   from the canonical owner JS and quieter, readable records. */
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-goals .ref-goal-row{
+ background:rgba(9,28,47,.89)!important;
+ border-color:rgba(149,177,190,.10)!important;
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell{
+ background:rgba(8,39,47,.43)!important;
+ border-color:transparent!important;box-shadow:none!important
+}
+/* Tasks, habits, achievements are content surfaces; hero, streak, quick
+   access and ranking artwork are intentionally left untouched. */
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-habits{
+ background:linear-gradient(157deg,#18283d,#0e1e33)!important;
+ border-color:rgba(171,143,198,.17)!important;
+ box-shadow:0 5px 18px rgba(0,0,0,.16)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid>.ref-achievements{
+ background:linear-gradient(155deg,#14283d,#0c1e33)!important;
+ border-color:rgba(129,176,201,.14)!important;
+ box-shadow:0 5px 18px rgba(0,0,0,.16)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-habits .ref-habit-row{
+ background:transparent!important;
+ border:0!important;border-bottom:1px solid rgba(186,156,210,.09)!important;
+ box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-achievements-list .ref-achievement-row{
+ background:transparent!important;border-bottom-color:rgba(156,181,200,.08)!important
+}
+@media(max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-tasks .ref-task-row{
+  background:transparent!important
+ }
+}

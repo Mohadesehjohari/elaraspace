@@ -1,0 +1,44 @@
+/* Small opt-in pinning and linked-friend controls; no layout redesign. */
+#task-list .astra-task-row.is-pinned{box-shadow:inset 3px 0 0 rgba(170,142,255,.85)}
+#task-list .task-pin-marker{display:inline-flex;align-items:center;font-size:13px;margin-inline-start:7px;line-height:1;vertical-align:middle}
+#task-list .astra-task-row.is-pinned .item-title{font-weight:800}
+.friends-f2-friend.is-pinned{border-color:rgba(178,145,255,.66)!important;box-shadow:inset 0 0 0 1px rgba(178,145,255,.15)}
+.friends-f2-friend-actions .friend-pin-action[aria-pressed=true]{background:rgba(145,115,240,.2);color:#dfcbff}
+.friends-f2-friend-actions .friend-link-action{font-size:11px;white-space:normal;line-height:1.5;padding:6px 9px;min-height:32px;border-radius:9px;border:1px solid rgba(160,170,230,.35);background:rgba(83,84,130,.15);color:inherit;cursor:pointer}
+.friends-f2-friend-actions .friend-link-action:disabled{opacity:.62;cursor:default}
+.friends-account-link-card .friends-account-link-note{line-height:1.95;margin:2px 0 12px;color:inherit;opacity:.88}
+.friends-account-link-card .friends-account-link-hint{opacity:.68;font-size:12px;margin-top:12px}
+.friends-account-link-card .account-link-request{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:11px 2px;border-top:1px solid rgba(145,145,190,.18)}
+.friends-account-link-card .account-link-request>strong{max-width:170px;overflow-wrap:anywhere}
+.friends-account-link-card .account-link-request>span{flex:1;min-width:125px;font-size:12px;opacity:.8}
+.friends-account-link-card .account-link-request button{border:1px solid rgba(158,147,217,.45);background:rgba(129,103,206,.18);color:inherit;padding:7px 12px;border-radius:10px;cursor:pointer}
+@media(max-width:700px){.friends-f2-friend-actions .friend-link-action{font-size:10px;max-width:112px;padding:5px 7px}.friends-account-link-card .account-link-request>span{min-width:90px}}
+
+#task-bulk-toolbar:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;padding:12px;border:1px solid rgba(169,150,239,.35);border-radius:14px;background:rgba(69,53,107,.12)}
+#task-bulk-toolbar>div{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+#task-bulk-toolbar button{border:1px solid rgba(151,143,194,.35);background:rgba(79,65,128,.18);color:inherit;border-radius:10px;min-height:34px;padding:5px 10px;cursor:pointer}
+#elara-social-page.social-reference .friends-f2-friend-actions{flex-wrap:wrap;align-items:center;justify-content:flex-end}
+#elara-social-page.social-reference .friends-f2-friend-actions .friend-link-action{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:86px!important;max-width:140px;min-height:34px!important;border-radius:10px!important;line-height:1.45!important;font-size:11px!important;padding:5px 8px!important}
+#elara-social-page.social-reference .friends-f2-friend-actions .friend-link-action:disabled{cursor:default!important;opacity:.65}
+
+/* Explicit two-way connection status, visible next to an accepted friend. */
+#elara-social-page .friends-f2-friend-actions .friend-linked-status{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;font-weight:750;color:#b9f1d0;border:1px solid rgba(104,212,163,.45);background:rgba(35,124,86,.18);border-radius:10px;padding:7px 9px;min-height:32px}
+#elara-social-page .friends-account-link-card .account-sharing-open,#tasks-share-manager-button{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(155,139,229,.5)!important;border-radius:11px!important;background:rgba(108,77,202,.18)!important;color:inherit!important;font-weight:700!important;padding:9px 13px!important;margin:9px 3px;cursor:pointer}
+#task-bulk-toolbar [data-task-bulk="share"],#entity-bulk-toolbar-habit [data-entity-bulk="share"],#entity-bulk-toolbar-goal [data-entity-bulk="share"]{border-color:rgba(112,200,165,.55);background:rgba(42,129,98,.14)}
+#task-bulk-toolbar [data-task-bulk="private"],#entity-bulk-toolbar-habit [data-entity-bulk="private"],#entity-bulk-toolbar-goal [data-entity-bulk="private"]{border-color:rgba(161,162,197,.5)}
+.account-share-manager{max-height:65vh;overflow-y:auto;display:grid;gap:12px;text-align:start;color:inherit}
+.account-share-manager .account-share-note{line-height:1.85;margin:0}
+.account-share-manager .account-share-default{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-weight:700}
+.account-share-manager select{min-width:190px;border-radius:10px;padding:9px;color:inherit;background:rgba(50,54,88,.26);border:1px solid rgba(140,149,206,.45)}
+.account-share-manager .account-share-actions{display:flex;flex-wrap:wrap;gap:8px}
+.account-share-manager button{border:1px solid rgba(143,140,196,.48);background:rgba(98,81,155,.2);border-radius:10px;padding:8px 12px;color:inherit;cursor:pointer}
+.account-share-manager button:disabled{opacity:.45;cursor:not-allowed}
+.account-share-manager [data-share-status]{margin:0;min-height:16px;font-weight:700}
+.account-share-manager .account-share-group{border:1px solid rgba(142,144,193,.22);border-radius:13px;padding:10px;min-width:0}
+.account-share-manager .account-share-group header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.account-share-manager .account-share-items{display:grid;gap:6px;max-height:235px;overflow-y:auto;margin-top:9px}
+.account-share-manager .account-share-items label{display:flex;gap:10px;align-items:center;padding:7px;border-radius:8px;background:rgba(128,129,175,.055);cursor:pointer}
+.account-share-manager .account-share-items input{flex:none;width:17px;height:17px;accent-color:#9176ed}
+.account-share-manager .account-share-items span{flex:1;min-width:0;overflow-wrap:anywhere}
+.account-share-manager .account-share-items small{font-size:11px;white-space:nowrap;opacity:.8}
+@media(max-width:700px){#elara-social-page .friends-f2-friend-actions .friend-linked-status{font-size:10px;padding:5px 7px}.account-share-manager .account-share-items small{font-size:10px}}

@@ -275,7 +275,11 @@
     "ui12-language-dashboard.css",
     "store-reference-2026.css",
     "ranking-gold-20261012.css",
-    "home-reference-polish-20261012.css"
+    "home-reference-polish-20261012.css",
+    "galaxy-lilac-sitewide.css",
+    "elara-collab.js",
+    "account-link.js",
+    "pin-account-link.css"
   ],
   "files": [
     ".htaccess",
@@ -669,6 +673,10 @@
     "ui12-language-dashboard.css",
     "store-reference-2026.css",
     "ranking-gold-20261012.css",
-    "home-reference-polish-20261012.css"
+    "home-reference-polish-20261012.css",
+    "galaxy-lilac-sitewide.css",
+    "elara-collab.js",
+    "account-link.js",
+    "pin-account-link.css"
   ]
 }

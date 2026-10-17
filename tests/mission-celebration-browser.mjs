@@ -8,15 +8,17 @@ async function open(width,height){const context=await browser.newContext({viewpo
 for(const [width,height] of [[390,844],[1440,1000]]){
  const {page,context}=await open(width,height);
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1')),d=new Date(),day=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');s.taskCompletionHistory=[{key:'t1:'+day,taskId:'t1',date:day,title:'QA task',completedAt:Date.now()}];localStorage.setItem('elara_space_v1',JSON.stringify(s));ElaraMissions.render()});
- await page.waitForSelector('[data-mission-celebration]');
- const first=await page.locator('[data-mission-celebration]').innerText();assert.match(first,/ماموریت کامل شد/);assert.match(first,/اولین قدم امروز/);assert.match(first,/بعدی:/);
+ await page.waitForSelector('[data-elara-reward-modal], [data-mission-celebration]');
+ const modal=await page.locator('[data-elara-reward-modal]').count()>0;
+ const first=await page.locator(modal?'[data-elara-reward-modal]':'[data-mission-celebration]').innerText();assert.match(first,/م[أا]موریت کامل شد/);assert.match(first,/اولین قدم امروز/);assert.match(first,/(مأموریت بعدی:|دیدن مأموریت‌ها|ماموریت بعدی:)/);
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')));assert.ok(state.missionRewardClaims.some(x=>String(x).includes('first-task')),'mission claim missing');assert.equal(state.xp,20,'mission XP was not awarded exactly once');
  assert.ok((await page.evaluate(()=>ElaraNotify.read())).some(x=>String(x.dedupeKey).includes('first-task')),'mission notification missing');
  assert.equal(await page.evaluate(()=>window.__vibes||0),0,'mission vibration must be opt-in');
- const box=await page.locator('[data-mission-celebration]').boundingBox();assert.ok(box&&box.width<=Math.min(width-18,430)+4,'celebration overflow');
- await page.locator('[data-mission-celebration-close]').click();await page.waitForFunction(()=>!document.querySelector('[data-mission-celebration]'));
+ const box=await page.locator(modal?'[data-elara-reward-modal] [role=dialog]':'[data-mission-celebration]').boundingBox();assert.ok(box&&box.width<=Math.min(width-18,430)+4,'celebration overflow');
+ if(modal){assert.match(await page.locator('[data-elara-reward-modal]').innerText(),/XP/);assert.equal(await page.locator('[data-elara-reward-modal] img.elara-fox-image').count(),1)}
+ await page.locator(modal?'.elara-fox-close':'[data-mission-celebration-close]').click();await page.waitForFunction(()=>!document.querySelector('[data-elara-reward-modal], [data-mission-celebration]'));
  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('elara_space_v1'));ElaraMissions.render();window.__afterRepeat={xp:JSON.parse(localStorage.getItem('elara_space_v1')).xp,claims:JSON.parse(localStorage.getItem('elara_space_v1')).missionRewardClaims.length}});
- await page.waitForTimeout(180);assert.equal(await page.locator('[data-mission-celebration]').count(),0,'refresh/re-render duplicated celebration');const repeat=await page.evaluate(()=>window.__afterRepeat);assert.equal(repeat.xp,20,'re-render duplicated mission XP');
+ await page.waitForTimeout(180);assert.equal(await page.locator('[data-mission-celebration], [data-elara-reward-modal]').count(),0,'refresh/re-render duplicated celebration');const repeat=await page.evaluate(()=>window.__afterRepeat);assert.equal(repeat.xp,20,'re-render duplicated mission XP');
  await context.close();
 }
 await browser.close();console.log('MISSION_CELEBRATION_PASS real-claim next-mission dismiss dedupe opt-in-haptics 390/1440');
