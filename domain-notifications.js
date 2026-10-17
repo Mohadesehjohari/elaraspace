@@ -4,9 +4,9 @@ const STORE='elara_space_v1',PREFIX='elara_domain_notif_cursor_v1_',arr=v=>Array
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'guest';
 const key=()=>PREFIX+uid();
-function state(){try{const v=JSON.parse(localStorage.getItem(STORE)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}}
+function state(){try{const v=JSON.parse(window.ElaraCloudStorage.getItem(STORE)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}}
 function streakOf(h){const days=new Set(arr(h?.days)),d=new Date();d.setHours(12,0,0,0);let n=0;if(!days.has(today()))d.setDate(d.getDate()-1);while(n<3650){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(!days.has(k))break;n++;d.setDate(d.getDate()-1)}return n}
-function wellness(){const me=uid();if(me==='guest')return{};try{return JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+me)||'{}')||{}}catch{return{}}}
+function wellness(){const me=uid();if(me==='guest')return{};try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+me)||'{}')||{}}catch{return{}}}
 function snap(){
  const s=state(),day=today(),w=wellness(),goal=Math.max(250,Number(w.goal)||2000),water=Number(w.water?.[day]||0),workout=arr(w.workouts).filter(x=>x?.date===day).reduce((n,x)=>n+Math.max(0,Number(x.minutes)||0),0);
  return{
@@ -18,8 +18,8 @@ function snap(){
   workoutMinutes:workout
  }
 }
-function readCursor(){try{return JSON.parse(localStorage.getItem(key())||'null')}catch{return null}}
-function saveCursor(v){try{localStorage.setItem(key(),JSON.stringify(v))}catch{}}
+function readCursor(){try{return JSON.parse(window.ElaraCloudStorage.getItem(key())||'null')}catch{return null}}
+function saveCursor(v){try{window.ElaraCloudStorage.setItem(key(),JSON.stringify(v))}catch{}}
 function tt(fa,en){return window.ElaraI18n?.t?.(fa,en)||fa}
 function notify(input){window.ElaraNotify?.push?.(input);window.dispatchEvent(new CustomEvent('elara:domain-milestone',{detail:{...input}}))}
 function compare(prev,next){

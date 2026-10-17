@@ -3,11 +3,11 @@
 const ROOT='assets/ui/',FALLBACK='assets/mascot/fox-fallback.svg',KEY='elara_fox_options_v1';
 const ART=Object.freeze({celebrate:'fox-celebrate.webp',mission:'fox-mission.webp',language:'fox-language.webp',library:'fox-library.webp',sport:'fox-sport.webp',focus:'fox-focus.webp',habits:'fox-habits.webp',goals:'fox-goals.webp',tasks:'fox-tasks.webp',progress:'fox-progress.webp',thoughtful:'fox-thoughtful.webp',sleep:'fox-sleep.webp',surprised:'fox-surprised.webp',loved:'fox-loved.webp',sad:'fox-sad.webp'});
 const $=s=>document.querySelector(s),en=()=>document.documentElement.lang==='en',t=(fa,eng)=>en()?eng:fa,fmt=n=>Number(n||0).toLocaleString(en()?'en-US':'fa-IR');
-const options=()=>{try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');return {visible:o.visible!==false,celebrations:o.celebrations!==false}}catch{return {visible:true,celebrations:true}}};
+const options=()=>{try{const o=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');return {visible:o.visible!==false,celebrations:o.celebrations!==false}}catch{return {visible:true,celebrations:true}}};
 let queue=[],active=null,restoreFocus=null,account='',xpBaseline=null,lastWord='',syncQueued=false;
 const seen=new Set();
 function person(){return String(window.ElaraAccount?.user?.uid||'local')}
-function xp(){try{return Math.max(0,Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}').xp)||0)}catch{return 0}}
+function xp(){try{return Math.max(0,Number(JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}').xp)||0)}catch{return 0}}
 function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e}
 function art(el,name){el.src=ROOT+(ART[name]||ART.celebrate);el.onerror=()=>{el.onerror=null;el.src=FALLBACK};el.alt='';el.loading='lazy';el.decoding='async'}
 function initial(){account=person();xpBaseline=xp();queue=[];lastWord='';seen.clear()}
@@ -146,7 +146,7 @@ function settings(){
 }
 function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;settings()})}
 function setOption(field,value){
- const o=options();o[field]=!!value;try{localStorage.setItem(KEY,JSON.stringify(o))}catch{}
+ const o=options();o[field]=!!value;try{window.ElaraCloudStorage.setItem(KEY,JSON.stringify(o))}catch{}
  if(!o.visible||!o.celebrations){dismiss(true);window.ElaraMissionCelebration?.close?.()}
  sync();
 }

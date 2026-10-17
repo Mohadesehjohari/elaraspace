@@ -2,8 +2,8 @@
 const KEY='elara_space_v1',cfg={habit:{list:'#habit-list',key:'habits',panel:'#panel-habits',fa:'عادت',en:'habit'},goal:{list:'#goal-list',key:'goals',panel:'#panel-goals',fa:'هدف',en:'goal'}};
 const selected={habit:new Set(),goal:new Set()};let active='',pressTimer=0,press=null,ignoreUntil=0,observer=null;
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa),makeId=()=>crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2);
-function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.habits=Array.isArray(s.habits)?s.habits:[];s.goals=Array.isArray(s.goals)?s.goals:[];return s}catch{return{habits:[],goals:[]}}}
-function write(s){localStorage.setItem(KEY,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'))}
+function read(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');s.habits=Array.isArray(s.habits)?s.habits:[];s.goals=Array.isArray(s.goals)?s.goals:[];return s}catch{return{habits:[],goals:[]}}}
+function write(s){window.ElaraCloudStorage.setItem(KEY,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'))}
 const rows=kind=>[...(document.querySelector(cfg[kind]?.list)?.querySelectorAll(':scope > [data-entity-kind="'+kind+'"]')||[])];
 function toolbar(kind){let bar=document.getElementById('entity-bulk-toolbar-'+kind);if(bar)return bar;const list=document.querySelector(cfg[kind]?.list);if(!list)return null;bar=document.createElement('div');bar.id='entity-bulk-toolbar-'+kind;bar.className='entity-bulk-toolbar';bar.dataset.elaraI18n='off';bar.hidden=true;list.insertAdjacentElement('beforebegin',bar);renderToolbar(kind);return bar}
 function renderToolbar(kind){

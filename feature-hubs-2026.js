@@ -37,7 +37,7 @@ function parentBack(panel,parent='home'){
  b.dataset.featureRoute=parent;b.textContent='→ '+tx('بازگشت','Back');return b
 }
 function move(node,panel){if(!node||!panel)return;panel.append(node);moved.add(node)}
-function readState(){try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}}
+function readState(){try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}}
 function sectionTasks(host,group,kind){
  if(!host)return null;const day=window.ElaraSchedule?.today?.()||new Date().toISOString().slice(0,10),state=readState(),all=Array.isArray(state.tasks)?state.tasks:[],target=t=>window.ElaraTasks.taskDailyTarget(t),progress=t=>window.ElaraTasks.taskDailyProgress(t,day);
  const rows=all.filter(t=>String(t?.sourceGroup||'')===group&&window.ElaraSchedule?.taskDue?.(t,day)!==false).sort((a,b)=>Number(window.ElaraTasks?.taskDone?.(a,day))-Number(window.ElaraTasks?.taskDone?.(b,day))||(Number(a.priority)||4)-(Number(b.priority)||4)).slice(0,6);
