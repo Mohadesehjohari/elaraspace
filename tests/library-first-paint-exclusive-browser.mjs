@@ -10,7 +10,7 @@ const inspect=()=>{const p=document.getElementById('panel-books');const kids=[..
  ready:p.dataset.lib01PaintReady||'',error:p.dataset.lib01PaintError||'',
  owner:!!p.querySelector(':scope > #lib01-overview .lib01-grid'),
  hero:!!p.querySelector(':scope > .elara-global-hero'),
- old: kids.filter(n=>!n.matches(':scope > #lib01-overview,:scope > .elara-global-hero')).filter(n=>{const s=getComputedStyle(n),r=n.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0}).map(n=>n.id||n.className),
+ old: kids.filter(n=>!n.matches('#lib01-overview,.elara-global-hero')).filter(n=>{const s=getComputedStyle(n),r=n.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0}).map(n=>n.id||n.className),
  oldControls: ['#book-form','.bookshelf-filter','#book-list','#library-hero','.library-clips','.feature-hub-launchers'].filter(sel=>[...p.querySelectorAll(':scope > '+sel)].some(n=>getComputedStyle(n).display!=='none')),
  loading:getComputedStyle(p,'::before').content,
  };};
