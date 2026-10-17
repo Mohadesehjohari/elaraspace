@@ -62,7 +62,11 @@ try{
    await page.locator('#timer-display').evaluate(el=>{el.textContent='13:42'});
    await page.waitForFunction(()=>document.querySelector('#lib01-overview [data-lib01-timer]')?.textContent==='13:42');
    await page.locator('#lib01-overview [data-lib01-route="library-shelves"]').first().click();
-   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form');
+   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form',{state:'attached'});
+   const disclosure=page.locator('#panel-library-shelves > .lib06-legacy-tools');
+   assert.equal(await disclosure.count(),1,'Book management must remain available in the Shelves disclosure');
+   await disclosure.evaluate(el=>{el.open=true});
+   await page.waitForSelector('#panel-library-shelves:not(.hidden) #book-form:visible');
    const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')).books);
    assert.equal(stored.length,3,'dashboard changed book count');
    assert.equal(stored.find(x=>x.id==='book-01').currentPage,50,'dashboard modified reading progress');
