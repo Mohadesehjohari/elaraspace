@@ -50,7 +50,7 @@ async function request(friendUid){
  if(status(target)==='accepted')return true;
  if(status(target)==='incoming')throw Error(language('دعوت این دوست در بخش درخواست‌ها منتظر تأیید توست.','This friend already sent you an invitation.'));
  const existing=[...links.values()].find(row=>row.from===uid&&row.to===target);
- const confirmed=await window.ElaraDialog.confirm(language('پس از پذیرش دوست، موارد جدید (تسک، عادت، هدف، کلاس زبان و واژهٔ لایتنر) به‌صورت خودکار به حساب او فرستاده می‌شوند؛ موارد قبلی خصوصی می‌مانند. ادامه می‌دهی؟','After your friend accepts, NEW tasks, habits, goals, language classes, and Leitner words will be shared automatically. Existing content stays private. Continue?'),{title:language('اتصال دو حساب','Link accounts'),confirmText:language('ارسال درخواست','Send request')});
+ const confirmed=await window.ElaraDialog.confirm(language('بعد از پذیرش دوست، فقط مواردی که «مشترک» انتخاب کنی به حساب او می‌روند. می‌توانی پیش‌فرض موارد جدید را هم مشترک تنظیم کنی؛ موارد قبلی خصوصی می‌مانند. ادامه می‌دهی؟','After your friend accepts, only items marked Shared will be delivered. You can also set new items to Shared by default. Existing content stays private. Continue?'),{title:language('اتصال دو حساب','Link accounts'),confirmText:language('ارسال درخواست','Send request')});
  if(!confirmed)return false;
  if(existing?.status==='pending')return true;
  if(existing&&['declined','revoked'].includes(existing.status)){
@@ -64,7 +64,7 @@ async function accept(linkId){
  const uid=verified(),row=links.get(String(linkId));
  if(!row||row.to!==uid||row.status!=='pending'||!isFriend(row.from))throw Error(language('این درخواست قابل تأیید نیست.','This link request cannot be accepted.'));
  if(active().some(otherRow=>other(otherRow)!==row.from))throw Error(language('برای اتصال به دوست جدید، اول اتصال قبلی را قطع کن.','Unlink your current friend first.'));
- const confirmed=await window.ElaraDialog.confirm(language('با تأیید این درخواست، هر مورد جدیدی که تو یا این دوست در بخش‌های پشتیبانی‌شده بسازید به حساب دیگری ارسال می‌شود. هر زمان می‌توانی اتصال را قطع کنی. موارد قبلی خصوصی می‌مانند.','Once linked, new supported items from either account will appear in the other. You can unlink anytime. Older items stay private.'),{title:language('تأیید اتصال دوطرفه','Approve two-way sharing'),confirmText:language('تأیید اتصال','Approve link')});
+ const confirmed=await window.ElaraDialog.confirm(language('با تأیید اتصال، مواردی که هرکدام «مشترک» انتخاب می‌کنید برای دیگری ارسال می‌شوند. پیش‌فرض «فقط برای من» است و هر زمان می‌توانید اتصال را قطع کنید.','Once linked, only items explicitly marked Shared will be delivered. New items default to private; either person can unlink anytime.'),{title:language('تأیید اتصال دوطرفه','Approve two-way sharing'),confirmText:language('تأیید اتصال','Approve link')});
  if(!confirmed)return false;
  await updateDoc(linkRef(row),{status:'accepted',updatedAt:serverTimestamp()});
  return true;
