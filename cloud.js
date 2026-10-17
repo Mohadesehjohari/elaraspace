@@ -229,6 +229,10 @@ window.addEventListener('elara:data-changed',()=>{
   lastPayload=window.ElaraCloudStorage.getItem('elara_space_v1')||JSON.stringify(empty());dirty=true;
   $('cloud-sync').textContent='در حال ذخیره…';clearTimeout(timer);timer=setTimeout(flush,800);
 });
+window.addEventListener('elara:cloud-storage-status',()=>{
+ const report=window.ElaraCloudStorage?.inspect?.();if(!report?.error)return;
+ const status=$('cloud-sync');if(status)status.textContent='⚠ ذخیرهٔ تنظیمات ابری ناموفق بود: '+report.error;
+});
 window.addEventListener('pagehide',()=>{if(dirty)flush();});
 async function refreshFriends(){
   if(!loaded||!user)return;const ownUid=user.uid;
