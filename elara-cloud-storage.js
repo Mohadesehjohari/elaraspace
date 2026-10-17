@@ -6,14 +6,14 @@
 (()=>{'use strict';
  const rows=new Map(),sessionRows=new Map(),pending=new Map();
  let uid='',ready=false,transport=null,epoch=0,scheduled=null,writing=Promise.resolve(),lastError=null;
- const MAIN='elara_space_v1',MAX=350000;
+ const MAIN='elara_space_v1',MAX=350000,MAX_MAIN=800000;
  const native=()=>{try{return window.localStorage}catch{return null}};
  const notify=()=>window.dispatchEvent(new Event('elara:cloud-storage-status'));
  function safeKey(key){const s=String(key);if(!s||s.length>250||s.includes('/'))throw Error('Invalid Elara storage key');return s}
  function getItem(key){const value=rows.get(String(key));return value===undefined?null:value}
  function setItem(key,value){
   key=safeKey(key);value=String(value);
-  if(value.length>MAX)throw Error('حجم این داده بیشتر از سقف ذخیره‌سازی ابری است.');
+  if(value.length>(key===MAIN?MAX_MAIN:MAX))throw Error('حجم این داده بیشتر از سقف ذخیره‌سازی ابری است.');
   rows.set(key,value);
   if(ready&&key!==MAIN){pending.set(key,value);schedule()}
  }
@@ -67,7 +67,7 @@
   // apparently empty values that later overwrite the account's real data.
   const items=await api.list();if(at!==epoch)return;
   for(const {key,value} of items){
-   if(typeof key==='string'&&key!==MAIN&&typeof value==='string'&&key.length<=250)rows.set(key,value)
+   if(typeof key==='string'&&key!==MAIN&&typeof value==='string'&&key.length<=250&&!key.includes('/'))rows.set(key,value)
   }
   // One-time account-tagged legacy import. Server data always wins. A native
   // item is removed ONLY AFTER Firestore acknowledges a successful upload.
@@ -88,7 +88,8 @@
   window.dispatchEvent(new Event('elara:cloud-storage-ready'))
  }
  async function disconnect(){
-  try{await flush()}catch{}
+  // Refuse to discard unsaved writes while the user still has a session.
+  await flush();
   ++epoch;ready=false;uid='';transport=null;pending.clear();rows.clear();sessionRows.clear();
   clearTimeout(scheduled);scheduled=null;lastError=null;notify()
  }
