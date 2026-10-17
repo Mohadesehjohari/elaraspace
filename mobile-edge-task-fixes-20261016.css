@@ -154,3 +154,29 @@
 @media (prefers-reduced-motion:reduce) {
   html body #panel-tasks #task-list .elara-task-decision-row {scroll-behavior:auto!important}
 }
+
+
+/* Tasks banner: fill the entire desktop artwork stage, including the
+   workspace gutters. The mobile layout already flattens these gutters and
+   keeps its compact streak card; don't enlarge mobile past the viewport. */
+@media (min-width:768px) {
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
+    --elara-task-banner-gutter:clamp(16px,1.2vw,20px);
+    box-sizing:border-box!important;
+    width:calc(100% + var(--elara-task-banner-gutter) + var(--elara-task-banner-gutter))!important;
+    min-width:0!important;max-width:none!important;
+    margin-inline:calc(0px - var(--elara-task-banner-gutter))!important;
+    background-size:cover!important;
+    background-position:center 50%!important;
+    background-repeat:no-repeat!important;
+  }
+}
+@media (max-width:767px) {
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
+    box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+    margin-inline:0!important;
+    background-size:cover!important;background-repeat:no-repeat!important;
+  }
+}
