@@ -1,7 +1,7 @@
 /* Visual Fidelity Pass 2: structural navigation/home/language/privacy refinements without changing task/XP/Firebase schemas. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const state=()=>{try{const v=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
+const state=()=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const svg=name=>window.ElaraIcons?.icon?.(name==='closet'?'wardrobe':name)||'<span class="elara-icon" aria-hidden="true"></span>';
