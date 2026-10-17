@@ -279,6 +279,8 @@ window.ElaraPublicContent={
 window.ElaraAccount={
   get user(){return auth.currentUser},
   get profile(){return profile},
+  get loaded(){return loaded},
+
   errorMessage:actionError,
   getUser:()=>auth.currentUser,
   logout:async()=>{await flush();await signOut(auth);},
