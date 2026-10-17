@@ -16,6 +16,12 @@ let appliedTheme='';
 function apply(){let light=pref.mode==='light'||pref.mode==='system'&&matchMedia('(prefers-color-scheme: light)').matches;document.body.classList.toggle('light',light);document.body.classList.toggle('dark',!light);document.documentElement.style.setProperty('--elara-accent',colors[pref.color]||colors.violet);document.documentElement.lang=pref.language;document.documentElement.dir=pref.language==='fa'?'rtl':'ltr';document.body.dataset.elaraColor=pref.color;document.body.dataset.elaraTheme=visualTheme();document.body.dataset.elaraLang=pref.language;document.body.dataset.elaraStyle=pref.style||'default';document.body.classList.toggle('amoled',window.ElaraCloudStorage.getItem('elara_amoled')==='yes');document.querySelectorAll('[data-mode],[data-color],[data-lang]').forEach(el=>{const active=el.dataset.mode===pref.mode||el.dataset.color===pref.color||el.dataset.lang===pref.language;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active))});document.querySelectorAll('[data-elara-label]').forEach(el=>el.textContent=t(el.dataset.elaraLabel));translate();const themeKey=JSON.stringify([pref.mode,pref.color,visualTheme(),pref.style,pref.language,light,window.ElaraCloudStorage.getItem('elara_amoled')]);if(themeKey!==appliedTheme){appliedTheme=themeKey;window.dispatchEvent(new CustomEvent('elara:theme-changed',{detail:{mode:pref.mode,light}}))}}
 function savePref(){window.ElaraCloudStorage.setItem(PREF,JSON.stringify(pref));apply()}
 window.ElaraApplyTheme=apply;
+window.addEventListener('elara:cloud-storage-ready',()=>{
+ try{pref={mode:'dark',color:'violet',language:'fa',...JSON.parse(window.ElaraCloudStorage.getItem(PREF)||'{}')}}
+ catch{pref={mode:'dark',color:'violet',language:'fa'}}
+ apply();
+ if(document.getElementById('elara-stats'))render()
+});
 window.ElaraSetAppearance=patch=>{if(!patch||typeof patch!=='object')return {...pref};pref={...pref,...patch};savePref();return {...pref}};
 // System mode should also react if the operating-system scheme changes during a session.
 window.matchMedia?.('(prefers-color-scheme: light)')?.addEventListener?.('change',()=>{if(pref.mode==='system')apply()});
