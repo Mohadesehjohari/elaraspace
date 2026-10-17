@@ -151,6 +151,25 @@ try{
  await assertSucceeds(updateDoc(ref(alice,'presence/alice'),{visibility:'public',updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(eve,'presence/alice')));
 
+ // Each owner's social documents are created on demand, never by hand.
+ const note='private/alice/socialMeta/bob',draft='private/alice/dmDrafts/bob';
+ await assertSucceeds(getDocs(collection(alice,'private/alice/socialMeta')));
+ await assertFails(getDocs(collection(bob,'private/alice/socialMeta')));
+ await assertSucceeds(setDoc(ref(alice,note),{nickname:'دوست من',slot:'friend',hiddenAt:0,updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,note)));
+ await assertFails(getDoc(ref(bob,note)));
+ await assertFails(setDoc(ref(bob,'private/alice/socialMeta/eve'),{nickname:'tamper',slot:'friend',hiddenAt:0,updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,note),{slot:'admin',updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(alice,note),{hiddenAt:Date.now(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,draft),{text:'متن پیش‌نویس',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,draft)));
+ await assertFails(getDoc(ref(bob,draft)));
+ await assertFails(getDocs(collection(alice,'private/alice/dmDrafts')));
+ await assertFails(setDoc(ref(bob,'private/alice/dmDrafts/eve'),{text:'tamper',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,draft),{text:'x'.repeat(2001),updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,draft)));
+ await assertFails(getDoc(ref(bob,draft)));
+
  // Mute records are private to the owner and immutable by the muted target.
  await assertSucceeds(setDoc(ref(alice,'socialMutes/alice__bob'),{owner:'alice',target:'bob',createdAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(alice,'socialMutes/alice__bob')));
@@ -172,6 +191,8 @@ try{
  await assertSucceeds(updateDoc(ref(dave,'friendRequests/eve_dave'),{status:'accepted'}));
 
  // DM requires an accepted friendship; outsiders cannot read/send.
+ await assertFails(getDoc(ref(alice,'conversations/alice__bob'))); // participant-only get denies absent conversation
+ await assertSucceeds(setDoc(ref(alice,'conversations/alice__bob'),{kind:'dm',members:['alice','bob'],createdBy:'alice',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
  const convo='conversations/alice_bob_dm';
  await assertSucceeds(setDoc(ref(alice,convo),{kind:'dm',members:['alice','bob'],createdBy:'alice',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
  await assertSucceeds(getDoc(ref(bob,convo)));
