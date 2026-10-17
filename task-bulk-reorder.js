@@ -26,7 +26,9 @@ function ensureUi(){
  const panel=document.getElementById('panel-tasks'),toolbar=panel?.querySelector('.list-toolbar'),actions=panel?.querySelector('.elara-task-page-actions');if(!panel||!toolbar)return false;
  document.getElementById('task-selection-toggle')?.remove();
  let bar=document.getElementById('task-bulk-toolbar');
- if(!bar){bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="pin">📌 '+t('پین کردن','Pin')+'</button><button type="button" data-task-bulk="unpin">'+t('برداشتن پین','Unpin')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" class="danger task-delete-scope" data-task-bulk="delete-scope">'+t('حذف همهٔ این نما','Delete this view')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>'}
+ if(!bar){bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="share">🤝 '+t('مشترک','Shared')+'</button><button type="button" data-task-bulk="private">🔒 '+t('فقط برای من','Only me')+'</button><button type="button" data-task-bulk="pin">📌 '+t('پین کردن','Pin')+'</button><button type="button" data-task-bulk="unpin">'+t('برداشتن پین','Unpin')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" class="danger task-delete-scope" data-task-bulk="delete-scope">'+t('حذف همهٔ این نما','Delete this view')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>'}
+ let linkButton=document.getElementById('tasks-share-manager-button');
+ if(!linkButton){linkButton=document.createElement('button');linkButton.id='tasks-share-manager-button';linkButton.type='button';linkButton.className='quiet-button tasks-share-manager-button';linkButton.dataset.accountShareManager='';linkButton.textContent=t('🤝 مدیریت اشتراک همهٔ تسک‌ها و موارد','🤝 Manage sharing for all items');toolbar.append(linkButton)}
  const filterDetails=toolbar.closest('.astra-task-filters'),anchor=filterDetails||panel.querySelector('#astra-task-toolbar')||toolbar;
  if(bar.previousElementSibling!==anchor||bar.parentElement!==anchor.parentElement)anchor.insertAdjacentElement('afterend',bar);
  decorate();return true
@@ -68,7 +70,7 @@ async function bulkDeleteScope(){
  state.tasks=state.tasks.filter(x=>!set.has(x.id));state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>!set.has(x.taskId));write(state);cancel();window.ElaraTasks?.render?.();toast(t('تسک‌های همین نما حذف شدند.','Tasks in this view were deleted.'))
 }
 function cleanClone(task,index){
- const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;copy.pinned=false;
+ const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;copy.pinned=false;copy.accountLinkVisibility='private';for(const key of ['collabSpaceId','collabRole','collabOwnerUid','shared'])delete copy[key];
  for(const k of ['linkedTask','sourceType','sourceId','sourceParentId','sourceGroup','sourceLabel','sourceManaged','sourceCompletionLocked','sourceOwner','sourceUserEdited'])delete copy[k];return copy
 }
 function bulkDuplicate(){
@@ -89,7 +91,16 @@ function setPinned(ids,pinned){
  if(!changed)return;
  write(state);cancel();window.ElaraTasks?.render?.();toast(t(pinned?'تسک‌ها پین شدند.':'پین تسک‌ها برداشته شد.',pinned?'Tasks pinned.':'Tasks unpinned.'))
 }
-async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='pin'||action==='unpin'){setPinned(selected,action==='pin');return}if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
+async function bulkShare(mode){
+ if(!selected.size)return;
+ try{
+  if(typeof window.ElaraAccountLink?.setItemMode!=='function')throw Error(t('برای اشتراک‌گذاری ابتدا وارد حساب شو.','Sign in to manage sharing.'));
+  const count=window.ElaraAccountLink.setItemMode('task',[...selected],mode);
+  cancel();window.ElaraTasks?.render?.();
+  toast(t(count+' تسک تنظیم شد.',count+' tasks updated.'));
+ }catch(error){await window.ElaraDialog?.alert?.(error.message||String(error),{title:t('انتخاب اشتراک','Sharing selection')})}
+}
+async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='share'||action==='private')return bulkShare(action==='share'?'shared':'private');if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='pin'||action==='unpin'){setPinned(selected,action==='pin');return}if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
 function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressStart=null}
 function startCardPress(e,row){
  if(window.ElaraCoreTaskHold||window.ElaraUniversalTaskInteractions)return;
