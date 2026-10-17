@@ -104,14 +104,17 @@ function setItemMode(kind,ids,mode){
  const found=(Array.isArray(s[field])?s[field]:[]).filter(row=>ownItem(row)&&set.has(String(row.id)));
  if(!found.length)return 0;
  s.accountLinkSeen=s.accountLinkSeen&&typeof s.accountLinkSeen==='object'&&!Array.isArray(s.accountLinkSeen)?s.accountLinkSeen:{};
+ const changedKeys=[];
  for(const row of found){
   const old=itemMode(row,s);row.accountLinkVisibility=mode;
-  if(old===mode)continue;
-  const key=kind+'|'+String(row.id);
-  for(const link of active()){
-   const seen=Array.isArray(s.accountLinkSeen[link.id])?s.accountLinkSeen[link.id]:[];
-   s.accountLinkSeen[link.id]=mode==='shared'?seen.filter(x=>x!==key):[...new Set([...seen,key])].slice(-20000);
-  }
+  if(old!==mode)changedKeys.push(kind+'|'+String(row.id));
+ }
+ // Update one indexed set per connected friend, not one 20,000-entry array
+ // per selected item. Selecting thousands of tasks remains responsive.
+ for(const link of active()){
+  const seen=new Set(Array.isArray(s.accountLinkSeen[link.id])?s.accountLinkSeen[link.id]:[]);
+  for(const key of changedKeys)mode==='shared'?seen.delete(key):seen.add(key);
+  s.accountLinkSeen[link.id]=[...seen].slice(-20000);
  }
  write(s);window.dispatchEvent(new Event('elara:account-sharing-updated'));scheduleSync();return found.length;
 }
