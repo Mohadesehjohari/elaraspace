@@ -129,8 +129,19 @@ async function f2Extras(){
  }
 }
 
+const PIN_STORE='elara_space_v1';
+function pinnedFriends(){try{return new Set((JSON.parse(localStorage.getItem(PIN_STORE)||'{}').pinnedFriendIds||[]).map(String))}catch{return new Set()}}
+function togglePinnedFriend(uid){
+ const me=window.ElaraSocial?.me?.uid,friends=arr(window.ElaraSocial?.friends);
+ if(!me||!friends.some(p=>p.uid===uid))return;
+ let state;try{state=JSON.parse(localStorage.getItem(PIN_STORE)||'{}')||{}}catch{state={}}
+ const ids=new Set((Array.isArray(state.pinnedFriendIds)?state.pinnedFriendIds:[]).map(String));ids.has(uid)?ids.delete(uid):ids.add(uid);
+ state.pinnedFriendIds=[...ids].slice(0,500);localStorage.setItem(PIN_STORE,JSON.stringify(state));
+ window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));render();
+}
 function render(){
- const s=window.ElaraSocial||{},friends=arr(s.friends),me=s.me,uid=me?.uid,ranked=[me,...friends].filter(Boolean).sort((a,b)=>Number(b.xp||0)-Number(a.xp||0)),pendingRequests=arr(s.requests).filter(r=>r.status==='pending'),incoming=pendingRequests.filter(r=>r.to===uid),outgoingRows=pendingRequests.filter(r=>r.from===uid);
+ const pins=pinnedFriends();
+ const s=window.ElaraSocial||{},friends=arr(s.friends).sort((a,b)=>Number(pins.has(b.uid))-Number(pins.has(a.uid))),me=s.me,uid=me?.uid,ranked=[me,...friends].filter(Boolean).sort((a,b)=>Number(b.xp||0)-Number(a.xp||0)),pendingRequests=arr(s.requests).filter(r=>r.status==='pending'),incoming=pendingRequests.filter(r=>r.to===uid),outgoingRows=pendingRequests.filter(r=>r.from===uid);
  const requests=incoming.map(r=>`<div class="social-row social-request-row is-incoming" data-key="${esc(r.id)}">${person(r.person||{})}<span class="social-request-state">${tt('ورودی','Incoming')}</span><div class="social-request-actions">${imageButton('accept-request-button.webp',tt('قبول درخواست','Accept request'),`data-friend-action="accept" data-request="${esc(r.id)}"`)}${imageButton('decline-request-button.webp',tt('رد درخواست','Decline request'),`data-friend-action="decline" data-request="${esc(r.id)}"`)}</div></div>`).join('');
  const outgoing=outgoingRows.map(r=>`<div class="social-row social-request-row is-outgoing" data-key="${esc(r.id)}">${person(r.person||{})}<span class="social-request-state">${tt('ارسالی · در انتظار پاسخ','Outgoing · pending')}</span><div class="social-request-actions"><button type="button" class="quiet-button" data-profile-friend-action="cancel" data-request="${esc(r.id)}">${tt('لغو','Cancel')}</button></div></div>`).join('');
  const requestRows=requests+outgoing||empty(tt('فعلاً درخواست دوستی فعالی نداری.','No active friend requests right now.'));
@@ -141,7 +152,7 @@ function render(){
  const collabBody=collabRows.map(row=>`<div class="social-row collab-request-row" data-key="${esc(row.id)}">${person(row.sender||{uid:row.from,name:tt('دوست','Friend')})}<div class="collab-request-copy"><small>${collabLabel(row.kind)}</small><strong data-elara-ugc dir="auto">${esc(row.title||collabLabel(row.kind))}</strong></div><div class="social-request-actions"><button type="button" class="primary-button" data-collab-accept="${esc(row.id)}">${tt('قبول','Accept')}</button><button type="button" class="quiet-button danger" data-collab-decline="${esc(row.id)}">${tt('رد','Decline')}</button></div></div>`).join('')||empty(tt('درخواست مشترک جدیدی نداری.','No new shared requests.'),'43-friends-icon.webp');
  const collabCard=section('<span class="social-section-title">'+tt('درخواست‌های مشترک','Shared requests')+(collabRows.length?`<b class="social-count-badge">${fa(collabRows.length)}</b>`:'')+'</span>',collabBody,'social-collab-requests');
  const presenceCopy=p=>{const x=presenceFor(p);if(x.online)return tt('آنلاین','Online');if(x.known&&x.lastSeen)return tt('آخرین حضور: ','Last seen: ')+new Date(x.lastSeen).toLocaleString(tt('fa-IR','en-US'));return tt('وضعیت حضور نامشخص','Presence unknown')};
- const friendList=friends.map(p=>'<article class="friends-f2-friend" data-f2-friend data-key="'+esc(p.uid)+'" data-search="'+esc(((p.name||'')+' '+(p.username||'')).toLocaleLowerCase())+'" data-online="'+String(presenceFor(p).online===true)+'">'+person(p)+'<div class="friends-f2-friend-meta"><small>'+esc(presenceCopy(p))+'</small>'+(finiteNumber(p.xp)?socialStats(p):'')+'</div><div class="friends-f2-friend-actions"><button type="button" data-social-open-dm="'+esc(p.uid)+'" aria-label="'+tt('ارسال پیام','Message')+'">✉</button><button type="button" data-open-profile="'+esc(p.uid)+'" aria-label="'+tt('مشاهده پروفایل','View profile')+'">♙</button></div></article>').join('')||empty(tt('هنوز دوستی نداری؛ با نام کاربری دوست جدید پیدا کن.','No friends yet. Find someone by username.'));
+ const friendList=friends.map(p=>'<article class="friends-f2-friend '+(pins.has(p.uid)?'is-pinned':'')+'" data-f2-friend data-key="'+esc(p.uid)+'" data-search="'+esc(((p.name||'')+' '+(p.username||'')).toLocaleLowerCase())+'" data-online="'+String(presenceFor(p).online===true)+'">'+person(p)+'<div class="friends-f2-friend-meta"><small>'+esc(presenceCopy(p))+'</small>'+(finiteNumber(p.xp)?socialStats(p):'')+'</div><div class="friends-f2-friend-actions"><button type="button" class="friend-pin-action" data-friend-pin="'+esc(p.uid)+'" aria-pressed="'+pins.has(p.uid)+'" aria-label="'+tt(pins.has(p.uid)?'برداشتن پین دوست':'پین کردن دوست',pins.has(p.uid)?'Unpin friend':'Pin friend')+'">'+(pins.has(p.uid)?'📌':'♧')+'</button><button type="button" data-social-open-dm="'+esc(p.uid)+'" aria-label="'+tt('ارسال پیام','Message')+'">✉</button><button type="button" data-open-profile="'+esc(p.uid)+'" aria-label="'+tt('مشاهده پروفایل','View profile')+'">♙</button></div></article>').join('')||empty(tt('هنوز دوستی نداری؛ با نام کاربری دوست جدید پیدا کن.','No friends yet. Find someone by username.'));
  const podium=ranked.slice(0,3).map((p,i)=>`<article class="social-podium-place place-${i+1}">${podiumPerson(p,i)}${socialStats(p)}</article>`).join('')||empty('سکو فعلاً منتظر رفیق‌های توئه 🏆🔥 چند دوست اضافه کن تا رقابت واقعی شروع بشه.','icon-ranking-trophy.webp');
  const rankList=ranked.map((p,i)=>`<div class="social-row ${p.uid===uid?'is-me':''}" data-key="${esc(p.uid)}"><b>${fa(i+1)}</b>${person(p)}${socialStats(p)}</div>`).join('')||empty('هنوز رتبه‌ای شکل نگرفته 👀 با چند فعالیت واقعی، جدول کم‌کم جون می‌گیره.','ranking-chart-icon.webp');
  const sharedActivities=arr(s.activities).filter(a=>a.visibility==='friends'||a.visibility==='public');
@@ -263,6 +274,7 @@ function navigateSocialTab(route,tab){
  return true;
 }
 document.addEventListener('click',e=>{
+ const pin=e.target.closest('[data-friend-pin]');if(pin){e.preventDefault();e.stopImmediatePropagation();togglePinnedFriend(pin.dataset.friendPin);return}
  if(e.target.closest('[data-g4-design-create]')){e.preventDefault();if(window.ElaraSocial?.groups?.create&&window.ElaraSocialGroupsUI?.createGroup)void window.ElaraSocialGroupsUI.createGroup();else retryGroupsRoute();return}
  if(e.target.closest('[data-g4-reconnect]')){e.preventDefault();retryGroupsRoute();return}
  if(e.target.closest('[data-club-f3-launch]')){window.ElaraSocialClubsUI?.createClub?.();return}
