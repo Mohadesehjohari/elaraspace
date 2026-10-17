@@ -8,7 +8,8 @@ const state={me:null,friends:[],requests:[],activities:[],blocked:[],muted:[],co
 const lv=x=>window.ElaraLevels?.level(x)||1,title=x=>window.ElaraLevels?.title(x)||'جوینده';
 let uid=null,baseline=null,refreshChain=Promise.resolve(),generation=0,lastSocialStats='';
 let friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()},friendRealtimeChain=Promise.resolve();
-let presenceRuntime={uid:'',timer:null,expiryTimer:null,unsubs:new Map()};
+let presenceRuntime={uid:'',timer:null,expiryTimer:null,ownUnsub:null,unsubs:new Map()};
+let selectedPresenceVisibility='friends';
 const usernameValid=s=>/^[a-z][a-z0-9_]{2,19}$/.test(s),normalizeUsername=value=>String(value||'').trim().replace(/^@/,'').toLowerCase();
 function identityIntegrityError(code,message){const error=new Error(message);error.name='ElaraIdentityIntegrityError';error.identityCode=code;return error}
 async function assertProfileUsernameClaim(ownerUid,profileData){
@@ -166,7 +167,7 @@ window.ElaraSocial.stopMembershipInviteRealtime=stopMembershipInviteRealtime;
 
 const PRESENCE_TTL_MS=90000,PRESENCE_HEARTBEAT_MS=45000;
 const mutedByMe=other=>!!uid&&state.muted.some(x=>x.target===String(other));
-function presenceVisibility(){const value=localStorage.getItem('elara_presence_visibility_'+uid);return ['private','friends','public'].includes(value)?value:'friends'}
+function presenceVisibility(){return selectedPresenceVisibility}
 function presenceState(other){
  const row=state.presence[String(other)];if(!row)return{online:false,lastSeen:0,known:false};
  const lastSeen=Number(row.lastSeen||0),online=lastSeen>0&&(Date.now()-lastSeen)<=PRESENCE_TTL_MS;
@@ -179,8 +180,9 @@ async function heartbeatPresence(){
 }
 function stopPresence(){
  if(presenceRuntime.timer)clearInterval(presenceRuntime.timer);if(presenceRuntime.expiryTimer)clearInterval(presenceRuntime.expiryTimer);
+ try{presenceRuntime.ownUnsub?.()}catch{}
  for(const off of presenceRuntime.unsubs.values())try{off?.()}catch{}
- presenceRuntime={uid:'',timer:null,expiryTimer:null,unsubs:new Map()};state.presence={};window.dispatchEvent(new Event('elara:presence-updated'))
+ presenceRuntime={uid:'',timer:null,expiryTimer:null,ownUnsub:null,unsubs:new Map()};selectedPresenceVisibility='friends';state.presence={};window.dispatchEvent(new Event('elara:presence-updated'))
 }
 function syncPresenceListeners(){
  const mine=uid;if(!mine||presenceRuntime.uid!==mine)return;
@@ -197,20 +199,71 @@ function syncPresenceListeners(){
   presenceRuntime.unsubs.set(other,off)
  }
 }
-function startPresence(mine=auth.currentUser?.uid){
+async function startPresence(mine=auth.currentUser?.uid){
  if(!mine||!auth.currentUser?.emailVerified)return;
  if(presenceRuntime.uid!==mine){stopPresence();presenceRuntime.uid=mine}
+ // Hydrate privacy from the real server before the first heartbeat. Otherwise
+ // opening the app on another device silently overwrites the user's setting.
+ try{
+  const snap=await getDoc(doc(db,'presence',mine));
+  if(presenceRuntime.uid!==mine||auth.currentUser?.uid!==mine)return;
+  if(snap.exists()&&['private','friends','public'].includes(snap.data()?.visibility))selectedPresenceVisibility=snap.data().visibility;
+ }catch(error){console.warn('Presence privacy could not be loaded:',error.code||error.message);return}
+ if(!presenceRuntime.ownUnsub)presenceRuntime.ownUnsub=onSnapshot(doc(db,'presence',mine),snap=>{
+  if(presenceRuntime.uid!==mine)return;
+  const next=snap.data()?.visibility;
+  if(['private','friends','public'].includes(next)&&next!==selectedPresenceVisibility){
+   selectedPresenceVisibility=next;window.ElaraSocialView?.render?.()
+  }
+ },error=>console.warn('Presence privacy listener:',error.code||error.message));
  void heartbeatPresence();syncPresenceListeners();
  if(!presenceRuntime.timer)presenceRuntime.timer=setInterval(()=>{if(document.visibilityState==='visible')void heartbeatPresence()},PRESENCE_HEARTBEAT_MS);
  if(!presenceRuntime.expiryTimer)presenceRuntime.expiryTimer=setInterval(()=>{window.dispatchEvent(new Event('elara:presence-updated'));window.ElaraSocialView?.render?.()},30000)
 }
 async function setPresenceVisibility(value){
+ if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
  if(!['private','friends','public'].includes(value))throw Error('حریم خصوصی Presence نامعتبر است.');
- localStorage.setItem('elara_presence_visibility_'+uid,value);await heartbeatPresence();return value
+ const previous=selectedPresenceVisibility;selectedPresenceVisibility=value;
+ if(!(await heartbeatPresence())){selectedPresenceVisibility=previous;throw Error('تنظیم نمایش آنلاین در Firestore ذخیره نشد.')}
+ window.ElaraSocialView?.render?.();return value
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&presenceRuntime.uid===uid)void heartbeatPresence()});
 window.addEventListener('online',()=>{if(presenceRuntime.uid===uid)void heartbeatPresence()});
-window.ElaraSocial.presence={state:presenceState,start:startPresence,stop:stopPresence,heartbeat:heartbeatPresence,setVisibility:setPresenceVisibility,ttlMs:PRESENCE_TTL_MS};
+window.ElaraSocial.presence={state:presenceState,start:startPresence,stop:stopPresence,heartbeat:heartbeatPresence,setVisibility:setPresenceVisibility,visibility:presenceVisibility,ttlMs:PRESENCE_TTL_MS};
+
+// Social-only private data is persisted per authenticated user in Firestore,
+// never localStorage. A missing document is normal: its first write creates it.
+function socialOwner(){const mine=auth.currentUser?.uid;if(!mine||mine!==uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');return mine}
+function checkedSocialTarget(other){const target=String(other||'');if(!target||target.includes('/'))throw Error('شناسهٔ دوست نامعتبر است.');return target}
+async function loadSocialMeta(){
+ const mine=socialOwner(),snaps=await getDocs(collection(db,'private',mine,'socialMeta'));
+ if(auth.currentUser?.uid!==mine)throw Error('حساب تغییر کرده است.');
+ return Object.fromEntries(snaps.docs.map(s=>[s.id,s.data()]));
+}
+async function saveSocialMeta(other,value){
+ const mine=socialOwner(),target=checkedSocialTarget(other);
+ const nickname=String(value?.nickname||'').trim().slice(0,40),slot=String(value?.slot||''),hiddenAt=Number(value?.hiddenAt||0);
+ if(!['','companion','lover','family','bro','sis','friend','buddy'].includes(slot))throw Error('جایگاه رابطه نامعتبر است.');
+ if(!Number.isSafeInteger(hiddenAt)||hiddenAt<0)throw Error('تاریخ پنهان‌کردن چت نامعتبر است.');
+ await setDoc(doc(db,'private',mine,'socialMeta',target),{nickname,slot,hiddenAt,updatedAt:serverTimestamp()});
+ return{nickname,slot,hiddenAt}
+}
+async function loadDmDraft(other){
+ const mine=socialOwner(),snap=await getDoc(doc(db,'private',mine,'dmDrafts',checkedSocialTarget(other)));
+ if(auth.currentUser?.uid!==mine)throw Error('حساب تغییر کرده است.');
+ return snap.exists()?String(snap.data()?.text||'').slice(0,2000):''
+}
+async function saveDmDraft(other,value){
+ const mine=socialOwner(),target=checkedSocialTarget(other),text=String(value||'').slice(0,2000);
+ if(!text)return deleteDmDraft(target);
+ await setDoc(doc(db,'private',mine,'dmDrafts',target),{text,updatedAt:serverTimestamp()});
+ return true
+}
+async function deleteDmDraft(other){
+ const mine=socialOwner();await deleteDoc(doc(db,'private',mine,'dmDrafts',checkedSocialTarget(other)));return true
+}
+window.ElaraSocial.cloud={loadMeta:loadSocialMeta,saveMeta:saveSocialMeta};
+window.ElaraSocial.dmDrafts={load:loadDmDraft,save:saveDmDraft,clear:deleteDmDraft};
 
 const dmId=other=>[String(uid||''),String(other||'')].sort().join('__'),dmLastSend=new Map();
 function blockedByMe(other){return !!uid&&state.blocked.some(x=>x.target===other)}
