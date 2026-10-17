@@ -196,6 +196,8 @@ async function readyUser(current){
     remove:async key=>deleteDoc(doc(db,'private',current.uid,'clientKV',key))
   });
   if(auth.currentUser?.uid!==current.uid)return;
+  const preferredLocale=store.getItem('elara_locale_v1');
+  if(preferredLocale==='en'||preferredLocale==='fa')window.ElaraI18n?.set?.(preferredLocale);
   const content=remote.exists()?remote.data().payload:empty();
   // Never automatically import another account's (or the old guest's) local data.
   // The authenticated Firestore document wins. Legacy device data is never
@@ -268,7 +270,7 @@ function renderAccount(){
     section=document.createElement('section');section.id='cloud-social';section.className='surface settings-card';
     section.innerHTML='<h2>حساب و دوستان واقعی</h2><p class="muted" id="cloud-me"></p><p class="muted" id="cloud-sync"></p><div class="timer-actions"><button class="quiet-button" id="cloud-logout" type="button">خروج از حساب</button></div><h2>درخواست دوستی</h2><form id="cloud-friend-form" class="inline-form"><input id="cloud-friend-name" aria-label="نام کاربری دوست" required placeholder="نام کاربری دوست (مثلاً aren_01)"><button class="primary-button" type="submit">ارسال درخواست</button></form><div class="item-list" id="cloud-friends-list"></div><h2 style="margin-top:22px">رنکینگ دوستان</h2><p class="muted">امتیازها از فعالیت‌های ثبت‌شدهٔ هر حساب می‌آیند؛ این نسخه برای رقابت رسمی ضدتقلب نیست.</p><div class="item-list" id="cloud-ranking"></div><button id="cloud-refresh" class="quiet-button" type="button">به‌روزرسانی دوستان و رتبه‌ها</button>';
     $('panel-settings').append(section);
-    $('cloud-logout').addEventListener('click',async()=>{await flush();await signOut(auth);});
+    $('cloud-logout').addEventListener('click',async()=>{await flush();if(dirty)throw Error('ذخیرهٔ ابری هنوز موفق نشده است.');await window.ElaraCloudStorage.flush();await signOut(auth);});
     $('cloud-friend-form').addEventListener('submit',async event=>{event.preventDefault();const b=event.target.querySelector('button');b.disabled=true;try{await addFriend($('cloud-friend-name').value);event.target.reset();notify('درخواست دوستی ارسال شد.');}catch(e){notify(actionError(e));}finally{b.disabled=false;}});
     $('cloud-refresh').addEventListener('click',()=>refreshFriends().catch(e=>notify(actionError(e))));
   }
@@ -294,7 +296,7 @@ window.ElaraAccount={
 
   errorMessage:actionError,
   getUser:()=>auth.currentUser,
-  logout:async()=>{await flush();await signOut(auth);},
+  logout:async()=>{await flush();if(dirty)throw Error('ذخیرهٔ ابری هنوز موفق نشده است.');await window.ElaraCloudStorage.flush();await signOut(auth);},
   sendPasswordReset:async()=>{if(!auth.currentUser?.email)throw new Error('ایمیل حساب در دسترس نیست.');await sendPasswordResetEmail(auth,auth.currentUser.email);return auth.currentUser.email;},
   changePassword:async(currentPassword,newPassword)=>{
     const current=auth.currentUser;if(!current?.email)throw new Error('برای تغییر رمز دوباره وارد حساب شو.');
