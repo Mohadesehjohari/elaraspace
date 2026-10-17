@@ -10,7 +10,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   ['C',{username:'cyrus',name:'Cyrus',bio:'',xp:80,profilePublic:true}]
  ]);
  const usernames=new Map([...profiles].map(([uid,p])=>[p.username,{uid}]));
- const requests=new Map(),reads={friendRequests:0};let friendReadGate=null;
+ const requests=new Map(),reads={friendRequests:0};let friendReadGate=null,failPreferenceRead=false,failActivityRead=false;
  const mockAuth={currentUser:{uid:'A',emailVerified:true}};
  const ref=(kind,id)=>({kind,id,path:kind+'/'+id});
  const snap=(id,data)=>({id,exists:()=>data!==undefined,data:()=>data,ref:ref('friendRequests',id)});
@@ -26,7 +26,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
    return snap(r.id,undefined);
   },
   getDocs:async q=>{
-   if(q.name==='activities')return {docs:[]};
+   if(q.name==='activities'){
+    const visibility=q.clauses?.find(c=>c.field==='visibility');
+    assert.deepEqual(visibility?.value,['friends','public'],'friend activity query must exclude private records');
+    if(failActivityRead){const e=Error('private activity query unavailable');e.code='permission-denied';throw e}
+    return {docs:[]};
+   }
+   if(failPreferenceRead&&q.name==='socialMutes'){const e=Error('optional mute preference unavailable');e.code='permission-denied';throw e}
    if(q.name!=='friendRequests')return {docs:[]};
    if(friendReadGate)await friendReadGate;
    const rows=[...requests].filter(([,data])=>q.clauses.every(c=>data[c.field]===c.value));
@@ -100,6 +106,23 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  await assert.rejects(()=>w.__socialOps.addFriend('behnam'),/قبلاً دوست شده‌اید/);
  assert.equal([...requests].filter(([,x])=>(x.from==='A'&&x.to==='B')||(x.from==='B'&&x.to==='A')).length,1);
 
+ // A noncritical permissions error must not hide accepted friends or corrupt My Friends counts.
+ w.__socialTest({uid:'A',...profiles.get('A')});failPreferenceRead=true;failActivityRead=true;
+ await w.__socialOps.refresh();
+ assert.ok(w.ElaraSocial.friends.some(x=>x.uid==='B'),'accepted friend disappeared after optional Firestore failures');
+ assert.equal(w.ElaraSocial.error,'','optional fetch errors must not put My Friends in an error state');
+ assert.equal(w.document.querySelectorAll('#elara-social-page .friends-f2-friend').length,1,'My Friends card must still render the accepted user');
+ failPreferenceRead=false;failActivityRead=false;
+ // An accepted request remains visible as a real relationship even if its profile was deleted.
+ const missingProfile=profiles.get('B');profiles.delete('B');await w.__socialOps.refresh();
+ assert.ok(w.ElaraSocial.friends.some(x=>x.uid==='B'),'missing profile must not erase an accepted relationship');
+ profiles.set('B',missingProfile);
+ // The chat and club placeholders must not be hidden before optional modules load.
+ const viewSource=fs.readFileSync(path.resolve(__dirname,'../social-view.js'),'utf8');
+ const chatCss=fs.readFileSync(path.resolve(__dirname,'../friends-chats-redesign.css'),'utf8');
+ assert.match(viewSource,/hubWaiting\('chats'\)/);
+ assert.match(viewSource,/hubWaiting\('clubs'\)/);
+ assert.doesNotMatch(chatCss,/\[data-social-slot="chats"\]\{display:none!important\}/);
  // Decline deletes the pending request rather than leaving a stale declined record.
  requests.set('C_B',{from:'C',to:'B',status:'pending'});
  w.__socialTest({uid:'B',...profiles.get('B')});await w.__socialOps.refresh();
@@ -113,7 +136,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.match(rules,/!exists\(requestPath\(request\.resource\.data\.to, request\.resource\.data\.from\)\)/);
  assert.match(rules,/resource\.data\.to == request\.auth\.uid[\s\S]*resource\.data\.status == 'pending'/);
  assert.deepEqual(errors,[]);
- console.log('PASS: Firestore-backed friend send/persist/receiver/accept/decline/no-duplicate/self-guard lifecycle (network mocked; multi-account Firebase browser not verified)');
+ console.log('PASS: Firestore-backed friend lifecycle, accepted-list resilience to optional read failures, privacy-filtered activity reads, and visible chat/club fallbacks (Firebase mocked)');
  dom.window.close();
 })().catch(e=>{console.error(e);process.exit(1)});
 
