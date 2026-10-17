@@ -383,3 +383,29 @@ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-checked-archive
  }
  html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks #elara-task-page-actions #elara-task-add-main strong{font-size:20px!important}
 }
+
+
+/* Soft Cosmic R3 / 2026-10-17 — Tasks use quiet surfaces, intact metadata geometry. */
+html body.dark #panel-tasks #task-list > .astra-task-row{
+ background:linear-gradient(155deg,rgba(12,35,55,.94),rgba(8,26,47,.94))!important;
+ border-block-color:rgba(127,169,192,.17)!important;
+ border-inline-end-color:rgba(127,169,192,.17)!important;
+ box-shadow:none!important
+}
+html body.dark #panel-tasks #task-list > .astra-task-row:hover,
+html body.dark #panel-tasks #task-list > .astra-task-row:focus-within{
+ background:linear-gradient(155deg,rgba(17,44,65,.96),rgba(11,33,53,.96))!important;
+ box-shadow:0 6px 16px rgba(0,0,0,.14)!important
+}
+html body.dark #panel-tasks #task-category-nav [data-task-category]:not([aria-pressed="true"]){
+ border-color:rgba(132,174,203,.17)!important;
+ background:rgba(13,36,59,.83)!important;box-shadow:none!important
+}
+html body.dark #panel-tasks #task-category-nav [data-task-category][aria-pressed="true"]{
+ border-color:rgba(107,206,224,.58)!important;
+ background:linear-gradient(145deg,#15536d,#0e3b58)!important;
+ box-shadow:0 3px 10px rgba(0,0,0,.13)!important
+}
+html body.dark #panel-tasks #task-list .item-title{
+ color:#edf3f7!important;letter-spacing:0!important;font-weight:740!important
+}

@@ -752,7 +752,7 @@ html body.dark #panel-home.ref-home.owner-art-home :is(.ref-task-row,.ref-habit-
 /* Spacing communicates grouping more quietly than borders. Keep fixed card
    heights and internal scroll ownership unchanged. */
 html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid{
- column-gap:15px!important;row-gap:15px!important
+ column-gap:16px!important;row-gap:0!important
 }
 html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid{
  column-gap:15px!important;row-gap:15px!important
@@ -805,7 +805,7 @@ html body.dark #panel-home.ref-home.owner-art-home :is(.ref-task-row,.ref-habit-
 }
 @media(max-width:700px){
  html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid{
-  column-gap:11px!important;row-gap:11px!important
+  column-gap:8px!important;row-gap:8px!important
  }
  html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid{
   column-gap:11px!important;row-gap:11px!important
@@ -838,5 +838,77 @@ html body.dark #panel-home.ref-home.owner-art-home :is(.ref-task-row,.ref-habit-
  }
  html body.dark #panel-home.ref-home.owner-art-home .ref-card-count{
   font-size:.64rem!important
+ }
+}
+
+
+/* Soft Cosmic R3 / 2026-10-17
+   Clear focal hierarchy. Keep all original Home cards, scrollports and mobile positions. */
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero{
+ border:1px solid rgba(157,196,218,.21)!important;
+ box-shadow:0 14px 28px rgba(0,8,27,.22)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero::before{
+ background:linear-gradient(270deg,rgba(6,20,43,.88),rgba(7,24,46,.44) 44%,transparent 79%)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
+ font-size:clamp(1.2rem,1.9vw,1.72rem)!important;font-weight:740!important;
+ line-height:1.55!important;letter-spacing:0!important;text-wrap:balance;
+ text-shadow:0 2px 8px rgba(0,0,0,.29)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy p{
+ font-size:clamp(.83rem,1vw,.96rem)!important;line-height:1.8!important;
+ color:#e3eff7!important;text-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > :is(.ref-tasks,.ref-wellness-card,.ref-goals){
+ background:linear-gradient(150deg,#12283c,#0d2032)!important;
+ border-color:rgba(136,178,194,.14)!important;
+ box-shadow:0 5px 17px rgba(0,0,0,.15)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-card>header h2{
+ color:#eaf2f5!important;text-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-wellness-cell{
+ border:0!important;box-shadow:none!important;
+ border-radius:9px!important;background:rgba(45,99,106,.17)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-wellness-card .ref-health-ring{
+ box-shadow:0 0 0 1px rgba(77,207,190,.25)!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-flame{
+ filter:drop-shadow(0 5px 10px rgba(234,145,78,.16))!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-streak-card .ref-streak-day:not(.today) .ref-day-mark{
+ border-color:rgba(222,174,115,.18)!important;box-shadow:none!important
+}
+html body.dark #panel-home.ref-home.owner-art-home .ref-quick-card::before{
+ background:linear-gradient(180deg,rgba(4,19,37,.03),rgba(4,19,37,.62))!important
+}
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-habits,.ref-achievements){
+ box-shadow:0 5px 18px rgba(0,0,0,.14)!important
+}
+@media(min-width:1001px){
+ html body.dark #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
+  row-gap:0!important;column-gap:16px!important
+ }
+}
+@media(min-width:701px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{
+  background:rgba(8,27,51,.76)!important;
+  border-color:rgba(136,179,203,.16)!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.18)!important
+ }
+}
+@media(max-width:700px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
+  font-size:clamp(1.07rem,4.12vw,1.28rem)!important;line-height:1.5!important
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy p{
+  font-size:.77rem!important;line-height:1.65!important
+ }
+}
+@media(max-width:359px){
+ html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .hero-copy h1{
+  font-size:1.03rem!important
  }
 }
