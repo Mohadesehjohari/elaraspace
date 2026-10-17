@@ -90,6 +90,11 @@ function setDefaultMode(mode){
  if(mode===old)return true;
  // Existing records keep their OLD visibility. A new default is NEVER retroactive.
  for(const {row} of itemRows(s))if(!['private','shared'].includes(row.accountLinkVisibility))row.accountLinkVisibility=old;
+ s.accountLinkSeen=s.accountLinkSeen&&typeof s.accountLinkSeen==='object'&&!Array.isArray(s.accountLinkSeen)?s.accountLinkSeen:{};
+ // Establish each accepted link's pre-change baseline before a "new items"
+ // default can publish anything. No previous private item is auto-shared.
+ for(const link of active())if(!Array.isArray(s.accountLinkSeen[link.id]))
+   s.accountLinkSeen[link.id]=itemRows(s).map(x=>x.key).slice(-20000);
  s.accountLinkDefaultMode=mode;write(s);return true;
 }
 function setItemMode(kind,ids,mode){
