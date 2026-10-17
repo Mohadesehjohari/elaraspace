@@ -26,7 +26,7 @@ function ensureUi(){
  const panel=document.getElementById('panel-tasks'),toolbar=panel?.querySelector('.list-toolbar'),actions=panel?.querySelector('.elara-task-page-actions');if(!panel||!toolbar)return false;
  document.getElementById('task-selection-toggle')?.remove();
  let bar=document.getElementById('task-bulk-toolbar');
- if(!bar){bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" class="danger task-delete-scope" data-task-bulk="delete-scope">'+t('حذف همهٔ این نما','Delete this view')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>'}
+ if(!bar){bar=document.createElement('div');bar.id='task-bulk-toolbar';bar.className='task-bulk-toolbar';bar.hidden=true;bar.dataset.elaraI18n='off';bar.innerHTML='<strong><span data-task-selected-count>0</span> '+t('انتخاب شده','selected')+'</strong><div><button type="button" data-task-bulk="all">'+t('انتخاب همه','Select all')+'</button><button type="button" data-task-bulk="pin">📌 '+t('پین کردن','Pin')+'</button><button type="button" data-task-bulk="unpin">'+t('برداشتن پین','Unpin')+'</button><button type="button" data-task-bulk="duplicate">'+t('کپی','Duplicate')+'</button><button type="button" data-task-bulk="move">'+t('انتقال','Move')+'</button><button type="button" class="danger" data-task-bulk="delete">'+t('حذف','Delete')+'</button><button type="button" class="danger task-delete-scope" data-task-bulk="delete-scope">'+t('حذف همهٔ این نما','Delete this view')+'</button><button type="button" data-task-bulk="cancel">'+t('لغو','Cancel')+'</button></div>'}
  const filterDetails=toolbar.closest('.astra-task-filters'),anchor=filterDetails||panel.querySelector('#astra-task-toolbar')||toolbar;
  if(bar.previousElementSibling!==anchor||bar.parentElement!==anchor.parentElement)anchor.insertAdjacentElement('afterend',bar);
  decorate();return true
@@ -68,7 +68,7 @@ async function bulkDeleteScope(){
  state.tasks=state.tasks.filter(x=>!set.has(x.id));state.taskCompletionHistory=state.taskCompletionHistory.filter(x=>!set.has(x.taskId));write(state);cancel();window.ElaraTasks?.render?.();toast(t('تسک‌های همین نما حذف شدند.','Tasks in this view were deleted.'))
 }
 function cleanClone(task,index){
- const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;
+ const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now()+index;copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;copy.pinned=false;
  for(const k of ['linkedTask','sourceType','sourceId','sourceParentId','sourceGroup','sourceLabel','sourceManaged','sourceCompletionLocked','sourceOwner','sourceUserEdited'])delete copy[k];return copy
 }
 function bulkDuplicate(){
@@ -83,7 +83,13 @@ async function bulkMove(){
  for(const task of state.tasks)if(ids.has(task.id)){if(listValue!=='__keep__')task.list=listValue==='__none__'?'':listValue;if(folderValue!=='__keep__')task.folder=folderValue==='__none__'?'':folderValue}
  write(state);cancel();window.ElaraTasks?.render?.();toast(t('تسک‌ها منتقل شدند.','Tasks moved.'))
 }
-async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
+function setPinned(ids,pinned){
+ const state=read(),set=new Set(ids);let changed=0;
+ for(const task of state.tasks)if(set.has(String(task.id))&&!!task.pinned!==pinned){task.pinned=pinned;changed++}
+ if(!changed)return;
+ write(state);cancel();window.ElaraTasks?.render?.();toast(t(pinned?'تسک‌ها پین شدند.':'پین تسک‌ها برداشته شد.',pinned?'Tasks pinned.':'Tasks unpinned.'))
+}
+async function bulk(action){if(action==='cancel'){cancel();return}if(action==='all'){selecting=true;for(const id of visibleIds())selected.add(id);syncUi();return}if(action==='delete')return bulkDelete();if(action==='delete-scope')return bulkDeleteScope();if(action==='pin'||action==='unpin'){setPinned(selected,action==='pin');return}if(action==='duplicate'){bulkDuplicate();return}if(action==='move')return bulkMove()}
 function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressStart=null}
 function startCardPress(e,row){
  if(window.ElaraCoreTaskHold||window.ElaraUniversalTaskInteractions)return;
@@ -112,6 +118,7 @@ function dragEnd(e){
 }
 document.addEventListener('click',e=>{
  if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&row.dataset.key===ignoreClickId){e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=0;ignoreClickId='';return}}
+ const pin=e.target.closest('[data-task-pin]');if(pin){e.preventDefault();e.stopImmediatePropagation();const id=pin.dataset.taskPin,task=read().tasks.find(x=>String(x.id)===id);if(task)setPinned([id],!task.pinned);return}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
  if(selecting){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag],.check-button,.astra-task-more')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
 },true);
