@@ -13,7 +13,7 @@ const slots=Object.freeze({
 });
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'';
 const cloud=()=>window.ElaraSocial?.cloud;
-let records={},loadedUid='',loading=null;
+let records={},loadedUid='',loading=null,unwatch=null;
 const metadata=p=>({nickname:String(p?.nickname||'').trim().slice(0,40),slot:slots[p?.slot]?p.slot:'',hiddenAt:Number(p?.hiddenAt||0)});
 function notify(){window.dispatchEvent(new Event('elara:profile-relations-changed'))}
 function read(){return Object.fromEntries(Object.entries(records).filter(([,p])=>p?.nickname||p?.slot).map(([id,p])=>[id,{nickname:p.nickname||'',slot:p.slot||''}]))}
@@ -44,10 +44,14 @@ async function ensureLoaded(){
  const mine=uid();if(!mine||!cloud())throw Error(tx('ابتدا وارد حساب آنلاین شو.','Sign in to your online account first.'));
  if(loadedUid===mine)return;
  if(loading&&loading.uid===mine)return loading.promise;
- records={};loadedUid='';
+ try{unwatch?.()}catch{}unwatch=null;records={};loadedUid='';
  const promise=(async()=>{const rows=await cloud().loadMeta();if(uid()!==mine)return;
   records=Object.fromEntries(Object.entries(rows).map(([id,p])=>[id,metadata(p)]));loadedUid=mine;notify();
   try{await migrateLegacy(mine);if(uid()===mine)notify()}catch(e){console.warn('Legacy social metadata migration:',e.code||e.message)}
+  if(uid()===mine&&cloud()?.watchMeta)unwatch=cloud().watchMeta(next=>{
+   if(uid()!==mine)return;
+   records=Object.fromEntries(Object.entries(next).map(([id,p])=>[id,metadata(p)]));notify()
+  })
  })();
  loading={uid:mine,promise};
  try{await promise}finally{if(loading?.promise===promise)loading=null}
@@ -73,10 +77,10 @@ async function hideChat(target,at=Date.now()){
  return record.hiddenAt
 }
 async function clearHidden(target){if(!hiddenAt(target))return;await persist(target,{hiddenAt:0})}
-function startLoad(){if(!uid()){records={};loadedUid='';notify();return}if(cloud())void ensureLoaded().catch(error=>console.warn('Social private metadata:',error.code||error.message))}
+function startLoad(){if(!uid()){try{unwatch?.()}catch{}unwatch=null;records={};loadedUid='';notify();return}if(cloud())void ensureLoaded().catch(error=>console.warn('Social private metadata:',error.code||error.message))}
 window.addEventListener('elara:account-ready',startLoad);
 window.addEventListener('elara:social-updated',()=>{if(uid()&&loadedUid!==uid()&&!loading)startLoad()});
-window.addEventListener('elara:logout',()=>{records={};loadedUid='';notify()});
+window.addEventListener('elara:logout',()=>{try{unwatch?.()}catch{}unwatch=null;records={};loadedUid='';notify()});
 setTimeout(startLoad,0);
 function targetFrom(root){return root?.querySelector?.('.elara-profile-composition[data-profile-self="0"]')?.dataset.profileUid||window.ElaraSocial?.profileView?.uid||''}
 function decorate(root=document){
