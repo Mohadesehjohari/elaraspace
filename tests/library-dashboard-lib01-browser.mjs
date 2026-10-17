@@ -39,8 +39,8 @@ try{
     const rect=x.getBoundingClientRect(),art=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();
     return {height:rect.height,imageHeight:art?.height||0,y:rect.y};
   }));
-  assert.equal(launcherBounds.length,4,width+': four legacy library launcher routes must remain visible');
-  assert.ok(launcherBounds.every(x=>x.height>=(width<=700?160:188)&&x.imageHeight>=(width<=700?100:125)),width+': visual launcher compatibility '+JSON.stringify(launcherBounds));
+  assert.equal(launcherBounds.length,4,width+': canonical library routes remain available in DOM');
+  assert.ok(launcherBounds.every(x=>x.height===0&&x.imageHeight===0),width+': legacy library launcher tiles must stay invisible '+JSON.stringify(launcherBounds));
   assert.equal(model.nHeroes,1,width+': extra visible banner');
   assert.match(model.image,/librairy_banner_main\.webp/,width+': approved library asset not used');
   assert.equal(model.tabs,8,width+': incomplete eight library shortcuts');
