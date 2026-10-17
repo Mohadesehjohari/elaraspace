@@ -39,8 +39,14 @@ try{
     const rect=x.getBoundingClientRect(),art=x.querySelector('.feature-launcher-art')?.getBoundingClientRect();
     return {height:rect.height,imageHeight:art?.height||0,y:rect.y};
   }));
-  assert.equal(launcherBounds.length,4,width+': four legacy library launcher routes must remain visible');
-  assert.ok(launcherBounds.every(x=>x.height>=(width<=700?160:188)&&x.imageHeight>=(width<=700?100:125)),width+': visual launcher compatibility '+JSON.stringify(launcherBounds));
+  assert.equal(launcherBounds.length,4,width+': keep old route targets available for compatibility');
+  assert.ok(launcherBounds.every(x=>x.height===0&&x.imageHeight===0),width+': obsolete library launcher layout must stay hidden '+JSON.stringify(launcherBounds));
+  const owner=await page.evaluate(()=>{
+   const p=document.getElementById('panel-books');
+   return {ready:p.dataset.lib01PaintReady,legacy:[...p.children].filter(x=>!x.matches('#lib01-overview,.elara-global-hero')).filter(x=>getComputedStyle(x).display!=='none').map(x=>x.id||x.className)};
+  });
+  assert.equal(owner.ready,'true',width+': only the new owner may release first paint');
+  assert.deepEqual(owner.legacy,[],width+': old forms, clips or secondary sections remain visible');
   assert.equal(model.nHeroes,1,width+': extra visible banner');
   assert.match(model.image,/librairy_banner_main\.webp/,width+': approved library asset not used');
   assert.equal(model.tabs,8,width+': incomplete eight library shortcuts');
