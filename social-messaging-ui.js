@@ -7,8 +7,8 @@ const api=()=>window.ElaraSocial?.dm,me=()=>window.ElaraSocial?.me||null,friends
 const friend=id=>friends().find(x=>x.uid===id),name=p=>p?.name||p?.username||t('دوست','Friend');
 const owner=()=>me()?.uid||window.ElaraAccount?.user?.uid||'guest';
 const key=id=>'elara_dm_draft_v1_'+owner()+'_'+id;
-const getDraft=id=>{try{return String(localStorage.getItem(key(id))||'').slice(0,2000)}catch{return''}};
-const putDraft=(id,value)=>{try{value=String(value||'').slice(0,2000);if(value)localStorage.setItem(key(id),value);else localStorage.removeItem(key(id))}catch{}};
+const getDraft=id=>{try{return String(window.ElaraCloudStorage.getItem(key(id))||'').slice(0,2000)}catch{return''}};
+const putDraft=(id,value)=>{try{value=String(value||'').slice(0,2000);if(value)window.ElaraCloudStorage.setItem(key(id),value);else window.ElaraCloudStorage.removeItem(key(id))}catch{}};
 const presence=p=>window.ElaraSocial?.presence?.state?.(p?.uid)||{};
 const avatar=p=>{const src=window.ElaraProfileSystem?.viewModel?.(p,{self:false})?.avatarSrc;return '<span class="social-dm-avatar">'+(src?'<img loading="lazy" src="'+esc(src)+'" alt="">':'<span>'+esc(name(p).slice(0,1))+'</span>')+(presence(p).online?'<i class="dm-online-dot"></i>':'')+'</span>'};
 const time=ms=>ms?new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'}):'';

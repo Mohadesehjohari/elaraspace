@@ -7,7 +7,7 @@ const valid=d=>window.ElaraSchedule?.validDate?.(d)===true;
 const iso=d=>window.ElaraSchedule?.iso?.(d)||[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const today=()=>iso(new Date()),shift=(date,n)=>{const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
 const uid=()=>window.ElaraAccount?window.ElaraAccount.user?.uid||null:window.ElaraSocial?.me?.uid||null;
-const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
+const read=(key,fallback)=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem(key)||'null');return v??fallback}catch{return fallback}};
 const dateOf=ms=>Number.isFinite(Number(ms))&&Number(ms)>0?iso(new Date(Number(ms))):null;
 const seenUnique=(xs,key)=>{const seen=new Set();return xs.filter(x=>{const k=key(x);if(!k||seen.has(k))return false;seen.add(k);return true})};
 const iconPaths={

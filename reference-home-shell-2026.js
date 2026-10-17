@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id),icon=n=>window.ElaraIcons?.icon?.(n)||'<span class="elara-icon" aria-hidden="true"></span>';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const arr=v=>Array.isArray(v)?v:[];
-const read=()=>{try{const d=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return d&&typeof d==='object'?d:{}}catch{return{}}};
+const read=()=>{try{const d=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return d&&typeof d==='object'?d:{}}catch{return{}}};
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const today=()=>iso(new Date()),fa=v=>Number(v||0).toLocaleString('fa-IR');
 const card=id=>$(id)?.closest('.elara-card');
@@ -46,7 +46,7 @@ function installViewAllArtwork(){
 }
 addEventListener('resize',syncViewAllHitTargets,{passive:true});
 const NOTIF='elara_notifications_v1';
-function unreadNotifications(){try{return arr(JSON.parse(localStorage.getItem(NOTIF)||'[]')).filter(x=>x&&(x.unread===true||x.read===false||x.status==='unread')).length}catch{return 0}}
+function unreadNotifications(){try{return arr(JSON.parse(window.ElaraCloudStorage.getItem(NOTIF)||'[]')).filter(x=>x&&(x.unread===true||x.read===false||x.status==='unread')).length}catch{return 0}}
 const darkModeActive=()=>document.body.classList.contains('dark')||document.body.classList.contains('amoled');
 const isMobile=()=>matchMedia('(max-width:700px)').matches;
 const selected=()=>window.ElaraHomeDay||today();
@@ -209,7 +209,7 @@ function renderGoals(){
  window.ElaraDOM.patch(host,overview+wrap.outerHTML+more);const scroll=host.querySelector('.ref-goals-scroll');if(scroll)scroll.scrollTop=scrollPosition
 }
 function renderMissions(){const host=$('elara-home-missions');if(!host)return;const compact=isMobile(),ms=arr(window.ElaraMissions?.snapshot?.()).slice(0,3);window.ElaraDOM.patch(host,ms.length?ms.map(m=>`<div class="ref-mission-row"><span class="ref-mission-check" aria-hidden="true">${m.completed?art(UI_ASSETS.taskCheck,'ref-mission-check-art','انجام‌شده'):'<i></i>'}</span><div><strong>${esc(m.name||'مأموریت')}</strong><small>${compact?'':esc(m.detail||'')+(m.detail?' · ':'')}${fa(m.amount)} / ${fa(m.target)}</small></div><b class="ref-mission-reward">${art(UI_ASSETS.achievement,'ref-reward-star','')}+${fa(m.rewardXp)} XP</b></div>`).join(''):'<p class="ref-empty">فعلاً مأموریتی نداری 🫡 یه کم جلو برو؛ مأموریت بعدی خودش پیداش می‌شه.</p>')}
-function wellness(){const target=$('ref-wellness-data');if(!target)return;const u=uid();let s={};if(u)try{s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+u)||'{}')||{}}catch{}
+function wellness(){const target=$('ref-wellness-data');if(!target)return;const u=uid();let s={};if(u)try{s=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+u)||'{}')||{}}catch{}
  const day=selected(),water=Number(s.water?.[day]||0),goal=Math.max(1,Number(s.goal)||2000),glassMl=Math.max(100,Number(s.glassMl)||250),waterGlasses=Math.round((water/glassMl)*10)/10,waterGoalGlasses=Math.max(1,Math.round(goal/glassMl)),sleep=arr(s.sleep).filter(x=>x.date===day).reduce((n,x)=>{const a=Date.parse(day+'T'+x.bed+':00'),b=Date.parse(day+'T'+x.wake+':00');return n+(Number.isFinite(a)&&Number.isFinite(b)?Math.max(0,Math.min(1440,Math.round(((b<=a?b+86400000:b)-a)/60000))):0)},0),workout=arr(s.workouts).filter(x=>x.date===day).reduce((n,x)=>n+(Number(x.minutes)||0),0);
  const waterPct=Math.min(100,Math.round(water/goal*100)),sleepPct=Math.min(100,Math.round(sleep/(7.5*60)*100)),workoutPct=Math.min(100,Math.round(workout/30*100)),score=Math.round((waterPct+sleepPct+workoutPct)/3),mood=score>=80?'عالی است!':score>=55?'رو به جلو':score>0?'در حال ساخت':'آمادهٔ ثبت';
  const cells=[['آب',u?`${fa(waterGlasses)} / ${fa(waterGoalGlasses)}`:'—','لیوان','wellness-water',UI_ASSETS.water],['خواب',sleep?fa(Math.round(sleep/6)/10):'—','ساعت','wellness-sleep',UI_ASSETS.sleep],['ورزش',workout?fa(workout):'—','دقیقه','wellness-workouts',UI_ASSETS.exercise]];

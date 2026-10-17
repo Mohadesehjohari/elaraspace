@@ -9,7 +9,7 @@ const postLabel=k=>({mission:t('ماموریت','Mission'),challenge:t('چالش
 let token=0;
 // Firebase Storage is not configured in production. Club text/social actions remain enabled.
 const CLUB_MEDIA_DEFERRED='بخش تصاویر در فاز بعد فعال می‌شود';
-function xpValue(){const socialXp=Number(current()?.xp),accountXp=Number(window.ElaraAccount?.profile?.xp);let localXp=NaN;try{localXp=Number(JSON.parse(localStorage.getItem('elara_space_v1')||'{}')?.xp)}catch{}return[socialXp,accountXp,localXp].find(Number.isFinite)??0}
+function xpValue(){const socialXp=Number(current()?.xp),accountXp=Number(window.ElaraAccount?.profile?.xp);let localXp=NaN;try{localXp=Number(JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')?.xp)}catch{}return[socialXp,accountXp,localXp].find(Number.isFinite)??0}
 function level(){return window.ElaraLevels?.level?.(xpValue())||Math.max(1,Math.floor(xpValue()/70)+1)}
 function canCreateClub(){return xpValue()>=(window.ElaraLevels?.threshold?.(6)??350)}
 const isClubsTab=root=>!!root?.querySelector('[data-social-view="clubs"][aria-selected="true"]');

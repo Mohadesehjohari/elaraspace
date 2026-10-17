@@ -3,9 +3,9 @@ const STORAGE_KEY="elara_space_v1",MODE_KEY="elara_task_board_mode_v1";
 const labels={list:"لیست",folder:"پوشه‌ها",priority:"اولویت‌ها"};
 const priorityLabel={"1":"فوری · P1","2":"بالا · P2","3":"متوسط · P3","4":"عادی · P4"};
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-function state(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}catch{return{}}}
-function mode(){const v=localStorage.getItem(MODE_KEY);return ["list","folder","priority"].includes(v)?v:"list"}
-function setMode(v){localStorage.setItem(MODE_KEY,v);render()}
+function state(){try{return JSON.parse(window.ElaraCloudStorage.getItem(STORAGE_KEY)||"{}")}catch{return{}}}
+function mode(){const v=window.ElaraCloudStorage.getItem(MODE_KEY);return ["list","folder","priority"].includes(v)?v:"list"}
+function setMode(v){window.ElaraCloudStorage.setItem(MODE_KEY,v);render()}
 function sourceAction(id,kind){
  const all=[...document.querySelectorAll("[data-id]")].filter(x=>String(x.dataset.id)===String(id));
  if(kind==="toggle")return all.find(x=>x.dataset.action==="toggle-task"||x.dataset.phase2Action==="toggle-task")||null;

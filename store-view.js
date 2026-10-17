@@ -19,9 +19,9 @@ const kindTitles={avatar:['آواتار','Avatar'],banner:['بک‌گراند','
 const kinds=['avatar','banner','frame','profileTheme'];
 const kindLabel=k=>tx(...(kindTitles[k]||[k,k]));
 function wishKey(){return 'elara-store-wishlist-browser-v1'}
-function wishList(){try{const value=JSON.parse(localStorage.getItem(wishKey())||'[]');return Array.isArray(value)?value.filter(x=>typeof x==='string').slice(0,250):[]}catch{return[]}}
+function wishList(){try{const value=JSON.parse(window.ElaraCloudStorage.getItem(wishKey())||'[]');return Array.isArray(value)?value.filter(x=>typeof x==='string').slice(0,250):[]}catch{return[]}}
 function hasWish(kind,id){return wishList().includes(kind+':'+id)}
-function setWish(kind,id){const key=kind+':'+id;const items=new Set(wishList());items.has(key)?items.delete(key):items.add(key);try{localStorage.setItem(wishKey(),JSON.stringify([...items]))}catch{};render()}
+function setWish(kind,id){const key=kind+':'+id;const items=new Set(wishList());items.has(key)?items.delete(key):items.add(key);try{window.ElaraCloudStorage.setItem(wishKey(),JSON.stringify([...items]))}catch{};render()}
 const themeAssets=()=>system()?.PROFILE_THEMES||[];
 const seasonalFamilies=['Colorways','Animals / Masks','Suit','Zombie','Street / Gang','Mafia','Mommy / Daddy','Birds','Technology','Leather','Prison','Doctor','Engineering','Scientist','Marine','Mermaid','Princess','Blogger','Librarian','Gaming','Minecraft-inspired','Original tactical / shooter'];
 function system(){return window.ElaraProfileSystem}
