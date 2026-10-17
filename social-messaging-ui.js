@@ -6,9 +6,40 @@ const ico=k=>'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
 const api=()=>window.ElaraSocial?.dm,me=()=>window.ElaraSocial?.me||null,friends=()=>window.ElaraSocial?.friends||[];
 const friend=id=>friends().find(x=>x.uid===id),name=p=>p?.name||p?.username||t('دوست','Friend');
 const owner=()=>me()?.uid||window.ElaraAccount?.user?.uid||'guest';
-const key=id=>'elara_dm_draft_v1_'+owner()+'_'+id;
-const getDraft=id=>{try{return String(localStorage.getItem(key(id))||'').slice(0,2000)}catch{return''}};
-const putDraft=(id,value)=>{try{value=String(value||'').slice(0,2000);if(value)localStorage.setItem(key(id),value);else localStorage.removeItem(key(id))}catch{}};
+const drafts=()=>window.ElaraSocial?.dmDrafts;
+const draftTimers=new Map(),draftWrites=new Map();
+const legacyKey=id=>'elara_dm_draft_v1_'+owner()+'_'+id;
+async function getDraft(id){
+ const service=drafts();if(!service)return'';
+ const remote=await service.load(id);
+ // Move an old device-local draft to the authenticated account once; the
+ // cloud version always wins when both exist.
+ let legacy='';
+ try{legacy=String(localStorage.getItem(legacyKey(id))||'').slice(0,2000)}catch{}
+ if(legacy){
+  if(!remote)await service.save(id,legacy);
+  localStorage.removeItem(legacyKey(id))
+ }
+ return remote||legacy
+}
+function saveDraftNow(id,value){
+ const prev=draftWrites.get(id)||Promise.resolve();
+ const next=prev.catch(()=>{}).then(()=>drafts()?.save(id,value));
+ draftWrites.set(id,next);
+ next.catch(error=>status(t('پیش‌نویس در فضای ابری ذخیره نشد: ','Draft not saved to cloud: ')+String(error?.message||error)));
+ return next
+}
+function putDraft(id,value){
+ value=String(value||'').slice(0,2000);
+ clearTimeout(draftTimers.get(id));
+ draftTimers.set(id,setTimeout(()=>{draftTimers.delete(id);void saveDraftNow(id,value)},500))
+}
+async function clearDraft(id){
+ clearTimeout(draftTimers.get(id));draftTimers.delete(id);
+ try{await draftWrites.get(id)}catch{}
+ await drafts()?.clear(id);draftWrites.delete(id)
+}
+function stopDraftTimers(){for(const timer of draftTimers.values())clearTimeout(timer);draftTimers.clear();draftWrites.clear()}
 const presence=p=>window.ElaraSocial?.presence?.state?.(p?.uid)||{};
 const avatar=p=>{const src=window.ElaraProfileSystem?.viewModel?.(p,{self:false})?.avatarSrc;return '<span class="social-dm-avatar">'+(src?'<img loading="lazy" src="'+esc(src)+'" alt="">':'<span>'+esc(name(p).slice(0,1))+'</span>')+(presence(p).online?'<i class="dm-online-dot"></i>':'')+'</span>'};
 const time=ms=>ms?new Date(ms).toLocaleTimeString(document.documentElement.lang==='en'?'en-US':'fa-IR',{hour:'2-digit',minute:'2-digit'}):'';
@@ -48,7 +79,10 @@ function threadHTML(id){const p=person(id),known=presence(p),subtitle=known.onli
 }
 async function showThread(s,id){stopThread();const version=threadVersion,host=s.querySelector('[data-dm-thread]');if(!host)return;
  if(!id||!eligible(id)){host.innerHTML='<div class="dm-welcome"><span>'+ico('chat')+'</span><small>ELARA MESSENGER</small><h3>'+t('گفتگوی بعدی از همین‌جا شروع می‌شه','Your next conversation begins here')+'</h3><p>'+t('یک گفتگو یا دوست را انتخاب کن.','Choose a conversation or friend.')+'</p><button type="button" class="dm-primary" data-dm-new>'+ico('plus')+t('شروع گفتگو','Start a chat')+'</button></div>';return}
- host.innerHTML=threadHTML(id);const messages=host.querySelector('.social-chat-messages'),input=host.querySelector('textarea'),info=host.querySelector('.social-chat-status');input.value=getDraft(id);
+ host.innerHTML=threadHTML(id);const messages=host.querySelector('.social-chat-messages'),input=host.querySelector('textarea'),info=host.querySelector('.social-chat-status');// Do not overwrite text typed while the cloud draft is loading.
+ void getDraft(id).then(value=>{
+  if(version===threadVersion&&host.isConnected&&!input.dataset.draftTouched)input.value=value
+ }).catch(error=>{if(version===threadVersion&&host.isConnected)info.textContent=t('بارگیری پیش‌نویس ابری ناموفق بود: ','Could not load cloud draft: ')+String(error?.message||error)});
  try{messageRender(messages,await api().messages(id));if(version!==threadVersion||!host.isConnected)return;Promise.resolve(api().markRead?.(id)).catch(()=>{});const r=conversations.find(r=>r.other===id);if(r){r.unread=false;const el=s.querySelector('.social-dm-row.is-active');el?.classList.remove('has-unread');el?.querySelector('.social-unread-badge')?.remove();if(el)el.dataset.dmUnread='false'}}
  catch(error){if(version===threadVersion&&host.isConnected)info.textContent=String(error?.message||error)}
  if(version!==threadVersion||!host.isConnected)return;
@@ -58,7 +92,7 @@ async function mount(){const r=root(),service=api();if(!r||!service){stopThread(
  let s=grid.querySelector('.social-dm-section');if(!s){s=document.createElement('section');s.className='elara-card social-section social-dm-section';s.dataset.elaraI18n='off';grid.prepend(s)}
  // Replace the designed no-data placeholder only after the real Chats surface is mounted.
  grid.querySelector('[data-social-slot="chats"]')?.remove();
- const token=++generation;if(sessionOwner!==owner()){sessionOwner=owner();active='';conversations=[];query='';filter='all';chooseNew=false;stopThread()}
+ const token=++generation;if(sessionOwner!==owner()){stopDraftTimers();sessionOwner=owner();active='';conversations=[];query='';filter='all';chooseNew=false;stopThread()}
  if(!me()){s.innerHTML='<div class="dm-loading">'+ico('shield')+'<h2>'+t('برای گفتگو وارد حساب شو','Sign in to chat')+'</h2></div>';return}
  if(!s.querySelector('.dm-voyage'))s.innerHTML='<div class="dm-loading">'+ico('chat')+'<p>'+t('در حال بارگذاری گفتگوها...','Loading chats...')+'</p></div>';
  try{const data=await service.list();if(token!==generation||!s.isConnected)return;conversations=(Array.isArray(data)?data:[]).filter(row=>{const hidden=Number(window.ElaraProfileRelations?.hiddenAt?.(row.other)||0);if(!hidden)return true;if(Number(row.updatedAt||0)>hidden){window.ElaraProfileRelations?.clearHidden?.(row.other);return true}return false});}
@@ -81,11 +115,16 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-social-ope
  const emoji=e.target.closest('[data-dm-emoji]');if(emoji){const f=s.querySelector('.social-chat-compose textarea');if(!f)return;const start=f.selectionStart,end=f.selectionEnd;f.value=f.value.slice(0,start)+emoji.dataset.dmEmoji+f.value.slice(end);f.selectionStart=f.selectionEnd=start+emoji.dataset.dmEmoji.length;f.dispatchEvent(new Event('input',{bubbles:true}));f.focus();s.querySelector('[data-dm-emoji-grid]').hidden=true;return}
  for(const kind of ['mute','report','block']){const action=e.target.closest('[data-dm-'+kind+']');if(action){s.querySelector('[data-dm-options]').hidden=true;void handleSafety(kind,action);return}}
 });
-document.addEventListener('input',e=>{if(e.target.matches('[data-dm-search]')){query=e.target.value;applyFilters()}if(e.target.matches('.social-chat-compose textarea')){if(active)putDraft(active,e.target.value);e.target.style.height='auto';e.target.style.height=Math.min(128,e.target.scrollHeight)+'px'}});
+document.addEventListener('input',e=>{if(e.target.matches('[data-dm-search]')){query=e.target.value;applyFilters()}if(e.target.matches('.social-chat-compose textarea')){e.target.dataset.draftTouched='true';if(active)putDraft(active,e.target.value);e.target.style.height='auto';e.target.style.height=Math.min(128,e.target.scrollHeight)+'px'}});
 document.addEventListener('keydown',e=>{if(e.target.matches('.social-chat-compose textarea')&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();e.target.form?.requestSubmit()}});
 document.addEventListener('submit',async e=>{const f=e.target.closest('.social-chat-compose');if(!f)return;e.preventDefault();if(busy||!eligible(active))return;const field=f.elements.text,value=field.value.trim(),id=active;if(!value)return;busy=true;const b=f.querySelector('[type="submit"]');b.disabled=true;status(t('در حال ارسال...','Sending...'));
- try{await api().send(id,value);field.value='';putDraft(id,'');window.ElaraProfileRelations?.clearHidden?.(id);status('');void mount()}catch(error){status(String(error?.message||error))}finally{busy=false;if(b.isConnected)b.disabled=false}});
-for(const n of ['elara:social-tab-changed','elara:social-updated','elara:presence-updated','elara:chat-hidden','elara:locale-changed','elara:logout'])window.addEventListener(n,()=>setTimeout(mount,60));
+ try{
+  await api().send(id,value);field.value='';status('');
+  try{await clearDraft(id)}catch(error){status(t('پیام ارسال شد، ولی پاک‌کردن پیش‌نویس ابری ناموفق بود: ','Message sent, but cloud draft cleanup failed: ')+String(error?.message||error))}
+  Promise.resolve(window.ElaraProfileRelations?.clearHidden?.(id)).catch(error=>console.warn('Clear hidden chat:',error));
+  void mount()
+ }catch(error){status(String(error?.message||error))}finally{busy=false;if(b.isConnected)b.disabled=false}});
+for(const n of ['elara:social-tab-changed','elara:social-updated','elara:presence-updated','elara:chat-hidden','elara:profile-relations-changed','elara:locale-changed','elara:logout'])window.addEventListener(n,()=>setTimeout(mount,60));
 window.addEventListener('hashchange',()=>setTimeout(mount,120));
 const observer=new MutationObserver(()=>{if(document.getElementById('elara-social-page')){observer.disconnect();setTimeout(mount,60)}});if(!document.getElementById('elara-social-page'))observer.observe(document.documentElement,{subtree:true,childList:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,180),{once:true});else setTimeout(mount,180);
