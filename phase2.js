@@ -741,7 +741,7 @@
     notify(n===1?surfaceTx('تکرار روزانه روی ۱ بار تنظیم شد.','Daily repeat set to 1.'):surfaceTx('این تسک روزی '+fa(n)+' بار تکرار می‌شود.','This task repeats '+n+' times per day.'));
   }
   function cloneQuickTask(task){
-    const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now();copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;copy.pinned=false;
+    const copy=typeof structuredClone==='function'?structuredClone(task):JSON.parse(JSON.stringify(task));copy.id=makeId();copy.text=String(task.text||'')+(document.documentElement.lang==='en'?' (copy)':' (کپی)');copy.createdAt=Date.now();copy.completed=false;copy.doneAt=null;copy.xpAwarded=false;copy.occurrenceDone=[];copy.occurrenceRewardDays=[];copy.skippedDates=[];copy.occurrenceOverrides={};copy.dailyProgress={};copy.manualOrder=null;copy.accountLinkVisibility='private';for(const k of ['collabSpaceId','collabRole','collabOwnerUid','shared'])delete copy[k];copy.pinned=false;
     for(const key of ['linkedTask','sourceType','sourceId','sourceParentId','sourceGroup','sourceLabel','sourceManaged','sourceCompletionLocked','sourceOwner','sourceUserEdited'])delete copy[key];return copy
   }
   async function quickMoveTask(id){
