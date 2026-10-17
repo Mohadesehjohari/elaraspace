@@ -163,13 +163,13 @@ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]::
  content:"دسترسی‌های بیشتر";grid-column:1/-1;display:block;color:#f3c878;font-size:14px;font-weight:900;padding:5px 3px
 }
 html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
- height:164px!important;min-height:164px!important;max-height:164px!important;
+ height:170px!important;min-height:170px!important;max-height:170px!important;
  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;
  padding:8px!important;text-align:center!important;background:linear-gradient(160deg,#0b2730,#07121e)!important;
  border:1px solid #c49b5b67!important;border-radius:15px!important;min-width:0!important
 }
 html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
- width:102px!important;height:102px!important;max-width:100%!important;object-fit:contain!important;flex:0 0 102px!important
+ width:94px!important;height:94px!important;max-width:100%!important;object-fit:contain!important;flex:0 0 94px!important
 }
 html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card>span{
  display:flex!important;flex-direction:column!important;align-items:center!important;gap:1px!important;line-height:1.25
@@ -182,10 +182,10 @@ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .
 @media(max-width:700px){
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
-  height:154px!important;min-height:154px!important;max-height:154px!important;padding:7px!important
+  height:158px!important;min-height:158px!important;max-height:158px!important;padding:7px!important
  }
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
-  width:88px!important;height:88px!important;flex:0 0 88px!important
+  width:84px!important;height:84px!important;flex:0 0 84px!important
  }
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card strong{font-size:12px!important}
  html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card small{font-size:10px!important}

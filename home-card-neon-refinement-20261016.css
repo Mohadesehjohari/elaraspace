@@ -892,6 +892,12 @@ html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-h
   row-gap:0!important;column-gap:16px!important
  }
 }
+/* At tablet widths the canonical Home contains two actual card rows. */
+@media(min-width:701px) and (max-width:1000px){
+ html body.dark #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
+  row-gap:14px!important;column-gap:14px!important
+ }
+}
 @media(min-width:701px){
  html body.dark #panel-home.ref-home.owner-art-home .owner-home-hero .ref-hero-floating{
   background:rgba(8,27,51,.76)!important;
