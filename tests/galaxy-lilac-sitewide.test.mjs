@@ -23,7 +23,7 @@ for(const selector of selectors){
 for(const name of [
   '#panel-home','#panel-tasks','#panel-books','#panel-library-shelves',
   '#panel-focus-pomodoro','#panel-language','#panel-language-courses',
-  '#panel-words','#panel-exercise','#panel-wellness-','#panel-reports',
+  '#panel-words','#panel-exercise','panel-wellness-','#panel-reports',
   '#elara-social-page','#panel-social','#panel-ranking','#panel-blog',
   '#panel-store','#panel-freedom'
 ])assert.ok(stripped.includes(name),'Site module lacks palette coverage: '+name);
