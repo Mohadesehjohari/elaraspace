@@ -18,6 +18,7 @@ on:
       - 'firestore.rules'
       - 'storage.rules'
       - 'tests/cloud-storage-contract.test.cjs'
+      - 'tests/no-browser-storage-contract.cjs'
       - 'elara-social.js'
       - 'elara-collab.js'
       - 'tests/home-first-startup.test.mjs'
@@ -47,6 +48,7 @@ jobs:
           node --input-type=module --check < elara-collab.js
       - name: Startup and collaboration contracts
         run: |
+          node tests/no-browser-storage-contract.cjs
           node tests/cloud-storage-contract.test.cjs
           node tests/home-first-startup.test.mjs
           node tests/collab-invite-regression.test.mjs
