@@ -316,6 +316,38 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Owner-only social data. There is no manual provisioning step; a user's
+    // first client write creates each document under their own private subtree.
+    match /private/{uid}/socialMeta/{otherUid} {
+      allow get, list: if mine(uid);
+      allow create, update: if mine(uid)
+        && otherUid != uid
+        && request.resource.data.keys().hasOnly(['nickname','slot','hiddenAt','updatedAt'])
+        && request.resource.data.keys().hasAll(['nickname','slot','hiddenAt','updatedAt'])
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() <= 40
+        && request.resource.data.slot in ['', 'companion', 'lover', 'family', 'bro', 'sis', 'friend', 'buddy']
+        && request.resource.data.hiddenAt is int
+        && request.resource.data.hiddenAt >= 0
+        && request.resource.data.hiddenAt <= 4102444800000
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if mine(uid);
+    }
+
+    match /private/{uid}/dmDrafts/{otherUid} {
+      allow get: if mine(uid);
+      allow list: if false;
+      allow create, update: if mine(uid)
+        && otherUid != uid
+        && request.resource.data.keys().hasOnly(['text','updatedAt'])
+        && request.resource.data.keys().hasAll(['text','updatedAt'])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if mine(uid);
+    }
+
     match /presence/{uid} {
       allow get: if mine(uid) || (
         signed() && !blockedBetween(request.auth.uid, uid) && (

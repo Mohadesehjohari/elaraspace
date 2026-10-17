@@ -9,7 +9,7 @@ const socialStub=`
 const friend={uid:'friend-1',name:'سینا',username:'sina',xp:120};
 let messages=[{id:'m1',sender:'friend-1',text:'سلام! آماده‌ای؟ 👊',ms:Date.now()-1000}],listener=null;
 window.__sentDm=[];
-window.ElaraSocial={me:{uid:'me',name:'من',username:'me_user',xp:200},friends:[friend],requests:[],activities:[],error:'',refresh:async()=>{},addFriend:async()=>{},decide:async()=>{},cancelRequest:async()=>{},removeFriend:async()=>{},openProfile(){},openSelfProfile(){},dm:{
+window.ElaraSocial={dmDrafts:{load:id=>window.__cloudDraftRead(id),save:(id,value)=>window.__cloudDraftWrite(id,value),clear:id=>window.__cloudDraftClear(id)},me:{uid:'me',name:'من',username:'me_user',xp:200},friends:[friend],requests:[],activities:[],error:'',refresh:async()=>{},addFriend:async()=>{},decide:async()=>{},cancelRequest:async()=>{},removeFriend:async()=>{},openProfile(){},openSelfProfile(){},dm:{
  list:async()=>[{id:'friend-1__me',other:'friend-1',person:friend,lastText:'سلام! آماده‌ای؟ 👊',lastSender:'friend-1',updatedAt:Date.now()}],
  messages:async()=>messages.slice(),
  listen:(other,cb)=>{listener=cb;cb(messages.slice());return()=>{listener=null}},
@@ -19,6 +19,10 @@ window.dispatchEvent(new Event('elara:social-updated'));
 `;
 async function run(width,height){
  const page=await browser.newPage({viewport:{width,height}});
+ const cloudDrafts=new Map();
+ await page.exposeFunction('__cloudDraftRead',async id=>cloudDrafts.get(id)||'');
+ await page.exposeFunction('__cloudDraftWrite',async(id,value)=>{cloudDrafts.set(id,value);return true});
+ await page.exposeFunction('__cloudDraftClear',async id=>{cloudDrafts.delete(id);return true});
  await page.route('**/cloud.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:cloudStub}));
  await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
  await page.goto(base+'/?dm-ui='+Date.now()+'#social',{waitUntil:'domcontentloaded',timeout:30000});
@@ -39,7 +43,8 @@ async function run(width,height){
  let compose=page.locator('.social-chat-compose');
  const draft='پیش‌نویس ماندگار';
  await compose.locator('textarea[name="text"]').fill(draft);
- assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),'پیش‌نویس ماندگار','DM draft must persist immediately');
+ await page.waitForFunction(async()=>await window.__cloudDraftRead('friend-1')=== 'پیش‌نویس ماندگار');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),null,'DM draft must not be stored in the browser');
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.ElaraSocialMessagingUI&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
@@ -47,13 +52,15 @@ async function run(width,height){
  await page.locator('.social-dm-row').click();
  await page.waitForSelector('.social-chat-head');
  compose=page.locator('.social-chat-compose');
- assert.equal(await compose.locator('textarea[name="text"]').inputValue(),draft,'DM draft must survive reload/navigation');
+ await page.waitForFunction(expected=>document.querySelector('.social-chat-compose textarea')?.value===expected,draft);
+ assert.equal(await compose.locator('textarea[name="text"]').inputValue(),draft,'cloud DM draft must survive reload/navigation');
  await compose.locator('textarea[name="text"]').fill('بزن بریم 🔥');
  await compose.getByRole('button',{name:'ارسال'}).click();
  await page.waitForFunction(()=>window.__sentDm?.length===1);
  assert.deepEqual(await page.evaluate(()=>window.__sentDm[0]),{other:'friend-1',text:'بزن بریم 🔥'});
  await page.waitForFunction(()=>document.querySelector('.social-chat-messages')?.textContent.includes('بزن بریم'));
- assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),null,'successful DM send must clear persisted draft');
+ await page.waitForFunction(async()=>await window.__cloudDraftRead('friend-1')==='');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('elara_dm_draft_v1_me_friend-1')),null,'successful DM send must not leave a browser draft');
  const overflow=await page.evaluate(()=>({w:innerWidth,sw:document.documentElement.scrollWidth}));
  assert.ok(overflow.sw<=overflow.w+1,width+': DM UI horizontal overflow '+JSON.stringify(overflow));
  await page.screenshot({path:'browser-artifacts/friends-dm-'+width+'.png',fullPage:true});
@@ -61,4 +68,4 @@ async function run(width,height){
 }
 await run(390,844);await run(1440,1000);
 await browser.close();
-console.log('FRIENDS_CHATS_REDESIGN_PASS 390/1440 integrated-thread search draft live send');
+console.log('FRIENDS_CHATS_REDESIGN_PASS 390/1440 integrated-thread search Firestore-mocked cloud draft live send');

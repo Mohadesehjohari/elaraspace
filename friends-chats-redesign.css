@@ -1,6 +1,21 @@
 /* Chats redesign: responsive, real-data messaging dock */
 #elara-social-page.social-reference[data-social-tab="chats"] .social-reference-grid{display:block!important;min-width:0!important}
-#elara-social-page.social-reference[data-social-tab="chats"] [data-social-slot="chats"]{display:none!important}
+/* The fallback is now a designed view. It disappears when the authenticated DM UI mounts. */
+#elara-social-page.social-reference[data-social-tab="chats"] [data-social-slot="chats"]{display:block!important;min-height:330px}
+#elara-social-page .social-hub-chat-pending{padding:16px!important;background:linear-gradient(145deg,#071e40,#08152f)!important;border:1px solid #1d5d92!important;color:#eaf6ff}
+#elara-social-page .social-hub-chat-pending .dm-voyage{min-width:0}
+#elara-social-page .social-hub-chat-pending .dm-topbar{padding:6px 8px 16px;border-bottom:1px solid #174770}
+#elara-social-page .social-hub-chat-pending .dm-brand{display:flex;gap:12px;align-items:center}
+#elara-social-page .social-hub-chat-pending .dm-brand-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:14px;background:#0f4c80;color:#85edff}
+#elara-social-page .social-hub-chat-pending .dm-brand h2{margin:2px 0;font-size:1.25rem}
+#elara-social-page .social-hub-chat-pending .dm-brand small{font-size:.72rem;letter-spacing:.08em;color:#91beda}
+#elara-social-page .social-hub-chat-pending .dm-layout{display:grid;grid-template-columns:minmax(170px,1fr) minmax(240px,2fr) minmax(170px,1fr);gap:12px;margin-top:14px}
+#elara-social-page .social-hub-chat-pending .dm-layout>*,#elara-social-page .social-hub-chat-pending .dm-extra-panel{min-width:0;border:1px solid #17517f;border-radius:18px;background:#092448;padding:20px}
+#elara-social-page .social-hub-chat-pending .dm-welcome{text-align:center;padding:22px 8px}
+#elara-social-page .social-hub-chat-pending .dm-welcome>span{display:block;font-size:2.5rem}
+#elara-social-page .social-hub-chat-pending p{color:#9bc3de}
+@media(max-width:850px){#elara-social-page .social-hub-chat-pending .dm-layout{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}#elara-social-page .social-hub-chat-pending .dm-extras{display:none}}
+@media(max-width:580px){#elara-social-page .social-hub-chat-pending .dm-layout{grid-template-columns:1fr}#elara-social-page .social-hub-chat-pending .dm-inbox{min-height:100px}#elara-social-page .social-hub-chat-pending .dm-conversation{min-height:210px}}
 #elara-social-page.social-reference[data-social-tab="chats"] .social-reference-grid>.social-dm-section{display:block!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
 #elara-social-page .social-dm-section .dm-voyage{--line:#155b8e;--bg:#061b36;--cyan:#1bcbff;color:#f1f8ff;font-family:inherit;min-width:0}
 #elara-social-page .social-dm-section .dm-voyage *{box-sizing:border-box}

@@ -36,6 +36,8 @@ async function mount(){
  if(clubF3Editing())return;
  let section=root.querySelector('.social-clubs-section');
  if(!section){section=document.createElement('section');section.className='social-clubs-section club-f3';section.dataset.elaraI18n='off';grid.append(section)}
+ // Preserve the visual fallback until the actual Clubs dashboard can take its place.
+ grid.querySelector('[data-social-slot="clubs"]')?.remove();
  const mine=++token;
  if(!section.querySelector('.club-f3-layout')) section.innerHTML='<p class="club-f3-loading" role="status">'+t('در حال دریافت اطلاعات باشگاه‌ها…','Loading clubs…')+'</p>';
  const result=await Promise.allSettled([service.list(),service.invites(),service.discover()]);

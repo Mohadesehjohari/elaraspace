@@ -10,29 +10,47 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   ['C',{username:'cyrus',name:'Cyrus',bio:'',xp:80,profilePublic:true}]
  ]);
  const usernames=new Map([...profiles].map(([uid,p])=>[p.username,{uid}]));
- const requests=new Map(),reads={friendRequests:0};let friendReadGate=null;
+ const requests=new Map(),conversations=new Map(),dmMessages=new Map(),reads={friendRequests:0,dmCreations:0};let friendReadGate=null,failPreferenceRead=false,failActivityRead=false;
  const mockAuth={currentUser:{uid:'A',emailVerified:true}};
  const ref=(kind,id)=>({kind,id,path:kind+'/'+id});
  const snap=(id,data)=>({id,exists:()=>data!==undefined,data:()=>data,ref:ref('friendRequests',id)});
  const fsMock={
   doc:(_db,kind,...rest)=>ref(kind,rest.join('/')),
-  collection:(_db,name)=>({name}),
+  collection:(_db,name,...parts)=>({name,parts}),
   where:(field,_op,value)=>({field,value}),
   query:(col,...clauses)=>({name:col.name,clauses}),
   getDoc:async r=>{
    if(r.kind==='profiles')return snap(r.id,profiles.get(r.id));
    if(r.kind==='usernames')return snap(r.id,usernames.get(r.id));
    if(r.kind==='friendRequests'){reads.friendRequests++;return snap(r.id,requests.get(r.id))}
+   if(r.kind==='conversations'){
+    const value=conversations.get(r.id);
+    if(!value||!value.members.includes(mockAuth.currentUser?.uid)){const e=Error('Missing or non-member conversation is not readable');e.code='permission-denied';throw e}
+    return snap(r.id,value);
+   }
    return snap(r.id,undefined);
   },
   getDocs:async q=>{
-   if(q.name==='activities')return {docs:[]};
+   if(q.name==='activities'){
+    const visibility=q.clauses?.find(c=>c.field==='visibility');
+    assert.deepEqual(visibility?.value,['friends','public'],'friend activity query must exclude private records');
+    if(failActivityRead){const e=Error('private activity query unavailable');e.code='permission-denied';throw e}
+    return {docs:[]};
+   }
+   if(failPreferenceRead&&q.name==='socialMutes'){const e=Error('optional mute preference unavailable');e.code='permission-denied';throw e}
    if(q.name!=='friendRequests')return {docs:[]};
    if(friendReadGate)await friendReadGate;
    const rows=[...requests].filter(([,data])=>q.clauses.every(c=>data[c.field]===c.value));
    return {docs:rows.map(([id,data])=>snap(id,data))};
   },
   setDoc:async(r,data)=>{
+   if(r.kind==='conversations'){
+    if(conversations.has(r.id)){const e=Error('Cannot replace existing conversation');e.code='permission-denied';throw e}
+    const other=data.members.find(x=>x!==mockAuth.currentUser?.uid);
+    if(![...requests.values()].some(x=>x.status==='accepted'&&[x.from,x.to].includes(other)&&[x.from,x.to].includes(mockAuth.currentUser?.uid))){const e=Error('Not friends');e.code='permission-denied';throw e}
+    assert.equal(data.kind,'dm');assert.deepEqual(data.members.slice().sort(),data.members,'DM members must be canonical');
+    conversations.set(r.id,{...data});reads.dmCreations++;return;
+   }
    if(r.kind!=='friendRequests')throw Error('unexpected set '+r.path);
    const reverse=[...requests.values()].find(x=>x.from===data.to&&x.to===data.from&&x.status!=='declined');
    if(reverse){const e=Error('crossed request denied');e.code='permission-denied';throw e}
@@ -40,11 +58,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
    if(existing&&existing.status!=='declined'){const e=Error('duplicate request denied');e.code='permission-denied';throw e}
    requests.set(r.id,{...data});
   },
-  updateDoc:async(r,patch)=>{const current=requests.get(r.id);if(!current)throw Error('missing request '+r.id);requests.set(r.id,{...current,...patch})},
+  updateDoc:async(r,patch)=>{
+   if(r.kind==='conversations'){const current=conversations.get(r.id);if(!current)throw Error('missing conversation '+r.id);conversations.set(r.id,{...current,...patch});return}
+   const current=requests.get(r.id);if(!current)throw Error('missing request '+r.id);requests.set(r.id,{...current,...patch})
+  },
+  addDoc:async(col,data)=>{
+   if(col.name!=='conversations'||col.parts[1]!=='messages')throw Error('unexpected addDoc '+col.name);
+   const id=col.parts[0];const rows=dmMessages.get(id)||[];rows.push(data);dmMessages.set(id,rows);return{id:'message-'+rows.length}
+  },
   deleteDoc:async r=>{requests.delete(r.id)}
  };
  w.__mockAuth=mockAuth;w.__fs=fsMock;
- w.eval(`(()=>{const getApp=()=>({}),getAuth=()=>window.__mockAuth,getFirestore=()=>({}),onAuthStateChanged=()=>{},updateProfile=async()=>{},serverTimestamp=()=>({}),runTransaction=async()=>{};const {doc,collection,where,query,getDoc,getDocs,setDoc,updateDoc,deleteDoc}=window.__fs;${source}\nwindow.__socialTest=(me,friends=[],reqs=[])=>{window.__mockAuth.currentUser=me?{uid:me.uid,emailVerified:true}:null;uid=me?.uid||null;state.me=me;state.friends=friends;state.requests=reqs;state.activities=[];state.error='';render()};window.__socialOps={addFriend,decide,refresh,cancelRequest,removeFriend};})()`);
+ w.eval(`(()=>{const getApp=()=>({}),getAuth=()=>window.__mockAuth,getFirestore=()=>({}),onAuthStateChanged=()=>{},updateProfile=async()=>{},serverTimestamp=()=>({}),runTransaction=async()=>{};const {doc,collection,where,query,getDoc,getDocs,setDoc,updateDoc,deleteDoc,addDoc}=window.__fs;${source}\nwindow.__socialTest=(me,friends=[],reqs=[])=>{window.__mockAuth.currentUser=me?{uid:me.uid,emailVerified:true}:null;uid=me?.uid||null;state.me=me;state.friends=friends;state.requests=reqs;state.activities=[];state.error='';render()};window.__socialOps={addFriend,decide,refresh,cancelRequest,removeFriend,ensureDm,sendDm};})()`);
 
  // Existing presentation contracts.
  for(let count=0;count<=4;count++){
@@ -96,10 +121,39 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  w.__socialTest({uid:'A',...profiles.get('A')});await w.__socialOps.refresh();
  assert.ok(w.ElaraSocial.friends.some(x=>x.uid==='B'),'sender friendship missing after refresh');
 
+ // Missing DM docs are not readable under participant-only Firestore get rules.
+ // An accepted pair must still be able to CREATE its very first conversation.
+ w.__socialTest({uid:'A',...profiles.get('A')},[{uid:'B',...profiles.get('B')}]);
+ const dmId=await w.__socialOps.sendDm('B','سلام دوست من');
+ assert.equal(dmId,'A__B','first DM must use stable sorted conversation ID');
+ assert.equal(reads.dmCreations,1,'missing DM must be created exactly once');
+ assert.equal(conversations.get(dmId).lastText,'سلام دوست من');
+ assert.equal(dmMessages.get(dmId).length,1,'first real DM should be stored');
+ await w.__socialOps.ensureDm('B');
+ assert.equal(reads.dmCreations,1,'reopening an existing conversation must not overwrite it');
+ assert.equal(conversations.get(dmId).lastText,'سلام دوست من','existing conversation preview must persist');
+ await assert.rejects(()=>w.__socialOps.sendDm('C','not accepted'),/دوستان تأییدشده/);
  // Duplicate request is blocked after friendship.
  await assert.rejects(()=>w.__socialOps.addFriend('behnam'),/قبلاً دوست شده‌اید/);
  assert.equal([...requests].filter(([,x])=>(x.from==='A'&&x.to==='B')||(x.from==='B'&&x.to==='A')).length,1);
 
+ // A noncritical permissions error must not hide accepted friends or corrupt My Friends counts.
+ w.__socialTest({uid:'A',...profiles.get('A')});failPreferenceRead=true;failActivityRead=true;
+ await w.__socialOps.refresh();
+ assert.ok(w.ElaraSocial.friends.some(x=>x.uid==='B'),'accepted friend disappeared after optional Firestore failures');
+ assert.equal(w.ElaraSocial.error,'','optional fetch errors must not put My Friends in an error state');
+ assert.equal(w.document.querySelectorAll('#elara-social-page .friends-f2-friend').length,1,'My Friends card must still render the accepted user');
+ failPreferenceRead=false;failActivityRead=false;
+ // An accepted request remains visible as a real relationship even if its profile was deleted.
+ const missingProfile=profiles.get('B');profiles.delete('B');await w.__socialOps.refresh();
+ assert.ok(w.ElaraSocial.friends.some(x=>x.uid==='B'),'missing profile must not erase an accepted relationship');
+ profiles.set('B',missingProfile);
+ // The chat and club placeholders must not be hidden before optional modules load.
+ const viewSource=fs.readFileSync(path.resolve(__dirname,'../social-view.js'),'utf8');
+ const chatCss=fs.readFileSync(path.resolve(__dirname,'../friends-chats-redesign.css'),'utf8');
+ assert.match(viewSource,/hubWaiting\('chats'\)/);
+ assert.match(viewSource,/hubWaiting\('clubs'\)/);
+ assert.doesNotMatch(chatCss,/\[data-social-slot="chats"\]\{display:none!important\}/);
  // Decline deletes the pending request rather than leaving a stale declined record.
  requests.set('C_B',{from:'C',to:'B',status:'pending'});
  w.__socialTest({uid:'B',...profiles.get('B')});await w.__socialOps.refresh();
@@ -113,7 +167,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  assert.match(rules,/!exists\(requestPath\(request\.resource\.data\.to, request\.resource\.data\.from\)\)/);
  assert.match(rules,/resource\.data\.to == request\.auth\.uid[\s\S]*resource\.data\.status == 'pending'/);
  assert.deepEqual(errors,[]);
- console.log('PASS: Firestore-backed friend send/persist/receiver/accept/decline/no-duplicate/self-guard lifecycle (network mocked; multi-account Firebase browser not verified)');
+ console.log('PASS: Firestore-backed friendships and first-time direct-message creation with missing-document get denied, accepted friends and visible chat/club fallbacks (Firebase mocked)');
  dom.window.close();
 })().catch(e=>{console.error(e);process.exit(1)});
 
