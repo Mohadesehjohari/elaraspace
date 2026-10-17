@@ -37,7 +37,7 @@ async function saveLocal(file){
  const key='cloud/'+mine+'/'+(crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
  const {storage,instance}=await storageSdk();
  await storage.uploadBytes(storage.ref(instance,cloudPath(key)),file,{contentType:file.type||'audio/mpeg'});
- return {trackId:'private:'+key,title:file.name.replace(/\\.(mp3|m4a|wav|ogg|webm|aac)$/i,''),artist:tx('آهنگ خصوصی · فضای ابری','Private audio · cloud'),artwork:SRC,previewUrl:'',localAudioKey:key,provider:'Elara private Firebase Storage',ownerUid:mine,autoplay:false}
+ return {trackId:'private:'+key,title:file.name.replace(/\.(mp3|m4a|wav|ogg|webm|aac)$/i,''),artist:tx('آهنگ خصوصی · فضای ابری','Private audio · cloud'),artwork:SRC,previewUrl:'',localAudioKey:key,provider:'Elara private Firebase Storage',ownerUid:mine,autoplay:false}
 }
 
 async function loadLocal(song){
