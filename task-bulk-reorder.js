@@ -129,6 +129,7 @@ function dragEnd(e){
 }
 document.addEventListener('click',e=>{
  if(Date.now()<ignoreClickUntil){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&row.dataset.key===ignoreClickId){e.preventDefault();e.stopImmediatePropagation();ignoreClickUntil=0;ignoreClickId='';return}}
+ const sharing=e.target.closest('[data-account-item-mode]');if(sharing){e.preventDefault();e.stopImmediatePropagation();try{window.ElaraAccountLink?.setItemMode?.('task',[sharing.dataset.accountItemMode],sharing.dataset.mode);window.ElaraTasks?.render?.()}catch(error){void window.ElaraDialog?.alert?.(error.message||String(error),{title:t('مدیریت اشتراک','Sharing')})}return}
  const pin=e.target.closest('[data-task-pin]');if(pin){e.preventDefault();e.stopImmediatePropagation();const id=pin.dataset.taskPin,task=read().tasks.find(x=>String(x.id)===id);if(task)setPinned([id],!task.pinned);return}
  const action=e.target.closest('[data-task-bulk]');if(action){e.preventDefault();void bulk(action.dataset.taskBulk);return}
  if(selecting){const row=e.target.closest('#task-list .astra-task-row[data-key]');if(row&&!e.target.closest('[data-task-drag],.check-button,.astra-task-more')){e.preventDefault();e.stopImmediatePropagation();toggle(row.dataset.key)}}
