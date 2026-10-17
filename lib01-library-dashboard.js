@@ -85,15 +85,36 @@ function render(){
  const h=panel.querySelector(':scope > .elara-global-hero');
  if(h)h.setAttribute('aria-label',t('بنر اصلی کتابخانه','Main library banner'));
 }
-let watching=null,queued=false,ready=false;
+let watching=null,queued=false,ready=false,retryTimer=null,retryCount=0;
+function ensureOwnerHero(panel){
+ // The old Reading module only creates #library-hero. Do not depend on the
+ // optional global-banner module to promote/create the LIB-01 owner banner.
+ let h=panel.querySelector(':scope > .elara-global-hero');
+ if(!h){
+  h=panel.querySelector(':scope > .elara-library-hero, :scope > .feature-hub-hero');
+  if(h)h.classList.add('elara-global-hero');
+  else{
+   h=document.createElement('section');h.className='elara-global-hero elara-generated-hero';
+   panel.prepend(h);
+  }
+  h.dataset.elaraPageHero='books';
+  h.style.setProperty('--elara-page-art','url("assets/ui/librairy_banner_main.webp")');
+ }
+ return h;
+}
 function mount(){
  const p=$('#panel-books');
- if(!p||!window.ElaraReading||!p.querySelector(':scope > .elara-global-hero'))return false;
+ if(!p||!window.ElaraReading)return false;
+ const h=ensureOwnerHero(p);
  let root=p.querySelector(':scope > #lib01-overview');
- if(!root){root=document.createElement('div');root.id='lib01-overview';root.className='lib01-overview';root.dir='rtl';const h=p.querySelector(':scope > .elara-global-hero');h.insertAdjacentElement('afterend',root)}
- if(watching){watching.disconnect();watching=null}
- ready=true;render();
- return true;
+ if(!root){root=document.createElement('div');root.id='lib01-overview';root.className='lib01-overview';root.dir='rtl';h.insertAdjacentElement('afterend',root)}
+ try{
+  render();
+  ready=true;p.dataset.lib01PaintReady='true';p.removeAttribute('data-lib01-paint-error');
+  if(watching){watching.disconnect();watching=null}
+  if(retryTimer){clearTimeout(retryTimer);retryTimer=null}
+  return true;
+ }catch(error){console.error('LIB-01 owner mount:',error);return false}
 }
 function schedule(){
  if(queued)return;queued=true;
@@ -102,8 +123,14 @@ function schedule(){
 function begin(){
  if(mount())return;
  const p=$('#panel-books');if(!p)return;
- watching=new MutationObserver(()=>{if(mount())watching?.disconnect()});
- watching.observe(p,{childList:true});
+ if(!watching){watching=new MutationObserver(()=>{if(mount())watching?.disconnect()});watching.observe(p,{childList:true})}
+ const retry=()=>{
+  if(ready)return;
+  if(mount())return;
+  if(++retryCount<35)retryTimer=setTimeout(retry,350);
+  else p.dataset.lib01PaintError='true';
+ };
+ if(!retryTimer)retryTimer=setTimeout(retry,350);
 }
 document.addEventListener('click',e=>{
  const route=e.target.closest('#lib01-overview [data-lib01-route]');
