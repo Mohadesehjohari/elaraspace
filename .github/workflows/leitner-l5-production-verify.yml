@@ -1,0 +1,47 @@
+name: Leitner L5 Live Production Verification
+on:
+  pull_request:
+    paths:
+      - .github/workflows/leitner-l5-production-verify.yml
+      - leitner-l5-fidelity-20261012.js
+      - leitner-l5-fidelity-20261012.css
+      - ui13-language-routes.js
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify real published source bytes (no screenshots-only assumption)
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://mohadesehjohari.github.io/elaraspace"
+          for f in ui13-language-routes.js leitner-l5-fidelity-20261012.js leitner-l5-fidelity-20261012.css; do
+            echo "LIVE_ASSET $f"
+            curl --retry 8 --retry-delay 8 --retry-all-errors --fail --location --silent --show-error \
+              "$origin/$f?verify=${GITHUB_SHA}" --output "/tmp/$(basename "$f")"
+            cmp "$f" "/tmp/$(basename "$f")" || { echo "::error::Published bytes differ for $f"; exit 1; }
+          done
+          echo "L5_PRODUCTION_BYTES_MATCH"
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser-test actual GitHub Pages at eight widths
+        env:
+          ELARA_TEST_URL: https://mohadesehjohari.github.io/elaraspace/
+        run: timeout 540s node tests/l5-leitner-fidelity-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: leitner-l5-production-mobile-desktop
+          path: browser-artifacts/leitner-l5/*.png
+          if-no-files-found: warn
+          retention-days: 30
