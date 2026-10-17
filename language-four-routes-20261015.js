@@ -6,8 +6,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const fmt=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
 const arr=v=>Array.isArray(v)?v:[];
-const data=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}};
-const books=()=>{try{return arr(JSON.parse(localStorage.getItem('elara_language_books_v2')||'[]'))}catch{return[]}};
+const data=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}};
+const books=()=>{try{return arr(JSON.parse(window.ElaraCloudStorage.getItem('elara_language_books_v2')||'[]'))}catch{return[]}};
 const dateKey=at=>{const date=new Date(at);if(!Number.isFinite(date.getTime()))return'';return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')};
 const today=()=>dateKey(Date.now());
 const dateOffset=n=>{const day=new Date();day.setDate(day.getDate()+n);return dateKey(day)};

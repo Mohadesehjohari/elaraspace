@@ -6,7 +6,7 @@ const lang=()=>document.documentElement.lang==='en'?'en':'fa';
 const t=(fa,en)=>lang()==='en'?en:fa;
 const num=n=>Number(n||0).toLocaleString(lang()==='en'?'en-US':'fa-IR');
 const nav=(route,label,icon,active=false)=>'<button type="button" class="lib01-tab'+(active?' is-current':'')+'" data-lib01-route="'+route+'"><span aria-hidden="true">'+icon+'</span>'+label+'</button>';
-const state=()=>{try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return s&&typeof s==='object'?s:{}}catch{return{}}};
+const state=()=>{try{const s=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return s&&typeof s==='object'?s:{}}catch{return{}}};
 const books=s=>Array.isArray(s.books)?s.books.map(b=>window.ElaraReading?.normalize?.(b)||b):[];
 const clips=s=>Array.isArray(s.bookClips)?s.bookClips:[];
 const pct=b=>window.ElaraReading?.progress?.(b)||0;

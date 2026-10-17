@@ -33,7 +33,7 @@ const exact=new Map(Object.entries({
 const phrases=[
 [/در حال اتصال امن…/g,'Connecting securely…'],[/در حال بارگذاری/g,'Loading'],[/در انتظار/g,'Pending'],[/کتاب/g,'book'],[/صفحه/g,'page'],[/مطالعه/g,'reading'],[/امروز/g,'today'],[/دوست/g,'friend'],[/درخواست/g,'request'],[/پروفایل/g,'profile'],[/تنظیمات/g,'settings'],[/اعلان/g,'notification'],[/عادت/g,'habit'],[/هدف/g,'goal'],[/تسک/g,'task'],[/مرحله|سطح/g,'level'],[/روز/g,'day'],[/دقیقه/g,'minutes'],[/ساعت/g,'hours']
 ];
-function locale(){return localStorage.getItem(KEY)==='en'?'en':'fa'}
+function locale(){return window.ElaraCloudStorage.getItem(KEY)==='en'?'en':'fa'}
 function fallback(node,original){
  const el=node?.parentElement,tag=el?.tagName||'',role=el?.getAttribute?.('role')||'';
  if(tag==='BUTTON'||role==='button')return'Action';
@@ -67,7 +67,7 @@ function apply(root=document){
   document.documentElement.lang=lang;document.documentElement.dir=lang==='en'?'ltr':'rtl';document.body?.classList.toggle('lang-en',lang==='en');document.body?.classList.toggle('lang-fa',lang!=='en');
  }finally{applying=false}
 }
-function set(lang){localStorage.setItem(KEY,lang==='en'?'en':'fa');apply(document);window.dispatchEvent(new CustomEvent('elara:locale-changed',{detail:{locale:locale()}}))}
+function set(lang){window.ElaraCloudStorage.setItem(KEY,lang==='en'?'en':'fa');apply(document);window.dispatchEvent(new CustomEvent('elara:locale-changed',{detail:{locale:locale()}}))}
 const observer=new MutationObserver(records=>{if(applying)return;for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1||n.nodeType===3)apply(n.nodeType===1?n:n.parentElement)});
 function start(){apply(document);observer.observe(document.documentElement,{childList:true,subtree:true})}
 window.ElaraI18n={locale,set,t:(faText,enText)=>locale()==='en'?(enText||translate(faText,{parentElement:null})):faText,apply,dictionary:exact};

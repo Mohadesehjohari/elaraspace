@@ -46,7 +46,7 @@ async function attachLocalAudio(host,song){
   audio.remove();host.insertAdjacentHTML('beforeend','<small class="r27-local-missing">'+tx('فایل در این مرورگر موجود نیست. دوباره آپلود کن.','File unavailable on this device; please upload it again.')+'</small>');
  }}catch{if(audio.isConnected){audio.remove();host.insertAdjacentHTML('beforeend','<small class="r27-local-missing">'+tx('دسترسی به فایل محلی ممکن نیست.','Local file is unavailable.')+'</small>')}}
 }
-function stateSong(){try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}').profileSong||null}catch{return null}}
+function stateSong(){try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}').profileSong||null}catch{return null}}
 function ensureProfileAudio(){
  const song=stateSong();if(!song?.localAudioKey)return;
  document.querySelectorAll('.elara-profile-song-card').forEach(card=>{
