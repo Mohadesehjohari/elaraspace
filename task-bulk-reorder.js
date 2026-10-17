@@ -4,8 +4,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const makeId=()=>crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2);
 const selected=new Set();let selecting=false,pressTimer=null,pressStart=null,drag=null,ignoreClickUntil=0,ignoreClickId='';
-function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.tasks=Array.isArray(s.tasks)?s.tasks:[];s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];s.folders=Array.isArray(s.folders)?s.folders:[];s.taskCompletionHistory=Array.isArray(s.taskCompletionHistory)?s.taskCompletionHistory:[];return s}catch{return{tasks:[],taskLists:[],folders:[],taskCompletionHistory:[]}}}
-function write(state){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}
+function read(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');s.tasks=Array.isArray(s.tasks)?s.tasks:[];s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];s.folders=Array.isArray(s.folders)?s.folders:[];s.taskCompletionHistory=Array.isArray(s.taskCompletionHistory)?s.taskCompletionHistory:[];return s}catch{return{tasks:[],taskLists:[],folders:[],taskCompletionHistory:[]}}}
+function write(state){window.ElaraCloudStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'))}
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3200)}
 const list=()=>document.getElementById('task-list');
 const rows=()=>[...(list()?.querySelectorAll('.astra-task-row[data-key]')||[])];

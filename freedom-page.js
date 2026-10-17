@@ -4,9 +4,9 @@ const $=s=>document.querySelector(s),A='assets/ui/',E=s=>String(s??'').replace(/
 const art={hero:'41-freedom-hero-banner.webp',notes:'free_notes.webp',ideas:'Ideas.webp',insp:'Inspirations.webp',vision:'Vision_Board.webp',reflect:'my_reflection.webp',dream:'banner_dream_tree.webp',moon:'banner_moon_lake.webp',city:'banner_city_of_stars.webp'};
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local',key=()=>'elara_freedom_v1_'+uid();
 const normalize=d=>{d=d&&typeof d==='object'?d:{};for(const k of ['notes','dreams','ideas','inspirations','reflections'])if(!Array.isArray(d[k]))d[k]=[];if(!d.quote||typeof d.quote!=='object')d.quote={text:'فکر کوچکی امروز، می‌تونه آغاز یک دنیای بزرگ باشه.',author:'Elara'};return d};
-const read=()=>{try{return normalize(JSON.parse(localStorage.getItem(key())||'{}'))}catch{return normalize({})}};
-const save=d=>{localStorage.setItem(key(),JSON.stringify(normalize(d)));window.dispatchEvent(new CustomEvent('elara:freedom-changed'))};
-const space=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const read=()=>{try{return normalize(JSON.parse(window.ElaraCloudStorage.getItem(key())||'{}'))}catch{return normalize({})}};
+const save=d=>{window.ElaraCloudStorage.setItem(key(),JSON.stringify(normalize(d)));window.dispatchEvent(new CustomEvent('elara:freedom-changed'))};
+const space=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 const img=(file,cls='')=>'<img class="'+cls+'" src="'+A+file+'" alt="" decoding="async">',fa=n=>Number(n||0).toLocaleString('fa-IR');
 const firstLine=v=>String(v||'').split(/\r?\n/).map(x=>x.trim()).find(Boolean)||'';
 const topic=(x,fallback='یادداشت')=>String(x?.title||'').trim()||firstLine(x?.text||x?.description)||fallback;

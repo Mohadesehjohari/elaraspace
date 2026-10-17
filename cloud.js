@@ -51,8 +51,8 @@ function unlocked(){
 }
 function clearAccount(){
   locked(); user=null;profile=null;lastPayload='';dirty=false;
-  localStorage.removeItem('elara_space_v1');
-  sessionStorage.removeItem('elara_pending_profile');
+  window.ElaraCloudStorage.removeItem('elara_space_v1');
+  window.ElaraCloudStorage.session.removeItem('elara_pending_profile');
   window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:empty()}));
 }
 function form(mode='login'){
@@ -93,7 +93,7 @@ function form(mode='login'){
         const username=safe(f.elements.username.value).toLowerCase();
         if(!usernameValid(username))throw new Error('نام کاربری باید ۳ تا ۲۰ حرف انگلیسی کوچک، عدد یا زیرخط باشد و با حرف شروع شود.');
         // A signed-out browser cannot read username claims; the transaction reserves the name after email verification.
-        sessionStorage.setItem('elara_pending_profile',JSON.stringify({username,name:safe(f.elements.name.value).slice(0,60)}));
+        window.ElaraCloudStorage.session.setItem('elara_pending_profile',JSON.stringify({username,name:safe(f.elements.name.value).slice(0,60)}));
         const result=await createUserWithEmailAndPassword(auth,email.value.trim(),pass.value);
         await updateProfile(result.user,{displayName:safe(f.elements.name.value).slice(0,60)});
         await sendEmailVerification(result.user);
@@ -150,7 +150,7 @@ async function reserveUsername(username,name){
     if(!c.exists())throw identityIntegrityError('existing-profile-claim-missing','پروفایل موجود است اما شاخص @'+existing+' وجود ندارد. ترمیم خودکار انجام نشد تا ابتدا duplicateهای قدیمی ممیزی شوند.');
     if(String(c.data()?.uid||'')!==user.uid)throw identityIntegrityError('existing-profile-claim-conflict','پروفایل موجود و شاخص @'+existing+' مالک‌های متفاوت دارند. هیچ claimی بازنویسی نشد.');
   });
-  sessionStorage.removeItem('elara_pending_profile');
+  window.ElaraCloudStorage.session.removeItem('elara_pending_profile');
 }
 function showIdentityRepair(error){
   locked();layer.replaceChildren();const wrap=document.createElement('div');wrap.className='cloud-card identity-repair-card';wrap.dataset.elaraAccountGateReady='identity-repair';
@@ -166,7 +166,7 @@ function chooseUsername(){
   locked();layer.replaceChildren();const wrap=document.createElement('div');wrap.className='cloud-card';
   const h=document.createElement('h2');h.textContent='پروفایلت رو بساز';
   const p=document.createElement('p');p.className='muted';p.textContent='نام کاربری یکتا برای پیدا کردنت توسط دوست‌ها استفاده می‌شه.';
-  const f=document.createElement('form');const pending=JSON.parse(sessionStorage.getItem('elara_pending_profile')||'{}');
+  const f=document.createElement('form');const pending=JSON.parse(window.ElaraCloudStorage.session.getItem('elara_pending_profile')||'{}');
   const name=document.createElement('input');name.placeholder='نام نمایشی';name.value=pending.name||user.displayName||'';name.required=true;name.maxLength=60;
   const uname=document.createElement('input');uname.placeholder='username';uname.value=pending.username||'';uname.required=true;uname.maxLength=20;uname.pattern='[a-z][a-z0-9_]{2,19}';
   const ok=document.createElement('button');ok.className='primary-button';ok.textContent='ثبت نام کاربری';f.append(name,uname,ok);
@@ -182,15 +182,28 @@ async function readyUser(current){
   profile=p.data();
   message('در حال دریافت اطلاعات شخصی از Firestore…');
   const remote=await getDoc(doc(db,'private',user.uid,'app','main'));
-  if(auth.currentUser?.uid!==current.uid) return;
+  if(auth.currentUser?.uid!==current.uid)return;
+  // Read all account-scoped legacy-feature preferences BEFORE hydrating the UI.
+  // Keep Firebase as the authority and never pull another user's browser data.
+  const store=window.ElaraCloudStorage;
+  if(!store)throw Error('Cloud-only storage module did not load.');
+  await store.connect(current.uid,{
+    list:async()=>{
+      const result=await getDocs(collection(db,'private',current.uid,'clientKV'));
+      return result.docs.map(s=>s.data()).filter(row=>row&&typeof row.key==='string');
+    },
+    write:async(key,value)=>setDoc(doc(db,'private',current.uid,'clientKV',key),{key,value,updatedAt:serverTimestamp()}),
+    remove:async key=>deleteDoc(doc(db,'private',current.uid,'clientKV',key))
+  });
+  if(auth.currentUser?.uid!==current.uid)return;
+  const preferredLocale=store.getItem('elara_locale_v1');
+  if(preferredLocale==='en'||preferredLocale==='fa')window.ElaraI18n?.set?.(preferredLocale);
   const content=remote.exists()?remote.data().payload:empty();
   // Never automatically import another account's (or the old guest's) local data.
-  const old=localStorage.getItem('elara_space_v1');
-  if(old && !sessionStorage.getItem('elara_backup_saved')){
-    localStorage.setItem('elara_precloud_backup',old);
-    sessionStorage.setItem('elara_backup_saved','1');
-  }
-  localStorage.setItem('elara_space_v1',JSON.stringify(content));
+  // The authenticated Firestore document wins. Legacy device data is never
+  // silently imported into a different account. Existing native backups are
+  // deliberately left intact until an explicit export/migration is confirmed.
+  store.loadMain(content);
   window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:content}));
   lastPayload=JSON.stringify(content);dirty=false;loaded=true;
   renderAccount();unlocked();
@@ -213,8 +226,12 @@ async function flush(){
 }
 window.addEventListener('elara:data-changed',()=>{
   if(!loaded||!user)return;
-  lastPayload=localStorage.getItem('elara_space_v1')||JSON.stringify(empty());dirty=true;
+  lastPayload=window.ElaraCloudStorage.getItem('elara_space_v1')||JSON.stringify(empty());dirty=true;
   $('cloud-sync').textContent='در حال ذخیره…';clearTimeout(timer);timer=setTimeout(flush,800);
+});
+window.addEventListener('elara:cloud-storage-status',()=>{
+ const report=window.ElaraCloudStorage?.inspect?.();if(!report?.error)return;
+ const status=$('cloud-sync');if(status)status.textContent='⚠ ذخیرهٔ تنظیمات ابری ناموفق بود: '+report.error;
 });
 window.addEventListener('pagehide',()=>{if(dirty)flush();});
 async function refreshFriends(){
@@ -257,7 +274,7 @@ function renderAccount(){
     section=document.createElement('section');section.id='cloud-social';section.className='surface settings-card';
     section.innerHTML='<h2>حساب و دوستان واقعی</h2><p class="muted" id="cloud-me"></p><p class="muted" id="cloud-sync"></p><div class="timer-actions"><button class="quiet-button" id="cloud-logout" type="button">خروج از حساب</button></div><h2>درخواست دوستی</h2><form id="cloud-friend-form" class="inline-form"><input id="cloud-friend-name" aria-label="نام کاربری دوست" required placeholder="نام کاربری دوست (مثلاً aren_01)"><button class="primary-button" type="submit">ارسال درخواست</button></form><div class="item-list" id="cloud-friends-list"></div><h2 style="margin-top:22px">رنکینگ دوستان</h2><p class="muted">امتیازها از فعالیت‌های ثبت‌شدهٔ هر حساب می‌آیند؛ این نسخه برای رقابت رسمی ضدتقلب نیست.</p><div class="item-list" id="cloud-ranking"></div><button id="cloud-refresh" class="quiet-button" type="button">به‌روزرسانی دوستان و رتبه‌ها</button>';
     $('panel-settings').append(section);
-    $('cloud-logout').addEventListener('click',async()=>{await flush();await signOut(auth);});
+    $('cloud-logout').addEventListener('click',async()=>{await flush();if(dirty)throw Error('ذخیرهٔ ابری هنوز موفق نشده است.');await window.ElaraCloudStorage.flush();await signOut(auth);});
     $('cloud-friend-form').addEventListener('submit',async event=>{event.preventDefault();const b=event.target.querySelector('button');b.disabled=true;try{await addFriend($('cloud-friend-name').value);event.target.reset();notify('درخواست دوستی ارسال شد.');}catch(e){notify(actionError(e));}finally{b.disabled=false;}});
     $('cloud-refresh').addEventListener('click',()=>refreshFriends().catch(e=>notify(actionError(e))));
   }
@@ -283,7 +300,7 @@ window.ElaraAccount={
 
   errorMessage:actionError,
   getUser:()=>auth.currentUser,
-  logout:async()=>{await flush();await signOut(auth);},
+  logout:async()=>{await flush();if(dirty)throw Error('ذخیرهٔ ابری هنوز موفق نشده است.');await window.ElaraCloudStorage.flush();await signOut(auth);},
   sendPasswordReset:async()=>{if(!auth.currentUser?.email)throw new Error('ایمیل حساب در دسترس نیست.');await sendPasswordResetEmail(auth,auth.currentUser.email);return auth.currentUser.email;},
   changePassword:async(currentPassword,newPassword)=>{
     const current=auth.currentUser;if(!current?.email)throw new Error('برای تغییر رمز دوباره وارد حساب شو.');
@@ -297,7 +314,7 @@ window.ElaraAccount={
 onAuthStateChanged(auth,async current=>{
   clearTimeout(timer);locked();
   try{
-    if(!current){clearAccount();form();return;}
+    if(!current){await window.ElaraCloudStorage?.disconnect?.();clearAccount();form();return;}
     user=current;
     if(!current.emailVerified){verify();return;}
     await readyUser(current);

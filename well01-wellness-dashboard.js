@@ -11,13 +11,13 @@ const route=(name)=>'wellness-'+name;
 function read(){
  const id=uid();if(!id)return {water:{},sleep:[],workouts:[],workoutPlanFolders:[],nutritionPlanFolders:[]};
  try{
-  const s=JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+id)||'{}')||{};
+  const s=JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+id)||'{}')||{};
   return {...s,water:s.water&&typeof s.water==='object'&&!Array.isArray(s.water)?s.water:{},sleep:Array.isArray(s.sleep)?s.sleep:[],workouts:Array.isArray(s.workouts)?s.workouts:[],workoutPlanFolders:Array.isArray(s.workoutPlanFolders)?s.workoutPlanFolders:[],nutritionPlanFolders:Array.isArray(s.nutritionPlanFolders)?s.nutritionPlanFolders:[]};
  }catch{return {water:{},sleep:[],workouts:[],workoutPlanFolders:[],nutritionPlanFolders:[]}}
 }
 function taskData(){
  try{
-  const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}'),day=today();
+  const state=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}'),day=today();
   return (Array.isArray(state.tasks)?state.tasks:[]).filter(t=>(t?.sourceGroup==='exercise'||t?.sourceGroup==='wellness')&&window.ElaraSchedule?.taskDue?.(t,day)!==false).slice(0,6);
  }catch{return []}
 }

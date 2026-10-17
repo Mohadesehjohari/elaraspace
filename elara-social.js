@@ -33,7 +33,7 @@ function inform(value){state.error=value;window.dispatchEvent(new Event('elara:s
 function socialError(context,error){console.error('Elara social '+context+':',error);if(error?.code==='permission-denied')return 'اجازهٔ انجام این عملیات در Firestore داده نشد. Rules منتشرشده را بررسی کن.';return error?.message||String(error)||'خطای نامشخص اجتماعی'}
 function relationWith(other){return state.requests.find(r=>r.other===other&&r.status!=='declined')||null}
 function localStreak(){
- let data={};try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{}
+ let data={};try{data=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')||{}}catch{}
  const dates=new Set(),iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
  for(const row of Array.isArray(data.taskCompletionHistory)?data.taskCompletionHistory:[])if(row?.date)dates.add(row.date);
  for(const habit of Array.isArray(data.habits)?data.habits:[])for(const day of Array.isArray(habit?.days)?habit.days:[])dates.add(day);
@@ -146,7 +146,7 @@ window.ElaraSocial.stopMembershipInviteRealtime=stopMembershipInviteRealtime;
 
 const PRESENCE_TTL_MS=90000,PRESENCE_HEARTBEAT_MS=45000;
 const mutedByMe=other=>!!uid&&state.muted.some(x=>x.target===String(other));
-function presenceVisibility(){const value=localStorage.getItem('elara_presence_visibility_'+uid);return ['private','friends','public'].includes(value)?value:'friends'}
+function presenceVisibility(){const value=window.ElaraCloudStorage.getItem('elara_presence_visibility_'+uid);return ['private','friends','public'].includes(value)?value:'friends'}
 function presenceState(other){
  const row=state.presence[String(other)];if(!row)return{online:false,lastSeen:0,known:false};
  const lastSeen=Number(row.lastSeen||0),online=lastSeen>0&&(Date.now()-lastSeen)<=PRESENCE_TTL_MS;
@@ -186,7 +186,7 @@ function startPresence(mine=auth.currentUser?.uid){
 }
 async function setPresenceVisibility(value){
  if(!['private','friends','public'].includes(value))throw Error('حریم خصوصی Presence نامعتبر است.');
- localStorage.setItem('elara_presence_visibility_'+uid,value);await heartbeatPresence();return value
+ window.ElaraCloudStorage.setItem('elara_presence_visibility_'+uid,value);await heartbeatPresence();return value
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&presenceRuntime.uid===uid)void heartbeatPresence()});
 window.addEventListener('online',()=>{if(presenceRuntime.uid===uid)void heartbeatPresence()});
@@ -720,11 +720,11 @@ function activityVisibility(owner=uid,category='activity'){
  const wanted=ACTIVITY_CATEGORY[category]||category;
  if(owner===uid&&wanted!=='activity'){
   const api=window.ElaraPrivacyLocal?.visibility?.(wanted);if(['private','friends','public'].includes(api))return api;
-  try{const local=JSON.parse(localStorage.getItem('elara_privacy_local_v1_'+owner)||'{}');if(['private','friends','public'].includes(local?.[wanted]))return local[wanted]}catch{}
+  try{const local=JSON.parse(window.ElaraCloudStorage.getItem('elara_privacy_local_v1_'+owner)||'{}');if(['private','friends','public'].includes(local?.[wanted]))return local[wanted]}catch{}
  }
- const explicit=localStorage.getItem('elara_activity_visibility_'+owner);
+ const explicit=window.ElaraCloudStorage.getItem('elara_activity_visibility_'+owner);
  if(['private','friends','public'].includes(explicit))return explicit;
- return localStorage.getItem('elara_share_activity_'+owner)==='no'?'private':'friends';
+ return window.ElaraCloudStorage.getItem('elara_share_activity_'+owner)==='no'?'private':'friends';
 }
 async function publish(type,detail={}){
  if(!uid||!auth.currentUser?.emailVerified)return false;
@@ -738,7 +738,7 @@ async function publish(type,detail={}){
  try{await setDoc(doc(db,'activities',id),safe);return true}catch(error){console.warn('Activity sharing failed:',error);inform('ثبت فعالیت برای دوستان ناموفق بود: '+(error.code||error.message));return false}
 }
 window.ElaraSocial.publishActivity=publish;window.ElaraSocial.activityVisibility=activityVisibility;
-function changed(){if(!uid||!state.me)return;let now;try{now=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return}if(!baseline){baseline=now;return}const day=new Date(),date=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`,beforeTasks=new Map((baseline.tasks||[]).map(x=>[x.id,x]));for(const task of now.tasks||[]){const before=beforeTasks.get(task.id);const completedNow=task.recurrenceRule?(task.occurrenceDone||[]).includes(date):task.completed;const completedBefore=task.recurrenceRule?(before?.occurrenceDone||[]).includes(date):before?.completed;if(completedNow&&!completedBefore)void publish('task')}const beforeHabits=new Map((baseline.habits||[]).map(x=>[x.id,x]));for(const habit of now.habits||[])if((habit.days||[]).includes(date)&&!(beforeHabits.get(habit.id)?.days||[]).includes(date))void publish('habit');baseline=now}
+function changed(){if(!uid||!state.me)return;let now;try{now=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return}if(!baseline){baseline=now;return}const day=new Date(),date=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`,beforeTasks=new Map((baseline.tasks||[]).map(x=>[x.id,x]));for(const task of now.tasks||[]){const before=beforeTasks.get(task.id);const completedNow=task.recurrenceRule?(task.occurrenceDone||[]).includes(date):task.completed;const completedBefore=task.recurrenceRule?(before?.occurrenceDone||[]).includes(date):before?.completed;if(completedNow&&!completedBefore)void publish('task')}const beforeHabits=new Map((baseline.habits||[]).map(x=>[x.id,x]));for(const habit of now.habits||[])if((habit.days||[]).includes(date)&&!(beforeHabits.get(habit.id)?.days||[]).includes(date))void publish('habit');baseline=now}
 window.addEventListener('elara:hydrate',e=>{baseline=e.detail||{};lastSocialStats='';setTimeout(refresh,500)});
 window.addEventListener('elara:data-changed',()=>{changed();void syncSocialStats().then(()=>window.ElaraSocialView?.render?.())});
 window.addEventListener('elara:privacy-local-changed',e=>{if(!e.detail?.category||e.detail.category==='streak'){lastSocialStats='';void syncSocialStats().then(()=>refresh())}});
@@ -761,7 +761,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-frie
 onAuthStateChanged(auth,async user=>{
  stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
  if(!user){render();return}
- if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
+ if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
 });
 window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>{startFriendRequestRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}).catch(error=>inform(socialError('account-ready-refresh',error)))});
 window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence()});

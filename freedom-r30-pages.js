@@ -10,9 +10,9 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
 const date=x=>{const d=new Date(x||Date.now());return Number.isNaN(d.getTime())?'':d.toLocaleDateString('fa-IR')};
 const freedom=()=>window.ElaraFreedomEnhancements?.read?.()||window.ElaraFreedom?.read?.()||{};
-function saveFreedom(d){if(window.ElaraFreedom?.save)window.ElaraFreedom.save(d);else{const uid=window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';localStorage.setItem('elara_freedom_v1_'+uid,JSON.stringify(d));window.dispatchEvent(new Event('elara:freedom-changed'))}}
-const space=()=>{try{const s=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');if(!Array.isArray(s.diaryEntries))s.diaryEntries=[];return s}catch{return{diaryEntries:[]}}};
-function saveSpace(s){try{localStorage.setItem('elara_space_v1',JSON.stringify(s))}catch{alert('فضای ذخیره‌سازی کافی نیست.');return false}window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:state-committed'));return true}
+function saveFreedom(d){if(window.ElaraFreedom?.save)window.ElaraFreedom.save(d);else{const uid=window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';window.ElaraCloudStorage.setItem('elara_freedom_v1_'+uid,JSON.stringify(d));window.dispatchEvent(new Event('elara:freedom-changed'))}}
+const space=()=>{try{const s=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');if(!Array.isArray(s.diaryEntries))s.diaryEntries=[];return s}catch{return{diaryEntries:[]}}};
+function saveSpace(s){try{window.ElaraCloudStorage.setItem('elara_space_v1',JSON.stringify(s))}catch{alert('فضای ذخیره‌سازی کافی نیست.');return false}window.dispatchEvent(new Event('elara:data-changed'));window.dispatchEvent(new Event('elara:state-committed'));return true}
 const cats=[['all','همه جرقه‌ها','✥'],['شخصی','نجواهای شخصی','♙'],['تحصیلی','افق‌های دانایی','♧'],['شغلی','رؤیاهای حرفه‌ای','▣'],['خلاقانه','الهام‌های آفرینش','◉'],['سفر','ماجراجویی‌های سفر','✈'],['سبک زندگی','نغمه‌های زندگی','♧']];
 const insCats=['همه الهام‌ها','موفقیت','زندگی بهتر','خلاقیت','مطالعه و یادگیری','ذهن‌آگاهی','روابط','سلامتی','آینده و رؤیاها','فناوری','هنر و زیبایی','طبیعت'];
 const dreamCats=['همه','زندگی','سفر','یادگیری','کار و خلاقیت','سلامت','رابطه‌ها'];

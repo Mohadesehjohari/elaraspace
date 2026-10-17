@@ -11,7 +11,7 @@ const surfaceSelector=[
 ].join(',');
 let gesture=null,suppressId='',suppressUntil=0,decorateQueued=false,observer=null;
 
-function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.tasks=Array.isArray(s.tasks)?s.tasks:[];return s}catch{return{tasks:[]}}}
+function read(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');s.tasks=Array.isArray(s.tasks)?s.tasks:[];return s}catch{return{tasks:[]}}}
 function taskById(id){return read().tasks.find(x=>String(x?.id)===String(id))||null}
 function dailyTarget(task){const n=Math.round(Number(task?.dailyTarget)||1);return Math.max(1,Math.min(24,Number.isFinite(n)?n:1))}
 function cardFrom(target){return target?.closest?.(surfaceSelector)||null}

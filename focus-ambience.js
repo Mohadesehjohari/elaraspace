@@ -2,8 +2,8 @@
 const KEY='elara_focus_ambience_v1';
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 let ctx=null,master=null,nodes=[],chirpTimer=null,playing=false;
-function read(){try{return{mode:'quiet',volume:28,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return{mode:'quiet',volume:28}}}
-function write(patch){const next={...read(),...patch};localStorage.setItem(KEY,JSON.stringify(next));return next}
+function read(){try{return{mode:'quiet',volume:28,...JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}')}}catch{return{mode:'quiet',volume:28}}}
+function write(patch){const next={...read(),...patch};window.ElaraCloudStorage.setItem(KEY,JSON.stringify(next));return next}
 function stopAudio(){
  clearInterval(chirpTimer);chirpTimer=null;
  for(const n of nodes){try{n.stop?.()}catch{}try{n.disconnect?.()}catch{}}

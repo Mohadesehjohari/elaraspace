@@ -3,9 +3,9 @@ const KEY='elara_space_v1',$=s=>document.querySelector(s),esc=v=>String(v??'').r
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const id=()=>crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2);
 let activeShelf='',pendingClipImage='';
-function read(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');s.books=Array.isArray(s.books)?s.books:[];s.bookShelves=Array.isArray(s.bookShelves)?s.bookShelves:[];s.bookClips=Array.isArray(s.bookClips)?s.bookClips:[];return s}catch{return{books:[],bookShelves:[],bookClips:[]}}}
+function read(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');s.books=Array.isArray(s.books)?s.books:[];s.bookShelves=Array.isArray(s.bookShelves)?s.bookShelves:[];s.bookClips=Array.isArray(s.bookClips)?s.bookClips:[];return s}catch{return{books:[],bookShelves:[],bookClips:[]}}}
 function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),3300)}
-function commit(state){localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));window.ElaraReading?.render?.(state.books,document.getElementById('book-filter')?.value||'all');setTimeout(render,0)}
+function commit(state){window.ElaraCloudStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:state}));window.dispatchEvent(new Event('elara:data-changed'));window.ElaraReading?.render?.(state.books,document.getElementById('book-filter')?.value||'all');setTimeout(render,0)}
 async function compress(file,maxW=420,maxH=630){if(!file||!file.type.startsWith('image/'))throw Error(t('فایل تصویر معتبر نیست.','Choose a valid image.'));if(file.size>5*1024*1024)throw Error(t('تصویر باید کمتر از ۵ مگابایت باشد.','Image must be under 5 MB.'));
  const src=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>rej(Error(t('خواندن تصویر ناموفق بود.','Could not read image.')));fr.readAsDataURL(file)});
  const img=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(Error(t('تصویر قابل پردازش نیست.','Image cannot be processed.')));x.src=src});

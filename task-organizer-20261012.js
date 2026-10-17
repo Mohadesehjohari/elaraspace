@@ -1,7 +1,7 @@
 /* Folder → list → tasks. No separate task database. */
 (()=>{'use strict';
 const KEY='elara_space_v1',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const get=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return{}}};
+const get=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}')||{}}catch{return{}}};
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
 const localDay=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 const meta=(s,n)=>s.taskListDetails?.[n]||{folder:'',description:''};
@@ -9,7 +9,7 @@ const openedFolders=new Set(),openedLists=new Set();let focusList='',focusFolder
 function store(s){
  s.taskLists=Array.isArray(s.taskLists)?s.taskLists:[];s.folders=Array.isArray(s.folders)?s.folders:[];
  s.taskListDetails=s.taskListDetails&&typeof s.taskListDetails==='object'?s.taskListDetails:{};
- localStorage.setItem(KEY,JSON.stringify(s));
+ window.ElaraCloudStorage.setItem(KEY,JSON.stringify(s));
  window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));
  window.dispatchEvent(new Event('elara:data-changed'));
  window.ElaraTasks?.render?.();

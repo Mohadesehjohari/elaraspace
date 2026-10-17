@@ -3,8 +3,8 @@
 const STORE='elara_space_v1',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local',id=()=>crypto.randomUUID?.()||('class-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
 const fa=n=>Number(n||0).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR');
-function read(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');if(!Array.isArray(s.languageClasses))s.languageClasses=[];return s}catch{return{languageClasses:[]}}}
-function write(s){localStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));render()}
+function read(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(STORE)||'{}');if(!Array.isArray(s.languageClasses))s.languageClasses=[];return s}catch{return{languageClasses:[]}}}
+function write(s){window.ElaraCloudStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));render()}
 const total=c=>Math.max(1,Number(c.terms)||1)*Math.max(1,Number(c.sessionsPerTerm)||1);
 const completed=c=>Math.min(total(c),Math.max(0,Array.isArray(c.sessionLogs)?c.sessionLogs.length:Number(c.completedSessions)||0));
 const pct=c=>Math.round(completed(c)/total(c)*100);

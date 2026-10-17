@@ -8,7 +8,7 @@ const image=f=>assets+encodeURIComponent(f);
 const validImage=x=>{const v=String(x||'');return /^(data:image\/(png|webp|jpeg);base64,|assets\/ui\/|https?:\/\/)/i.test(v)?v:''};
 const identity=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';
 const data=()=>window.ElaraFreedomEnhancements?.read?.()||{};
-const save=d=>{const key='elara_freedom_v1_'+identity();try{localStorage.setItem(key,JSON.stringify(d))}catch{return false}window.dispatchEvent(new Event('elara:freedom-changed'));return true};
+const save=d=>{const key='elara_freedom_v1_'+identity();try{window.ElaraCloudStorage.setItem(key,JSON.stringify(d))}catch{return false}window.dispatchEvent(new Event('elara:freedom-changed'));return true};
 const when=x=>new Date(x?.updatedAt||x?.at||x?.createdAt||Date.now()).toLocaleDateString('fa-IR');
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
 const identifier=()=>crypto.randomUUID?.()||String(Date.now())+'-'+Math.random().toString(36).slice(2);
@@ -59,7 +59,7 @@ function galleryItems(){
  const d=data(),rows=[];
  const defs=[['artworks','هنر','art'],['experiences','تجربه','experiences'],['ideas','ایده','ideas'],['dreams','رؤیا','vision'],['inspirations','الهام','inspiration'],['notes','یادداشت','notes'],['reflections','یادداشت','reflection']];
  for(const [field,category,kind] of defs)for(const x of d[field]||[]){const picture=validImage(x.image);if(picture)rows.push({...x,sourceType:category,kind,displayPicture:picture})}
- let notes=[];try{notes=JSON.parse(localStorage.getItem('elara_space_v1')||'{}').diaryEntries||[]}catch{}
+ let notes=[];try{notes=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}').diaryEntries||[]}catch{}
  for(const x of notes){let picture=validImage(x.backgroundImage);if(!picture&&x.themeId){const map={night:'Celestial Mirror Lake at Night.webp',paper:'Sunlit Botanical Shadows on Parchment.webp',lavender:'Lavender Moonrise Over Misty Meadows.webp',forest:'Misty Mountain Lake at Dawn.webp'};if(map[x.themeId])picture=image(map[x.themeId])}
  if(picture)rows.push({...x,sourceType:'خاطره',kind:'diary',displayPicture:picture})}
  return rows.sort((a,b)=>Number(b.updatedAt||b.at||0)-Number(a.updatedAt||a.at||0));

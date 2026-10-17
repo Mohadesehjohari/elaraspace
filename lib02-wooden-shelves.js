@@ -9,7 +9,7 @@ const state=()=>window.ElaraLibraryEnhancements?.read?.()||{};
 const normalized=s=>(Array.isArray(s.books)?s.books:[]).map(x=>window.ElaraReading?.normalize?.(x)||x);
 const progress=b=>window.ElaraReading?.progress?.(b)||0;
 const cover=b=>b.coverData||b.coverUrl||'assets/ui/icon-library-open-book.webp';
-const emit=s=>{localStorage.setItem('elara_space_v1',JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'))};
+const emit=s=>{window.ElaraCloudStorage.setItem('elara_space_v1',JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'))};
 function book(b){
  const p=progress(b),id=esc(b.id),title=esc(b.title||''),author=esc(b.author||t('نویسنده ثبت نشده','No author recorded'));
  const n=b.totalPages?fa(Math.min(b.currentPage||0,b.totalPages))+' / '+fa(b.totalPages):t('بدون تعداد صفحات','Page total not set');

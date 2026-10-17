@@ -3,7 +3,7 @@
 const P=()=>document.getElementById('panel-freedom'),A='assets/ui/';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=()=>window.ElaraFreedom?.read?.()||{};
-const space=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const space=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 const topic=(x,f='بدون عنوان')=>String(x?.title||'').trim()||String(x?.text||x?.body||'').trim().split('\n')[0].slice(0,70)||f;
 const when=v=>v?new Date(v).toLocaleDateString('fa-IR'):'';
 let filter='همه',root=null,refreshQueued=false;

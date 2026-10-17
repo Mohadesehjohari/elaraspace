@@ -6,8 +6,8 @@ const key=id=>'elara_language_journal_v1_'+id;
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const dateOK=s=>{if(typeof s!=='string'||!/^20\d{2}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T12:00:00');return !Number.isNaN(d.valueOf())&&`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`===s};
 function validRow(r){if(!r||typeof r!=='object'||Array.isArray(r)||typeof r.id!=='string'||!r.id||r.id.length>128||!dateOK(r.date)||!Number.isInteger(r.minutes)||r.minutes<1||r.minutes>1440)return null;const words=r.words===undefined?0:r.words,note=r.note===undefined?'':r.note;if(!Number.isInteger(words)||words<0||words>10000||typeof note!=='string')return null;return {id:r.id,date:r.date,minutes:r.minutes,words,note:note.slice(0,500)}}
-function read(id){if(!id)return[];try{const rows=JSON.parse(localStorage.getItem(key(id))||'[]');if(!Array.isArray(rows))return[];const seen=new Set();return rows.flatMap(raw=>{const r=validRow(raw);if(!r||seen.has(r.id))return[];seen.add(r.id);return[r]})}catch{return[]}}
-function write(id,rows){if(!id||!Array.isArray(rows))return false;try{localStorage.setItem(key(id),JSON.stringify(rows));return true}catch{return false}}
+function read(id){if(!id)return[];try{const rows=JSON.parse(window.ElaraCloudStorage.getItem(key(id))||'[]');if(!Array.isArray(rows))return[];const seen=new Set();return rows.flatMap(raw=>{const r=validRow(raw);if(!r||seen.has(r.id))return[];seen.add(r.id);return[r]})}catch{return[]}}
+function write(id,rows){if(!id||!Array.isArray(rows))return false;try{window.ElaraCloudStorage.setItem(key(id),JSON.stringify(rows));return true}catch{return false}}
 let editing=null,activeUid=undefined;
 function message(s){const node=$('learning-journal-message');if(node)node.textContent=s}
 function reset(){editing=null;const f=$('learning-journal-form');if(!f)return;f.reset();f.elements.date.value=today();f.querySelector('[type=submit]').textContent='ثبت گزارش';f.querySelector('[data-journal-cancel]').hidden=true}

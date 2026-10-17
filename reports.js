@@ -2,9 +2,9 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),S=window.ElaraSchedule,arr=x=>Array.isArray(x)?x:[],esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
-const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch{return fallback}};
+const read=(key,fallback)=>{try{return JSON.parse(window.ElaraCloudStorage.getItem(key))||fallback}catch{return fallback}};
 const key=()=>uid()?'elara_report_history_v1_'+uid():null;
-function append(type,value,date=S.today(),id=''){if(!key()||!S.validDate(date)||!Number.isFinite(value))return;const rows=arr(read(key(),[])).filter(r=>!(type==='weight'&&r.type===type&&r.date===date));rows.push({type,value,date,id,at:Date.now()});localStorage.setItem(key(),JSON.stringify(rows.slice(-20000)))}
+function append(type,value,date=S.today(),id=''){if(!key()||!S.validDate(date)||!Number.isFinite(value))return;const rows=arr(read(key(),[])).filter(r=>!(type==='weight'&&r.type===type&&r.date===date));rows.push({type,value,date,id,at:Date.now()});window.ElaraCloudStorage.setItem(key(),JSON.stringify(rows.slice(-20000)))}
 const metrics=[['reading','صفحات مطالعه','صفحه','#a66eff'],['wordsAdded','واژه‌های افزوده‌شده','واژه','#55baff'],['wordsReviewed','واژه‌های مرورشده','واژه','#e57dab'],['wordsLearned','واژه‌های آموخته‌شده','واژه','#3ce4b0'],['weight','تغییر وزن','کیلوگرم','#b996ff'],['water','مصرف آب','میلی‌لیتر','#49caff'],['sleep','مدت خواب','ساعت','#8f81ff'],['exercise','زمان ورزش','دقیقه','#3ce5b0'],['habits','تکمیل عادت‌ها','نوبت','#e6bd59'],['goals','میانگین پیشرفت اهداف','درصد','#f18eb9']];
 let range=7,group='day',lastUid=null,goalSnapshot=null;
 function data(){const history=arr(read(key(),[])),wellness=uid()?read('elara_private_wellness_v1_'+uid(),{}):{},state=read('elara_space_v1',{}),series=Object.fromEntries(metrics.map(([id])=>[id,[]]));

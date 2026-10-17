@@ -2,7 +2,7 @@
   "name": "elara-astra-local-tests",
   "private": true,
   "scripts": {
-    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs",
+    "test": "node no-browser-storage-contract.cjs && node cloud-storage-contract.test.cjs && node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs",
     "rules:test": "node firestore-rules-emulator.mjs"
   },
   "devDependencies": {

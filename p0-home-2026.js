@@ -3,7 +3,7 @@
 const KEY='elara_space_v1',$=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const arr=v=>Array.isArray(v)?v:[];
-const read=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
+const read=()=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem(KEY)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const today=()=>iso(new Date());
 const fa=n=>Number(n||0).toLocaleString('fa-IR');

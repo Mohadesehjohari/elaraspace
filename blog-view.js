@@ -35,9 +35,9 @@ const articleCopy=a=>a[lang()]||a.fa||a.en||{title:'',desc:'',body:[]};
 function mode(){return new URLSearchParams(location.search).get('blogView')||'home'}
 function param(name){return new URLSearchParams(location.search).get(name)||''}
 function localItems(){
- try{const parsed=JSON.parse(localStorage.getItem(ownKey())||'[]');return Array.isArray(parsed)?parsed.filter(x=>x&&typeof x==='object').slice(0,100):[]}catch{return []}
+ try{const parsed=JSON.parse(window.ElaraCloudStorage.getItem(ownKey())||'[]');return Array.isArray(parsed)?parsed.filter(x=>x&&typeof x==='object').slice(0,100):[]}catch{return []}
 }
-function saveItems(items){try{localStorage.setItem(ownKey(),JSON.stringify(items.slice(0,100)));return true}catch{return false}}
+function saveItems(items){try{window.ElaraCloudStorage.setItem(ownKey(),JSON.stringify(items.slice(0,100)));return true}catch{return false}}
 function safeDate(value){
  try{const d=value?.toDate?.()||new Date(value?.seconds?value.seconds*1000:value||0);return Number.isFinite(d.getTime())&&d.getTime()>0?new Intl.DateTimeFormat(lang()==='fa'?'fa-IR':'en-US',{year:'numeric',month:'short',day:'numeric'}).format(d):''}catch{return ''}
 }
@@ -203,11 +203,11 @@ async function loadPublished(){
  catch(error){console.error('Elara published blog:',error)}
  finally{publishedLoading=false}
 }
-function bookmarks(){try{const data=JSON.parse(localStorage.getItem(localBookmarkKey())||'[]');return Array.isArray(data)?data.filter(x=>typeof x==='string').slice(0,300):[]}catch{return []}}
+function bookmarks(){try{const data=JSON.parse(window.ElaraCloudStorage.getItem(localBookmarkKey())||'[]');return Array.isArray(data)?data.filter(x=>typeof x==='string').slice(0,300):[]}catch{return []}}
 function bookmark(id){
  const prev=bookmarks(),next=prev.includes(id)?prev.filter(x=>x!==id):[...prev,id],saved=next.includes(id);
  try{
-  localStorage.setItem(localBookmarkKey(),JSON.stringify(next));
+  window.ElaraCloudStorage.setItem(localBookmarkKey(),JSON.stringify(next));
   document.querySelectorAll('[data-blog-bookmark]').forEach(el=>{
    if(el.dataset.blogBookmark!==id)return;
    el.setAttribute('aria-pressed',String(saved));

@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s),tr=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 const queue=[],pending=[];let active=null,timer=0,scheduled=false;
-function preference(key){try{return localStorage.getItem(key)==='on'}catch{return false}}
+function preference(key){try{return window.ElaraCloudStorage.getItem(key)==='on'}catch{return false}}
 function nextMission(currentKey=''){const rows=Array.isArray(window.ElaraMissions?.snapshot?.())?window.ElaraMissions.snapshot():[];return rows.find(x=>x&&x.key!==currentKey&&!x.completed)||null}
 function haptic(){if(!preference('elara_mission_haptics_v1')||!navigator.vibrate)return;try{navigator.vibrate([22,36,28])}catch{}}
 function sound(){if(!preference('elara_mission_sound_v1'))return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;try{const c=new C(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(620,c.currentTime);o.frequency.exponentialRampToValueAtTime(880,c.currentTime+.16);g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.08,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.22);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.24);setTimeout(()=>c.close?.(),420)}catch{}}

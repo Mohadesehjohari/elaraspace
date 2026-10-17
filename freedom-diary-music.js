@@ -2,8 +2,8 @@
 (()=>{'use strict';
 const STORE='elara_space_v1',$=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tx=(fa,en)=>document.documentElement.lang==='en'?en:fa;
-function state(){try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');if(!Array.isArray(s.diaryEntries))s.diaryEntries=[];if(!s.profileSong||typeof s.profileSong!=='object')s.profileSong=null;return s}catch{return{diaryEntries:[],profileSong:null}}}
-function commit(s){localStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));setTimeout(injectProfileSong,0)}
+function state(){try{const s=JSON.parse(window.ElaraCloudStorage.getItem(STORE)||'{}');if(!Array.isArray(s.diaryEntries))s.diaryEntries=[];if(!s.profileSong||typeof s.profileSong!=='object')s.profileSong=null;return s}catch{return{diaryEntries:[],profileSong:null}}}
+function commit(s){window.ElaraCloudStorage.setItem(STORE,JSON.stringify(s));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:s}));window.dispatchEvent(new Event('elara:data-changed'));setTimeout(injectProfileSong,0)}
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';
 const id=()=>crypto.randomUUID?.()||('diary-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
 const tagsOf=value=>[...new Set(String(value||'').split(/[،,]/).map(x=>x.trim().replace(/^#/,'')).filter(Boolean).map(x=>x.slice(0,32)))].slice(0,8);

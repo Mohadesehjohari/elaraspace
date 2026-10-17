@@ -3,7 +3,7 @@
 const panel=()=>document.getElementById('panel-focus-pomodoro');
 const $=s=>document.querySelector(s);
 const tr=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||fa;
-const read=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return {}}};
+const read=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return {}}};
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,Number.isFinite(Number(n))?Number(n):min));
 let ready=false;
@@ -60,7 +60,7 @@ function updateTasks(s){
  const tasks=Array.isArray(s.tasks)?s.tasks.filter(t=>t&&t.id&&t.text&&!t.completed).slice(0,80):[];
  const signature=tasks.map(t=>String(t.id)+':'+t.text).join('|');
  if(select.dataset.signature!==signature){
-  const current=select.value||localStorage.getItem('elara_focus_current_task_id')||'';
+  const current=select.value||window.ElaraCloudStorage.getItem('elara_focus_current_task_id')||'';
   select.replaceChildren(new Option(tr('هنوز کاری انتخاب نشده','No task selected'),''));
   for(const task of tasks)select.add(new Option(String(task.text).slice(0,90),String(task.id)));
   select.dataset.signature=signature;select.value=tasks.some(t=>String(t.id)===current)?current:'';
@@ -112,7 +112,7 @@ function init(){
  update();
 }
 document.addEventListener('change',e=>{
- if(e.target?.id==='focus-ref-task-select'){localStorage.setItem('elara_focus_current_task_id',e.target.value);update();return}
+ if(e.target?.id==='focus-ref-task-select'){window.ElaraCloudStorage.setItem('elara_focus_current_task_id',e.target.value);update();return}
  if(e.target?.id==='focus-session-count')update();
 });
 document.addEventListener('click',e=>{

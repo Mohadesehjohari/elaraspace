@@ -13,6 +13,12 @@ on:
       - 'home-owner-art-2026.css'
       - 'boot.js'
       - 'tests/home-owner-assets-browser.mjs'
+      - 'elara-cloud-storage.js'
+      - 'cloud.js'
+      - 'firestore.rules'
+      - 'storage.rules'
+      - 'tests/cloud-storage-contract.test.cjs'
+      - 'tests/no-browser-storage-contract.cjs'
       - 'elara-social.js'
       - 'elara-collab.js'
       - 'tests/home-first-startup.test.mjs'
@@ -33,6 +39,8 @@ jobs:
           node-version: '22'
       - name: Syntax
         run: |
+          node --check elara-cloud-storage.js
+          node --input-type=module --check < cloud.js
           node --check app.js
           node --check phase2.js
           node --check reference-home-shell-2026.js
@@ -40,6 +48,8 @@ jobs:
           node --input-type=module --check < elara-collab.js
       - name: Startup and collaboration contracts
         run: |
+          node tests/no-browser-storage-contract.cjs
+          node tests/cloud-storage-contract.test.cjs
           node tests/home-first-startup.test.mjs
           node tests/collab-invite-regression.test.mjs
       - name: Social lifecycle regression

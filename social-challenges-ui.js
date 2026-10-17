@@ -9,8 +9,8 @@ function expiresMs(c){return c.expiresAt?.toMillis?.()||Number(c.expiresAtMs)||0
 function secondsLeft(c){const ms=expiresMs(c);return ms?Math.max(0,Math.ceil((ms-Date.now())/1000)):null}
 function kindLabel(k){return({task:t('تسک','Task'),habit:t('عادت','Habit'),reading:t('مطالعه','Reading'),exercise:t('ورزش','Exercise'),focus:t('تمرکز','Focus'),general:t('آزاد','Open')})[k]||t('آزاد','Open')}
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function localState(){try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}}
-function localWellness(){const uid=current()?.uid;if(!uid)return{};try{return JSON.parse(localStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{return{}}}
+function localState(){try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')||{}}catch{return{}}}
+function localWellness(){const uid=current()?.uid;if(!uid)return{};try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_private_wellness_v1_'+uid)||'{}')||{}}catch{return{}}}
 function sameLocalDay(ms,day=today()){const d=new Date(Number(ms)||0);if(!Number.isFinite(d.getTime()))return false;return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`===day}
 function selfProgress(kind){const s=localState(),day=today();
  if(kind==='task')return (Array.isArray(s.taskCompletionHistory)?s.taskCompletionHistory:[]).filter(x=>x?.date===day).length;

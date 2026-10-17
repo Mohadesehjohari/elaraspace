@@ -12,7 +12,7 @@
  const fa=n=>Number(n||0).toLocaleString('fa-IR');
  const weekdays=['ش','ی','د','س','چ','پ','ج'];
  const TODAY=()=>iso(new Date());
- const state=()=>{try{const v=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
+ const state=()=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
  const labelDate=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
  let selected=TODAY(),viewStart=monthStart(parse(TODAY())),dialog=null,returnFocus=null;
  function counters(date,s){

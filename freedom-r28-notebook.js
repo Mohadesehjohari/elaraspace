@@ -8,7 +8,7 @@ const themes=[
  {id:'forest',title:'صبح مه‌آلود',sub:'طبیعت و تمرکز',file:'Misty Mountain Lake at Dawn.webp'}];
 const esc=v=>String(v??'').replace(/[&<>"']/g,k=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[k]));
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'local';
-const getState=()=>{try{const v=JSON.parse(localStorage.getItem(STORE)||'{}');v.diaryEntries=Array.isArray(v.diaryEntries)?v.diaryEntries:[];return v}catch{return {diaryEntries:[]}}};
+const getState=()=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem(STORE)||'{}');v.diaryEntries=Array.isArray(v.diaryEntries)?v.diaryEntries:[];return v}catch{return {diaryEntries:[]}}};
 const rowId=()=>crypto.randomUUID?.()||'entry-'+Date.now().toString(36)+Math.random().toString(36).slice(2);
 const imageUrl=t=>t==='custom'?null:A+encodeURIComponent(themes.find(x=>x.id===t)?.file||themes[0].file);
 const previewBackground=row=>row?.themeId==='custom'&&/^data:image\/(webp|jpeg|png);base64,/.test(row?.backgroundImage||'')?row.backgroundImage:imageUrl(row?.themeId);
@@ -41,7 +41,7 @@ function openDiary(initialId){
   const payload={id:existing?.id||rowId(),title:form.elements.title.value.trim().slice(0,120),body:form.elements.body.value.trim().slice(0,6000),tags:tagsOf(form.elements.tags.value),shareTags:form.elements.shareTags.checked,noteDate:form.elements.date.value,themeId:active,backgroundImage:active==='custom'?custom:'',createdAt:existing?.createdAt||now,updatedAt:now,ownerUid:existing?.ownerUid||uid()};
   if(!payload.title||!payload.body){status.textContent='عنوان و متن یادداشت را بنویس.';return false}
   if(index>=0)s.diaryEntries[index]={...existing,...payload};else s.diaryEntries.push(payload);
-  try{localStorage.setItem(STORE,JSON.stringify(s))}catch{status.textContent='فضای ذخیره‌سازی کافی نیست؛ تصویر دیگری انتخاب کن.';return false}
+  try{window.ElaraCloudStorage.setItem(STORE,JSON.stringify(s))}catch{status.textContent='فضای ذخیره‌سازی کافی نیست؛ تصویر دیگری انتخاب کن.';return false}
   editingId=payload.id;dirty=false;announce();status.textContent='✓ یادداشت با همین پس‌زمینه ذخیره شد.';return true;
  };
  const close=async()=>{if(dirty){const ok=await window.ElaraDialog.confirm('تغییرات ذخیره‌نشده را کنار می‌گذاری؟',{title:'خروج از دفترچه'});if(!ok)return}window.ElaraDialog.close()};

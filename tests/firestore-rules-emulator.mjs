@@ -155,6 +155,19 @@ try{
  const revokedWell=await assertSucceeds(getDoc(ref(bobWell,sharePath)));
  if(revokedWell.exists())throw new Error('revoked wellness folder is still readable');
 
+ // Cloud-first personal keys are per-account, never publicly readable.
+ const cloudKV='private/alice/clientKV/elara_private_wellness_v1_A';
+ await assertSucceeds(getDocs(collection(alice,'private/alice/clientKV')));
+ await assertFails(getDocs(collection(bob,'private/alice/clientKV')));
+ await assertSucceeds(setDoc(ref(alice,cloudKV),{key:'elara_private_wellness_v1_A',value:'{"water":6}',updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(alice,cloudKV)));
+ await assertFails(getDoc(ref(bob,cloudKV)));
+ await assertFails(setDoc(ref(bob,'private/alice/clientKV/elara_unauthorized'),{key:'elara_unauthorized',value:'bad',updatedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,'private/alice/clientKV/elara_mismatch'),{key:'other',value:'bad',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(alice,cloudKV),{value:'x'.repeat(350001),updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(alice,cloudKV),{value:'{"water":7}',updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(ref(alice,cloudKV)));
+
  // Presence is real, privacy-aware and friend-scoped.
  await assertSucceeds(setDoc(ref(alice,'presence/alice'),{uid:'alice',visibility:'private',updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(alice,'presence/alice')));

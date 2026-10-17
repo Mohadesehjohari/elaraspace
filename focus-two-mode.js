@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||fa;
-const state=()=>{try{return JSON.parse(localStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
+const state=()=>{try{return JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}')}catch{return{}}};
 let fullscreen=false;
 function setFullscreen(on){
  fullscreen=!!on;

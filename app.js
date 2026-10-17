@@ -8,7 +8,7 @@
   const datePlus = (date, days) => { const d = new Date(`${date}T12:00:00`); d.setDate(d.getDate() + days); return iso(d); };
   const makeId = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const asText = (value, limit = 180) => String(value ?? '').trim().slice(0, limit);
-  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
+  const read = key => { try { return window.ElaraCloudStorage.getItem(key); } catch { return null; } };
   const readJSON = key => { try { return JSON.parse(read(key) ?? 'null'); } catch { return null; } };
   const initial = () => ({version:1, tasks:[], pinnedFriendIds:[], accountLinkSeen:{}, accountLinkDefaultMode:'private', habits:[], goals:[], languageClasses:[], books:[], bookShelves:[], bookClips:[], words:[], taskLists:[], folders:[], tags:[], linkedTaskDismissals:[], focusSessions:[], activeFocus:null, focusPlanProgress:null, taskCompletionHistory:[], missionRewardClaims:[], xp:0, theme:'dark'});
   const validDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v ?? '')) && !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
@@ -115,7 +115,7 @@
   let activeWordId = null;
   let toastTimer;
   const toast = message => { const el = $('toast'); el.textContent = message; el.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add('hidden'),3500); };
-  const save = () => { try { localStorage.setItem(KEY,JSON.stringify(state)); window.dispatchEvent(new Event('elara:data-changed')); } catch (error) { console.warn(error); toast('ذخیره‌سازی مرورگر در دسترس نیست. از داده‌ها بکاپ بگیر.'); } };
+  const save = () => { try { window.ElaraCloudStorage.setItem(KEY,JSON.stringify(state)); window.dispatchEvent(new Event('elara:data-changed')); } catch (error) { console.warn(error); toast('ذخیره‌سازی مرورگر در دسترس نیست. از داده‌ها بکاپ بگیر.'); } };
   const fmt = n => Number(n).toLocaleString('fa-IR');
   const labelDate = value => { try { return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'short',day:'numeric'}).format(new Date(`${value}T12:00:00`)); } catch { return value; } };
   const wordIntervals = [1,3,7,14,30];

@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon=name=>window.ElaraIcons?.icon?.(name)||'<span class="elara-icon" aria-hidden="true"></span>';
-const read=()=>{try{const v=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
+const read=()=>{try{const v=JSON.parse(window.ElaraCloudStorage.getItem('elara_space_v1')||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
 const arr=v=>Array.isArray(v)?v:[];
 const uid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -22,7 +22,7 @@ function homeModel(data=read()){
  return {day,tasks:tasks.slice(0,6),habits:habits.slice(0,5),goals:goals.slice(0,5),missions:arr(missions).slice(0,3)};
 }
 function journalRows(){
- const id=uid();if(!id)return[];try{const rows=JSON.parse(localStorage.getItem('elara_language_journal_v1_'+id)||'[]');return arr(rows).filter(r=>r&&typeof r.date==='string'&&Number.isFinite(Number(r.minutes))&&Number(r.minutes)>=0)}catch{return[]}
+ const id=uid();if(!id)return[];try{const rows=JSON.parse(window.ElaraCloudStorage.getItem('elara_language_journal_v1_'+id)||'[]');return arr(rows).filter(r=>r&&typeof r.date==='string'&&Number.isFinite(Number(r.minutes))&&Number(r.minutes)>=0)}catch{return[]}
 }
 function journalSeries(){
  const rows=journalRows(),dates=Array.from({length:7},(_,i)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-6+i);return iso(d)});

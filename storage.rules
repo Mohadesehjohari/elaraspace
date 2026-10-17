@@ -75,6 +75,21 @@ service firebase.storage {
         && firestore.get(clubDoc(clubId)).data.owner == request.auth.uid;
     }
 
+    match /privateAudio/{uid}/{fileId} {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid)
+        && fileId.matches('^[A-Za-z0-9_-]{12,110}
+      allow read, write: if false;
+    }
+  }
+}
+)
+        && request.resource != null
+        && request.resource.size <= 15 * 1024 * 1024
+        && request.resource.contentType.matches('audio/(mpeg|mp3|mp4|ogg|wav|x-wav|aac|webm)');
+      allow delete: if owner(uid);
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }
