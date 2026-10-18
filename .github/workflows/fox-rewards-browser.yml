@@ -1,6 +1,14 @@
 name: Fox companion browser acceptance
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'elara-fox-rewards.js'
+      - 'elara-fox-prize.js'
+      - 'elara-fox-prize.css'
+      - 'tests/fox-rewards-browser.mjs'
+      - '.github/workflows/fox-rewards-browser.yml'
 permissions:
   contents: read
 jobs:
