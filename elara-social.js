@@ -31,7 +31,7 @@ function avatar(name){return `<span class="elara-social-avatar" aria-hidden="tru
 function profile(p){return `<button type="button" class="elara-social-info elara-profile-link" data-open-profile="${esc(p.uid||'')}"><strong>${esc(p.name||p.username||'کاربر')}</strong><small>@${esc(p.username||'')} · ${esc(title(p.xp))} · Lv.${lv(p.xp)}</small></button>`}
 function inform(value){state.error=value;window.dispatchEvent(new Event('elara:social-updated'))}
 function socialError(context,error){console.error('Elara social '+context+':',error);if(error?.code==='permission-denied')return 'اجازهٔ انجام این عملیات در Firestore داده نشد. Rules منتشرشده را بررسی کن.';return error?.message||String(error)||'خطای نامشخص اجتماعی'}
-function relationWith(other){return state.requests.find(r=>r.other===other&&r.status!=='declined')||null}
+function relationWith(other){return state.requests.find(r=>r.other===other&&r.status==='accepted')||state.requests.find(r=>r.other===other&&r.status==='pending')||null}
 function localStreak(){
  let data={};try{data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{}
  const dates=new Set(),iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -650,7 +650,7 @@ async function addFriend(value){
  // Refresh the two participant-scoped queries before the guard so stale cached social
  // state cannot create a crossed request when an incoming request already exists.
  await refresh();
- const active=state.requests.find(r=>r.other===to&&r.status!=='declined');if(active)throw Error(active.status==='accepted'?'قبلاً دوست شده‌اید.':active.to===uid?'این کاربر برایت درخواست فرستاده؛ همان درخواست را قبول یا رد کن.':'درخواست قبلی هنوز در انتظار است.');
+ const active=relationWith(to);if(active)throw Error(active.status==='accepted'?'قبلاً دوست شده‌اید.':active.to===uid?'این کاربر برایت درخواست فرستاده؛ همان درخواست را قبول یا رد کن.':'درخواست قبلی هنوز در انتظار است.');
  const request={id:uid+'_'+to,from:uid,to,status:'pending',other:to,person:{uid:to,...identity.profile}};
  try{
    // Do not pre-read a possibly missing friendRequests document. The participant-only
@@ -662,7 +662,7 @@ async function addFriend(value){
  }catch(error){
    socialError('send-friend-request',error);
    await refresh();
-   const relation=state.requests.find(r=>r.other===to&&r.status!=='declined');
+   const relation=relationWith(to);
    if(relation)throw Error(relation.status==='accepted'?'قبلاً دوست شده‌اید.':relation.to===uid?'درخواست ورودی از این کاربر وجود دارد.':'درخواست قبلی هنوز در انتظار است.');
    const stale=state.requests.find(r=>r.id===request.id&&r.from===uid&&r.status==='declined');
    if(stale){
