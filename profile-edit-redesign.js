@@ -313,7 +313,7 @@
     };
     const result=await api.saveProfileValues({name:strip(draft.name),username:draft.username,bio:draft.bio,profilePublic:draft.profilePublic,appearance:publicAppearance});
     if(!uidStable())throw Error('حساب فعال پس از درخواست تغییر کرده است؛ تغییرات محلی ذخیره نشدند.');
-    if(result?.warnings?.length){status('بخشی از اطلاعات در Firebase ذخیره نشد: '+result.warnings.join(' ')+' تنظیمات ظاهر ثبت نشدند.');return}
+    const cloudWarnings=result?.warnings||[];
     const nextWardrobe={frame:draft.frame||null,banner:draft.banner,photoMode:draft.photoMode,avatarGroup:draft.avatarGroup||null,avatarLevel:draft.avatarLevel||null,photoCircle:draft.photoCircle,photoSquare:draft.photoSquare,shape:draft.shape,nameFont:draft.nameFont};
     if(draft.themeTouched)nextWardrobe.profileTheme=themes.find(t=>t.id===draft.theme)?.theme||null;
     try{
