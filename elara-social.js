@@ -277,8 +277,16 @@ async function createGroup(title,members=[]){
  const ref=doc(collection(db,'groups')),batch=writeBatch(db),stamp=serverTimestamp();
  batch.set(ref,{owner:uid,title:clean,status:'active',createdAt:stamp,updatedAt:stamp,lastText:'',lastSender:''});
  batch.set(doc(ref,'groupMembers',uid),{uid,role:'owner',joinedAt:stamp});
- for(const member of chosen)batch.set(doc(ref,'groupMembers',member),{uid:member,role:'member',joinedAt:stamp});
- await batch.commit();return ref.id;
+ await batch.commit();
+ // Selected friends must consent. Previously creating a group silently added
+ // them as members and bypassed the visible invitation/acceptance workflow.
+ const results=await Promise.allSettled(chosen.map(member=>inviteGroup(ref.id,member)));
+ const failures=results.filter(result=>result.status==='rejected');
+ if(failures.length){
+  console.warn('Some group invitations failed:',failures.map(x=>x.reason?.code||x.reason?.message));
+  window.ElaraNotify?.push?.({type:'social',title:'گروه ساخته شد',message:'ارسال '+failures.length+' دعوت ناموفق بود؛ از داخل گروه می‌توانی دوباره دعوت بفرستی.',dedupeKey:'group-partial:'+ref.id});
+ }
+ return ref.id;
 }
 async function listGroups(){
  if(!uid)return[];
