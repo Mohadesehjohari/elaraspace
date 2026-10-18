@@ -93,6 +93,7 @@ async function accept(linkId){
  const confirmed=await window.ElaraDialog.confirm(language('با تأیید اتصال، مواردی که هرکدام «مشترک» انتخاب می‌کنید برای دیگری ارسال می‌شوند. پیش‌فرض «فقط برای من» است و هر زمان می‌توانید اتصال را قطع کنید.','Once linked, only items explicitly marked Shared will be delivered. New items default to private; either person can unlink anytime.'),{title:language('تأیید اتصال دوطرفه','Approve two-way sharing'),confirmText:language('تأیید اتصال','Approve link')});
  if(!confirmed)return false;
  await updateDoc(linkRef(row),{status:'accepted',updatedAt:serverTimestamp()});
+ window.ElaraNotify?.resolveByMeta?.('account-link',row.id);
  try{await refreshLinks()}catch(error){reportError(error,'accept-refresh')}
  notify(language('حساب‌ها متصل شدند','Accounts linked'),language('اکنون می‌توانی موارد دلخواه را مشترک کنی.','You can now share selected items.'),'account-link:accepted:'+row.id);
  return true;
@@ -100,7 +101,7 @@ async function accept(linkId){
 async function decline(linkId){
  const uid=verified(),row=links.get(String(linkId));
  if(!row||row.to!==uid||row.status!=='pending')return false;
- await updateDoc(linkRef(row),{status:'declined',updatedAt:serverTimestamp()});return true;
+ await updateDoc(linkRef(row),{status:'declined',updatedAt:serverTimestamp()});window.ElaraNotify?.resolveByMeta?.('account-link',row.id);return true;
 }
 async function disconnect(friendUid){
  const uid=verified(),row=[...links.values()].find(x=>other(x)===String(friendUid)&&x.status==='accepted');
