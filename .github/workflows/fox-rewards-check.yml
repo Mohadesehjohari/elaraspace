@@ -12,6 +12,9 @@ on:
       - 'tests/fox-rewards-contract.test.mjs'
       - 'tests/fox-ux-interoperability.test.mjs'
       - 'tests/fox-mission-batch.test.mjs'
+      - 'elara-fox-prize.js'
+      - 'elara-fox-prize.css'
+      - 'tests/fox-prize-claim.test.mjs'
       - 'assets/ui/fox-*.webp'
       - '.github/workflows/fox-rewards-check.yml'
   pull_request:
@@ -24,6 +27,9 @@ on:
       - 'tests/fox-rewards-contract.test.mjs'
       - 'tests/fox-ux-interoperability.test.mjs'
       - 'tests/fox-mission-batch.test.mjs'
+      - 'elara-fox-prize.js'
+      - 'elara-fox-prize.css'
+      - 'tests/fox-prize-claim.test.mjs'
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -39,6 +45,8 @@ jobs:
           node --check domain-notifications.js
           node --check mission-celebration.js
           node --check elara-fox-rewards.js
+          node --check elara-fox-prize.js
           node tests/fox-rewards-contract.test.mjs
           node tests/fox-ux-interoperability.test.mjs
           node tests/fox-mission-batch.test.mjs
+          node tests/fox-prize-claim.test.mjs
