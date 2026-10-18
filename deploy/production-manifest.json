@@ -705,6 +705,8 @@
     "lib02-wooden-shelves.js",
     "elara-fox-rewards.js",
     "elara-fox-prize.js",
-    "visitor-profile-reference-20261018.js"
+    "visitor-profile-reference-20261018.js",
+    "elara-date-time-picker.js",
+    "elara-date-time-picker.css"
   ]
 }
