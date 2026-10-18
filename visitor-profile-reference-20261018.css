@@ -28,7 +28,22 @@
 }
 #elara-dialog-root .elara-visitor-profile-panel .elara-dialog-actions{display:none!important}
 #elara-dialog-root .elara-visitor-profile-panel :where(button,a){touch-action:manipulation}
-.elara-visitor-profile{position:relative;min-width:0;max-width:100%;color:#f2efff!important;direction:rtl}
+/* Critical: legacy elara-design.css centers visitor dialogs at 560px.
+   The new two-column canvas must fill the modal body, not inherit that old width. */
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-body > .elara-profile-dialog.elara-visitor-profile{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ margin:0!important;padding:0!important;float:none!important
+}
+#elara-dialog-root .elara-visitor-profile-panel .visitor-profile-shell{
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:none!important;
+ margin:0!important;padding:0!important
+}
+#elara-dialog-root .elara-visitor-profile-panel .visitor-profile-content{
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:none!important;
+ margin:0!important;overflow-wrap:break-word
+}
+.elara-visitor-profile{position:relative;min-width:0;width:100%!important;max-width:none!important;margin:0!important;color:#f2efff!important;direction:rtl}
 .visitor-profile-shell{display:grid;grid-template-columns:185px minmax(0,1fr);direction:ltr;min-width:0;min-height:100%}
 .visitor-profile-rail{
  position:sticky;top:0;align-self:start;min-height:650px;max-height:100%;
@@ -89,8 +104,8 @@
 .elara-visitor-profile .elara-profile-chips{min-height:0;gap:5px}
 .elara-visitor-profile .elara-profile-chips span{font-size:.62rem!important;color:#eee8ff!important;background:#0c1744a9!important;border-color:#8970cf8b!important}
 .elara-visitor-profile .elara-profile-page-entry{
- position:absolute!important;top:-115px!important;right:0!important;left:auto!important;
- width:215px!important;max-width:40%!important;min-height:77px!important;padding:11px 13px!important;
+ position:absolute!important;top:18px!important;right:22px!important;left:auto!important;
+ width:222px!important;max-width:calc(100% - 82px)!important;min-height:77px!important;padding:11px 13px!important;
  display:grid!important;align-content:center!important;justify-items:start!important;
  color:#fff!important;border:1px solid #b272ffad!important;border-radius:15px!important;
  background:linear-gradient(110deg,#5237dcde,#743cebbb,#442888de)!important;
@@ -172,7 +187,7 @@
  .visitor-profile-details{grid-template-columns:1fr}
  .elara-visitor-profile .elara-profile-composition{grid-template-columns:110px minmax(0,1fr)!important;min-height:275px!important}
  .elara-visitor-profile .elara-profile-avatar-shell{width:105px!important;height:105px!important}
- .elara-visitor-profile .elara-profile-page-entry{top:-102px!important;max-width:48%!important}
+ .elara-visitor-profile .elara-profile-page-entry{top:13px!important;right:12px!important;max-width:min(210px,calc(100% - 80px))!important}
 }
 @media(max-width:700px){
  #elara-dialog-root .elara-dialog-panel.elara-visitor-profile-panel{
@@ -202,7 +217,7 @@
  .elara-visitor-profile .elara-profile-identity-line strong{font-size:1.08rem!important}
  .elara-visitor-profile .elara-profile-identity-line small{font-size:.61rem!important}
  .elara-visitor-profile .elara-profile-page-entry{
-  top:-70px!important;right:0!important;max-width:74%!important;width:auto!important;
+  top:11px!important;right:10px!important;max-width:calc(100% - 65px)!important;width:auto!important;
   min-height:54px!important;padding:7px 9px!important
  }
  .elara-visitor-profile .elara-profile-page-entry strong{font-size:.7rem!important}
