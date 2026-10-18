@@ -279,7 +279,21 @@
     "galaxy-lilac-sitewide.css",
     "elara-collab.js",
     "account-link.js",
-    "pin-account-link.css"
+    "pin-account-link.css",
+    "elara-fox-prize.css",
+    "elara-color-palettes.css",
+    "visitor-profile-reference-20261018.css",
+    "schedule.js",
+    "calendar.js",
+    "home-owner-art-2026.js",
+    "focus-two-mode.js",
+    "lib01-library-dashboard.js",
+    "reports-dashboard-01.js",
+    "focus-setup-reference-03.js",
+    "lib02-wooden-shelves.js",
+    "elara-fox-rewards.js",
+    "elara-fox-prize.js",
+    "visitor-profile-reference-20261018.js"
   ],
   "files": [
     ".htaccess",
@@ -677,6 +691,20 @@
     "galaxy-lilac-sitewide.css",
     "elara-collab.js",
     "account-link.js",
-    "pin-account-link.css"
+    "pin-account-link.css",
+    "elara-fox-prize.css",
+    "elara-color-palettes.css",
+    "visitor-profile-reference-20261018.css",
+    "schedule.js",
+    "calendar.js",
+    "home-owner-art-2026.js",
+    "focus-two-mode.js",
+    "lib01-library-dashboard.js",
+    "reports-dashboard-01.js",
+    "focus-setup-reference-03.js",
+    "lib02-wooden-shelves.js",
+    "elara-fox-rewards.js",
+    "elara-fox-prize.js",
+    "visitor-profile-reference-20261018.js"
   ]
 }

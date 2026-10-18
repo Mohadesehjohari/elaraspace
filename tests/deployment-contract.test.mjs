@@ -21,15 +21,19 @@ for(const required of ['index.html','styles.css','app.js','boot.js','cloud.js','
   assert.ok(manifest.files.includes(required),'manifest missing '+required);
   assert.ok(manifest.required.includes(required),'required missing '+required);
 }
-// The site loads owner CSS from both index.html and boot.js.
-// A missing allowlist entry silently drops an entire page design on cPanel.
-const linkedStyles=[...read('index.html').matchAll(/<link\s+[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)]
-  .map(match=>match[1].split('?')[0]);
+// Only local, browser-linked CSS/JS belongs to the cPanel manifest.
+// Externally hosted fonts (e.g. Google Fonts) must never be deployed as files.
+const pageHtml=read('index.html');
+const localPath=url=>!/^https?:\/\//i.test(url)&&!url.startsWith('//');
+const linkedStyles=[...pageHtml.matchAll(/<link\s+[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)]
+  .map(match=>match[1].split('?')[0]).filter(localPath);
+const linkedScripts=[...pageHtml.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)]
+  .map(match=>match[1].split('?')[0]).filter(localPath);
 const bootStylesMatch=read('boot.js').match(/const styles=\[([^\]]+)\]/);
 assert.ok(bootStylesMatch,'boot stylesheet inventory must remain readable');
 const bootStyles=[...bootStylesMatch[1].matchAll(/'([^']+\.css)'/g)].map(match=>match[1]);
-for(const cssPath of new Set([...linkedStyles,...bootStyles])){
-  assert.ok(manifest.files.includes(cssPath),'referenced CSS missing from cPanel deploy: '+cssPath);
+for(const resource of new Set([...linkedStyles,...linkedScripts,...bootStyles])){
+  assert.ok(manifest.files.includes(resource),'referenced asset missing from cPanel deploy: '+resource);
 }
 for(const path of manifest.files){
   assert.doesNotMatch(path,/^(?:\.git|\.github|tests|docs|deploy|backups|logs)(?:\/|$)/,'forbidden production path '+path);
