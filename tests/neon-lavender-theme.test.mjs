@@ -9,7 +9,7 @@ const drawer=read('drawer.js');
 const core=read('app.js');
 const css=read('neon-lavender-theme.css');
 const page=read('index.html');
-assert.match(page,/neon-lavender-theme\.css\?v=20261016-four-colors-v3/);
+assert.match(page,/neon-lavender-theme\.css\?v=20261018-shared-core-v4/);
 assert.match(page,/theme-settings-organization\.css\?v=20261016-theme-settings-v1/);
 assert.ok(page.indexOf('neon-lavender-theme.css')>page.indexOf('task-composer-reference-20261015.css'),'theme override must load after task reference');
 assert.match(css,/body\[data-elara-theme="violet"\]\.light/);
