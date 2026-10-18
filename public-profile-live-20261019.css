@@ -1,0 +1,14 @@
+/* Public profile accents are cosmetic and deliberately scoped to profile cards. */
+.elara-profile-composition[data-profile-color="violet"]{--elara-public-accent:#b27aff}
+.elara-profile-composition[data-profile-color="blue"]{--elara-public-accent:#539fff}
+.elara-profile-composition[data-profile-color="pink"]{--elara-public-accent:#ff70c0}
+.elara-profile-composition[data-profile-color="sunset"]{--elara-public-accent:#ff9b5a}
+.elara-profile-composition[data-profile-color="mint"]{--elara-public-accent:#39deb8}
+.elara-profile-composition[data-profile-color="aurora"]{--elara-public-accent:#c477ff}
+.elara-profile-composition[data-profile-color] .elara-profile-level-pill{
+ border-color:var(--elara-public-accent)!important;
+ box-shadow:0 0 15px color-mix(in srgb,var(--elara-public-accent) 24%,transparent)!important;
+}
+.elara-profile-composition[data-profile-color] .elara-profile-xp-track i{
+ background:linear-gradient(90deg,var(--elara-public-accent),#8dd7ff)!important;
+}
