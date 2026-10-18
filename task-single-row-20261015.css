@@ -383,3 +383,13 @@ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-checked-archive
  }
  html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks #elara-task-page-actions #elara-task-add-main strong{font-size:20px!important}
 }
+
+/* Mobile task menus must escape their own compact row's clipping box.
+   Only the open row is promoted so closed cards retain their layout. */
+@media(max-width:767px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row:has(>.astra-task-more[open]){
+  position:relative!important;
+  overflow:visible!important;
+  z-index:10000!important;
+ }
+}

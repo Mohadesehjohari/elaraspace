@@ -252,6 +252,17 @@ assert.equal(blocker.drawer,false,'closed Settings drawer still intercepts mobil
 await taskNav.click();await page.waitForSelector('#panel-tasks:not(.hidden)');await page.waitForTimeout(160);
 let kebab=page.locator('.astra-task-more').first(),summary=kebab.locator('summary');assert.equal(await summary.isVisible(),true,'390 task kebab hidden');await summary.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));await page.waitForTimeout(60);await summary.click();await page.waitForTimeout(40);
 let menu=kebab.locator('.item-actions');assert.equal(await menu.isVisible(),true,'390 task menu hidden');assert.equal(await menu.locator('[data-phase2-action="edit-task"]').isVisible(),true,'390 Edit missing');assert.equal(await menu.locator('[data-phase2-action="delete-task"]').isVisible(),true,'390 Delete missing');await menu.locator('[data-phase2-action="delete-task"]').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));await page.waitForTimeout(70);
+const mobileTaskMenuLayer=await page.evaluate(()=>{
+ const details=document.querySelector('#task-list .astra-task-more[open]');
+ const row=details?.closest('.astra-task-row');
+ const button=details?.querySelector('.item-actions [data-phase2-action="delete-task"]');
+ if(!row||!button)return {overflow:null,unobstructed:false};
+ const rect=button.getBoundingClientRect();
+ const hit=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+ return {overflow:getComputedStyle(row).overflowY,unobstructed:hit===button||button.contains(hit)};
+});
+assert.equal(mobileTaskMenuLayer.overflow,'visible','390 open task row still clips its menu');
+assert.equal(mobileTaskMenuLayer.unobstructed,true,'390 task menu is covered by adjacent tasks');
 await menu.locator('[data-phase2-action="delete-task"]').evaluate(el=>el.click());await page.waitForTimeout(40);const danger=page.locator('#elara-dialog-root .elara-dialog-danger').last();if(await danger.count()){await danger.click();await page.waitForTimeout(80)}
 stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_space_v1')||'{}'));assert.equal((stored.tasks||[]).some(t=>t.id==='p0-task'),false,'390 task delete did not persist');
 
