@@ -39,7 +39,7 @@ assert.match(page, /شب‌های بی‌انتها/);
 assert.match(page, /data-elara-mode-quick="dark"/);
 assert.match(page, /data-elara-mode-quick="light"/);
 assert.match(page, /data-elara-open-appearance/);
-assert.match(page,/drawer\.js\?v=20261016-inline-themes-v2/);
+assert.match(page,/drawer\.js\?v=20261018-night-endless-restore-v3/);
 assert.equal((drawer.match(/data-drawer-nav="appearance"/g)||[]).length,0,'No separate theme button in the drawer navigation');
 assert.match(drawer,/renderAppearance\('drawer-settings-theme-area'\)/,'Settings must render full theme gallery inline');
 assert.match(drawer,/if\(section==='appearance'\)section='settings'/,'Old links must open Settings');
@@ -96,9 +96,23 @@ assert.equal(r.classes.has('amoled'),true);
 assert.equal(r.storage.getItem('elara_amoled'),'yes');
 r.window.ElaraDrawerTest.setColor('default');
 assert.equal(r.body.dataset.elaraTheme,'default');
-assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'black','Midnight must revive legacy black accent, not lavender');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).themeVariant,'default');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default','Default must reset style to the existing appearance');
+// A persisted 'default' value from the previous release must migrate to the
+// historic Night Endless (black) palette on reload, without selecting Lilac.
+r=runtime({'elara_preferences_v2':JSON.stringify({mode:'dark',color:'violet',themeVariant:'default',style:'anime'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'default');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet','Migration must not modify storage before a user action');
+assert.equal(r.window.ElaraSetAppearance({themeVariant:'default'}).color,'black');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default');
+r=runtime({'elara_preferences_v2':JSON.stringify({mode:'dark',color:'black',style:'default'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'default','Legacy black Night must not be recolored by the new site skins');
+r.window.ElaraDrawerTest.renderAppearance();
+assert.match(r.hosts['drawer-settings-theme-area'].innerHTML,/data-drawer-color="default" class="pass4-accent-tile elara-theme-card active"/,'The first Midnight card should be visibly selected for old black users');
+
 r=runtime({'elara_preferences_v2':JSON.stringify({mode:'light',color:'blue'})});
 r.window.ElaraApplyTheme();
 assert.equal(r.body.dataset.elaraTheme,'blue','other existing accents must remain untouched');
