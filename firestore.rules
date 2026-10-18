@@ -560,12 +560,6 @@ service cloud.firestore {
               && getAfter(groupPath(groupId)).data.owner == request.auth.uid
             ) ||
             (
-              getAfter(groupPath(groupId)).data.owner == request.auth.uid
-              && getAfter(groupPath(groupId)).data.status == 'active'
-              && request.resource.data.role == 'member'
-              && friendOf(memberId)
-            ) ||
-            (
               memberId == request.auth.uid
               && request.resource.data.role == 'member'
               && existsAfter(groupInvitePath(groupId, memberId))
