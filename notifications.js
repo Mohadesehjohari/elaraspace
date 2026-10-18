@@ -22,7 +22,7 @@ function push(input={}){
  write([...rows,row]);return row;
 }
 function mark(idValue){write(read().map(x=>x.id===idValue?{...x,read:true,unread:false}:x))}
-function resolveByMeta(kind,targetId){write(read().map(x=>x.meta?.kind===kind&&(String(x.meta?.requestId||x.meta?.inviteId||'')===String(targetId))?{...x,read:true,unread:false,meta:{...(x.meta||{}),resolved:true}}:x))}
+function resolveByMeta(kind,targetId){write(read().map(x=>x.meta?.kind===kind&&(String(x.meta?.requestId||x.meta?.inviteId||x.meta?.linkId||'')===String(targetId))?{...x,read:true,unread:false,meta:{...(x.meta||{}),resolved:true}}:x))}
 function markAll(){write(read().map(x=>({...x,read:true,unread:false})))}
 function clearRead(){write(read().filter(x=>x.read!==true))}
 function iconFor(type){return ({friend:'👊',reading:'📚',book:'📖',goal:'⚡',task:'✅',habit:'🔥',focus:'🧠',ranking:'🏆',system:'✦'})[type]||'✦'}
@@ -48,6 +48,9 @@ function render(){
  list.innerHTML=rows.length?rows.map(x=>{const kind=x.meta?.kind,resolved=x.meta?.resolved===true;let action='';
   if(!resolved&&kind==='friend-request'&&x.meta?.requestId)action=`<div class="elara-notification-inline-actions"><button type="button" class="primary-button" data-notification-friend-accept>${tt('قبول','Accept')}</button><button type="button" class="quiet-button danger" data-notification-friend-decline>${tt('رد','Decline')}</button></div>`;
   else if(!resolved&&kind==='collab-invite'&&x.meta?.inviteId)action=`<div class="elara-notification-inline-actions"><button type="button" class="primary-button" data-notification-collab-accept>${tt('قبول','Accept')}</button><button type="button" class="quiet-button danger" data-notification-collab-decline>${tt('رد','Decline')}</button></div>`;
+  else if(!resolved&&kind==='account-link'&&x.meta?.linkId)action=`<div class="elara-notification-inline-actions"><button type="button" class="primary-button" data-notification-link-accept>${tt('قبول اتصال','Accept link')}</button><button type="button" class="quiet-button danger" data-notification-link-decline>${tt('رد','Decline')}</button></div>`;
+  else if(kind==='dm-message'&&x.meta?.friendUid)action=`<button type="button" data-notification-open-dm>${tt('باز کردن چت','Open chat')}</button>`;
+  else if(kind==='group-message'&&x.meta?.targetId)action=`<button type="button" data-notification-open-group>${tt('باز کردن گروه','Open group')}</button>`;
   else if(x.read!==true)action=`<button type="button" data-notification-read>${tt('خواندم','Mark read')}</button>`;
   return `<article class="elara-notification-row ${x.read===true?'is-read':'is-unread'} ${resolved?'is-resolved':''}" data-notification-id="${esc(x.id)}"><span class="elara-notification-glyph" aria-hidden="true">${iconFor(x.type)}</span><div><strong>${esc(x.title||'Elara')}</strong><p>${esc(x.message||'')}</p><small>${new Date(Number(x.createdAt||Date.now())).toLocaleString(document.documentElement.lang==='en'?'en-US':'fa-IR')}</small></div>${action}</article>`
  }).join(''):`<p class="elara-notification-empty">${tt('اعلان تازه‌ای نداری.','No new notifications.')}</p>`;
@@ -79,7 +82,29 @@ document.addEventListener('click',async e=>{
  const row=e.target.closest('[data-notification-id]');if(!row)return;
  if(e.target.closest('[data-notification-read]')){mark(row.dataset.notificationId);render();return}
  const item=read().find(x=>x.id===row.dataset.notificationId);if(!item)return;
- const requestId=String(item.meta?.requestId||''),inviteId=String(item.meta?.inviteId||'');
+ const requestId=String(item.meta?.requestId||''),inviteId=String(item.meta?.inviteId||''),linkId=String(item.meta?.linkId||'');
+ if(linkId&&(e.target.closest('[data-notification-link-accept]')||e.target.closest('[data-notification-link-decline]'))){
+  const accept=!!e.target.closest('[data-notification-link-accept]');
+  try{
+   if(accept)await window.ElaraAccountLink?.accept?.(linkId);
+   else await window.ElaraAccountLink?.decline?.(linkId);
+   resolveByMeta('account-link',linkId);render();
+  }catch(error){console.error('Account-link notification action failed:',error);window.ElaraDialog?.alert?.(String(error?.message||error))}
+  return
+ }
+ if(e.target.closest('[data-notification-open-dm]')&&item.meta?.friendUid){
+  mark(item.id);close();window.ElaraOpen?.('social');
+  document.querySelector('#elara-social-page [data-social-view="chats"]')?.click();
+  setTimeout(()=>window.ElaraSocialMessagingUI?.openChat?.(String(item.meta.friendUid)),150);
+  return
+ }
+ if(e.target.closest('[data-notification-open-group]')&&item.meta?.targetId){
+  mark(item.id);close();window.ElaraOpen?.('social');
+  document.querySelector('#elara-social-page [data-social-view="groups"]')?.click();
+  const ui=window.ElaraSocialGroupsUI;
+  if(ui?.mount)void Promise.resolve(ui.mount()).then(()=>ui.openGroup?.(String(item.meta.targetId))).catch(error=>console.warn('Open group from notification:',error));
+  return
+ }
  if(requestId&&(e.target.closest('[data-notification-friend-accept]')||e.target.closest('[data-notification-friend-decline]'))){
   const request=window.ElaraSocial?.requests?.find?.(x=>String(x.id)===requestId);if(!request)return;
   const status=e.target.closest('[data-notification-friend-accept]')?'accepted':'declined';
