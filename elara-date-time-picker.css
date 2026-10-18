@@ -1,0 +1,141 @@
+/* ELARA — purple/lilac, device-independent date and time pickers. */
+html body .elara-dtp-trigger{
+ cursor:pointer!important;user-select:none!important;
+ color:#f3eaff!important;-webkit-text-fill-color:#f3eaff!important;
+ border:1px solid #9167eb!important;border-radius:12px!important;
+ background:linear-gradient(125deg,#0a1938,#191543 72%,#261858)!important;
+ box-shadow:inset 0 0 0 1px #9566ff20,0 2px 12px #8543fd16!important;
+ min-height:45px!important;touch-action:manipulation!important;
+}
+html body .elara-dtp-trigger:focus-visible{
+ outline:2px solid #bd91ff!important;outline-offset:2px!important;
+ box-shadow:0 0 0 4px #b871ff28,0 0 24px #9658ff66!important;
+}
+html body .elara-dtp-trigger::placeholder{color:#b7a7d9!important;-webkit-text-fill-color:#b7a7d9!important}
+html body .elara-dtp-overlay,html body .elara-dtp-overlay *{box-sizing:border-box}
+html body .elara-dtp-overlay{
+ --picker-lilac:#bd91ff;--picker-purple:#8e56ff;--picker-text:#f9f3ff;
+ position:fixed!important;inset:0!important;z-index:2147483500!important;
+ display:grid!important;place-items:center!important;
+ padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right))
+ max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
+ background:#030817ce!important;backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+ direction:rtl!important;color:var(--picker-text)!important;
+}
+html body .elara-dtp-panel{
+ position:relative;width:min(460px,100%);max-height:calc(100dvh - 28px);
+ overflow-y:auto;overscroll-behavior:contain;
+ border:1.5px solid #9e6fff;border-radius:26px;
+ padding:20px clamp(14px,3.5vw,24px) 16px;
+ background:radial-gradient(ellipse at 12% 0%,#4220709c,transparent 53%),
+ radial-gradient(ellipse at 95% 100%,#30327d66,transparent 50%),
+ linear-gradient(160deg,#101935 0%,#0a122a 52%,#181036 100%);
+ box-shadow:0 0 0 1px #c395ff2e inset,0 0 42px #7a33ed70,0 30px 100px #000b;
+ font-family:Vazirmatn,Tahoma,Arial,sans-serif;color:var(--picker-text);
+}
+html body .elara-dtp-panel button{
+ cursor:pointer;font:inherit;color:inherit;background:transparent;
+ min-height:42px;border:1px solid transparent;touch-action:manipulation;
+}
+html body .elara-dtp-panel button:focus-visible{outline:2px solid #d1b3ff;outline-offset:2px}
+html body .elara-dtp-panel button:disabled{opacity:.25;cursor:not-allowed}
+.elara-dtp-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:17px}
+.elara-dtp-heading h2{font-size:1.32rem;margin:3px 0 4px;color:#faf6ff;font-weight:850}
+.elara-dtp-heading p{margin:0;color:#b7a8d9;font-size:.79rem}
+.elara-dtp-kicker{letter-spacing:.12em;font-size:.63rem;font-weight:800;color:#b999ff;direction:ltr;display:inline-block}
+html body .elara-dtp-panel .elara-dtp-close{
+ border:1px solid #8768bf;background:#292049;width:42px;min-width:42px;
+ border-radius:14px;font-size:26px;line-height:1;padding:0;
+}
+.elara-dtp-date-selected{
+ text-align:center;border-radius:16px;padding:15px 10px;margin-bottom:13px;
+ border:1px solid #8657d4;background:linear-gradient(110deg,#352063,#1a2860);
+ font-size:1.14rem;font-weight:850;color:#f6eaff;
+ box-shadow:inset 0 1px 14px #be95ff1c;
+}
+.elara-dtp-month-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0}
+.elara-dtp-month-controls strong{font-size:.98rem;font-weight:850;color:#e6d6ff}
+html body .elara-dtp-panel .elara-dtp-month-controls button{
+ border:1px solid #5d497f;background:#241c48;width:45px;border-radius:13px;
+ color:#dbbaff;font-size:28px;line-height:1;
+}
+.elara-dtp-weekdays,.elara-dtp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.elara-dtp-weekdays span{text-align:center;color:#b8a7d6;font-size:.76rem;font-weight:800;padding:7px 0}
+html body .elara-dtp-panel .elara-dtp-day{
+ min-width:0;aspect-ratio:1;min-height:39px;padding:0;border-radius:13px;
+ font-size:.88rem;font-weight:760;color:#eee4ff;
+}
+html body .elara-dtp-panel .elara-dtp-day:hover:not(:disabled){
+ border-color:#a67bff;background:#43267b;
+}
+html body .elara-dtp-panel .elara-dtp-day.is-today{border-color:#6b96ff;background:#1b3060}
+html body .elara-dtp-panel .elara-dtp-day.is-selected{
+ color:#fff;background:linear-gradient(130deg,#a35dff,#754cff);
+ border-color:#dbb7ff;box-shadow:0 0 20px #9555ff86;font-weight:900;
+}
+.elara-dtp-blank{min-height:39px}
+html body .elara-dtp-panel .elara-dtp-today{
+ display:block;margin:12px auto 0;border:1px solid #6f55ae;
+ border-radius:99px;background:#32225a;padding:0 19px;color:#dfc8ff;
+ font-weight:850;
+}
+.elara-dtp-clock-preview{
+ font-family:Vazirmatn,Tahoma,Arial,sans-serif;text-align:center;
+ font-size:clamp(2.9rem,10vw,4.5rem);font-weight:900;letter-spacing:.08em;
+ line-height:1.3;padding:8px 0 0;
+ color:#e9d2ff;text-shadow:0 0 22px #914fff8a;
+ font-variant-numeric:tabular-nums;
+}
+.elara-dtp-clock-caption{text-align:center;color:#b8a7d7;font-size:.8rem;margin-bottom:12px}
+.elara-dtp-quick{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+html body .elara-dtp-panel .elara-dtp-quick button{
+ min-height:35px;border:1px solid #56467d;border-radius:999px;
+ padding:5px 9px;color:#ded0f5;background:#211c40;font-size:.72rem;
+}
+html body .elara-dtp-panel .elara-dtp-quick button.is-selected{
+ border-color:#bf8cff;background:#45277d;color:white;
+}
+.elara-dtp-wheels{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.elara-dtp-wheels>div{min-width:0}
+.elara-dtp-wheels h3{margin:0 0 7px;text-align:center;color:#cbb9ef;font-size:.85rem}
+.elara-dtp-wheel{
+ display:flex;flex-direction:column;gap:5px;height:min(230px,29dvh);
+ overflow-y:auto;overscroll-behavior:contain;padding:7px 9px;
+ background:#080e27;border:1px solid #68518d;border-radius:16px;
+ scrollbar-width:thin;scrollbar-color:#8865bd #11132e;
+}
+html body .elara-dtp-panel .elara-dtp-wheel button{
+ flex-shrink:0;border-radius:10px;min-height:39px;padding:4px 10px;
+ font-variant-numeric:tabular-nums;font-weight:800;color:#bfb2db;
+}
+html body .elara-dtp-panel .elara-dtp-wheel button.is-selected{
+ color:white;background:linear-gradient(110deg,#9c60ff,#6b43cf);
+ box-shadow:0 0 17px #813fe68e;border-color:#c5a0ff;
+}
+.elara-dtp-actions{
+ display:flex;align-items:center;justify-content:flex-end;
+ gap:7px;flex-wrap:wrap;border-top:1px solid #6e559544;
+ padding-top:15px;margin-top:16px;
+}
+html body .elara-dtp-panel .elara-dtp-actions button{
+ border:1px solid #63517f;border-radius:12px;
+ padding:8px 13px;background:#252045;font-size:.79rem;font-weight:800;
+}
+html body .elara-dtp-panel .elara-dtp-actions [data-dtp-action="clear"]{
+ margin-inline-end:auto;background:transparent;color:#bba9d6;
+}
+html body .elara-dtp-panel .elara-dtp-actions .elara-dtp-apply{
+ color:white;border:1px solid #ba91ff;
+ background:linear-gradient(115deg,#9553ff,#5d40ba);
+ box-shadow:0 5px 20px #9553ff55;
+}
+@media(max-width:390px){
+ html body .elara-dtp-panel{padding:14px 11px;border-radius:20px}
+ .elara-dtp-weekdays,.elara-dtp-days{gap:3px}
+ html body .elara-dtp-panel .elara-dtp-day{min-height:36px;border-radius:10px}
+ .elara-dtp-actions{gap:5px}
+ html body .elara-dtp-panel .elara-dtp-actions button{padding:8px 9px;font-size:.72rem}
+}
+@media(prefers-reduced-motion:reduce){
+ html body .elara-dtp-overlay,html body .elara-dtp-panel{scroll-behavior:auto;animation:none;transition:none}
+}
