@@ -277,11 +277,18 @@ function stopIncomingMessages(){
  for(const off of groupMessageOffs.values())try{off()}catch{}
  groupMessageOffs.clear();messageWatchUid='';
 }
-function inboundMessageNotification(kind,id,row,peer,recipient){
+async function inboundMessageNotification(kind,id,row,peer,recipient){
  if(!row||auth.currentUser?.uid!==recipient||uid!==recipient||!row.lastText||!row.lastSender||row.lastSender===recipient)return;
  if(blockedByMe(row.lastSender)||mutedByMe(row.lastSender))return;
  if(kind==='group'&&isContextMuted('group',id))return;
  const updated=row.updatedAt?.toMillis?.()||0;if(!updated)return;
+ // Read receipts prevent replaying months-old or already-read messages as new.
+ try{
+  const readRef=kind==='group'?doc(db,'groups',id,'reads',recipient):doc(db,'conversations',id,'reads',recipient);
+  const snap=await getDoc(readRef),lastRead=snap.exists()?(snap.data()?.lastReadAt?.toMillis?.()||0):0;
+  if(updated<=lastRead)return;
+ }catch(error){console.warn('Social unread check unavailable:',kind,id,error.code||error.message);return}
+ if(auth.currentUser?.uid!==recipient||uid!==recipient)return;
  const title=kind==='group'?'پیام جدید در گروه '+String(peer||'دوستان'):'پیام جدید از '+String(peer||'دوست');
  window.ElaraNotify?.push?.({type:'social',title,message:String(row.lastText).slice(0,160),dedupeKey:kind+'-incoming:'+recipient+':'+id+':'+updated,meta:{kind:kind==='group'?'group-message':'dm-message',targetId:id}})
 }
@@ -292,7 +299,7 @@ function startIncomingMessages(mine=auth.currentUser?.uid){
   if(messageWatchUid!==mine||auth.currentUser?.uid!==mine)return;
   for(const row of snapshot.docs){const data=row.data()||{};if(data.kind!=='dm'||!data.members?.includes(mine))continue;
    const other=data.members.find(x=>x!==mine),person=state.friends.find(p=>p.uid===other);
-   inboundMessageNotification('dm',row.id,data,person?.name||person?.username||'دوست',mine)}
+   void inboundMessageNotification('dm',row.id,data,person?.name||person?.username||'دوست',mine)}
  },error=>console.warn('Incoming DM notifications unavailable:',error.code||error.message));
  groupMembershipOff=onSnapshot(query(collectionGroup(db,'groupMembers'),where('uid','==',mine)),snapshot=>{
   if(messageWatchUid!==mine||auth.currentUser?.uid!==mine)return;
@@ -303,7 +310,7 @@ function startIncomingMessages(mine=auth.currentUser?.uid){
    if(groupMessageOffs.has(gid))continue;
    const off=onSnapshot(groupRef,groupSnap=>{
     if(messageWatchUid!==mine||auth.currentUser?.uid!==mine||!groupSnap.exists())return;
-    const data=groupSnap.data()||{};inboundMessageNotification('group',gid,data,data.title||'دوستان',mine)
+    const data=groupSnap.data()||{};void inboundMessageNotification('group',gid,data,data.title||'دوستان',mine)
    },error=>console.warn('Incoming group notifications unavailable:',gid,error.code||error.message));
    groupMessageOffs.set(gid,off);
   }
