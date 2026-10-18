@@ -32,10 +32,35 @@ for(const width of [390,1440]){
   rewardXp:20,stars:2,primary:'Keep going'
  }));
  await page.locator('[data-elara-reward-modal] .elara-fox-prize-card').waitFor();
+ const beforePrize=await page.evaluate(()=>{
+  const modal=document.querySelector('[data-elara-reward-modal]');
+  const fox=modal.querySelector('.elara-fox-prize-stage .elara-fox-image');
+  return {phase:modal.querySelector('.elara-fox-dialog')?.dataset.foxPhase,
+   hasTreasure:!!modal.querySelector('.elara-fox-treasure-lid'),
+   hasProgress:!!modal.querySelector('.elara-fox-claim-progress'),
+   foxWidth:Math.round(fox?.getBoundingClientRect().width||0),
+   title:modal.querySelector('#elara-fox-title')?.textContent}
+ });
+ assert.equal(beforePrize.phase,'ready','first state must be unopened');
+ assert.ok(beforePrize.hasTreasure&&beforePrize.hasProgress,'ceremony must show chest and progress');
+ assert.ok(beforePrize.foxWidth>=150,'fox needs prominent size');
+
  const pendingBefore=await page.evaluate(()=>window.ElaraFoxClaim.read());
  assert.equal(pendingBefore.pending.length,1);
  await page.locator('[data-elara-reward-modal] .elara-fox-action.primary').click();
  await page.locator('.is-fox-prize-collected').waitFor();
+ const afterPrize=await page.evaluate(()=>{
+  const modal=document.querySelector('[data-elara-reward-modal]');
+  return {phase:modal.querySelector('.elara-fox-dialog')?.dataset.foxPhase,
+   title:modal.querySelector('#elara-fox-title')?.textContent,
+   image:modal.querySelector('.elara-fox-prize-stage .elara-fox-image')?.getAttribute('src'),
+   victory:!!modal.querySelector('.elara-fox-victory-mark')}
+ });
+ assert.equal(afterPrize.phase,'collected');
+ assert.ok(afterPrize.title!==beforePrize.title,'received state has different headline');
+ assert.match(afterPrize.image||'',/fox-celebrate\.webp/);
+ assert.ok(afterPrize.victory,'victory medal appears after collection');
+
  const collected=await page.evaluate(()=>window.ElaraFoxClaim.read());
  assert.equal(collected.totalStars,2,'collect must persist stars');
  assert.equal(collected.pending.length,0,'claimed item removed from pending');
