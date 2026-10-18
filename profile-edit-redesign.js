@@ -323,7 +323,7 @@
     person.name=draft.name;person.username=draft.username;person.bio=draft.bio;person.profilePublic=draft.profilePublic;person.appearance=publicAppearance;
     Object.assign(savedWardrobe,P().readWardrobe(uid));Object.assign(savedExtras,safeLocal(uid));
     draft=base();syncFields();
-    status('بیو و ظاهر عمومی در Firebase ذخیره شدند؛ تصاویر آپلودی از دستگاه هنوز فقط در همین مرورگر هستند.');
+    status(cloudWarnings.length?'بیو ذخیره شد، ولی ظاهر عمومی در Firebase همگام نشد: '+cloudWarnings.join(' '):'بیو و ظاهر عمومی در Firebase ذخیره شدند؛ تصاویر آپلودی از دستگاه هنوز فقط در همین مرورگر هستند.');
     window.dispatchEvent(new Event('elara:profile-saved'))
    }catch(error){
     status(error?.code==='permission-denied'?'Firebase اجازهٔ ذخیره نداد؛ Rules و دسترسی حساب را بررسی کنید.':String(error?.message||error))
