@@ -92,7 +92,7 @@ body:is([data-elara-theme="blue"],[data-elara-theme="pink"],[data-elara-theme="r
     color-mix(in srgb,var(--input) 91%,var(--theme-primary) 9%));
   --neon-cta:linear-gradient(110deg,
     color-mix(in srgb,var(--theme-primary) 66%,var(--theme-base) 34%),
-    color-mix(in srgb,var(--theme-primary) 72%,var(--theme-secondary) 28%));
+    color-mix(in srgb,color-mix(in srgb,var(--theme-primary) 72%,var(--theme-secondary) 28%) 66%,var(--theme-base) 34%));
   --bg:var(--theme-base)!important;
   --surface:var(--theme-surface)!important;
   --surface2:var(--theme-raised)!important;
