@@ -38,7 +38,7 @@ function announce(){
   if(row.to!==ownUid()||row.status!=='pending'||seenIncoming.has(row.id))continue;
   seenIncoming.add(row.id);
   const sender=friendRows().find(p=>p.uid===row.from),name=String(sender?.name||sender?.username||language('دوستت','Your friend'));
-  notify(language('درخواست اتصال حساب','Account-link request'),name+language(' می‌خواهد حساب‌ها را متصل کند.',' wants to link accounts.'),'account-link:incoming:'+row.id+':'+String(row.updatedAt?.seconds||'0'));
+  window.ElaraNotify?.push?.({type:'social',title:language('درخواست اتصال حساب','Account-link request'),message:name+language(' می‌خواهد حساب‌ها را متصل کند.',' wants to link accounts.'),dedupeKey:'account-link:incoming:'+row.id+':'+String(row.updatedAt?.seconds||'0'),reopen:true,meta:{kind:'account-link',linkId:row.id,from:row.from,to:row.to}});
  }
  const current=new Set(inbound.filter(r=>r.status==='pending').map(r=>r.id));for(const id of seenIncoming)if(!current.has(id))seenIncoming.delete(id);
  window.dispatchEvent(new Event('elara:account-links-updated'));scheduleSync();void acceptLinkedInvites(lastInbox)
