@@ -187,7 +187,11 @@ html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   border-color:var(--neon-cyan) !important;
   box-shadow:0 0 0 3px var(--neon-glow),0 0 20px var(--neon-glow) !important;
 }
-html body[data-elara-theme]:not([data-elara-theme="default"]) :is(input[type="checkbox"],input[type="radio"]) {
+/* Checkbox/radio colors inside task, habit, priority and status features are
+   deliberately NOT overridden by the site's chosen environment theme. */
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
+  #drawer-settings-area,#panel-settings,.elara-private-drawer-panel
+) :is(input[type="checkbox"],input[type="radio"]) {
   accent-color:var(--neon-violet);
 }
 
