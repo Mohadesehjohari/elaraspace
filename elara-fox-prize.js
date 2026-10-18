@@ -73,7 +73,7 @@ function present({shade,dialog,data,primary,secondary,img}){
   chest.append(el('span',cls,content));
  stage.append(chest);
  const victory=el('span','elara-fox-victory-mark','✓');victory.setAttribute('aria-hidden','true');stage.append(victory);
- for(let i=0;i<12;i++){const spark=el('i','elara-fox-prize-spark');spark.style.setProperty('--i',i);spark.setAttribute('aria-hidden','true');stage.append(spark)}
+ for(let i=0;i<12;i++){const spark=el('i','elara-fox-prize-spark');spark.style.setProperty('--i',i);spark.style.setProperty('--spark-x',Math.round(Math.cos(i*Math.PI/6)*140)+'px');spark.style.setProperty('--spark-y',Math.round(Math.sin(i*Math.PI/6)*95-30)+'px');spark.setAttribute('aria-hidden','true');stage.append(spark)}
  const progress=el('div','elara-fox-claim-progress');progress.setAttribute('aria-hidden','true');
  const firstStep=el('span','elara-fox-claim-step is-current',t('✧ پاداش باز شد','✧ Unlocked'));
  const stepLine=el('span','elara-fox-claim-connector','');
