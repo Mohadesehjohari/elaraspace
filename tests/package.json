@@ -1,5 +1,5 @@
 {
-  "name": "elara-astra-local-tests",
+  "name": "elara-site-tests",
   "private": true,
   "scripts": {
     "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs && node account-link-visibility.test.cjs && node request-delivery-regression.cjs && node social-hardening-regression.cjs",

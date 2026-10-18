@@ -20,5 +20,5 @@
     "idle-soft": "assets/avatar/animations/idle-soft.glb",
     "dance-01": "assets/avatar/animations/dance-01.glb"
   },
-  "notes": "Do not set productionReady=true until the gates in docs/AVATAR-SYSTEM-ROADMAP.md are satisfied."
+  "notes": "Do not set productionReady=true until production model exports and runtime quality checks have passed."
 }

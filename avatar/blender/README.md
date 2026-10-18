@@ -3,8 +3,7 @@
 You do **not** need to improvise the modeling pipeline.
 
 Use the approved Female/Male turnaround as image planes and follow:
-[../../docs/AVATAR-SYSTEM-ROADMAP.md](../../docs/AVATAR-SYSTEM-ROADMAP.md)
-
+The Blender workflow uses the local source files; production readiness requires validated exports and runtime checks.
 ## Recommended Blender setup
 - Blender 4.x
 - Scene units: Metric, meters

@@ -2,8 +2,7 @@
 
 This directory owns the source-side contract for Elara's custom 3D identity system.
 
-Canonical plan: [../docs/AVATAR-SYSTEM-ROADMAP.md](../docs/AVATAR-SYSTEM-ROADMAP.md)
-
+Avatar implementation and production-readiness requirements are verified against actual source assets, model exports and runtime tests.
 ## Status
 - Current live avatar: technical prototype only.
 - Production target: custom Female + Male VRM/GLB bases.
