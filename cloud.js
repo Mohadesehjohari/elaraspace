@@ -276,6 +276,14 @@ window.ElaraPublicContent={
   listBlogArticles:()=>listPublishedContent('blogArticles'),
   listSitePages:()=>listPublishedContent('sitePages')
 };
+// Keep the account drawer's canonical snapshot current after profile edits.
+window.addEventListener('elara:profile-saved',event=>{
+  const detail=event.detail||{};
+  if(!user?.uid||detail.uid!==user.uid||!detail.profile)return;
+  profile={...profile,...detail.profile};
+  const header=$('cloud-me');
+  if(header)header.textContent='@'+(profile.username||'')+' · '+(profile.name||'')+' · '+(user.email||'');
+});
 window.ElaraAccount={
   get user(){return auth.currentUser},
   get profile(){return profile},

@@ -779,6 +779,17 @@ window.ElaraSocial.openProfileByUsername=openProfileByUsername;
 window.ElaraSocial.profileUidFromUsername=profileUidFromUsername;
 window.ElaraSocial.changeCanonicalUsername=changeCanonicalUsername;
 
+function normalizePublicAppearance(input={}){
+ const v=input&&typeof input==='object'?input:{},ps=window.ElaraProfileSystem;
+ const one=(value,options,fallback='')=>options.includes(value)?value:fallback;
+ const n=Number(v.avatarLevel),font=String(v.nameFont||'default');
+ return {avatarGroup:one(v.avatarGroup,['male','female']),avatarLevel:Number.isInteger(n)&&n>=1&&n<=10?n:0,
+  frame:one(v.frame,['bronze','silver','gold','diamond']),banner:one(v.banner,['moon','dream','castle','dawn']),
+  profileTheme:one(v.profileTheme,['dark','minimal','galaxy','blue','pink','red','orange','forest','spring','city']),
+  profileShape:one(v.profileShape,['circle','square'],'circle'),
+  nameFont:ps?.NAME_FONTS&&Object.hasOwn(ps.NAME_FONTS,font)?font:'default',
+  color:one(v.color,['blue','violet','pink','sunset','mint','aurora'],'blue'),title:String(v.title||'').trim().slice(0,50)};
+}
 async function saveProfileValues(values={}){
  if(!uid||!auth.currentUser)throw Error('ابتدا وارد حساب شو.');
  const name=String(values.name??state.me?.name??'').trim().slice(0,60);
@@ -795,17 +806,24 @@ async function saveProfileValues(values={}){
    try{applied.username=await changeCanonicalUsername(username)}
    catch(error){if(error.code==='permission-denied')warnings.push('تغییر نام کاربری بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
  }
- try{await updateDoc(profileRef,{name});await updateProfile(auth.currentUser,{displayName:name});applied.name=name}
- catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ نام نمایشی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
- try{await updateDoc(profileRef,{bio});applied.bio=bio}
- catch(error){if(error.code==='permission-denied')warnings.push('ذخیرهٔ بیوگرافی به Firestore Rules منتشرشده نیاز دارد.');else throw error}
- if(profilePublic!==(before.profilePublic!==false)){
-   try{await updateDoc(profileRef,{profilePublic});applied.profilePublic=profilePublic}
-   catch(error){if(error.code==='permission-denied')warnings.push('تنظیم حریم خصوصی بعد از انتشار Firestore Rules جدید فعال می‌شود.');else throw error}
+ // One atomic public profile update: a failed Bio/appearance write must not look successful.
+ // No device images, private notes or arbitrary URLs are exposed.
+ const patch={name,bio,profilePublic};
+ if(values.appearance!==undefined)patch.appearance=normalizePublicAppearance(values.appearance);
+ try{await updateDoc(profileRef,patch)}
+ catch(error){
+  if(error?.code!=='permission-denied'||!Object.hasOwn(patch,'appearance'))throw error;
+  // Old deployed rules can reject the new optional appearance field. Keep Bio/name working.
+  await updateDoc(profileRef,{name,bio,profilePublic});
+  delete patch.appearance;
+  warnings.push('ظاهر عمومی هنوز در Firebase ثبت نشد؛ قوانین جدید firestore.rules باید منتشر شوند.');
  }
+ try{await updateProfile(auth.currentUser,{displayName:name})}
+ catch(error){console.warn('Firebase Auth display name sync failed; Firestore remains canonical:',error)}
+ Object.assign(applied,patch);
  if(state.me)state.me={...state.me,...applied};
- await refresh();
- window.dispatchEvent(new Event('elara:profile-saved'));
+ await refresh().catch(error=>console.warn('Profile saved; optional social refresh failed:',error));
+ window.dispatchEvent(new CustomEvent('elara:profile-saved',{detail:{uid,profile:state.me}}));
  return {warnings,profile:state.me};
 }
 window.ElaraSocial.saveProfileValues=saveProfileValues;
