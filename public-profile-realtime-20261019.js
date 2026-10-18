@@ -30,7 +30,7 @@
   }
   function applyDialog(peerId,person){
     for(const card of viewerCards()){
-      if(shownUid(card)!==peerId)return;
+      if(shownUid(card)!==peerId)continue;
       const allowed=person.profilePublic!==false||isFriend(peerId);
       if(!allowed){window.ElaraDialog?.close?.();return}
       const fingerprint=json(publicFields(person));
