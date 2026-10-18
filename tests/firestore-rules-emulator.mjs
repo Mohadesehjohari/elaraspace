@@ -216,6 +216,16 @@ try{
  await assertFails(getDoc(ref(bob,group)));
  await assertFails(getDoc(ref(bob,group+'/messages/b1')));
 
+ // A pending private group invite reveals only its parent summary, not chat.
+ const inviteOnlyGroup='groups/pending_invite_group';
+ await assertSucceeds(setDoc(ref(alice,inviteOnlyGroup),{owner:'alice',title:'Pending Invitation',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
+ await assertSucceeds(setDoc(ref(alice,inviteOnlyGroup+'/groupMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
+ await assertFails(getDoc(ref(bob,inviteOnlyGroup)));
+ await assertSucceeds(setDoc(ref(alice,inviteOnlyGroup+'/groupInvites/bob'),{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(bob,inviteOnlyGroup)));
+ await assertFails(getDoc(ref(dave,inviteOnlyGroup)));
+ await assertFails(getDocs(collection(bob,inviteOnlyGroup+'/messages')));
+
  // Club creation is server-rule gated by profile XP (level gate input), not by UI.
  await assertSucceeds(setDoc(ref(alice,'clubs/alice_reading_club'),{owner:'alice',title:'Moon Readers',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'alice',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertFails(setDoc(ref(eve,'clubs/eve_reading_club'),{owner:'eve',title:'Too Early',kind:'reading',visibility:'public',membershipMode:'invite',assistant1:'',assistant2:'',restDay:5,bio:'',rulesText:'',language:'fa',avatarPath:'',bannerPath:'',memberLimit:50,memberCount:1,lastMembershipUid:'eve',lastMembershipAction:'create',currentBookTitle:'',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
@@ -239,6 +249,9 @@ try{
  const inviteRef=inviteClub+'/clubInvites/bob';
  await assertSucceeds(setDoc(ref(alice,inviteRef),{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
  await assertSucceeds(getDoc(ref(bob,inviteRef)));
+ await assertSucceeds(getDoc(ref(bob,inviteClub))); // private club summary visible to invited recipient
+ await assertFails(getDoc(ref(dave,inviteClub)));
+ await assertFails(getDocs(collection(bob,inviteClub+'/clubPosts')));
  await assertFails(updateDoc(ref(alice,inviteRef),{status:'accepted',updatedAt:serverTimestamp()}));
  const inviteAccept=writeBatch(bob);
  inviteAccept.update(ref(bob,inviteRef),{status:'accepted',updatedAt:serverTimestamp()});
@@ -269,6 +282,9 @@ try{
  await assertSucceeds(banBatch.commit());
  await assertFails(getDoc(ref(eve,'clubs/role_test_club')));
  await assertFails(setDoc(ref(eve,'clubs/role_test_club/clubJoinRequests/eve'),{uid:'eve',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ await assertSucceeds(getDoc(ref(eve,'clubs/role_test_club/clubBans/eve'))); // self status, not all bans
+ await assertSucceeds(getDoc(ref(bob,'clubs/role_test_club/clubBans/eve'))); // assistant check
+ await assertFails(getDoc(ref(dave,'clubs/role_test_club/clubBans/eve')));
  await assertFails(deleteDoc(ref(bob,'clubs/role_test_club/clubBans/eve')));
  await assertSucceeds(deleteDoc(ref(alice,'clubs/role_test_club/clubBans/eve')));
 
