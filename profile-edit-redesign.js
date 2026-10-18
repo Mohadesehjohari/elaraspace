@@ -51,7 +51,10 @@
  const initials=name=>String(name||'E').trim().slice(0,1)||'E';
  const styleColor=c=>colors.find(x=>x[0]===c)?.[1]||colors[0][1];
  const strip=x=>String(x??'').trim();
- const draftFrom=(person,wardrobe,extras)=>({
+ const draftFrom=(person,wardrobe,extras)=>{
+  const cloud=person.appearance||{},hasCloud=Object.hasOwn(person,'appearance');
+  if(hasCloud)wardrobe={...wardrobe,avatarGroup:cloud.avatarGroup||null,avatarLevel:cloud.avatarLevel||null,frame:cloud.frame||null,banner:cloud.banner||null,profileTheme:cloud.profileTheme||null,shape:cloud.profileShape||'circle',nameFont:cloud.nameFont||'default'};
+  return ({
   name:String(person.name||person.displayName||''),username:String(person.username||''),
   bio:String(person.bio||''),profilePublic:person.profilePublic!==false,
   frame:wardrobe.frame||'',banner:wardrobe.banner||'moon',photoMode:wardrobe.photoMode,
@@ -59,8 +62,8 @@
   avatarGroup:wardrobe.avatarGroup||'',avatarLevel:wardrobe.avatarLevel||null,
   shape:wardrobe.shape||'circle',nameFont:wardrobe.nameFont||'default',
   theme:themes.find(t=>t.theme===wardrobe.profileTheme)?.id||'classic',
-  themeTouched:false,color:extras.color,title:extras.title,customBanner:extras.customBanner
- });
+  themeTouched:false,color:hasCloud?(cloud.color||'blue'):extras.color,title:hasCloud?(cloud.title||''):extras.title,customBanner:extras.customBanner
+ });};
  function bannerSource(d){
   if(d.customBanner)return d.customBanner;
   return P().BANNERS.find(b=>b.id===d.banner)?.path||P().BANNERS[0].path
@@ -120,7 +123,7 @@
    '<section class="pe-panel pe-frames"><h2>حاشیه آواتار</h2><div class="pe-frames-list" data-pe-frames></div></section>'+
    '<section class="pe-panel pe-title-field"><label class="pe-field">عنوان زیر نام<input name="title" maxlength="50" placeholder="مثلاً عاشق یادگیری و سفر ✨"></label><span class="pe-counter" data-pe-count="title"></span></section>'+
    '<label class="pe-privacy"><input name="profilePublic" type="checkbox"> نمایش پروفایل برای کاربران واردشده</label>'+
-   '<p class="pe-storage-note">نام، نام کاربری و Bio از مسیر اصلی Firebase ذخیره می‌شوند؛ قالب، رنگ، قاب، عنوان و تصاویر انتخابی فعلاً فقط روی همین دستگاه ذخیره می‌شوند.</p>'+
+   '<p class="pe-storage-note">نام، بیو، رنگ، عنوان و انتخاب‌های آمادهٔ بنر و آواتار در Firebase همگام می‌شوند؛ عکس و بنر آپلودی از دستگاه فعلاً محلی هستند.</p>'+
    '<p class="pe-status" role="status" aria-live="polite" data-pe-status></p>'+
    '<div class="pe-actions"><button type="button" class="pe-reset" data-pe-action="reset">'+icon('reset')+' بازنشانی تغییرات</button><button type="button" class="pe-outline pe-public-preview" data-pe-action="preview">'+icon('eye')+' پیش‌نمایش در صفحه عمومی</button><button type="submit" class="pe-save" data-pe-save>ذخیره تغییرات '+icon('check')+'</button></div>'+
    '</form>'+
@@ -302,7 +305,13 @@
     const api=await prepare(serviceFailed);
     if(!uidStable())throw Error('حساب فعال حین ذخیره تغییر کرده است؛ ذخیره متوقف شد.');
     status('در حال ذخیرهٔ اطلاعات اصلی در Firebase…');
-    const result=await api.saveProfileValues({name:strip(draft.name),username:draft.username,bio:draft.bio,profilePublic:draft.profilePublic});
+    const publicAppearance={
+      avatarGroup:draft.avatarGroup||'',avatarLevel:draft.avatarLevel||0,
+      frame:draft.frame||'',banner:draft.banner||'',
+      profileTheme:themes.find(t=>t.id===draft.theme)?.theme||'',
+      profileShape:draft.shape,nameFont:draft.nameFont,color:draft.color,title:draft.title
+    };
+    const result=await api.saveProfileValues({name:strip(draft.name),username:draft.username,bio:draft.bio,profilePublic:draft.profilePublic,appearance:publicAppearance});
     if(!uidStable())throw Error('حساب فعال پس از درخواست تغییر کرده است؛ تغییرات محلی ذخیره نشدند.');
     if(result?.warnings?.length){status('بخشی از اطلاعات در Firebase ذخیره نشد: '+result.warnings.join(' ')+' تنظیمات ظاهر ثبت نشدند.');return}
     const nextWardrobe={frame:draft.frame||null,banner:draft.banner,photoMode:draft.photoMode,avatarGroup:draft.avatarGroup||null,avatarLevel:draft.avatarLevel||null,photoCircle:draft.photoCircle,photoSquare:draft.photoSquare,shape:draft.shape,nameFont:draft.nameFont};
@@ -311,10 +320,10 @@
      P().writeWardrobe(nextWardrobe);
      localStorage.setItem(extraKey(uid),JSON.stringify({color:draft.color,title:draft.title,customBanner:draft.customBanner}));
     }catch(err){status('اطلاعات اصلی در Firebase ذخیره شد، اما ذخیرهٔ ظاهر روی دستگاه ناموفق بود: '+String(err.message||err));return}
-    person.name=draft.name;person.username=draft.username;person.bio=draft.bio;person.profilePublic=draft.profilePublic;
+    person.name=draft.name;person.username=draft.username;person.bio=draft.bio;person.profilePublic=draft.profilePublic;person.appearance=publicAppearance;
     Object.assign(savedWardrobe,P().readWardrobe(uid));Object.assign(savedExtras,safeLocal(uid));
     draft=base();syncFields();
-    status('اطلاعات اصلی در Firebase ذخیره شد. تغییرات ظاهری فقط در همین مرورگر ذخیره شده‌اند.');
+    status('بیو و ظاهر عمومی در Firebase ذخیره شدند؛ تصاویر آپلودی از دستگاه هنوز فقط در همین مرورگر هستند.');
     window.dispatchEvent(new Event('elara:profile-saved'))
    }catch(error){
     status(error?.code==='permission-denied'?'Firebase اجازهٔ ذخیره نداد؛ Rules و دسترسی حساب را بررسی کنید.':String(error?.message||error))
