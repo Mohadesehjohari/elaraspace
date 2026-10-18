@@ -4,7 +4,7 @@
      neon lilac #C18BFF · electric blue #42B9FF.
    Only the site chrome/surfaces/actions inherit this palette. Task-category,
    priority, success and error colors are explicitly owned by feature CSS.
-   CRITICAL: all visual rules are opt-in via data-elara-theme="violet".
+   Palette definition is Violet-only; shared site chrome rules below opt in to every supported color theme.
    "شب‌های بی‌انتها" (legacy/default) is never restyled here. */
 
 body[data-elara-theme="violet"] {
@@ -85,31 +85,31 @@ body[data-elara-theme="violet"].dark.amoled {
 }
 
 /* The app shell: no untouched navy strips when switching themes. */
-html body[data-elara-theme="violet"] :is(.workspace,.shell,#main,main) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(.workspace,.shell,#main,main) {
   color:var(--text);
 }
-html body[data-elara-theme="violet"] .workspace {background:transparent !important}
-html body[data-elara-theme="violet"] :is(.sidebar,.topbar,.ref-topbar,.bottom-nav) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) .workspace {background:transparent !important}
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(.sidebar,.topbar,.ref-topbar,.bottom-nav) {
   border-color:var(--neon-outline) !important;
   box-shadow:0 0 0 1px color-mix(in srgb,var(--galaxy-blue) 16%,transparent),0 4px 28px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] .sidebar {
+html body[data-elara-theme]:not([data-elara-theme="default"]) .sidebar {
   background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 95%,transparent),color-mix(in srgb,var(--bg) 94%,transparent)) !important;
 }
-html body[data-elara-theme="violet"] .topbar:not(.elara-global-hero) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) .topbar:not(.elara-global-hero) {
   background:color-mix(in srgb,var(--surface) 85%,transparent) !important;
 }
-html body[data-elara-theme="violet"] .bottom-nav {
+html body[data-elara-theme]:not([data-elara-theme="default"]) .bottom-nav {
   background:color-mix(in srgb,var(--surface) 96%,transparent) !important;
   backdrop-filter:blur(16px);
 }
-html body[data-elara-theme="violet"] :is(.nav-item.active,.nav-item[aria-current="page"],.bottom-nav button.active,.bottom-nav button[aria-current="page"]) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(.nav-item.active,.nav-item[aria-current="page"],.bottom-nav button.active,.bottom-nav button[aria-current="page"]) {
   background:linear-gradient(110deg,color-mix(in srgb,var(--galaxy-purple) 32%,var(--surface)),color-mix(in srgb,var(--galaxy-blue) 26%,var(--surface))) !important;
   border-color:var(--neon-outline) !important;
   color:var(--text) !important;
   box-shadow:0 0 18px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] :is(.xp-pill,.icon-button,.elara-search,.elara-lang-shortcut,.elara-mode-shortcut) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(.xp-pill,.icon-button,.elara-search,.elara-lang-shortcut,.elara-mode-shortcut) {
   border-color:var(--neon-outline) !important;
   background:var(--neon-field) !important;
   color:var(--text) !important;
@@ -118,7 +118,7 @@ html body[data-elara-theme="violet"] :is(.xp-pill,.icon-button,.elara-search,.el
 /* Structural cards and surfaces across Home, Tasks, Library, Language,
    Wellness, Friends, Ranking, Reports, Goals, Blog, Freedom and Store.
    Hero illustrations and image-backed cards deliberately keep their assets. */
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   .surface,.elara-card,.elara-stat,.ref-card,.ref-streak-card,.ref-ranks,.ref-habits,
   .task-streak-summary,.task-board-card,.feature-section,.feature-hub-card,
   .library-enhancement-tools,.library-custom-shelf,.library-clip-form,
@@ -136,13 +136,13 @@ html body[data-elara-theme="violet"] #main :is(
   border:1px solid var(--neon-outline) !important;
   box-shadow:var(--neon-halo) !important;
 }
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   .library-clip-card,.friends-f2-preview-row,.friends-f2-leader
 ) {
   border-color:color-mix(in srgb,var(--neon-lilac) 50%,var(--border)) !important;
   color:var(--text) !important;
 }
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   .elara-reports-today-rows>div
 ) {
   background:var(--neon-raised) !important;
@@ -150,14 +150,14 @@ html body[data-elara-theme="violet"] #main :is(
 
 /* Existing cinematic hero/banner images remain intact; their frames and
    interactive elements now share the chosen theme. */
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   .elara-hero,.ref-hero,.elara-global-hero,.feature-hero,
   .feature-subpage-head,.lr4-route-hero,.well01-hero
 ) {
   border-color:var(--neon-outline) !important;
   box-shadow:inset 0 0 0 1px var(--neon-glow),0 0 24px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   .ref-quick-card,.feature-launcher-card,.lib01-card,.lib01-book,
   .well01-shortcut,.lr4-channel-art,.lr4-challenge-art
 ) {
@@ -166,7 +166,7 @@ html body[data-elara-theme="violet"] #main :is(
 }
 
 /* Input, select, date/time picker, textarea, search and focus state. */
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,.approved-wardrobe-window,
   #task-composer-shell,.cloud-layer,.wellness-workout-dialog
 ) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
@@ -175,11 +175,11 @@ html body[data-elara-theme="violet"] :is(
   color:var(--text) !important;
   box-shadow:inset 0 1px 7px color-mix(in srgb,var(--neon-blue) 9%,transparent) !important;
 }
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,.approved-wardrobe-window,
   #task-composer-shell,.cloud-layer
 ) :is(input,select,textarea)::placeholder {color:var(--muted) !important;opacity:1}
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell,.cloud-layer
 ) :is(input,select,textarea):focus-visible {
   outline:2px solid var(--neon-lilac) !important;
@@ -187,13 +187,17 @@ html body[data-elara-theme="violet"] :is(
   border-color:var(--neon-cyan) !important;
   box-shadow:0 0 0 3px var(--neon-glow),0 0 20px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] :is(input[type="checkbox"],input[type="radio"]) {
+/* Checkbox/radio colors inside task, habit, priority and status features are
+   deliberately NOT overridden by the site's chosen environment theme. */
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
+  #drawer-settings-area,#panel-settings,.elara-private-drawer-panel
+) :is(input[type="checkbox"],input[type="radio"]) {
   accent-color:var(--neon-violet);
 }
 
 /* Buttons, toolbars, chips, tabs, hover/selected states.  Danger, success
    and priority labels intentionally retain their semantic colors. */
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
 ) :is(
   .quiet-button,.mini-create,.feature-back,.elara-reports-button,
@@ -208,7 +212,7 @@ html body[data-elara-theme="violet"] :is(
   color:var(--text) !important;
   box-shadow:0 0 12px color-mix(in srgb,var(--neon-lilac) 12%,transparent) !important;
 }
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
 ) :is(.primary-button,.lib01-add,.well01-play,.lr4-gradient,.friends-f2-hero-cta) {
   background:var(--neon-cta) !important;
@@ -217,7 +221,7 @@ html body[data-elara-theme="violet"] :is(
   box-shadow:0 0 0 1px color-mix(in srgb,var(--galaxy-lilac) 36%,transparent),0 0 23px var(--neon-glow) !important;
   text-shadow:0 1px 2px rgba(35,14,78,.55);
 }
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   #main,.elara-private-drawer,.elara-dialog-panel,#task-composer-shell
 ) :is(
   .lib01-tab.is-current,.lr4-pill.is-current,
@@ -226,7 +230,7 @@ html body[data-elara-theme="violet"] :is(
   border-color:var(--neon-lilac) !important;
   box-shadow:0 0 0 1px var(--neon-glow),0 0 18px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   .drawer-profile-head,.elara-private-drawer-panel,.elara-more-panel,
   .elara-dialog-panel,.approved-wardrobe-window,.cloud-card,
   .wellness-workout-dialog,.task-quick-move
@@ -236,7 +240,7 @@ html body[data-elara-theme="violet"] :is(
   color:var(--text) !important;
   box-shadow:0 0 34px var(--neon-glow),0 22px 60px color-mix(in srgb,var(--bg) 65%,transparent) !important;
 }
-html body[data-elara-theme="violet"] :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(
   .elara-dialog-head,.elara-dialog-actions,.drawer-menu>button,
   .drawer-choice-grid>button,.pass4-theme-tile,.pass4-accent-tile
 ) {
@@ -247,7 +251,7 @@ html body[data-elara-theme="violet"] :is(
 
 /* Hard-coded visual owners that previously ignored the global variables.
    The original category/task/habit colors remain controlled by their owners. */
-html body[data-elara-theme="violet"] #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #main :is(
   #panel-reports,#panel-reports-today,#panel-books,
   #panel-language,#panel-exercise,#panel-focus-pomodoro
 ) :is(
@@ -260,7 +264,7 @@ html body[data-elara-theme="violet"] #main :is(
   border-color:var(--neon-outline) !important;
   color:var(--text) !important;
 }
-html body[data-elara-theme="violet"] #panel-tasks#panel-tasks :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #panel-tasks#panel-tasks :is(
   .task-streak-summary,
   .astra-task-filters.filters-expanded .list-toolbar,
   .astra-task-view-controls button
@@ -270,13 +274,13 @@ html body[data-elara-theme="violet"] #panel-tasks#panel-tasks :is(
   color:var(--text) !important;
   box-shadow:var(--neon-halo) !important;
 }
-html body[data-elara-theme="violet"] #panel-tasks#panel-tasks #elara-task-add-main {
+html body[data-elara-theme]:not([data-elara-theme="default"]) #panel-tasks#panel-tasks #elara-task-add-main {
   background:var(--neon-cta) !important;
   border-color:var(--galaxy-lilac) !important;
   color:#fff !important;
   box-shadow:0 0 25px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]) #task-composer-shell#task-composer-shell :is(
   .task-composer-window,#task-form,.form-grid>div,.task-more-settings,
   .repeat-controls>.daily-repeat-box,.repeat-controls>.recurrence-box
 ) {
@@ -285,33 +289,33 @@ html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell :i
   color:var(--text) !important;
   box-shadow:var(--neon-halo) !important;
 }
-html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-submit {
+html body[data-elara-theme]:not([data-elara-theme="default"]) #task-composer-shell#task-composer-shell #task-submit {
   color:#fff !important;
   border:1px solid var(--galaxy-lilac) !important;
   background:var(--neon-cta) !important;
   box-shadow:0 0 23px var(--neon-glow) !important;
 }
-html body[data-elara-theme="violet"] #task-composer-shell#task-composer-shell #task-form :is(input,select,textarea) {
+html body[data-elara-theme]:not([data-elara-theme="default"]) #task-composer-shell#task-composer-shell #task-form :is(input,select,textarea) {
   border:1px solid var(--neon-outline) !important;
   background:var(--neon-field) !important;
   color:var(--text) !important;
 }
 
 /* Persistent readability on light mode: violet not glowing white-on-white. */
-html body[data-elara-theme="violet"].light #main :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]).light #main :is(
   .elara-card,.surface,.ref-card,.lr4-panel,.well01-card,
   .elara-reports-section,.library-clip-card
 ) {
   color:var(--text) !important;
 }
-html body[data-elara-theme="violet"].light :is(
+html body[data-elara-theme]:not([data-elara-theme="default"]).light :is(
   .elara-dialog-panel,.elara-private-drawer-panel,.task-composer-window
 ) :is(h1,h2,h3,p,label,small,strong) {color:inherit}
-html body[data-elara-theme="violet"] :is(a,button,input,select,textarea):focus-visible {
+html body[data-elara-theme]:not([data-elara-theme="default"]) :is(a,button,input,select,textarea):focus-visible {
   outline-color:var(--neon-lilac);
 }
 @media(prefers-reduced-motion:reduce) {
-  body[data-elara-theme="violet"] *,body[data-elara-theme="violet"] *::before,body[data-elara-theme="violet"] *::after {
+  body[data-elara-theme]:not([data-elara-theme="default"]) *,body[data-elara-theme]:not([data-elara-theme="default"]) *::before,body[data-elara-theme]:not([data-elara-theme="default"]) *::after {
     animation-duration:.01ms !important;transition-duration:.01ms !important;
   }
 }
