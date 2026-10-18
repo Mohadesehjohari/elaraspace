@@ -203,11 +203,16 @@ try{
  await assertSucceeds(getDoc(ref(bob,convo+'/messages/m1')));
  await assertFails(setDoc(ref(eve,convo+'/messages/m2'),{sender:'eve',text:'nope',createdAt:serverTimestamp()}));
 
- // Group owner can add an accepted friend; outsider cannot read or send.
+ // Friends are not enrolled into groups before they accept an invitation.
  const group='groups/night_owls';
  await assertSucceeds(setDoc(ref(alice,group),{owner:'alice',title:'Night Owls',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
  await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/alice'),{uid:'alice',role:'owner',joinedAt:serverTimestamp()}));
- await assertSucceeds(setDoc(ref(alice,group+'/groupMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()}));
+ await assertFails(setDoc(ref(alice,group+'/groupMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref(alice,group+'/groupInvites/bob'),{from:'alice',to:'bob',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+ const joinedGroup=writeBatch(bob);
+ joinedGroup.update(ref(bob,group+'/groupInvites/bob'),{status:'accepted',updatedAt:serverTimestamp()});
+ joinedGroup.set(ref(bob,group+'/groupMembers/bob'),{uid:'bob',role:'member',joinedAt:serverTimestamp()});
+ await assertSucceeds(joinedGroup.commit());
  await assertSucceeds(getDoc(ref(bob,group)));
  await assertFails(getDoc(ref(eve,group)));
  await assertSucceeds(setDoc(ref(bob,group+'/messages/b1'),{sender:'bob',text:'کتاب امشب؟ 📚',createdAt:serverTimestamp()}));
