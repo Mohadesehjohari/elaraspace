@@ -11,6 +11,11 @@ on:
       - 'firestore.rules'
       - 'tests/account-link-visibility.test.cjs'
       - 'tests/request-delivery-regression.cjs'
+      - 'tests/social-hardening-regression.cjs'
+      - 'notifications.js'
+      - 'social-groups-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
       - '.github/workflows/request-delivery-regression.yml'
   pull_request:
     paths:
@@ -22,6 +27,11 @@ on:
       - 'firestore.rules'
       - 'tests/account-link-visibility.test.cjs'
       - 'tests/request-delivery-regression.cjs'
+      - 'tests/social-hardening-regression.cjs'
+      - 'notifications.js'
+      - 'social-groups-ui.js'
+      - 'social-clubs-ui.js'
+      - 'social-challenges-ui.js'
       - '.github/workflows/request-delivery-regression.yml'
   workflow_dispatch:
 permissions:
@@ -44,7 +54,13 @@ jobs:
           node --check boot.js
           node --check tests/account-link-visibility.test.cjs
           node --check tests/request-delivery-regression.cjs
+          node --check tests/social-hardening-regression.cjs
+          node --check notifications.js
+          node --check social-groups-ui.js
+          node --check social-clubs-ui.js
+          node --check social-challenges-ui.js
       - name: Two-account delivery and privacy regressions
         run: |
           node tests/account-link-visibility.test.cjs
           node tests/request-delivery-regression.cjs
+          node tests/social-hardening-regression.cjs
