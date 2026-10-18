@@ -141,7 +141,9 @@ async function openSpace(spaceId){
  box.addEventListener('click',async e=>{if(e.target.closest('[data-collab-invite-more]')){const friend=await pickFriend(tx('دعوت دوست','Invite friend'));if(friend)await invite(space.id,friend)}if(e.target.closest('[data-collab-copy-link]'))await copyShareLink(space.id,e)});
  await window.ElaraDialog.open({title:tx('فضای مشترک','Shared space'),content:box,wide:true,actions:[{label:tx('بستن','Close'),value:false}]});return rows
 }
-let inbox=[],inviteRealtimeUid='',inviteRealtimeUnsub=null,inviteSeen=new Set(),inviteRealtimeChain=Promise.resolve();
+let inbox=[],inviteRealtimeUid='',inviteRealtimeUnsub=null,inviteSeen=new Set(),inviteRealtimeChain=Promise.resolve(),inboxError='';
+const describeError=error=>error?.code==='permission-denied'?tx('دسترسی به دعوت‌های مشترک در Firebase رد شد؛ قوانین Firestore باید به‌روزرسانی شوند.','Firestore denied collaboration requests; deploy updated rules.'):String(error?.message||error||'');
+function emitInboxError(error){inboxError=describeError(error);window.dispatchEvent(new CustomEvent('elara:collab-inbox-error',{detail:{message:inboxError}}));window.dispatchEvent(new Event('elara:collab-updated'))}
 async function enrichInvites(rows){
  const result=[];
  for(const row of rows){
@@ -154,7 +156,7 @@ async function enrichInvites(rows){
 async function applyInboxRows(rows,sourceUid=me()){
  if(!sourceUid||sourceUid!==me()||auth.currentUser?.uid!==sourceUid)return[];
  const pending=(await enrichInvites(rows.filter(x=>x.status==='pending'))).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
- inbox=pending;const pendingIds=new Set(pending.map(row=>row.id));for(const seen of [...inviteSeen])if(!pendingIds.has(seen))inviteSeen.delete(seen);
+ inbox=pending;inboxError='';const pendingIds=new Set(pending.map(row=>row.id));for(const seen of [...inviteSeen])if(!pendingIds.has(seen))inviteSeen.delete(seen);
  for(const row of pending){
   if(inviteSeen.has(row.id))continue;inviteSeen.add(row.id);if(window.ElaraSocial?.isMuted?.(row.from))continue;
   const who=String(row.sender?.name||row.sender?.username||tx('دوست','Friend')),username=row.sender?.username?' · @'+row.sender.username:'';
@@ -174,11 +176,11 @@ function startInviteRealtime(sourceUid=me()){
  inviteRealtimeUnsub=onSnapshot(query(collection(db,'collabInvites'),where('to','==',sourceUid)),snap=>{
   if(inviteRealtimeUid!==sourceUid||auth.currentUser?.uid!==sourceUid)return;
   void queueInviteRows(snap.docs.map(x=>({id:x.id,...x.data()})),sourceUid)
- },error=>{if(inviteRealtimeUid===sourceUid)console.error('Elara collab invite realtime:',error)});
+ },error=>{if(inviteRealtimeUid===sourceUid){console.error('Elara collab invite realtime:',error);emitInboxError(error)}});
 }
 async function refreshInvites(){
  const uid=me();if(!uid||!auth.currentUser?.emailVerified){inbox=[];window.dispatchEvent(new Event('elara:collab-updated'));return[]}
- try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid)));return await applyInboxRows(snaps.docs.map(x=>({id:x.id,...x.data()})),uid)}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);return[]}
+ try{const snaps=await getDocs(query(collection(db,'collabInvites'),where('to','==',uid)));return await applyInboxRows(snaps.docs.map(x=>({id:x.id,...x.data()})),uid)}catch(error){console.warn('Elara collab inbox unavailable:',error.code||error.message);emitInboxError(error);return inbox}
 }
 async function openInbox(){
  await refreshInvites();const box=document.createElement('section');box.className='collab-inbox-dialog';box.innerHTML=inbox.length?inbox.map(row=>'<article data-collab-invite-row="'+esc(row.id)+'"><div><small>'+esc(kindLabel(row.kind))+'</small><strong data-elara-ugc dir="auto">'+esc(row.title||kindLabel(row.kind))+'</strong><span data-elara-ugc dir="auto">'+esc(row.sender?.name||row.sender?.username||tx('دوست','Friend'))+(row.sender?.username?' · @'+esc(row.sender.username):'')+'</span></div><footer><button type="button" class="quiet-button danger" data-collab-decline="'+esc(row.id)+'">'+tx('رد','Decline')+'</button><button type="button" class="primary-button" data-collab-accept="'+esc(row.id)+'">'+tx('قبول','Accept')+'</button></footer></article>').join(''):'<p class="muted">'+tx('درخواست مشترک جدیدی نداری.','No new shared requests.')+'</p>';
@@ -220,4 +222,4 @@ window.addEventListener('elara:social-updated',()=>{mountWordShareControl()});
 window.addEventListener('elara:logout',stopInviteRealtime);
 setTimeout(()=>{const user=auth.currentUser;if(user?.emailVerified)startInviteRealtime(user.uid);void handleJoinFromUrl();mountWordShareControl();scheduleSync()},800);
 
-window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
+window.ElaraCollab={kinds:[...KINDS],shareEntity,createSpace,invite,acceptInvite,declineInvite,openInbox,refreshInvites,startInviteRealtime,stopInviteRealtime,pendingInvites:()=>inbox.slice(),inboxStatus:()=>({error:inboxError}),openSpace,memberRows,createShareLink,copyShareLink,joinLink,progressFor,findLocal};
