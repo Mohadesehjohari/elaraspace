@@ -268,6 +268,52 @@ async function sendDm(other,value){
 }
 window.ElaraSocial.dm={id:dmId,ensure:ensureDm,list:listDms,messages:getDmMessages,listen:listenDm,send:sendDm,markRead:markDmRead};
 
+/* Inbox notifications for messages RECEIVED, not only sender-side toasts.
+ * All listeners are restricted to conversations/groups the signed-in user may read. */
+let messageWatchUid='',dmMessageOff=null,groupMembershipOff=null,groupMessageOffs=new Map();
+function stopIncomingMessages(){
+ try{dmMessageOff?.()}catch{}dmMessageOff=null;
+ try{groupMembershipOff?.()}catch{}groupMembershipOff=null;
+ for(const off of groupMessageOffs.values())try{off()}catch{}
+ groupMessageOffs.clear();messageWatchUid='';
+}
+function inboundMessageNotification(kind,id,row,peer,recipient){
+ if(!row||auth.currentUser?.uid!==recipient||uid!==recipient||!row.lastText||!row.lastSender||row.lastSender===recipient)return;
+ if(blockedByMe(row.lastSender)||mutedByMe(row.lastSender))return;
+ if(kind==='group'&&isContextMuted('group',id))return;
+ const updated=row.updatedAt?.toMillis?.()||0;if(!updated)return;
+ const title=kind==='group'?'پیام جدید در گروه '+String(peer||'دوستان'):'پیام جدید از '+String(peer||'دوست');
+ window.ElaraNotify?.push?.({type:'social',title,message:String(row.lastText).slice(0,160),dedupeKey:kind+'-incoming:'+recipient+':'+id+':'+updated,meta:{kind:kind==='group'?'group-message':'dm-message',targetId:id}})
+}
+function startIncomingMessages(mine=auth.currentUser?.uid){
+ if(!mine||!auth.currentUser?.emailVerified||messageWatchUid===mine)return;
+ stopIncomingMessages();messageWatchUid=mine;
+ dmMessageOff=onSnapshot(query(collection(db,'conversations'),where('members','array-contains',mine)),snapshot=>{
+  if(messageWatchUid!==mine||auth.currentUser?.uid!==mine)return;
+  for(const row of snapshot.docs){const data=row.data()||{};if(data.kind!=='dm'||!data.members?.includes(mine))continue;
+   const other=data.members.find(x=>x!==mine),person=state.friends.find(p=>p.uid===other);
+   inboundMessageNotification('dm',row.id,data,person?.name||person?.username||'دوست',mine)}
+ },error=>console.warn('Incoming DM notifications unavailable:',error.code||error.message));
+ groupMembershipOff=onSnapshot(query(collectionGroup(db,'groupMembers'),where('uid','==',mine)),snapshot=>{
+  if(messageWatchUid!==mine||auth.currentUser?.uid!==mine)return;
+  const present=new Set();
+  for(const membership of snapshot.docs){
+   const groupRef=membership.ref.parent.parent;if(!groupRef)continue;
+   const gid=groupRef.id;present.add(gid);
+   if(groupMessageOffs.has(gid))continue;
+   const off=onSnapshot(groupRef,groupSnap=>{
+    if(messageWatchUid!==mine||auth.currentUser?.uid!==mine||!groupSnap.exists())return;
+    const data=groupSnap.data()||{};inboundMessageNotification('group',gid,data,data.title||'دوستان',mine)
+   },error=>console.warn('Incoming group notifications unavailable:',gid,error.code||error.message));
+   groupMessageOffs.set(gid,off);
+  }
+  for(const [gid,off] of groupMessageOffs)if(!present.has(gid)){try{off()}catch{}groupMessageOffs.delete(gid)}
+ },error=>console.warn('Incoming group membership listener unavailable:',error.code||error.message));
+}
+window.ElaraSocial.startIncomingMessages=startIncomingMessages;
+window.ElaraSocial.stopIncomingMessages=stopIncomingMessages;
+
+
 const groupFriendIds=()=>new Set(state.friends.map(p=>p.uid));
 async function createGroup(title,members=[]){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
@@ -816,9 +862,9 @@ document.addEventListener('submit',async e=>{
 });
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-friend-action],[data-social-refresh]');if(!b)return;if(b.hasAttribute('data-social-refresh')){void refresh();return}const req=state.requests.find(r=>r.id===b.dataset.request);if(!req)return;b.disabled=true;try{await decide(req,b.dataset.friendAction==='accept'?'accepted':'declined')}catch(error){inform(socialError('friend-action',error))}finally{b.disabled=false}});
 onAuthStateChanged(auth,async user=>{
- stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
+ stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence();stopIncomingMessages();uid=null;state.me=null;state.friends=[];state.requests=[];state.activities=[];state.blocked=[];state.muted=[];state.contextMutes=[];state.presence={};state.profileView=null;baseline=null;
  if(!user){render();return}
- if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}}catch(error){console.error('Social auth:',error)}}
+ if(user.emailVerified){try{if(await obtain()){baseline=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');await refresh();startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid);startIncomingMessages(user.uid)}}catch(error){console.error('Social auth:',error)}}
 });
-window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>{startFriendRequestRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid)}).catch(error=>inform(socialError('account-ready-refresh',error)))});
-window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence()});
+window.addEventListener('elara:account-ready',()=>{const user=auth.currentUser;if(user?.emailVerified)refresh().then(()=>{startFriendRequestRealtime(user.uid);startMembershipInviteRealtime(user.uid);startChallengeRealtime(user.uid);startPresence(user.uid);startIncomingMessages(user.uid)}).catch(error=>inform(socialError('account-ready-refresh',error)))});
+window.addEventListener('elara:logout',()=>{stopFriendRequestRealtime();stopMembershipInviteRealtime();stopChallengeRealtime();stopPresence();stopIncomingMessages()});
