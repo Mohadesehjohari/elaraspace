@@ -12,12 +12,24 @@ let pref;try{pref={mode:'dark',color:'violet',language:'fa',...JSON.parse(localS
 const t=k=>dictionary[pref.language]?.[k]||dictionary.fa[k]||k,fmt=n=>Number(n||0).toLocaleString(pref.language==='fa'?'fa-IR':'en-US'),arr=v=>Array.isArray(v)?v:[],read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
 function translate(){const root=document.querySelector('.shell');if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const node=walker.currentNode;if(node.parentElement?.closest('script,style,.item-title,.elara-social-avatar,.elara-social-info strong'))continue;const value=original.get(node)||node.nodeValue,key=value.trim();if(!labels[key])continue;original.set(node,value);node.nodeValue=value.replace(key,pref.language==='fa'?key:labels[key][pref.language==='en'?0:1]);}}
 const PALETTE_THEMES=new Set(['violet','blue','pink','red','orange','green','white']);
+// The old "شب‌های بی‌انتها" option was color=black, NOT color=violet.
+ // Explicit Default/Night selections restore that legacy preset; users who
+ // never selected a new theme retain their original stored color unchanged.
 const visualTheme=()=>{const choice=pref.themeVariant||(pref.color==='violet'?'default':pref.color);return PALETTE_THEMES.has(choice)?choice:'default'};
+if(pref.themeVariant==='default'||pref.themeVariant==='black'){
+  pref.color='black';pref.themeVariant='default';pref.style='default';
+}
 let appliedTheme='';
 function apply(){let light=pref.mode==='light'||pref.mode==='system'&&matchMedia('(prefers-color-scheme: light)').matches;document.body.classList.toggle('light',light);document.body.classList.toggle('dark',!light);document.documentElement.style.setProperty('--elara-accent',colors[pref.color]||colors.violet);document.documentElement.lang=pref.language;document.documentElement.dir=pref.language==='fa'?'rtl':'ltr';document.body.dataset.elaraColor=pref.color;document.body.dataset.elaraTheme=visualTheme();document.body.dataset.elaraLang=pref.language;document.body.dataset.elaraStyle=pref.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');document.querySelectorAll('[data-mode],[data-color],[data-lang]').forEach(el=>{const active=el.dataset.mode===pref.mode||el.dataset.color===pref.color||el.dataset.lang===pref.language;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active))});document.querySelectorAll('[data-elara-label]').forEach(el=>el.textContent=t(el.dataset.elaraLabel));translate();const themeKey=JSON.stringify([pref.mode,pref.color,visualTheme(),pref.style,pref.language,light,localStorage.getItem('elara_amoled')]);if(themeKey!==appliedTheme){appliedTheme=themeKey;window.dispatchEvent(new CustomEvent('elara:theme-changed',{detail:{mode:pref.mode,light}}))}}
 function savePref(){localStorage.setItem(PREF,JSON.stringify(pref));apply()}
 window.ElaraApplyTheme=apply;
-window.ElaraSetAppearance=patch=>{if(!patch||typeof patch!=='object')return {...pref};pref={...pref,...patch};savePref();return {...pref}};
+window.ElaraSetAppearance=patch=>{if(!patch||typeof patch!=='object')return {...pref};
+  const next={...pref,...patch};
+  if(patch.themeVariant==='default'||patch.themeVariant==='black'){
+    next.themeVariant='default';next.color='black';next.style='default';
+  }
+  pref=next;savePref();return {...pref}
+};
 // System mode should also react if the operating-system scheme changes during a session.
 window.matchMedia?.('(prefers-color-scheme: light)')?.addEventListener?.('change',()=>{if(pref.mode==='system')apply()});
 window.ElaraSetLanguage=lang=>{if(!['fa','en','tr'].includes(lang))return;pref.language=lang;savePref();render()};
@@ -64,7 +76,11 @@ function setup(){
     if(b.hasAttribute('data-elara-profile-self')){e.preventDefault();window.ElaraPrivateDrawer?.open?.('account');return}
     if(b.dataset.elaraTab){e.preventDefault();e.stopPropagation();open(b.dataset.elaraTab,{history:'push'})}
     else if(b.dataset.mode){pref.mode=b.dataset.mode;savePref()}
-    else if(b.dataset.color){pref.color=b.dataset.color;pref.themeVariant=b.dataset.color;savePref()}
+    else if(b.dataset.color){
+      if(b.dataset.color==='black'){pref.color='black';pref.themeVariant='default';pref.style='default'}
+      else {pref.color=b.dataset.color;pref.themeVariant=b.dataset.color}
+      savePref()
+    }
     else if(b.dataset.lang){pref.language=b.dataset.lang;savePref();render()}
   });
   document.querySelector('.elara-lang-shortcut').onclick=()=>open('settings');
