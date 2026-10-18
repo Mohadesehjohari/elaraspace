@@ -219,8 +219,8 @@
 @keyframes elara-ceremony-chest-float{50%{transform:translateY(-3px)}}
 @keyframes elara-ceremony-fox-celebrate{0%{transform:translateY(9px) scale(.91)}
  65%{transform:translateY(-16px) scale(1.1)}100%{transform:translateY(0) scale(1)}}
-@keyframes elara-ceremony-spark{0%,100%{opacity:.15;transform:rotate(calc(var(--i)*30deg)) translateX(100px) rotate(45deg)}
- 50%{opacity:1;transform:rotate(calc(var(--i)*30deg + 180deg)) translateX(150px) rotate(45deg)}}
+@keyframes elara-ceremony-spark{0%,100%{opacity:.15;transform:rotate(var(--spark-angle)) translateX(100px) rotate(45deg)}
+ 50%{opacity:1;transform:rotate(calc(var(--spark-angle) + 180deg)) translateX(150px) rotate(45deg)}}
 @keyframes elara-ceremony-burst{
  0%{opacity:0;transform:translate(0,0) rotate(45deg) scale(.6)}
  20%{opacity:1}
