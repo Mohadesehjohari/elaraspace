@@ -1,0 +1,235 @@
+/* ELARA visitor profile · cinematic responsive modal — 2026-10-18
+   Scoped to OTHER users only; private account/editor, Firestore data and actions are untouched. */
+#elara-dialog-root .elara-dialog-panel.elara-visitor-profile-panel{
+ width:min(1210px,calc(100vw - 42px))!important;max-width:calc(100vw - 42px)!important;
+ height:min(860px,calc(100dvh - 36px))!important;max-height:calc(100dvh - 36px)!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ color:#f6f4ff!important;border:1px solid #805dffb3!important;border-radius:25px!important;
+ background:radial-gradient(ellipse at 95% 0%,#43247a50,transparent 42%),linear-gradient(135deg,#07152e 0%,#070f27 57%,#100d30 100%)!important;
+ box-shadow:0 32px 100px #000e,0 0 46px #7135ff45,inset 0 1px #ffffff23!important;
+}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-head{
+ flex:none!important;min-height:72px!important;padding:9px 19px!important;
+ color:#fff!important;border-bottom:1px solid #7054b642!important;
+ background:radial-gradient(ellipse at 55% -30%,#6c38db26,transparent 55%),#07132dbd!important;
+}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-kicker{color:#49d6ff!important;letter-spacing:.3em!important}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-head h2{font-size:1.04rem!important;color:#f8f5ff!important}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-close,
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-back{
+ color:#f7eaff!important;border:1px solid #7957e9b3!important;
+ background:linear-gradient(135deg,#152956,#462077)!important;border-radius:12px!important;
+ box-shadow:0 0 14px #984fff3c!important
+}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-body{
+ flex:1 1 auto!important;min-height:0!important;max-height:none!important;padding:0!important;
+ overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+ scrollbar-color:#7348dc #0b1530!important;
+}
+#elara-dialog-root .elara-visitor-profile-panel .elara-dialog-actions{display:none!important}
+#elara-dialog-root .elara-visitor-profile-panel :where(button,a){touch-action:manipulation}
+.elara-visitor-profile{position:relative;min-width:0;max-width:100%;color:#f2efff!important;direction:rtl}
+.visitor-profile-shell{display:grid;grid-template-columns:185px minmax(0,1fr);direction:ltr;min-width:0;min-height:100%}
+.visitor-profile-rail{
+ position:sticky;top:0;align-self:start;min-height:650px;max-height:100%;
+ display:flex;flex-direction:column;gap:24px;padding:25px 14px;
+ color:#eee9ff;background:linear-gradient(165deg,#07132c 0%,#0b1535 75%,#181044 100%);
+ border-right:1px solid #7e54cf30;direction:rtl;overflow:hidden
+}
+.visitor-profile-rail:after{content:"";position:absolute;inset:auto -80px -85px;aspect-ratio:1;border:1px solid #765cff26;border-radius:50%;box-shadow:0 0 0 45px #824bff09;pointer-events:none}
+.visitor-profile-rail-brand{display:grid;justify-items:center;gap:2px;direction:ltr;letter-spacing:.25em}
+.visitor-profile-rail-brand>span{font-size:1.35rem;color:#df91ff;text-shadow:0 0 20px #af5aff}
+.visitor-profile-rail-brand strong{font:800 1.05rem/1.3 Arial,sans-serif;color:#53dfff;letter-spacing:.38em}
+.visitor-profile-rail-brand small{font:600 .56rem/1.5 Arial,sans-serif;color:#a99bce}
+.visitor-profile-navigation{display:grid;gap:8px}
+.visitor-profile-navigation button{
+ display:flex;align-items:center;gap:12px;width:100%;min-height:51px;
+ color:#cac4e5!important;text-align:right;font-size:.83rem;font-weight:700;
+ border:1px solid transparent!important;border-radius:13px!important;
+ background:transparent!important;box-shadow:none!important;padding:11px!important;cursor:pointer;
+ transition:border-color .18s ease,background .18s ease,transform .18s ease
+}
+.visitor-profile-navigation button svg{flex:none;color:#a58dff}
+.visitor-profile-navigation button:hover{background:#7b48d920!important;color:#fff!important;border-color:#996cff65!important}
+.visitor-profile-navigation button[aria-current="true"]{
+ color:#fff!important;border-color:#bb65ff!important;
+ background:linear-gradient(110deg,#6141ef,#8537eb 68%,#c43dcf)!important;
+ box-shadow:0 0 20px #ad42e95b,inset 0 1px #ffffff56!important
+}
+.visitor-profile-navigation button[aria-current="true"] svg{color:#fff}
+.visitor-profile-rail-note{margin-top:auto;text-align:center;font-size:.66rem;color:#a197d1}
+.visitor-profile-rail-note:first-letter{color:#ad74ff}
+.visitor-profile-content{min-width:0!important;padding:18px 20px 25px!important;margin:0!important;max-width:none!important;background:transparent!important;direction:rtl}
+.visitor-profile-hero{position:relative;min-width:0;margin:0 0 13px;border-radius:22px}
+.elara-visitor-profile .pass4-public-profile-summary{margin:0!important;min-width:0}
+.elara-visitor-profile .elara-profile-composition{
+ direction:ltr!important;position:relative!important;overflow:hidden!important;
+ display:grid!important;grid-template-columns:150px minmax(0,1fr)!important;align-items:end!important;
+ gap:18px!important;min-height:305px!important;padding:103px 24px 21px!important;margin:0!important;
+ color:#fff!important;border-radius:22px!important;border:1px solid #a05fff9e!important;
+ background:linear-gradient(0deg,#040925ed,#04103051 58%,#1b0b3860),linear-gradient(90deg,#0613328c,transparent 72%),var(--elara-profile-theme) center/cover no-repeat,var(--elara-profile-banner) center/cover no-repeat!important;
+ background-blend-mode:normal,normal,soft-light,normal!important;
+ box-shadow:inset 0 0 65px #0a08336b,0 12px 42px #0008,0 0 26px #673aff36!important
+}
+.elara-visitor-profile .elara-profile-composition:before{opacity:.55!important;pointer-events:none!important}
+.elara-visitor-profile .elara-profile-avatar-shell{
+ width:145px!important;height:145px!important;max-width:145px!important;max-height:145px!important;
+ z-index:3!important;filter:drop-shadow(0 4px 12px #000a) drop-shadow(0 0 14px #793bff84)!important
+}
+.elara-visitor-profile .elara-profile-avatar-shell:before{border-color:#ad7bff!important;box-shadow:0 0 0 4px #0c1635a6,0 0 23px #a246ff99!important}
+.elara-visitor-profile .elara-profile-composition-copy{direction:rtl!important;position:relative!important;z-index:3!important;justify-self:start!important;width:min(100%,410px)!important;gap:8px!important;text-align:right!important}
+.elara-visitor-profile .elara-profile-identity-line{justify-content:flex-end!important;gap:15px!important}
+.elara-visitor-profile .elara-profile-identity-line strong{font-size:clamp(1.3rem,2.1vw,1.85rem)!important;color:#fff!important;text-shadow:0 3px 14px #000c!important}
+.elara-visitor-profile .elara-profile-identity-line small{font-size:.76rem!important;color:#e5daff!important}
+.elara-visitor-profile .elara-profile-level-pill{color:#fff!important;border:1px solid #b778ff!important;background:linear-gradient(115deg,#6a31f3,#a93dea)!important;box-shadow:0 0 18px #a33fff6b!important;white-space:nowrap}
+.elara-visitor-profile .elara-profile-xp-row{color:#e0dcff!important;font-size:.71rem!important;text-shadow:0 1px 6px #000}
+.elara-visitor-profile .elara-profile-xp-row b{color:#fff!important}
+.elara-visitor-profile .elara-profile-xp-track{height:8px!important;border:1px solid #7557c477!important;background:#0b0c34ba!important}
+.elara-visitor-profile .elara-profile-xp-track i{background:linear-gradient(90deg,#42bdff,#9969ff,#ef66fd)!important;box-shadow:0 0 13px #d357ff!important}
+.elara-visitor-profile .elara-profile-chips{min-height:0;gap:5px}
+.elara-visitor-profile .elara-profile-chips span{font-size:.62rem!important;color:#eee8ff!important;background:#0c1744a9!important;border-color:#8970cf8b!important}
+.elara-visitor-profile .elara-profile-page-entry{
+ position:absolute!important;top:-115px!important;right:0!important;left:auto!important;
+ width:215px!important;max-width:40%!important;min-height:77px!important;padding:11px 13px!important;
+ display:grid!important;align-content:center!important;justify-items:start!important;
+ color:#fff!important;border:1px solid #b272ffad!important;border-radius:15px!important;
+ background:linear-gradient(110deg,#5237dcde,#743cebbb,#442888de)!important;
+ box-shadow:0 8px 25px #4a20bf80,0 0 16px #a54fff5a!important;
+ text-shadow:none!important;transform:none!important
+}
+.elara-visitor-profile .elara-profile-page-entry :is(strong,small){color:#fff!important}
+.elara-visitor-profile .profile-private-relation{position:relative;z-index:2;margin:8px 0 0;color:#ebdfff}
+.elara-visitor-profile .profile-more-button{
+ position:absolute!important;top:28px!important;left:22px!important;right:auto!important;z-index:20!important;
+ width:42px!important;height:42px!important;border:1px solid #aa79ff!important;border-radius:12px!important;
+ color:#fff!important;background:#101d4ddc!important;box-shadow:0 0 14px #7245ff60!important
+}
+.visitor-profile-progress{min-width:0;margin-bottom:16px}
+.visitor-profile-progress>header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px}
+.visitor-profile-progress>header>div{display:flex;align-items:center;gap:8px}
+.visitor-profile-progress>header h3,.visitor-profile-connect>h3{margin:0;font-size:1rem;color:#fff}
+.visitor-profile-progress>header>div>span{font-size:1.4rem;color:#b877ff}
+.visitor-profile-progress>header>small{font-size:.68rem;color:#aaa2cf}
+.visitor-profile-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.visitor-profile-stat{
+ min-width:0;min-height:84px;display:flex;align-items:center;gap:12px;padding:12px!important;
+ border:1px solid #5463b36e;border-radius:14px;
+ background:linear-gradient(145deg,#112448b5,#11153aef);box-shadow:inset 0 1px #ffffff0b,0 9px 22px #0003
+}
+.visitor-profile-stat:nth-child(2){border-color:#4388de87}
+.visitor-profile-stat:nth-child(3){border-color:#a146d776}
+.visitor-profile-stat:nth-child(4){border-color:#8d55e58f}
+.visitor-profile-stat-icon{flex:0 0 31px;display:grid;place-items:center;color:#bb76ff!important}
+.visitor-profile-stat:nth-child(2) .visitor-profile-stat-icon{color:#57c7ff!important}
+.visitor-profile-stat:nth-child(3) .visitor-profile-stat-icon{color:#fb89dc!important}
+.visitor-profile-stat-copy{display:grid;min-width:0;gap:5px}
+.visitor-profile-stat-value{font-size:.95rem;font-weight:850;color:#fff!important;white-space:normal;overflow-wrap:anywhere}
+.visitor-profile-stat-value span{color:inherit!important;background:none!important;border:0!important;padding:0!important;white-space:normal!important}
+.visitor-profile-stat-copy small{font-size:.66rem;color:#c0b5dd}
+.visitor-profile-details{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;min-width:0;margin-bottom:19px}
+.visitor-profile-about,.visitor-profile-relation{
+ min-width:0;min-height:125px;padding:17px!important;border-radius:17px!important;
+ background:linear-gradient(135deg,#10234bbd,#121436e8)!important;border:1px solid #805ec06b!important;
+ box-shadow:inset 0 1px #fff1,0 11px 28px #0003!important
+}
+.visitor-profile-about>h3,.visitor-profile-relation>h3{display:flex;align-items:center;gap:9px;color:#fff;font-size:.94rem;margin:0 0 11px}
+.visitor-profile-about>h3 svg,.visitor-profile-relation>h3 svg{color:#b778ff}
+.elara-visitor-profile .elara-profile-bio,.visitor-profile-about>p,.visitor-profile-relation>p{margin:0!important;color:#ded8f1!important;font-size:.78rem!important;line-height:1.95!important;overflow-wrap:anywhere}
+.visitor-profile-relation>p:first-of-type{color:#bf87ff!important;font-weight:800}
+.visitor-profile-relation>p.muted{margin-top:9px!important;color:#a9a5cb!important;font-size:.69rem!important}
+.visitor-profile-connect>h3{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.visitor-profile-connect>h3 svg{color:#d97aff}
+.elara-visitor-profile .timer-actions.visitor-profile-actions{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px!important;
+ margin:0!important;padding:0!important;align-items:stretch!important
+}
+.elara-visitor-profile .visitor-profile-actions button{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+ min-width:0!important;min-height:72px!important;max-width:none!important;margin:0!important;
+ padding:10px!important;white-space:normal!important;line-height:1.5!important;
+ border-radius:14px!important;font-size:.81rem!important;font-weight:850!important;
+ color:#f9f4ff!important;background:linear-gradient(135deg,#10254b,#12183b)!important;
+ border:1px solid #6a6eca9c!important;box-shadow:0 8px 18px #0003!important;
+ transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important
+}
+.elara-visitor-profile .visitor-profile-actions button:hover{transform:translateY(-2px);border-color:#af8eff!important;box-shadow:0 8px 22px #8350e944!important}
+.elara-visitor-profile .visitor-profile-actions .primary-button,
+.elara-visitor-profile .visitor-profile-actions [data-profile-challenge]{
+ background:linear-gradient(120deg,#ff709b,#b435f4,#6942ff)!important;border-color:#ce82ff!important;box-shadow:0 0 23px #af48ff65!important
+}
+.elara-visitor-profile .visitor-profile-actions .danger-outline,
+.elara-visitor-profile .visitor-profile-actions [data-profile-block]{color:#ff9aba!important;border-color:#db4b937e!important;background:#3b16424f!important}
+.elara-visitor-profile .visitor-profile-actions .visitor-profile-message{color:#68caff!important;border-color:#288ce69c!important}
+.visitor-profile-privacy{display:flex;align-items:center;justify-content:center;gap:7px;margin:15px 0 0;color:#a9a4cd;font-size:.69rem;line-height:1.7;text-align:center}
+.visitor-profile-privacy svg{width:16px;height:16px;flex:none;color:#a976ff}
+.visitor-profile-restricted{padding:14px;border:1px solid #794fac72;border-radius:13px;background:#201742;color:#ddd1f9;font-size:.8rem}
+@media(max-width:900px){
+ .visitor-profile-shell{grid-template-columns:145px minmax(0,1fr)}
+ .visitor-profile-rail{padding:22px 10px}
+ .visitor-profile-navigation button{padding:9px!important;gap:7px;font-size:.73rem}
+ .visitor-profile-content{padding:13px!important}
+ .visitor-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .visitor-profile-details{grid-template-columns:1fr}
+ .elara-visitor-profile .elara-profile-composition{grid-template-columns:110px minmax(0,1fr)!important;min-height:275px!important}
+ .elara-visitor-profile .elara-profile-avatar-shell{width:105px!important;height:105px!important}
+ .elara-visitor-profile .elara-profile-page-entry{top:-102px!important;max-width:48%!important}
+}
+@media(max-width:700px){
+ #elara-dialog-root .elara-dialog-panel.elara-visitor-profile-panel{
+  width:min(95vw,570px)!important;max-width:95vw!important;
+  height:auto!important;max-height:90dvh!important;border-radius:19px!important
+ }
+ #elara-dialog-root .elara-visitor-profile-panel .elara-dialog-head{min-height:60px!important;padding:8px 11px!important}
+ #elara-dialog-root .elara-visitor-profile-panel .elara-dialog-body{max-height:calc(90dvh - 60px)!important}
+ .visitor-profile-shell{display:block}
+ .visitor-profile-rail{
+  position:relative;top:auto;min-height:0;max-height:none;padding:9px 10px 7px;
+  display:block;border-right:0;border-bottom:1px solid #8f64d83d
+ }
+ .visitor-profile-rail-brand,.visitor-profile-rail-note{display:none}
+ .visitor-profile-navigation{display:flex;gap:7px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
+ .visitor-profile-navigation::-webkit-scrollbar{display:none}
+ .visitor-profile-navigation button{min-height:42px;flex:0 0 auto;width:auto;padding:8px 10px!important;font-size:.7rem}
+ .visitor-profile-navigation button svg{width:17px;height:17px}
+ .visitor-profile-content{padding:10px!important}
+ .elara-visitor-profile .elara-profile-composition{
+  grid-template-columns:83px minmax(0,1fr)!important;gap:10px!important;
+  padding:77px 10px 16px!important;min-height:247px!important;border-radius:16px!important
+ }
+ .elara-visitor-profile .elara-profile-avatar-shell{width:81px!important;height:81px!important}
+ .elara-visitor-profile .elara-profile-composition-copy{width:100%!important;gap:5px!important}
+ .elara-visitor-profile .elara-profile-identity-line{flex-wrap:wrap!important;gap:5px!important}
+ .elara-visitor-profile .elara-profile-identity-line strong{font-size:1.08rem!important}
+ .elara-visitor-profile .elara-profile-identity-line small{font-size:.61rem!important}
+ .elara-visitor-profile .elara-profile-page-entry{
+  top:-70px!important;right:0!important;max-width:74%!important;width:auto!important;
+  min-height:54px!important;padding:7px 9px!important
+ }
+ .elara-visitor-profile .elara-profile-page-entry strong{font-size:.7rem!important}
+ .elara-visitor-profile .elara-profile-page-entry small{font-size:.57rem!important}
+ .elara-visitor-profile .elara-profile-xp-row{flex-wrap:wrap;gap:3px;font-size:.6rem!important}
+ .elara-visitor-profile .elara-profile-chips span{font-size:.54rem!important}
+ .elara-visitor-profile .profile-more-button{top:13px!important;left:12px!important}
+ .visitor-profile-progress>header{gap:6px;flex-wrap:wrap}
+ .visitor-profile-progress>header h3{font-size:.84rem}
+ .visitor-profile-progress>header>small{font-size:.6rem}
+ .visitor-profile-stat{min-height:69px;padding:9px!important;gap:7px}
+ .visitor-profile-stat-value{font-size:.78rem}
+ .visitor-profile-stat-copy small{font-size:.57rem}
+ .visitor-profile-about,.visitor-profile-relation{min-height:102px;padding:13px!important}
+ .elara-visitor-profile .timer-actions.visitor-profile-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .elara-visitor-profile .visitor-profile-actions button{min-height:54px!important;font-size:.74rem!important}
+ .visitor-profile-privacy{font-size:.6rem}
+}
+@media(max-width:350px){
+ .visitor-profile-navigation button{padding:7px 8px!important;font-size:.64rem}
+ .elara-visitor-profile .elara-profile-composition{grid-template-columns:67px minmax(0,1fr)!important}
+ .elara-visitor-profile .elara-profile-avatar-shell{width:65px!important;height:65px!important}
+ .visitor-profile-stat{gap:5px;padding:7px!important}
+ .visitor-profile-stat-icon{flex-basis:24px}
+ .visitor-profile-stat-icon svg{width:17px;height:17px}
+ .visitor-profile-stat-value{font-size:.7rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .visitor-profile-navigation button,.elara-visitor-profile .visitor-profile-actions button{transition:none!important}
+}
