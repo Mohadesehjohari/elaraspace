@@ -64,10 +64,21 @@ function present({shade,dialog,data,primary,secondary,img}){
  const demo=isDemo(data),eligible=demo||ensure(data);
  if(!eligible)return;
  if(!prefs().motion)shade.dataset.foxMotion='off';
+ dialog.dataset.foxPhase='ready';
  const stage=el('div','elara-fox-prize-stage');
  img?.parentNode?.insertBefore(stage,img);if(img)stage.append(img);
  const halo=el('span','elara-fox-prize-halo');halo.setAttribute('aria-hidden','true');stage.prepend(halo);
- for(let i=0;i<8;i++){const spark=el('i','elara-fox-prize-spark');spark.style.setProperty('--i',i);spark.setAttribute('aria-hidden','true');stage.append(spark)}
+ const chest=el('div','elara-fox-treasure');chest.setAttribute('aria-hidden','true');
+ for(const [cls,content] of [['elara-fox-treasure-back',''],['elara-fox-treasure-glow',''],['elara-fox-treasure-star','✦'],['elara-fox-treasure-lid',''],['elara-fox-treasure-box',''],['elara-fox-treasure-lock','✦']])
+  chest.append(el('span',cls,content));
+ stage.append(chest);
+ const victory=el('span','elara-fox-victory-mark','✓');victory.setAttribute('aria-hidden','true');stage.append(victory);
+ for(let i=0;i<12;i++){const spark=el('i','elara-fox-prize-spark');spark.style.setProperty('--i',i);spark.setAttribute('aria-hidden','true');stage.append(spark)}
+ const progress=el('div','elara-fox-claim-progress');progress.setAttribute('aria-hidden','true');
+ const firstStep=el('span','elara-fox-claim-step is-current',t('✧ پاداش باز شد','✧ Unlocked'));
+ const stepLine=el('span','elara-fox-claim-connector','');
+ const secondStep=el('span','elara-fox-claim-step',t('✓ دریافت شد','✓ Collected'));
+ progress.append(firstStep,stepLine,secondStep);stage.before(progress);
  const reward=el('section','elara-fox-prize-card');reward.setAttribute('aria-label',t('جایزهٔ دستاورد','Achievement reward'));
  const sigil=el('span','elara-fox-prize-sigil','✦');sigil.setAttribute('aria-hidden','true');
  const info=el('div','elara-fox-prize-info');
@@ -89,8 +100,23 @@ function present({shade,dialog,data,primary,secondary,img}){
   if(collected)return; // The existing handler handles Continue/route on the second click.
   event.preventDefault();event.stopImmediatePropagation();
   if(!demo&&!claim(String(data.key||''))){status.textContent=t('ثبت نشد؛ دوباره تلاش کن','Could not save; please retry');return}
-  collected=true;dialog.classList.add('is-fox-prize-collected');
-  label.textContent=t('جایزه دریافت شد','REWARD COLLECTED');
+  collected=true;
+  dialog.classList.add('is-fox-prize-collected');
+  dialog.dataset.foxPhase='collected';
+  firstStep.classList.remove('is-current');firstStep.classList.add('is-complete');
+  secondStep.classList.add('is-current');
+  // The fox changes expression only AFTER the confirmed cosmetic claim.
+  if(img){img.src=window.ElaraFoxRewards?.asset?.('celebrate')||'assets/ui/fox-celebrate.webp'}
+  const title=dialog.querySelector('#elara-fox-title');
+  const desc=dialog.querySelector('#elara-fox-desc');
+  if(title)title.textContent=t('جایزه‌ات رو گرفتی!','Your reward is yours!');
+  if(desc)desc.textContent=demo
+   ?t('این فقط یک جشن آزمایشی بود ✨','That was only a preview ✨')
+   :t('درخشیدی! ستارهٔ جدیدت برای «'+String(data.title||'موفقیتت')+'» توی گنجینه ذخیره شد.',
+      'Amazing! Your star for “'+String(data.title||'your milestone')+'” is safely in the vault.');
+  label.textContent=t('به گنجینه اضافه شد','ADDED TO YOUR VAULT');
+  amount.textContent=fmt(stars)+t(' ستارهٔ درخشان',' shining star'+(stars===1?'':'s'));
+  sigil.textContent='✓';
   status.textContent=demo?t('پیش‌نمایش انجام شد؛ امتیازی تغییر نکرد','Preview complete; no progress changed'):t('ستاره به گنجینه‌ات اضافه شد!','Star added to your vault!');
   primary.textContent=data.primary||t('ادامهٔ مسیر','Continue');
   if(secondary)secondary.textContent=t('بستن','Close');
