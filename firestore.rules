@@ -129,15 +129,29 @@ service cloud.firestore {
         )
       );
     }
+    function validProfileAppearance(a) {
+      return a is map
+        && a.keys().hasOnly(['avatarGroup','avatarLevel','frame','banner','profileTheme','profileShape','nameFont','color','title'])
+        && (!a.keys().hasAny(['avatarGroup']) || a.avatarGroup in ['','male','female'])
+        && (!a.keys().hasAny(['avatarLevel']) || (a.avatarLevel is int && a.avatarLevel >= 0 && a.avatarLevel <= 10))
+        && (!a.keys().hasAny(['frame']) || a.frame in ['','bronze','silver','gold','diamond'])
+        && (!a.keys().hasAny(['banner']) || a.banner in ['','moon','dream','castle','dawn'])
+        && (!a.keys().hasAny(['profileTheme']) || a.profileTheme in ['','dark','minimal','galaxy','blue','pink','red','orange','forest','spring','city'])
+        && (!a.keys().hasAny(['profileShape']) || a.profileShape in ['circle','square'])
+        && (!a.keys().hasAny(['nameFont']) || (a.nameFont is string && a.nameFont.size() <= 30))
+        && (!a.keys().hasAny(['color']) || a.color in ['blue','violet','pink','sunset','mint','aurora'])
+        && (!a.keys().hasAny(['title']) || (a.title is string && a.title.size() <= 50));
+    }
     function validProfile(data) {
-      return data.keys().hasOnly(['username','name','bio','xp','profilePublic'])
+      return data.keys().hasOnly(['username','name','bio','xp','profilePublic','appearance'])
         && data.keys().hasAll(['username','name','bio','xp'])
         && data.username is string
         && data.username.matches('^[a-z][a-z0-9_]{2,19}$')
         && data.name is string && data.name.size() <= 60
         && data.bio is string && data.bio.size() <= 300
         && data.xp is int && data.xp >= 0 && data.xp <= 9999999
-        && (!data.keys().hasAny(['profilePublic']) || data.profilePublic is bool);
+        && (!data.keys().hasAny(['profilePublic']) || data.profilePublic is bool)
+        && (!data.keys().hasAny(['appearance']) || validProfileAppearance(data.appearance));
     }
 
     match /admins/{uid} {
@@ -294,7 +308,7 @@ service cloud.firestore {
         && getAfter(n(request.resource.data.username)).data.uid == uid;
       allow update: if mine(uid)
         && validProfile(request.resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp','name','bio','username','profilePublic'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp','name','bio','username','profilePublic','appearance'])
         && existsAfter(n(request.resource.data.username))
         && getAfter(n(request.resource.data.username)).data.uid == uid
         && (
