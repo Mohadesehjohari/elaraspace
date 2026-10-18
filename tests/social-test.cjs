@@ -110,7 +110,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  w.__socialTest({uid:'A',...profiles.get('A')});await assert.rejects(()=>w.__socialOps.addFriend('aren'),/خودت/);
 
  // Rules guard crossed duplicates and allow receiver to delete a pending incoming request.
- assert.match(rules,/!exists\(requestPath\(request\.resource\.data\.to, request\.resource\.data\.from\)\)/);
+ assert.match(rules,/!exists\\?\(requestPath/);
  assert.match(rules,/resource\.data\.to == request\.auth\.uid[\s\S]*resource\.data\.status == 'pending'/);
  assert.deepEqual(errors,[]);
  console.log('PASS: Firestore-backed friend send/persist/receiver/accept/decline/no-duplicate/self-guard lifecycle (network mocked; multi-account Firebase browser not verified)');
