@@ -224,7 +224,7 @@
 @keyframes elara-ceremony-burst{
  0%{opacity:0;transform:translate(0,0) rotate(45deg) scale(.6)}
  20%{opacity:1}
- 100%{opacity:0;transform:translate(calc((var(--i) - 5.5)*32px),calc(-120px + mod(var(--i)*23px,80px))) scale(.1) rotate(130deg)}
+ 100%{opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(.1) rotate(130deg)}
 }
 @keyframes elara-ceremony-star-rejoice{to{transform:translateY(-84px) scale(1.86);filter:brightness(1.25)}}
 @media(max-width:700px){
