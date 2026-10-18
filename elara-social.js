@@ -51,7 +51,13 @@ async function syncSocialStats(){
 async function visibleSocialStats(other){
  try{const snap=await getDoc(doc(db,'socialStats',String(other)));if(!snap.exists())return null;const d=snap.data()||{},n=Number(d.streak);return Number.isInteger(n)&&n>=0&&n<=36500?{streak:n,visibility:d.visibility||'private'}:null}catch(error){if(error?.code!=='permission-denied')console.warn('Social stats unavailable:',other,error.code||error.message);return null}
 }
-async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
+async function obtain(){
+ const user=auth.currentUser;if(!user?.emailVerified)return false;
+ const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists()||auth.currentUser?.uid!==user.uid)return false;
+ await assertProfileUsernameClaim(user.uid,result.data());
+ if(auth.currentUser?.uid!==user.uid)return false;
+ state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true
+}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
  // Request delivery must not depend on optional privacy or mute collections.
  // A missing/deprecated collection rule should not make the whole inbox vanish.
@@ -217,10 +223,15 @@ function acceptedFriend(other){return !!uid&&!blockedByMe(other)&&state.friends.
 async function ensureDm(other){
  if(!uid||!auth.currentUser?.emailVerified)throw Error('ابتدا وارد حساب تأییدشده شو.');
  if(!acceptedFriend(other))throw Error('گفتگوی خصوصی فقط بین دوستان تأییدشده فعال است.');
- const id=dmId(other),ref=doc(db,'conversations',id),snap=await getDoc(ref);
- if(!snap.exists()){
-  const members=[uid,other].sort();
+ const id=dmId(other),ref=doc(db,'conversations',id),members=[uid,other].sort();
+ // Firestore's participant-only get rule cannot authorize an absent document:
+ // create first, then fall back to an authorized read for an existing DM.
+ try{
   await setDoc(ref,{kind:'dm',members,createdBy:uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''});
+ }catch(error){
+  if(error?.code!=='permission-denied'&&error?.code!=='already-exists')throw error;
+  const existing=await getDoc(ref);
+  if(!existing.exists()||existing.data()?.kind!=='dm'||!Array.isArray(existing.data()?.members)||members.some(x=>!existing.data().members.includes(x)))throw error;
  }
  return id;
 }
@@ -310,9 +321,18 @@ async function sendGroup(groupId,value){
 async function inviteGroup(groupId,target){
  if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(groupId),to=String(target||''),groupRef=doc(db,'groups',gid),group=await getDoc(groupRef);if(!group.exists()||group.data()?.owner!==uid)throw Error('فقط صاحب گروه می‌تواند دعوت بفرستد.');if((group.data()?.status||'active')!=='active')throw Error('گروه بسته شده است.');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت فقط برای دوست تأییدشده است.');
  const member=await getDoc(doc(groupRef,'groupMembers',to));if(member.exists())throw Error('این دوست همین حالا عضو گروه است.');
- const ref=doc(groupRef,'groupInvites',to),snap=await getDoc(ref);
- if(snap.exists()){const d=snap.data()||{};if(d.status==='pending')return to;if(d.status==='accepted')throw Error('این دعوت قبلاً پذیرفته شده است.');if(d.status==='declined'){await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});return to}}
- await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return to
+ const ref=doc(groupRef,'groupInvites',to),payload={from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ try{await setDoc(ref,payload)}
+ catch(error){
+  if(error?.code!=='permission-denied'&&error?.code!=='already-exists')throw error;
+  const existing=await getDoc(ref);if(!existing.exists())throw error;
+  const row=existing.data()||{};
+  if(row.status==='pending')return to;
+  if(row.status==='accepted')throw Error('این دعوت قبلاً پذیرفته شده است.');
+  if(row.status!=='declined')throw error;
+  await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});
+ }
+ return to
 }
 async function listGroupInvites(){
  if(!uid)return[];const snaps=await getDocs(query(collectionGroup(db,'groupInvites'),where('to','==',uid))),rows=[];
@@ -384,8 +404,18 @@ async function updateClubSettings(clubId,patch={}){
 async function inviteClub(clubId,other){
  if(!uid)throw Error('حساب در دسترس نیست.');const gid=String(clubId),to=String(other||''),clubRef=doc(db,'clubs',gid),clubSnap=await getDoc(clubRef);if(!clubSnap.exists())throw Error('باشگاه پیدا نشد.');const club=clubDefaults(clubSnap.data()||{}),manager=club.owner===uid||club.assistant1===uid||club.assistant2===uid;if(!manager)throw Error('اجازهٔ دعوت عضو را نداری.');if(club.status!=='active')throw Error('باشگاه بسته شده است.');if(club.memberCount>=club.memberLimit)throw Error('ظرفیت باشگاه تکمیل است.');if(!state.friends.some(x=>x.uid===to))throw Error('دعوت باشگاه فقط برای دوست تأییدشده است.');
  const ban=await getDoc(doc(clubRef,'clubBans',to));if(ban.exists())throw Error('این حساب از باشگاه منع شده است.');const member=await getDoc(doc(clubRef,'clubMembers',to));if(member.exists())throw Error('این دوست عضو باشگاه است.');
- const ref=doc(clubRef,'clubInvites',to),existing=await getDoc(ref);if(existing.exists()){const d=existing.data()||{};if(d.status==='pending')return to;if(d.status==='accepted')throw Error('دعوت قبلاً پذیرفته شده است.');if(d.status==='declined'){await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});return to}}
- await setDoc(ref,{from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return to
+ const ref=doc(clubRef,'clubInvites',to),payload={from:uid,to,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ try{await setDoc(ref,payload)}
+ catch(error){
+  if(error?.code!=='permission-denied'&&error?.code!=='already-exists')throw error;
+  const existing=await getDoc(ref);if(!existing.exists())throw error;
+  const row=existing.data()||{};
+  if(row.status==='pending')return to;
+  if(row.status==='accepted')throw Error('دعوت قبلاً پذیرفته شده است.');
+  if(row.status!=='declined')throw error;
+  await updateDoc(ref,{status:'pending',updatedAt:serverTimestamp()});
+ }
+ return to
 }
 async function listClubInvites(){
  if(!uid)return[];const snaps=await getDocs(query(collectionGroup(db,'clubInvites'),where('to','==',uid))),rows=[];
