@@ -291,7 +291,7 @@ function renderSecurity(){
     // Mode and Style are text-only controls; only actual themes show artwork.
     const modeTile=(key,label)=>`<button type="button" class="elara-mode-choice ${mode===key?'active':''}" data-drawer-mode="${key}" aria-pressed="${mode===key}">${label}</button>`;
     const styleTile=(key,label)=>`<button type="button" class="elara-style-choice ${style===key?'active':''}" data-drawer-style="${key}" aria-pressed="${style===key}">${label}</button>`;
-    const activeColor=p.themeVariant||(p.color==='violet'?'default':p.color);
+    const rawColor=p.themeVariant||(p.color==='violet'||p.color==='black'?'default':p.color);const activeColor=rawColor==='black'?'default':rawColor;
     const colors=[['default','شب‌های بی‌انتها'],['violet','کهکشان یاسی'],['blue','مهتاب نیلی'],['pink','شفق صورتی'],['red','کسوف سرخ'],['orange','سپیده‌ی آتش'],['green','جنگل زمردی'],['white','برف مهتاب']];
     host.innerHTML=`${embedded?'':sectionHead('تم‌های سایت','رنگ محیط و حالت نمایش را انتخاب کن.','settings')}
       <section class="pass4-appearance-group elara-theme-gallery">
@@ -353,8 +353,8 @@ function renderSecurity(){
   function setColor(color){
     if(!['default','violet','blue','pink','red','orange','green','white'].includes(color))return;
     // Legacy violet preferences stay unchanged until the lilac tile is selected.
-    // The new default option keeps the exact previous accent and visual styling.
-    const patch={color:color==='default'?'violet':color,themeVariant:color,...(color==='default'?{style:'default'}:{})};
+    // Restore the site's historic 'black' / Night Endless accent without applying any new palette CSS.
+    const patch={color:color==='default'?'black':color,themeVariant:color,...(color==='default'?{style:'default'}:{})};
     if(window.ElaraSetAppearance)window.ElaraSetAppearance(patch);
     else {
       if(color!=='default')document.querySelector(`[data-color="${CSS.escape(color)}"]`)?.click();
@@ -389,7 +389,7 @@ function renderSecurity(){
   }
 
   function syncQuickAppearance(){
-    const p=pref(),active=p.themeVariant||(p.color==='violet'?'default':p.color);
+    const p=pref(),raw=p.themeVariant||(p.color==='violet'||p.color==='black'?'default':p.color),active=raw==='black'?'default':raw;
     const mode=localStorage.getItem('elara_amoled')==='yes'?'amoled':p.mode==='system'?
       (window.matchMedia?.('(prefers-color-scheme: light)')?.matches?'light':'dark'):p.mode;
     document.querySelectorAll('[data-elara-theme-quick]').forEach(button=>{
