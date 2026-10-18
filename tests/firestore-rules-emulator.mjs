@@ -56,6 +56,15 @@ try{
  await assertSucceeds(getDoc(ref(bob,'profiles/alice')));
  await assertFails(getDoc(ref(eve,'profiles/dave')));
 
+ // Cross-account public profile: Bio and sanitized cosmetics are stored in the same document.
+ const appearance={avatarGroup:'female',avatarLevel:1,frame:'bronze',banner:'moon',profileTheme:'galaxy',profileShape:'circle',nameFont:'default',color:'violet',title:'دوست ستاره‌ها'};
+ await assertSucceeds(updateDoc(ref(alice,'profiles/alice'),{name:'Alice Star',bio:'Shared via Firebase',appearance}));
+ const remote=await assertSucceeds(getDoc(ref(bob,'profiles/alice')));
+ if(remote.data().bio!=='Shared via Firebase'||remote.data().appearance?.title!=='دوست ستاره‌ها')throw Error('Friend cannot read updated Bio/public appearance');
+ await assertFails(updateDoc(ref(bob,'profiles/alice'),{bio:'Impersonation'}));
+ await assertFails(updateDoc(ref(alice,'profiles/alice'),{appearance:{...appearance,photoCircle:'data:image/png;base64,fake'}}));
+ await assertFails(updateDoc(ref(alice,'profiles/alice'),{appearance:{...appearance,title:'x'.repeat(51)}}));
+
  // Username identity invariant: profile + claim are one atomic ownership record.
  const regABatch=writeBatch(regA);
  regABatch.set(ref(regA,'usernames/nova'),{uid:'regA'});
