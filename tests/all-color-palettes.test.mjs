@@ -94,7 +94,7 @@ for(const id of allIds){
 }
 window.ElaraDrawerTest.setColor('default');
 assert.equal(body.dataset.elaraTheme,'default');
-assert.equal(JSON.parse(memory.get('elara_preferences_v2')).color,'violet');
+assert.equal(JSON.parse(memory.get('elara_preferences_v2')).color,'black','Night Endless restores the old black accent');
 window.ElaraSetAppearance({themeVariant:'black',color:'black'});
 assert.equal(body.dataset.elaraTheme,'default','Unknown/legacy black must keep Midnight unchanged');
 console.log('PASS: 7 color-theme selections × Dark/Light/AMOLED, 6 four-color palettes, module-wide CSS, Default preserved.');
