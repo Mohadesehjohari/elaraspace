@@ -172,11 +172,32 @@
     background-repeat:no-repeat!important;
   }
 }
+/* Mobile Tasks hero — full-viewport bleed and full panorama, with the
+   black letterbox strips in the source artwork scaled beyond the hero.
+   A single CSS layer handles the image; no duplicate banner or data changes. */
 @media (max-width:767px) {
   html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
   html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
-    box-sizing:border-box!important;width:100%!important;max-width:100%!important;
-    margin-inline:0!important;
-    background-size:cover!important;background-repeat:no-repeat!important;
+    box-sizing:border-box!important;
+    width:100vw!important;min-width:0!important;max-width:100vw!important;
+    margin-inline:calc(50% - 50vw)!important;
+    height:199px!important;min-height:199px!important;max-height:199px!important;
+    padding:0!important;border-radius:0 0 14px 14px!important;
+    background-color:#0b1b38!important;
+    background-image:linear-gradient(90deg,#020b2455 0%,#03102a17 42%,#020b2426 100%),url("assets/ui/task-header-banner-bg.webp")!important;
+    background-size:100% 100%,100% 152%!important;
+    background-position:center center,center center!important;
+    background-repeat:no-repeat,no-repeat!important;
+  }
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero .task-streak-summary {
+    width:min(220px,68%)!important;max-width:220px!important;
+    grid-template-columns:40px minmax(0,1fr)!important;
+  }
+}
+@media (max-width:359px) {
+  html body #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
+  html body.dark #main #panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
+    height:188px!important;min-height:188px!important;max-height:188px!important;
   }
 }
