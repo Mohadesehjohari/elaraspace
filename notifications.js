@@ -3,8 +3,12 @@
 const KEY='elara_notifications_v1',MAX=120,arr=v=>Array.isArray(v)?v:[],esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const id=()=>crypto?.randomUUID?.()||'n-'+Date.now()+'-'+Math.random().toString(36).slice(2);
 const tt=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
-function read(){try{return arr(JSON.parse(localStorage.getItem(KEY)||'[]')).filter(x=>x&&typeof x==='object')}catch{return[]}}
-function write(rows){localStorage.setItem(KEY,JSON.stringify(rows.slice(-MAX)));syncBadge();window.dispatchEvent(new CustomEvent('elara:notifications-changed',{detail:{unread:unreadCount()}}))}
+// Account-scoped inbox: never expose one user's social notifications to a
+// different account that logs in on the same device.
+const ownerUid=()=>String(window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||'').trim();
+const notificationKey=()=>KEY+'__'+(ownerUid()||'guest');
+function read(){try{return arr(JSON.parse(localStorage.getItem(notificationKey())||'[]')).filter(x=>x&&typeof x==='object')}catch{return[]}}
+function write(rows){localStorage.setItem(notificationKey(),JSON.stringify(rows.slice(-MAX)));syncBadge();window.dispatchEvent(new CustomEvent('elara:notifications-changed',{detail:{unread:unreadCount()}}))}
 function unreadCount(){return read().filter(x=>x.read!==true&&x.unread!==false).length}
 function push(input={}){
  const type=String(input.type||'system'),key=String(input.dedupeKey||''),rows=read(),existing=key?rows.find(x=>x.dedupeKey===key):null;
