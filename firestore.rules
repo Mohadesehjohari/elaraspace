@@ -407,7 +407,7 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && exists(p(request.resource.data.to))
         && !blockedBetween(request.resource.data.from, request.resource.data.to)
-        && !exists(requestPath(request.resource.data.to, request.resource.data.from));
+        && (!exists(requestPath(request.resource.data.to, request.resource.data.from)) || get(requestPath(request.resource.data.to, request.resource.data.from)).data.status == 'declined');
       allow update: if signed()
         && !blockedBetween(resource.data.from, resource.data.to)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
