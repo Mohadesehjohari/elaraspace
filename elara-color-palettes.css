@@ -1,0 +1,160 @@
+/* ELARA · Multi-color palettes (other six installed themes).
+   4 palette hues per theme: dark canvas + primary + highlight + second accent.
+   Violet continues to use the original approved neon-lavender-theme.css.
+   "شب‌های بی‌انتها" (theme=default) receives ZERO CSS overrides.
+   Only general site chrome; task row/priority/semantic/chart color ownership
+   remains with its original feature CSS. */
+/* مهتاب نیلی — blue: four coordinating hues, dark + light roles */
+body[data-elara-theme="blue"]{
+  --theme-base:#101D42;--theme-primary:#415EEB;--theme-highlight:#92AEFF;--theme-secondary:#4ED4E9;
+  --theme-surface:#18264C;--theme-raised:#263967;--theme-border:#627EC5;
+  --theme-text:#F4F7FF;--theme-muted:#BBC8E5;
+  --theme-light-bg:#F3F7FF;--theme-light-surface:#FCFDFF;--theme-light-raised:#E8EEFF;
+  --theme-light-border:#AEC0EB;--theme-light-text:#202C51;--theme-light-muted:#54648A;
+  --theme-light-accent:#344DC9;--theme-light-secondary:#187D9B;
+}
+
+/* شفق صورتی — pink: four coordinating hues, dark + light roles */
+body[data-elara-theme="pink"]{
+  --theme-base:#28142E;--theme-primary:#C044A0;--theme-highlight:#F891C9;--theme-secondary:#7E8BFF;
+  --theme-surface:#341C41;--theme-raised:#47234F;--theme-border:#B266B0;
+  --theme-text:#FFF1FA;--theme-muted:#E6BDE0;
+  --theme-light-bg:#FFF4FA;--theme-light-surface:#FFFCFF;--theme-light-raised:#FCE8F5;
+  --theme-light-border:#E5B2D5;--theme-light-text:#42203D;--theme-light-muted:#80536F;
+  --theme-light-accent:#9D317F;--theme-light-secondary:#5654AB;
+}
+
+/* کسوف سرخ — red: four coordinating hues, dark + light roles */
+body[data-elara-theme="red"]{
+  --theme-base:#26121D;--theme-primary:#D7445A;--theme-highlight:#FF8998;--theme-secondary:#F6A869;
+  --theme-surface:#341D2B;--theme-raised:#4B2A36;--theme-border:#B05B6D;
+  --theme-text:#FFF5F5;--theme-muted:#EAC3CA;
+  --theme-light-bg:#FFF5F3;--theme-light-surface:#FFFBFA;--theme-light-raised:#FCE6E9;
+  --theme-light-border:#E4B5BB;--theme-light-text:#4D242D;--theme-light-muted:#8E5B65;
+  --theme-light-accent:#A72E4F;--theme-light-secondary:#A96829;
+}
+
+/* سپیده‌ی آتش — orange: four coordinating hues, dark + light roles */
+body[data-elara-theme="orange"]{
+  --theme-base:#291B15;--theme-primary:#D96C32;--theme-highlight:#FFB16A;--theme-secondary:#E8C16A;
+  --theme-surface:#39251E;--theme-raised:#503329;--theme-border:#BD805B;
+  --theme-text:#FFF8EE;--theme-muted:#F0D2B9;
+  --theme-light-bg:#FFF8EE;--theme-light-surface:#FFFCF7;--theme-light-raised:#F8EADD;
+  --theme-light-border:#E5C5A7;--theme-light-text:#4B2B1D;--theme-light-muted:#8D674F;
+  --theme-light-accent:#A54D20;--theme-light-secondary:#94651F;
+}
+
+/* جنگل زمردی — green: four coordinating hues, dark + light roles */
+body[data-elara-theme="green"]{
+  --theme-base:#092B29;--theme-primary:#198F79;--theme-highlight:#67D5B0;--theme-secondary:#E0BD74;
+  --theme-surface:#113936;--theme-raised:#1D4B45;--theme-border:#508F81;
+  --theme-text:#F1FFF9;--theme-muted:#BAE0D3;
+  --theme-light-bg:#F2FBF7;--theme-light-surface:#FAFEFC;--theme-light-raised:#E2F3EB;
+  --theme-light-border:#B5DCCB;--theme-light-text:#183D37;--theme-light-muted:#527768;
+  --theme-light-accent:#087B66;--theme-light-secondary:#9A712D;
+}
+
+/* برف مهتاب — white: four coordinating hues, dark + light roles */
+body[data-elara-theme="white"]{
+  --theme-base:#14263E;--theme-primary:#6089C2;--theme-highlight:#D8EAFF;--theme-secondary:#9BBCCF;
+  --theme-surface:#20354D;--theme-raised:#2D4966;--theme-border:#799AB5;
+  --theme-text:#F6FAFF;--theme-muted:#C6DAE9;
+  --theme-light-bg:#F8FBFF;--theme-light-surface:#FFFFFF;--theme-light-raised:#E9F1FB;
+  --theme-light-border:#C4D3E6;--theme-light-text:#24374F;--theme-light-muted:#63768B;
+  --theme-light-accent:#355E96;--theme-light-secondary:#446E88;
+}
+
+/* Compatibility aliases consumed by the existing shared site-wide skin:
+   --galaxy-* are ROLE names here, not literal Violet colors. This avoids
+   forking hundreds of lines of per-module background rules six times. */
+body:is([data-elara-theme="blue"],[data-elara-theme="pink"],[data-elara-theme="red"],[data-elara-theme="orange"],[data-elara-theme="green"],[data-elara-theme="white"]){
+  --galaxy-navy:var(--theme-base);
+  --galaxy-purple:var(--theme-primary);
+  --galaxy-lilac:var(--theme-highlight);
+  --galaxy-blue:var(--theme-secondary);
+  --neon-lilac:var(--theme-highlight);
+  --neon-violet:var(--theme-primary);
+  --neon-blue:var(--theme-secondary);
+  --neon-cyan:var(--theme-secondary);
+  --neon-ink:var(--theme-text);
+  --neon-glow:color-mix(in srgb,var(--theme-primary) 27%,transparent);
+  --neon-outline:color-mix(in srgb,var(--theme-highlight) 62%,var(--theme-border));
+  --neon-halo:0 0 0 1px color-mix(in srgb,var(--theme-secondary) 18%,transparent),
+    0 10px 32px color-mix(in srgb,var(--theme-base) 54%,transparent),
+    0 0 20px color-mix(in srgb,var(--theme-primary) 22%,transparent);
+  --neon-panel:linear-gradient(145deg,
+    color-mix(in srgb,var(--surface) 89%,var(--theme-primary) 11%),
+    color-mix(in srgb,var(--surface) 90%,var(--theme-base) 10%));
+  --neon-raised:linear-gradient(135deg,
+    color-mix(in srgb,var(--surface2) 80%,var(--theme-primary) 20%),
+    color-mix(in srgb,var(--surface) 83%,var(--theme-secondary) 17%));
+  --neon-field:linear-gradient(180deg,var(--input),
+    color-mix(in srgb,var(--input) 91%,var(--theme-primary) 9%));
+  --neon-cta:linear-gradient(110deg,
+    color-mix(in srgb,var(--theme-primary) 66%,var(--theme-base) 34%),
+    color-mix(in srgb,var(--theme-primary) 72%,var(--theme-secondary) 28%));
+  --bg:var(--theme-base)!important;
+  --surface:var(--theme-surface)!important;
+  --surface2:var(--theme-raised)!important;
+  --border:var(--theme-border)!important;
+  --input:var(--theme-base)!important;
+  --text:var(--theme-text)!important;
+  --muted:var(--theme-muted)!important;
+  --accent:var(--theme-highlight)!important;
+  --accent2:var(--theme-secondary)!important;
+  --elara-accent:var(--theme-highlight)!important;
+  --shadow:0 15px 42px color-mix(in srgb,var(--theme-base) 58%,transparent)!important;
+  color-scheme:dark;
+  background:
+    radial-gradient(ellipse at 77% 0%,color-mix(in srgb,var(--theme-primary) 35%,transparent),transparent 38%),
+    radial-gradient(ellipse at 12% 36%,color-mix(in srgb,var(--theme-secondary) 21%,transparent),transparent 40%),
+    linear-gradient(155deg,var(--theme-base),
+      color-mix(in srgb,var(--theme-base) 89%,var(--theme-primary) 11%) 55%,
+      color-mix(in srgb,var(--theme-base) 89%,var(--theme-secondary) 11%)) fixed!important;
+  color:var(--text);
+}
+
+/* Light = the SAME hue family with brighter backgrounds and darker readable
+   functional accents, not a completely different theme. */
+body:is([data-elara-theme="blue"],[data-elara-theme="pink"],[data-elara-theme="red"],[data-elara-theme="orange"],[data-elara-theme="green"],[data-elara-theme="white"]).light{
+  --neon-lilac:var(--theme-light-accent);
+  --neon-violet:var(--theme-light-accent);
+  --neon-blue:var(--theme-light-secondary);
+  --neon-cyan:var(--theme-light-secondary);
+  --neon-ink:var(--theme-light-text);
+  --neon-glow:color-mix(in srgb,var(--theme-primary) 13%,transparent);
+  --neon-outline:color-mix(in srgb,var(--theme-primary) 40%,var(--theme-light-border));
+  --neon-halo:0 0 0 1px color-mix(in srgb,var(--theme-secondary) 10%,transparent),
+    0 11px 26px color-mix(in srgb,var(--theme-base) 11%,transparent);
+  --neon-cta:linear-gradient(110deg,var(--theme-light-accent),
+    color-mix(in srgb,var(--theme-light-accent) 80%,var(--theme-light-secondary) 20%));
+  --bg:var(--theme-light-bg)!important;
+  --surface:var(--theme-light-surface)!important;
+  --surface2:var(--theme-light-raised)!important;
+  --border:var(--theme-light-border)!important;
+  --input:var(--theme-light-surface)!important;
+  --text:var(--theme-light-text)!important;
+  --muted:var(--theme-light-muted)!important;
+  --accent:var(--theme-light-accent)!important;
+  --accent2:var(--theme-light-secondary)!important;
+  --elara-accent:var(--theme-light-accent)!important;
+  --shadow:0 12px 30px color-mix(in srgb,var(--theme-base) 12%,transparent)!important;
+  color-scheme:light;
+  background:
+    radial-gradient(ellipse at 77% -5%,color-mix(in srgb,var(--theme-highlight) 23%,transparent),transparent 40%),
+    radial-gradient(ellipse at 9% 32%,color-mix(in srgb,var(--theme-secondary) 15%,transparent),transparent 43%),
+    linear-gradient(145deg,var(--theme-light-bg),
+      color-mix(in srgb,var(--theme-light-bg) 94%,var(--theme-highlight) 6%),
+      color-mix(in srgb,var(--theme-light-bg) 95%,var(--theme-secondary) 5%)) fixed!important;
+  color:var(--text);
+}
+
+/* AMOLED requests true black canvas, while retaining each palette's four
+   accents on interactive surfaces; Light never enters AMOLED. */
+body:is([data-elara-theme="blue"],[data-elara-theme="pink"],[data-elara-theme="red"],[data-elara-theme="orange"],[data-elara-theme="green"],[data-elara-theme="white"]).dark.amoled{
+  --bg:#000!important;
+  --surface:color-mix(in srgb,var(--theme-surface) 53%,#000 47%)!important;
+  --surface2:color-mix(in srgb,var(--theme-raised) 60%,#000 40%)!important;
+  --input:color-mix(in srgb,var(--theme-base) 51%,#000 49%)!important;
+  background:#000!important;
+}
