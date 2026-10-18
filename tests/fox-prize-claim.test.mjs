@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const src=readFileSync(new URL('../elara-fox-prize.js',import.meta.url),'utf8');
 class Fake{
- constructor(){this.children=[];this.dataset={};this.attrs={};this.handlers={};this.parentNode=null;this.style={setProperty(){}};this.classList={add(name){this.last=name}};this.textContent=''}
+ constructor(){this.children=[];this.dataset={};this.attrs={};this.handlers={};this.parentNode=null;this.style={setProperty(){}};this.classList={add(name){this.last=name},remove(name){this.removed=name}};this.textContent=''}
  setAttribute(k,v){this.attrs[k]=v}
  append(...kids){for(const k of kids){this.children.push(k);k.parentNode=this}}
  prepend(...kids){for(const k of kids.reverse()){this.children.unshift(k);k.parentNode=this}}
@@ -37,6 +37,8 @@ assert.equal(api.read().totalStars,2,'stars persisted');
 assert.equal(api.read().pending.length,0);
 assert.equal(api.read().claimedKeys.length,1);
 assert.equal(first.primary.textContent,'View missions');
+assert.equal(first.dialog.dataset.foxPhase,'collected','visual success state must differ from unopened chest');
+assert.equal(first.dialog.classList.last,'is-fox-prize-collected');
 assert.equal(JSON.parse(saved.get('elara_space_v1')).xp,300,'reward UI must never mint XP');
 assert.equal(api.wasClaimed('mission:daily:first-task'),true);
 modal({key:'mission:daily:first-task',kind:'mission',title:'Repeat'});
@@ -53,6 +55,11 @@ win.ElaraAccount.user.uid='a';
 const input={dataset:{foxPrizeSetting:'sound'},checked:true,closest:()=>input};
 events.change({target:input});
 assert.equal(api.prefs().sound,true,'audio toggle persisted');
-assert.match(readFileSync(new URL('../elara-fox-prize.css',import.meta.url),'utf8'),/prefers-reduced-motion/);
+const ceremonyCss=readFileSync(new URL('../elara-fox-prize.css',import.meta.url),'utf8');
+assert.match(ceremonyCss,/prefers-reduced-motion/);
+assert.match(ceremonyCss,/elara-fox-treasure-lid/);
+assert.match(ceremonyCss,/is-fox-prize-collected \.elara-fox-victory-mark/);
+assert.match(src,/fox-celebrate\.webp/);
+assert.match(src,/elara-fox-claim-progress/);
 assert.match(readFileSync(new URL('../elara-fox-rewards.js',import.meta.url),'utf8'),/ElaraFoxClaim\?\.present/);
 console.log('FOX_PRIZE_PASS claim persists, no duplicate, unpaid later, preview, XP stable, audio, account isolation');
