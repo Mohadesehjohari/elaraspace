@@ -96,9 +96,17 @@ assert.equal(r.classes.has('amoled'),true);
 assert.equal(r.storage.getItem('elara_amoled'),'yes');
 r.window.ElaraDrawerTest.setColor('default');
 assert.equal(r.body.dataset.elaraTheme,'default');
-assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'black','Midnight must revive legacy black accent, not lavender');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).themeVariant,'default');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default','Default must reset style to the existing appearance');
+// A persisted 'default' value from the previous release must migrate to the
+// historic Night Endless (black) palette on reload, without selecting Lilac.
+r=runtime({'elara_preferences_v2':JSON.stringify({mode:'dark',color:'violet',themeVariant:'default',style:'anime'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'default');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet','Migration must not modify storage before a user action');
+assert.equal(r.window.ElaraSetAppearance({themeVariant:'default'}).color,'black');
+assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default');
 r=runtime({'elara_preferences_v2':JSON.stringify({mode:'light',color:'blue'})});
 r.window.ElaraApplyTheme();
 assert.equal(r.body.dataset.elaraTheme,'blue','other existing accents must remain untouched');
