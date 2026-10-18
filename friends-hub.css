@@ -1282,3 +1282,49 @@ body.light #elara-ranking-page .social-tabs [role="tab"]{
  #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-slot span{max-width:70px}
  #elara-social-page[data-social-tab="clubs"] .club-f3-vacant-gold span{max-width:86px}
 }
+
+/* Friend requests: remove the red decline tile; show a neon-green accept check.
+   These controls share the canonical friend actions across Dashboard and Requests. */
+#elara-social-page .social-request-row .social-request-actions > [data-friend-action]{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 52px!important;
+  width:52px!important;
+  min-width:52px!important;
+  max-width:52px!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  padding:0!important;
+  border-radius:12px!important;
+}
+#elara-social-page .social-request-row .social-request-actions > [data-friend-action="decline"]{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#elara-social-page .social-request-row .social-request-actions > [data-friend-action="decline"] img{
+  display:block;
+  width:46px!important;
+  height:46px!important;
+  object-fit:contain!important;
+}
+#elara-social-page .social-request-row .social-request-actions > [data-friend-action="accept"]{
+  background:linear-gradient(145deg,#0a2a3e,#081b2d)!important;
+  border:1px solid #36fa81!important;
+  box-shadow:inset 0 0 0 1px #36fa8133,0 0 12px #2eff7655!important;
+  color:#52ff85!important;
+}
+#elara-social-page .social-request-row .social-request-neon-check{
+  display:block;
+  width:35px;
+  height:35px;
+  color:#52ff85!important;
+  filter:drop-shadow(0 0 4px #29ff70) drop-shadow(0 0 8px #26ff6e);
+  pointer-events:none;
+}
+#elara-social-page .social-request-row .social-request-actions > [data-friend-action]:focus-visible{
+  outline:2px solid #b5ffd1!important;
+  outline-offset:3px!important;
+}
