@@ -107,6 +107,12 @@ assert.equal(r.body.dataset.elaraTheme,'default');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).color,'violet','Migration must not modify storage before a user action');
 assert.equal(r.window.ElaraSetAppearance({themeVariant:'default'}).color,'black');
 assert.equal(JSON.parse(r.storage.getItem('elara_preferences_v2')).style,'default');
+r=runtime({'elara_preferences_v2':JSON.stringify({mode:'dark',color:'black',style:'default'})});
+r.window.ElaraApplyTheme();
+assert.equal(r.body.dataset.elaraTheme,'default','Legacy black Night must not be recolored by the new site skins');
+r.window.ElaraDrawerTest.renderAppearance();
+assert.match(r.hosts['drawer-settings-theme-area'].innerHTML,/data-drawer-color="default" class="pass4-accent-tile elara-theme-card active"/,'The first Midnight card should be visibly selected for old black users');
+
 r=runtime({'elara_preferences_v2':JSON.stringify({mode:'light',color:'blue'})});
 r.window.ElaraApplyTheme();
 assert.equal(r.body.dataset.elaraTheme,'blue','other existing accents must remain untouched');
