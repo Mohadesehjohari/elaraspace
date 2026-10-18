@@ -76,3 +76,194 @@
 .elara-fox-overlay[data-fox-motion="off"] .elara-fox-prize-spark,
 .elara-fox-overlay[data-fox-motion="off"] .elara-fox-dialog,
 .elara-fox-overlay[data-fox-motion="off"] .elara-fox-prize-sigil{animation:none!important;transition:none!important}
+
+
+/* FOX CEREMONY V3: from a sealed cosmic treasure to a real victory.
+   Only modal surfaces; cinematic page heroes remain untouched. */
+.elara-fox-overlay .elara-fox-dialog {
+  width:min(94vw,522px);
+  padding:22px 32px 29px;
+  max-height:min(93dvh,850px);
+  border-radius:32px;
+  background:
+    radial-gradient(ellipse 85% 49% at 50% 12%,#67509a98,transparent 88%),
+    radial-gradient(ellipse at 90% 85%,#183a58b0,transparent 60%),
+    linear-gradient(167deg,#322451 0%,#171c3d 53%,#09172e 100%);
+  border:1px solid #efc87b9c;
+  box-shadow:0 28px 95px #000b,0 0 56px #c899ff2d,inset 0 1px #ffeedf45;
+  transition:background .5s ease,box-shadow .5s ease,border-color .5s ease
+}
+.elara-fox-overlay .elara-fox-dialog::before{content:"✦";font-size:22px;color:#ffe7a5;top:21px;inset-inline-start:26px}
+.elara-fox-overlay .elara-fox-close{z-index:7;width:36px;height:36px}
+.elara-fox-claim-progress {
+ display:flex;direction:rtl;align-items:center;justify-content:center;gap:12px;margin:2px auto 2px;
+ font-size:11px;color:#c5b9e2;font-weight:800;white-space:nowrap
+}
+.elara-fox-claim-step{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;
+ border:1px solid #a78bb959;border-radius:999px;background:#1b1a3e7f;transition:all .35s}
+.elara-fox-claim-step.is-current{color:#211735;background:linear-gradient(110deg,#fff0b5,#ffc65b);
+ border-color:#ffe99f;box-shadow:0 0 15px #ffd78544}
+.elara-fox-claim-step.is-complete{color:#a9f7d5;border-color:#70d4af88;background:#2576542b}
+.elara-fox-claim-connector{width:27px;height:1px;background:linear-gradient(90deg,#caa2e675,#f8db8699)}
+/* Fix the old stage/class mismatch: the large fox and chest are designed together. */
+.elara-fox-prize-stage{
+ position:relative;display:block;width:min(100%,390px);height:260px;margin:0 auto -1px;
+ isolation:isolate;overflow:visible
+}
+.elara-fox-prize-halo{
+ position:absolute;z-index:-1;top:22px;left:27px;width:305px;height:214px;border-radius:50%;
+ background:radial-gradient(ellipse,#c78ffe7a 0%,#a86fe63b 37%,transparent 70%);
+ filter:blur(8px);animation:elara-ceremony-glow 3.1s ease-in-out infinite alternate
+}
+.elara-fox-prize-stage .elara-fox-image{
+ position:absolute;z-index:2;bottom:0;left:23px;
+ width:235px!important;height:245px!important;max-height:none!important;
+ max-width:none!important;margin:0!important;
+ object-fit:contain;object-position:bottom center;
+ filter:drop-shadow(0 15px 13px #060924a6);
+ animation:elara-ceremony-fox 3s ease-in-out infinite
+}
+.elara-fox-treasure{
+ position:absolute;z-index:3;right:6px;bottom:18px;width:159px;height:155px;
+ filter:drop-shadow(0 12px 12px #070b208b);
+ perspective:700px;transform-origin:50% 100%;
+ animation:elara-ceremony-chest-float 3.8s ease-in-out infinite
+}
+.elara-fox-treasure > span{display:block;position:absolute;left:0;box-sizing:border-box}
+.elara-fox-treasure-back{z-index:0;bottom:14px;width:100%;height:76px;border-radius:17px 17px 21px 21px;
+ background:linear-gradient(135deg,#4b286a,#211d4c);border:4px solid #b67d49}
+.elara-fox-treasure-glow{z-index:1;left:14px!important;bottom:28px;width:130px;height:64px;
+ background:radial-gradient(ellipse,#ffe4a9b3 0%,#fff1bc24 48%,transparent 75%);
+ filter:blur(13px);opacity:.52;transition:transform .7s ease,opacity .7s ease}
+.elara-fox-treasure-box{z-index:4;bottom:4px;width:100%;height:78px;border-radius:12px 12px 20px 20px;
+ border:4px solid #ffd98d;background:linear-gradient(145deg,#aa663b 0%,#6e3b70 50%,#45295f 100%);
+ box-shadow:inset 0 10px 18px #f2ba4b24,inset 0 -7px 11px #1b1539a6}
+.elara-fox-treasure-box::before{content:"";position:absolute;left:calc(50% - 13px);top:0;width:26px;height:100%;
+ background:linear-gradient(90deg,#d99540,#ffe18c,#eeb458);box-shadow:inset 0 0 5px #fff4c766}
+.elara-fox-treasure-box::after{content:"";position:absolute;left:7px;right:7px;bottom:13px;height:2px;background:#ffd99b78}
+.elara-fox-treasure-lid{z-index:5;bottom:77px;left:-6px!important;width:171px;height:56px;
+ border-radius:54% 54% 11px 11px/75% 75% 11px 11px;
+ border:4px solid #ffe0a1;background:linear-gradient(145deg,#c6854b,#743c72 70%,#45265a);
+ box-shadow:0 6px 7px #21102c8a,inset 0 5px 9px #ffd7824a;
+ transform-origin:19% 100%;transition:transform .65s cubic-bezier(.2,.8,.15,1.15)}
+.elara-fox-treasure-lid::after{content:"";position:absolute;left:calc(50% - 13px);top:2px;width:26px;height:100%;
+ background:linear-gradient(90deg,#d79547,#ffdf84,#dfad5b)}
+.elara-fox-treasure-lock{z-index:6;bottom:41px;left:calc(50% - 21px)!important;width:42px;height:38px;
+ display:grid!important;place-items:center;border-radius:12px;border:3px solid #fff4c5;
+ background:linear-gradient(135deg,#ffc75c,#dc9449);color:#583168;
+ font-size:24px;transition:transform .45s ease,opacity .4s ease}
+.elara-fox-treasure-star{z-index:2;left:calc(50% - 26px)!important;bottom:64px;
+ width:52px;height:65px;display:grid!important;place-items:center;
+ color:#fff1a8;font-size:68px;text-shadow:0 0 25px #ffe895,0 0 47px #ffbe48;
+ opacity:0;transform:scale(.5) translateY(25px);
+ transition:transform .75s cubic-bezier(.17,1.1,.3,1),opacity .5s ease}
+.elara-fox-victory-mark{position:absolute;right:12px;top:24px;z-index:4;
+ display:grid;place-items:center;width:78px;height:78px;border-radius:50%;
+ font-size:43px;color:#163f33;border:4px solid #f0ffd4;
+ background:radial-gradient(circle at 36% 27%,#fffbd4,#a4ffd3 54%,#58c4ae);
+ box-shadow:0 0 34px #78ffcc93,0 8px 22px #0007;
+ opacity:0;transform:translateY(20px) scale(.5);transition:all .65s cubic-bezier(.15,1.4,.36,1)}
+.elara-fox-prize-stage .elara-fox-prize-spark{z-index:5;top:45%;left:50%;
+ width:8px;height:8px;pointer-events:none;animation:elara-ceremony-spark 4s linear infinite;
+ animation-delay:calc(var(--i)*-.34s)}
+.elara-fox-dialog .elara-fox-eyebrow{font-size:11px;letter-spacing:.14em}
+.elara-fox-dialog h2{font-size:clamp(26px,3.2vw,33px);line-height:1.45;letter-spacing:-.015em;color:#fff1bf;
+ margin:5px 0 7px}
+.elara-fox-dialog #elara-fox-desc{font-size:14px;color:#e0dcf1;line-height:1.8;
+ max-width:44ch;margin-bottom:12px;overflow-wrap:anywhere}
+.elara-fox-dialog .elara-fox-meta{margin-bottom:10px}
+.elara-fox-dialog .elara-fox-prize-card{margin:9px auto 7px;min-height:110px;
+ padding:17px 19px;border-radius:20px;gap:16px;
+ border:1px solid #ffe5a7ad;
+ background:linear-gradient(112deg,#be844e31,#6a4b8b47 51%,#4742824a);
+ box-shadow:0 0 29px #ffcc6721 inset,0 12px 29px #05092466}
+.elara-fox-dialog .elara-fox-prize-sigil{width:67px;height:67px;flex-basis:67px;border-radius:18px;font-size:48px;
+ background:radial-gradient(circle at 37% 30%,#d7b175,#8b5093 66%,#51316a);
+ box-shadow:0 0 21px #ffce7954,0 5px 13px #0006}
+.elara-fox-dialog .elara-fox-prize-overline{font-size:11px;color:#ffe3ad}
+.elara-fox-dialog .elara-fox-prize-stars{font-size:22px;color:#fff6ce}
+.elara-fox-dialog .elara-fox-prize-info small{font-size:11px;color:#d1c9e5}
+.elara-fox-dialog .elara-fox-prize-status{font-size:12px;line-height:1.75;margin:0 0 15px}
+.elara-fox-dialog .elara-fox-action.primary{min-height:53px;font-size:16px}
+.elara-fox-dialog .elara-fox-actions{gap:11px}
+.elara-fox-dialog.is-fox-prize-collected{
+ border-color:#9af6d8;
+ background:
+  radial-gradient(ellipse 80% 48% at 50% 13%,#55d7c17a 0%,transparent 90%),
+  radial-gradient(ellipse at 95% 80%,#5068ba55 0%,transparent 60%),
+  linear-gradient(160deg,#24395b 0%,#1a2850 46%,#0b1d33 100%);
+ box-shadow:0 27px 95px #000b,0 0 65px #86ffd64d,inset 0 1px #ffffff55
+}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-treasure-lid{transform:translate(-25px,-45px) rotate(-27deg)}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-treasure-lock{opacity:0;transform:translateY(32px) scale(.4)}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-treasure-glow{opacity:1;transform:translateY(-43px) scale(1.9)}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-treasure-star{
+ opacity:1;transform:translateY(-74px) scale(1.75);transition-delay:.16s;
+ animation:elara-ceremony-star-rejoice 2.4s ease-in-out .9s infinite alternate
+}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-victory-mark{opacity:1;transform:translateY(0) scale(1);transition-delay:.22s}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-prize-stage .elara-fox-image{animation:elara-ceremony-fox-celebrate .72s cubic-bezier(.2,1.4,.3,1) both}
+.elara-fox-dialog.is-fox-prize-collected h2{color:#d7ffe7;text-shadow:0 0 20px #9cffe850}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-prize-card{
+ border-color:#9bf3d4;background:linear-gradient(112deg,#18785f65,#44699867,#53478b55);
+ box-shadow:0 0 30px #6ef8ce36 inset,0 10px 29px #020f2366}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-prize-sigil{background:linear-gradient(130deg,#4dba89,#66ddb9);
+ color:#123c35;font-size:43px;animation:elara-prize-pop .55s both}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-prize-status{color:#b3ffdf;font-weight:800}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-action.primary{background:linear-gradient(130deg,#c1ffe4,#78e4cc,#6dccdb);
+ color:#102b42;box-shadow:0 5px 22px #62e6cf5f}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-claim-step.is-current{border-color:#aaffdd;background:linear-gradient(120deg,#d4ffed,#7ae5c6);color:#134a3a}
+.elara-fox-dialog.is-fox-prize-collected .elara-fox-prize-spark{animation:elara-ceremony-burst 1.15s ease-out both;animation-delay:calc(var(--i)*.045s)}
+@keyframes elara-ceremony-glow{to{opacity:.66;transform:scale(1.13)}}
+@keyframes elara-ceremony-fox{50%{transform:translateY(-5px)}}
+@keyframes elara-ceremony-chest-float{50%{transform:translateY(-3px)}}
+@keyframes elara-ceremony-fox-celebrate{0%{transform:translateY(9px) scale(.91)}
+ 65%{transform:translateY(-16px) scale(1.1)}100%{transform:translateY(0) scale(1)}}
+@keyframes elara-ceremony-spark{0%,100%{opacity:.15;transform:rotate(calc(var(--i)*30deg)) translateX(100px) rotate(45deg)}
+ 50%{opacity:1;transform:rotate(calc(var(--i)*30deg + 180deg)) translateX(150px) rotate(45deg)}}
+@keyframes elara-ceremony-burst{
+ 0%{opacity:0;transform:translate(0,0) rotate(45deg) scale(.6)}
+ 20%{opacity:1}
+ 100%{opacity:0;transform:translate(calc((var(--i) - 5.5)*32px),calc(-120px + mod(var(--i)*23px,80px))) scale(.1) rotate(130deg)}
+}
+@keyframes elara-ceremony-star-rejoice{to{transform:translateY(-84px) scale(1.86);filter:brightness(1.25)}}
+@media(max-width:700px){
+ .elara-fox-overlay .elara-fox-dialog{padding:15px 20px 20px;width:min(94vw,440px);border-radius:25px}
+ .elara-fox-claim-progress{gap:8px;font-size:10px}
+ .elara-fox-claim-step{padding:5px 8px}
+ .elara-fox-prize-stage{height:202px;width:min(100%,320px)}
+ .elara-fox-prize-stage .elara-fox-image{width:190px!important;height:198px!important;left:5px}
+ .elara-fox-prize-halo{left:8px;top:17px;width:265px;height:185px}
+ .elara-fox-treasure{transform:scale(.82);transform-origin:100% 100%;right:0;bottom:5px;animation:none}
+ .elara-fox-victory-mark{width:60px;height:60px;top:11px;right:4px;font-size:35px}
+ .elara-fox-dialog .elara-fox-prize-card{min-height:91px;padding:11px 13px}
+ .elara-fox-dialog .elara-fox-prize-sigil{width:55px;height:55px;flex-basis:55px;font-size:38px}
+ .elara-fox-dialog .elara-fox-prize-stars{font-size:19px}
+ .elara-fox-dialog h2{font-size:clamp(23px,6vw,28px)}
+ .elara-fox-dialog #elara-fox-desc{font-size:13px}
+ .elara-fox-dialog .elara-fox-prize-status{margin-bottom:10px}
+ .elara-fox-prize-stage .elara-fox-prize-spark{display:block}
+}
+@media(max-width:420px){
+ .elara-fox-overlay .elara-fox-dialog{padding:13px 15px 17px}
+ .elara-fox-prize-stage{height:174px;width:280px}
+ .elara-fox-prize-stage .elara-fox-image{height:175px!important;width:171px!important}
+ .elara-fox-treasure{right:-6px;bottom:0;transform:scale(.70)}
+ .elara-fox-victory-mark{right:0;top:6px;width:52px;height:52px;font-size:30px}
+ .elara-fox-dialog .elara-fox-prize-stars{font-size:17px}
+ .elara-fox-dialog .elara-fox-prize-card{gap:9px}
+}
+@media(max-height:680px){
+ .elara-fox-overlay .elara-fox-dialog{max-height:95dvh;padding-top:12px;padding-bottom:13px}
+ .elara-fox-prize-stage{height:164px}
+ .elara-fox-prize-stage .elara-fox-image{height:163px!important;width:175px!important}
+ .elara-fox-dialog h2{font-size:23px}
+ .elara-fox-dialog .elara-fox-prize-card{min-height:75px;padding:9px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .elara-fox-prize-stage *, .elara-fox-prize-stage *::before,.elara-fox-prize-stage *::after,
+ .elara-fox-dialog.is-fox-prize-collected .elara-fox-treasure-star{animation:none!important;transition:none!important}
+}
+.elara-fox-overlay[data-fox-motion="off"] .elara-fox-prize-stage *,
+.elara-fox-overlay[data-fox-motion="off"] .elara-fox-prize-stage *::before,
+.elara-fox-overlay[data-fox-motion="off"] .elara-fox-prize-stage *::after{animation:none!important;transition:none!important}
