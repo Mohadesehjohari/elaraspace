@@ -35,3 +35,24 @@ The automatic test `node tests/fox-rewards-contract.test.mjs` verifies reference
 - Regression: node tests/fox-mission-batch.test.mjs (actual mission event batching/XP),
   node tests/fox-rewards-contract.test.mjs; real browser tests are available via
   scoped GitHub Actions workflow.
+
+
+## Claimable reward ceremony (2026-10-18)
+
+- The new `elara-fox-prize.js` and `.css` enhance the existing reward modal with a
+  high-quality fox, an animated jewel/keepsake card and a real Collect button.
+- The first Collect click registers keepsake star(s) and shows a collected confirmation.
+  The second click follows the existing route or dismisses the popup.
+- Closing an uncollected popup retains the item in Settings > Star vault for later.
+- Device-local per-account cosmetic store: `elara_fox_prize_v1:<uid>` with pending,
+  claimed and idempotency keys. Stars are collectibles, NOT a spendable currency,
+  and are not yet synchronized to cloud accounts or across browsers.
+- Claimed XP from `rpg.js` is shown as **already credited**, never paid twice;
+  Leitner and Focus display only XP supplied by canonical committed events.
+- Quiet Web Audio chimes run after a user clicks Collect and only when sound
+  is enabled in Settings; sound defaults off. Animation toggle defaults on
+  but respects `prefers-reduced-motion` and may be turned off.
+- Settings previews never award XP or collectibles. The fox does not return
+  to fixed cinematic banners.
+- Tests include `tests/fox-prize-claim.test.mjs` and mobile/desktop Playwright
+  acceptance, configured in GitHub Actions.
