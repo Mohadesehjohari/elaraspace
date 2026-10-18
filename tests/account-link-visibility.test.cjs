@@ -19,11 +19,11 @@ const linked={id:'user-a__user-b',from:'user-a',to:'user-b',status:'accepted'};
 const context={
  window,localStorage,document:{documentElement:{lang:'fa'},addEventListener:()=>{}},
  getApp:()=>({}),getAuth:()=>auth,getFirestore:()=>({}),
- collection:()=>({}),doc:()=>({}),getDoc:async()=>({}),setDoc:async()=>{},updateDoc:async()=>{},
+ collection:()=>({}),doc:()=>({}),getDoc:async()=>({}),getDocs:async q=>({docs:q.condition.key==='from'?[{id:linked.id,data:()=>linked}]:[]}),setDoc:async()=>{},updateDoc:async()=>{},
  query:(_,condition)=>({condition}),where:(key,comparison,value)=>({key,value}),
  onSnapshot:(spec,callback)=>{callback({docs:spec.condition.key==='from'?[{id:linked.id,data:()=>linked}]:[]});return()=>{}},
  serverTimestamp:()=>Date.now(),onAuthStateChanged:(_,callback)=>callback(me),
- setTimeout:()=>0,clearTimeout:()=>{},Event:class{},CustomEvent:class{},
+ setTimeout:()=>0,clearTimeout:()=>{},setInterval:()=>0,clearInterval:()=>{},Event:class{},CustomEvent:class{},
  console
 };
 vm.runInNewContext(src,context,{filename:'account-link.js'});
