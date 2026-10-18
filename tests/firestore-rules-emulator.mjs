@@ -185,6 +185,15 @@ try{
  await assertFails(updateDoc(ref(eve,'friendRequests/eve_dave'),{status:'accepted'}));
  await assertSucceeds(updateDoc(ref(dave,'friendRequests/eve_dave'),{status:'accepted'}));
 
+ // A crossed live request is blocked, but after a declined reverse request
+ // the recipient may send a fresh friend invitation.
+ await assertSucceeds(setDoc(ref(dave,'friendRequests/dave_bob'),{from:'dave',to:'bob',status:'pending'}));
+ await assertFails(setDoc(ref(bob,'friendRequests/bob_dave'),{from:'bob',to:'dave',status:'pending'}));
+ await assertSucceeds(updateDoc(ref(bob,'friendRequests/dave_bob'),{status:'declined'}));
+ await assertSucceeds(setDoc(ref(bob,'friendRequests/bob_dave'),{from:'bob',to:'dave',status:'pending'}));
+ await assertSucceeds(deleteDoc(ref(bob,'friendRequests/bob_dave')));
+ await assertSucceeds(deleteDoc(ref(dave,'friendRequests/dave_bob')));
+
  // DM requires an accepted friendship; outsiders cannot read/send.
  const convo='conversations/alice_bob_dm';
  await assertSucceeds(setDoc(ref(alice,convo),{kind:'dm',members:['alice','bob'],createdBy:'alice',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),lastText:'',lastSender:''}));
