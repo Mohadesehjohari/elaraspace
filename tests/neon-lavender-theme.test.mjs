@@ -39,7 +39,7 @@ assert.match(page, /شب‌های بی‌انتها/);
 assert.match(page, /data-elara-mode-quick="dark"/);
 assert.match(page, /data-elara-mode-quick="light"/);
 assert.match(page, /data-elara-open-appearance/);
-assert.match(page,/drawer\.js\?v=20261016-inline-themes-v2/);
+assert.match(page,/drawer\.js\?v=20261018-night-endless-restore-v3/);
 assert.equal((drawer.match(/data-drawer-nav="appearance"/g)||[]).length,0,'No separate theme button in the drawer navigation');
 assert.match(drawer,/renderAppearance\('drawer-settings-theme-area'\)/,'Settings must render full theme gallery inline');
 assert.match(drawer,/if\(section==='appearance'\)section='settings'/,'Old links must open Settings');
