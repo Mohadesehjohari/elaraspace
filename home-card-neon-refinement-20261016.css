@@ -1096,7 +1096,5 @@ html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-h
 }
 @media(max-width:700px){
  html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
-  .ref-card>header h2{font-size:inherit!important}
- html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
   .ref-quick-access-grid>.ref-quick-card{box-shadow:none!important}
 }
