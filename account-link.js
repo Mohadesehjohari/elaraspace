@@ -3,7 +3,7 @@
  * Item delivery reuses the existing invitation/membership security model. */
 import {getApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,collection,doc,getDoc,setDoc,updateDoc,query,where,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,query,where,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
 const auth=getAuth(getApp()),db=getFirestore(getApp()),STORE='elara_space_v1';
 const sets=[['task','tasks'],['habit','habits'],['goal','goals'],['language-class','languageClasses'],['leitner-word','words']];
@@ -17,7 +17,13 @@ const ownUid=()=>auth.currentUser?.uid||'';
 const friendRows=()=>Array.isArray(window.ElaraSocial?.friends)?window.ElaraSocial.friends:[];
 const isFriend=uid=>friendRows().some(friend=>friend.uid===uid);
 const other=row=>row.from===ownUid()?row.to:row.from;
-let activeUid='',accountReady=false,links=new Map(),unsubs=[],inbound=[],outbound=[],syncTimer=null,syncing=false,accepting=new Set(),lastInbox=[];
+let activeUid='',accountReady=false,links=new Map(),unsubs=[],inbound=[],outbound=[],syncTimer=null,syncing=false,syncRequested=false,accepting=new Set(),lastInbox=[],pollTimer=null,listenerError='',seenIncoming=new Set();
+const errorText=error=>error?.code==='permission-denied'?language('دسترسی Firebase رد شد؛ قوانین Firestore این قابلیت هنوز منتشر نشده یا به‌روز نیست.','Firebase denied access. The Firestore rules for account linking may not be deployed.'):String(error?.message||error||language('خطای نامشخص','Unknown error'));
+function notify(title,message,key){window.ElaraNotify?.push?.({type:'social',title,message,dedupeKey:key,reopen:true})}
+function reportError(error,area){listenerError=errorText(error);console.error('Elara account-links '+area+':',error);window.dispatchEvent(new CustomEvent('elara:account-links-error',{detail:{message:listenerError,code:error?.code||''}}));window.dispatchEvent(new Event('elara:account-links-updated'))}
+function clearError(){if(!listenerError)return;listenerError='';window.dispatchEvent(new Event('elara:account-links-updated'))}
+function connectedStatus(){return{ready:accountReady,loaded:!!unsubs.length,error:listenerError}}
+
 function read(){try{const value=JSON.parse(localStorage.getItem(STORE)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return{}}}
 function write(value){localStorage.setItem(STORE,JSON.stringify(value));window.dispatchEvent(new CustomEvent('elara:state-committed',{detail:value}));window.dispatchEvent(new Event('elara:data-changed'))}
 function verified(){if(!auth.currentUser?.emailVerified||!ownUid())throw Error(language('ابتدا وارد حساب تأییدشده شو.','Sign in to a verified account first.'));return ownUid()}
@@ -27,22 +33,40 @@ function active(){
 }
 function status(friendUid){const rows=[...links.values()].filter(x=>other(x)===friendUid);if(rows.some(x=>x.status==='accepted'&&isFriend(friendUid)))return'accepted';if(rows.some(x=>x.status==='pending'&&x.to===ownUid()))return'incoming';if(rows.some(x=>x.status==='pending'&&x.from===ownUid()))return'outgoing';return'none'}
 function requests(){return [...links.values()].filter(row=>row.status==='pending')}
-function announce(){window.dispatchEvent(new Event('elara:account-links-updated'));scheduleSync();void acceptLinkedInvites(lastInbox)}
+function announce(){
+ for(const row of inbound){
+  if(row.to!==ownUid()||row.status!=='pending'||seenIncoming.has(row.id))continue;
+  seenIncoming.add(row.id);
+  const sender=friendRows().find(p=>p.uid===row.from),name=String(sender?.name||sender?.username||language('دوستت','Your friend'));
+  notify(language('درخواست اتصال حساب','Account-link request'),name+language(' می‌خواهد حساب‌ها را متصل کند.',' wants to link accounts.'),'account-link:incoming:'+row.id+':'+String(row.updatedAt?.seconds||'0'));
+ }
+ const current=new Set(inbound.filter(r=>r.status==='pending').map(r=>r.id));for(const id of seenIncoming)if(!current.has(id))seenIncoming.delete(id);
+ window.dispatchEvent(new Event('elara:account-links-updated'));scheduleSync();void acceptLinkedInvites(lastInbox)
+}
 function reconcile(){
  if(!activeUid||auth.currentUser?.uid!==activeUid)return;
  const all=new Map();for(const row of [...inbound,...outbound])all.set(row.id,row);
  links=all;announce();
 }
 function stop(){
- for(const f of unsubs)try{f()}catch{}unsubs=[];links.clear();inbound=[];outbound=[];clearTimeout(syncTimer);syncTimer=null;accepting.clear();lastInbox=[];
+ for(const f of unsubs)try{f()}catch{}unsubs=[];links.clear();inbound=[];outbound=[];clearTimeout(syncTimer);syncTimer=null;clearInterval(pollTimer);pollTimer=null;accepting.clear();lastInbox=[];seenIncoming.clear();listenerError='';syncRequested=false;
  window.dispatchEvent(new Event('elara:account-links-updated'));
 }
 function watch(uid){
  if(uid===activeUid&&unsubs.length)return;stop();activeUid=uid;
- const rows=(field,save)=>onSnapshot(query(collection(db,'accountLinks'),where(field,'==',uid)),snap=>{if(activeUid!==uid)return;save(snap.docs.map(d=>({id:d.id,...d.data()})));reconcile()},error=>console.warn('Account link listener:',error.code||error.message));
+ const rows=(field,save)=>onSnapshot(query(collection(db,'accountLinks'),where(field,'==',uid)),snap=>{if(activeUid!==uid)return;clearError();save(snap.docs.map(d=>({id:d.id,...d.data()})));reconcile()},error=>{if(activeUid===uid)reportError(error,field)});
  unsubs.push(rows('from',values=>{outbound=values}),rows('to',values=>{inbound=values}));
+ // Reconcile on reopen / reconnection even if a transient listener fails.
+ pollTimer=setInterval(()=>{if(activeUid===uid&&accountReady&&document.visibilityState!=='hidden')void refreshLinks().catch(error=>reportError(error,'poll'))},60000);
 }
 function linkRef(row){return doc(db,'accountLinks',row.id)}
+async function refreshLinks(){
+ const uid=verified();
+ const [sent,received]=await Promise.all(['from','to'].map(field=>getDocs(query(collection(db,'accountLinks'),where(field,'==',uid)))));
+ if(auth.currentUser?.uid!==uid)return[];
+ outbound=sent.docs.map(x=>({id:x.id,...x.data()}));inbound=received.docs.map(x=>({id:x.id,...x.data()}));
+ clearError();reconcile();return [...links.values()]
+}
 async function request(friendUid){
  const uid=verified();const target=String(friendUid||'');
  if(!target||target===uid||!isFriend(target))throw Error(language('این حساب در فهرست دوستان تأییدشده نیست.','Choose an accepted friend.'));
@@ -52,12 +76,14 @@ async function request(friendUid){
  const existing=[...links.values()].find(row=>row.from===uid&&row.to===target);
  const confirmed=await window.ElaraDialog.confirm(language('بعد از پذیرش دوست، فقط مواردی که «مشترک» انتخاب کنی به حساب او می‌روند. می‌توانی پیش‌فرض موارد جدید را هم مشترک تنظیم کنی؛ موارد قبلی خصوصی می‌مانند. ادامه می‌دهی؟','After your friend accepts, only items marked Shared will be delivered. You can also set new items to Shared by default. Existing content stays private. Continue?'),{title:language('اتصال دو حساب','Link accounts'),confirmText:language('ارسال درخواست','Send request')});
  if(!confirmed)return false;
- if(existing?.status==='pending')return true;
+ if(existing?.status==='pending'){try{await refreshLinks()}catch(error){reportError(error,'refresh-existing')}return true}
  if(existing&&['declined','revoked'].includes(existing.status)){
   await updateDoc(linkRef(existing),{status:'pending',updatedAt:serverTimestamp()});
  }else{
   await setDoc(doc(db,'accountLinks',uid+'__'+target),{from:uid,to:target,status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
  }
+ try{await refreshLinks()}catch(error){reportError(error,'request-refresh')}
+ notify(language('درخواست اتصال ارسال شد','Link request sent'),language('درخواست در حساب دوست ثبت شد؛ باید آن را قبول کند.','The request was saved; your friend must accept it.'),'account-link:sent:'+uid+':'+target);
  return true;
 }
 async function accept(linkId){
@@ -67,6 +93,8 @@ async function accept(linkId){
  const confirmed=await window.ElaraDialog.confirm(language('با تأیید اتصال، مواردی که هرکدام «مشترک» انتخاب می‌کنید برای دیگری ارسال می‌شوند. پیش‌فرض «فقط برای من» است و هر زمان می‌توانید اتصال را قطع کنید.','Once linked, only items explicitly marked Shared will be delivered. New items default to private; either person can unlink anytime.'),{title:language('تأیید اتصال دوطرفه','Approve two-way sharing'),confirmText:language('تأیید اتصال','Approve link')});
  if(!confirmed)return false;
  await updateDoc(linkRef(row),{status:'accepted',updatedAt:serverTimestamp()});
+ try{await refreshLinks()}catch(error){reportError(error,'accept-refresh')}
+ notify(language('حساب‌ها متصل شدند','Accounts linked'),language('اکنون می‌توانی موارد دلخواه را مشترک کنی.','You can now share selected items.'),'account-link:accepted:'+row.id);
  return true;
 }
 async function decline(linkId){
@@ -164,7 +192,7 @@ function saveSeen(linkId,key=null){
  else return;
  write(s);
 }
-function scheduleSync(){if(!accountReady||!activeUid)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncNew(),900)}
+function scheduleSync(){if(!accountReady||!activeUid)return;if(syncing){syncRequested=true;return}clearTimeout(syncTimer);syncTimer=setTimeout(()=>void syncNew(),900)}
 async function syncNew(){
  if(syncing||!accountReady||!activeUid||ownUid()!==activeUid)return;
  if(!auth.currentUser?.emailVerified)return;
@@ -194,7 +222,7 @@ async function syncNew(){
     }
    }
   }
- }finally{syncing=false}
+ }finally{syncing=false;if(syncRequested){syncRequested=false;scheduleSync()}}
 }
 async function acceptLinkedInvites(rows){
  if(!accountReady||!activeUid||ownUid()!==activeUid)return;
@@ -229,6 +257,8 @@ document.addEventListener('click',async event=>{
  }catch(error){await window.ElaraDialog?.alert?.(error.message||String(error),{title:language('اتصال حساب','Account link')})}
  finally{button.disabled=false}
 },true);
+window.addEventListener('online',()=>{if(accountReady){void refreshLinks().catch(error=>reportError(error,'online'));scheduleSync()}});
+document.addEventListener('visibilitychange',()=>{if(accountReady&&document.visibilityState==='visible')void refreshLinks().catch(error=>reportError(error,'resume'))});
 window.addEventListener('elara:collab-inbox',event=>{lastInbox=window.ElaraCollab?.pendingInvites?.()||event.detail?.rows||[];void acceptLinkedInvites(lastInbox)});
 window.addEventListener('elara:data-changed',scheduleSync);
 window.addEventListener('elara:state-committed',scheduleSync);
@@ -242,4 +272,4 @@ onAuthStateChanged(auth,user=>{
  if(window.ElaraAccount?.loaded===true&&window.ElaraAccount?.user?.uid===user.uid)accountReady=true;
  scheduleSync();
 });
-window.ElaraAccountLink={status,requests,request,accept,decline,disconnect,openManager,setItemMode,setDefaultMode,defaultMode,activeWith:uid=>active().some(row=>other(row)===uid)};
+window.ElaraAccountLink={status,requests,request,accept,decline,disconnect,openManager,setItemMode,setDefaultMode,defaultMode,refreshLinks,connectedStatus,activeWith:uid=>active().some(row=>other(row)===uid)};
