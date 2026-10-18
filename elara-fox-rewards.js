@@ -40,12 +40,13 @@ function open(data){
  const primary=node('button','elara-fox-action primary',data.primary||t('ادامه','Continue'));primary.type='button';
  primary.addEventListener('click',()=>{dismiss();if(data.go==='leitner')document.querySelector('#l3-review-scene [data-l3-exit]')?.click();else if(data.go&&typeof window.ElaraOpen==='function')window.ElaraOpen(data.go,{history:'push'})});
  actions.append(secondary,primary);dialog.append(actions);shade.append(dialog);document.body.append(shade);active=shade;
+ window.ElaraFoxClaim?.present?.({shade,dialog,data,primary,secondary,img});
  document.body.classList.add('elara-fox-modal-open');primary.focus({preventScroll:true});
  shade.addEventListener('click',e=>{if(e.target===shade)dismiss()});
  return true;
 }
 function reward(key,config){
- if(!allow()||seen.has(key))return false;
+ if(!allow()||seen.has(key)||window.ElaraFoxClaim?.wasClaimed?.(key))return false;
  seen.add(key);
  return open({key,...config});
 }
@@ -56,7 +57,7 @@ function onWord(event){
  reward('leitner:'+key,{kind:'leitner',image:'celebrate',kicker:t('لایتنر · پایان مرور','LEITNER · SESSION COMPLETE'),
   title:t('مرور امروز تموم شد!','Today’s review is complete!'),
   description:t('همهٔ واژه‌های موعددار رو مرور کردی. قدم‌به‌قدم یادگیری ماندگار می‌شه.','You reviewed all due words. Your learning grows one step at a time.'),
-  tags:[t('واژهٔ باقی‌مانده: ','Words left: ')+fmt(0),...(d.xpAwarded>0?[t('پاداش آخرین واژه: ','Last word reward: ')+'+'+fmt(d.xpAwarded)+' XP']:[])],
+  rewardXp:Math.max(0,Number(d.xpAwarded)||0),tags:[t('واژهٔ باقی‌مانده: ','Words left: ')+fmt(0),...(d.xpAwarded>0?[t('پاداش آخرین واژه: ','Last word reward: ')+'+'+fmt(d.xpAwarded)+' XP']:[])],
   primary:t('بازگشت به لایتنر','Back to Leitner'),secondary:t('همین‌جا بمون','Stay here'),go:'leitner'});
 }
 function onXp(){
@@ -107,7 +108,7 @@ function onFocus(event){
  reward('focus:'+person()+':'+d.sessionId,{kind:'focus',image:'focus',kicker:t('تمرکز','FOCUS'),
   title:t('جلسهٔ تمرکز کامل شد!','Focus session complete!'),
   description:t('برای خودت وقت گذاشتی. حالا یه استراحت کوتاه هم حقته.','You showed up for yourself. Enjoy a well-earned break.'),
-  tags:[fmt(d.minutes)+t(' دقیقه تمرکز',' minutes focused'),...(d.xpAwarded>0?['+'+fmt(d.xpAwarded)+' XP']:[])],
+  rewardXp:Math.max(0,Number(d.xpAwarded)||0),tags:[fmt(d.minutes)+t(' دقیقه تمرکز',' minutes focused'),...(d.xpAwarded>0?['+'+fmt(d.xpAwarded)+' XP']:[])],
   primary:t('عالیه','Nice!'),secondary:t('بستن','Close')});
 }
 function onKeys(event){
@@ -143,6 +144,7 @@ function settings(){
   const b=node('button','elara-fox-sample',t(fa,english));b.type='button';b.dataset.foxSample=kind;b.disabled=!o.visible||!o.celebrations;gallery.append(b);
  }
  card.append(gallery);
+ window.ElaraFoxClaim?.settings?.(card);
 }
 function sync(){if(syncQueued)return;syncQueued=true;requestAnimationFrame(()=>{syncQueued=false;settings()})}
 function setOption(field,value){
@@ -174,5 +176,5 @@ window.addEventListener('elara:logout',()=>{dismiss(true);initial();sync()});
 for(const evt of ['elara:open','elara:secondary-ready','elara:visual-ready','elara:locale-changed'])window.addEventListener(evt,()=>{sync();setTimeout(sync,100)});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});else sync();
 initial();
-window.ElaraFoxRewards=Object.freeze({show:reward,close:dismiss,refresh:sync,asset:name=>ROOT+(ART[name]||ART.celebrate),get active(){return !!active},get options(){return options()}});
+window.ElaraFoxRewards=Object.freeze({show:reward,openPending:open,close:dismiss,refresh:sync,asset:name=>ROOT+(ART[name]||ART.celebrate),get active(){return !!active},get options(){return options()}});
 })();
