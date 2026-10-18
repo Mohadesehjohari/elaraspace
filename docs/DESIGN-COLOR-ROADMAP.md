@@ -373,9 +373,9 @@ Rules:
 
 ---
 
-# D8 — Handoff Rules for Implementation Chat
+# D8 — Implementation Specification Checklist
 
-Final implementation prompt must include:
+The implementation specification must include:
 1. exact color tokens
 2. typography tokens
 3. background/surface/border tokens
@@ -415,7 +415,7 @@ A theme is not DONE until:
 # D10 — Execution Priority
 
 1. Complete **Elara Midnight**.
-2. Produce developer handoff prompt + tokens.
+2. Document developer-facing implementation specs and design tokens.
 3. Implement and visually verify default theme.
 4. Only then expand to:
    - Moonlit Kingdom

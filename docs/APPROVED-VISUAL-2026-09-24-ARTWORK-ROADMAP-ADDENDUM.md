@@ -55,7 +55,7 @@ i18n یکپارچه برای `fa-IR`/RTL، `en`/LTR و `tr`/LTR در تمام م
 
 ---
 
-## HANDOFF قطعی برای ادامه در چت جدید — ۲۴ سپتامبر ۲۰۲۶
+## یادداشت ادامهٔ توسعه — ۲۴ سپتامبر ۲۰۲۶
 
 این بخش آخرین snapshot اجرایی و مرجع ادامهٔ پروژه است. در تعارض با توضیحات قدیمی‌تر دربارهٔ وضعیت اجرا، این snapshot جدیدتر اولویت دارد.
 
@@ -65,7 +65,7 @@ i18n یکپارچه برای `fa-IR`/RTL، `en`/LTR و `tr`/LTR در تمام م
 - **Branch فعال:** `main`
 - مخزن `ArenParsi/elaraspace` فقط سابقهٔ تاریخی است و بدون درخواست صریح کاربر نباید تغییر کند.
 - **Baseline پیاده‌سازی قبل از Commit صرفاً Roadmap/Handoff حاضر:** `27203792fcd9a92f1a99fef5b2bdc3b49dba0f9d`
-- هر چت جدید باید **قبل از هر write، HEAD واقعی main را دوباره بخواند** و به SHA بالا اعتماد کور نکند.
+- در شروع هر مرحله باید **قبل از هر تغییر، HEAD واقعی main دوباره بررسی شود** و به SHA بالا اعتماد کور نکند.
 
 ### 2) وضعیت Checkpoint A — Artwork + Home Fidelity
 
@@ -229,13 +229,13 @@ Drawer:
 - اگر فایل binary جدید هنوز در repo نیست و ابزار GitHub binary upload ندارد، فقط همان فایل موردنیاز را با نام و مسیر دقیق از کاربر بخواه؛ درخواست ارسال مجدد همه تصاویر ممنوع.
 - Asset فقط وقتی «نصب‌شده» محسوب می‌شود که واقعاً در GitHub HEAD باشد، در manifest لازم ثبت شود، به UI وصل شود و Browser بدون 404 آن را نشان دهد.
 
-### 10) مرحلهٔ بعد در چت جدید
+### 10) مرحلهٔ بعد توسعه
 
 ترتیب اجباری شروع:
 1. HEAD واقعی main را refresh کن.
 2. هر سه Roadmap رسمی را بخوان.
 3. latest Actions را برای همان HEAD بررسی کن.
-4. Screenshotهای واقعی و مرجع جدیدی که کاربر در چت جدید می‌فرستد مبنای visual delta باشند.
+4. Screenshotهای واقعی و مرجع‌های جدید تأییدشده مبنای visual delta باشند.
 5. **Checkpoint A را فقط بر اساس feedback بصری کاربر ادامه بده.**
 6. Checkpoint B/C را تا اجازهٔ صریح کاربر شروع نکن.
 
@@ -265,7 +265,7 @@ Drawer:
 - اختلاف‌های باقی‌مانده با reference
 - cPanel/Firebase status بدون ادعای تست‌نشده
 
-وضعیت فعلی پیش از شروع چت جدید:
+وضعیت فعلی در زمان ثبت:
 - Checkpoint A coded: YES
 - automated-tested: YES
 - browser-tested: YES
@@ -279,14 +279,14 @@ Drawer:
 
 ---
 
-## FINAL SUPERVISOR HANDOFF + LATEST VISUAL OVERRIDE — ۲۴ سپتامبر ۲۰۲۶
+## FINAL IMPLEMENTATION CHECKPOINT + LATEST VISUAL OVERRIDE — ۲۴ سپتامبر ۲۰۲۶
 
-این بخش مرجع نهایی شروع چت بعدی است و در تعارض با بخش‌های قدیمی‌تر این سند، **همین بخش مقدم است**.
+این بخش مرجع نهایی شروع مرحلهٔ بعد توسعه است و در تعارض با بخش‌های قدیمی‌تر این سند، **همین بخش مقدم است**.
 
 ### A) نقش و پروتکل ناظر
 
-- Assistant در چت جدید **ناظر فنی، طراحی، کیفیت و پیشرفت** است؛ مجری اصلی توسعه نیست.
-- چت اجرایی جداگانه تغییرات را روی GitHub انجام می‌دهد.
+- بازبینی فنی، طراحی، کیفیت و پیشرفت مستقل از اجرای تغییرات انجام شود.
+- تغییرات اجرایی پس از بازبینی در GitHub ثبت می‌شوند.
 - ناظر باید در آغاز **هر Stage** مستقل:
   1. HEAD واقعی `Mohadesehjohari/elaraspace/main` را بخواند.
   2. این سه سند را روی همان HEAD بخواند:
@@ -294,14 +294,14 @@ Drawer:
      - `docs/APPROVED-VISUAL-2026-09-22-EXTENSION-ROADMAP.md`
      - `docs/APPROVED-VISUAL-2026-09-24-ARTWORK-ROADMAP-ADDENDUM.md`
   3. فایل‌های مرتبط و در صورت ادعای تست، Actions/Browser artifacts همان End HEAD را بررسی کند.
-- گزارش چت اجرایی به‌تنهایی مدرک نیست. بین requested / coded / automated-tested / browser-tested / cPanel-tested / Firebase-tested / release-ready تفکیک شود.
+- گزارش اجرای کار به‌تنهایی مدرک کافی نیست. بین requested / coded / automated-tested / browser-tested / cPanel-tested / Firebase-tested / release-ready تفکیک شود.
 - مخزن `ArenParsi/elaraspace` تاریخی است و نباید تغییر جدید بگیرد.
 
 ### B) Snapshot فعلی
 
 - Checkpoint A روی کد واقعی تا Browser acceptance اجرا شده است.
 - Baseline اجرایی Artwork/Home که Browser PASS داشت: `27203792fcd9a92f1a99fef5b2bdc3b49dba0f9d`.
-- HEAD بعدی ممکن است Docs-only یا Visual-pass جدید باشد؛ چت جدید باید HEAD را دوباره refresh کند و از این SHA به‌عنوان HEAD جاری فرضی استفاده نکند.
+- HEAD بعدی ممکن است Docs-only یا Visual-pass جدید باشد؛ در مرحلهٔ بعد باید HEAD دوباره بررسی شود و از این SHA به‌عنوان HEAD جاری فرضی استفاده نکند.
 - Assetهای نصب‌شده و متصل:
   - `assets/ui/hero-landscape.webp`
   - `assets/ui/missions-rocket.webp`

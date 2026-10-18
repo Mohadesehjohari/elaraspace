@@ -1,6 +1,6 @@
 # انتقال یک‌بارهٔ Elara Space به مخزن جدید
 
-مخزن توسعه و انتشار از این پس `Mohadesehjohari/elaraspace` است. مخزن قدیمی `ArenParsi/elaraspace` خصوصی است؛ صرف اتصال آن به ChatGPT به معنی در دسترس بودنش برای GitHub Actions مخزن جدید نیست.
+مخزن توسعه و انتشار از این پس `Mohadesehjohari/elaraspace` است. مخزن قدیمی `ArenParsi/elaraspace` خصوصی است و گردش‌کارهای GitHub Actions مخزن جدید، بدون اعتبارنامهٔ دسترسی جداگانه، به آن دسترسی ندارند.
 
 ## راه‌اندازی انتقال
 

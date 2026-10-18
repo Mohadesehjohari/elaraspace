@@ -1,4 +1,4 @@
-# تغییرات Elara Astra
+# گزارش تغییرات Elara Space
 
 مبدأ فقط‌خواندنی: `Mohadesehjohari/elaraspace`، snapshot دقیق commit `7e0f80a32995523db888897105e949a1b19ddd4b`.
 

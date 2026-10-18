@@ -1,4 +1,4 @@
-# Elara Space — Pass 4 Handoff — 2026-09-22
+# Elara Space — Pass 4 Implementation Notes — 2026-09-22
 
 Repo: `ArenParsi/elaraspace`  
 Branch: `main`
@@ -6,8 +6,8 @@ Branch: `main`
 ## HEAD context
 
 - Supervisor baseline supplied for Pass 4: `bf2f43e8bdbd8a9b6d639311a7621d4d49400d2f`.
-- Latest real `main` verified immediately before this handoff file: `00ae8b6a7ee904ea6d8dfd95d00a0a0dba900947`.
-- That HEAD is newer than the Pass 4 code commits and includes later unrelated roadmap documentation. Do **not** reset or force-push back to an older Pass 4 commit. The next session must fetch the real HEAD again before editing.
+- Latest `main` recorded for this implementation note: `00ae8b6a7ee904ea6d8dfd95d00a0a0dba900947`.
+- That HEAD is newer than the Pass 4 code commits and includes later unrelated roadmap documentation. Do **not** reset or force-push back to an older Pass 4 commit. Fetch the current HEAD before further editing.
 
 ## Pass 4 code that is already on main
 
@@ -91,9 +91,9 @@ Primary implementation files:
 
 - `.github/workflows/ci.yml` is wired to syntax-check `approved-profile-system.js` and run the Pass 4 test.
 
-## Verification performed in the current long chat
+## Recorded verification
 
-Verified against the current repository state before handoff:
+Verified against the repository snapshot documented above:
 
 - `approved-profile-system.js` is loaded from `index.html`.
 - `visual-fidelity-pass4.css` is loaded from `boot.js`.
@@ -103,7 +103,7 @@ Verified against the current repository state before handoff:
 - Central editor is wired to `ElaraDialog` + `ElaraSocial.saveProfileValues`.
 - CI workflow references the Pass 4 contract test.
 
-Test logic executed from fetched repository sources in an in-memory JS harness:
+Contract-test logic executed from repository sources in an in-memory JS harness:
 
 - Pass 4 contract test: **PASS**.
 - `tests/static-check.mjs` logic: **PASS**.
@@ -114,7 +114,7 @@ These are **not** claims of real-browser, deployed Firebase or real-GitHub-runne
 
 ## Still open / browser-only / infrastructure work
 
-The next session should continue from real HEAD and focus on verification/fidelity, not rewrite existing Task/XP/Firebase foundations.
+Future development should continue from the latest HEAD and focus on verification/fidelity, not rewrite existing Task/XP/Firebase foundations.
 
 Still not honestly verified:
 
@@ -131,7 +131,7 @@ The asset repository currently still has the local SVG banners and small icon as
 
 ## Safe continuation rule
 
-At the start of the next chat:
+Before the next development iteration:
 1. fetch and report the real `main` HEAD;
 2. reread the three approved docs plus this handoff;
 3. confirm Pass 4 files above still exist at that HEAD;
