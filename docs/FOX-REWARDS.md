@@ -56,3 +56,19 @@ The automatic test `node tests/fox-rewards-contract.test.mjs` verifies reference
   to fixed cinematic banners.
 - Tests include `tests/fox-prize-claim.test.mjs` and mobile/desktop Playwright
   acceptance, configured in GitHub Actions.
+
+## Visual redesign — two-stage reward reveal (2026-10-19)
+
+The existing collectible-star, locally persisted and idempotent claim flow remains unchanged.
+The modal now has two visibly distinct states:
+
+- **Reward ready:** a much larger fox, closed CSS treasure chest, two-step progress strip, strong gold
+  typography and jewel card. The user must explicitly choose “Collect reward”.
+- **Collected:** only after the persisted claim succeeds, the chest lid opens, a large star rises,
+  the fox art swaps to `fox-celebrate.webp`, the title and CTA change, the scene becomes mint-gold,
+  and particles briefly burst. A second CTA click navigates or closes; there is no second claim.
+- On a short or mobile viewport the illustration, chest and content scale down and stay inside a
+  scrollable dialog. Keyboard escape, focus restoration, reduced-motion and the optional sound
+  settings are unchanged. No static page mascot has been reintroduced.
+- QA contracts include ready/collected phase, treasure geometry in a real 390px and 1440px browser,
+  collected-fox asset, XP invariance and local collectible idempotency.
