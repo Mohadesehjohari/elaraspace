@@ -810,7 +810,14 @@ async function saveProfileValues(values={}){
  // No device images, private notes or arbitrary URLs are exposed.
  const patch={name,bio,profilePublic};
  if(values.appearance!==undefined)patch.appearance=normalizePublicAppearance(values.appearance);
- await updateDoc(profileRef,patch);
+ try{await updateDoc(profileRef,patch)}
+ catch(error){
+  if(error?.code!=='permission-denied'||!Object.hasOwn(patch,'appearance'))throw error;
+  // Old deployed rules can reject the new optional appearance field. Keep Bio/name working.
+  await updateDoc(profileRef,{name,bio,profilePublic});
+  delete patch.appearance;
+  warnings.push('ظاهر عمومی هنوز در Firebase ثبت نشد؛ قوانین جدید firestore.rules باید منتشر شوند.');
+ }
  try{await updateProfile(auth.currentUser,{displayName:name})}
  catch(error){console.warn('Firebase Auth display name sync failed; Firestore remains canonical:',error)}
  Object.assign(applied,patch);
