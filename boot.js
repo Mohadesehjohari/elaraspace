@@ -273,6 +273,7 @@
       });
       void import(assetUrl('./account-link.js')).catch(error=>{
         console.error('Account link inbox unavailable:',error);
+        window.__ElaraAccountLinkLoadError=String(error?.message||error);
         const msg=document.getElementById('elara-social-message');
         if(msg)msg.textContent='اتصال حساب دوستان بارگذاری نشد: '+String(error?.message||error);
         window.dispatchEvent(new CustomEvent('elara:account-links-error',{detail:{message:String(error?.message||error)}}))
