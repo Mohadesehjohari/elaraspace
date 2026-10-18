@@ -153,7 +153,7 @@ function render(){
  const collabCard=section('<span class="social-section-title">'+tt('درخواست‌های مشترک','Shared requests')+(collabRows.length?`<b class="social-count-badge">${fa(collabRows.length)}</b>`:'')+'</span>',(window.ElaraCollab?.inboxStatus?.().error?'<p class="account-link-error" role="alert">'+esc(window.ElaraCollab.inboxStatus().error)+'</p>':'')+collabBody,'social-collab-requests');
  const incomingLinks=arr(window.ElaraAccountLink?.requests?.()).filter(row=>row.to===uid);
  const outgoingLinks=arr(window.ElaraAccountLink?.requests?.()).filter(row=>row.from===uid);
- const accountLinkStatus=window.ElaraAccountLink?.connectedStatus?.()||{ready:false,loaded:false,error:''};
+ const accountLinkStatus=window.ElaraAccountLink?.connectedStatus?.()||{ready:false,loaded:false,error:window.__ElaraAccountLinkLoadError||''};
  const friendName=id=>{const p=friends.find(x=>x.uid===id);return esc(p?.name||p?.username||tt('دوست','Friend'))};
  const linkedButton=p=>{
   const state=window.ElaraAccountLink?.status?.(p.uid)||'none',disabled=['incoming','outgoing'].includes(state),action=state==='accepted'?'unlink':'request';
@@ -309,7 +309,7 @@ document.addEventListener('input',e=>{if(e.target.matches('[data-f2-search]')){f
 document.addEventListener('change',e=>{if(e.target.matches('[data-f2-filter]')){friendFilter=e.target.value;applyFriendFilters()}});
 window.addEventListener('popstate',()=>{selections.social=selectedFromUrl();render();window.dispatchEvent(new CustomEvent('elara:social-tab-changed',{detail:{route:'social',tab:selections.social}}))});
 document.addEventListener('change',async e=>{const select=e.target.closest('[data-presence-visibility]');if(!select)return;try{await window.ElaraSocial?.presence?.setVisibility?.(select.value)}catch(error){console.error('Presence privacy update:',error);render()}});
-for(const event of ['elara:social-updated','elara:presence-updated','elara:collab-updated','elara:account-links-updated','elara:account-ready','elara:logout','elara:locale-changed'])window.addEventListener(event,render);
+for(const event of ['elara:social-updated','elara:presence-updated','elara:collab-updated','elara:account-links-updated','elara:account-links-error','elara:account-ready','elara:logout','elara:locale-changed'])window.addEventListener(event,render);
 window.addEventListener('elara:open',e=>{if(['ranking','social'].includes(e.detail?.tab))render()});
 window.ElaraSocialView={render,navigateSocialTab};render();
 })();
