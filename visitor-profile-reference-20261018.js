@@ -36,7 +36,12 @@ function decorate(dialog){
  const restricted=!bio;
  const relationText=social?.querySelector('p')?.textContent?.trim()||'';
  const link=composition.querySelector('.elara-profile-page-entry');
- if(restricted)link?.remove(); // Never offer the public page CTA for a restricted profile.
+ // Pin the existing public Page action to the scenic cover (not the narrow name column).
+ // Preserve its data attributes so the site's canonical page navigation still handles clicks.
+ if(link){
+  if(restricted)link.remove();
+  else composition.append(link);
+ }
  const panel=dialog.closest('.elara-dialog-panel');
  if(!panel)return;
  const shell=document.createElement('div');shell.className='visitor-profile-shell';
