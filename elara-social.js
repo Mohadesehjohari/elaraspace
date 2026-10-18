@@ -290,7 +290,7 @@ async function inboundMessageNotification(kind,id,row,peer,recipient){
  }catch(error){console.warn('Social unread check unavailable:',kind,id,error.code||error.message);return}
  if(auth.currentUser?.uid!==recipient||uid!==recipient)return;
  const title=kind==='group'?'پیام جدید در گروه '+String(peer||'دوستان'):'پیام جدید از '+String(peer||'دوست');
- window.ElaraNotify?.push?.({type:'social',title,message:String(row.lastText).slice(0,160),dedupeKey:kind+'-incoming:'+recipient+':'+id+':'+updated,meta:{kind:kind==='group'?'group-message':'dm-message',targetId:id}})
+ window.ElaraNotify?.push?.({type:'social',title,message:String(row.lastText).slice(0,160),dedupeKey:kind+'-incoming:'+recipient+':'+id+':'+updated,meta:{kind:kind==='group'?'group-message':'dm-message',targetId:id,friendUid:kind==='dm'?row.lastSender:''}})
 }
 function startIncomingMessages(mine=auth.currentUser?.uid){
  if(!mine||!auth.currentUser?.emailVerified||messageWatchUid===mine)return;
