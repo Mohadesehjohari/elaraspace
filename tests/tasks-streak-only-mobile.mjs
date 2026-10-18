@@ -23,6 +23,7 @@ try{
     hero:rect(hero),summary:rect(summary),
     dayCount:hero.querySelectorAll('.task-streak-days>i').length,
     background:getComputedStyle(hero).backgroundImage,
+    backgroundSize:getComputedStyle(hero).backgroundSize,
     streakBackground:getComputedStyle(summary).backgroundImage,
     streakVisible:getComputedStyle(summary).visibility,
     streakOpacity:Number(getComputedStyle(summary).opacity)};
@@ -30,6 +31,9 @@ try{
   assert.equal(info.legacyBanner,false,'old standalone hero still exists '+width);
   assert.equal(info.duplicate,0,'extra generated banner still exists '+width);
   assert.ok(info.hero.h>=184&&info.hero.h<=208,'banner height is incorrect '+width+' '+JSON.stringify(info));
+  assert.ok(Math.abs(info.hero.x)<1.5&&Math.abs(info.hero.right-width)<1.5,'Tasks hero must reach both mobile viewport edges '+width+' '+JSON.stringify(info));
+  assert.ok(info.hero.y<16,'Tasks hero must be at the top of the mobile page '+width+' '+JSON.stringify(info));
+  assert.ok(info.backgroundSize.includes('100% 152%'),'full mobile panoramic art must be visible without black letterbox strips '+width+' '+JSON.stringify(info));
   assert.equal(info.dayCount,7,'seven streak days missing');
   assert.ok(info.background.includes('task-header-banner-bg.webp'),'illustrated Tasks banner must be loaded '+width+' '+JSON.stringify(info));
   assert.ok(info.streakBackground.includes('daily-streak-background.webp'),'streak card background is missing '+width+' '+JSON.stringify(info));
