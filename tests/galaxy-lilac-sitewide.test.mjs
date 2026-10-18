@@ -7,7 +7,7 @@ const base=read('neon-lavender-theme.css');
 const site=read('galaxy-lilac-sitewide.css');
 const design=read('elara-design.js');
 
-assert.match(index,/galaxy-lilac-sitewide\.css\?v=20261017-sitewide-r1/);
+assert.match(index,/galaxy-lilac-sitewide\.css\?v=20261018-all-palettes-v2/);
 assert.ok(index.indexOf('galaxy-lilac-sitewide.css')>index.indexOf('neon-lavender-theme.css'),'Sitewide layer must follow the core palette');
 assert.ok(index.indexOf('galaxy-lilac-sitewide.css')>index.indexOf('focus-library-walnut-20261016.css'),'Sitewide layer must follow all page-owner layers');
 const finalStylesheet=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].at(-1)?.[1]||'';
@@ -18,7 +18,7 @@ assert.equal((stripped.match(/\{/g)||[]).length,(stripped.match(/\}/g)||[]).leng
 const selectors=[...stripped.matchAll(/(?:^|\})\s*([^{}]+)\{/g)].map(x=>x[1].trim());
 assert.ok(selectors.length>=25,'Missing module coverage rules');
 for(const selector of selectors){
-  assert.ok(selector.includes('body[data-elara-theme="violet"]'),'An unscoped CSS rule would repaint Midnight: '+selector);
+  assert.ok(selector.includes('body[data-elara-theme]:not([data-elara-theme="default"])'),'An unscoped CSS rule would repaint Midnight: '+selector);
 }
 for(const name of [
   '#panel-home','#panel-tasks','#panel-books','#panel-library-shelves',
@@ -46,6 +46,9 @@ assert.ok(base.includes('body[data-elara-theme="violet"].light'),'Missing Lilac 
 assert.ok(base.includes('body[data-elara-theme="violet"].dark.amoled'),'Missing Lilac AMOLED');
 assert.match(design,/document\.body\.dataset\.elaraTheme=visualTheme\(\)/);
 assert.match(site,/--galaxy-site-panel/);
+assert.match(index,/elara-color-palettes\.css\?v=20261018-six-palettes-v1/);
+assert.ok(index.indexOf('elara-color-palettes.css')>index.indexOf('neon-lavender-theme.css'));
+assert.ok(index.indexOf('elara-color-palettes.css')<index.indexOf('galaxy-lilac-sitewide.css'));
 assert.match(site,/--galaxy-site-raised/);
 assert.match(site,/--galaxy-site-field/);
 assert.match(site,/--galaxy-site-edge-blue/);
