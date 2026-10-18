@@ -500,7 +500,13 @@ service cloud.firestore {
     }
 
     match /groups/{groupId} {
-      allow get: if isGroupMember(groupId);
+      // An invited recipient may read this group's title/details to decide
+      // whether to accept, but still cannot read members or messages.
+      allow get: if isGroupMember(groupId) || (
+        signed() && exists(groupInvitePath(groupId, request.auth.uid))
+        && get(groupInvitePath(groupId, request.auth.uid)).data.status == 'pending'
+        && get(groupInvitePath(groupId, request.auth.uid)).data.to == request.auth.uid
+      );
       allow list: if false;
       allow create: if signed()
         && request.resource.data.keys().hasOnly(['owner','title','status','createdAt','updatedAt','lastText','lastSender'])
@@ -651,7 +657,13 @@ service cloud.firestore {
 
 
     match /clubs/{clubId} {
-      allow get: if signed() && (resource.data.visibility == 'public' || isClubMember(clubId));
+      // Pending invite recipients must see even a private club before joining.
+      allow get: if signed() && (
+        resource.data.visibility == 'public' || isClubMember(clubId) ||
+        (exists(clubInvitePath(clubId, request.auth.uid))
+         && get(clubInvitePath(clubId, request.auth.uid)).data.status == 'pending'
+         && get(clubInvitePath(clubId, request.auth.uid)).data.to == request.auth.uid)
+      );
       allow list: if signed() && resource.data.visibility == 'public';
       allow create: if canCreateClub()
         && request.resource.data.keys().hasOnly(['owner','title','kind','visibility','membershipMode','assistant1','assistant2','restDay','bio','rulesText','language','avatarPath','bannerPath','memberLimit','memberCount','lastMembershipUid','lastMembershipAction','currentBookTitle','status','createdAt','updatedAt'])
@@ -938,7 +950,10 @@ service cloud.firestore {
       }
 
       match /clubBans/{memberId} {
-        allow get, list: if isClubOwner(clubId);
+        // A join requester needs only their own ban status; managers need
+        // target-ban checks before inviting. Full ban lists stay owner-only.
+        allow get: if isClubManager(clubId) || mine(memberId);
+        allow list: if isClubOwner(clubId);
         allow create: if isClubOwner(clubId)
           && memberId != request.auth.uid
           && request.resource.data.keys().hasOnly(['uid','by','createdAt'])
