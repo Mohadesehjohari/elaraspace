@@ -42,3 +42,9 @@
 .account-share-manager .account-share-items span{flex:1;min-width:0;overflow-wrap:anywhere}
 .account-share-manager .account-share-items small{font-size:11px;white-space:nowrap;opacity:.8}
 @media(max-width:700px){#elara-social-page .friends-f2-friend-actions .friend-linked-status{font-size:10px;padding:5px 7px}.account-share-manager .account-share-items small{font-size:10px}}
+
+/* Delivery diagnostics are visible without developer tools. */
+#elara-social-page .account-link-system-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0;padding:7px 2px}
+#elara-social-page .account-link-system-status button{border:1px solid rgba(140,170,220,.48);background:rgba(50,105,153,.15);color:inherit;border-radius:10px;padding:7px 12px;cursor:pointer}
+#elara-social-page .account-link-system-status button:disabled{opacity:.6}
+#elara-social-page .account-link-error{width:100%;font-size:12px;font-weight:650;line-height:1.8;border:1px solid rgba(240,145,92,.5);border-radius:10px;padding:9px 12px;background:rgba(157,79,34,.12);color:inherit;overflow-wrap:anywhere}
