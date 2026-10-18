@@ -2,7 +2,7 @@
   "name": "elara-astra-local-tests",
   "private": true,
   "scripts": {
-    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs && node account-link-visibility.test.cjs && node request-delivery-regression.cjs && node social-hardening-regression.cjs",
+    "test": "node astra-schedule.test.cjs && node integration.cjs && node split-test.cjs && node social-test.cjs && node astra-reference-v2.test.cjs && node linked-tasks.test.cjs && node reading-stability.test.cjs && node account-link-visibility.test.cjs && node request-delivery-regression.cjs && node social-hardening-regression.cjs && node picker-modal.test.mjs",
     "rules:test": "node firestore-rules-emulator.mjs",
     "requests:test": "node account-link-visibility.test.cjs && node request-delivery-regression.cjs",
     "social:hardening": "node social-hardening-regression.cjs && node account-link-visibility.test.cjs && node request-delivery-regression.cjs"
