@@ -28,10 +28,10 @@ function flush(){
   const item={kind:'mission',image:multi?'celebrate':images[String(last.key).split(':')[0]]||'mission',
    kicker:tr('پاداش مسیرت','YOUR QUEST REWARD'),
    title:multi?tr('چند مأموریت رو کامل کردی!','Multiple missions completed!'):tr('مأموریت کامل شد!','Mission complete!'),
-   description,tags:[...(multi?[claims.length.toLocaleString(loc)+tr(' مأموریت',' missions')]:[]),'+'+total.toLocaleString(loc)+' XP'],
+   description,rewardXp:total,stars:Math.min(8,claims.length),tags:[...(multi?[claims.length.toLocaleString(loc)+tr(' مأموریت',' missions')]:[]),'+'+total.toLocaleString(loc)+' XP'],
    primary:tr('دیدن مأموریت‌ها','View missions'),secondary:tr('ادامه می‌دم','Keep going'),go:'missions'};
   const id='mission:'+claims.map(c=>String(c.key)).sort().join('|');
-  if(window.ElaraFoxRewards.show(id,item)){haptic();sound();return}
+  if(window.ElaraFoxRewards.show(id,item)){haptic();return}
   if(document.documentElement.hasAttribute('data-elara-booting'))return;
  }
  for(const claim of claims)queue.push(claim);
