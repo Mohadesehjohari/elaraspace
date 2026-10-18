@@ -53,22 +53,41 @@ async function visibleSocialStats(other){
 }
 async function obtain(){const user=auth.currentUser;if(!user?.emailVerified)return false;const result=await getDoc(doc(db,'profiles',user.uid));if(!result.exists())return false;await assertProfileUsernameClaim(user.uid,result.data());state.me={uid:user.uid,...result.data(),streak:localStreak()};uid=user.uid;return true}
 async function refreshPass(){if(!(await obtain()))return;const mine=uid,gen=++generation;try{
- const [incoming,outgoing,blockedSnaps,mutedSnaps,contextMuteSnaps]=await Promise.all([
+ // Request delivery must not depend on optional privacy or mute collections.
+ // A missing/deprecated collection rule should not make the whole inbox vanish.
+ const [incoming,outgoing]=await Promise.all([
   getDocs(query(collection(db,'friendRequests'),where('to','==',mine))),
-  getDocs(query(collection(db,'friendRequests'),where('from','==',mine))),
+  getDocs(query(collection(db,'friendRequests'),where('from','==',mine)))
+ ]);
+ const optional=await Promise.allSettled([
   getDocs(query(collection(db,'blocks'),where('owner','==',mine))),
   getDocs(query(collection(db,'socialMutes'),where('owner','==',mine))),
   getDocs(query(collection(db,'socialContextMutes'),where('owner','==',mine)))
  ]);
+ const [blockedSnaps,mutedSnaps,contextMuteSnaps]=optional.map((row,i)=>{
+  if(row.status==='fulfilled')return row.value;
+  console.warn('Optional social preference lookup unavailable:',i,row.reason?.code||row.reason?.message);
+  return{docs:[]}
+ });
  if(auth.currentUser?.uid!==mine)return;
  state.blocked=blockedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.muted=mutedSnaps.docs.map(s=>({id:s.id,...s.data()}));state.contextMutes=contextMuteSnaps.docs.map(s=>({id:s.id,...s.data()}));const blockedIds=new Set(state.blocked.map(x=>x.target));
  const entries=new Map([...incoming.docs,...outgoing.docs].map(s=>[s.id,{id:s.id,...s.data()}]));
- const enriched=[];for(const request of entries.values()){const other=request.from===mine?request.to:request.from;if(blockedIds.has(other))continue;try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())enriched.push({...request,other,person:{uid:other,...p.data()}})}catch(error){console.warn('Profile unavailable:',other,error.code||error.message)}}
+ const enriched=[];for(const request of entries.values()){
+  const other=request.from===mine?request.to:request.from;if(!other||blockedIds.has(other))continue;
+  let person={uid:other,name:document.documentElement.lang==='en'?'Friend':'کاربر',username:''};
+  try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}
+  catch(error){console.warn('Friend request sender profile unavailable:',other,error.code||error.message)}
+  // A hidden/private profile must never hide a real participant-owned request.
+  enriched.push({...request,other,person});
+ }
  if(auth.currentUser?.uid!==mine)return;
  state.requests=enriched;state.friends=enriched.filter(r=>r.status==='accepted').map(r=>r.person).filter((p,i,a)=>a.findIndex(v=>v.uid===p.uid)===i);
  await syncSocialStats();
  state.friends=await Promise.all(state.friends.map(async person=>{const stats=await visibleSocialStats(person.uid);return stats?{...person,...stats}:person}));
- const recent=[];for(const friend of state.friends.slice(0,12)){const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
+ const recent=[];for(const friend of state.friends.slice(0,12)){
+  try{const docs=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid)));for(const event of docs.docs){const a=event.data();if(a.visibility!=='friends'&&a.visibility!=='public')continue;recent.push({id:event.id,person:friend,...a,ms:a.createdAt?.toMillis?.()||0})}}
+  catch(error){console.warn('Optional friend activity lookup unavailable:',friend.uid,error.code||error.message)}
+ }
  if(auth.currentUser?.uid!==mine)return;state.activities=recent.sort((a,b)=>b.ms-a.ms).slice(0,30);state.error='';syncPresenceListeners();if(gen===generation)render();
  }catch(error){console.error('Elara friends:',error);state.error=error.code==='permission-denied'?'قوانین اجتماعی/پروفایل باید در Firestore Rules منتشر شوند.':error.message||'خطا در دریافت اطلاعات دوستان';render()}}
 async function refresh(){
@@ -92,7 +111,7 @@ async function applyFriendRequestRealtime(mine){
   const other=request.from===mine?request.to:request.from;if(!other||blockedIds.has(other))continue;
   let person=known.get(other)||null;
   if(!person)try{const p=await getDoc(doc(db,'profiles',other));if(p.exists())person={uid:other,...p.data()}}catch(error){console.warn('Realtime profile unavailable:',other,error.code||error.message)}
-  if(person)enriched.push({...request,other,person})
+  enriched.push({...request,other,person:person||{uid:other,name:document.documentElement.lang==='en'?'Friend':'کاربر',username:''}})
  }
  if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
  state.requests=enriched;
@@ -117,7 +136,7 @@ function startFriendRequestRealtime(mine=auth.currentUser?.uid){
  const bind=(key,field)=>onSnapshot(query(collection(db,'friendRequests'),where(field,'==',mine)),snap=>{
   if(friendRealtime.uid!==mine||auth.currentUser?.uid!==mine)return;
   friendRealtime[key]=new Map(snap.docs.map(item=>[item.id,{id:item.id,...item.data()}]));friendRealtime.ready.add(key);if(friendRealtime.ready.size===2)void queueFriendRequestRealtime(mine)
- },error=>{if(friendRealtime.uid===mine){console.error('Elara friend request realtime:',error);inform(socialError('friend-request-realtime',error))}});
+ },error=>{if(friendRealtime.uid===mine){console.error('Elara friend request realtime:',error);inform(socialError('friend-request-realtime',error));void refresh().catch(err=>inform(socialError('friend-request-fallback',err)))}});
  friendRealtime.unsubs=[bind('incoming','to'),bind('outgoing','from')]
 }
 window.ElaraSocial.startFriendRequestRealtime=startFriendRequestRealtime;
