@@ -24,6 +24,35 @@ for(const width of [390,1440]){
  await page.locator('[data-fox-preview]').click();await page.locator('[data-elara-reward-modal]').waitFor();
  const rect=await page.locator('.elara-fox-dialog').boundingBox();assert.ok(rect&&rect.width<=width-14);
  await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('[data-elara-reward-modal]'));
+ // Visual-only preview may animate but must not put anything in the reward vault.
+ assert.equal(await page.evaluate(()=>window.ElaraFoxClaim.read().totalStars),0);
+ assert.equal(await page.locator('[data-fox-prize-setting="sound"]').isChecked(),false,'reward sound is opt-in');
+ await page.evaluate(()=>window.ElaraFoxRewards.show('qa-achievement:'+Date.now(),{
+  kind:'mission',image:'celebrate',title:'QA achievement',description:'Confirmed XP',
+  rewardXp:20,stars:2,primary:'Keep going'
+ }));
+ await page.locator('[data-elara-reward-modal] .elara-fox-prize-card').waitFor();
+ const pendingBefore=await page.evaluate(()=>window.ElaraFoxClaim.read());
+ assert.equal(pendingBefore.pending.length,1);
+ await page.locator('[data-elara-reward-modal] .elara-fox-action.primary').click();
+ await page.locator('.is-fox-prize-collected').waitFor();
+ const collected=await page.evaluate(()=>window.ElaraFoxClaim.read());
+ assert.equal(collected.totalStars,2,'collect must persist stars');
+ assert.equal(collected.pending.length,0,'claimed item removed from pending');
+ await page.locator('[data-elara-reward-modal] .elara-fox-action.primary').click();
+ await page.waitForFunction(()=>!document.querySelector('[data-elara-reward-modal]'));
+ await page.evaluate(()=>window.ElaraFoxRewards.show('qa-later:'+Date.now(),{
+  kind:'goal',image:'goals',title:'QA uncollected reward',stars:1
+ }));
+ await page.locator('[data-elara-reward-modal]').waitFor();
+ await page.locator('.elara-fox-close').click();
+ await page.waitForFunction(()=>!document.querySelector('[data-elara-reward-modal]'));
+ assert.equal(await page.evaluate(()=>window.ElaraFoxClaim.read().pending.length),1,'dismissed reward remains saved');
+ await page.evaluate(()=>window.ElaraFoxRewards.refresh());
+ await page.locator('#elara-fox-prize-vault [data-fox-claim-pending]').click();
+ await page.locator('[data-elara-reward-modal] .elara-fox-action.primary').click();
+ assert.equal(await page.evaluate(()=>window.ElaraFoxClaim.read().totalStars),3,'claim from vault works');
+ await page.keyboard.press('Escape');
  await page.locator('[data-fox-setting="celebrations"]').uncheck();
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('elara:leitner-review-committed',{detail:{wasDue:true,dueBefore:1,dueRemaining:0,wordId:'test-'+Math.random(),xpAwarded:0}})));
  await page.waitForTimeout(100);assert.equal(await page.locator('[data-elara-reward-modal]').count(),0);
