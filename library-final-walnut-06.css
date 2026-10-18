@@ -438,3 +438,110 @@ html body #main #panel-books > .feature-hub-launchers[data-hub-kind="library"] .
 #panel-books #lib01-overview .lib01-focus-dial{
  box-shadow:0 6px 18px rgba(0,0,0,.24),inset 0 0 15px rgba(0,0,0,.36)!important
 }
+
+
+/* Soft Cosmic R5 / 2026-10-18 — the reading room feels like a gallery
+   for actual books, with warm paper and restrained amber highlights. */
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview
+ .lib01-card.lib01-continue-card{
+ background:
+  radial-gradient(ellipse at 92% 0%,rgba(177,137,82,.075),transparent 56%),
+  linear-gradient(155deg,#112830,#0b1e2a)!important;
+ border-color:rgba(192,166,122,.20)!important;
+ box-shadow:0 9px 24px rgba(0,0,0,.17)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-card>header h2{
+ font-weight:720!important;
+ font-size:clamp(15px,1.16vw,18px)!important;
+ text-shadow:none!important;
+ color:#eee5d9!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book{
+ border-color:rgba(184,167,144,.15)!important;
+ background:linear-gradient(165deg,rgba(20,44,48,.74),rgba(9,28,37,.86))!important;
+ border-radius:13px!important;
+ box-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book>img{
+ filter:drop-shadow(0 8px 11px rgba(0,0,0,.32))!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book strong{
+ font-size:clamp(12px,.97vw,14px)!important;
+ color:#f3ede4!important;
+ line-height:1.75!important;
+ font-weight:700!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book .lib01-continue{
+ border:1px solid rgba(103,189,178,.23)!important;
+ border-radius:9px!important;
+ background:rgba(47,105,102,.24)!important;
+ color:#c6eee5!important;
+ font-weight:700!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book .lib01-continue:is(:hover,:focus-visible){
+ background:rgba(57,138,129,.36)!important;
+ border-color:rgba(131,211,195,.49)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-shortcuts .lib01-tab:not(.is-current){
+ background:rgba(12,30,40,.87)!important;
+ border-color:rgba(170,172,160,.13)!important;
+ color:#e3e7e4!important;
+ box-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-shortcuts .lib01-tab.is-current{
+ background:linear-gradient(145deg,#e1c796,#c8a36b)!important;
+ border-color:rgba(239,213,165,.60)!important;
+ color:#2b281f!important;
+ box-shadow:0 3px 11px rgba(0,0,0,.15)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-add{
+ background:linear-gradient(145deg,#ead7ae,#d3af77)!important;
+ color:#30291e!important;
+ border-color:rgba(252,223,178,.50)!important;
+ box-shadow:0 4px 15px rgba(0,0,0,.14)!important;
+ font-weight:750!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-ring{
+ background:
+   radial-gradient(circle at center,#0c2226 0 57%,transparent 58%),
+   conic-gradient(#c0dab6 calc(var(--lib01-progress)*1%),rgba(76,118,116,.28) 0)!important;
+ box-shadow:inset 0 0 14px rgba(0,0,0,.32)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-ring strong{
+ font-weight:780!important;
+ color:#eef8ed!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-clips .lib01-clip{
+ background:linear-gradient(150deg,#f1e4ce,#decba9)!important;
+ color:#41352a!important;
+ border:0!important;
+ box-shadow:0 5px 15px rgba(0,0,0,.14)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-report-metrics>div{
+ background:rgba(157,194,173,.06)!important;
+ border:0!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-empty{
+ background:rgba(186,176,147,.05)!important;
+ border:0!important;
+ color:#c6c6bb!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books
+ .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-card{
+ border-color:rgba(169,154,129,.16)!important;
+ background:linear-gradient(155deg,#102934,#0b1c29)!important;
+ box-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-books
+ .feature-hub-launchers[data-hub-kind="library"] .feature-launcher-art{
+ filter:sepia(.17) saturate(1.06) drop-shadow(0 5px 9px rgba(0,0,0,.21))!important;
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book{
+  transition:border-color .2s ease,box-shadow .2s ease!important;
+ }
+ html body.dark:not([data-elara-theme="violet"]) #panel-books #lib01-overview .lib01-book:hover{
+  border-color:rgba(202,186,145,.36)!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.19)!important;
+ }
+}

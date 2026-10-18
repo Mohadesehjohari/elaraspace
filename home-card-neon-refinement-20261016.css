@@ -982,3 +982,121 @@ html body.dark #panel-home.ref-home.owner-art-home #ref-achievements-list .ref-a
   background:transparent!important
  }
 }
+
+
+/* Soft Cosmic R5 / 2026-10-18 — a calmer, more intentional Home.
+   No card moves, new DOM, route changes, task page changes, or imagery swaps. */
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home{
+ --home-quiet-line:rgba(148,191,210,.15);
+ --home-quiet-shadow:0 7px 22px rgba(0,10,27,.18);
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home .ref-home-grid >
+ :is(.owner-home-tasks,.owner-home-goals,#ref-wellness-card){
+ border-color:var(--home-quiet-line)!important;
+ border-radius:17px!important;
+ box-shadow:var(--home-quiet-shadow)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home .ref-home-grid >
+ .owner-home-tasks.ref-tasks{
+ /* A tiny cyan bounce of light, not an illustration behind work. */
+ background-image:
+   radial-gradient(ellipse at 90% 0%,rgba(73,163,194,.075),transparent 48%),
+   linear-gradient(160deg,#10273a,#0b1b2f)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home .ref-home-grid >
+ .owner-home-goals.ref-goals .ref-goal-row{
+ border:0!important;
+ background:rgba(5,22,40,.63)!important;
+ border-radius:9px!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-card>header h2{
+ color:#e9f1f5!important;
+ font-weight:720!important;
+ text-shadow:none!important;
+ letter-spacing:0!important;
+ line-height:1.55!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-card>header .ref-view-all-button{
+ border-color:transparent!important;
+ border-radius:8px!important;
+ background:rgba(150,197,214,.07)!important;
+ color:#a9dce8!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-card>header .ref-view-all-button:is(:hover,:focus-visible){
+ background:rgba(116,203,211,.14)!important;
+ color:#e7fbfd!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-card>header [data-home-quick]{
+ border-color:rgba(158,179,204,.20)!important;
+ background:rgba(102,154,185,.13)!important;
+ box-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-card>header [data-home-quick]:is(:hover,:focus-visible){
+ border-color:rgba(118,209,220,.55)!important;
+ background:rgba(93,190,213,.20)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .owner-home-tasks .ref-task-progress>i{
+ box-shadow:none!important;
+ background:linear-gradient(90deg,#3aadb9,#71d5ce)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ #ref-wellness-card .ref-health-copy :is(strong,small){
+ text-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ #ref-quick-access{
+ border-color:rgba(118,171,202,.14)!important;
+ background:linear-gradient(155deg,rgba(10,29,50,.91),rgba(7,22,41,.95))!important;
+ box-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-quick-access-grid>.ref-quick-card{
+ border-color:rgba(144,186,210,.20)!important;
+ border-radius:14px!important;
+ box-shadow:0 5px 14px rgba(0,0,0,.13)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ .ref-quick-card::before{
+ background:linear-gradient(180deg,rgba(2,13,28,.03) 15%,rgba(2,14,30,.81) 100%)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ #ref-bottom-grid>:is(.ref-ranks,.ref-habits,.ref-achievements){
+ border-radius:17px!important;
+ box-shadow:var(--home-quiet-shadow)!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ #ref-bottom-grid>.ref-habits>header h2{
+ color:#e6daf4!important;
+ text-shadow:none!important;
+}
+html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+ #ref-bottom-grid>.ref-achievements>header h2{
+ color:#e5edf3!important;
+ text-shadow:none!important;
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+  .ref-quick-access-grid>.ref-quick-card{
+  transition:box-shadow .2s ease,border-color .2s ease,transform .2s ease!important;
+ }
+ html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+  .ref-quick-access-grid>.ref-quick-card:hover{
+  transform:translateY(-2px)!important;
+  border-color:rgba(118,207,220,.52)!important;
+  box-shadow:0 9px 19px rgba(0,0,0,.23)!important;
+ }
+}
+@media(max-width:700px){
+ html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+  .ref-card>header h2{font-size:inherit!important}
+ html body.dark:not([data-elara-theme="violet"]) #panel-home.ref-home.owner-art-home
+  .ref-quick-access-grid>.ref-quick-card{box-shadow:none!important}
+}
