@@ -261,8 +261,21 @@
       ]);
       // Social has one canonical loader shared by background preload and dependent features.
       // It stays non-blocking for Home, while Profile/Friends can await the same promise.
-      void loadSocial().then(()=>loadCollab()).then(()=>import(assetUrl('./account-link.js'))).catch(error=>{
-        const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='بخش دوستان بارگذاری نشد: '+String(error?.message||error)
+      // Load friendship, collaboration and link inbox independently.
+      // A failure in ONE optional module must never block incoming requests
+      // in another module (previously all three were chained together).
+      void loadSocial().catch(error=>{
+        const msg=document.getElementById('elara-social-message');if(msg)msg.textContent='دریافت درخواست‌های دوستی ناموفق بود: '+String(error?.message||error)
+      });
+      void loadCollab().catch(error=>{
+        console.error('Collaboration inbox unavailable:',error);
+        window.dispatchEvent(new CustomEvent('elara:collab-inbox-error',{detail:{message:String(error?.message||error)}}))
+      });
+      void import(assetUrl('./account-link.js')).catch(error=>{
+        console.error('Account link inbox unavailable:',error);
+        const msg=document.getElementById('elara-social-message');
+        if(msg)msg.textContent='اتصال حساب دوستان بارگذاری نشد: '+String(error?.message||error);
+        window.dispatchEvent(new CustomEvent('elara:account-links-error',{detail:{message:String(error?.message||error)}}))
       });
       const optionalCloudModules=[
         ['./elara-page.js','Elara page startup:'],
