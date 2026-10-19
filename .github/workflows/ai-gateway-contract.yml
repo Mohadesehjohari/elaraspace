@@ -10,6 +10,7 @@ on:
       - 'freedom-ai.js'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
+      - 'tests/ai-rolling-memory.test.mjs'
       - '.github/workflows/ai-gateway-contract.yml'
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - 'freedom-ai.js'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
+      - 'tests/ai-rolling-memory.test.mjs'
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -36,4 +38,6 @@ jobs:
       - name: Check AI gateway contracts
         run: node tests/ai-gateway-contract.test.mjs
       - name: Test private cross-device memory
-        run: node tests/ai-cloud-memory.test.mjs
+        run: |
+          node tests/ai-cloud-memory.test.mjs
+          node tests/ai-rolling-memory.test.mjs
