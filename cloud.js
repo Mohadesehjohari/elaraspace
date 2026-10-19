@@ -52,6 +52,7 @@ function unlocked(){
 function clearAccount(){
   locked(); user=null;profile=null;lastPayload='';dirty=false;
   localStorage.removeItem('elara_space_v1');
+  window.ElaraPrivateState?.reset?.();
   sessionStorage.removeItem('elara_pending_profile');
   window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:empty()}));
 }
@@ -184,8 +185,17 @@ async function readyUser(current){
   const remote=await getDoc(doc(db,'private',user.uid,'app','main'));
   if(auth.currentUser?.uid!==current.uid) return;
   const content=remote.exists()?remote.data().payload:empty();
+  // Trial mode uses ephemeral RAM; the verified per-user Firestore record is authoritative.
+  // Do not alter the legacy on-disk snapshot: old un-synced data might still need recovery.
+  const privateTrial=window.ElaraPrivateState?.requested===true;
+  if(privateTrial&&!window.ElaraPrivateState?.supported)throw new Error('حالت ذخیره‌سازی سروری در این مرورگر آماده نیست. از حالت عادی استفاده کن.');
+  if(privateTrial){
+    if(!remote.exists())await setDoc(doc(db,'private',current.uid,'app','main'),{payload:content,updatedAt:serverTimestamp()});
+    if(auth.currentUser?.uid!==current.uid)return;
+    window.ElaraPrivateState.activate(current.uid);
+  }
   // Never automatically import another account's (or the old guest's) local data.
-  const old=localStorage.getItem('elara_space_v1');
+  const old=privateTrial?null:localStorage.getItem('elara_space_v1');
   if(old && !sessionStorage.getItem('elara_backup_saved')){
     localStorage.setItem('elara_precloud_backup',old);
     sessionStorage.setItem('elara_backup_saved','1');
@@ -196,7 +206,7 @@ async function readyUser(current){
   renderAccount();unlocked();
   window.dispatchEvent(new Event('elara:account-ready'));
   // Write an empty account document on first use. Its absence never imports old guest data.
-  if(!remote.exists())await setDoc(doc(db,'private',user.uid,'app','main'),{payload:content,updatedAt:serverTimestamp()});
+  if(!remote.exists()&&!privateTrial)await setDoc(doc(db,'private',user.uid,'app','main'),{payload:content,updatedAt:serverTimestamp()});
 }
 async function flush(){
   if(!loaded||!user||!dirty||saving)return;
@@ -214,9 +224,20 @@ async function flush(){
 window.addEventListener('elara:data-changed',()=>{
   if(!loaded||!user)return;
   lastPayload=localStorage.getItem('elara_space_v1')||JSON.stringify(empty());dirty=true;
-  $('cloud-sync').textContent='در حال ذخیره…';clearTimeout(timer);timer=setTimeout(flush,800);
+  $('cloud-sync').textContent='در حال ذخیره…';clearTimeout(timer);
+  timer=setTimeout(flush,window.ElaraPrivateState?.requested?250:800);
 });
-window.addEventListener('pagehide',()=>{if(dirty)flush();});
+window.addEventListener('pagehide',()=>{if(dirty)void flush();});
+// In RAM-only trial, warn before closing a tab while an update has not
+// reached Firestore. A forced close or network outage can still lose drafts.
+window.addEventListener('beforeunload',event=>{
+  if(window.ElaraPrivateState?.requested&&(dirty||saving)){
+    event.preventDefault();event.returnValue='';
+  }
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'&&window.ElaraPrivateState?.requested&&dirty)void flush();
+});
 async function refreshFriends(){
   if(!loaded||!user)return;const ownUid=user.uid;
   const incoming=await getDocs(query(collection(db,'friendRequests'),where('to','==',user.uid)));
