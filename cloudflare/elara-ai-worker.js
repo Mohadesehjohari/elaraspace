@@ -231,7 +231,7 @@ export default {
     const origin=req.headers.get('Origin')||'';
     if(origin&&!ALLOWED_ORIGINS.has(origin))return json({ok:false,error:'Origin مجاز نیست.'},403,'');
     if(req.method==='OPTIONS'){
-      return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'Authorization, Content-Type, Accept','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Max-Age':'600','Vary':'Origin'}});
+      return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'Authorization, Content-Type, Accept','Access-Control-Allow-Methods':'GET, POST, DELETE, OPTIONS','Access-Control-Max-Age':'600','Vary':'Origin'}});
     }
     try{
       const url=new URL(req.url),path=url.pathname.replace(/\/+$/,'');
