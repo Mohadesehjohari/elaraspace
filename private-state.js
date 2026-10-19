@@ -47,6 +47,12 @@
       currentUid=String(uid);memory=null;
     },
     reset(){currentUid='';memory=null;},
+    // Read-only legacy candidate for an explicitly approved one-time migration.
+    // The RAM-only shim must not hide an older, possibly un-synced on-disk snapshot.
+    readDiskSnapshot(key){
+      if(!['elara_space_v1','elara_precloud_backup'].includes(String(key)))return null;
+      try{return active?native.get.call(localStorage,key):localStorage.getItem(key)}catch{return null;}
+    },
     nativeLegacyExists(){
       try{return active&&native.get.call(localStorage,MAIN)!==null}catch{return false;}
     },
