@@ -306,10 +306,211 @@ window.addEventListener('elara:profile-saved',event=>{
   const header=$('cloud-me');
   if(header)header.textContent='@'+(profile.username||'')+' · '+(profile.name||'')+' · '+(user.email||'');
 });
+
+/*
+ * Per-account legacy recovery. All writes target the signed-in Firebase UID;
+ * Firestore is authoritative and all existing records win conflicts.
+ * Never auto-import an unidentified browser backup (it might belong to
+ * another signed-in user who used the same device).
+ */
+const RECOVERY_FIELDS=Object.freeze([
+  'tasks','habits','goals','languageClasses','books','bookClips','words',
+  'focusSessions','taskCompletionHistory','missionRewardClaims',
+  'linkedTaskDismissals','taskLists','folders','tags','bookShelves'
+]);
+const RECOVERY_NAMES=Object.freeze({
+  tasks:'تسک‌ها',habits:'عادت‌ها',goals:'هدف‌ها',languageClasses:'کلاس‌های زبان',
+  books:'کتاب‌ها',bookClips:'یادداشت کتاب‌ها',words:'واژه‌ها',
+  focusSessions:'جلسات تمرکز',taskCompletionHistory:'سوابق انجام تسک‌ها',
+  missionRewardClaims:'پاداش‌ها',linkedTaskDismissals:'اتصال‌های ردشده',
+  taskLists:'لیست‌ها',folders:'پوشه‌ها',tags:'برچسب‌ها',bookShelves:'قفسه‌ها'
+});
+const RECOVERY_KEYS=['elara_precloud_backup','elara_space_v1'];
+function recoveryUID(){
+  const current=auth.currentUser;
+  if(!loaded||!current?.uid||user?.uid!==current.uid||!document.body.classList.contains('cloud-ready'))
+    throw new Error('اول وارد حساب خودت شو و منتظر بارگذاری کامل اطلاعات بمان.');
+  return current.uid;
+}
+function readLegacyCopy(key){
+  if(!RECOVERY_KEYS.includes(key))throw new Error('منبع بکاپ نامعتبر است.');
+  const raw=window.ElaraPrivateState?.readDiskSnapshot?.(key)??localStorage.getItem(key);
+  if(!raw)return null;
+  if(raw.length>1200000)throw new Error('حجم نسخهٔ قدیمی زیاد است؛ بازیابی آن نیاز به بررسی جداگانه دارد.');
+  let content;
+  try{content=JSON.parse(raw)}catch{throw new Error('نسخهٔ ذخیره‌شده در مرورگر معتبر نیست.')}
+  if(!content||typeof content!=='object'||Array.isArray(content)||content.version!==1)
+    throw new Error('فرمت نسخهٔ قدیمی الارا پشتیبانی نمی‌شود.');
+  for(const field of RECOVERY_FIELDS)if(content[field]!=null&&!Array.isArray(content[field]))
+    throw new Error('ساختار '+RECOVERY_NAMES[field]+' در بکاپ قدیمی معتبر نیست.');
+  return content;
+}
+function recoveryKeyOf(field,row){
+  if(typeof row==='string')return row.trim().slice(0,250);
+  if(!row||typeof row!=='object'||Array.isArray(row))return '';
+  return String(field==='taskCompletionHistory'?(row.key||row.id||''):row.id||'').trim().slice(0,250);
+}
+function safeLegacyRow(field,row){
+  if(typeof row==='string')return !!row.trim()&&row.length<=250;
+  if(!row||typeof row!=='object'||Array.isArray(row)||!recoveryKeyOf(field,row))return false;
+  // Only migrate private personal data; shared and linked records are managed elsewhere.
+  if(row.collabSpaceId||row.shared||row.sourceManaged||row.linkedTask)return false;
+  return JSON.stringify(row).length<=24000;
+}
+function mergedRecovery(remote,old){
+  const output=structuredClone(remote&&typeof remote==='object'&&!Array.isArray(remote)?remote:empty());
+  const added={},allChanges=[];
+  for(const field of RECOVERY_FIELDS){
+    const current=Array.isArray(output[field])?output[field].slice():[];
+    const source=Array.isArray(old[field])?old[field]:[];
+    const seen=new Set(current.map(row=>recoveryKeyOf(field,row)).filter(Boolean));
+    let count=0;
+    for(const row of source){
+      const k=recoveryKeyOf(field,row);
+      if(!k||seen.has(k)||!safeLegacyRow(field,row))continue;
+      seen.add(k);current.push(structuredClone(row));count++;
+    }
+    if(count){output[field]=current;allChanges.push(field);added[field]=count;}
+  }
+  // Never overwrite XP, settings, profile, privacy, cloud metadata or existing items.
+  output.version=1;
+  if(JSON.stringify(output).length>780000)throw new Error('نتیجه از محدودیت فعلی Firebase الارا بزرگ‌تر است؛ هیچ تغییری اعمال نشد.');
+  return {data:output,added,changed:allChanges.length>0};
+}
+function countRecoveryDifferences(remote,old){
+  const added=mergedRecovery(remote,old).added;
+  return Object.entries(added).map(([k,v])=>RECOVERY_NAMES[k]+': '+v+' مورد').join('، ');
+}
+async function recoveryStatus(){
+  const uid=recoveryUID();
+  const snapshot=await getDoc(doc(db,'private',uid,'app','main'));
+  if(auth.currentUser?.uid!==uid)throw new Error('حساب در حین بررسی تغییر کرد.');
+  const cloud=snapshot.exists()?snapshot.data()?.payload:empty();
+  const sources=[];
+  for(const key of RECOVERY_KEYS){
+    try{
+      const old=readLegacyCopy(key);
+      sources.push({key,exists:!!old,details:old?countRecoveryDifferences(cloud,old):'',counts:old?{tasks:old.tasks?.length||0,goals:old.goals?.length||0,habits:old.habits?.length||0}:null});
+    }catch(e){sources.push({key,exists:true,error:e.message});}
+  }
+  return {uid,cloudExists:snapshot.exists(),counts:{
+    tasks:cloud.tasks?.length||0,goals:cloud.goals?.length||0,habits:cloud.habits?.length||0
+  },sources};
+}
+function saveJSONDownload(filename,data){
+  const json=typeof data==='string'?data:JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+  const href=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=href;a.download=filename;a.hidden=true;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(href),60000);
+}
+async function backupCloudData(){
+  const uid=recoveryUID();
+  if(dirty||saving)throw new Error('تغییرات هنوز در حال ذخیره‌اند. منتظر «✓ ذخیره شد» بمان.');
+  const remote=await getDoc(doc(db,'private',uid,'app','main'));
+  if(auth.currentUser?.uid!==uid)throw new Error('حساب تغییر کرد.');
+  if(!remote.exists())throw new Error('هنوز اطلاعات سروری برای این حساب وجود ندارد.');
+  const payload=remote.data()?.payload;
+  if(!payload||typeof payload!=='object')throw new Error('ساختار بکاپ ابری قابل خواندن نیست.');
+  saveJSONDownload('elara-cloud-backup-'+new Date().toISOString().slice(0,10)+'.json',payload);
+  return true;
+}
+function backupLegacyData(source){
+  recoveryUID();
+  const data=readLegacyCopy(source);
+  if(!data)throw new Error('برای این گزینه نسخهٔ قدیمی ذخیره نشده است.');
+  saveJSONDownload('elara-old-browser-backup-'+source+'-'+new Date().toISOString().slice(0,10)+'.json',data);
+  return true;
+}
+async function recoverFromBrowser(source){
+  const uid=recoveryUID();
+  if(dirty||saving)throw new Error('اول صبر کن تغییرات فعلی در Firebase ذخیره شوند.');
+  const old=readLegacyCopy(source);
+  if(!old)throw new Error('نسخهٔ قدیمی در این مرورگر پیدا نشد.');
+  const ref=doc(db,'private',uid,'app','main');
+  const result=await runTransaction(db,async tx=>{
+    const latest=await tx.get(ref);
+    const original=latest.exists()?latest.data()?.payload:empty();
+    const m=mergedRecovery(original,old);
+    if(m.changed)tx.set(ref,{payload:m.data,updatedAt:serverTimestamp()});
+    return {count:Object.values(m.added).reduce((a,b)=>a+b,0),details:m.added,expected:m.data};
+  });
+  const check=await getDoc(ref);
+  if(!check.exists()||JSON.stringify(check.data().payload)!==JSON.stringify(result.expected))
+    throw new Error('تغییرات در Firebase ثبت شد اما تأیید نهایی کامل نیست؛ بدون تکرار عملیات، صفحه را تازه کن.');
+  if(auth.currentUser?.uid!==uid)throw new Error('حساب حین انتقال تغییر کرده است؛ وضعیت سرور را دوباره بررسی کن.');
+  const json=JSON.stringify(result.expected);
+  localStorage.setItem('elara_space_v1',json);
+  window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:result.expected}));
+  lastPayload=json;dirty=false;loaded=true;
+  if($('cloud-sync'))$('cloud-sync').textContent='✓ انتقال در Firebase تأیید شد';
+  return result;
+}
+async function openRecoveryPanel(){
+  recoveryUID();
+  const existing=document.getElementById('elara-cloud-recovery-dialog');
+  if(existing){existing.showModal?.();return;}
+  const dialog=document.createElement('dialog');
+  dialog.id='elara-cloud-recovery-dialog';dialog.dir='rtl';
+  dialog.style.cssText='max-width:min(94vw,590px);max-height:90vh;overflow:auto;border:1px solid #6476a2;border-radius:17px;background:#101d36;color:#e9f1ff;padding:22px;line-height:1.9;box-shadow:0 12px 50px #0008';
+  dialog.innerHTML='<h2 style="margin:0 0 10px">انتقال امن اطلاعات به فضای ابری</h2>'+
+    '<p>اطلاعات حساب در Firebase ذخیره می‌شوند. نسخه‌های قدیمی همین دستگاه را بررسی می‌کنیم و فقط مواردی را که در حساب ابری وجود ندارند، پس از تأیید اضافه می‌کنیم.</p>'+
+    '<p style="font-size:13px">اگر قبلاً چند نفر با این مرورگر وارد شده‌اند، ممکن است بکاپ محلی مال شخص دیگری باشد. فقط داده‌های متعلق به حساب خودت را منتقل کن.</p>'+
+    '<p data-recovery-report role="status" style="white-space:pre-wrap;border:1px solid #42547a;padding:10px;border-radius:9px">در حال بررسی…</p>'+
+    '<label style="display:block;margin:10px 0">منبع نسخه قدیمی <select data-recovery-source style="width:100%;padding:8px;margin-top:5px;background:#17294c;color:inherit;border-radius:7px"><option value="elara_precloud_backup">بکاپ قدیمی مرورگر</option><option value="elara_space_v1">نسخه محلی دستگاه</option></select></label>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0">'+
+    '<button type="button" data-recovery="check" class="quiet-button">بررسی دوباره</button>'+
+    '<button type="button" data-recovery="cloud-export" class="primary-button">۱. دانلود بکاپ ابری</button>'+
+    '<button type="button" data-recovery="local-export" class="quiet-button">۲. دانلود بکاپ قدیمی دستگاه</button>'+
+    '<button type="button" data-recovery="import" class="primary-button">۳. انتقال موارد جاافتاده</button>'+
+    '<button type="button" data-recovery="close" class="quiet-button">بستن</button></div>'+
+    '<p style="font-size:12px">انتقال خودکار نیست. موارد مشترک در Firebase دست‌نخورده می‌مانند. بعد از تأیید انتقال، می‌توان حالت ذخیره موقت مرورگر را جداگانه آزمایش کرد.</p>';
+  const report=dialog.querySelector('[data-recovery-report]');
+  let busy=false,backedUpCloud=false;
+  const reportError=e=>{report.textContent=e?.message||String(e);report.style.borderColor='#d77191';};
+  const scan=async()=>{
+    const s=await recoveryStatus();
+    const name=x=>x.key==='elara_precloud_backup'?'بکاپ قدیمی':'نسخه محلی';
+    report.textContent='حساب ابری: '+s.counts.tasks+' تسک، '+s.counts.goals+' هدف، '+s.counts.habits+' عادت'+
+      '\n'+s.sources.map(x=>name(x)+': '+(x.error?'خطا: '+x.error:!x.exists?'پیدا نشد':x.details?'موارد جاافتاده: '+x.details:'مورد جاافتاده‌ای در فهرست‌های اصلی پیدا نشد')).join('\n');
+    report.style.borderColor='#42547a';
+  };
+  dialog.addEventListener('click',async e=>{
+    const action=e.target.closest('[data-recovery]')?.dataset.recovery;
+    if(!action||busy)return;
+    if(action==='close'){dialog.close();return;}
+    busy=true;dialog.querySelectorAll('button').forEach(b=>b.disabled=true);
+    try{
+      const source=dialog.querySelector('[data-recovery-source]').value;
+      if(action==='check')await scan();
+      if(action==='cloud-export'){await backupCloudData();backedUpCloud=true;report.textContent='دانلود بکاپ ابری درخواست شد. فایل دانلودشده را در جای امن نگه دار.';}
+      if(action==='local-export'){backupLegacyData(source);report.textContent='دانلود بکاپ قدیمی دستگاه درخواست شد.';}
+      if(action==='import'){
+        if(!backedUpCloud)throw new Error('برای جلوگیری از ازدست‌رفتن داده‌ها، ابتدا دکمه دانلود بکاپ ابری را بزن.');
+        const s=await recoveryStatus(),selected=s.sources.find(x=>x.key===source);
+        if(!selected?.exists||selected.error)throw new Error(selected?.error||'نسخهٔ قدیمی پیدا نشد.');
+        if(!selected.details){report.textContent='مورد جاافتاده‌ای برای انتقال وجود ندارد؛ داده‌های حساب از قبل در Firebase هستند.';return;}
+        if(!window.confirm('تأیید می‌کنی که نسخه قدیمی این مرورگر متعلق به همین حساب است؟ در صورت اشتباه، داده‌های یک فرد دیگر ممکن است وارد حساب فعلی شوند.'))return;
+        if(!window.confirm('فقط موارد جاافتاده اضافه می‌شوند و رکوردهای موجود حذف یا جایگزین نمی‌شوند. انتقال را انجام دهیم؟'))return;
+        const result=await recoverFromBrowser(source);
+        await scan();
+        report.textContent='✓ انتقال و خواندن مجدد Firebase تأیید شد. '+result.count+' مورد به حساب اضافه شد.\n'+report.textContent;
+      }
+    }catch(err){reportError(err)}
+    finally{busy=false;dialog.querySelectorAll('button').forEach(b=>b.disabled=false);}
+  });
+  dialog.addEventListener('close',()=>dialog.remove());
+  document.body.appendChild(dialog);dialog.showModal();
+  await scan().catch(reportError);
+}
+
 window.ElaraAccount={
   get user(){return auth.currentUser},
   get profile(){return profile},
   get loaded(){return loaded},
+  openDataMigration:openRecoveryPanel,
+  inspectDataMigration:recoveryStatus,
+  downloadCloudBackup:backupCloudData,
 
   errorMessage:actionError,
   getUser:()=>auth.currentUser,
