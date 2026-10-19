@@ -1,0 +1,49 @@
+/* Freedom chat route — additions only; preserve the approved public Elara palette. */
+#panel-freedom .freedom-ai-shortcut{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:16px;margin:14px 0;padding:20px 22px;border-radius:18px;
+  border:1px solid #6155a7;background:linear-gradient(115deg,#16153c,#14284c);
+  color:#f5f2ff;box-sizing:border-box;direction:rtl
+}
+#panel-freedom .freedom-ai-shortcut strong{font-size:1.12rem}
+#panel-freedom .freedom-ai-shortcut p{margin:6px 0 0;color:#c7c7eb;line-height:1.8;font-size:.9rem}
+#panel-freedom .freedom-ai-shortcut-button{
+  border:1px solid #ae91fa;background:#7653d4;color:#fff;
+  border-radius:13px;min-height:44px;padding:10px 16px;cursor:pointer;font:inherit;font-weight:700
+}
+#panel-freedom .freedom-ai-shortcut-button:focus-visible,
+#panel-freedom .freedom-ai-chat-back:focus-visible{outline:3px solid #e1d4ff;outline-offset:3px}
+#panel-freedom.freedom-ai-subpage-open .freedom-root{display:none!important}
+#panel-freedom.freedom-ai-subpage-open{max-width:100%!important;min-width:0;overflow-x:clip}
+#panel-freedom .freedom-ai-chat-shell{
+  display:block;max-width:940px;margin:0 auto 80px;min-width:0;
+  background:transparent;color:var(--text,#eff2ff);box-sizing:border-box
+}
+#panel-freedom .freedom-ai-chat-hero{
+  display:flex;flex-direction:column;align-items:flex-start;gap:16px;
+  min-height:135px;padding:26px;border:1px solid #56458f;border-radius:18px;
+  background:linear-gradient(115deg,#131538,#18284a);margin-bottom:16px
+}
+#panel-freedom .freedom-ai-chat-hero h1{font-size:clamp(1.45rem,3vw,2.25rem);margin:7px 0;color:#fff}
+#panel-freedom .freedom-ai-chat-hero small{letter-spacing:.12em;color:#bfa8ff;font-weight:700}
+#panel-freedom .freedom-ai-chat-hero p{margin:0;color:#d8d1ee;line-height:1.85}
+#panel-freedom .freedom-ai-chat-back{
+  min-height:40px;border-radius:11px;border:1px solid #8e79cc;
+  background:#2c2756;color:#f7f3ff;cursor:pointer;padding:8px 14px;font:inherit
+}
+#panel-freedom .freedom-ai-chat-content .freedom-ai-card{
+  display:block!important;width:100%;max-width:100%;box-sizing:border-box;
+  margin:0!important;min-height:300px;padding:20px;
+  background:var(--surface,#101c2d);border:1px solid var(--border,#293b56);
+  border-radius:18px;direction:rtl
+}
+#panel-freedom .freedom-ai-chat-content .freedom-ai-thread{
+  max-height:min(60vh,650px);min-height:200px;overflow-y:auto;overflow-x:hidden
+}
+#panel-freedom .freedom-ai-chat-content textarea{max-width:100%;box-sizing:border-box}
+@media(max-width:700px){
+  #panel-freedom .freedom-ai-shortcut{padding:16px}
+  #panel-freedom .freedom-ai-shortcut-button{width:100%}
+  #panel-freedom .freedom-ai-chat-hero{padding:18px}
+  #panel-freedom .freedom-ai-chat-content .freedom-ai-card{padding:13px}
+}
