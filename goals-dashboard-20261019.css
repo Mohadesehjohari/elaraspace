@@ -103,7 +103,7 @@
   border-radius:20px;box-shadow:0 0 18px 3px #943effa9
 }
 #panel-goals #goal-list>.goal-item.goal-is-filtered{display:none!important}
-#panel-goals .goal-card-header{display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:16px!important;padding:12px 19px!important;min-height:74px;min-width:0}
+#panel-goals .goal-card-header{display:flex!important;flex-flow:row-reverse nowrap!important;align-items:center!important;gap:16px!important;padding:12px 19px!important;min-height:74px;min-width:0}
 #panel-goals .goal-card-ring{
   position:relative;display:grid;place-items:center;flex:0 0 74px;width:74px;height:74px;border-radius:50%;
   background:conic-gradient(from 0deg,#10dcff 0 var(--goal-progress,0%),#9671ff var(--goal-progress,0%) calc(var(--goal-progress,0%) + 1%),#263f77 calc(var(--goal-progress,0%) + 1%) 100%);
@@ -123,7 +123,7 @@
   border-radius:999px!important;color:#d9ddff!important;font-size:.66rem!important;font-weight:650!important;line-height:1.35!important
 }
 #panel-goals .goal-card-fraction{font-size:.68rem;color:#a9c4f3}
-#panel-goals .goal-card-controls{position:relative;display:flex;align-items:center;gap:7px;flex:0 0 auto;margin-inline-start:auto}
+#panel-goals .goal-card-controls{position:relative;display:flex;align-items:center;gap:7px;flex:0 0 auto;margin-inline-start:0}
 #panel-goals #goal-list .goal-card-controls .entity-drag-handle{
   position:static!important;display:inline-grid!important;place-items:center!important;flex:0 0 31px!important;
   width:31px!important;height:39px!important;padding:0!important;margin:0!important;
@@ -161,12 +161,15 @@
 #panel-goals #goal-list .goal-card-content>.item-meta>span{color:#a9c6f1!important;font-size:.72rem!important}
 #panel-goals #goal-list .goal-step-list{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:5px!important;margin:0!important;padding:0!important}
 #panel-goals #goal-list .goal-step-item{
-  box-sizing:border-box;display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;
+  box-sizing:border-box;display:grid!important;grid-template-columns:auto minmax(0,1fr) 30px!important;
   gap:9px!important;align-items:center!important;min-width:0!important;
   width:100%!important;min-height:45px!important;padding:7px 12px!important;
   color:#f5f6ff!important;background:#071b3a!important;border:1px solid #22518a!important;border-radius:11px!important;
   box-shadow:inset 0 1px 2px #95b8ff0d!important
 }
+#panel-goals #goal-list .goal-step-item>.goal-step-actions{grid-column:1!important;grid-row:1!important}
+#panel-goals #goal-list .goal-step-item>.item-content{grid-column:2!important;grid-row:1!important}
+#panel-goals #goal-list .goal-step-item>.check-button{grid-column:3!important;grid-row:1!important}
 #panel-goals #goal-list .goal-step-item.done{background:#0b2142!important;border-color:#3968b6!important}
 #panel-goals #goal-list .goal-step-item .check-button{
   width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;
@@ -253,11 +256,11 @@ body:not(.dark) #panel-goals #goal-list .goal-step-item .item-title{color:#1b315
   #panel-goals .goal-card-symbol{width:25px;height:25px}
   #panel-goals .goal-card-symbol svg{width:24px;height:24px}
   #panel-goals .goal-card-title{flex:1 1 calc(100% - 105px)}
-  #panel-goals .goal-card-controls{margin-inline-start:auto}
+  #panel-goals .goal-card-controls{margin-inline-start:0}
   #panel-goals .goal-card-toggle,#panel-goals .goal-card-menu>summary{width:33px;height:33px;flex-basis:33px;font-size:1.35rem!important}
   #panel-goals #goal-list .goal-card-controls .entity-drag-handle{width:25px!important;height:30px!important;flex-basis:25px!important}
   #panel-goals #goal-list>.goal-item>.goal-card-content{padding:0 9px 10px!important}
-  #panel-goals #goal-list .goal-step-item{grid-template-columns:28px minmax(0,1fr) auto!important;padding:8px!important;gap:6px!important}
+  #panel-goals #goal-list .goal-step-item{grid-template-columns:auto minmax(0,1fr) 28px!important;padding:8px!important;gap:6px!important}
   #panel-goals #goal-list .goal-step-actions button{width:26px!important;min-width:26px!important}
   #panel-goals #goal-list .goal-meta-compact>span{font-size:.55rem!important}
   #panel-goals #goal-list .goal-step-meta>span{font-size:.54rem!important}
