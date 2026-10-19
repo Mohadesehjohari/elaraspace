@@ -26,7 +26,7 @@ function render(){
   if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?user.uid:'';memory={enabled:false,notes:[],history:[],summary:''};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;chatBusy=false;chatError='';}
   h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
-    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
+    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="پس از تأیید تو، تسک را در سایت مدیریت می‌کند">اجرای دستور تسک</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
   const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;
   if(needsMemoryLoad)void loadMemory(user.uid);
 }
@@ -109,6 +109,13 @@ document.addEventListener('change',e=>{
   }
 },true);
 document.addEventListener('click',e=>{
+  if(e.target.closest?.('[data-f-ai-task-plan]')){
+    e.preventDefault();
+    const f=host()?.querySelector('[data-f-ai-form]'),message=String(f?.elements.message?.value||'').trim();
+    if(!window.ElaraAITaskActions?.run){const el=host()?.querySelector('[data-f-ai-status]');if(el)el.textContent='دستیار اجرای تسک هنوز بارگذاری نشده؛ صفحه را تازه کن.';return}
+    void window.ElaraAITaskActions.run(message);
+    return;
+  }
   if(e.target.closest?.('[data-f-ai-clear-summary]')){
     if(confirm('خلاصه خودکار فراموش شود؟ یادداشت‌های دستی و ۱۲ پیام اخیر باقی می‌مانند.'))void saveMemoryAction('POST',{clear_summary:true},'خلاصه خودکار پاک شد.');
     return;
