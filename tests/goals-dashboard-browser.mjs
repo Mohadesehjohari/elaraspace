@@ -14,16 +14,24 @@ try{
   await page.route('**/elara-social.js*',r=>r.fulfill({status:200,contentType:'application/javascript',body:socialStub}));
   await page.addInitScript(seed);
   await page.goto(base+'/?goals-dashboard-qa='+Date.now()+'#goals',{waitUntil:'domcontentloaded'});
-  await page.waitForSelector('#goal-list>.goal-item.goal-card-open');
+  await page.waitForSelector('#goal-list>.goal-item .goal-card-header');
   const n=()=>page.locator('#goal-list>.goal-item').count();
   assert.equal(await n(),2);
   assert.equal((await page.locator('[data-goal-stat="steps"]').textContent()).trim(),'۱ / ۳');
   assert.equal((await page.locator('[data-goal-stat="percent"]').textContent()).trim(),'۳۳٪');
   assert.equal(await page.locator('#goal-list [data-action="edit-goal"]').count(),2);
   assert.equal(await page.locator('#goal-list [data-entity-drag="goal"]').count(),2);
+  // Every goal must start collapsed. User clicks alone should expand/collapse it.
+  assert.equal(await page.locator('#goal-list>.goal-item.goal-card-open').count(),0);
   const toggle=page.locator('#goal-list>.goal-item').first().locator('[data-goal-toggle]');
+  assert.equal(await toggle.getAttribute('aria-expanded'),'false');
+  assert.equal(await page.locator('#goal-list>.goal-item').first().locator('.goal-card-content').isVisible(),false);
+  await toggle.click();assert.equal(await toggle.getAttribute('aria-expanded'),'true');
   await toggle.click();assert.equal(await toggle.getAttribute('aria-expanded'),'false');
-  await toggle.click();
+  await toggle.click();assert.equal(await toggle.getAttribute('aria-expanded'),'true');
+  // Normal-state glow should exist before hover/open, including on collapsed cards.
+  const glow=await page.locator('#goal-list>.goal-item').last().evaluate(row=>getComputedStyle(row).boxShadow);
+  assert.notEqual(glow,'none','Collapsed goal card must have persistent neon glow');
   await page.locator('#goal-list [data-action="toggle-step"][data-id="s2"]').click();
   await page.waitForFunction(()=>document.querySelector('[data-goal-stat="percent"]')?.textContent?.trim()==='۶۷٪');
   await page.locator('[data-goal-filter="horizon"]').selectOption('short');
