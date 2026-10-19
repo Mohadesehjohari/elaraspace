@@ -116,6 +116,73 @@ def patch_colors(payload, main, shade):
     return bytes(data)
 
 
+def thumbnail_has_hair_preview(raw: bytes) -> bool:
+    """Reject a fully flat-color PNG thumbnail (such as an empty Front item).
+
+    Conservative validation: unknown thumbnail formats are allowed and require
+    a manual check. PNG RGB/RGBA 8-bit thumbnails are decoded with stdlib only.
+    This catches *blank previews*, not every possible empty geometry case.
+    """
+    import zlib
+    if not raw.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+        return True
+    i, compressed, width, height, depth, kind = 8, bytearray(), None, None, None, None
+    while i + 12 <= len(raw):
+        size = int.from_bytes(raw[i:i+4], "big")
+        marker = raw[i+4:i+8]
+        value = raw[i+8:i+8+size]
+        i += 12 + size
+        if marker == b"IHDR":
+            width = int.from_bytes(value[:4], "big")
+            height = int.from_bytes(value[4:8], "big")
+            depth, kind = value[8], value[9]
+        elif marker == b"IDAT":
+            compressed.extend(value)
+        elif marker == b"IEND":
+            break
+    if not width or not height or depth != 8 or kind not in (2, 6):
+        return True
+    bpp = 3 if kind == 2 else 4
+    try:
+        pixels = zlib.decompress(compressed)
+    except zlib.error:
+        return True
+    stride = width * bpp
+    if len(pixels) != height * (stride + 1):
+        return True
+    previous = bytearray(stride)
+    uniform = None
+    for r in range(height):
+        start = r * (stride + 1)
+        filter_kind = pixels[start]
+        row = bytearray(pixels[start + 1:start + 1 + stride])
+        if filter_kind not in (0, 1, 2, 3, 4):
+            return True
+        for j in range(stride):
+            left = row[j - bpp] if j >= bpp else 0
+            up = previous[j]
+            up_left = previous[j - bpp] if j >= bpp else 0
+            if filter_kind == 1:
+                prediction = left
+            elif filter_kind == 2:
+                prediction = up
+            elif filter_kind == 3:
+                prediction = (left + up) // 2
+            elif filter_kind == 4:
+                p = left + up - up_left
+                a, b, c = abs(p-left), abs(p-up), abs(p-up_left)
+                prediction = left if a <= b and a <= c else (up if b <= c else up_left)
+            else:
+                prediction = 0
+            row[j] = (row[j] + prediction) & 255
+        if uniform is None:
+            uniform = bytes(row[:bpp])
+        if row != uniform * width:
+            return True
+        previous = row
+    return False
+
+
 def create(source, dest, name, main, shade):
     if source.resolve() == dest.resolve():
         raise ValueError("source and destination cannot be the same")
@@ -123,6 +190,8 @@ def create(source, dest, name, main, shade):
         if not re.fullmatch(r"#?[0-9a-fA-F]{6}", color):
             raise ValueError("colors must be #RRGGBB")
     with zipfile.ZipFile(source) as z:
+        if "thumbnails/thumbnail.png" in z.namelist() and not thumbnail_has_hair_preview(z.read("thumbnails/thumbnail.png")):
+            raise ValueError("Source custom item thumbnail is completely blank. Export a Front Hair item containing visible hair strands; recoloring cannot add new strands.")
         if z.testzip() is not None:
             raise ValueError("source archive failed CRC check")
         metadata = json.loads(z.read("v1customitem/meta.json"))
