@@ -127,3 +127,6 @@ html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
  .freedom-fox-overlay{animation:none}
  #panel-freedom .freedom-fox-preview>img{transition:none}
 }
+
+/* Existing Freedom subpage back controls must clear the sticky global toolbar. */
+#panel-freedom .r30-shell,#panel-freedom .r31-shell{scroll-margin-top:calc(90px + env(safe-area-inset-top))}
