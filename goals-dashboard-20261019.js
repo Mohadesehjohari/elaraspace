@@ -55,11 +55,11 @@
 
   function goalsFromStore() {
     // Hydrated/cloud state wins when available; local storage is the offline fallback.
-    if (Array.isArray(liveState?.goals)) return liveState.goals;
     try {
       const data = JSON.parse(localStorage.getItem('elara_space_v1') || '{}');
-      return Array.isArray(data.goals) ? data.goals : [];
-    } catch { return []; }
+      if (Array.isArray(data.goals)) return data.goals;
+    } catch { /* Cloud-only sessions may not have local storage yet. */ }
+    return Array.isArray(liveState?.goals) ? liveState.goals : [];
   }
   function isStepDone(step, date) {
     if (step?.recurrenceRule) return Array.isArray(step.occurrenceDone) && step.occurrenceDone.includes(date);
@@ -242,7 +242,7 @@
     queueMicrotask(() => {
       if (form.checkValidity() && list.querySelectorAll(':scope > .goal-item').length > before) setComposer(false);
     });
-  });
+  }, {capture:true});
 
   function decorateHero() {
     const hero = panel.querySelector(':scope > .elara-global-hero');
