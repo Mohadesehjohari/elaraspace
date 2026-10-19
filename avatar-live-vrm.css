@@ -57,3 +57,7 @@
  .elara-character-wardrobe-stage{display:none}
  .elara-character-wardrobe-items{padding:13px;border:1px solid #9080d155;border-radius:14px;background:#0e1a35;color:#e8e2ff}
 }
+
+/* Six categories need a scrollable tab strip in the existing narrow wardrobe modal. */
+.approved-wardrobe .wardrobe-p3-tabs{display:flex!important;overflow-x:auto;scrollbar-width:thin;gap:7px}
+.approved-wardrobe .wardrobe-p3-tabs>button{flex:0 0 auto;min-width:100px;padding-inline:10px}
