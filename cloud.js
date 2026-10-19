@@ -422,6 +422,11 @@ function backupLegacyData(source){
   saveJSONDownload('elara-old-browser-backup-'+source+'-'+new Date().toISOString().slice(0,10)+'.json',data);
   return true;
 }
+const canonicalRecoveryJSON=value=>JSON.stringify(value,(key,item)=>
+  item&&typeof item==='object'&&!Array.isArray(item)
+    ?Object.fromEntries(Object.keys(item).sort().map(k=>[k,item[k]]))
+    :item
+);
 async function recoverFromBrowser(source){
   const uid=recoveryUID();
   if(dirty||saving)throw new Error('اول صبر کن تغییرات فعلی در Firebase ذخیره شوند.');
@@ -436,7 +441,7 @@ async function recoverFromBrowser(source){
     return {count:Object.values(m.added).reduce((a,b)=>a+b,0),details:m.added,expected:m.data};
   });
   const check=await getDoc(ref);
-  if(!check.exists()||JSON.stringify(check.data().payload)!==JSON.stringify(result.expected))
+  if(!check.exists()||canonicalRecoveryJSON(check.data().payload)!==canonicalRecoveryJSON(result.expected))
     throw new Error('تغییرات در Firebase ثبت شد اما تأیید نهایی کامل نیست؛ بدون تکرار عملیات، صفحه را تازه کن.');
   if(auth.currentUser?.uid!==uid)throw new Error('حساب حین انتقال تغییر کرده است؛ وضعیت سرور را دوباره بررسی کن.');
   const json=JSON.stringify(result.expected);
