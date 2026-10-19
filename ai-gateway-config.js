@@ -4,4 +4,4 @@
  * Leave empty to use the existing PHP backend when hosted on cPanel.
  * Never put a Gemini key in this file.
  */
-window.ELARA_AI_API_URL = '';
+window.ELARA_AI_API_URL = 'https://elara-ai-gateway.joharimohadeseh.workers.dev';
