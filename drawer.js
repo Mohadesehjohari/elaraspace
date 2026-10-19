@@ -171,6 +171,7 @@
       '<button type="button" data-drawer-nav="calendar">'+icon('calendar')+'<span><b>تقویم</b><small>'+esc(calendarLabel())+'</small></span></button>'+
       '<button type="button" data-drawer-nav="help">'+icon('help')+'<span><b>راهنما</b><small>راهنمای استفاده</small></span></button>'+
       '<button type="button" data-drawer-nav="folders">'+icon('folder')+'<span><b>پوشه‌ها و تگ‌ها</b><small>مدیریت ساختار تسک‌ها</small></span></button>'+
+      '<button type="button" data-drawer-action="cloud-migration">'+icon('folder')+'<span><b>انتقال اطلاعات و بکاپ</b><small>بررسی و انتقال امن داده‌های قدیمی به Firebase</small></span></button>'+
       '<button type="button" data-approved-wardrobe>'+icon('wardrobe')+'<span><b>کمد</b><small>آواتار، قاب و بنر</small></span></button>'+
       '<button type="button" data-drawer-action="store">'+icon('spark')+'<span><b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></span></button>'+
       '<button type="button" class="danger" data-drawer-action="logout">'+icon('logout')+'<span><b>خروج از حساب</b><small>خروج امن از Elara</small></span></button>'+
@@ -431,6 +432,13 @@ function renderSecurity(){
       const area=e.target.closest('[data-drawer-section]'),status=area?.querySelector('[data-privacy-status]')||panel.querySelector('[data-privacy-status]');try{await window.ElaraAccount?.sendPasswordReset?.();if(status)status.textContent='لینک بازیابی به ایمیل حساب ارسال شد.'}catch(err){if(status)status.textContent=err.message||String(err)}return;
     }
     const action=e.target.closest('[data-drawer-action]');if(!action)return;
+    if(action.dataset.drawerAction==='cloud-migration'){
+      clearDrawerHistoryMarker();closeInternal();
+      try{if(!window.ElaraAccount?.openDataMigration)throw new Error('هنوز اتصال Firebase آماده نیست؛ یک بار صفحه را تازه کن.');
+        await window.ElaraAccount.openDataMigration();
+      }catch(error){await window.ElaraDialog?.alert?.(error?.message||String(error),{title:'انتقال اطلاعات به Firebase'})}
+      return;
+    }
     if(action.dataset.drawerAction==='reports'){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.('reports');return}
     if(action.dataset.drawerAction==='store'){clearDrawerHistoryMarker();closeInternal();window.ElaraOpen?.('store');return}
     if(action.dataset.drawerAction==='logout'&&await window.ElaraDialog.confirm('از حساب Elara خارج می‌شوی؟',{title:'خروج از حساب',confirmText:'خروج',danger:true})){clearDrawerHistoryMarker();closeInternal();await window.ElaraAccount?.logout?.()}
