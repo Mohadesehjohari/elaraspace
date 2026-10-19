@@ -65,7 +65,7 @@
 }
 #panel-goals.goal-dashboard-ready .goal-card-controls{
   direction:rtl!important;flex:0 0 auto!important;gap:4px!important;
-  margin-left:auto!important;margin-right:0!important;margin-inline-start:auto!important;
+  margin-inline-start:0!important;margin-inline-end:0!important;margin-left:auto!important;margin-right:0!important;
 }
 #panel-goals.goal-dashboard-ready .goal-card-toggle,
 #panel-goals.goal-dashboard-ready .goal-card-menu>summary{width:36px!important;height:36px!important;flex-basis:36px!important;border-radius:11px!important}
