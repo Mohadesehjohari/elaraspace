@@ -1,0 +1,35 @@
+name: AI Gateway Contract
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/elara-ai-worker.js'
+      - 'ai-gateway-config.js'
+      - 'admin/admin.js'
+      - 'admin/index.html'
+      - 'freedom-ai.js'
+      - 'tests/ai-gateway-contract.test.mjs'
+      - '.github/workflows/ai-gateway-contract.yml'
+  pull_request:
+    paths:
+      - 'cloudflare/elara-ai-worker.js'
+      - 'ai-gateway-config.js'
+      - 'admin/admin.js'
+      - 'admin/index.html'
+      - 'freedom-ai.js'
+      - 'tests/ai-gateway-contract.test.mjs'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --input-type=module --check < cloudflare/elara-ai-worker.js
+          node --input-type=module --check < admin/admin.js
+          node --check freedom-ai.js
+      - name: Check AI gateway contracts
+        run: node tests/ai-gateway-contract.test.mjs
