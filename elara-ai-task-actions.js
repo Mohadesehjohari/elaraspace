@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const STORE='elara_space_v1';
 const tidy=(v,n=180)=>String(v??'').trim().slice(0,n);
-const dateOK=s=>!s||(/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(new Date(s+'T12:00:00').getTime()));
+const dateOK=s=>!s||(/^\d{4}-\d{2}-\d{2}$/.test(s)&&new Date(s+'T12:00:00Z').toISOString().startsWith(s));
 const timeOK=s=>!s||/^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 const ownTask=t=>!(t?.linkedTask||t?.sourceManaged||t?.collabSpaceId||t?.shared||(t?.sourceGroup&&t.sourceGroup!=='personal'));
 const getState=()=>{let state;try{state=JSON.parse(localStorage.getItem(STORE)||'{}')}catch{throw Error('داده‌های تسک‌ها خوانده نشد.')}if(!state||!Array.isArray(state.tasks))throw Error('لیست تسک‌های این حساب آماده نیست.');return state;};
