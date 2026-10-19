@@ -1,7 +1,7 @@
 /* Approved Elara UI and Firebase account/social startup. */
 (() => {
   window.__elaraBootInProgress=true;
-  const BUILD='20261019-ram-only-beta-v1';
+  const BUILD='20261019-account-migration-v1';
   // Initial route is normalized inline in index.html before deferred modules run.
   if(!location.hash||location.hash==='#')history.replaceState({...history.state,elaraTab:'home'},'',location.pathname+location.search+'#home');
   const assetUrl=name=>`${name}${name.includes('?')?'&':'?'}v=${name==='mission-celebration.js'?'20261017-milestone-popups-v5':name==='domain-notifications.js'?'20261016-fox-v3':name==='home-reference-polish-20261012.css'?'20261015-desktop-restored-r1':name==='feature-hubs-2026.js'?'20261015-focus05-modern-back-v1':name==='focus-ambience.js'?'20261015-focus04-inline-v1':name==='language-custom-classes.js'?'20261015-class-popup-v3':name==='freedom-ai.js'?'20261019-ram-only-chat-v2':name==='elara-ai-task-actions.js'?'20261019-actions-v1':name==='social-view.js'?'20261018-social-hardening-v4':/^(social-view\.js|social-groups-ui\.js|social-messaging-ui\.js|social-clubs-ui\.js|social-challenges-ui\.js)$/.test(name)?'20261016-tab-navigation-escape-v1':name==='friends-chats-redesign.css'?'20261012-chats-r1':BUILD}`;
