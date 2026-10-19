@@ -14,6 +14,14 @@ The user shared \`eli.vroid\` (VRoid Studio 2.14 project, ~6 MB). This file cont
 - Existing 2D wardrobe, store, profile, Firebase, and mobile UI are unchanged.
 - No fake model, no copyrighted third-party avatar, no \`.vroid\` source, and no binary asset are published.
 
+## New: Eli's exported VRM received and inspected (2026-10-19)
+
+A genuine `Elara Eli.vrm` file was uploaded privately in chat and passed GLB container and JSON parse checks: 16,857,048 bytes (~16.9 MB), VRM 1.0, 54 mapped humanoid bones, 29 Spring Bone groups (including `Hair`), 112 spring joints, and `blink` / `happy` face expressions. **The file has NOT been committed to this public repository.**
+
+**Licensing blocker:** the embedded VRM metadata says `avatarPermission=onlySeparatelyLicensedPerson`, `commercialUsage=personalNonProfit`, `allowRedistribution=false`, `modification=allowModification`. Public GitHub Pages hosting makes the VRM downloadable, and Elara may have commercial features. Obtain the user's confirmation about ownership of the model and any third-party components, desired terms, and permission for public publishing before uploading. The author can decide their own license for original work, but cannot waive third-party asset restrictions.
+
+A **private local HTML preview** is provided directly to the user outside the repository. It reads VRM through browser File API, uses the same Three.js/three-vrm CDN, and allows 360 rotation, blink, breathing, simple wave, hair physics and a truthful single-outfit closet. Static JavaScript syntax was checked, but an actual network-loaded browser render could not be tested in this environment. The prototype does not publish the file or change the deployment.
+
 ## Publish the actual character (pending)
 
 1. Open \`eli.vroid\` in VRoid Studio 2.14.
