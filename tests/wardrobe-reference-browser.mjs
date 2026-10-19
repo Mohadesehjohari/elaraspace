@@ -28,7 +28,7 @@ for(const width of widths){
  });
  await page.addStyleTag({content:'#cloud-layer{display:none!important}body.cloud-ready .shell{visibility:visible!important;opacity:1!important}'});
  await page.locator('.approved-wardrobe:not([hidden]) .wardrobe-p3-tabs').waitFor({timeout:12000});
- assert.equal(await page.locator('[data-wardrobe-tab]').count(),5,'Five tabs');
+ assert.equal(await page.locator('[data-wardrobe-tab]').count(),6,'Six tabs including the Character tab');
  assert.equal(await page.locator('[data-wardrobe-equip]').isEnabled(),false,'No preview selection should equip');
  const box=await page.locator('.approved-wardrobe-window').boundingBox();
  assert.ok(box&&box.width<=width+1,'Wardrobe escapes viewport width '+width);

@@ -52,10 +52,11 @@
     let renderer;
     try { renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'}); }
     catch (e) { disposeMeshes(THREE,vrm.scene); throw e; }
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));
+    // 1x desktop monitors benefit from modest supersampling; cap GPU work on HiDPI screens.
+    renderer.setPixelRatio(Math.min(2,Math.max(1.5,window.devicePixelRatio||1)));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.12;
+    renderer.toneMappingExposure=1.04;
     renderer.domElement.className='elara-avatar-canvas';
     renderer.domElement.setAttribute('aria-label','آواتار سه‌بعدی؛ با کشیدن بچرخان');
     const viewport=stage.querySelector('[data-elara-avatar-viewport]');
@@ -63,17 +64,28 @@
     viewport.replaceChildren(renderer.domElement);
 
     const scene=new THREE.Scene(), anchor=new THREE.Group(), camera=new THREE.PerspectiveCamera(30,1,.03,70);
-    scene.add(anchor);
-    scene.add(new THREE.HemisphereLight(0xf4f1ff,0x202b49,2.1));
-    const key=new THREE.DirectionalLight(0xffe9eb,3.6);
+    scene.add(anchor);scene.add(camera);
+    const gazeTarget=new THREE.Object3D();camera.add(gazeTarget);gazeTarget.position.set(0,0,-2.6);
+    const mouse={x:0,y:0},smoothMouse={x:0,y:0};
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    const trackPointer=(e)=>{
+      if(pointer!==null)return; // Dragging rotates the whole character instead.
+      mouse.x=clamp((e.clientX/(window.innerWidth||1)-.5)*2,-1,1);
+      mouse.y=clamp((.5-e.clientY/(window.innerHeight||1))*2,-1,1);
+    };
+    const resetPointer=()=>{mouse.x=0;mouse.y=0;};
+    window.addEventListener('pointermove',trackPointer,{passive:true});
+    window.addEventListener('blur',resetPointer);
+    scene.add(new THREE.HemisphereLight(0xf4f1ff,0x202b49,1.55));
+    const key=new THREE.DirectionalLight(0xfff6f0,2.65);
     key.position.set(2,4,5); scene.add(key);
-    const rim=new THREE.DirectionalLight(0x857aff,2.3);
+    const rim=new THREE.DirectionalLight(0x857aff,1.15);
     rim.position.set(-3,3,-4); scene.add(rim);
     let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastTime=performance.now();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
-    const boneNames = ['head','neck','chest','spine','hips','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm'];
+    const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand'];
     function captureBones() {
       for(const name of boneNames) {
         const node=vrm.humanoid?.getNormalizedBoneNode(name);
@@ -99,15 +111,16 @@
       vrm.scene.position.z-=mid.z*scale;
       height=1.9;
       captureBones();
+      if(vrm.lookAt){vrm.lookAt.target=gazeTarget;vrm.lookAt.autoUpdate=true;}
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
-      camera.position.set(0,1.06,aspect<.8?6.5:5.2);
+      camera.position.set(0,1.04,aspect<.8?5.35:4.6);
       camera.lookAt(0,1.02,0);
     }
     attach(vrm);
 
     const interfaceNode=document.createElement('div');
     interfaceNode.className='elara-live-controls';
-    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="wardrobe" aria-expanded="false">✦ کمد سه‌بعدی</button><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
+    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="wardrobe">✦ ویرایش در کمد</button><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
       '<div class="elara-live-panel" data-live-panel hidden role="region" aria-label="کمد سه‌بعدی">'+
       '<header><strong>کمد Elara</strong><button type="button" data-live-action="close" aria-label="بستن کمد">×</button></header>'+
       '<div class="elara-live-tabs" role="tablist" aria-label="نوع لباس"><button type="button" data-live-tab="sets" aria-selected="true">ست‌های کامل</button><button type="button" data-live-tab="parts" aria-selected="false">تکی</button></div>'+
@@ -147,6 +160,17 @@
       note.textContent='هر ست یک خروجی VRM جدا از همان شخصیت است. انتخاب روی همین مرورگر و فقط برای حساب شما ذخیره می‌شود.';
     }
     renderWardrobe();
+    function renderWardrobeControls(host){
+      if(!host)return;
+      panel.hidden=false;
+      host.replaceChildren(panel);
+      renderWardrobe();
+    }
+    panel.addEventListener('click',event=>{
+      const b=event.target.closest('button');if(!b)return;
+      if(b.dataset.liveAction==='close')window.ElaraWardrobeUI?.close?.();
+      if(b.dataset.liveTab){tab=b.dataset.liveTab;renderWardrobe();}
+    });
 
     async function changeLook(item) {
       if (replacing||!ready(item)||look.id===item.id) return;
@@ -163,11 +187,9 @@
     }
 
     interfaceNode.addEventListener('click',event=>{
-      const b=event.target.closest('button');if(!b) return;
-      if(b.dataset.liveAction==='wardrobe'||b.dataset.liveAction==='close'){
-        panel.hidden=!panel.hidden;interfaceNode.querySelector('[data-live-action="wardrobe"]').setAttribute('aria-expanded',String(!panel.hidden));
-      }else if(b.dataset.liveAction==='front'){targetYaw=0;}
-      if(b.dataset.liveTab){tab=b.dataset.liveTab;renderWardrobe();}
+      const b=event.target.closest('button');if(!b)return;
+      if(b.dataset.liveAction==='wardrobe')window.ElaraWardrobeUI?.open?.('character');
+      else if(b.dataset.liveAction==='front'){targetYaw=0;mouse.x=0;mouse.y=0;}
     });
     function down(e){if(e.button!==0)return;pointer=e.pointerId;lastX=e.clientX;renderer.domElement.setPointerCapture(e.pointerId);stage.classList.add('is-dragging');e.preventDefault();}
     function move(e){if(pointer!==e.pointerId)return;targetYaw+=(e.clientX-lastX)*.009;lastX=e.clientX;e.preventDefault();}
@@ -182,7 +204,7 @@
     const resize=()=>{const w=viewport.clientWidth,h=viewport.clientHeight;if(w<2||h<2)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
     const ro=new ResizeObserver(resize);ro.observe(viewport);resize();
 
-    let raf=0, elapsed=0;
+    let raf=0, elapsed=0, nextBlink=3.4, blinkStart=-1, blinkDuration=.16;
     const changeKind=()=>{dispose();stage.dataset.avatarMounted='';window.dispatchEvent(new Event('elara:avatar-stage-ready'));};
     window.addEventListener('elara:profile-private-changed',changeKind);
     function frame(now){
@@ -190,25 +212,39 @@
       raf=requestAnimationFrame(frame);
       const dt=Math.max(.001,Math.min(.05,(now-lastTime)/1000));lastTime=now;
       if(!stage.isConnected) {dispose();return;}
-      if(stage.offsetParent===null||document.hidden)return;
+      if(stage.offsetParent===null||document.hidden||
+        (document.querySelector('.approved-wardrobe:not([hidden])')&&!stage.closest('.approved-wardrobe')))return;
       elapsed+=dt;
       const amp=reduced?.12:1, t=elapsed;
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
-      const dest=(viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8?6.5:5.2)*zoom;
+      const dest=(viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8?5.35:4.6)*zoom;
       camera.position.z+=(dest-camera.position.z)*Math.min(1,dt*8);
       camera.lookAt(0,height*.52,0);
-      poseBone('head',Math.sin(t*.42)*.014*amp,Math.sin(t*.5)*.028*amp,Math.sin(t*.38)*.012*amp);
-      poseBone('chest',Math.sin(t*1.5)*.006*amp,Math.sin(t*.37)*.009*amp,Math.sin(t*.51)*.006*amp);
-      poseBone('spine',Math.sin(t*1.5)*.004*amp,0,Math.sin(t*.46)*.004*amp);
-      // Humanoid normalized rest pose is T-like. Lower shoulders into a relaxed A/rest pose.
-      poseBone('leftUpperArm',0,0,-1.04+Math.sin(t*.7)*.008*amp);
-      poseBone('rightUpperArm',0,0,1.04-Math.sin(t*.7+.3)*.008*amp);
+      const follow=1-Math.exp(-dt*5);
+      smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
+      smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
+      gazeTarget.position.set(smoothMouse.x*.7,smoothMouse.y*.4,-2.6);
+      poseBone('neck',-.045*smoothMouse.y*amp,.07*smoothMouse.x*amp,Math.sin(t*.47)*.004*amp);
+      poseBone('head',-.065*smoothMouse.y*amp+Math.sin(t*.42)*.009*amp,.105*smoothMouse.x*amp+Math.sin(t*.5)*.014*amp,Math.sin(t*.38)*.008*amp);
+      poseBone('chest',Math.sin(t*1.55)*.009*amp,Math.sin(t*.37)*.008*amp,Math.sin(t*.51)*.005*amp);
+      poseBone('spine',Math.sin(t*1.55)*.005*amp,0,Math.sin(t*.46)*.006*amp);
+      // VRM normalized A/rest pose: arms nearly vertical with slightly flexed elbows.
+      poseBone('leftShoulder',0,0,-.025);
+      poseBone('rightShoulder',0,0,.025);
+      poseBone('leftUpperArm',-.06,0,-1.34+Math.sin(t*.7)*.012*amp);
+      poseBone('rightUpperArm',-.06,0,1.34-Math.sin(t*.7+.3)*.012*amp);
+      poseBone('leftLowerArm',-.12,0,-.08);
+      poseBone('rightLowerArm',-.12,0,.08);
+      poseBone('leftHand',0,0,-.04);
+      poseBone('rightHand',0,0,.04);
       const hips=bones.hips;
-      if(hips) {hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.5)*.004*amp;}
-      const b=(t%5.3),blink = b>4.88&&b<5.08?Math.sin((b-4.88)/.20*Math.PI):0;
+      if(hips){hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.55)*.003*amp;}
+      if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
+      const p=(t-blinkStart)/blinkDuration;
+      const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
-      vrm.update(dt); // VRM spring bones / expression manager
+      vrm.update(dt); // VRM lookAt, expressions and spring bones
       renderer.render(scene,camera);
     }
     raf=requestAnimationFrame(frame);
@@ -218,11 +254,13 @@
     function dispose() {
       if(disposed)return;disposed=true;cancelAnimationFrame(raf);ro.disconnect();
       window.removeEventListener('elara:profile-private-changed',changeKind);
-      interfaceNode.remove();renderer.dispose();canvas.remove();disposeMeshes(THREE,vrm.scene);
+      window.removeEventListener('pointermove',trackPointer);window.removeEventListener('blur',resetPointer);
+      panel.remove();interfaceNode.remove();renderer.dispose();canvas.remove();disposeMeshes(THREE,vrm.scene);
       stage.dataset.avatarMounted='';
       if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
     }
-    window.ElaraLiveVRM.current={stage,dispose,get look(){return look.id;},get kind(){return kind;}};
+    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,get look(){return look.id;},get kind(){return kind;}};
+    window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
 
@@ -231,15 +269,13 @@
     const kind=currentKind();
     let config;
     try {
-      const result=await fetch(CONFIG,{cache:'no-store'});
+      const result=await fetch(CONFIG,{cache:'force-cache'});
       if(!result.ok)return false;
       config=await result.json();
     } catch {return false;}
     const base=config?.bases?.[kind];
     if(!ready(base))return false;
     try {
-      const response=await fetch(base.src,{method:'HEAD',cache:'no-store'});
-      if(!response.ok) return false;
       return await mount(stage,config,kind,base);
     } catch(err) {
       console.warn('Elara VRM: preview not ready, using technical fallback',err);

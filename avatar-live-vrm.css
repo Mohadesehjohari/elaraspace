@@ -27,3 +27,37 @@
 }
 @media(max-width:700px){.elara-live-controls{display:none!important}}
 @media(prefers-reduced-motion:reduce){.elara-live-panel{backdrop-filter:none}}
+
+
+/* Character is an actual tab of the existing Elara wardrobe, not a second floating modal. */
+@media(min-width:701px){
+ .approved-wardrobe.is-character-tab .approved-wardrobe-window{
+   width:min(96vw,940px)!important;max-width:940px!important;
+ }
+ .elara-character-wardrobe{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(255px,.9fr);gap:14px;padding:12px 2px 4px;align-items:stretch}
+ .elara-character-wardrobe-stage{min-width:0;min-height:448px}
+ .elara-character-wardrobe-stage .elara-avatar-stage{height:448px!important;min-height:448px!important;border-radius:16px}
+ .elara-character-wardrobe-items{min-width:0;max-height:448px;overflow:auto;overscroll-behavior:contain;padding:10px;border-radius:16px;border:1px solid #8e81c744;background:#091a33a3}
+ .elara-character-wardrobe-items h3{margin:2px 0 12px;color:#f6edff;font:800 14px/1.8 Vazirmatn,Tahoma,sans-serif}
+ .elara-character-wardrobe .elara-live-panel{position:static;inset:auto;width:100%;max-height:none;overflow:visible;margin:0;padding:0;border:0;box-shadow:none;backdrop-filter:none;background:none}
+ .elara-character-wardrobe .elara-live-panel>header{margin-bottom:8px}
+ .elara-character-wardrobe .elara-live-panel>header button{display:none}
+ .elara-character-wardrobe .elara-live-look-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .elara-character-wardrobe-stage .elara-live-actions{bottom:42px;right:10px}
+ .elara-character-wardrobe-stage .elara-live-actions [data-live-action="wardrobe"]{display:none}
+ .elara-character-wardrobe-stage .elara-avatar-help{bottom:8px}
+}
+@media(min-width:701px) and (max-width:790px){
+ .elara-character-wardrobe{grid-template-columns:1fr}
+ .elara-character-wardrobe-items{max-height:none}
+ .elara-character-wardrobe-stage .elara-avatar-stage{height:420px!important;min-height:420px!important}
+}
+@media(max-width:700px){
+ .elara-character-wardrobe{padding:12px 3px}
+ .elara-character-wardrobe-stage{display:none}
+ .elara-character-wardrobe-items{padding:13px;border:1px solid #9080d155;border-radius:14px;background:#0e1a35;color:#e8e2ff}
+}
+
+/* Six categories need a scrollable tab strip in the existing narrow wardrobe modal. */
+.approved-wardrobe .wardrobe-p3-tabs{display:flex!important;overflow-x:auto;scrollbar-width:thin;gap:7px}
+.approved-wardrobe .wardrobe-p3-tabs>button{flex:0 0 auto;min-width:100px;padding-inline:10px}

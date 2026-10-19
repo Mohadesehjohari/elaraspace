@@ -31,3 +31,21 @@ test('missing VRM preserves existing procedural prototype', () => {
   assert.ok(src.includes('window.ElaraLiveVRM.tryMount(stage)'));
   assert.ok(src.includes('avatar=createAvatar(THREE,avatarBase())'));
 });
+
+test('3D stage is lazy and wardrobe reuses a single model/canvas', () => {
+  const drawer=read('drawer.js'), visual=read('approved-visual.js'), live=read('avatar-live-vrm.js');
+  assert.ok(drawer.includes('ensureAvatarStage')&&drawer.includes('restoreAvatarStage'));
+  assert.ok(!drawer.includes('renderProfile();renderHub();updateCalendarLabels()'),'Do not construct the VRM at boot');
+  assert.ok(visual.includes("['character','کاراکتر سه‌بعدی'"));
+  assert.ok(visual.includes("slot.append(stage)"),'Character tab reuses the profile stage');
+  assert.ok(live.includes('renderWardrobeControls'),'Wardrobe options must be mounted in the wardrobe tab');
+  assert.ok(live.includes("window.ElaraWardrobeUI?.open?.('character')"));
+});
+test('VRM has native eye tracking, head follow, relaxed arms and offscreen throttle', () => {
+  const live=read('avatar-live-vrm.js');
+  assert.ok(live.includes('vrm.lookAt.target=gazeTarget'),'Native VRM lookAt must track pointer');
+  assert.ok(live.includes("poseBone('neck'")&&live.includes("poseBone('head'"));
+  assert.ok(live.includes("poseBone('leftUpperArm'")&&live.includes("poseBone('rightUpperArm'"));
+  assert.ok(live.includes("document.querySelector('.approved-wardrobe:not([hidden])')"),'Do not render behind wardrobe');
+  assert.ok(live.includes("renderer.setPixelRatio(Math.min(2,Math.max(1.5"));
+});
