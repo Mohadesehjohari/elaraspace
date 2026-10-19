@@ -141,6 +141,13 @@ assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-
 assert.ok(js.includes('goalDailyProgress')&&js.includes("toggle-goal-daily")&&js.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
 for(const token of ['goal-date','goal-time','goal-priority','goal-list-name','goal-folder','goal-tag','goal-recurrence'])assert.ok(html.includes('id="'+token+'"'),'Goal task-like setting missing #'+token);
 for(const token of ['editGoalStep','goalStepDailyProgress','goalStepDone','edit-step','step-dialog-weekday','recurrenceRule:safeRule(step.recurrenceRule'])assert.ok(js.includes(token),'Rich goal substep behavior missing '+token);
+const goalsHome=readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
+const goalsHomeActions=readFileSync(new URL('home-functional-pass-2026.js',root),'utf8');
+const goalsCss=readFileSync(new URL('task-goal-final-2026.css',root),'utf8');
+for(const token of ['achieved:!!(g.achieved||g.completed)','data-action="toggle-goal"','goal.achieved=!goal.achieved','const currentGoal=state.goals.find','currentGoal.steps.push','goal-step-check-art'])assert.ok(js.includes(token),'Goal achievement or step continuation regression: '+token);
+assert.ok(goalsHome.includes('dataset.homeGoalAchieved')&&goalsHome.includes('!!g.achieved'),'Home goal checkbox must reflect goal, not a substep');
+assert.ok(goalsHomeActions.includes('toggle-goal')&&!goalsHomeActions.includes('data-home-goal-step'),'Home cannot toggle a substep when marking a goal achieved');
+for(const token of ['#panel-goals #goal-list .goal-step-item>.check-button','.goal-achievement-check','#panel-home .ref-goal-step[data-home-goal-achieved]'])assert.ok(goalsCss.includes(token),'Goal check appearance missing '+token);
 for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recurrenceRule!==undefined","sourceType:'goal-step'"])assert.ok(linkedTasks.includes(token),'Linked goal-step metadata projection missing '+token);
 assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
 for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
