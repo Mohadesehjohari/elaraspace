@@ -133,7 +133,7 @@
     dashboard.querySelector('[data-goal-stat-ring]')?.style.setProperty('--goal-progress', percent + '%');
   }
 
-  function decorateRow(item, first) {
+  function decorateRow(item) {
     const {row, goal, id, count, done, percent} = item;
     const header = document.createElement('div');
     header.className = 'goal-card-header';
@@ -179,7 +179,7 @@
     toggle.className = 'goal-card-toggle';
     toggle.dataset.goalToggle = id;
     toggle.setAttribute('aria-label', 'باز و بسته کردن ریزقدم‌های هدف');
-    const open = expanded.has(id) ? expanded.get(id) : first;
+    const open = expanded.get(id) === true;
     toggle.setAttribute('aria-expanded', String(!!open));
     toggle.innerHTML = '<span aria-hidden="true">⌄</span>';
     controls.appendChild(toggle);
@@ -201,8 +201,7 @@
 
   function refresh() {
     const items = dataForRows();
-    const first = items[0]?.id;
-    for (const item of items) if (!item.row.querySelector(':scope > .goal-card-header')) decorateRow(item, item.id === first);
+    for (const item of items) if (!item.row.querySelector(':scope > .goal-card-header')) decorateRow(item);
     updateStats(items);
     applyFilters(items);
   }
