@@ -1,0 +1,52 @@
+# راهنمای اتصال Gemini به GitHub Pages الارا (Cloudflare Workers)
+
+**وضعیت:** کد اتصال در ریپو قرار گرفته است. برای فعال‌شدن AI باید Worker را در حساب خودت بسازی و آدرس آن را به سایت بدهی. این روش نیازی به خرید cPanel ندارد؛ محدودیت‌ها و هزینه احتمالی Google/Cloudflare جدا هستند.
+
+## مرحله ۱ — ساخت سرویس
+
+1. وارد https://dash.cloudflare.com شو و یک حساب بساز.
+2. در Workers & Pages، گزینه Create Worker را انتخاب کن؛ نامی مثل elara-ai-gateway مناسب است.
+3. کد فایل cloudflare/elara-ai-worker.js از همین ریپو را در Worker قرار بده و Deploy کن.
+4. از بخش Workers KV یک namespace به نام دلخواه مثل ELARA_AI_STATE بساز.
+5. در تنظیمات Worker، یک KV namespace Binding ایجاد کن:
+   - Variable name باید دقیقاً AI_CONFIG باشد.
+   - Namespace همان ELARA_AI_STATE باشد.
+6. در تنظیمات Worker، قسمت Variables and Secrets یک Secret به نام AI_MASTER_KEY اضافه کن. مقدار باید ۶۴ کاراکتر تصادفی هگزادسیمال (۳۲ بایت) باشد؛ مثلاً خروجی دستور زیر را فقط در دستگاه خودت بساز:
+
+       openssl rand -hex 32
+
+   این مقدار محرمانه است. آن را در GitHub یا اسکرین‌شات قرار نده. یک بکاپ امن از آن نگه‌دار؛ گم‌کردن آن باعث می‌شود کلیدهای Gemini قبلی قابل بازیابی نباشند.
+
+## مرحله ۲ — اتصال GitHub Pages
+
+1. آدرس HTTPS نهایی Worker را از Cloudflare کپی کن. شکل آن شبیه https://elara-ai-gateway.YOUR-SUBDOMAIN.workers.dev است.
+2. در GitHub فایل ai-gateway-config.js را باز کن و مقدار ELARA_AI_API_URL را با آدرس Worker تنظیم کن. فقط آدرس عمومی را وارد کن، **نه کلید Gemini**.
+3. Commit را در شاخه main ثبت کن و صبر کن GitHub Pages آپدیت شود.
+4. داشبورد https://mohadesehjohari.github.io/elaraspace/admin/ را دوباره بارگذاری کن.
+
+## مرحله ۳ — ثبت کلید Gemini
+
+1. وارد Elara Admin → هوش مصنوعی شو.
+2. در Tokenها و مدیریت بار، یک نام مستعار غیرشخصی مثل Primary و یک Gemini API Key تازه را وارد کن؛ اولویت 10 و سقف روزانه 0.
+3. یک مدل با Technical Model ID معتبر ثبت یا ویرایش کن؛ Worker در حالت اولیه gemini-2.5-flash را پیشنهاد می‌کند. شناسه‌های مدل در https://ai.google.dev/gemini-api/docs/models هستند.
+4. در تنظیمات AI گزینه فعال را روشن کن، مدل پیش‌فرض را تعیین کن و ذخیره کن.
+5. تست اتصال مدل پیش‌فرض را بزن، بعد در صفحه Elara AI یک پیام واقعی بفرست.
+
+**اگر API Key را قبلاً در اسکرین‌شات یا جای عمومی نشان دادی، کلید قدیمی را در Google AI Studio لغو کن و کلید جدید بساز.**
+
+## خطاهای متداول
+
+- پیام عدم وجود backend روی GitHub Pages: آدرس Worker هنوز داخل ai-gateway-config.js تنظیم نشده یا تغییر در GitHub Pages منتشر نشده است.
+- خطای AI_CONFIG: Binding ذخیره‌سازی KV به Worker اضافه نشده.
+- خطای AI_MASTER_KEY: Secret با نام یا قالب درست ثبت نشده.
+- خطای Origin: Worker فقط دامنه https://mohadesehjohari.github.io را قبول می‌کند؛ برای دامنه سفارشی باید همان Origin را در ALLOWED_ORIGINS اضافه و دوباره Deploy کنی.
+- خطای Admin: سند Firestore مسیر admins/{uid} باید enabled=true و role برابر owner یا admin داشته باشد و ایمیل مدیر تأیید شده باشد.
+- HTTP 404 در تست: Technical Model ID را مطابق مدل‌های واقعی مجاز حساب خودت بررسی کن.
+
+## حریم خصوصی و حدود فنی
+
+- GitHub Pages خودش PHP ندارد. وقتی ELARA_AI_API_URL خالی باشد، مسیر PHP قبلی برای هاست cPanel حفظ شده است.
+- Firebase ID token در بک‌اند بررسی می‌شود؛ کلید Gemini در Cloudflare KV به صورت AES-256-GCM نگهداری و هرگز به مرورگر برگردانده نمی‌شود.
+- متن درخواست‌ها برای پاسخ‌گرفتن به Google Gemini ارسال می‌شود. شرایط حریم خصوصی Google AI Studio را بررسی کن.
+- گفتگوهای خود سایت در localStorage مرورگر نگهداری می‌شوند؛ Worker تاریخچه چت‌ها را ذخیره نمی‌کند.
+- سهمیه‌های روزانه در Workers KV تقریبی و غیراتمیک هستند و برای کنترل مالی سخت‌گیرانه کافی نیستند؛ برای مصرف بالا باید شمارنده اتمیک و محدودیت‌های هزینه در Google Cloud تنظیم شود.
