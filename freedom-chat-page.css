@@ -1,0 +1,132 @@
+/* Fox companion in the canonical Freedom dashboard, using the existing AI form. */
+#panel-freedom .freedom-fox-chat-box{
+  display:block;box-sizing:border-box;margin:16px 0 20px;min-width:0;
+  border:1px solid #9e7ee1;border-radius:23px;overflow:hidden;
+  background:linear-gradient(108deg,#21174a 0%,#132b54 64%,#152145 100%);
+  box-shadow:0 12px 30px #05081950,0 0 26px #a271ea27;color:#f7f3ff
+}
+#panel-freedom .freedom-fox-preview{
+  display:flex;align-items:center;gap:20px;width:100%;min-height:164px;
+  padding:18px 26px;background:transparent;border:0;text-align:right;
+  cursor:pointer;font:inherit;color:inherit;box-sizing:border-box;direction:rtl
+}
+#panel-freedom .freedom-fox-preview>img{
+  width:112px;height:112px;object-fit:contain;flex:none;
+  filter:drop-shadow(0 8px 20px #d88cff50);
+  transition:transform .18s ease
+}
+#panel-freedom .freedom-fox-preview:hover>img{transform:translateY(-4px) rotate(-3deg)}
+#panel-freedom .freedom-fox-preview-copy{display:grid;gap:6px;flex:1;min-width:0}
+#panel-freedom .freedom-fox-preview-copy>small{font-weight:700;color:#e7c3ff}
+#panel-freedom .freedom-fox-preview-copy>strong{font-size:clamp(1.2rem,2.5vw,1.65rem);line-height:1.5}
+#panel-freedom .freedom-fox-preview-message{color:#d8d5ed;line-height:1.8;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+#panel-freedom .freedom-fox-open-label{
+  display:inline-flex;align-items:center;gap:10px;padding:12px 17px;
+  border-radius:14px;border:1px solid #b9a1f2;background:#7652ce;
+  font-weight:700;white-space:nowrap;flex:none
+}
+#panel-freedom .freedom-fox-preview:focus-visible{outline:3px solid #e2c8ff;outline-offset:-5px}
+#panel-freedom .freedom-fox-chat-box>.freedom-ai-card{display:none!important}
+html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
+.freedom-fox-overlay{
+  position:fixed;inset:0;z-index:2147483000;overflow:hidden;box-sizing:border-box;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:radial-gradient(circle at 17% 0%,#35225b 0%,#08162c 54%,#050d1d 100%);
+  color:#f4f0ff;font-family:inherit;direction:rtl;
+  animation:fox-chat-appear .23s ease-out both
+}
+@keyframes fox-chat-appear{from{opacity:.4;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.freedom-fox-overlay,.freedom-fox-overlay *{box-sizing:border-box}
+.freedom-fox-overlay-shell{
+  max-width:1160px;height:100%;min-height:0;margin:auto;
+  display:flex;flex-direction:column;gap:12px;padding:12px 16px 8px
+}
+.freedom-fox-overlay-header{
+  display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;
+  border:1px solid #60538f;border-radius:22px;padding:12px 20px;
+  background:linear-gradient(110deg,#281c54,#102848);flex:none
+}
+.freedom-fox-companion{display:flex;align-items:center;gap:15px;min-width:0;flex:1}
+.freedom-fox-companion>img{width:82px;height:82px;object-fit:contain;filter:drop-shadow(0 5px 13px #b998fc90)}
+.freedom-fox-companion span{display:grid;gap:4px}
+.freedom-fox-companion strong{font-size:clamp(1.14rem,2.6vw,1.45rem);color:#fff}
+.freedom-fox-companion small{color:#ccc4ed;line-height:1.6}
+.freedom-fox-back{
+  order:2;padding:10px 16px;border-radius:13px;border:1px solid #a899da;
+  color:#fff;background:#503e80;cursor:pointer;font:inherit;white-space:nowrap
+}
+.freedom-fox-overlay :is(button,input,textarea):focus-visible{outline:3px solid #d5b5fc;outline-offset:2px}
+.freedom-fox-conversation{
+  flex:1;min-height:0;width:100%;padding:0;margin:0;
+  overflow-y:auto;overflow-x:hidden
+}
+.freedom-fox-overlay .freedom-ai-card{
+  display:flex!important;flex-direction:column;width:100%;min-height:100%;
+  padding:20px;gap:12px;border:1px solid #4d4679;border-radius:19px;
+  background:linear-gradient(180deg,#0d1b34,#08172d)
+}
+.freedom-fox-overlay .freedom-ai-card>header{display:none}
+.freedom-fox-overlay .freedom-ai-card [data-f-ai-host]{display:flex;flex-direction:column;gap:12px;flex:1}
+.freedom-fox-overlay .freedom-ai-thread{
+  flex:1;min-height:160px;display:grid;align-content:start;gap:14px;
+  overflow-y:auto;scrollbar-width:thin
+}
+.freedom-fox-overlay .freedom-ai-message{
+  max-width:min(86%,770px);display:block;padding:12px 15px;border-radius:17px;
+  background:#1c2450;border:1px solid #6156a0;position:relative;
+  overflow-wrap:anywhere;line-height:1.8
+}
+.freedom-fox-overlay .freedom-ai-message.user{justify-self:start;background:#32235b;border-color:#7957c1}
+.freedom-fox-overlay .freedom-ai-message.model{justify-self:end;margin-inline-start:58px;background:#102b49;border-color:#4e719a}
+.freedom-fox-overlay .freedom-ai-message.model:before{
+  content:'';position:absolute;top:5px;inset-inline-end:calc(100% + 7px);
+  width:46px;height:46px;border-radius:50%;
+  background:#32265a url('assets/ui/fox-loved.webp') center/contain no-repeat;
+  border:1px solid #a793ef
+}
+.freedom-fox-overlay .freedom-ai-message small{display:block;color:#d0c6ee;margin-bottom:3px;font-size:.82rem;font-weight:700}
+.freedom-fox-overlay .freedom-ai-message p{margin:0!important;color:#f7f5ff!important;white-space:pre-wrap;line-height:1.85}
+.freedom-fox-overlay .freedom-ai-empty{margin:auto;display:grid;text-align:center;gap:8px;color:#bccce7;padding:16px}
+.freedom-fox-overlay .freedom-ai-empty strong{color:#f4ddff;font-size:1.25rem}
+.freedom-fox-overlay .freedom-ai-form{display:grid;gap:9px;padding-top:6px}
+.freedom-fox-overlay .freedom-ai-form textarea{
+  display:block;width:100%;min-height:76px;max-height:180px;resize:vertical;
+  padding:12px 14px;background:#071528;color:#f9f6ff;
+  border:1px solid #745ca6;border-radius:14px;font:inherit
+}
+.freedom-fox-overlay .freedom-ai-form>div{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.freedom-fox-overlay .freedom-ai-form button{min-height:41px;font:inherit}
+.freedom-fox-overlay .freedom-ai-status{min-height:1.4em;margin:0;color:#dbcdf0;line-height:1.7}
+.freedom-fox-overlay .freedom-ai-memory{
+  flex:none;max-height:33vh;overflow-y:auto;scrollbar-width:thin
+}
+.freedom-fox-disclosure{
+  margin:0;font-size:.75rem;line-height:1.6;color:#bcc7e7;
+  text-align:center;flex:none
+}
+@media(max-width:700px){
+ #panel-freedom .freedom-fox-preview{gap:12px;padding:12px;min-height:136px;flex-wrap:wrap}
+ #panel-freedom .freedom-fox-preview>img{width:82px;height:82px}
+ #panel-freedom .freedom-fox-preview-copy{flex-basis:calc(100% - 94px)}
+ #panel-freedom .freedom-fox-open-label{width:100%;justify-content:center}
+ .freedom-fox-overlay-shell{padding:6px;gap:8px}
+ .freedom-fox-overlay-header{padding:10px 12px;gap:8px;flex-wrap:nowrap}
+ .freedom-fox-companion{gap:6px}
+ .freedom-fox-companion>img{width:58px;height:58px}
+ .freedom-fox-companion strong{font-size:.99rem;line-height:1.5}
+ .freedom-fox-companion small{font-size:.7rem}
+ .freedom-fox-back{font-size:.76rem;padding:8px;white-space:normal;max-width:97px;order:2}
+ .freedom-fox-overlay .freedom-ai-card{padding:10px 8px}
+ .freedom-fox-overlay .freedom-ai-message{max-width:88%}
+ .freedom-fox-overlay .freedom-ai-message.model{margin-inline-start:43px}
+ .freedom-fox-overlay .freedom-ai-message.model:before{width:32px;height:32px}
+ .freedom-fox-overlay .freedom-ai-thread{gap:10px}
+ .freedom-fox-disclosure{font-size:.67rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .freedom-fox-overlay{animation:none}
+ #panel-freedom .freedom-fox-preview>img{transition:none}
+}
+
+/* Existing Freedom subpage back controls must clear the sticky global toolbar. */
+#panel-freedom .r30-shell,#panel-freedom .r31-shell{scroll-margin-top:calc(90px + env(safe-area-inset-top))}
