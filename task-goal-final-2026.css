@@ -738,22 +738,22 @@ body.task-card-reordering{user-select:none!important;-webkit-user-select:none!im
 }
 
 /* Goal substep settings: scoped defaults and an explicit reset control. */
-#panel-goals .goal-step-edit-dialog>.goal-step-settings-controls{
+.elara-dialog-layer .goal-step-edit-dialog>.goal-step-settings-controls{
   grid-column:1/-1!important;display:flex!important;flex-wrap:wrap!important;
   align-items:center!important;justify-content:space-between!important;
   gap:10px!important;padding:12px 2px 2px!important;
   border-top:1px solid var(--border)!important;
 }
-#panel-goals .goal-step-edit-dialog .goal-step-settings-controls small{
+.elara-dialog-layer .goal-step-edit-dialog .goal-step-settings-controls small{
   flex:1 1 200px!important;min-width:0!important;
   color:var(--muted)!important;font-size:.68rem!important;line-height:1.8!important;
 }
-#panel-goals .goal-step-edit-dialog [data-goal-step-settings-reset]{
+.elara-dialog-layer .goal-step-edit-dialog [data-goal-step-settings-reset]{
   flex:0 0 auto!important;border:1px solid #3ebda9!important;border-radius:10px!important;
   color:#8bfbe0!important;background:#0b3540!important;
   min-height:38px!important;padding:8px 14px!important;cursor:pointer;
   font:inherit!important;font-size:.75rem!important;
 }
-#panel-goals .goal-step-edit-dialog [data-goal-step-settings-reset]:focus-visible{
+.elara-dialog-layer .goal-step-edit-dialog [data-goal-step-settings-reset]:focus-visible{
   outline:2px solid #95ffe7!important;outline-offset:3px!important;
 }
