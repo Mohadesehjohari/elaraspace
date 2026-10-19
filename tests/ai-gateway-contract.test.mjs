@@ -9,6 +9,8 @@ assert.ok(runtime.includes('do not falsely claim that Elara trained or owns the 
 const stripped=runtime.replace(/FIREBASE_WEB_API_KEY\s*=\s*'[^']+';/g,'');
 assert.equal(/AIza[0-9A-Za-z_-]{20,}/.test(stripped),false,'No Gemini secret may be committed in runtime');
 assert.ok(admin.includes('ai-key-token')&&admin.includes('ai-model-technical')&&admin.includes('ai-default-model'),'Admin AI key/model controls missing');
-assert.ok(client.includes("fetch('ai.php'")&&!/gemini|google/i.test(client),'User Freedom AI client must not expose provider/model internals');
-for(const path of ['ai.php','admin/ai.php','freedom-ai.js','freedom-refinement-v2.css'])assert.ok(manifest.required.includes(path)&&manifest.files.includes(path),'Production manifest missing '+path);
+assert.ok(client.includes("fetch(aiEndpoint()")&&!/gemini|google/i.test(client),'User Freedom AI client must not expose provider/model internals');
+assert.ok(client.includes("ELARA_AI_API_URL"),'GitHub Pages user AI gateway configuration missing');
+assert.ok(admin.includes("ai-key-token"),'Admin Token UI must remain functional');
+for(const path of ['ai.php','admin/ai.php','freedom-ai.js','freedom-refinement-v2.css','ai-gateway-config.js'])assert.ok(manifest.required.includes(path)&&manifest.files.includes(path),'Production manifest missing '+path);
 console.log('PASS: secure AI gateway/admin contract, server-only secrets, display/technical model separation and provenance policy');
