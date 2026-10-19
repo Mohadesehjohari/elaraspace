@@ -1,14 +1,126 @@
-/* Freedom AI client. Provider/model internals stay server-side; only Elara display names are rendered here. */
+/* Freedom AI: signed-in user's private, opt-in cloud memory and local chat fallback. */
 (()=>{'use strict';
-const host=()=>document.querySelector('#panel-freedom [data-f-ai-host]'),uid=()=>window.ElaraAccount?.user?.uid||'guest',key=()=>'elara_freedom_ai_chat_v1_'+uid();
+const host=()=>document.querySelector('#panel-freedom [data-f-ai-host]');
+const uid=()=>window.ElaraAccount?.user?.uid||'guest';
+const key=()=>'elara_freedom_ai_chat_v1_'+uid();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const read=()=>{try{const x=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(x)?x.slice(-30):[]}catch{return[]}};
-const write=rows=>localStorage.setItem(key(),JSON.stringify(rows.slice(-30)));
-const aiEndpoint=()=>{const base=String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');if(!base&&location.hostname.endsWith('.github.io'))throw new Error('هوش مصنوعی هنوز به سرور امن متصل نشده است. مدیر باید Cloudflare Worker را تنظیم کند.');return base?base+'/ai':'ai.php'};
-function render(){const h=host();if(!h)return;const rows=read(),signed=!!window.ElaraAccount?.user;h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div><form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status></p>';const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight}
-async function submit(form){const user=window.ElaraAccount?.user;if(!user)return;const input=form.elements.message,message=String(input.value||'').trim();if(!message)return;const button=form.querySelector('[type=submit]'),status=host()?.querySelector('[data-f-ai-status]'),before=read();button.disabled=true;input.disabled=true;if(status)status.textContent='Elara در حال فکر کردن…';const next=[...before,{role:'user',text:message,at:Date.now()}];write(next);render();try{const token=await user.getIdToken(),history=before.slice(-10).map(x=>({role:x.role,text:x.text})),response=await fetch(aiEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'Accept':'application/json'},cache:'no-store',credentials:'same-origin',body:JSON.stringify({message,history})}),raw=await response.text();let payload=null;try{payload=JSON.parse(raw)}catch{throw new Error('AI backend روی این محیط فعال نیست.')}if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));const data=payload.data||{};write([...next,{role:'model',text:String(data.text||'').trim(),name:data.display_name||'Elara AI',at:Date.now()}]);render()}catch(error){write(before);render();const s=host()?.querySelector('[data-f-ai-status]');if(s)s.textContent=error.message||'پاسخ AI در دسترس نیست.'}finally{const f=host()?.querySelector('[data-f-ai-form]');if(f){f.elements.message.disabled=false;f.querySelector('[type=submit]').disabled=false;f.elements.message.value='';f.elements.message.focus()}}}
-document.addEventListener('submit',e=>{if(!e.target.matches?.('[data-f-ai-form]'))return;e.preventDefault();submit(e.target)},true);
-document.addEventListener('click',e=>{if(!e.target.closest?.('[data-f-ai-clear]'))return;if(confirm('گفتگوی محلی Elara AI پاک شود؟')){localStorage.removeItem(key());render()}},true);
+const read=()=>{try{const x=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(x)?x.slice(-60):[]}catch{return[]}};
+const write=rows=>{try{localStorage.setItem(key(),JSON.stringify(rows.slice(-60)))}catch{console.warn('Local conversation storage unavailable')}};
+const remote=()=>String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');
+const aiEndpoint=()=>{const base=remote();if(!base&&location.hostname.endsWith('.github.io'))throw new Error('هوش مصنوعی هنوز به سرور امن متصل نشده است.');return base?base+'/ai':'ai.php'};
+let memory={enabled:false,notes:[],history:[]},memoryUid='',memoryMessage='',memoryBusy=false;
+function memoryControls(){
+  if(!remote()||!window.ElaraAccount?.user)return '';
+  const notes=(memory.notes||[]).map(n=>'<li><span>'+esc(n.text)+'</span><button type="button" class="quiet-button" data-f-ai-delete-note="'+esc(n.id)+'" aria-label="فراموش کردن این یادداشت" '+(memoryBusy?'disabled':'')+'>حذف</button></li>').join('');
+  return '<section class="freedom-ai-memory" aria-label="حافظه شخصی الارا" style="margin:12px 0;padding:12px;border:1px solid #40517a;border-radius:12px">'
+    +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-f-ai-memory-toggle '+(memory.enabled?'checked ':'')+(memoryBusy?'disabled':'')+'> <strong>حافظه شخصی الارا</strong></label>'
+    +'<p class="muted" style="font-size:12px">اختیاری: با روشن‌کردن، گفتگو در فضای ابری رمزگذاری می‌شود و در دستگاه‌های دیگر هم در دسترس خواهد بود. فقط برای حساب خودت.</p>'
+    +(memory.enabled?'<form data-f-ai-note-form style="display:flex;gap:8px;flex-wrap:wrap"><input name="note" maxlength="350" placeholder="چیزی که الارا همیشه باید یادش بماند…" aria-label="یادداشت حافظه" required style="flex:1;min-width:160px" '+(memoryBusy?'disabled':'')+'><button type="submit" class="quiet-button" '+(memoryBusy?'disabled':'')+'>به خاطر بسپار</button></form><ul style="display:grid;gap:8px;padding:8px 0;list-style:none">'+notes+'</ul><button type="button" class="quiet-button" data-f-ai-forget '+(memoryBusy?'disabled':'')+'>حذف کامل حافظه ابری</button>':'')
+    +(memoryMessage?'<p role="status" class="muted">'+esc(memoryMessage)+'</p>':'')
+    +'</section>';
+}
+function render(){
+  const h=host();if(!h)return;
+  const user=window.ElaraAccount?.user,signed=!!user,rows=read();
+  if(!signed&&memoryUid){memoryUid='';memory={enabled:false,notes:[],history:[]};memoryMessage='';memoryBusy=false;}
+  h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
+    +memoryControls()
+    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status></p>';
+  const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;
+  if(signed&&remote()&&memoryUid!==user.uid){memoryUid=user.uid;void loadMemory(user.uid);}
+}
+async function memoryRequest(method='GET',body=null){
+  const user=window.ElaraAccount?.user;if(!user)throw new Error('ابتدا وارد حساب شو.');
+  const token=await user.getIdToken();
+  const headers={'Accept':'application/json','Authorization':'Bearer '+token};
+  if(body!==null)headers['Content-Type']='application/json';
+  const response=await fetch(remote()+'/ai/memory',{method,headers,cache:'no-store',body:body===null?undefined:JSON.stringify(body)});
+  const data=await response.json().catch(()=>null);
+  if(!response.ok||data?.ok!==true)throw new Error(data?.error||'اتصال حافظه برقرار نشد؛ کد جدید Worker را Deploy کن.');
+  return data.data||{};
+}
+async function loadMemory(expectedUid){
+  try{
+    const data=await memoryRequest();
+    if(uid()!==expectedUid)return;
+    memory={enabled:data.enabled===true,notes:data.notes||[],history:data.history||[]};
+    if(memory.enabled)write(memory.history);
+    memoryMessage='';
+  }catch(err){if(uid()!==expectedUid)return;memoryMessage=err.message||'بارگذاری حافظه ناموفق بود.';}
+  render();
+}
+async function saveMemoryAction(method,body,success){
+  if(memoryBusy)return;
+  memoryBusy=true;memoryMessage='در حال ذخیره…';render();
+  const expectedUid=uid();
+  try{
+    const data=await memoryRequest(method,body);
+    if(uid()!==expectedUid)return;
+    memory={enabled:data.enabled===true,notes:data.notes||[],history:data.history||[]};
+    if(memory.enabled&&body?.enabled===true)write(memory.history);
+    memoryMessage=success;
+  }catch(error){if(uid()===expectedUid)memoryMessage=error.message||'ذخیره حافظه ناموفق بود.';}
+  finally{if(uid()===expectedUid){memoryBusy=false;render();}}
+}
+async function submit(form){
+  const user=window.ElaraAccount?.user;if(!user)return;
+  const message=String(form.elements.message.value||'').trim();if(!message)return;
+  const before=read(),next=[...before,{role:'user',text:message,at:Date.now()}];
+  write(next);render();
+  const status=host()?.querySelector('[data-f-ai-status]');if(status)status.textContent='Elara در حال فکر کردن…';
+  const expectedUid=user.uid;
+  try{
+    const token=await user.getIdToken(),history=before.slice(-10).map(x=>({role:x.role,text:x.text}));
+    const response=await fetch(aiEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'Accept':'application/json'},cache:'no-store',credentials:'same-origin',body:JSON.stringify({message,history})});
+    const payload=await response.json().catch(()=>null);
+    if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));
+    if(uid()!==expectedUid)return;
+    const data=payload.data||{};
+    write([...next,{role:'model',text:String(data.text||'').trim(),name:data.display_name||'Elara AI',at:Date.now()}]);
+    if(memory.enabled&&data.memory_saved===false)memoryMessage='پاسخ آمد، اما ذخیره‌سازی حافظه ناموفق بود. دوباره تلاش کن.';
+    render();
+  }catch(error){
+    if(uid()!==expectedUid)return;
+    write(before);render();
+    const s=host()?.querySelector('[data-f-ai-status]');if(s)s.textContent=error.message||'پاسخ AI در دسترس نیست.';
+  }finally{
+    if(uid()===expectedUid){const f=host()?.querySelector('[data-f-ai-form]');if(f){f.elements.message.value='';f.elements.message.focus();}}
+  }
+}
+document.addEventListener('submit',e=>{
+  if(e.target.matches?.('[data-f-ai-form]')){e.preventDefault();void submit(e.target);return;}
+  if(e.target.matches?.('[data-f-ai-note-form]')){
+    e.preventDefault();const note=String(e.target.elements.note.value||'').trim();
+    if(note)void saveMemoryAction('POST',{note},'یادداشت در حافظه الارا ذخیره شد.');
+  }
+},true);
+document.addEventListener('change',e=>{
+  if(!e.target.matches?.('[data-f-ai-memory-toggle]'))return;
+  const checked=e.target.checked;
+  if(checked){
+    if(!confirm('می‌خواهی گفتگوهای این حساب به‌صورت رمزگذاری‌شده در Cloudflare ذخیره شوند تا الارا در دستگاه‌های دیگر هم یادش بماند؟')){e.target.checked=false;return;}
+    void saveMemoryAction('POST',{enabled:true,history:read()},'حافظه شخصی فعال شد.');
+  }else{
+    if(!confirm('با خاموش‌کردن حافظه، نسخه ابری گفتگوها و یادداشت‌ها حذف می‌شود. ادامه بدهیم؟')){e.target.checked=true;return;}
+    void saveMemoryAction('DELETE',null,'حافظه ابری خاموش و حذف شد.');
+  }
+},true);
+document.addEventListener('click',e=>{
+  const noteDel=e.target.closest?.('[data-f-ai-delete-note]');
+  if(noteDel){if(confirm('این یادداشت از حافظه پاک شود؟'))void saveMemoryAction('POST',{remove_note:noteDel.dataset.fAiDeleteNote},'یادداشت حذف شد.');return;}
+  if(e.target.closest?.('[data-f-ai-forget]')){
+    if(confirm('تمام گفتگوها و یادداشت‌های ذخیره‌شده در حافظه ابری پاک شوند؟')){
+      localStorage.removeItem(key());
+      void saveMemoryAction('DELETE',null,'حافظه ابری کامل حذف شد.');
+    }
+    return;
+  }
+  if(!e.target.closest?.('[data-f-ai-clear]'))return;
+  if(!confirm('گفتگوهای اخیر پاک شوند؟ یادداشت‌های ذخیره‌شده در حافظه باقی می‌مانند.'))return;
+  localStorage.removeItem(key());
+  if(memory.enabled)void saveMemoryAction('POST',{clear_history:true},'گفتگوهای اخیر پاک شدند.');
+  else render();
+},true);
 for(const n of ['elara:freedom-rendered','elara:account-ready','elara:logout'])window.addEventListener(n,()=>setTimeout(render,0));
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(render,0),{once:true}):setTimeout(render,0);
 window.ElaraFreedomAI={render};
