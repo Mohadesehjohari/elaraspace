@@ -285,6 +285,18 @@
       dailyTarget:goalStepDailyTarget(previous),recurrenceRule:previous?.recurrenceRule||null
     };
   }
+  function resetGoalStepSettings(form,syncDaily,syncSchedule){
+    // Reset metadata only, preserving the title and completion state.
+    for(const [name,value] of Object.entries({date:'',time:'',priority:'4',list:'',folder:'',tag:'',dailyTarget:'2',frequency:'weekly',interval:'1',endDate:''})){
+      const input=form.querySelector('[name="'+name+'"]');if(input)input.value=value;
+    }
+    for(const name of ['dailyEnabled','scheduleEnabled','noEnd']){
+      const input=form.querySelector('[name="'+name+'"]');if(input)input.checked=false;
+    }
+    form.querySelectorAll('input[name="step-dialog-weekday"]').forEach(input=>input.checked=false);
+    syncDaily();syncSchedule();
+    const end=form.querySelector('[name="endDate"]');if(end)end.disabled=false;
+  }
   async function editGoalStep(goal,step=null){
     const latestGoal=state.goals.find(g=>String(g.id)===String(goal.id))||goal;
     const draft=goalStepDraft(latestGoal,step),form=document.createElement('div');
@@ -296,15 +308,7 @@
     const daily=form.querySelector('[name="dailyEnabled"]'),dailyBox=form.querySelector('[data-goal-dialog-daily]'),dailyInput=form.querySelector('[name="dailyTarget"]'),schedule=form.querySelector('[name="scheduleEnabled"]'),scheduleBox=form.querySelector('[data-goal-dialog-schedule]'),end=form.querySelector('[name="endDate"]'),noEnd=form.querySelector('[name="noEnd"]');
     const syncDaily=()=>{dailyBox.classList.toggle('hidden',!daily.checked);dailyInput.disabled=!daily.checked};const syncSchedule=()=>{scheduleBox.classList.toggle('hidden',!schedule.checked);if(schedule.checked&&!form.querySelector('input[name="step-dialog-weekday"]:checked'))form.querySelectorAll('input[name="step-dialog-weekday"]').forEach(x=>x.checked=true)};
     daily.addEventListener('change',syncDaily);schedule.addEventListener('change',syncSchedule);noEnd.addEventListener('change',()=>{end.disabled=noEnd.checked;if(noEnd.checked)end.value=''});syncDaily();syncSchedule();end.disabled=noEnd.checked;
-    form.querySelector('[data-goal-step-settings-reset]').addEventListener('click',()=>{
-      // Reset metadata only; do not clear the typed title or an edited step's done state.
-      for(const [name,value] of Object.entries({date:'',time:'',priority:'4',list:'',folder:'',tag:'',dailyTarget:'2',frequency:'weekly',interval:'1',endDate:''})){
-        const input=form.querySelector('[name="'+name+'"]');if(input)input.value=value;
-      }
-      daily.checked=false;schedule.checked=false;noEnd.checked=false;
-      form.querySelectorAll('input[name="step-dialog-weekday"]').forEach(input=>input.checked=false);
-      syncDaily();syncSchedule();end.disabled=false;
-    });
+    form.querySelector('[data-goal-step-settings-reset]').addEventListener('click',()=>resetGoalStepSettings(form,syncDaily,syncSchedule));
     const ok=await window.ElaraDialog.open({title:step?'ویرایش ریزقدم':'افزودن ریزقدم',content:form,wide:true,actions:[{label:'انصراف',value:false},{label:step?'ذخیره':'افزودن',value:true,kind:'primary'}]});if(ok!==true)return;
     // Linked-task/cloud events may rehydrate state while the dialog is open.
     const currentGoal=state.goals.find(g=>String(g.id)===String(goal.id));if(!currentGoal){toast('این هدف دیگر وجود ندارد.');return}
