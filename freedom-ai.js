@@ -1,6 +1,6 @@
 /* Freedom AI: signed-in user's private, opt-in cloud memory and local chat fallback. */
 (()=>{'use strict';
-const host=()=>document.querySelector('#panel-freedom [data-f-ai-host]');
+const host=()=>document.querySelector('.freedom-fox-overlay [data-f-ai-host],#panel-freedom [data-f-ai-host]');
 const uid=()=>window.ElaraAccount?.user?.uid||'guest';
 const key=()=>'elara_freedom_ai_chat_v1_'+uid();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
