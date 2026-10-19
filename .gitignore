@@ -1,0 +1,9 @@
+# Never add private Firebase credentials or downloaded account backups to GitHub.
+**/*adminsdk*.json
+**/*service-account*.json
+**/*service_account*.json
+**/*firebase-key*.json
+**/*.json.enc
+**/Elara-Backups/
+**/node_modules/
+tools/admin-backup/package-lock.json
