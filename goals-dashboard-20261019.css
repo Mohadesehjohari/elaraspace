@@ -190,6 +190,7 @@
   background:transparent!important;border:0!important;color:#c6dcff!important;
   font-size:1.35rem!important;border-radius:6px!important;cursor:pointer
 }
+#panel-goals #goal-list .goal-step-actions button svg{width:19px;height:19px;stroke:currentColor}
 #panel-goals #goal-list .goal-step-actions button.danger{color:#ff4c7f!important}
 #panel-goals #goal-list .goal-step-actions button:hover{background:#1b3764!important}
 #panel-goals #goal-list .goal-card-content>[data-action="add-step"]{
