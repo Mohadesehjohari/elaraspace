@@ -193,8 +193,8 @@
     }
     row.classList.toggle('goal-card-open', !!open);
     for (const button of row.querySelectorAll('.goal-step-actions [data-action]')) {
-      if (button.dataset.action === 'edit-step') { button.setAttribute('aria-label','ویرایش ریزقدم'); button.title = 'ویرایش ریزقدم'; button.textContent = '✎'; }
-      if (button.dataset.action === 'delete-step') { button.setAttribute('aria-label','حذف ریزقدم'); button.title = 'حذف ریزقدم'; button.textContent = '♲'; }
+      if (button.dataset.action === 'edit-step') { button.setAttribute('aria-label','ویرایش ریزقدم'); button.title = 'ویرایش ریزقدم'; button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'; }
+      if (button.dataset.action === 'delete-step') { button.setAttribute('aria-label','حذف ریزقدم'); button.title = 'حذف ریزقدم'; button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v7m4-7v7"/></svg>'; }
     }
     // The original step list, edit/share/delete handlers and drag data are untouched.
   }
