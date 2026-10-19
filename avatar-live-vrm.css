@@ -1,0 +1,29 @@
+/* Additional UI only for a real exported VRM; this does not replace the 2D approved wardrobe. */
+@media (min-width:701px){
+  .elara-avatar-stage .elara-live-controls{position:absolute;inset:0;z-index:7;pointer-events:none;direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;color:#e5dcff}
+  .elara-live-actions{position:absolute;right:14px;bottom:48px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+  .elara-live-actions button,.elara-live-panel button{cursor:pointer;font:700 11px/1.4 Vazirmatn,Tahoma,sans-serif}
+  .elara-live-actions button{padding:9px 12px;background:#181c44e8;border:1px solid #9a8aff78;border-radius:12px;color:#f0eaff;box-shadow:0 5px 18px #04091c85}
+  .elara-live-actions button:hover,.elara-live-actions button:focus-visible{background:#302963}
+  .elara-live-panel{position:absolute;right:14px;bottom:94px;width:min(320px,calc(100% - 28px));max-height:min(480px,68%);overflow-y:auto;overscroll-behavior:contain;pointer-events:auto;padding:12px;border-radius:16px;border:1px solid #aa92ee80;background:linear-gradient(170deg,#101a36fa,#131130fa);box-shadow:0 12px 42px #020712bb;backdrop-filter:blur(14px)}
+  .elara-live-panel[hidden]{display:none!important}
+  .elara-live-panel header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .elara-live-panel header strong{font-size:13px;color:#f4edff}
+  .elara-live-panel header button{font-size:22px;background:transparent;border:0;color:#d4c5ff;padding:2px 8px}
+  .elara-live-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+  .elara-live-tabs button{border:1px solid #7a7ba260;background:#141d38;color:#b4b9d1;border-radius:9px;padding:9px}
+  .elara-live-tabs button[aria-selected="true"]{border-color:#ad92ff;background:#352764;color:#fff}
+  .elara-live-look-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .elara-live-look{display:flex;flex-direction:column;align-items:center;gap:5px;min-height:96px;padding:10px;border-radius:12px;background:#182444;border:1px solid #8e98b950;color:#e5e9ff;text-align:center}
+  .elara-live-look:disabled{opacity:.55;cursor:not-allowed}
+  .elara-live-look[aria-pressed="true"]{border-color:#b5a1ff;background:#302650;box-shadow:inset 0 0 0 1px #b5a1ff33}
+  .elara-live-look-icon{font-size:27px;color:#ac9eff}
+  .elara-live-look strong{font-size:11px;line-height:1.5}
+  .elara-live-look small{font-size:10px;color:#afbad0;line-height:1.5}
+  .elara-live-note{margin:10px 2px 2px;font:500 10px/1.8 Vazirmatn,Tahoma,sans-serif;color:#9ca9c8}
+  .elara-live-part{display:flex;justify-content:space-between;gap:10px;padding:10px 2px;border-bottom:1px solid #f6efff17;font-size:11px}
+  .elara-live-part span:last-child{font-size:10px;color:#9aacc6}
+  .elara-live-panel button:focus-visible{outline:2px solid #dabdff;outline-offset:2px}
+}
+@media(max-width:700px){.elara-live-controls{display:none!important}}
+@media(prefers-reduced-motion:reduce){.elara-live-panel{backdrop-filter:none}}
