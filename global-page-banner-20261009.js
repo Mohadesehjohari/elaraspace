@@ -14,7 +14,7 @@ const routeArt=Object.freeze({
  page:['38-my-page-hero-banner.webp','صفحهٔ من'],
  blog:['weblog_banner_main.webp','وبلاگ'],
  store:['shop_senter.webp','فروشگاه'],
- goals:['goals-target-background.webp','هدف‌ها'],
+ goals:['goals_banner_2.webp','هدف‌ها'],
  habits:['daily-streak-background.webp','عادت‌ها'],
  focus:['banner_moon_lake.webp','تمرکز']
 });
