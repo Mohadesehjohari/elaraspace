@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "policy": "opt-in: a base is loaded only after src is uploaded and status changes to preview or ready",
+  "bases": {
+    "female": {
+      "id": "eli-female-v1",
+      "label": "Elara · Eli",
+      "status": "awaiting-export",
+      "src": "assets/avatar/bases/eli-female-v1.vrm"
+    },
+    "male": {
+      "id": "eli-male-v1",
+      "label": "Elara · Male (future)",
+      "status": "awaiting-export",
+      "src": "assets/avatar/bases/eli-male-v1.vrm"
+    }
+  },
+  "looks": [
+    {
+      "id": "night-wanderer",
+      "kind": "female",
+      "label": "مسافر شب",
+      "status": "planned",
+      "src": "assets/avatar/looks/eli-night-wanderer.vrm"
+    },
+    {
+      "id": "galaxy-formal",
+      "kind": "female",
+      "label": "رسمی کهکشانی",
+      "status": "planned",
+      "src": "assets/avatar/looks/eli-galaxy-formal.vrm"
+    }
+  ],
+  "parts": {
+    "top": [],
+    "bottom": [],
+    "shoes": [],
+    "hair": []
+  },
+  "note": "Whole-outfit looks require a full compatible exported .vrm for each set. Separate clothing slots require rigged assets and a dedicated mesh-binding pipeline. No preview model was committed."
+}
