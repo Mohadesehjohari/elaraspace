@@ -8,7 +8,7 @@ const read=()=>{try{const x=JSON.parse(localStorage.getItem(key())||'[]');return
 const write=rows=>{try{localStorage.setItem(key(),JSON.stringify(rows.slice(-60)))}catch{console.warn('Local conversation storage unavailable')}};
 const remote=()=>String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');
 const aiEndpoint=()=>{const base=remote();if(!base&&location.hostname.endsWith('.github.io'))throw new Error('هوش مصنوعی هنوز به سرور امن متصل نشده است.');return base?base+'/ai':'ai.php'};
-let memory={enabled:false,notes:[],history:[]},memoryUid='',memoryMessage='',memoryBusy=false;
+let memory={enabled:false,notes:[],history:[]},memoryUid='',memoryMessage='',memoryBusy=false,chatBusy=false;
 function memoryControls(){
   if(!remote()||!window.ElaraAccount?.user)return '';
   const notes=(memory.notes||[]).map(n=>'<li><span>'+esc(n.text)+'</span><button type="button" class="quiet-button" data-f-ai-delete-note="'+esc(n.id)+'" aria-label="فراموش کردن این یادداشت" '+(memoryBusy?'disabled':'')+'>حذف</button></li>').join('');
@@ -22,12 +22,13 @@ function memoryControls(){
 function render(){
   const h=host();if(!h)return;
   const user=window.ElaraAccount?.user,signed=!!user,rows=read();
-  if(!signed&&memoryUid){memoryUid='';memory={enabled:false,notes:[],history:[]};memoryMessage='';memoryBusy=false;}
+  const needsMemoryLoad=!!(signed&&remote()&&memoryUid!==user.uid);
+  if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?user.uid:'';memory={enabled:false,notes:[],history:[]};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;}
   h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
-    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status></p>';
+    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status></p>';
   const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;
-  if(signed&&remote()&&memoryUid!==user.uid){memoryUid=user.uid;void loadMemory(user.uid);}
+  if(needsMemoryLoad)void loadMemory(user.uid);
 }
 async function memoryRequest(method='GET',body=null){
   const user=window.ElaraAccount?.user;if(!user)throw new Error('ابتدا وارد حساب شو.');
@@ -63,8 +64,9 @@ async function saveMemoryAction(method,body,success){
   finally{if(uid()===expectedUid){memoryBusy=false;render();}}
 }
 async function submit(form){
-  const user=window.ElaraAccount?.user;if(!user)return;
+  const user=window.ElaraAccount?.user;if(!user||chatBusy)return;
   const message=String(form.elements.message.value||'').trim();if(!message)return;
+  chatBusy=true;
   const before=read(),next=[...before,{role:'user',text:message,at:Date.now()}];
   write(next);render();
   const status=host()?.querySelector('[data-f-ai-status]');if(status)status.textContent='Elara در حال فکر کردن…';
@@ -84,7 +86,7 @@ async function submit(form){
     write(before);render();
     const s=host()?.querySelector('[data-f-ai-status]');if(s)s.textContent=error.message||'پاسخ AI در دسترس نیست.';
   }finally{
-    if(uid()===expectedUid){const f=host()?.querySelector('[data-f-ai-form]');if(f){f.elements.message.value='';f.elements.message.focus();}}
+    if(uid()===expectedUid){chatBusy=false;render();const f=host()?.querySelector('[data-f-ai-form]');if(f){f.elements.message.value='';f.elements.message.focus();}}
   }
 }
 document.addEventListener('submit',e=>{
