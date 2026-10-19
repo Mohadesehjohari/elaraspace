@@ -11,11 +11,11 @@ const aiEndpoint=()=>{const base=remote();if(!base&&location.hostname.endsWith('
 let memory={enabled:false,notes:[],history:[]},memoryUid='',memoryMessage='',memoryBusy=false,chatBusy=false,chatError='';
 function memoryControls(){
   if(!remote()||!window.ElaraAccount?.user)return '';
-  const notes=(memory.notes||[]).map(n=>'<li><span>'+esc(n.text)+'</span><button type="button" class="quiet-button" data-f-ai-delete-note="'+esc(n.id)+'" aria-label="فراموش کردن این یادداشت" '+(memoryBusy?'disabled':'')+'>حذف</button></li>').join('');
+  const notes=(memory.notes||[]).map(n=>'<li><span>'+esc(n.text)+'</span><button type="button" class="quiet-button" data-f-ai-delete-note="'+esc(n.id)+'" aria-label="فراموش کردن این یادداشت" '+(memoryBusy||chatBusy?'disabled':'')+'>حذف</button></li>').join('');
   return '<section class="freedom-ai-memory" aria-label="حافظه شخصی الارا" style="margin:12px 0;padding:12px;border:1px solid #40517a;border-radius:12px">'
-    +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-f-ai-memory-toggle '+(memory.enabled?'checked ':'')+(memoryBusy?'disabled':'')+'> <strong>حافظه شخصی الارا</strong></label>'
+    +'<label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" data-f-ai-memory-toggle '+(memory.enabled?'checked ':'')+(memoryBusy||chatBusy?'disabled':'')+'> <strong>حافظه شخصی الارا</strong></label>'
     +'<p class="muted" style="font-size:12px">اختیاری: با روشن‌کردن، گفتگو در فضای ابری رمزگذاری می‌شود و در دستگاه‌های دیگر هم در دسترس خواهد بود. فقط برای حساب خودت.</p>'
-    +(memory.enabled?'<form data-f-ai-note-form style="display:flex;gap:8px;flex-wrap:wrap"><input name="note" maxlength="350" placeholder="چیزی که الارا همیشه باید یادش بماند…" aria-label="یادداشت حافظه" required style="flex:1;min-width:160px" '+(memoryBusy?'disabled':'')+'><button type="submit" class="quiet-button" '+(memoryBusy?'disabled':'')+'>به خاطر بسپار</button></form><ul style="display:grid;gap:8px;padding:8px 0;list-style:none">'+notes+'</ul><button type="button" class="quiet-button" data-f-ai-forget '+(memoryBusy?'disabled':'')+'>حذف کامل حافظه ابری</button>':'')
+    +(memory.enabled?'<form data-f-ai-note-form style="display:flex;gap:8px;flex-wrap:wrap"><input name="note" maxlength="350" placeholder="چیزی که الارا همیشه باید یادش بماند…" aria-label="یادداشت حافظه" required style="flex:1;min-width:160px" '+(memoryBusy||chatBusy?'disabled':'')+'><button type="submit" class="quiet-button" '+(memoryBusy||chatBusy?'disabled':'')+'>به خاطر بسپار</button></form><ul style="display:grid;gap:8px;padding:8px 0;list-style:none">'+notes+'</ul><button type="button" class="quiet-button" data-f-ai-forget '+(memoryBusy||chatBusy?'disabled':'')+'>حذف کامل حافظه ابری</button>':'')
     +(memoryMessage?'<p role="status" class="muted">'+esc(memoryMessage)+'</p>':'')
     +'</section>';
 }
@@ -23,7 +23,7 @@ function render(){
   const h=host();if(!h)return;
   const user=window.ElaraAccount?.user,signed=!!user,rows=read();
   const needsMemoryLoad=!!(signed&&remote()&&memoryUid!==user.uid);
-  if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?user.uid:'';memory={enabled:false,notes:[],history:[]};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;}
+  if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?user.uid:'';memory={enabled:false,notes:[],history:[]};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;chatBusy=false;chatError='';}
   h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
     +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
