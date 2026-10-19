@@ -201,8 +201,9 @@
       poseBone('head',Math.sin(t*.42)*.014*amp,Math.sin(t*.5)*.028*amp,Math.sin(t*.38)*.012*amp);
       poseBone('chest',Math.sin(t*1.5)*.006*amp,Math.sin(t*.37)*.009*amp,Math.sin(t*.51)*.006*amp);
       poseBone('spine',Math.sin(t*1.5)*.004*amp,0,Math.sin(t*.46)*.004*amp);
-      poseBone('leftUpperArm',0,0,-.28+Math.sin(t*.7)*.008*amp);
-      poseBone('rightUpperArm',0,0,.28-Math.sin(t*.7+.3)*.008*amp);
+      // Humanoid normalized rest pose is T-like. Lower shoulders into a relaxed A/rest pose.
+      poseBone('leftUpperArm',0,0,-1.04+Math.sin(t*.7)*.008*amp);
+      poseBone('rightUpperArm',0,0,1.04-Math.sin(t*.7+.3)*.008*amp);
       const hips=bones.hips;
       if(hips) {hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.5)*.004*amp;}
       const b=(t%5.3),blink = b>4.88&&b<5.08?Math.sin((b-4.88)/.20*Math.PI):0;
