@@ -290,7 +290,7 @@ async function handleChat(req,env,body){
           try{await saveMemory(env,u.uid,userMemory);memorySaved=true;}catch{memorySaved=false;}
         }
         try{await Promise.all([saveConfig(env,c),env.AI_CONFIG.put(q.key,String(q.count+1),{expirationTtl:172800})]);}catch{console.error('Usage counter unavailable');}
-        return {text,display_name:c.settings.display_name,model_display_name:model.display_name,memory_saved:memorySaved};
+        return {text,display_name:c.settings.display_name,model_display_name:model.display_name,memory_saved:memorySaved,memory_summary:userMemory.enabled&&memorySaved?userMemory.summary:''};
       }catch(e){
         lastError=e instanceof HttpError?e:new HttpError('خطای امن در اجرای Gemini.',502);
         key.error_count=(key.error_count||0)+1;
