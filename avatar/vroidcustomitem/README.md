@@ -1,10 +1,10 @@
 # VRoid Custom Item — Elara Hair (experimental)
 
-This directory is separate from the web/GLB hair prototype under \`avatar/hair/\`.
+This directory is separate from the web/GLB hair prototype under `avatar/hair/`.
 
 ## Current, validated scope
 
-\`build_front_color_prototype.py\` takes a **user-exported VRoid Studio 2.14 Front Hair custom item** and creates another \`.vroidcustomitem\` that preserves all the original binary hairstyle data while changing only two hair color fields and the display name.
+`build_front_color_prototype.py` takes a **user-exported VRoid Studio 2.14 Front Hair custom item** and creates another `.vroidcustomitem` that preserves all the original binary hairstyle data while changing only two hair color fields and the display name.
 
 The pink/rose-auburn target (#B97880, shadow #8D5564) is derived from Elara's approved female reference.
 
@@ -12,9 +12,9 @@ The pink/rose-auburn target (#B97880, shadow #8D5564) is derived from Elara's ap
 
 ## Build on Windows (Python 3)
 
-\`\`\`powershell
+```powershell
 python avatar/vroidcustomitem/build_front_color_prototype.py "Front.vroidcustomitem" "Elara_Rose_Front_Color_Prototype.vroidcustomitem"
-\`\`\`
+```
 
 The original source file is never overwritten. Once generated, use **VRoid Studio > Hairstyle > Front Hair > Custom > Import** to test the output.
 
