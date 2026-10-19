@@ -1,0 +1,54 @@
+name: Freedom Always Visible Back
+on:
+  pull_request:
+    paths:
+      - 'boot.js'
+      - 'freedom-universal-back.js'
+      - 'freedom-universal-back.css'
+      - 'tests/freedom-universal-back-browser.mjs'
+      - '.github/workflows/freedom-universal-back.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'freedom-universal-back.js'
+      - 'freedom-universal-back.css'
+      - 'tests/freedom-universal-back-browser.mjs'
+      - '.github/workflows/freedom-universal-back.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  back-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, files, bootstrap
+        run: |
+          node --check freedom-universal-back.js
+          node --check boot.js
+          node --check tests/freedom-universal-back-browser.mjs
+          node - <<'NODE'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const m=require('./deploy/production-manifest.json');
+          const boot=fs.readFileSync('boot.js','utf8');
+          for(const f of ['freedom-universal-back.js','freedom-universal-back.css']){
+            assert(boot.includes("'"+f+"'"),f+' not bootstrapped');
+            assert(m.required.includes(f)&&m.files.includes(f),f+' missing from cPanel deployment');
+          }
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve local production site
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-freedom-back.log 2>&1 &
+          sleep 2
+      - name: Test all nine back paths and visible hitbox at mobile/tablet/desktop
+        env:
+          ELARA_TEST_URL: http://127.0.0.1:4173
+        run: timeout 340s node tests/freedom-universal-back-browser.mjs
