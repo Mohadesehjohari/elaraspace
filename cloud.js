@@ -354,7 +354,7 @@ function safeLegacyRow(field,row){
   if(typeof row==='string')return !!row.trim()&&row.length<=250;
   if(!row||typeof row!=='object'||Array.isArray(row)||!recoveryKeyOf(field,row))return false;
   // Only migrate private personal data; shared and linked records are managed elsewhere.
-  if(row.collabSpaceId||row.shared||row.sourceManaged||row.linkedTask)return false;
+  if(row.collabSpaceId||row.collabOwnerUid||row.shared||row.accountLinkVisibility==='shared'||row.sourceManaged||row.linkedTask)return false;
   return JSON.stringify(row).length<=24000;
 }
 function mergedRecovery(remote,old){
