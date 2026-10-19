@@ -52,9 +52,12 @@
   const filters = Object.fromEntries(['status','priority','horizon'].map(k => [k, dashboard.querySelector('[data-goal-filter="' + k + '"]')]));
   const expanded = new Map();
   let liveState = null;
+  let preferHydratedState = false;
 
   function goalsFromStore() {
-    // Hydrated/cloud state wins when available; local storage is the offline fallback.
+    // Cloud hydration may precede localStorage persistence; subsequent edits
+    // are read directly from the canonical saved state.
+    if (preferHydratedState && Array.isArray(liveState?.goals)) return liveState.goals;
     try {
       const data = JSON.parse(localStorage.getItem('elara_space_v1') || '{}');
       if (Array.isArray(data.goals)) return data.goals;
@@ -104,7 +107,7 @@
       const priority = filters.priority.value;
       const status = filters.status.value;
       const overdue = !!goal?.date && goal.date < today() && !complete;
-      const matchingStatus = status === 'all' || status === 'done' && complete || status === 'new' && done === 0 || status === 'overdue' && overdue || status === 'active' && !complete && done > 0 && (count === 0 || done < count);
+      const matchingStatus = status === 'all' || status === 'done' && complete || status === 'new' && done === 0 && item.percent === 0 || status === 'overdue' && overdue || status === 'active' && !complete && (done > 0 || item.percent > 0);
       const show = matchesSearch && (horizon === 'all' || goal?.horizon === horizon) &&
         (priority === 'all' || String(goal?.priority || '4') === priority) && matchingStatus;
       row.classList.toggle('goal-is-filtered', !show);
@@ -264,10 +267,14 @@
   new MutationObserver(() => decorateHero()).observe(panel, {childList:true});
   for (const name of ['elara:hydrate', 'elara:state-committed', 'elara:linked-state']) {
     window.addEventListener(name, event => {
-      if (event.detail && Array.isArray(event.detail.goals)) liveState = event.detail;
+      if (event.detail && Array.isArray(event.detail.goals)) {
+        liveState = event.detail;
+        preferHydratedState = true;
+      }
       queueMicrotask(refresh);
     });
   }
+  window.addEventListener('elara:data-changed', () => { preferHydratedState = false; });
   window.addEventListener('hashchange', decorateHero);
   decorateHero();
   refresh();
