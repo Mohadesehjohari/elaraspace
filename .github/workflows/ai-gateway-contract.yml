@@ -8,6 +8,10 @@ on:
       - 'admin/admin.js'
       - 'admin/index.html'
       - 'freedom-ai.js'
+      - 'freedom-chat-page.js'
+      - 'freedom-chat-page.css'
+      - 'boot.js'
+      - 'tests/freedom-fox-chat-contract.mjs'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
       - '.github/workflows/ai-gateway-contract.yml'
@@ -18,6 +22,10 @@ on:
       - 'admin/admin.js'
       - 'admin/index.html'
       - 'freedom-ai.js'
+      - 'freedom-chat-page.js'
+      - 'freedom-chat-page.css'
+      - 'boot.js'
+      - 'tests/freedom-fox-chat-contract.mjs'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
 jobs:
@@ -33,7 +41,10 @@ jobs:
           node --input-type=module --check < cloudflare/elara-ai-worker.js
           node --input-type=module --check < admin/admin.js
           node --check freedom-ai.js
+          node --check freedom-chat-page.js
       - name: Check AI gateway contracts
-        run: node tests/ai-gateway-contract.test.mjs
+        run: |
+          node tests/ai-gateway-contract.test.mjs
+          node tests/freedom-fox-chat-contract.mjs
       - name: Test private cross-device memory
         run: node tests/ai-cloud-memory.test.mjs
