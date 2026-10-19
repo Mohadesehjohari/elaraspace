@@ -282,7 +282,7 @@
       text:'',date:previous?.date||'',time:previous?.time||'',
       priority:previous?.priority||'4',list:previous?.list||'',
       folder:previous?.folder||'',tag:previous?.tag||'',
-      dailyTarget:goalStepDailyTarget(previous),recurrenceRule:previous?.recurrenceRule||null
+      dailyTarget:goalStepDailyTarget(previous),recurrenceRule:previous?.recurrenceRule?{...previous.recurrenceRule,weekdays:[...(previous.recurrenceRule.weekdays||[])]}:null
     };
   }
   function resetGoalStepSettings(form,syncDaily,syncSchedule){
