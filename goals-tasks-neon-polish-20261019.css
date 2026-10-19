@@ -1,0 +1,272 @@
+/* Elara / Goals + Tasks reference polish (2026-10-19)
+   Last visual owner for the TWO requested lists only. No event or data changes.
+   The source WebP is the same uploaded 1400x56 artwork in both pages. */
+
+/* GOALS: put the progress circle at the LEFT, the heading beside it,
+   and edit/menu/expand on the RIGHT. Keep Persian content RTL. */
+#panel-goals.goal-dashboard-ready #goal-list{gap:7px!important}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item{
+  min-height:0!important;border-radius:16px!important;
+  background:linear-gradient(104deg,#102653ee,#071a36f5)!important;
+  border:1px solid #345fc6!important;
+  box-shadow:inset 0 1px 0 #ffffff13,0 3px 15px #01081766!important;
+  transition:border-color .16s ease,box-shadow .16s ease!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item:hover{
+  border-color:#5d9cff!important;
+  box-shadow:inset 0 1px 0 #ffffff16,0 0 14px #2373ff35!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item.goal-card-open{
+  border-color:#8b69ff!important;
+  background:linear-gradient(106deg,#10295a,#081b41 62%,#061b3c)!important;
+  box-shadow:inset 0 1px 0 #ffffff13,0 0 0 1px #9b5cff45,0 0 19px #583bff58,0 12px 26px #01081b8a!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item.goal-card-open::before{
+  top:-2px!important;left:4%!important;right:4%!important;height:3px!important;
+  background:linear-gradient(90deg,transparent,#32b7ff 18%,#d754ff 53%,#577bff 79%,transparent)!important;
+  box-shadow:0 0 14px 2px #a042ffb0,0 0 26px #6161ff8a!important
+}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item>.goal-card-header{
+  box-sizing:border-box!important;display:flex!important;direction:ltr!important;
+  flex-flow:row nowrap!important;justify-content:flex-start!important;align-items:center!important;
+  gap:11px!important;min-height:62px!important;padding:6px 13px!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item.goal-card-open>.goal-card-header{min-height:76px!important;padding:9px 15px!important}
+#panel-goals.goal-dashboard-ready .goal-card-ring{
+  flex:0 0 53px!important;width:53px!important;height:53px!important;
+  background:conic-gradient(from 0deg,#2bdcff 0 var(--goal-progress,0%),#8c73ff var(--goal-progress,0%) calc(var(--goal-progress,0%) + 1%),#274476 calc(var(--goal-progress,0%) + 1%) 100%)!important;
+  box-shadow:0 0 11px #00d4ff27!important;
+}
+#panel-goals.goal-dashboard-ready .goal-card-ring::before{inset:7px!important}
+#panel-goals.goal-dashboard-ready .goal-card-ring>span{font-size:.8rem!important}
+#panel-goals.goal-dashboard-ready .goal-card-open .goal-card-ring{flex-basis:67px!important;width:67px!important;height:67px!important;box-shadow:0 0 16px #00dfff38!important}
+#panel-goals.goal-dashboard-ready .goal-card-open .goal-card-ring::before{inset:8px!important}
+#panel-goals.goal-dashboard-ready .goal-card-open .goal-card-ring>span{font-size:.99rem!important}
+#panel-goals.goal-dashboard-ready .goal-card-symbol{flex:0 0 26px!important;width:26px!important;height:26px!important;color:#ff66bb!important}
+#panel-goals.goal-dashboard-ready .goal-card-symbol svg{width:25px!important;height:25px!important}
+#panel-goals.goal-dashboard-ready .goal-card-title{
+  direction:ltr!important;text-align:left!important;
+  flex:0 1 auto!important;width:auto!important;max-width:calc(100% - 175px)!important;
+  min-width:0!important;gap:3px!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-title-row{
+  direction:ltr!important;justify-content:flex-start!important;text-align:left!important;
+  gap:9px!important;min-width:0!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-title-row>.item-title{
+  direction:rtl!important;text-align:left!important;flex:0 1 auto!important;max-width:100%!important;
+  font-size:clamp(.88rem,1vw,1.04rem)!important;line-height:1.4!important;font-weight:850!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-meta-compact{
+  direction:rtl!important;justify-content:flex-start!important;gap:5px!important;
+}
+#panel-goals.goal-dashboard-ready .goal-card-fraction{
+  direction:rtl!important;text-align:left!important;font-size:.63rem!important;line-height:1.3!important
+}
+#panel-goals.goal-dashboard-ready .goal-card-controls{
+  direction:rtl!important;flex:0 0 auto!important;gap:4px!important;
+  margin-inline-start:0!important;margin-inline-end:0!important;margin-left:auto!important;margin-right:0!important;
+}
+#panel-goals.goal-dashboard-ready .goal-card-toggle,
+#panel-goals.goal-dashboard-ready .goal-card-menu>summary{width:36px!important;height:36px!important;flex-basis:36px!important;border-radius:11px!important}
+#panel-goals.goal-dashboard-ready .goal-card-toggle{font-size:1.65rem!important}
+#panel-goals.goal-dashboard-ready #goal-list .goal-card-controls .entity-drag-handle{width:27px!important;height:34px!important;flex-basis:27px!important}
+#panel-goals.goal-dashboard-ready #goal-list>.goal-item>.goal-card-content{gap:7px!important;padding:0 13px 10px!important}
+#panel-goals.goal-dashboard-ready #goal-list .goal-meta-compact>span{padding:2px 8px!important;min-height:22px!important;font-size:.62rem!important}
+
+/* GOAL STEPS: checkbox at LEFT, copy in the middle, actions at RIGHT.
+   Powerful soft-purple/cyan glow without obscuring the uploaded artwork. */
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-list{gap:5px!important}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item,
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item.done{
+  direction:ltr!important;display:grid!important;
+  grid-template-columns:30px minmax(0,1fr) auto!important;
+  grid-template-rows:auto!important;align-items:center!important;
+  min-height:43px!important;padding:6px 10px!important;gap:9px!important;
+  border-radius:10px!important;
+  background-color:#071a39!important;
+  background-image:linear-gradient(90deg,rgba(3,12,34,.48),rgba(6,20,50,.42)),url("assets/ui/goals_task_banner_1400x56.webp")!important;
+  background-repeat:no-repeat!important;background-position:center center!important;background-size:cover!important;
+  border:1px solid #377ad4!important;
+  box-shadow:inset 0 1px 0 #ffffff1a,0 0 0 1px #1687ff18,0 0 9px #0f8bff3b,0 0 19px #922aff29!important;
+  transition:box-shadow .16s ease,border-color .16s ease!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item:hover,
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item:focus-within{
+  border-color:#62d9ff!important;
+  box-shadow:inset 0 1px 0 #ffffff25,0 0 0 1px #54b9ff47,0 0 13px #06d4ff8a,0 0 25px #a751ff59!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item.done{
+  border-color:#876eff!important;
+  box-shadow:inset 0 1px 0 #ffffff1b,0 0 0 1px #865cff34,0 0 13px #8c4dff77,0 0 23px #22b7ff30!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item>.check-button{grid-column:1!important;grid-row:1!important;justify-self:center!important}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item>.item-content{
+  direction:rtl!important;text-align:left!important;grid-column:2!important;grid-row:1!important;
+  justify-self:stretch!important;min-width:0!important
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item>.goal-step-actions{
+  direction:ltr!important;grid-column:3!important;grid-row:1!important;
+  justify-content:flex-end!important;justify-self:end!important
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item .item-title{
+  display:block!important;direction:rtl!important;text-align:left!important;
+  color:#f8f8ff!important;font-size:.76rem!important;line-height:1.4!important;font-weight:750!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item .goal-step-meta{
+  direction:rtl!important;justify-content:flex-end!important
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item .check-button{
+  width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;
+  border-radius:7px!important;background:#0b1a3eeb!important;border:2px solid #b2cfff!important;
+  box-shadow:0 0 9px #41b3ff3b!important;
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-step-item.done .check-button{
+  border-color:#c390ff!important;
+  background:linear-gradient(135deg,#7542ff,#c64bfc)!important;
+  box-shadow:0 0 10px #a551ffdf,0 0 20px #9343ff8c!important
+}
+#panel-goals.goal-dashboard-ready #goal-list .goal-card-content>[data-action="add-step"]{
+  min-height:33px!important;padding:5px 10px!important;border-radius:10px!important;
+  box-shadow:inset 0 0 0 1px #9458ff27!important
+}
+
+/* TASKS PAGE: same uploaded goal-step image on EACH ordinary task row.
+   Override old priority/source-group background shorthand without changing
+   completion or menu controls. */
+html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+  background-color:#081a37!important;
+  background-image:linear-gradient(90deg,rgba(4,16,40,.62),rgba(5,18,43,.50)),url("assets/ui/goals_task_banner_1400x56.webp")!important;
+  background-position:center center!important;background-size:cover!important;background-repeat:no-repeat!important;
+  border:1px solid #417bce!important;border-inline-start:3px solid #b45fff!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px 0 #ffffff18,0 0 0 1px #3564bc27,0 0 10px #386ffa2f,0 0 18px #964aff25!important;
+  transition:box-shadow .16s ease,border-color .16s ease!important;
+}
+html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row:not(.is-core-task-reordering):hover,
+html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row:focus-within{
+  border-color:#7b9aff!important;
+  box-shadow:inset 0 1px 0 #ffffff27,0 0 0 1px #47a7ff4d,0 0 13px #329dff92,0 0 26px #a342ff55!important;
+}
+html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row.done-today:not(.just-completed-gold){
+  border-color:#e0ad47!important;border-inline-start:3px solid #ffcb57!important;
+  box-shadow:inset 0 0 0 1px #b8813375,0 0 12px #eebd4766!important;
+}
+/* Desktop layout is physically LEFT to RIGHT, while Persian labels retain
+   their own RTL text flow. No DOM reordering; pointer/touch controls still work. */
+@media(min-width:768px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+   direction:ltr!important;
+   grid-template-areas:none!important;
+   grid-template-columns:31px minmax(0,1fr) 106px minmax(158px,220px) 32px!important;
+   grid-template-rows:minmax(45px,auto)!important;
+   min-height:55px!important;padding:5px 10px!important;gap:8px!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button{grid-column:1!important;grid-row:1!important}
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{
+   direction:rtl!important;grid-column:2!important;grid-row:1!important;
+   text-align:left!important;justify-content:flex-start!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button{
+   direction:rtl!important;text-align:left!important;justify-content:flex-start!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{
+   direction:rtl!important;text-align:left!important;font-size:13px!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{
+   grid-column:3!important;grid-row:1!important;justify-self:center!important;
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid{
+   grid-column:4!important;grid-row:1!important;direction:rtl!important;
+   justify-content:flex-end!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-more{
+   grid-column:5!important;grid-row:1!important;justify-self:center!important
+ }
+}
+@media(min-width:768px) and (max-width:980px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+   grid-template-columns:29px minmax(0,1fr) 79px 147px 29px!important;gap:5px!important
+ }
+}
+/* Phones: same physical side mapping; shrink gracefully instead of spilling. */
+@media(max-width:767px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+   direction:ltr!important;grid-template-areas:none!important;
+   grid-template-columns:27px minmax(0,1fr) 66px 100px 27px!important;
+   gap:4px!important;padding:6px!important;min-height:49px!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.check-button{grid-column:1!important;grid-row:1!important}
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.item-content{
+   direction:rtl!important;text-align:left!important;grid-column:2!important;grid-row:1!important;min-width:0!important;
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row .task-summary-button,
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{
+   direction:rtl!important;text-align:left!important;
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{grid-column:3!important;grid-row:1!important}
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid{
+   direction:rtl!important;grid-column:4!important;grid-row:1!important;
+   justify-content:flex-end!important;gap:3px!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-more{grid-column:5!important;grid-row:1!important}
+}
+@media(max-width:400px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+   grid-template-columns:25px minmax(0,1fr) 54px 66px 25px!important;gap:3px!important;padding:5px!important
+ }
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.astra-task-status{font-size:9px!important;min-width:0!important;padding:2px!important}
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row>.elara-task-cross-links.elara-task-meta-grid{gap:2px!important}
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row .item-title{font-size:11px!important}
+}
+
+/* Preserve contrast in light mode without replacing the shared WebP. */
+body:not(.dark) #panel-goals.goal-dashboard-ready #goal-list>.goal-item{background:linear-gradient(110deg,#ecf2ff,#d9e8ff)!important}
+body:not(.dark) #panel-goals.goal-dashboard-ready #goal-list .goal-title-row>.item-title{color:#172859!important}
+body:not(.dark) #panel-goals.goal-dashboard-ready #goal-list .goal-step-item,
+body:not(.dark) #panel-goals.goal-dashboard-ready #goal-list .goal-step-item.done{
+  background-color:#eaf1ff!important;
+  background-image:linear-gradient(90deg,rgba(237,244,255,.88),rgba(239,246,255,.76)),url("assets/ui/goals_task_banner_1400x56.webp")!important;
+}
+body:not(.dark) #panel-goals.goal-dashboard-ready #goal-list .goal-step-item .item-title{color:#243456!important}
+html body:not(.dark) #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{
+  background-color:#edf3ff!important;
+  background-image:linear-gradient(90deg,rgba(246,249,255,.85),rgba(234,244,255,.72)),url("assets/ui/goals_task_banner_1400x56.webp")!important;
+  color:#243456!important;
+}
+
+@media(max-width:700px){
+ #panel-goals.goal-dashboard-ready #goal-list>.goal-item>.goal-card-header{
+   flex-wrap:nowrap!important;min-height:52px!important;padding:6px 9px!important;gap:6px!important
+ }
+ #panel-goals.goal-dashboard-ready #goal-list>.goal-item.goal-card-open>.goal-card-header{min-height:66px!important}
+ #panel-goals.goal-dashboard-ready .goal-card-ring{flex-basis:43px!important;width:43px!important;height:43px!important}
+ #panel-goals.goal-dashboard-ready .goal-card-ring::before{inset:6px!important}
+ #panel-goals.goal-dashboard-ready .goal-card-ring>span{font-size:.68rem!important}
+ #panel-goals.goal-dashboard-ready .goal-card-open .goal-card-ring{flex-basis:53px!important;width:53px!important;height:53px!important}
+ #panel-goals.goal-dashboard-ready .goal-card-symbol{display:none!important}
+ #panel-goals.goal-dashboard-ready .goal-card-title{max-width:calc(100% - 132px)!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-title-row>.item-title{font-size:.83rem!important}
+ #panel-goals.goal-dashboard-ready .goal-card-controls{gap:1px!important}
+ #panel-goals.goal-dashboard-ready .goal-card-toggle,
+ #panel-goals.goal-dashboard-ready .goal-card-menu>summary{flex-basis:30px!important;width:30px!important;height:32px!important;font-size:1.3rem!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-card-controls .entity-drag-handle{width:23px!important;flex-basis:23px!important}
+ #panel-goals.goal-dashboard-ready #goal-list>.goal-item>.goal-card-content{padding:0 8px 9px!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-item,
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-item.done{
+   grid-template-columns:27px minmax(0,1fr) auto!important;gap:5px!important;
+   min-height:41px!important;padding:6px 7px!important
+ }
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-item .item-title{font-size:.7rem!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-actions button{width:26px!important;min-width:26px!important}
+}
+@media(max-width:360px){
+ #panel-goals.goal-dashboard-ready #goal-list .goal-meta-compact>span{font-size:.54rem!important;padding:2px 5px!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-title-row{gap:4px!important}
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-meta>span{font-size:.54rem!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #panel-goals.goal-dashboard-ready #goal-list>.goal-item,
+ #panel-goals.goal-dashboard-ready #goal-list .goal-step-item,
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list>.astra-task-row{transition:none!important}
+}
