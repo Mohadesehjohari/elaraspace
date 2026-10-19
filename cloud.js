@@ -53,6 +53,7 @@ function clearAccount(){
   locked(); user=null;profile=null;lastPayload='';dirty=false;
   localStorage.removeItem('elara_space_v1');
   window.ElaraPrivateState?.reset?.();
+  window.ElaraPrivateChatMemory?.reset?.();
   sessionStorage.removeItem('elara_pending_profile');
   window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:empty()}));
 }
