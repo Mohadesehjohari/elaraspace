@@ -273,12 +273,38 @@
     const target=goalStepDailyTarget(step),rule=window.ElaraSchedule.normalize(step.recurrenceRule,step.date||today()),days=rule?.weekdays||[];
     return '<label class="wide">عنوان ریزقدم<input name="text" maxlength="180" value="'+esc(step.text||'')+'" placeholder="مثلاً مطالعه فصل اول"></label><label>تاریخ<input name="date" type="date" value="'+esc(step.date||'')+'"></label><label>ساعت<input name="time" type="time" value="'+esc(step.time||'')+'"></label><label>اولویت<select name="priority"><option value="1">فوری · P1</option><option value="2">بالا · P2</option><option value="3">متوسط · P3</option><option value="4">عادی · P4</option></select></label><label>لیست<select name="list">'+selectOptions(state.taskLists,step.list||'','بدون لیست')+'</select></label><label>پوشه<select name="folder">'+selectOptions(state.folders,step.folder||'','بدون پوشه')+'</select></label><label>برچسب<select name="tag">'+selectOptions(state.tags,step.tag||'','بدون برچسب')+'</select></label><div class="goal-dialog-repeat-row wide"><div class="goal-dialog-repeat"><label class="recurrence-toggle compact-toggle"><input name="dailyEnabled" type="checkbox" '+(target>1?'checked':'')+'><span>تکرار در روز</span></label><div data-goal-dialog-daily class="'+(target>1?'':'hidden')+'"><label>تعداد دفعات<input name="dailyTarget" type="number" min="2" max="24" value="'+Math.max(2,target)+'"><span>بار در همان روز</span></label></div></div><div class="goal-dialog-schedule"><label class="recurrence-toggle compact-toggle"><input name="scheduleEnabled" type="checkbox" '+(rule?'checked':'')+'><span>تکرار زمان‌بندی‌شده</span></label><div data-goal-dialog-schedule class="'+(rule?'':'hidden')+'"><div class="goal-recurrence-main"><label>نوع<select name="frequency"><option value="weekly">روزهای هفته</option><option value="daily">روزانه / فاصله‌دار</option><option value="monthly">ماهانه</option></select></label><label>هر چند نوبت<input name="interval" type="number" min="1" max="365" value="'+(rule?.interval||1)+'"></label></div>'+weekdayMarkup('step-dialog-weekday',days)+'<div class="goal-recurrence-end"><label>پایان<input name="endDate" type="date" value="'+esc(rule?.endDate||'')+'"></label><label class="no-end"><input name="noEnd" type="checkbox" '+(rule&&!rule.endDate?'checked':'')+'> بدون تاریخ پایان</label></div></div></div></div>';
   }
+  // Substep settings belong to a goal. Inherit only the preceding step's inputs,
+  // never its title, completion state, or per-day progress; another goal starts fresh.
+  function goalStepDraft(goal,step=null){
+    if(step)return step;
+    const previous=Array.isArray(goal?.steps)?goal.steps.at(-1):null;
+    return {
+      text:'',date:previous?.date||'',time:previous?.time||'',
+      priority:previous?.priority||'4',list:previous?.list||'',
+      folder:previous?.folder||'',tag:previous?.tag||'',
+      dailyTarget:goalStepDailyTarget(previous),recurrenceRule:previous?.recurrenceRule||null
+    };
+  }
   async function editGoalStep(goal,step=null){
-    const draft=step||{text:'',priority:'4',dailyTarget:1,dailyProgress:{},occurrenceDone:[]},form=document.createElement('div');form.className='goal-edit-dialog goal-step-edit-dialog';form.innerHTML=goalStepDialogMarkup(draft);form.querySelector('[name="priority"]').value=String(draft.priority||'4');
+    const latestGoal=state.goals.find(g=>String(g.id)===String(goal.id))||goal;
+    const draft=goalStepDraft(latestGoal,step),form=document.createElement('div');
+    form.className='goal-edit-dialog goal-step-edit-dialog';
+    form.innerHTML=goalStepDialogMarkup(draft);
+    form.querySelector('[name="priority"]').value=String(draft.priority||'4');
+    form.insertAdjacentHTML('beforeend','<div class="goal-step-settings-controls wide"><small>'+(step?'ریست فقط تنظیمات این ریزقدم را پاک می‌کند؛ عنوان و وضعیت تکمیل حفظ می‌شود.':latestGoal.steps?.length?'تنظیمات ریزقدم قبلی همین هدف انتخاب شده‌اند؛ می‌توانی تغییرشان بدهی.':'تنظیمات این ریزقدم از پیش‌فرض شروع می‌شوند.')+'</small><button type="button" class="quiet-button" data-goal-step-settings-reset>↺ ریست تنظیمات</button></div>');
     const rule=window.ElaraSchedule.normalize(draft.recurrenceRule,draft.date||today());if(rule)form.querySelector('[name="frequency"]').value=rule.frequency;
     const daily=form.querySelector('[name="dailyEnabled"]'),dailyBox=form.querySelector('[data-goal-dialog-daily]'),dailyInput=form.querySelector('[name="dailyTarget"]'),schedule=form.querySelector('[name="scheduleEnabled"]'),scheduleBox=form.querySelector('[data-goal-dialog-schedule]'),end=form.querySelector('[name="endDate"]'),noEnd=form.querySelector('[name="noEnd"]');
     const syncDaily=()=>{dailyBox.classList.toggle('hidden',!daily.checked);dailyInput.disabled=!daily.checked};const syncSchedule=()=>{scheduleBox.classList.toggle('hidden',!schedule.checked);if(schedule.checked&&!form.querySelector('input[name="step-dialog-weekday"]:checked'))form.querySelectorAll('input[name="step-dialog-weekday"]').forEach(x=>x.checked=true)};
     daily.addEventListener('change',syncDaily);schedule.addEventListener('change',syncSchedule);noEnd.addEventListener('change',()=>{end.disabled=noEnd.checked;if(noEnd.checked)end.value=''});syncDaily();syncSchedule();end.disabled=noEnd.checked;
+    form.querySelector('[data-goal-step-settings-reset]').addEventListener('click',()=>{
+      // Reset metadata only; do not clear the typed title or an edited step's done state.
+      for(const [name,value] of Object.entries({date:'',time:'',priority:'4',list:'',folder:'',tag:'',dailyTarget:'2',frequency:'weekly',interval:'1',endDate:''})){
+        const input=form.querySelector('[name="'+name+'"]');if(input)input.value=value;
+      }
+      daily.checked=false;schedule.checked=false;noEnd.checked=false;
+      form.querySelectorAll('input[name="step-dialog-weekday"]').forEach(input=>input.checked=false);
+      syncDaily();syncSchedule();end.disabled=false;
+    });
     const ok=await window.ElaraDialog.open({title:step?'ویرایش ریزقدم':'افزودن ریزقدم',content:form,wide:true,actions:[{label:'انصراف',value:false},{label:step?'ذخیره':'افزودن',value:true,kind:'primary'}]});if(ok!==true)return;
     // Linked-task/cloud events may rehydrate state while the dialog is open.
     const currentGoal=state.goals.find(g=>String(g.id)===String(goal.id));if(!currentGoal){toast('این هدف دیگر وجود ندارد.');return}
