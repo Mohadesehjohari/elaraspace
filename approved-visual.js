@@ -154,7 +154,9 @@ function drawWardrobe(){
      '<div class="elara-character-wardrobe" dir="rtl"><div class="elara-character-wardrobe-stage" data-elara-wardrobe-avatar-slot></div>'+
      '<section class="elara-character-wardrobe-items" aria-label="ظاهر سه‌بعدی"><h3>ظاهر کاراکتر</h3><div data-elara-wardrobe-looks><p class="muted">در حال آماده‌سازی کمد کاراکتر…</p></div></section></div>';
    const slot=host.querySelector('[data-elara-wardrobe-avatar-slot]'),stage=window.ElaraPrivateDrawer?.ensureAvatarStage?.();
-   if(stage&&slot){slot.append(stage);stage.classList.add('is-wardrobe-stage');window.dispatchEvent(new Event('elara:avatar-stage-ready'));}
+   if(window.matchMedia('(min-width:701px)').matches){
+     if(stage&&slot){slot.append(stage);stage.classList.add('is-wardrobe-stage');window.dispatchEvent(new Event('elara:avatar-stage-ready'));}
+   }else if(slot)slot.textContent='نمای سه‌بعدی کاراکتر فعلاً فقط در نسخهٔ دسکتاپ فعال است.';
    const controls=host.querySelector('[data-elara-wardrobe-looks]');
    if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.renderWardrobeControls?.(controls);
    else if(controls)controls.innerHTML='<p class="muted">در حال بارگذاری کاراکتر سه‌بعدی… اگر مدل مناسب این حساب موجود نباشد، نسخهٔ آزمایشی نمایش داده می‌شود.</p>';
