@@ -4,8 +4,17 @@ const host=()=>document.querySelector('.freedom-fox-overlay [data-f-ai-host],#pa
 const uid=()=>window.ElaraAccount?.user?.uid||'guest';
 const key=()=>'elara_freedom_ai_chat_v1_'+uid();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const read=()=>{try{const x=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(x)?x.slice(-60):[]}catch{return[]}};
-const write=rows=>{try{localStorage.setItem(key(),JSON.stringify(rows.slice(-60)))}catch{console.warn('Local conversation storage unavailable')}};
+const sessionChats=new Map();
+const ramOnly=()=>window.ElaraPrivateState?.active===true;
+const read=()=>{try{
+  if(ramOnly())return (sessionChats.get(key())||[]).slice(-60);
+  const x=JSON.parse(localStorage.getItem(key())||'[]');
+  return Array.isArray(x)?x.slice(-60):[];
+}catch{return[]}};
+const write=rows=>{const recent=rows.slice(-60);if(ramOnly()){sessionChats.set(key(),recent);return;}
+  try{localStorage.setItem(key(),JSON.stringify(recent))}catch{console.warn('Local conversation storage unavailable')}};
+const clearChat=()=>{if(ramOnly())sessionChats.delete(key());else localStorage.removeItem(key());};
+window.ElaraPrivateChatMemory={reset:()=>sessionChats.clear()};
 const remote=()=>String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');
 const aiEndpoint=()=>{const base=remote();if(!base&&location.hostname.endsWith('.github.io'))throw new Error('هوش مصنوعی هنوز به سرور امن متصل نشده است.');return base?base+'/ai':'ai.php'};
 let memory={enabled:false,notes:[],history:[],summary:''},memoryUid='',memoryMessage='',memoryBusy=false,chatBusy=false,chatError='';
@@ -124,14 +133,14 @@ document.addEventListener('click',e=>{
   if(noteDel){if(confirm('این یادداشت از حافظه پاک شود؟'))void saveMemoryAction('POST',{remove_note:noteDel.dataset.fAiDeleteNote},'یادداشت حذف شد.');return;}
   if(e.target.closest?.('[data-f-ai-forget]')){
     if(confirm('تمام گفتگوها و یادداشت‌های ذخیره‌شده در حافظه ابری پاک شوند؟')){
-      localStorage.removeItem(key());
+      clearChat();
       void saveMemoryAction('DELETE',null,'حافظه ابری کامل حذف شد.');
     }
     return;
   }
   if(!e.target.closest?.('[data-f-ai-clear]'))return;
   if(!confirm('گفتگوهای اخیر پاک شوند؟ یادداشت‌های ذخیره‌شده در حافظه باقی می‌مانند.'))return;
-  localStorage.removeItem(key());
+  clearChat();
   if(memory.enabled)void saveMemoryAction('POST',{clear_history:true},'گفتگوهای اخیر پاک شدند.');
   else render();
 },true);
