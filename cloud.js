@@ -334,7 +334,7 @@ function recoveryUID(){
 }
 function readLegacyCopy(key){
   if(!RECOVERY_KEYS.includes(key))throw new Error('منبع بکاپ نامعتبر است.');
-  const raw=window.ElaraPrivateState?.readDiskSnapshot?.(key)??localStorage.getItem(key);
+  const raw=typeof window.ElaraPrivateState?.readDiskSnapshot==='function'?window.ElaraPrivateState.readDiskSnapshot(key):localStorage.getItem(key);
   if(!raw)return null;
   if(raw.length>1200000)throw new Error('حجم نسخهٔ قدیمی زیاد است؛ بازیابی آن نیاز به بررسی جداگانه دارد.');
   let content;
