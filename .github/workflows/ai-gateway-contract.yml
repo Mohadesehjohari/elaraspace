@@ -12,6 +12,7 @@ on:
       - 'cloud.js'
       - 'index.html'
       - 'tests/private-state-ram.test.mjs'
+      - 'tests/cloud-migration.test.mjs'
       - 'elara-ai-task-actions.js'
       - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
@@ -33,6 +34,7 @@ on:
       - 'cloud.js'
       - 'index.html'
       - 'tests/private-state-ram.test.mjs'
+      - 'tests/cloud-migration.test.mjs'
       - 'elara-ai-task-actions.js'
       - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
@@ -56,6 +58,8 @@ jobs:
           node --input-type=module --check < admin/admin.js
           node --check freedom-ai.js
           node --check private-state.js
+          node --input-type=module --check < cloud.js
+          node --check drawer.js
           node --check elara-ai-task-actions.js
           node --check freedom-chat-page.js
       - name: Check AI gateway contracts
@@ -68,3 +72,4 @@ jobs:
           node tests/ai-rolling-memory.test.mjs
           node tests/ai-task-plan.test.mjs
           node tests/private-state-ram.test.mjs
+          node tests/cloud-migration.test.mjs
