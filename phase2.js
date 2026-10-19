@@ -272,12 +272,12 @@
     const shouldOpen=!!open;
     details.open=shouldOpen;
     details.classList.toggle('filters-expanded',shouldOpen);
-    details.setAttribute('role','dialog');
-    details.setAttribute('aria-modal',String(shouldOpen));
-    details.setAttribute('aria-label','فیلترهای تسک‌ها');
-    document.body.classList.toggle('elara-task-filters-modal-open',shouldOpen);
+    details.removeAttribute('role');
+    details.removeAttribute('aria-modal');
+    document.body.classList.remove('elara-task-filters-modal-open');
     const trigger=$('elara-task-filter-quick')?.querySelector('[data-task-more-filter]');
     trigger?.setAttribute('aria-expanded',String(shouldOpen));
+    trigger?.setAttribute('aria-label',shouldOpen?'بستن فیلترها':'نمایش فیلترها');
     if(shouldOpen)setTimeout(()=>$('task-search')?.focus({preventScroll:true}),30);
     else if(document.activeElement?.closest?.('.astra-task-filters'))trigger?.focus({preventScroll:true});
   }
@@ -314,7 +314,7 @@
     if(taskPanel&&!$('astra-task-chips')){const chips=document.createElement('div');chips.id='astra-task-chips';chips.className='astra-task-chips';chips.innerHTML=[['all','همه'],['today','امروز'],['active','در حال انجام'],['completed','انجام‌شده']].map(([value,label])=>`<button type="button" data-task-chip="${value}" aria-pressed="${value==='all'}">${label}</button>`).join('')+'<button type="button" data-task-more-filter aria-label="باز کردن فیلترهای بیشتر">+ فیلتر</button>';taskPanel.querySelector('.list-toolbar')?.before(chips);chips.addEventListener('click',e=>{const more=e.target.closest('[data-task-more-filter]');if(more){const details=taskPanel.querySelector('.astra-task-filters');if(details){details.open=true;setTimeout(()=>$('task-search')?.focus(),40)}return}const b=e.target.closest('[data-task-chip]');if(!b)return;$('task-filter').value=b.dataset.taskChip;renderTasks();chips.querySelectorAll('[data-task-chip]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))})}
     if(heading&&!$('elara-task-page-actions')){const actions=document.createElement('div');actions.id='elara-task-page-actions';actions.className='elara-task-page-actions';actions.innerHTML='<div class="astra-task-view-controls" role="group" aria-label="نمایش تسک‌ها"><button type="button" data-task-view="list" aria-pressed="true" aria-label="نمای فهرستی">☷</button><button type="button" data-task-view="grid" aria-pressed="false" aria-label="نمای کارتی">▦</button><button type="button" data-task-view="group" aria-pressed="false" aria-label="نمای گروه‌بندی‌شده">▦≡</button><select id="task-group-by" aria-label="نوع گروه‌بندی" hidden><option value="folder">گروه‌بندی بر اساس پوشه</option><option value="list">گروه‌بندی بر اساس لیست</option><option value="priority">گروه‌بندی بر اساس اولویت</option></select></div><button id="task-reorder-toggle" type="button" class="task-reorder-toggle" aria-label="ترتیب دستی تسک‌ها" aria-pressed="false" title="ترتیب دستی">↕</button><button id="elara-task-add-main" type="button" class="elara-task-add-main" aria-label="افزودن کار جدید"><span aria-hidden="true">+</span><strong>افزودن کار</strong></button><button id="elara-task-tools-toggle" type="button" class="elara-task-tools-toggle" aria-label="منوی بیشتر تسک‌ها" aria-haspopup="menu" aria-expanded="false">⋯</button>';heading.append(actions);const savedView=localStorage.getItem('elara_task_view_mode')||'list',savedGroup=localStorage.getItem('elara_task_group_by')||'folder';taskPanel.dataset.taskView=['list','grid','group'].includes(savedView)?savedView:'list';const groupSelect=$('task-group-by');if(groupSelect){groupSelect.value=['priority','list'].includes(savedGroup)?savedGroup:'folder';groupSelect.hidden=taskPanel.dataset.taskView!=='group';groupSelect.addEventListener('change',()=>{localStorage.setItem('elara_task_group_by',groupSelect.value);renderTasks()})}actions.querySelectorAll('[data-task-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.taskView===taskPanel.dataset.taskView)));actions.addEventListener('click',e=>{const reorder=e.target.closest('#task-reorder-toggle');if(reorder){const on=taskPanel.dataset.taskReorder!=='true';taskPanel.dataset.taskReorder=String(on);reorder.setAttribute('aria-pressed',String(on));notify(on?'ترتیب دستی فعال شد؛ کارت را بکش و جابه‌جا کن.':'ترتیب دستی خاموش شد.');return}const view=e.target.closest('[data-task-view]');if(!view)return;const mode=['grid','group'].includes(view.dataset.taskView)?view.dataset.taskView:'list';taskPanel.dataset.taskView=mode;localStorage.setItem('elara_task_view_mode',mode);if(groupSelect)groupSelect.hidden=mode!=='group';actions.querySelectorAll('[data-task-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===view)));renderTasks()})}
     if(taskPanel&&!$('elara-task-tools-menu')){const menu=document.createElement('div');menu.id='elara-task-tools-menu';menu.className='elara-task-tools-menu';menu.setAttribute('role','menu');menu.hidden=true;menu.innerHTML='<strong>مدیریت تسک‌ها</strong><button type="button" role="menuitem" data-task-tools="list">ساخت لیست</button><button type="button" role="menuitem" data-task-tools="folder">ساخت پوشه</button><button type="button" role="menuitem" data-task-tools="tag">ساخت تگ</button><button type="button" role="menuitem" data-task-tools="filter">فیلتر</button>';taskPanel.append(menu)}
-    if(taskPanel&&!$('astra-task-toolbar')){const toolbar=document.createElement('div');toolbar.id='astra-task-toolbar';toolbar.className='astra-task-toolbar';$('astra-task-hero').after(toolbar);toolbar.append($('astra-task-chips'),$('elara-task-page-actions'));const dateLabel=document.createElement('label');dateLabel.className='task-occurrence-date';dateLabel.innerHTML='<span>تاریخ نوبت</span><input type="date" id="task-occurrence-date" aria-label="تاریخ مشاهدهٔ نوبت تسک‌ها"><button type="button" id="task-date-today">امروز</button>';toolbar.append(dateLabel);const dateInput=dateLabel.querySelector('input');dateInput.value=taskOccurrenceDate;dateInput.addEventListener('change',()=>{if(validDate(dateInput.value)){taskOccurrenceDate=dateInput.value;taskDateUserSelected=taskOccurrenceDate!==today();renderTasks()}});dateLabel.querySelector('button').addEventListener('click',()=>{taskDateUserSelected=false;taskOccurrenceDate=today();dateInput.value=taskOccurrenceDate;renderTasks()});const filters=taskPanel.querySelector('.list-toolbar');if(filters){const details=document.createElement('details');details.className='astra-task-filters';details.innerHTML='<summary tabindex="0" aria-label="بستن فیلترها">فیلترهای تسک‌ها <span aria-hidden="true">×</span></summary>';details.open=false;details.setAttribute('role','dialog');details.setAttribute('aria-modal','false');details.setAttribute('aria-label','فیلترهای تسک‌ها');toolbar.before(details);details.append(filters);details.addEventListener('click',e=>{if(e.target===details||e.target.closest('summary')){e.preventDefault();setTaskFiltersDialogOpen(false)}})}}
+    if(taskPanel&&!$('astra-task-toolbar')){const toolbar=document.createElement('div');toolbar.id='astra-task-toolbar';toolbar.className='astra-task-toolbar';$('astra-task-hero').after(toolbar);toolbar.append($('astra-task-chips'),$('elara-task-page-actions'));const dateLabel=document.createElement('label');dateLabel.className='task-occurrence-date';dateLabel.innerHTML='<input type="date" id="task-occurrence-date" aria-label="تاریخ مشاهدهٔ نوبت تسک‌ها"><button type="button" id="task-date-today">امروز</button>';toolbar.append(dateLabel);const dateInput=dateLabel.querySelector('input');dateInput.value=taskOccurrenceDate;dateInput.addEventListener('change',()=>{if(validDate(dateInput.value)){taskOccurrenceDate=dateInput.value;taskDateUserSelected=taskOccurrenceDate!==today();renderTasks()}});dateLabel.querySelector('button').addEventListener('click',()=>{taskDateUserSelected=false;taskOccurrenceDate=today();dateInput.value=taskOccurrenceDate;renderTasks()});const filters=taskPanel.querySelector('.list-toolbar');if(filters){const details=document.createElement('details');details.className='astra-task-filters';details.id='astra-task-filters-panel';details.innerHTML='<summary tabindex="0" aria-label="بستن فیلترها">فیلترهای تسک‌ها <span aria-hidden="true">×</span></summary>';details.open=false;toolbar.after(details);details.append(filters);details.addEventListener('click',e=>{if(e.target.closest('summary')){e.preventDefault();setTaskFiltersDialogOpen(false)}})}}
     const stats=taskPanel?.querySelector('.stats');if(stats)taskPanel.append(stats);
     if(taskPanel&&!$('astra-task-insights')){const insights=document.createElement('div');insights.id='astra-task-insights';insights.className='astra-task-insights';insights.innerHTML='<section id="astra-task-progress" class="elara-card astra-task-progress" aria-live="polite"></section>';taskPanel.append(insights)}
     if(taskPanel&&!$('task-checked-archive')){const archive=document.createElement('details');archive.id='task-checked-archive';archive.className='elara-card task-checked-archive';archive.hidden=true;archive.innerHTML='<summary><span class="task-archive-arrow">⌄</span><strong>کارهای تیک‌خورده</strong><span data-task-archive-count>۰</span></summary><div data-task-archive-list></div>';const empty=$('task-empty');(empty||$('task-list'))?.insertAdjacentElement('afterend',archive)}
@@ -336,25 +336,31 @@
 
   function placeTaskFilters(){
     const panel=$('panel-tasks'),chips=$('astra-task-chips'),filters=panel?.querySelector('.astra-task-filters');
-    if(chips&&filters&&filters.previousElementSibling!==chips)chips.after(filters);
     const toolbar=$('astra-task-toolbar');
+    if(toolbar&&filters&&filters.previousElementSibling!==toolbar)toolbar.after(filters);
     const actions=$('elara-task-page-actions');
     const more=chips?.querySelector('[data-task-more-filter]')||actions?.querySelector('[data-task-more-filter]')||panel?.querySelector('#elara-task-filter-quick [data-task-more-filter]');
     if(toolbar&&more){
+      const date=toolbar.querySelector('.task-occurrence-date');
+      let dateControls=toolbar.querySelector('.task-date-filter-stack');
+      if(!dateControls){dateControls=document.createElement('div');dateControls.className='task-date-filter-stack';toolbar.append(dateControls)}
       let quick=$('elara-task-filter-quick');
       if(!quick){quick=document.createElement('div');quick.id='elara-task-filter-quick';quick.className='elara-task-filter-quick'}
-      // Keep the filter next to the date; no orphan row or duplicated action.
-      if(quick.parentElement!==toolbar)toolbar.append(quick);
+      // Keep the filter toggle above the date and the expanded inputs in normal page flow.
+      if(quick.parentElement!==dateControls)dateControls.prepend(quick);
+      if(date&&date.parentElement!==dateControls)dateControls.append(date);
       if(more.parentElement!==quick)quick.append(more);
       more.textContent='فیلترها';
-      more.setAttribute('aria-haspopup','dialog');
+      more.removeAttribute('aria-haspopup');
+      more.setAttribute('aria-controls','astra-task-filters-panel');
       more.setAttribute('aria-expanded',String(!!filters?.open));
+      more.setAttribute('aria-label',filters?.open?'بستن فیلترها':'نمایش فیلترها');
       if(!more.dataset.filterPromoted){
         more.dataset.filterPromoted='true';
         more.addEventListener('click',event=>{
           event.preventDefault();
           event.stopPropagation();
-          setTaskFiltersDialogOpen(true);
+          setTaskFiltersDialogOpen(!filters?.open);
         });
       }
     }
@@ -994,19 +1000,11 @@ function refreshAll(){syncSelectors();if(routeActive('tasks'))renderTasks();if(r
     row.focus({preventScroll:true});
   },true);
   document.addEventListener('keydown',event=>{
-      const dialog=document.querySelector('#panel-tasks .astra-task-filters[open]');
-      if(!dialog)return;
-      if(event.key==='Escape'){
-        event.preventDefault();event.stopImmediatePropagation();setTaskFiltersDialogOpen(false);return;
-      }
-      if(event.key==='Tab'){
-        const elements=[...dialog.querySelectorAll('summary,input:not([disabled]),select:not([disabled]),button:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
-        const first=elements[0],last=elements[elements.length-1];
-        if(!first)return;
-        if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){event.preventDefault();last.focus()}
-        else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus()}
-      }
-    },true);
+    const inlineFilters=document.querySelector('#panel-tasks .astra-task-filters[open]');
+    if(event.key==='Escape'&&inlineFilters&&inlineFilters.contains(document.activeElement)){
+      event.preventDefault();setTaskFiltersDialogOpen(false);
+    }
+  },true);
   document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeTaskTools();closeTaskKebabs(null,true);if(document.activeElement?.closest?.('#task-form'))closeComposer()}else{const details=document.activeElement?.closest?.('#task-list .astra-task-more[open]');if(details)armTaskKebab(details)}},true);
     for(const id of ['focus-duration','focus-break-duration','focus-session-count'])$(id)?.addEventListener('input',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
     $('focus-auto-break')?.addEventListener('change',()=>{const s=focusState();if(!s.activeFocus&&!s.focusPlanProgress)updateFocusDisplay()});
