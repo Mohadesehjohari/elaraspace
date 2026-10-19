@@ -6,6 +6,7 @@
   "required": [
     "index.html",
     "styles.css",
+    "private-state.js",
     "app.js",
     "boot.js",
     "desktop-home-only-controls-20261012.css",
@@ -308,6 +309,7 @@
     "index.html",
     "tasks-mobile-fidelity-20261012.css",
     "styles.css",
+    "private-state.js",
     "app.js",
     "dialog.js",
     "phase2.js",
