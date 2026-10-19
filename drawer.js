@@ -151,12 +151,32 @@
   function sectionHead(title,sub,back='home'){
     return `<div class="drawer-section-head"><button type="button" data-drawer-nav="${back}" aria-label="بازگشت">→</button><div><strong>${esc(title)}</strong><small>${esc(sub||'')}</small></div></div>`;
   }
-  function renderHub(){
-    const host=panel?.querySelector('[data-drawer-section="home"]');if(!host)return;
-    if(!host.querySelector('[data-elara-avatar-stage]')){
-      host.innerHTML='<div class="elara-avatar-stage" data-elara-avatar-stage aria-label="آواتار سه‌بعدی"><div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال آماده‌سازی…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>درگ: چرخش ۳۶۰° · اسکرول: زوم</span></div><button type="button" class="elara-avatar-edit" data-elara-avatar-edit>ویرایش مدل پایه</button></div>';
+  // Create the heavy 3D stage only after the drawer or wardrobe is opened.
+  // The same canvas is moved into the wardrobe's Character tab, never duplicated.
+  let avatarStage=null;
+  function ensureAvatarStage(){
+    const host=panel?.querySelector('[data-drawer-section="home"]');if(!host)return null;
+    if(!avatarStage){
+      avatarStage=document.createElement('div');
+      avatarStage.className='elara-avatar-stage';
+      avatarStage.dataset.elaraAvatarStage='';
+      avatarStage.setAttribute('aria-label','آواتار سه‌بعدی');
+      avatarStage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال بارگذاری آواتار…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>درگ: چرخش ۳۶۰° · اسکرول: زوم</span></div><button type="button" class="elara-avatar-edit" data-elara-avatar-edit>ویرایش مدل پایه</button>';
+      host.append(avatarStage);
     }
-    window.dispatchEvent(new Event('elara:avatar-stage-ready'));
+    return avatarStage;
+  }
+  function restoreAvatarStage(){
+    const host=panel?.querySelector('[data-drawer-section="home"]');
+    if(!host||!avatarStage)return;
+    avatarStage.classList.remove('is-wardrobe-stage');
+    if(avatarStage.parentElement!==host)host.replaceChildren(avatarStage);
+    if(current==='home'&&!root?.classList.contains('hidden'))window.dispatchEvent(new Event('elara:avatar-stage-ready'));
+  }
+  function renderHub(){
+    const stage=ensureAvatarStage();
+    if(stage&&stage.parentElement===panel?.querySelector('[data-drawer-section="home"]'))
+      window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderSettings(){
     const host=$('drawer-settings-area');if(!host)return;
@@ -384,7 +404,7 @@ function renderSecurity(){
     removeLegacyMore();setTimeout(removeLegacyMore,0);setTimeout(removeLegacyMore,250);setTimeout(removeLegacyMore,1000);
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
     const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
-    renderProfile();renderHub();updateCalendarLabels();syncQuickAppearance();
+    renderProfile();updateCalendarLabels();syncQuickAppearance();
     window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
     window.visualViewport?.addEventListener?.('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
   }
@@ -486,7 +506,7 @@ function renderSecurity(){
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
-  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance};
+  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance,ensureAvatarStage,restoreAvatarStage};
   window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance,renderSettings};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
