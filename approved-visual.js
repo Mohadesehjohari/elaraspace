@@ -147,13 +147,27 @@ function previewView(){
 }
 function drawWardrobe(){
  const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;if(wardrobeOwnerUid&&uid()!==wardrobeOwnerUid){closeWardrobe(true);return}
+ const tabs=[['character','کاراکتر سه‌بعدی','user'],['avatar','آواتار','user'],['banner','بنر پروفایل','home'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
+ if(wardrobeTab==='character'){
+   windowRoot.classList.add('is-character-tab');
+   host.innerHTML='<nav class="wardrobe-p3-tabs" aria-label="دسته‌بندی کمد">'+tabs.map(([id,label,ico])=>'<button type="button" data-wardrobe-tab="'+id+'" aria-current="'+(id===wardrobeTab?'true':'false')+'">'+icon(ico)+esc(label)+'</button>').join('')+'</nav>'+
+     '<div class="elara-character-wardrobe" dir="rtl"><div class="elara-character-wardrobe-stage" data-elara-wardrobe-avatar-slot></div>'+
+     '<section class="elara-character-wardrobe-items" aria-label="ظاهر سه‌بعدی"><h3>ظاهر کاراکتر</h3><div data-elara-wardrobe-looks><p class="muted">در حال آماده‌سازی کمد کاراکتر…</p></div></section></div>';
+   const slot=host.querySelector('[data-elara-wardrobe-avatar-slot]'),stage=window.ElaraPrivateDrawer?.ensureAvatarStage?.();
+   if(stage&&slot){slot.append(stage);stage.classList.add('is-wardrobe-stage');window.dispatchEvent(new Event('elara:avatar-stage-ready'));}
+   const controls=host.querySelector('[data-elara-wardrobe-looks]');
+   if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.renderWardrobeControls?.(controls);
+   else if(controls)controls.innerHTML='<p class="muted">در حال بارگذاری کاراکتر سه‌بعدی… اگر مدل مناسب این حساب موجود نباشد، نسخهٔ آزمایشی نمایش داده می‌شود.</p>';
+   return;
+ }
+ windowRoot.classList.remove('is-character-tab');
+ window.ElaraPrivateDrawer?.restoreAvatarStage?.();
  const p=wardrobe(),group=browseGroup,curLvl=level(),view=previewView();
  const make=(kind,id,label,src,required,equipped)=>({kind,id,label,src,required,locked:curLvl<required,equipped});
  const avatarItems=group?Array.from({length:10},(_,i)=>{const n=i+1;return make('avatar',group+':'+n,'آواتار '+n,system.avatarPath(group,n,p.shape||'circle'),n,p.photoMode!=='upload'&&group===p.avatarGroup&&n===p.avatarLevel)}):[];
  const frameItems=frames().map(f=>make('frame',f.id,f.label,system.frameVariantPath(f.id,p.shape||'circle'),f.required,p.frame===f.id));
  const bannerItems=bannerList().map(b=>make('banner',b.id,b.label,b.path,b.required,p.banner===b.id));
  const inventory={avatar:avatarItems,frame:frameItems,banner:bannerItems};
- const tabs=[['avatar','آواتار','user'],['banner','بنر پروفایل','home'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
  const items=inventory[wardrobeTab]||[],sel=selectedPreview,active=items.find(x=>x.id===sel?.id&&x.kind===sel?.kind)||null;
  const photo=(x)=>x.kind==='banner'?'<img src="'+esc(x.src)+'" alt="" loading="lazy" decoding="async">':'<img src="'+esc(x.src)+'" alt="" loading="lazy" decoding="async">';
  const list=items.slice(0,showAll[wardrobeTab]?items.length:6);
@@ -172,11 +186,11 @@ function drawWardrobe(){
  '<div class="wardrobe-p3-detail-actions"><button type="button" data-wardrobe-preview '+(!itemPreview?'disabled':'')+'>پیش‌نمایش</button><button type="button" data-wardrobe-clear '+(!equippedSelected?'disabled':'')+'>برداشتن تجهیز</button></div></aside></div>'+
  '<footer class="wardrobe-p3-footer"><p>تجهیز در همین مرورگر و مخصوص حساب فعال ذخیره می‌شود؛ آپلود ابری فعال نیست.</p><button type="button" class="wardrobe-p3-equip" data-wardrobe-equip '+(!enableEquip?'disabled':'')+'>'+(active?.locked?'آیتم قفل است':equippedSelected?'مجهز است':'تجهیز این آیتم')+'</button></footer>';
 }
-function showWardrobe(){
+function showWardrobe(tab='banner'){
  wardrobeWindow();const wasClosed=windowRoot.hidden;
  if(wasClosed)wardrobeOverflow={body:document.body.style.overflow,html:document.documentElement.style.overflow};
  wardrobeOwnerUid=uid();
- selectedPreview=null;wardrobeTab='banner';browseGroup=wardrobe().avatarGroup||null;
+ selectedPreview=null;wardrobeTab=tab==='character'?'character':'banner';browseGroup=wardrobe().avatarGroup||null;
  showAll={avatar:false,frame:false,banner:false};
  drawWardrobe();window.ElaraOverlayStack?.next?.(windowRoot);windowRoot.hidden=false;
  if(wasClosed&&!history.state?.elaraWardrobe)history.pushState({...history.state,elaraWardrobe:true},'',location.href);
@@ -185,6 +199,7 @@ function showWardrobe(){
 function closeWardrobe(fromHistory=false){
  if(!windowRoot||windowRoot.hidden)return;
  if(!fromHistory&&history.state?.elaraWardrobe){history.back();return}
+ window.ElaraPrivateDrawer?.restoreAvatarStage?.();windowRoot.classList.remove('is-character-tab');
  windowRoot.hidden=true;selectedPreview=null;wardrobeOwnerUid=null;
  if(wardrobeOverflow){document.body.style.overflow=wardrobeOverflow.body;document.documentElement.style.overflow=wardrobeOverflow.html;wardrobeOverflow=null}
 }
@@ -194,6 +209,10 @@ window.addEventListener('elara:account-ready',()=>{if(windowRoot&&!windowRoot.hi
  closeWardrobe(true)
 }});
 window.ElaraWardrobeUI={open:showWardrobe,close:closeWardrobe,draw:drawWardrobe};
+window.addEventListener('elara:live-avatar-mounted',()=>{
+ const host=windowRoot?.querySelector('[data-elara-wardrobe-looks]');
+ if(!windowRoot?.hidden&&wardrobeTab==='character'&&host)window.ElaraLiveVRM?.current?.renderWardrobeControls?.(host);
+});
 function wire(){
  /* Task metadata creation is owned by phase2.js, which preserves the composer draft. */
  document.addEventListener('click',event=>{
