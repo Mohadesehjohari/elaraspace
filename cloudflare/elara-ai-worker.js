@@ -286,11 +286,12 @@ function cleanPlan(raw,inventory){
 }
 async function handleTaskPlan(req,env,body){
   if(req.method!=='POST')fail('این روش درخواست مجاز نیست.',405);
-  await firebaseUser(req);
+  const caller=await firebaseUser(req);
   const message=clean(body.message,1000);
   if(message.length<2)fail('دستور کوتاه یا خالی است.',422);
   const config=await getConfig(env);
   if(config.settings.enabled!==true)fail('Elara AI فعلاً غیرفعال است.',503);
+  const usage=await userQuota(env,caller.uid,config.settings.per_user_daily_limit);
   const model=config.models.find(m=>m.id===config.settings.default_model&&m.enabled!==false);
   const tokenInfo=eligible(config)[0];
   if(!model||!tokenInfo)fail('مدل یا کلید فعال برای دستیار پیدا نشد.',503);
@@ -330,7 +331,9 @@ async function handleTaskPlan(req,env,body){
   const result=await response.json();
   const content=(result.candidates?.[0]?.content?.parts||[]).map(x=>x.text||'').join('').trim();
   let plan;try{plan=JSON.parse(content)}catch{fail('Gemini دستور ساختاریافتهٔ معتبری برنگرداند.',502)}
-  return {plan:cleanPlan(plan,tasks)};
+  const checked=cleanPlan(plan,tasks);
+  try{await env.AI_CONFIG.put(usage.key,String(usage.count+1),{expirationTtl:172800});}catch{console.warn('Elara agent quota counter failed');}
+  return {plan:checked};
 }
 
 async function handleChat(req,env,body){
