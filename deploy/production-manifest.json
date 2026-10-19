@@ -294,7 +294,12 @@
     "lib02-wooden-shelves.js",
     "elara-fox-rewards.js",
     "elara-fox-prize.js",
-    "visitor-profile-reference-20261018.js"
+    "visitor-profile-reference-20261018.js",
+    "freedom-universal-back.js",
+    "freedom-universal-back.css",
+    "freedom-chat-page.js",
+    "freedom-chat-page.css",
+    "assets/ui/fox-loved.webp"
   ],
   "files": [
     ".htaccess",
@@ -711,6 +716,11 @@
     "elara-date-time-picker.js",
     "elara-date-time-picker.css",
     "public-profile-realtime-20261019.js",
-    "public-profile-live-20261019.css"
+    "public-profile-live-20261019.css",
+    "freedom-universal-back.js",
+    "freedom-universal-back.css",
+    "freedom-chat-page.js",
+    "freedom-chat-page.css",
+    "assets/ui/fox-loved.webp"
   ]
 }
