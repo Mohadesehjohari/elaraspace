@@ -189,7 +189,7 @@ function renderGoals(){
  const actualDone=goalSteps.filter(step=>step.done).length;
  const actualPct=goalSteps.length?Math.round(actualDone/goalSteps.length*100):0;
  const overview='<div class="ref-home-goal-overview" aria-label="خلاصهٔ هدف‌ها">'
-  +'<span>'+fa(goals.length)+' هدف فعال</span>'
+  +'<span>'+fa(goals.filter(g=>!g.achieved).length)+' هدف فعال</span>'
   +'<b>'+fa(actualPct)+'٪</b>'
   +'<i class="elara-track" aria-hidden="true"><i style="width:'+actualPct+'%"></i></i></div>';
  // On mobile the Home card is a *preview*, never a second full Goals page.
@@ -199,11 +199,11 @@ function renderGoals(){
  const wrap=element('div','ref-goals-scroll');
  for(const g of visibleGoals){
   const steps=arr(g.steps),p=steps.length?Math.round(steps.filter(s=>s.done).length/steps.length*100):0,step=steps.find(s=>!s.done)||steps[0];
-  const row=element('div','ref-goal-row');row.dataset.key=String(g.id);
-  const check=element(step?'button':'span','ref-goal-step'+(step?'':' ref-goal-step-empty'));
-  if(step){check.type='button';check.dataset.homeGoal=String(g.id||'');check.dataset.goalId=String(g.id||'');check.dataset.homeGoalStep=String(step.id||'');check.setAttribute('aria-label','تغییر وضعیت '+String(step.text||'قدم'));check.setAttribute('aria-pressed',String(!!step.done));if(step.done)check.innerHTML=art(UI_ASSETS.taskCheck,'ref-goal-check-art','')}
+  const row=element('div','ref-goal-row'+(g.achieved?' goal-achieved':''));row.dataset.key=String(g.id);
+  const check=element('button','ref-goal-step');
+  check.type='button';check.dataset.homeGoalAchieved=String(g.id||'');check.dataset.goalId=String(g.id||'');check.setAttribute('aria-label',(g.achieved?'بازگرداندن هدف ':'رسیدن به هدف ')+String(g.title||'هدف'));check.setAttribute('aria-pressed',String(!!g.achieved));if(g.achieved)check.textContent='✓';
   const main=element('button','ref-goal-main');main.type='button';main.dataset.elaraTab='goals';main.innerHTML='<strong>'+esc(g.title||g.name||'هدف')+'</strong><i class="elara-track"><i style="width:'+p+'%"></i></i>';
-  const pct=element('b','');pct.textContent=fa(p)+'٪';row.append(check,main,pct);wrap.append(row);
+  const pct=element('b','');pct.textContent=fa(p)+'٪';pct.setAttribute('aria-label','پیشرفت ریزقدم‌ها '+fa(p)+' درصد');row.append(check,main,pct);wrap.append(row);
  }
  const more=''; // See All is already present in the card header; no second mobile footer.
  window.ElaraDOM.patch(host,overview+wrap.outerHTML+more);const scroll=host.querySelector('.ref-goals-scroll');if(scroll)scroll.scrollTop=scrollPosition
