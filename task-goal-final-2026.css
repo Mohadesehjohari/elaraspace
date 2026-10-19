@@ -690,3 +690,70 @@ body.task-card-reordering{user-select:none!important;-webkit-user-select:none!im
   background:linear-gradient(105deg,#174c51 0%,#123542 56%,#10263a 100%)!important
  }
 }
+
+/* Goal achievement is independent from substep progress. Cyan replaces purple on step ticks. */
+#panel-goals #goal-list .goal-title-heading{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important}
+#panel-goals #goal-list .goal-title-heading .item-title{min-width:0!important}
+#panel-goals #goal-list .goal-achievement-check{
+ display:grid!important;place-items:center!important;flex:0 0 30px!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ padding:0!important;border-radius:50%!important;
+ border:2px solid #48d9c8!important;background:#082b34!important;
+ color:#64ffcb!important;font-size:20px!important;font-weight:900!important;
+ box-shadow:none!important;cursor:pointer;
+}
+#panel-goals #goal-list .goal-achievement-check[aria-pressed="true"]{
+ border-color:#6fffd3!important;background:linear-gradient(135deg,#06443e,#065f50)!important;
+ box-shadow:0 0 12px #22edb05c!important;
+}
+#panel-goals #goal-list .goal-achievement-check:focus-visible,
+#panel-goals #goal-list .goal-step-item .check-button:focus-visible{
+ outline:2px solid #a3ffe7!important;outline-offset:3px!important;
+}
+#panel-goals #goal-list .goal-achieved-badge{
+ border-color:#40ddaa!important;background:#053d34!important;color:#94ffe2!important;
+}
+#panel-goals #goal-list .goal-step-item>.check-button{
+ display:grid!important;place-items:center!important;
+ width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+ border:2px solid #39cbbb!important;background:transparent!important;background-image:none!important;
+ color:#69ffe5!important;box-shadow:none!important;border-radius:50%!important;padding:0!important;
+}
+#panel-goals #goal-list .goal-step-item>.check-button[aria-pressed="true"]{
+ background:#063e41!important;border-color:#31ebd4!important;
+ box-shadow:0 0 9px #17d5c055!important;
+}
+#panel-goals #goal-list .goal-step-item>.check-button .goal-step-check-art{
+ width:21px!important;height:21px!important;color:#72ffe5!important;
+ filter:drop-shadow(0 0 3px #19e6c4);
+}
+#panel-home .ref-goal-step[data-home-goal-achieved]{
+ display:grid!important;place-items:center!important;
+ color:#7afde0!important;font-size:19px!important;font-weight:900!important;
+ background:transparent!important;border:2px solid #46ddc2!important;
+ border-radius:50%!important;box-shadow:none!important;
+}
+#panel-home .ref-goal-step[data-home-goal-achieved][aria-pressed="true"]{
+ background:#06483c!important;border-color:#64ffd1!important;box-shadow:0 0 9px #2febbb66!important;
+}
+
+/* Goal substep settings: scoped defaults and an explicit reset control. */
+.elara-dialog-layer .goal-step-edit-dialog>.goal-step-settings-controls{
+  grid-column:1/-1!important;display:flex!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:space-between!important;
+  gap:10px!important;padding:12px 2px 2px!important;
+  border-top:1px solid var(--border)!important;
+}
+.elara-dialog-layer .goal-step-edit-dialog .goal-step-settings-controls small{
+  flex:1 1 200px!important;min-width:0!important;
+  color:var(--muted)!important;font-size:.68rem!important;line-height:1.8!important;
+}
+.elara-dialog-layer .goal-step-edit-dialog [data-goal-step-settings-reset]{
+  flex:0 0 auto!important;border:1px solid #3ebda9!important;border-radius:10px!important;
+  color:#8bfbe0!important;background:#0b3540!important;
+  min-height:38px!important;padding:8px 14px!important;cursor:pointer;
+  font:inherit!important;font-size:.75rem!important;
+}
+.elara-dialog-layer .goal-step-edit-dialog [data-goal-step-settings-reset]:focus-visible{
+  outline:2px solid #95ffe7!important;outline-offset:3px!important;
+}

@@ -141,6 +141,46 @@ assert.ok(html.includes('goal-daily-target-enabled')&&html.includes('goal-daily-
 assert.ok(js.includes('goalDailyProgress')&&js.includes("toggle-goal-daily")&&js.includes('dailyProgress:safeDailyProgress'),'Goals must persist and count repeat-per-day progress');
 for(const token of ['goal-date','goal-time','goal-priority','goal-list-name','goal-folder','goal-tag','goal-recurrence'])assert.ok(html.includes('id="'+token+'"'),'Goal task-like setting missing #'+token);
 for(const token of ['editGoalStep','goalStepDailyProgress','goalStepDone','edit-step','step-dialog-weekday','recurrenceRule:safeRule(step.recurrenceRule'])assert.ok(js.includes(token),'Rich goal substep behavior missing '+token);
+const goalsHome=readFileSync(new URL('reference-home-shell-2026.js',root),'utf8');
+const goalsHomeActions=readFileSync(new URL('home-functional-pass-2026.js',root),'utf8');
+const goalsCss=readFileSync(new URL('task-goal-final-2026.css',root),'utf8');
+for(const token of ['achieved:!!(g.achieved||g.completed)','data-action="toggle-goal"','goal.achieved=!goal.achieved','const currentGoal=state.goals.find','currentGoal.steps.push','goal-step-check-art'])assert.ok(js.includes(token),'Goal achievement or step continuation regression: '+token);
+assert.ok(goalsHome.includes('dataset.homeGoalAchieved')&&goalsHome.includes('!!g.achieved'),'Home goal checkbox must reflect goal, not a substep');
+assert.ok(goalsHomeActions.includes('toggle-goal')&&!goalsHomeActions.includes('data-home-goal-step'),'Home cannot toggle a substep when marking a goal achieved');
+for(const token of ['#panel-goals #goal-list .goal-step-item>.check-button','.goal-achievement-check','#panel-home .ref-goal-step[data-home-goal-achieved]'])assert.ok(goalsCss.includes(token),'Goal check appearance missing '+token);
+// Validate per-goal inheritance and the metadata-only reset with executable helper logic.
+function goalStepHelper(name){
+  const start=js.indexOf('  function '+name+'('),end=js.indexOf('\n  }',start);
+  assert.ok(start>=0&&end>start,'Missing goal step helper '+name);
+  return js.slice(start,end+4);
+}
+const goalStepDraft=new Function('goalStepDailyTarget',goalStepHelper('goalStepDraft')+';return goalStepDraft;')(s=>Math.max(1,Math.min(24,Math.round(Number(s?.dailyTarget)||1))));
+const resetGoalStepSettings=new Function(goalStepHelper('resetGoalStepSettings')+';return resetGoalStepSettings;')();
+const preceding={text:'انجام‌شده',date:'2026-10-19',time:'09:30',priority:'2',list:'لیست الف',folder:'پوشه الف',tag:'برچسب الف',dailyTarget:3,recurrenceRule:{frequency:'weekly',weekdays:[1,3]},done:true,dailyProgress:{'2026-10-19':3},occurrenceDone:['2026-10-19']};
+const inherited=goalStepDraft({id:'one',steps:[preceding]});
+for(const k of ['date','time','priority','list','folder','tag','dailyTarget'])assert.equal(inherited[k],preceding[k],'Same goal should inherit '+k);
+assert.deepEqual(inherited.recurrenceRule,preceding.recurrenceRule);
+assert.notStrictEqual(inherited.recurrenceRule,preceding.recurrenceRule,'Recurrence object must be copied');
+assert.notStrictEqual(inherited.recurrenceRule.weekdays,preceding.recurrenceRule.weekdays,'Repeat weekdays must be copied');
+assert.equal(inherited.text,'','Next step title must remain blank');
+assert.equal(inherited.done,undefined,'Completion must not be inherited');
+assert.equal(inherited.dailyProgress,undefined,'Daily progress must not be inherited');
+assert.equal(inherited.occurrenceDone,undefined,'Repeat completions must not be inherited');
+assert.deepEqual(goalStepDraft({id:'new-goal',steps:[]}),{text:'',date:'',time:'',priority:'4',list:'',folder:'',tag:'',dailyTarget:1,recurrenceRule:null},'Another goal must start with clean defaults');
+assert.strictEqual(goalStepDraft({steps:[preceding]},preceding),preceding,'Editing must retain its original step values');
+const resetInputs=Object.fromEntries(Object.entries({text:'حفظ عنوان',date:'2026-10-19',time:'09:30',priority:'2',list:'لیست الف',folder:'پوشه الف',tag:'برچسب الف',dailyTarget:'3',frequency:'daily',interval:'4',endDate:'2026-10-29',dailyEnabled:true,scheduleEnabled:true,noEnd:true}).map(([key,value])=>[key,{value,checked:value===true,disabled:key==='endDate'}]));
+const weekdays=[{checked:true},{checked:true}];let dailySync=0,scheduleSync=0;
+const stepForm={querySelector:selector=>resetInputs[selector.startsWith('[name="')?selector.slice(7,-2):'']||null,querySelectorAll:selector=>selector==='input[name="step-dialog-weekday"]'?weekdays:[]};
+resetGoalStepSettings(stepForm,()=>dailySync++,()=>scheduleSync++);
+for(const key of ['date','time','list','folder','tag','endDate'])assert.equal(resetInputs[key].value,'','Reset must clear '+key);
+for(const [key,value] of Object.entries({priority:'4',dailyTarget:'2',frequency:'weekly',interval:'1'}))assert.equal(resetInputs[key].value,value,'Reset must restore '+key);
+for(const key of ['dailyEnabled','scheduleEnabled','noEnd'])assert.equal(resetInputs[key].checked,false,'Reset must disable '+key);
+assert.ok(weekdays.every(x=>!x.checked),'Reset must clear weekdays');
+assert.equal(resetInputs.endDate.disabled,false,'Reset must reenable end date');
+assert.equal(resetInputs.text.value,'حفظ عنوان','Reset must not clear title');
+assert.equal(dailySync,1);assert.equal(scheduleSync,1);
+assert.ok(js.includes('data-goal-step-settings-reset')&&goalsCss.includes('.elara-dialog-layer .goal-step-edit-dialog'),'Reset button must be present and styled in modal');
+
 for(const token of ["spec.time!==undefined","spec.folder!==undefined","spec.recurrenceRule!==undefined","sourceType:'goal-step'"])assert.ok(linkedTasks.includes(token),'Linked goal-step metadata projection missing '+token);
 assert.ok(rpg.includes('mission-back-home')&&rpg.includes('data-elara-tab="home"'),'All Missions page must provide return-to-home action');
 for(const token of ['.astra-task-core-meta','display:flex!important','touch-action:none!important','.astra-task-status','.goal-repeat-strip','.compact-toggle'])assert.ok(taskGoalFinal.includes(token),'Final task/goal ownership CSS missing '+token);
