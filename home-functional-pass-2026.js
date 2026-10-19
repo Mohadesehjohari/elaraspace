@@ -7,7 +7,7 @@ function canonicalClick(list,selector,attributes){const host=$(list);if(!host)re
 async function withDataHint(kind,fn){const prev=window.ElaraDataChangeHint;window.ElaraDataChangeHint=kind;try{return await fn()}finally{window.ElaraDataChangeHint=prev}}
 function toggleTask(id){return withDataHint('task',()=>window.ElaraTasks.taskAction('toggle-task',id,window.ElaraHomeDay||day()))}
 function toggleHabit(id){return withDataHint('habit',()=>window.ElaraTasks.habitAction('toggle-habit',id,window.ElaraHomeDay||day()))}
-function toggleGoal(goalId,stepId){const goal=read().goals?.find(g=>String(g.id)===String(goalId));if(!goal?.steps?.some(s=>String(s.id)===String(stepId)))return false;return withDataHint('goal',()=>canonicalClick('goal-list',`[data-action="toggle-step"][data-goal="${CSS.escape(goalId)}"][data-id="${CSS.escape(stepId)}"]`,{action:'toggle-step',goal:goalId,id:stepId}))}
+function toggleGoal(goalId){const goal=read().goals?.find(g=>String(g.id)===String(goalId));if(!goal)return false;return withDataHint('goal',()=>canonicalClick('goal-list',`[data-action="toggle-goal"][data-goal="${CSS.escape(goalId)}"]`,{action:'toggle-goal',goal:goalId}))}
 function quickAdd(kind,title){const form=$(kind==='task'?'task-form':kind==='habit'?'habit-form':'goal-form');if(!form)return false;
  if(kind==='task'){$('task-cancel')?.click();$('task-title').value=title;$('task-due').value=day();$('task-time').value='';$('task-priority').value='4';$('task-folder').value='';$('task-tag').value=''}
  else if(kind==='habit'){$('habit-title').value=title}
@@ -20,17 +20,15 @@ function quickDialog(kind){if(kind==='task'){window.ElaraTasks.openComposer({dat
  void dialog.open({title:isTask?'افزودن سریع تسک':isHabit?'افزودن سریع عادت':'افزودن سریع هدف',content:form,actions:[{label:'انصراف',value:false}]});setTimeout(()=>form.elements.title.focus(),60);
 }
 function decorate(){for(const [card,kind,label] of [['.ref-tasks','task','افزودن سریع تسک'],['.ref-habits','habit','افزودن سریع عادت'],['.ref-goals','goal','افزودن سریع هدف']]){const header=document.querySelector('#panel-home '+card+' > header');if(!header||header.querySelector('[data-home-quick]'))continue;const b=document.createElement('button');b.type='button';b.className='elara-home-quick-button';b.dataset.homeQuick=kind;b.setAttribute('aria-label',label);b.textContent='+';header.append(b)}
- const rows=document.querySelectorAll('#panel-home .ref-goal-row');const goals=Array.isArray(read().goals)?read().goals:[];rows.forEach((row,i)=>{const g=goals[i],step=g?.steps?.find(s=>!s.done)||g?.steps?.at(-1);if(!g||!step||row.querySelector('[data-home-goal-step]'))return;
- const control=document.createElement('span');control.className='elara-home-goal-step';control.dataset.homeGoalStep=step.id;control.dataset.goalId=g.id;control.setAttribute('role','checkbox');control.setAttribute('tabindex','0');control.setAttribute('aria-checked',String(!!step.done));control.setAttribute('aria-label',`${step.done?'برداشتن تیک':'تکمیل'} قدم ${step.text}`);control.innerHTML=step.done?'<img class="elara-check-art" src="assets/ui/icon-tasks-check-alpha.webp" alt="">':'';const oldIcon=row.querySelector(':scope > span:first-child');if(oldIcon)oldIcon.replaceWith(control);else row.prepend(control)});
  const avatar=$('ref-header-account')?.querySelector('.ref-account-avatar'),model=window.ElaraProfileSystem?.viewModel?.(window.ElaraSocial?.me||window.ElaraAccount?.profile||{},{self:true}),current=avatar?.querySelector('.ref-account-equipped-frame'),src=String(model?.frameSrc||'');
  if(avatar){if(!src){current?.remove()}else{const frame=current||document.createElement('img');if(!current){frame.className='ref-account-equipped-frame';frame.alt='';frame.addEventListener('error',()=>frame.remove());avatar.append(frame)}if(frame.dataset.src!==src){frame.dataset.src=src;frame.src=src}}}
 }
 async function handleClick(e){const quick=e.target.closest('[data-home-quick]');if(quick){e.preventDefault();e.stopImmediatePropagation();quickDialog(quick.dataset.homeQuick);return}
  const task=e.target.closest('#panel-home [data-ref-task]');if(task){e.preventDefault();e.stopImmediatePropagation();await toggleTask(task.dataset.refTask);return}
  const habit=e.target.closest('#panel-home [data-ref-habit]');if(habit){e.preventDefault();e.stopImmediatePropagation();await toggleHabit(habit.dataset.refHabit);return}
- const step=e.target.closest('#panel-home [data-home-goal-step]');if(step){e.preventDefault();e.stopImmediatePropagation();toggleGoal(step.dataset.goalId,step.dataset.homeGoalStep);return}
+ const goal=e.target.closest('#panel-home [data-home-goal-achieved]');if(goal){e.preventDefault();e.stopImmediatePropagation();await toggleGoal(goal.dataset.homeGoalAchieved);return}
 }
-function init(){window.addEventListener('click',handleClick,true);document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-home-goal-step]')){e.preventDefault();e.target.click()}},true);decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:profile-saved','elara:wardrobe-changed'])window.addEventListener(name,()=>requestAnimationFrame(decorate));window.addEventListener('hashchange',()=>setTimeout(decorate,180))}
+function init(){window.addEventListener('click',handleClick,true);decorate();for(const name of ['elara:open','elara:data-changed','elara:hydrate','elara:profile-saved','elara:wardrobe-changed'])window.addEventListener(name,()=>requestAnimationFrame(decorate));window.addEventListener('hashchange',()=>setTimeout(decorate,180))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 
