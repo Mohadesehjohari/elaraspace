@@ -31,7 +31,7 @@
     const looks = [{id:'base',label:'استایل اصلی',status:base.status,src:base.src},
       ...(config.looks || []).filter(x => x.kind===kind && x.id !== 'base')];
     const findLook = id => looks.find(x => x.id===id && ready(x));
-    const initialLook = findLook(saved(kind)) || looks[0];
+    let initialLook = findLook(saved(kind)) || looks[0];
     const getVRM = async (src) => {
       const gltf = await loader.loadAsync(src);
       const vrm = gltf.userData.vrm;
@@ -40,7 +40,13 @@
       return vrm;
     };
     // Do not replace the existing viewer if the initial model cannot load.
-    let vrm = await getVRM(initialLook.src);
+    let vrm;
+    try {vrm = await getVRM(initialLook.src);}
+    catch(error) {
+      if(initialLook.id==='base')throw error;
+      console.warn('Elara VRM: saved outfit unavailable, using base',error);
+      initialLook=looks[0];vrm=await getVRM(initialLook.src);
+    }
     if (!stage.isConnected || !enabled()) { disposeMeshes(THREE,vrm.scene); return false; }
 
     let renderer;
@@ -66,7 +72,7 @@
     let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastTime=performance.now();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
-    const position = new THREE.Vector3(), rotation = new THREE.Quaternion(), Euler=new THREE.Euler(), q=new THREE.Quaternion();
+    const Euler=new THREE.Euler(), q=new THREE.Quaternion();
     const boneNames = ['head','neck','chest','spine','hips','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm'];
     function captureBones() {
       for(const name of boneNames) {
@@ -213,6 +219,7 @@
       window.removeEventListener('elara:profile-private-changed',changeKind);
       interfaceNode.remove();renderer.dispose();canvas.remove();disposeMeshes(THREE,vrm.scene);
       stage.dataset.avatarMounted='';
+      if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
     }
     window.ElaraLiveVRM.current={stage,dispose,get look(){return look.id;},get kind(){return kind;}};
     return true;
