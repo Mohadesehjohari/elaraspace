@@ -14,7 +14,7 @@ button.freedom-universal-back{
   background:linear-gradient(110deg,#7852d2,#472887)!important;
   color:#fff!important;
   box-shadow:0 9px 28px #0009,0 0 0 2px #ad91e63b inset!important;
-  font:700 14px/1.5 inherit!important;
+  font-weight:700!important;font-size:14px!important;line-height:1.5!important;
   font-family:inherit!important;
   text-decoration:none;
   direction:rtl;
