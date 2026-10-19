@@ -160,7 +160,10 @@ async function aiRequest(action,{method='GET',body=null}={}){
   if(!currentUser)throw new Error('حساب Admin وارد نشده است.');
   const token=await currentUser.getIdToken(),headers={Accept:'application/json',Authorization:'Bearer '+token},init={method,headers,cache:'no-store',credentials:'same-origin'};
   if(body!==null){headers['Content-Type']='application/json';init.body=JSON.stringify(body)}
-  const response=await fetch('ai.php?action='+encodeURIComponent(action),init),raw=await response.text();let payload=null;
+  const base=String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');
+  if(!base&&location.hostname.endsWith('.github.io'))throw new Error('روی GitHub Pages باید ابتدا آدرس Cloudflare Worker را در فایل ai-gateway-config.js تنظیم کنی؛ PHP روی GitHub اجرا نمی‌شود.');
+  const endpoint=base?base+'/admin/ai?action='+encodeURIComponent(action):'ai.php?action='+encodeURIComponent(action);
+  const response=await fetch(endpoint,init),raw=await response.text();let payload=null;
   try{payload=JSON.parse(raw)}catch{throw new Error('AI endpoint روی این هاست فعال نیست یا پاسخ JSON نداد.')}
   if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));
   return payload.data||{};
