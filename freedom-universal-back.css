@@ -1,0 +1,38 @@
+/* Accessible Freedom detail Back action; outside the scrolling detail/banner. */
+button.freedom-universal-back[hidden]{display:none!important}
+button.freedom-universal-back{
+  position:fixed!important;
+  inset:auto 18px calc(24px + env(safe-area-inset-bottom)) auto!important;
+  z-index:1900!important;
+  display:inline-flex!important;
+  align-items:center;justify-content:center;gap:10px;
+  max-width:calc(100vw - 36px);
+  min-height:50px;
+  padding:11px 20px!important;
+  border:1px solid #d8b7ff!important;
+  border-radius:999px!important;
+  background:linear-gradient(110deg,#7852d2,#472887)!important;
+  color:#fff!important;
+  box-shadow:0 9px 28px #0009,0 0 0 2px #ad91e63b inset!important;
+  font:700 14px/1.5 inherit!important;
+  font-family:inherit!important;
+  text-decoration:none;
+  direction:rtl;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+button.freedom-universal-back .freedom-universal-back-arrow{font-size:21px;line-height:1}
+button.freedom-universal-back:hover{filter:brightness(1.15)}
+button.freedom-universal-back:focus-visible{outline:3px solid #ffe3ff!important;outline-offset:4px!important}
+@media(max-width:760px){
+ button.freedom-universal-back{
+   inset:auto 13px calc(92px + env(safe-area-inset-bottom)) auto!important;
+   min-height:50px;padding:10px 17px!important;font-size:14px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ button.freedom-universal-back{transition:none!important}
+}
+/* The Fox fullscreen chat owns its own close action. */
+body.freedom-fox-open button.freedom-universal-back{display:none!important}
