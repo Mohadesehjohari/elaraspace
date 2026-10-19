@@ -185,7 +185,14 @@
   }
 
   async function mount(stage){
-    if(!stage||stage.dataset.avatarMounted==='yes'||!desktop())return;
+    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||!desktop())return;
+    stage.dataset.avatarMounted='probing';
+    // Exported VRM takes priority, but a missing/invalid VRM never breaks the current stage.
+    if(window.ElaraLiveVRM?.tryMount){
+      try{if(await window.ElaraLiveVRM.tryMount(stage))return}
+      catch(error){console.warn('Elara: falling back to prototype avatar',error)}
+    }
+    if(!stage.isConnected||!desktop()){stage.dataset.avatarMounted='';return}
     stage.dataset.avatarMounted='yes';status(stage,'در حال آماده‌سازی آواتار سه‌بعدی…','loading');
     let THREE;
     try{THREE=await loadThree()}catch(error){
