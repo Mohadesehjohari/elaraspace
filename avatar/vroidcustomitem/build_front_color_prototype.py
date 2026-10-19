@@ -124,7 +124,7 @@ def thumbnail_has_hair_preview(raw: bytes) -> bool:
     This catches *blank previews*, not every possible empty geometry case.
     """
     import zlib
-    if not raw.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if not raw.startswith(b"\x89PNG\r\n\x1a\n"):
         return True
     i, compressed, width, height, depth, kind = 8, bytearray(), None, None, None, None
     while i + 12 <= len(raw):
