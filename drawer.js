@@ -9,7 +9,7 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home',accountGutters=null;
+  let root,panel,current='home',accountGutters=null,homeView='avatar';
   function ensureProfileHubCSS(){
     if(document.getElementById('elara-profile-hub-reference-css'))return;
     const sheet=document.createElement('link');sheet.id='elara-profile-hub-reference-css';
@@ -115,6 +115,22 @@
       panel.style.setProperty('overflow','hidden','important');
     }
   }
+  function updateHomeView(next=homeView){
+    homeView=next==='menu'?'menu':'avatar';
+    if(!root||!panel)return;
+    root.dataset.elaraView=homeView;
+    const toggle=panel.querySelector('[data-elara-drawer-toggle]');
+    if(toggle){
+      toggle.setAttribute('aria-expanded',String(homeView==='menu'));
+      toggle.setAttribute('aria-label',homeView==='menu'?'بستن منو و نمایش کاراکتر تمام‌قد':'نمایش گزینه‌های پروفایل و تنظیمات');
+      toggle.title=homeView==='menu'?'نمایش کاراکتر':'باز کردن گزینه‌ها';
+    }
+    const menu=panel.querySelector('.drawer-menu');
+    if(menu){menu.toggleAttribute('inert',current==='home'&&homeView!=='menu');menu.setAttribute('aria-hidden',current==='home'&&homeView!=='menu'?'true':'false');}
+    const stage=panel.querySelector('[data-drawer-section="home"]');
+    if(stage){stage.toggleAttribute('inert',current==='home'&&homeView==='menu');stage.setAttribute('aria-hidden',current==='home'&&homeView==='menu'?'true':'false');}
+    if(current==='home'&&homeView==='avatar')renderHub();
+  }
   function show(section='home'){
     if(section==='appearance')section='settings'; // Legacy appearance links now open Settings.
     current=section;
@@ -123,7 +139,7 @@
     placeMobileSection(section);
     panel?.querySelectorAll('[data-drawer-section]').forEach(x=>{const active=x.dataset.drawerSection===section;x.classList.toggle('hidden',!active);x.toggleAttribute('hidden',!active);x.setAttribute('aria-hidden',active?'false':'true');if(active)x.removeAttribute('inert');else x.setAttribute('inert','')});
     panel?.querySelectorAll('[data-drawer-nav]').forEach(x=>x.classList.toggle('active',x.dataset.drawerNav===section));
-    if(section==='home')renderHub();
+    updateHomeView();
     if(section==='settings')renderSettings();
     if(section==='blocked')renderBlocked();
     if(section==='account')renderAccount();
@@ -161,7 +177,7 @@
       avatarStage.className='elara-avatar-stage';
       avatarStage.dataset.elaraAvatarStage='';
       avatarStage.setAttribute('aria-label','آواتار سه‌بعدی');
-      avatarStage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال بارگذاری آواتار…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>درگ: چرخش ۳۶۰° · اسکرول: زوم</span></div><button type="button" class="elara-avatar-edit" data-elara-avatar-edit>ویرایش مدل پایه</button>';
+      avatarStage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال بارگذاری آواتار…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>لمس: زوم · درگ: چرخش · اسکرول: زوم</span></div>';
       host.append(avatarStage);
     }
     return avatarStage;
@@ -171,11 +187,11 @@
     if(!host||!avatarStage)return;
     avatarStage.classList.remove('is-wardrobe-stage');
     if(avatarStage.parentElement!==host)host.replaceChildren(avatarStage);
-    if(current==='home'&&!root?.classList.contains('hidden'))window.dispatchEvent(new Event('elara:avatar-stage-ready'));
+    if(current==='home'&&homeView==='avatar'&&!root?.classList.contains('hidden'))window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderHub(){
     const stage=ensureAvatarStage();
-    if(stage&&stage.parentElement===panel?.querySelector('[data-drawer-section="home"]'))
+    if(stage&&homeView==='avatar'&&!root?.classList.contains('hidden')&&stage.parentElement===panel?.querySelector('[data-drawer-section="home"]'))
       window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderSettings(){
@@ -396,7 +412,7 @@ function renderSecurity(){
     const mountTrigger=()=>{const theme=document.getElementById('theme-toggle'),actions=document.querySelector('.topbar-actions');if(!actions)return false;if(theme){theme.insertAdjacentElement('afterend',trigger)}else actions.append(trigger);return true};
     mountTrigger();setTimeout(mountTrigger,0);setTimeout(mountTrigger,250);setTimeout(mountTrigger,1000);
     root=document.createElement('div');root.className='elara-private-drawer hidden';
-    root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div id="drawer-profile-summary" class="drawer-profile-summary"></div><button type="button" class="drawer-close" data-drawer-close aria-label="بستن">×</button></header><nav class="drawer-menu"><button data-drawer-nav="account">${icon('user')}<b>پروفایل</b><small>نمایش و ویرایش هویت</small></button><button data-drawer-nav="blocked">${icon('shield')}<b>بلاک‌شده‌ها</b><small>مدیریت حساب‌های مسدود</small></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<b>کمد</b><small>آواتار، فریم و بنر</small></button><button type="button" data-drawer-nav="settings">${icon('settings')}<b>تنظیمات</b><small>حساب، حریم خصوصی، زبان و ظاهر</small></button><button type="button" data-drawer-action="store">${icon('spark')}<b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></button><button type="button" class="drawer-mobile-reports" data-drawer-action="reports">${icon('chart')}<b>گزارش‌ها</b><small>میانبر گزارش‌ها در موبایل</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="settings" class="hidden"><div id="drawer-settings-area"></div></section><section data-drawer-section="blocked" class="hidden"><div id="drawer-blocked-area"></div></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="security" class="hidden"><div id="drawer-security-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="language" class="hidden"><div id="drawer-language-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
+    root.innerHTML=`<button type="button" class="elara-private-drawer-scrim" aria-label="بستن"></button><aside class="elara-private-drawer-panel" aria-label="پروفایل و تنظیمات"><header class="drawer-profile-head"><div id="drawer-profile-summary" class="drawer-profile-summary"></div><button type="button" class="drawer-close" data-drawer-close aria-label="بستن">×</button></header><button type="button" class="elara-drawer-reveal" data-elara-drawer-toggle aria-expanded="false" aria-controls="elara-drawer-options" aria-label="نمایش گزینه‌های پروفایل و تنظیمات"><span class="elara-drawer-reveal-chevron" aria-hidden="true">⌄</span><span class="elara-drawer-reveal-caption">گزینه‌های پروفایل</span></button><nav class="drawer-menu" id="elara-drawer-options"><button data-drawer-nav="account">${icon('user')}<b>پروفایل</b><small>نمایش و ویرایش هویت</small></button><button data-drawer-nav="blocked">${icon('shield')}<b>بلاک‌شده‌ها</b><small>مدیریت حساب‌های مسدود</small></button><button type="button" data-approved-wardrobe>${icon('wardrobe')}<b>کمد</b><small>آواتار، فریم و بنر</small></button><button type="button" data-drawer-nav="settings">${icon('settings')}<b>تنظیمات</b><small>حساب، حریم خصوصی، زبان و ظاهر</small></button><button type="button" data-drawer-action="store">${icon('spark')}<b>فروشگاه</b><small>تم، پروفایل، قاب و بنر</small></button><button type="button" class="drawer-mobile-reports" data-drawer-action="reports">${icon('chart')}<b>گزارش‌ها</b><small>میانبر گزارش‌ها در موبایل</small></button></nav><section data-drawer-section="home"></section><section data-drawer-section="settings" class="hidden"><div id="drawer-settings-area"></div></section><section data-drawer-section="blocked" class="hidden"><div id="drawer-blocked-area"></div></section><section data-drawer-section="account" class="hidden"><div id="drawer-account-area"></div></section><section data-drawer-section="privacy" class="hidden"><div id="drawer-privacy-area"></div></section><section data-drawer-section="security" class="hidden"><div id="drawer-security-area"></div></section><section data-drawer-section="folders" class="hidden"><div id="drawer-folder-area"></div></section><section data-drawer-section="appearance" class="hidden"><div id="drawer-appearance-area"></div></section><section data-drawer-section="language" class="hidden"><div id="drawer-language-area"></div></section><section data-drawer-section="help" class="hidden"><div id="drawer-help-area"></div></section><section data-drawer-section="calendar" class="hidden"><div id="drawer-calendar-area"></div></section></aside>`;
     document.body.append(root);panel=root.querySelector('.elara-private-drawer-panel');
     root.querySelector('.elara-private-drawer-scrim').addEventListener('click',close);root.querySelector('[data-drawer-close]').addEventListener('click',close);
     panel.tabIndex=-1;document.addEventListener('keydown',trapDrawerKey,true);
@@ -432,6 +448,8 @@ function renderSecurity(){
     const quickMode=e.target.closest('[data-elara-mode-quick]');
     if(quickMode){e.preventDefault();if(['dark','light'].includes(quickMode.dataset.elaraModeQuick)){setMode(quickMode.dataset.elaraModeQuick);syncQuickAppearance()}return}
     if(e.target.closest('[data-drawer-theme]')){document.getElementById('theme-toggle')?.click();return}
+    const homeToggle=e.target.closest('[data-elara-drawer-toggle]');
+    if(homeToggle&&root?.contains(homeToggle)){e.preventDefault();updateHomeView(homeView==='avatar'?'menu':'avatar');return;}
     const wardrobeButton=e.target.closest('[data-approved-wardrobe]');
     if(wardrobeButton){e.preventDefault();window.ElaraWardrobeUI?.open?.();return}
     const nav=e.target.closest('[data-drawer-nav]');if(nav){show(nav.dataset.drawerNav);return}
@@ -506,7 +524,7 @@ function renderSecurity(){
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
-  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance,ensureAvatarStage,restoreAvatarStage};
+  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance,ensureAvatarStage,restoreAvatarStage,showHomeAvatar:()=>{show('home');updateHomeView('avatar');},showHomeMenu:()=>{show('home');updateHomeView('menu');}};
   window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance,renderSettings};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
