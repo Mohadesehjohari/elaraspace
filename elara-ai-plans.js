@@ -240,7 +240,9 @@ async function propose(message,contextRows=[],force=false){
         Authorization:'Bearer '+token},
       body:JSON.stringify({message:request,inventory:state.inventory,folders:state.folders,
         local_date:today(),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC',
-        context:contextRows.slice(-8).map(x=>({role:x.role,text:tidy(x.text,1500)}))})
+        context:contextRows.slice(-8).map(x=>({role:x.role,text:tidy(x.text,1500)})),
+        allow_profile_context:window.ElaraFreedomAI?.mayPersonalize?.()===true,
+        profile_context:window.ElaraFreedomAI?.profileContext?.()||{}})
     });
     const j=await r.json().catch(()=>null);
     if(!r.ok||j?.ok!==true)throw Error(j?.error||'تهیه پیش‌نویس ناموفق بود؛ کد جدید Worker را Deploy کن.');
