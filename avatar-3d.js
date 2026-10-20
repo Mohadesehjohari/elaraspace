@@ -255,8 +255,16 @@
     renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',wheel,{passive:false});
 
     const edit=stage.querySelector('[data-elara-avatar-edit]');if(edit)edit.addEventListener('click',()=>window.ElaraProfileSystem?.openEditor?.());
-    const sex=profileSex();status(stage,sex==='male'?'مدل پایه مرد':sex==='female'?'مدل پایه زن':'مدل پایه زن · از ویرایش پروفایل قابل تغییر','ready');
-    const privateChange=()=>{rebuild();const s=profileSex();status(stage,s==='male'?'مدل پایه مرد':s==='female'?'مدل پایه زن':'مدل پایه زن · از ویرایش پروفایل قابل تغییر','ready')};
+    const fallbackMessage=()=>{
+      const reason=stage.dataset.avatarFallbackReason;
+      if(reason==='male-vrm-not-ready')return 'نسخهٔ جدید مردانه هنوز ساخته نشده؛ مدل آزمایشی نمایش داده می‌شود';
+      if(reason==='base-vrm-not-ready')return 'مدل جدید این گروه هنوز منتشر نشده؛ نسخهٔ آزمایشی نمایش داده می‌شود';
+      if(reason==='catalog-unavailable')return 'فهرست مدل‌های جدید دریافت نشد؛ نسخهٔ آزمایشی نمایش داده می‌شود';
+      if(reason==='vrm-download-or-render-failed')return 'بارگذاری VRM جدید ناموفق بود؛ مدل آزمایشی نمایش داده می‌شود';
+      return 'مدل سه‌بعدی آزمایشی';
+    };
+    status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');
+    const privateChange=()=>{rebuild();status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');};
     window.addEventListener('elara:profile-private-changed',privateChange);
 
     function play(name='dance'){

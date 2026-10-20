@@ -2,7 +2,7 @@
    Does not read .vroid, does not touch existing 2D wardrobe or shop entitlements. */
 (() => {
   'use strict';
-  const CONFIG = 'avatar/vrm-looks.json';
+  const CONFIG = 'avatar/vrm-looks.json?v=20261020-eli-manifest-refresh-v2';
   const PREFIX = 'elara_live_look_v1_';
   // Mobile loads the heavy model only on explicit avatar expansion.
   const enabled = () => window.matchMedia('(min-width:701px)').matches ||
@@ -341,17 +341,23 @@
     const kind=currentKind();
     let config;
     try {
-      const result=await fetch(CONFIG,{cache:'force-cache'});
-      if(!result.ok)return false;
+      // Always revalidate the tiny catalogue; a stale cached copy can mark an uploaded VRM as unavailable.
+      const result=await fetch(CONFIG,{cache:'no-cache'});
+      if(!result.ok){stage.dataset.avatarFallbackReason='catalog-unavailable';return false;}
       config=await result.json();
-    } catch {return false;}
+    } catch {stage.dataset.avatarFallbackReason='catalog-unavailable';return false;}
     const base=config?.bases?.[kind];
-    if(!ready(base))return false;
+    if(!ready(base)){
+      stage.dataset.avatarFallbackReason=kind==='male'?'male-vrm-not-ready':'base-vrm-not-ready';
+      return false;
+    }
+    delete stage.dataset.avatarFallbackReason;
     try {
       return await mount(stage,config,kind,base);
     } catch(err) {
-      console.warn('Elara VRM: preview not ready, using technical fallback',err);
-      status(stage,'مدل VRM هنوز آماده نیست؛ نمایش نسخه آزمایشی','');
+      console.warn('Elara VRM: preview failed; displaying diagnostic prototype',err);
+      stage.dataset.avatarFallbackReason='vrm-download-or-render-failed';
+      status(stage,'مدل جدید بارگذاری نشد؛ نسخهٔ آزمایشی نمایش داده می‌شود','error');
       return false;
     }
   }
