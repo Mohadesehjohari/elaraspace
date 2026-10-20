@@ -53,7 +53,7 @@ html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
 .ef-dual-chat .ef-header{
  flex:none;min-height:76px;display:flex;align-items:center;gap:26px;justify-content:space-between;
  border-bottom:1px solid #263b79b8;background:#07122cbd;
- padding:10px clamp(15px,2.5vw,42px);box-shadow:0 3px 22px #0109215c
+ padding:calc(10px + env(safe-area-inset-top,0px)) clamp(15px,2.5vw,42px) 10px;box-shadow:0 3px 22px #0109215c
 }
 .ef-dual-chat .ef-brand{display:flex;align-items:center;gap:12px;min-width:200px}
 .ef-dual-chat .ef-brand img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 12px #a87aff8c)}
@@ -278,7 +278,7 @@ html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
 .ef-dual-chat .ef-art-footer{color:#a9abd3;text-align:center;font-size:.68rem}
 .ef-dual-chat .ef-disclosure{
  flex:none;text-align:center;color:#8199c5;background:#060e24;
- border-top:1px solid #1a2d55;padding:5px 10px;font-size:.67rem
+ border-top:1px solid #1a2d55;padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px));font-size:.67rem
 }
 .ef-dual-chat[data-persona="character"]{--ef-purple:#c464e8;--ef-purplelight:#ffbef8}
 .ef-dual-chat[data-persona="character"] .ef-welcome{
@@ -310,7 +310,7 @@ html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
  #panel-freedom .ef-entry-pics img{width:68px;height:80px}
  #panel-freedom .ef-entry h3{font-size:1.05rem}
  #panel-freedom .ef-entry p{font-size:.75rem}
- .ef-dual-chat .ef-header{min-height:58px;padding:6px 9px;gap:5px}
+ .ef-dual-chat .ef-header{min-height:58px;padding:calc(6px + env(safe-area-inset-top,0px)) 9px 6px;gap:5px}
  .ef-dual-chat .ef-brand{gap:6px;min-width:0}
  .ef-dual-chat .ef-brand img{width:34px;height:34px}
  .ef-dual-chat .ef-brand b{font-size:.95rem}
