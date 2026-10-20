@@ -12,7 +12,7 @@ test('catalog contains no falsely published Eli VRM', () => {
   assert.equal(x.parts.top.length,0);
 });
 test('browser modules have valid JavaScript syntax', () => {
-  for(const name of ['avatar-live-vrm.js','avatar-3d.js']) {
+  for(const name of ['avatar-live-vrm.js','avatar-3d.js','avatar-quick-modal.js']) {
     assert.doesNotThrow(()=>new Script(read(name), {filename:name}));
   }
 });
@@ -71,11 +71,16 @@ test('avatar supports focused click zoom, natural idle and on-demand phone VRM',
   assert.ok(loader.includes('mobileViewer()')&&live.includes('data-elara-view="avatar"'),'Phone VRM loads on request');
 });
 
-test('profile header arrow uses full-body drawer instead of static popup', () => {
-  const header=read('reference-home-shell-2026.js'),drawer=read('drawer.js');
-  assert.ok(header.includes('window.ElaraPrivateDrawer?.showHomeAvatar?.()'));
-  assert.ok(!header.includes("popup.hidden=false;"),'Old static equipped-character popup must not open');
-  assert.ok(drawer.includes("if(section==='home')homeView='avatar'"));
+test('header arrow is a standalone full-body VRM dialog; account button still owns profile drawer', () => {
+  const header=read('reference-home-shell-2026.js'),quick=read('avatar-quick-modal.js'),live=read('avatar-live-vrm.js'),html=read('index.html');
+  assert.ok(header.includes('window.ElaraAvatarQuickModal?.toggle?.(toggle)'));
+  assert.ok(!header.includes("window.ElaraPrivateDrawer?.showHomeAvatar?.()"));
+  assert.ok(quick.includes('data-elara-avatar-quick-modal')&&quick.includes('aria-modal="true"'));
+  assert.ok(quick.includes('window.ElaraLiveVRM.tryMount(stage)'));
+  assert.ok(quick.includes('if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose()'));
+  assert.ok(live.includes("enabled(stage)")&&live.includes("stage?.closest('.elara-avatar-quick-modal:not([hidden])')"));
+  assert.ok(html.includes('avatar-quick-modal.js?v=')&&html.includes('avatar-quick-modal.css?v='));
+  assert.ok(header.includes("account.addEventListener('click',()=>window.ElaraPrivateDrawer?.open?.('home'))"),'Account button behavior must be preserved');
 });
 
 test('avatar catalogue is revalidated and fallback is clearly identified', () => {
