@@ -3,7 +3,7 @@
 const ROOT='assets/ui/';
 const routeArt=Object.freeze({
  home:['homebanner1.webp','خانه'],
- tasks:['task-header-banner-bg.webp','تسک‌ها'],
+ tasks:['tasks_banner3.webp','تسک‌ها'],
  language:['language_banner_main.webp','یادگیری زبان'],
  books:['librairy_banner_main.webp','کتابخانه'],
  exercise:['workout_banner_main.webp','ورزش و سلامتی'],
