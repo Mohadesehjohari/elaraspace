@@ -1,0 +1,24 @@
+name: Elara Audio Regression
+on:
+  pull_request:
+    paths:
+      - 'elara-audio.js'
+      - 'elara-audio.css'
+      - 'focus-ambience.js'
+      - 'index.html'
+      - 'tests/elara-audio-engine.test.mjs'
+      - '.github/workflows/elara-audio-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check elara-audio.js
+      - run: node --check focus-ambience.js
+      - run: node tests/elara-audio-engine.test.mjs
