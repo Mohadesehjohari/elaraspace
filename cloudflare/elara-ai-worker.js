@@ -73,8 +73,8 @@ async function handleMemory(req,env,body){
   const u=await firebaseUser(req);
   const fromQuery=new URL(req.url).searchParams.get('persona');
   const persona=body.persona==='character'||fromQuery==='character'?'character':'fox';
-  if(req.method==='GET')return readMemory(env,u.uid,persona);
-  if(req.method==='DELETE')return forgetMemory(env,u.uid,persona);
+  if(req.method==='GET')return {...await readMemory(env,u.uid,persona),persona};
+  if(req.method==='DELETE')return {...await forgetMemory(env,u.uid,persona),persona};
   if(req.method!=='POST')fail('روش درخواست حافظه مجاز نیست.',405);
   if(body.enabled===false)return forgetMemory(env,u.uid,persona);
   let data=await readMemory(env,u.uid,persona);
@@ -108,7 +108,7 @@ async function handleMemory(req,env,body){
   }
   if(typeof body.remove_note==='string')data.notes=data.notes.filter(n=>n.id!==body.remove_note);
   await saveMemory(env,u.uid,data,persona);
-  return data;
+  return {...data,persona};
 }
 
 const mask=token=>token.slice(0,4)+'••••'+token.slice(-4);
@@ -693,7 +693,7 @@ async function handleChat(req,env,body){
           try{await saveMemory(env,u.uid,userMemory,persona);memorySaved=true;}catch{memorySaved=false;}
         }
         try{await Promise.all([saveConfig(env,c),env.AI_CONFIG.put(q.key,String(q.count+1),{expirationTtl:172800})]);}catch{console.error('Usage counter unavailable');}
-        return {text,display_name:c.settings.display_name,model_display_name:model.display_name,memory_saved:memorySaved,memory_summary:userMemory.enabled&&memorySaved?userMemory.summary:''};
+        return {text,display_name:c.settings.display_name,model_display_name:model.display_name,persona,memory_saved:memorySaved,memory_summary:userMemory.enabled&&memorySaved?userMemory.summary:''};
       }catch(e){
         lastError=e instanceof HttpError?e:new HttpError('خطای امن در اجرای Gemini.',502);
         key.error_count=(key.error_count||0)+1;
