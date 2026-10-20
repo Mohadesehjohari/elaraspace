@@ -75,7 +75,7 @@ test('header arrow is a standalone full-body VRM dialog; account button still ow
   const header=read('reference-home-shell-2026.js'),quick=read('avatar-quick-modal.js'),live=read('avatar-live-vrm.js'),html=read('index.html');
   assert.ok(header.includes('window.ElaraAvatarQuickModal?.toggle?.(toggle)'));
   assert.ok(!header.includes("window.ElaraPrivateDrawer?.showHomeAvatar?.()"));
-  assert.ok(quick.includes('data-elara-avatar-quick-modal')&&quick.includes('aria-modal="true"'));
+  assert.ok(quick.includes('root.dataset.elaraAvatarQuickModal')&&quick.includes('aria-modal="true"'));
   assert.ok(quick.includes('window.ElaraLiveVRM.tryMount(stage)'));
   assert.ok(quick.includes('if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose()'));
   assert.ok(live.includes("enabled(stage)")&&live.includes("stage?.closest('.elara-avatar-quick-modal:not([hidden])')"));
@@ -90,5 +90,5 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261020-cache-model-fix-v3'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261020-modal-gate-v4'));
 });
