@@ -184,15 +184,21 @@
     model.userData={kind,refs};return model;
   }
 
+  const mobileViewer=()=>window.matchMedia('(max-width:700px)').matches&&
+    !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
   async function mount(stage){
-    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||!desktop())return;
+    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||(!desktop()&&!mobileViewer()))return;
     stage.dataset.avatarMounted='probing';
     // Real VRM first; no model uploaded yet means zero user-visible regression.
     if(window.ElaraLiveVRM?.tryMount){
       try{if(await window.ElaraLiveVRM.tryMount(stage))return}
       catch(error){console.warn('Elara: using prototype fallback',error)}
     }
-    if(!stage.isConnected||!desktop()){stage.dataset.avatarMounted='';return}
+    if(!stage.isConnected||!desktop()){
+      stage.dataset.avatarMounted='';
+      if(mobileViewer())status(stage,'این کاراکتر در این دستگاه بارگذاری نشد؛ دوباره تلاش کن.','error');
+      return;
+    }
     stage.dataset.avatarMounted='yes';status(stage,'در حال آماده‌سازی آواتار سه‌بعدی…','loading');
     let THREE;
     try{THREE=await loadThree()}catch(error){
@@ -296,8 +302,8 @@
     window.ElaraAvatar3D={play,dance:()=>play('dance'),rebuild,get base(){return avatar?.userData?.kind||avatarBase()},version:'procedural-desktop-v2'};
   }
 
-  function discover(){if(!desktop())return;const stage=document.querySelector('[data-elara-avatar-stage]');if(stage)mount(stage)}
+  function discover(){if(!desktop()&&!mobileViewer())return;const stage=document.querySelector('[data-elara-avatar-stage]');if(stage)mount(stage)}
   window.addEventListener('elara:avatar-stage-ready',discover);
-  window.addEventListener('resize',()=>{if(desktop())discover();else if(current){current.dispose();current=null}},{passive:true});
+  window.addEventListener('resize',()=>{if(desktop()||mobileViewer())discover();else if(current){current.dispose();current=null}},{passive:true});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',discover,{once:true});else discover();
 })();

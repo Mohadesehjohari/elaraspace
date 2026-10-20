@@ -4,7 +4,9 @@
   'use strict';
   const CONFIG = 'avatar/vrm-looks.json';
   const PREFIX = 'elara_live_look_v1_';
-  const enabled = () => window.matchMedia('(min-width:701px)').matches;
+  // Mobile loads the heavy model only on explicit avatar expansion.
+  const enabled = () => window.matchMedia('(min-width:701px)').matches ||
+    !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
   const ready = item => !!item && ['preview', 'ready'].includes(item.status) && typeof item.src === 'string' && item.src.startsWith('assets/avatar/') && /\.vrm(?:\?.*)?$/.test(item.src);
   const uid = () => window.ElaraProfileSystem?.currentUid?.() || null;
   const currentKind = () => (window.ElaraProfileSystem?.readPrivate?.()?.sex === 'male' ? 'male' : 'female');
@@ -53,7 +55,9 @@
     try { renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'}); }
     catch (e) { disposeMeshes(THREE,vrm.scene); throw e; }
     // 1x desktop monitors benefit from modest supersampling; cap GPU work on HiDPI screens.
-    renderer.setPixelRatio(Math.min(2,Math.max(1.5,window.devicePixelRatio||1)));
+    renderer.setPixelRatio(window.matchMedia('(max-width:700px)').matches
+      ? Math.min(1.5,window.devicePixelRatio||1)
+      : Math.min(2,Math.max(1.5,window.devicePixelRatio||1)));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.04;
@@ -81,11 +85,14 @@
     key.position.set(2,4,5); scene.add(key);
     const rim=new THREE.DirectionalLight(0x857aff,1.15);
     rim.position.set(-3,3,-4); scene.add(rim);
-    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastTime=performance.now();
+    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full';
+    const focusHeights={full:.52,face:.865,torso:.63,legs:.30};
+    const focusDistance={full:4.6,face:1.25,torso:2.3,legs:2.6};
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
-    const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand'];
+    const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand',
+      ...['left','right'].flatMap(side=>['ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
     function captureBones() {
       for(const name of boneNames) {
         const node=vrm.humanoid?.getNormalizedBoneNode(name);
@@ -113,19 +120,31 @@
       captureBones();
       if(vrm.lookAt){vrm.lookAt.target=gazeTarget;vrm.lookAt.autoUpdate=true;}
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
-      camera.position.set(0,1.04,aspect<.8?5.35:4.6);
-      camera.lookAt(0,1.02,0);
+      focus='full';zoom=1;
+      camera.position.set(0,height*.52,aspect<.8?4.85:4.6);
+      camera.lookAt(0,height*.52,0);
     }
     attach(vrm);
 
     const interfaceNode=document.createElement('div');
     interfaceNode.className='elara-live-controls';
-    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="wardrobe">✦ ویرایش در کمد</button><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
+    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
+      '<nav class="elara-avatar-zone-buttons" aria-label="زوم کاراکتر"><button type="button" data-avatar-focus="face" aria-pressed="false">صورت</button><button type="button" data-avatar-focus="torso" aria-pressed="false">تنه</button><button type="button" data-avatar-focus="legs" aria-pressed="false">پاها</button></nav>'+
+      '<button type="button" data-live-focus-return hidden>← بازگشت به تمام‌قد</button>'+
       '<div class="elara-live-panel" data-live-panel hidden role="region" aria-label="کمد سه‌بعدی">'+
       '<header><strong>کمد Elara</strong><button type="button" data-live-action="close" aria-label="بستن کمد">×</button></header>'+
       '<div class="elara-live-tabs" role="tablist" aria-label="نوع لباس"><button type="button" data-live-tab="sets" aria-selected="true">ست‌های کامل</button><button type="button" data-live-tab="parts" aria-selected="false">تکی</button></div>'+
       '<div data-live-content></div><p class="elara-live-note" data-live-note></p></div>';
     stage.append(interfaceNode);
+    const focusReturn=interfaceNode.querySelector('[data-live-focus-return]');
+    const focusButtons=[...interfaceNode.querySelectorAll('[data-avatar-focus]')];
+    function selectFocus(next) {
+      if(!Object.hasOwn(focusHeights,next))next='full';
+      focus=next;zoom=1;
+      if(next!=='full')targetYaw=0;
+      focusReturn.hidden=next==='full';
+      focusButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.avatarFocus===next)));
+    }
     const panel=interfaceNode.querySelector('[data-live-panel]');
     const tabButtons=interfaceNode.querySelectorAll('[data-live-tab]');
     const content=interfaceNode.querySelector('[data-live-content]');
@@ -188,13 +207,35 @@
 
     interfaceNode.addEventListener('click',event=>{
       const b=event.target.closest('button');if(!b)return;
-      if(b.dataset.liveAction==='wardrobe')window.ElaraWardrobeUI?.open?.('character');
+      if(b.dataset.avatarFocus){selectFocus(b.dataset.avatarFocus);}
+      else if(b.hasAttribute('data-live-focus-return'))selectFocus('full');
       else if(b.dataset.liveAction==='front'){targetYaw=0;mouse.x=0;mouse.y=0;}
     });
-    function down(e){if(e.button!==0)return;pointer=e.pointerId;lastX=e.clientX;renderer.domElement.setPointerCapture(e.pointerId);stage.classList.add('is-dragging');e.preventDefault();}
-    function move(e){if(pointer!==e.pointerId)return;targetYaw+=(e.clientX-lastX)*.009;lastX=e.clientX;e.preventDefault();}
-    function up(e){if(pointer!==e.pointerId)return;pointer=null;stage.classList.remove('is-dragging');if(renderer.domElement.hasPointerCapture?.(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);}
-    function wheel(e){zoom=Math.max(.77,Math.min(1.35,zoom+Math.sign(e.deltaY)*.045));e.preventDefault();}
+    const raycaster=new THREE.Raycaster(),rayPoint=new THREE.Vector2();
+    function focusAt(e) {
+      const rect=canvas.getBoundingClientRect();
+      if(!rect.width||!rect.height)return;
+      rayPoint.set((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1));
+      raycaster.setFromCamera(rayPoint,camera);
+      const hits=raycaster.intersectObject(vrm.scene,true);
+      if(!hits.length)return; // Taps on the empty background are ignored.
+      const local=anchor.worldToLocal(hits[0].point.clone());
+      selectFocus(local.y>height*.75?'face':local.y>height*.44?'torso':'legs');
+    }
+    function down(e){
+      if(e.button!==undefined&&e.button!==0)return;
+      pointer=e.pointerId;lastX=downX=e.clientX;lastY=downY=e.clientY;downAt=performance.now();
+      renderer.domElement.setPointerCapture?.(e.pointerId);stage.classList.add('is-dragging');e.preventDefault();
+    }
+    function move(e){if(pointer!==e.pointerId)return;targetYaw+=(e.clientX-lastX)*.008;lastX=e.clientX;lastY=e.clientY;e.preventDefault();}
+    function up(e){
+      if(pointer!==e.pointerId)return;
+      const click=Math.hypot(e.clientX-downX,e.clientY-downY)<7&&performance.now()-downAt<550;
+      pointer=null;stage.classList.remove('is-dragging');
+      if(renderer.domElement.hasPointerCapture?.(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);
+      if(click&&e.type==='pointerup')focusAt(e);
+    }
+    function wheel(e){zoom=Math.max(.66,Math.min(1.75,zoom+Math.sign(e.deltaY)*.055));e.preventDefault();}
     const canvas=renderer.domElement;
     canvas.addEventListener('pointerdown',down);
     canvas.addEventListener('pointermove',move);
@@ -218,17 +259,21 @@
       const amp=reduced?.12:1, t=elapsed;
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
-      const dest=(viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8?5.35:4.6)*zoom;
-      camera.position.z+=(dest-camera.position.z)*Math.min(1,dt*8);
-      camera.lookAt(0,height*.52,0);
+      const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
+      const dest=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
+      const targetHeight=height*focusHeights[focus],cameraFollow=1-Math.exp(-dt*5);
+      camera.position.z+=(dest-camera.position.z)*cameraFollow;
+      camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
+      camera.lookAt(0,targetHeight,0);
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
       gazeTarget.position.set(smoothMouse.x*.7,smoothMouse.y*.4,-2.6);
       poseBone('neck',-.045*smoothMouse.y*amp,.07*smoothMouse.x*amp,Math.sin(t*.47)*.004*amp);
       poseBone('head',-.065*smoothMouse.y*amp+Math.sin(t*.42)*.009*amp,.105*smoothMouse.x*amp+Math.sin(t*.5)*.014*amp,Math.sin(t*.38)*.008*amp);
-      poseBone('chest',Math.sin(t*1.55)*.009*amp,Math.sin(t*.37)*.008*amp,Math.sin(t*.51)*.005*amp);
-      poseBone('spine',Math.sin(t*1.55)*.005*amp,0,Math.sin(t*.46)*.006*amp);
+      const breath=Math.sin(t*1.5);
+      poseBone('chest',breath*.016*amp,Math.sin(t*.37)*.008*amp,Math.sin(t*.51)*.005*amp);
+      poseBone('spine',breath*.008*amp,0,Math.sin(t*.46)*.006*amp);
       // VRM normalized A/rest pose: arms nearly vertical with slightly flexed elbows.
       poseBone('leftShoulder',0,0,-.025);
       poseBone('rightShoulder',0,0,.025);
@@ -236,8 +281,18 @@
       poseBone('rightUpperArm',-.06,0,1.34-Math.sin(t*.7+.3)*.012*amp);
       poseBone('leftLowerArm',-.12,0,-.08);
       poseBone('rightLowerArm',-.12,0,.08);
-      poseBone('leftHand',0,0,-.04);
-      poseBone('rightHand',0,0,.04);
+      poseBone('leftHand',.025*amp,0,-.09+Math.sin(t*.39)*.01*amp);
+      poseBone('rightHand',.025*amp,0,.09-Math.sin(t*.39+.7)*.01*amp);
+      // Resting finger flexion with tiny independent movement. Avoid T-pose hands.
+      for(const side of ['left','right']){
+        const sign=side==='left'?1:-1;
+        for(const [finger,index] of [['Index',0],['Middle',1],['Ring',2],['Little',3]]){
+          const relax=.095+index*.019+Math.sin(t*.56+index*.57+(sign>0?0:1))*.009*amp;
+          poseBone(side+finger+'Proximal',0,0,sign*relax);
+          poseBone(side+finger+'Intermediate',0,0,sign*(.07+index*.008));
+        }
+        poseBone(side+'ThumbProximal',0,0,sign*.035);
+      }
       const hips=bones.hips;
       if(hips){hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.55)*.003*amp;}
       if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
@@ -259,7 +314,7 @@
       stage.dataset.avatarMounted='';
       if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
     }
-    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,get look(){return look.id;},get kind(){return kind;}};
+    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,get look(){return look.id;},get kind(){return kind;}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
