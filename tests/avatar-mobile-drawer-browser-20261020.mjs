@@ -26,21 +26,21 @@ try {
     const menu=page.locator('.elara-private-drawer-panel>.drawer-menu');
     const arrow=page.locator('[data-elara-drawer-toggle]');
     if(width===390){
-      assert.equal(await menu.isVisible(),true,'Phone should start with original menu');
       assert.equal(await arrow.isVisible(),true,'Phone must show an under-banner arrow');
-      assert.equal(await page.locator('[data-elara-avatar-stage]').count(),0,'Do not load the VRM while phone menu is open');
-      await arrow.click();
+      assert.equal(await menu.isVisible(),false,'Phone profile must open directly on the 3D character');
       const stage=page.locator('.elara-private-drawer-panel [data-elara-avatar-stage]');
       await stage.waitFor({state:'visible',timeout:12000});
-      assert.equal(await menu.isVisible(),false,'Menu must collapse completely behind character');
       const box=await stage.boundingBox();
       assert.ok(box&&box.width>275&&box.height>320,'Phone full-height avatar area '+JSON.stringify(box));
-      assert.equal(await arrow.getAttribute('aria-expanded'),'false','Accordion must signal character view');
+      assert.equal(await arrow.getAttribute('aria-expanded'),'false','Menu is collapsed on initial character view');
       await page.screenshot({path:'artifacts/avatar-mobile/phone-avatar.png'});
       await arrow.click();
-      assert.equal(await menu.isVisible(),true,'Second arrow press restores menu');
-      assert.equal(await stage.isVisible(),false,'Character must be hidden under menu');
+      assert.equal(await menu.isVisible(),true,'Under-banner arrow reveals settings');
+      assert.equal(await stage.isVisible(),false,'Character must be hidden while menu is shown');
       await page.screenshot({path:'artifacts/avatar-mobile/phone-menu.png'});
+      await arrow.click();
+      assert.equal(await menu.isVisible(),false,'Second arrow press restores full-body character');
+      assert.equal(await stage.isVisible(),true,'Full-body avatar visible again');
     }else {
       assert.equal(await arrow.isVisible(),false,'Desktop accordion MUST NOT be visible');
       assert.equal(await menu.isVisible(),true,'Desktop settings navigation preserved');
