@@ -184,17 +184,20 @@
     model.userData={kind,refs};return model;
   }
 
+  const quickViewer=stage=>!!stage?.closest('.elara-avatar-quick-modal:not([hidden])');
+  const canRender=stage=>desktop()||mobileViewer()||quickViewer(stage);
   const mobileViewer=()=>window.matchMedia('(max-width:700px)').matches&&
     !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
-  async function mount(stage){
-    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||(!desktop()&&!mobileViewer()))return;
+  async function mount(stage,{skipVRM=false}={}){
+    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||!canRender(stage))return false;
+    if(current&&current.stage!==stage){current.dispose();current=null;}
     stage.dataset.avatarMounted='probing';
     // Real VRM first; no model uploaded yet means zero user-visible regression.
-    if(window.ElaraLiveVRM?.tryMount){
+    if(!skipVRM&&window.ElaraLiveVRM?.tryMount){
       try{if(await window.ElaraLiveVRM.tryMount(stage))return}
       catch(error){console.warn('Elara: using prototype fallback',error)}
     }
-    if(!stage.isConnected||!desktop()){
+    if(!stage.isConnected||(!desktop()&&!quickViewer(stage))){
       stage.dataset.avatarMounted='';
       if(mobileViewer())status(stage,'این کاراکتر در این دستگاه بارگذاری نشد؛ دوباره تلاش کن.','error');
       return;
@@ -205,7 +208,7 @@
       console.error('Elara Avatar: Three.js failed to load',error);
       status(stage,'نمای سه‌بعدی در دسترس نیست.','error');stage.dataset.avatarMounted='error';return;
     }
-    if(!stage.isConnected||!desktop()){stage.dataset.avatarMounted='';return}
+    if(!stage.isConnected||!canRender(stage)){stage.dataset.avatarMounted='';return false}
     const viewport=stage.querySelector('[data-elara-avatar-viewport]');if(!viewport)return;
     let renderer;
     try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true})}
@@ -221,7 +224,8 @@
     viewport.replaceChildren(renderer.domElement);
 
     const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(29,1,.1,50);
-    camera.position.set(0,3.05,11.0);camera.lookAt(0,3.05,0);let cameraZ=11.0;
+    const quick=quickViewer(stage),initialZ=quick?14.1:11.0;
+    camera.position.set(0,3.05,initialZ);camera.lookAt(0,3.05,0);let cameraZ=initialZ;
     scene.add(new THREE.HemisphereLight(0xdce5ff,0x29354a,2.4));
     const key=new THREE.DirectionalLight(0xffe9e0,4.0);key.position.set(3.4,7.2,5.4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
     const rim=new THREE.DirectionalLight(0x937fff,3.1);rim.position.set(-4.2,5.6,-3.4);scene.add(rim);
@@ -250,7 +254,7 @@
       const dx=e.clientX-lastX;lastX=e.clientX;const d=dx*.011;targetYaw+=d;velocity=d*2.8;lastUserAction=performance.now();e.preventDefault();
     }
     function up(e){if(pointerId!==e.pointerId)return;pointerId=null;stage.classList.remove('is-dragging');renderer.domElement.releasePointerCapture?.(e.pointerId)}
-    function wheel(e){cameraZ=clamp(cameraZ+Math.sign(e.deltaY)*.38,9.45,12.8);lastUserAction=performance.now();e.preventDefault()}
+    function wheel(e){cameraZ=clamp(cameraZ+Math.sign(e.deltaY)*.38,quick?11.8:9.45,quick?18:12.8);lastUserAction=performance.now();e.preventDefault()}
     renderer.domElement.addEventListener('pointerdown',down,{passive:false});renderer.domElement.addEventListener('pointermove',move,{passive:false});
     renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',wheel,{passive:false});
 
@@ -263,16 +267,16 @@
       if(reason==='vrm-download-or-render-failed')return 'بارگذاری VRM جدید ناموفق بود؛ مدل آزمایشی نمایش داده می‌شود';
       return 'مدل سه‌بعدی آزمایشی';
     };
-    status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');
-    const privateChange=()=>{rebuild();status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');};
+    if(quick)status(stage,'');else status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');
+    const privateChange=()=>{rebuild();if(!quick)status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');};
     window.addEventListener('elara:profile-private-changed',privateChange);
 
     function play(name='dance'){
       if(name==='dance'){dancingUntil=performance.now()+7200;lastUserAction=performance.now();return true}
       return false;
     }
-    function dispose(){if(disposed)return;disposed=true;ro.disconnect();window.removeEventListener('elara:profile-private-changed',privateChange);renderer.dispose();stage.dataset.avatarMounted=''}
-    function active(){return stage.isConnected&&desktop()&&stage.offsetParent!==null&&!document.hidden}
+    function dispose(){if(disposed)return;disposed=true;ro.disconnect();window.removeEventListener('elara:profile-private-changed',privateChange);renderer.dispose();stage.dataset.avatarMounted='';if(current?.stage===stage)current=null;}
+    function active(){return stage.isConnected&&(desktop()||quickViewer(stage))&&stage.offsetParent!==null&&!document.hidden}
 
     function frame(now){
       if(disposed)return;requestAnimationFrame(frame);
@@ -308,9 +312,15 @@
 
     current={stage,play,dispose,rebuild};
     window.ElaraAvatar3D={play,dance:()=>play('dance'),rebuild,get base(){return avatar?.userData?.kind||avatarBase()},version:'procedural-desktop-v2'};
+    return true;
   }
 
-  function discover(){if(!desktop()&&!mobileViewer())return;const stage=document.querySelector('[data-elara-avatar-stage]');if(stage)mount(stage)}
+  // Explicit, isolated fallback for the arrow popup when a real VRM is not uploaded yet.
+  window.ElaraProceduralPreview={
+    mount:stage=>mount(stage,{skipVRM:true}),
+    dispose:stage=>{if(current?.stage===stage)current.dispose();}
+  };
+  function discover(){if(!desktop()&&!mobileViewer())return;const stage=document.querySelector('.elara-private-drawer [data-elara-avatar-stage]')||document.querySelector('[data-elara-avatar-stage]');if(stage)mount(stage)}
   window.addEventListener('elara:avatar-stage-ready',discover);
   window.addEventListener('resize',()=>{if(desktop()||mobileViewer())discover();else if(current){current.dispose();current=null}},{passive:true});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',discover,{once:true});else discover();
