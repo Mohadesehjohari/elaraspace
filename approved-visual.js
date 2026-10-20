@@ -149,10 +149,16 @@ function drawWardrobe(){
  const host=$('wardrobe-main'),system=profileSystem();if(!host||!system)return;if(wardrobeOwnerUid&&uid()!==wardrobeOwnerUid){closeWardrobe(true);return}
  const tabs=[['character','کاراکتر سه‌بعدی','user'],['avatar','آواتار','user'],['banner','بنر پروفایل','home'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
  if(wardrobeTab==='character'){
+   const privateAppearance=system.readPrivate?.()||{};
+   const activeGender=['male','female'].includes(privateAppearance.avatarGender)?privateAppearance.avatarGender:(privateAppearance.sex==='male'?'male':'female');
+   const genderPicker='<div class="elara-character-gender" role="group" aria-label="جنسیت ظاهری کاراکتر">'+
+     '<button type="button" data-elara-avatar-gender="female" aria-pressed="'+(activeGender==='female')+'">زن</button>'+
+     '<button type="button" data-elara-avatar-gender="male" aria-pressed="'+(activeGender==='male')+'">مرد</button>'+
+     '</div>';
    windowRoot.classList.add('is-character-tab');
    host.innerHTML='<nav class="wardrobe-p3-tabs" aria-label="دسته‌بندی کمد">'+tabs.map(([id,label,ico])=>'<button type="button" data-wardrobe-tab="'+id+'" aria-current="'+(id===wardrobeTab?'true':'false')+'">'+icon(ico)+esc(label)+'</button>').join('')+'</nav>'+
      '<div class="elara-character-wardrobe" dir="rtl"><div class="elara-character-wardrobe-stage" data-elara-wardrobe-avatar-slot></div>'+
-     '<section class="elara-character-wardrobe-items" aria-label="ظاهر سه‌بعدی"><h3>ظاهر کاراکتر</h3><div data-elara-wardrobe-looks><p class="muted">در حال آماده‌سازی کمد کاراکتر…</p></div></section></div>';
+     '<section class="elara-character-wardrobe-items" aria-label="ظاهر سه‌بعدی"><h3>ظاهر کاراکتر</h3>'+genderPicker+'<div data-elara-wardrobe-looks><p class="muted">در حال آماده‌سازی کمد کاراکتر…</p></div></section></div>';
    const slot=host.querySelector('[data-elara-wardrobe-avatar-slot]'),stage=window.ElaraPrivateDrawer?.ensureAvatarStage?.();
    if(window.matchMedia('(min-width:701px)').matches){
      if(stage&&slot){slot.append(stage);stage.classList.add('is-wardrobe-stage');window.dispatchEvent(new Event('elara:avatar-stage-ready'));}
@@ -222,6 +228,20 @@ function wire(){
   if(event.target.closest('[data-close-wardrobe],[data-back-wardrobe]')){closeWardrobe();return}
   if(event.target.closest('[data-lang-leitner]')){window.ElaraOpen?.('words');return}
   if(event.target.closest('[data-lang-review]')){window.ElaraOpen?.('words');return}
+  const gender=event.target.closest('[data-elara-avatar-gender]');
+  if(gender&&windowRoot&&!windowRoot.hidden&&windowRoot.contains(gender)){
+   const kind=gender.dataset.elaraAvatarGender;
+   if(kind==='female'||kind==='male'){
+    const profile=profileSystem();
+    if(profile?.readPrivate&&profile?.writePrivate){
+     const current=profile.readPrivate();
+     const active=['male','female'].includes(current.avatarGender)?current.avatarGender:(current.sex==='male'?'male':'female');
+     if(active!==kind)profile.writePrivate({avatarGender:kind});
+     windowRoot.querySelectorAll('[data-elara-avatar-gender]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.elaraAvatarGender===kind)));
+    }
+   }
+   return;
+  }
   const tab=event.target.closest('[data-wardrobe-tab]');if(tab){wardrobeTab=tab.dataset.wardrobeTab;selectedPreview=null;drawWardrobe();return}
   const group=event.target.closest('[data-wardrobe-group]');if(group){browseGroup=group.dataset.wardrobeGroup;selectedPreview=null;drawWardrobe();return}
   const more=event.target.closest('[data-wardrobe-more]');if(more){showAll[more.dataset.wardrobeMore]=true;drawWardrobe();return}
