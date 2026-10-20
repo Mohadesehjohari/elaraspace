@@ -1,181 +1,231 @@
-/* Freedom Fox companion: collapsible dashboard card and full-screen real AI chat.
- * Uses the existing ElaraFreedomAI form, memory and the admin-configured gateway.
- * Never duplicates the AI transport, messages, settings or authentication.
+/* Elara dual-persona chat: full-viewport chooser, Fox / Character workspaces.
+ * Uses the existing authenticated ElaraFreedomAI transport, memory, and site actions.
+ * Chat views are presentation: no impersonation of real people, no silent data writes.
  */
-(() => {
-  'use strict';
-  const panel = () => document.getElementById('panel-freedom');
-  const VIEW = 'fox-chat';
-  const FOX = 'assets/ui/fox-loved.webp';
-  // Show the companion immediately on Freedom instead of deferring this visible art.
-  const warmFox=()=>{
-    if(document.querySelector('link[data-elara-fox-preload]'))return;
-    const link=document.createElement('link');
-    link.rel='preload';link.as='image';link.href=FOX;link.fetchPriority='high';
-    link.dataset.elaraFoxPreload='1';document.head.appendChild(link);
-  };
-  if(location.hash.startsWith('#freedom'))warmFox();
-  window.addEventListener('elara:open',e=>{if(e?.detail?.tab==='freedom')warmFox()});
-
-  let card = null;
-  let placeholder = null;
-  let overlay = null;
-  let opener = null;
-  let syncing = false;
-
-  const chatState = () => location.hash === '#freedom' && history.state?.elaraFreedomView === VIEW;
-  const currentUser = () => window.ElaraAccount?.user?.uid || 'guest';
-
-  function latestPreview() {
-    try {
-      const rows = JSON.parse(localStorage.getItem('elara_freedom_ai_chat_v1_' + currentUser()) || '[]');
-      if (!Array.isArray(rows)) return '';
-      const last = rows.slice().reverse().find(row => typeof row?.text === 'string' && row.text.trim());
-      return last ? last.text.trim().slice(0,105) + (last.text.trim().length > 105 ? '…' : '') : '';
-    } catch { return ''; }
+(()=>{
+'use strict';
+const VIEW='fox-chat';
+const FOX='assets/ui/fox-loved.webp';
+const CHARACTER='assets/avatars/level-05-f-square.png';
+const NIGHT='assets/ui/Celestial Mirror Lake at Night.webp';
+const panel=()=>document.getElementById('panel-freedom');
+const route=()=>location.hash==='#freedom'&&history.state?.elaraFreedomView===VIEW;
+let card=null,overlay=null,placeholder=null,opener=null,mode='',focusMode=false,syncing=false;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+const persona=m=>m==='character'?{name:'الارا · کاراکتر',nameEn:'ELARA CHARACTER',desc:'همراه خیال‌انگیز برای حرف‌زدن، ایده‌ها و برنامه‌ها',img:CHARACTER}:
+ {name:'الارا فاکس',nameEn:'ELARA FOX',desc:'روباه مهربون و باهوشت برای گفتگو و برنامه‌ریزی',img:FOX};
+const signed=()=>!!window.ElaraAccount?.user?.uid;
+function warm(){
+ if(document.querySelector('link[data-elara-fox-preload]'))return;
+ const l=document.createElement('link');l.rel='preload';l.as='image';l.href=FOX;l.fetchPriority='high';
+ l.dataset.elaraFoxPreload='1';document.head.append(l);
+}
+if(location.hash.startsWith('#freedom'))warm();
+window.addEventListener('elara:open',e=>{if(e.detail?.tab==='freedom')warm()});
+function recent(){
+ const rows=window.ElaraFreedomAI?.recent?.()||[];
+ return rows.filter(r=>r.role==='user'&&typeof r.text==='string').slice(-7).reverse();
+}
+function ensureCard(){
+ const p=panel();if(!p||overlay)return;
+ const dashboard=p.querySelector('.fd-dashboard');
+ const features=dashboard?.querySelector('.fd-features')||p.querySelector('.freedom-features');
+ const ai=p.querySelector('.freedom-ai-card');
+ if(!features||!ai)return;
+ let box=p.querySelector('.freedom-fox-chat-box');
+ if(!box){
+  box=document.createElement('section');box.className='freedom-fox-chat-box';
+  box.innerHTML='<div class="ef-entry">'+
+    '<div class="ef-entry-text"><span class="ef-overline">ELARA · YOUR COMPANIONS</span>'+
+    '<h3>امروز با کدوم همراهت حرف می‌زنی؟</h3>'+
+    '<p>دو شخصیت، دو دنیای متفاوت؛ گفتگو، خاطره‌ها و برنامه‌هات کنار تو هستند.</p>'+
+    '<button type="button" class="ef-entry-open" data-fox-open>ورود به دنیای چت <span aria-hidden="true">↗</span></button></div>'+
+    '<div class="ef-entry-pics" aria-hidden="true"><img src="'+CHARACTER+'" alt="" width="130" height="140" loading="lazy" decoding="async"><img src="'+FOX+'" alt="" width="130" height="140" loading="eager" fetchpriority="high"></div></div>';
+  features.insertAdjacentElement('afterend',box);
+ }
+ if(ai.parentNode!==box)box.append(ai);
+ card=ai;
+}
+function markup(){
+ return '<div class="ef-shell" dir="rtl">'+
+  '<header class="ef-header"><div class="ef-brand"><img src="'+FOX+'" alt="" width="53" height="53"><span><b>ELARA <em>AI</em></b><small>دنیای گفتگوهای تو ✦</small></span></div>'+
+   '<div class="ef-global-nav"><button type="button" data-ef-chooser>انتخاب شخصیت</button><button type="button" data-ef-memory>حافظه من</button><button type="button" data-ef-focus>⛶ <span>تمام‌صفحه</span></button></div>'+
+   '<button type="button" class="ef-header-close" data-fox-close aria-label="بازگشت به آزادی">← بازگشت به آزادی</button></header>'+
+  '<section class="ef-chooser" data-ef-chooser-view aria-label="انتخاب همراه گفتگو">'+
+   '<span class="ef-spark">✦ YOUR OWN LITTLE UNIVERSE ✦</span>'+
+   '<h1>امروز دلت می‌خواد با کی حرف بزنی؟</h1>'+
+   '<p>یکی از همراه‌هات رو انتخاب کن. هر دو به گفتگوی هوشمند الارا و ابزارهای سایت دسترسی دارن.</p>'+
+   '<div class="ef-choose-grid">'+
+    '<button type="button" class="ef-choice ef-choice-character" data-ef-persona="character"><div class="ef-choice-art"><img src="'+CHARACTER+'" alt="تصویر کاراکتر الارا" decoding="async"><span class="ef-choice-glow"></span></div><span class="ef-choice-copy"><small>ELARA · CHARACTER</small><strong>صحبت با کاراکتر</strong><span>برای قصه، درس، خلاقیت و برنامه‌ریزی در کنار یک همراه خیال‌انگیز</span><b>شروع گفتگو ↗</b></span></button>'+
+    '<button type="button" class="ef-choice ef-choice-fox" data-ef-persona="fox"><div class="ef-choice-art"><img src="'+FOX+'" alt="تصویر روباه الارا" decoding="async" fetchpriority="high"><span class="ef-choice-glow"></span></div><span class="ef-choice-copy"><small>ELARA · FOX</small><strong>صحبت با الارا فاکس</strong><span>برای حرف‌های روزمره، هدف‌ها و همراهی دوست‌داشتنی روباهت</span><b>شروع گفتگو ↗</b></span></button>'+
+   '</div><span class="ef-choose-note">گفتگوها خصوصی‌اند؛ ذخیره ابری حافظه فقط با انتخاب خودت فعال می‌شود.</span></section>'+
+  '<section class="ef-workspace" data-ef-workspace hidden>'+
+   '<aside class="ef-sidebar"><button type="button" class="ef-new-chat" data-ef-new>＋ گفتگوی جدید</button>'+
+     '<button type="button" class="ef-sidebar-link is-active" data-ef-chooser>✧ تغییر شخصیت</button>'+
+     '<button type="button" class="ef-sidebar-link" data-ef-memory>▤ حافظه شخصی</button>'+
+     '<button type="button" class="ef-sidebar-link" data-ef-tools>✦ ابزارهای الارا</button>'+
+     '<h4>پیام‌های اخیر</h4><div data-ef-recent class="ef-recent"></div>'+
+     '<div class="ef-sidebar-footer"><span class="ef-live-pulse"></span><span>الارا آماده گفتگوه</span></div></aside>'+
+   '<main class="ef-main"><div class="ef-welcome"><span class="ef-welcome-overline">✦ ELARA AI COMPANION</span><h2 data-ef-heading>به دنیای الارا خوش اومدی</h2><p data-ef-subhead>می‌تونیم با هم حرف بزنیم، درس بخونیم و برنامه بچینیم.</p>'+
+    '<div class="ef-shortcuts"><button type="button" data-ef-prompt="برای این هفته برام برنامه‌ریزی کن">▦ برنامه‌ریزی روزانه</button>'+
+    '<button type="button" data-ef-prompt="برای یادگیری زبان بهم کمک کن">◎ تمرین زبان</button>'+
+    '<button type="button" data-ef-prompt="با هم برای هدف‌هام برنامه بچینیم">✧ ایده‌پردازی</button></div></div>'+
+    '<div class="ef-conversation"></div>'+
+   '</main>'+
+   '<aside class="ef-art-column"><div class="ef-art-frame"><img data-ef-art src="'+FOX+'" alt="همراه الارا"><div class="ef-art-shimmer"></div><span class="ef-art-speech" data-ef-speech>من اینجام! هر چی توی ذهنت هست بپرس ♡</span></div>'+
+    '<div class="ef-art-profile"><div><span class="ef-online-dot"></span><small>ONLINE · AI</small><strong data-ef-name>الارا فاکس</strong><p data-ef-description>همراه هوشمند تو</p></div><span class="ef-profile-star">✦</span></div>'+
+    '<div class="ef-art-tools"><b>پیشنهادهای سریع ⚡</b>'+
+     '<div class="ef-tool-grid"><button type="button" data-ef-prompt="برای درس خوندن کمکم کن">✎ کمک در درس</button><button type="button" data-ef-prompt="برای سفر یک برنامه خوب بده">♧ سفر و تفریح</button><button type="button" data-ef-prompt="یک هدف با ریزقدم پیشنهاد بده">⌁ هدف و برنامه</button><button type="button" data-ef-prompt="چند ایده خلاقانه بهم بده">✧ خلاقیت</button></div></div>'+
+    '<div class="ef-art-footer">✦ همراهی هوشمند و امن برای ایده‌هات</div></aside>'+
+   '</section>'+
+  '<div class="ef-disclosure">الارا هوش مصنوعی است، نه انسان. تغییر تسک، هدف و عادت فقط پس از تأیید تو انجام می‌شود.</div>'+
+ '</div>';
+}
+function overlayRender(){
+ if(overlay)return;
+ ensureCard();
+ if(!card?.isConnected)return;
+ opener=document.activeElement;
+ const layer=document.createElement('section');
+ layer.className='freedom-fox-overlay ef-dual-chat';layer.setAttribute('role','dialog');
+ layer.setAttribute('aria-modal','true');layer.setAttribute('aria-label','چت الارا');layer.dir='rtl';
+ layer.innerHTML=markup();
+ placeholder=document.createComment('Original Elara Freedom AI card');
+ card.parentNode.insertBefore(placeholder,card);
+ layer.querySelector('.ef-conversation').append(card);
+ document.body.append(layer);
+ overlay=layer;mode='';focusMode=false;
+ document.documentElement.classList.add('freedom-fox-open');
+ document.body.classList.add('freedom-fox-open');
+ renderUI();
+ layer.querySelector('[data-ef-persona="fox"]')?.focus();
+}
+function renderUI(){
+ if(!overlay)return;
+ const choosing=!mode;
+ overlay.dataset.persona=mode||'choose';
+ overlay.classList.toggle('ef-immersive',focusMode&&!!mode);
+ overlay.querySelector('[data-ef-chooser-view]').hidden=!choosing;
+ overlay.querySelector('[data-ef-workspace]').hidden=choosing;
+ const button=overlay.querySelector('[data-ef-focus]');
+ if(button){button.hidden=choosing;button.querySelector('span').textContent=focusMode?'نمایش پنل‌ها':'تمام‌صفحه';button.setAttribute('aria-pressed',String(focusMode));}
+ overlay.querySelectorAll('[data-ef-chooser]').forEach(b=>b.hidden=choosing);
+ overlay.querySelectorAll('[data-ef-memory]').forEach(b=>b.hidden=choosing);
+ if(choosing)return;
+ const p=persona(mode);
+ const set=(q,v)=>{const el=overlay.querySelector(q);if(el)el.textContent=v};
+ set('[data-ef-heading]',mode==='character'?'سلام! به دنیای الارا خوش اومدی 🌙':'سلام! بیا با هم یه ماجراجویی شروع کنیم ✨');
+ set('[data-ef-subhead]',p.desc);
+ set('[data-ef-name]',p.name);set('[data-ef-description]',p.desc);
+ set('[data-ef-speech]',mode==='character'?'من اینجام... از خیال‌هات تا برنامه‌های فردا باهاتم 💜':'سلام دوست من! بیا برای ایده‌هامون نقشه بکشیم ✨');
+ const art=overlay.querySelector('[data-ef-art]');if(art){art.src=p.img;art.alt=p.name}
+ updateRecent();
+}
+function choose(value){
+ if(!overlay||!['fox','character'].includes(value))return;
+ mode=value;focusMode=false;
+ renderUI();
+ window.ElaraFreedomAI?.render?.();
+ updateRecent();
+ overlay.querySelector('[data-f-ai-form] textarea')?.focus();
+}
+function updateRecent(){
+ if(!overlay||!mode)return;
+ const box=overlay.querySelector('[data-ef-recent]');if(!box)return;
+ const rows=recent();
+ box.innerHTML=rows.length?rows.map(row=>'<div class="ef-recent-item" title="'+esc(row.text)+'"><span>✦</span><span>'+esc(row.text.slice(0,65))+'</span></div>').join(''):'<p class="ef-recent-empty">اینجا گفتگوهای تازه‌ات دیده می‌شن.</p>';
+}
+function restore(){
+ if(!overlay)return;
+ if(placeholder?.parentNode&&card)placeholder.replaceWith(card);
+ else panel()?.querySelector('.freedom-fox-chat-box')?.append(card);
+ if(document.fullscreenElement===overlay)void document.exitFullscreen?.().catch(()=>{});
+ overlay.remove();overlay=null;placeholder=null;mode='';focusMode=false;
+ document.documentElement.classList.remove('freedom-fox-open');
+ document.body.classList.remove('freedom-fox-open');
+ if(opener?.isConnected)opener.focus();opener=null;
+}
+function sync(){
+ if(syncing)return;syncing=true;
+ try{if(route())overlayRender();else if(overlay)restore();
+ if(!overlay&&location.hash==='#freedom')ensureCard()}finally{syncing=false}
+}
+function open(){
+ if(overlay||location.hash!=='#freedom'||panel()?.querySelector('.freedom-subpage-shell'))return;
+ ensureCard();if(!card?.isConnected)return;
+ const prev=history.state||{};
+ history.pushState({...prev,elaraTab:'freedom',elaraFreedomView:VIEW,elaraDepth:(Number(prev.elaraDepth)||0)+1},
+  '',location.pathname+location.search+'#freedom');
+ overlayRender();
+}
+function close(){
+ if(!overlay)return;
+ if(route())history.back();else restore();
+}
+function toggleFocus(){
+ if(!overlay||!mode)return;
+ focusMode=!focusMode;renderUI();
+ // CSS immersive layout works across all browsers; native fullscreen enhances it.
+ if(focusMode&&overlay.requestFullscreen)void overlay.requestFullscreen().catch(()=>{});
+ else if(!focusMode&&document.fullscreenElement===overlay)void document.exitFullscreen?.().catch(()=>{});
+}
+function chooser(){
+ if(!overlay)return;
+ focusMode=false;
+ if(document.fullscreenElement===overlay)void document.exitFullscreen?.().catch(()=>{});
+ mode='';renderUI();
+ overlay.querySelector('[data-ef-persona="fox"]')?.focus();
+}
+function focusTrap(event){
+ if(!overlay||event.key!=='Tab')return;
+ const visible=[...overlay.querySelectorAll('button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]')]
+  .filter(x=>!x.closest('[hidden]')&&x.getClientRects().length);
+ if(!visible.length)return;
+ if(event.shiftKey&&document.activeElement===visible[0]){event.preventDefault();visible.at(-1).focus()}
+ else if(!event.shiftKey&&document.activeElement===visible.at(-1)){event.preventDefault();visible[0].focus()}
+}
+function start(){
+ document.addEventListener('click',event=>{
+  const target=event.target;if(!target?.closest)return;
+  if(target.closest('[data-fox-open]')){event.preventDefault();event.stopPropagation();open();return}
+  if(!overlay||!overlay.contains(target))return;
+  if(target.closest('[data-fox-close]')){event.preventDefault();close();return}
+  const p=target.closest('[data-ef-persona]');if(p){event.preventDefault();choose(p.dataset.efPersona);return}
+  if(target.closest('[data-ef-chooser]')){chooser();return}
+  if(target.closest('[data-ef-focus]')){toggleFocus();return}
+  if(target.closest('[data-ef-memory]')){
+   const m=overlay.querySelector('.freedom-ai-memory');
+   if(m){m.querySelector('details')?.setAttribute('open','');m.scrollIntoView({behavior:'smooth',block:'nearest'})}
+   else overlay.querySelector('[data-f-ai-host]')?.scrollIntoView({behavior:'smooth'});
+   return;
   }
-
-  function updatePreview() {
-    const node = panel()?.querySelector('[data-fox-preview]');
-    if (node) node.textContent = latestPreview() || 'هرچی توی ذهنت هست بهم بگو… من اینجام که به حرف‌هات گوش بدم.';
+  if(target.closest('[data-ef-new]')){
+   if(window.ElaraFreedomAI?.startNewChat?.()){
+    window.ElaraAIPlans?.invalidate?.();window.ElaraFreedomAI.render();updateRecent();
+   }return;
   }
-
-  function ensureCard() {
-    const p = panel();
-    if (!p || overlay) return;
-    const dashboard = p.querySelector('.fd-dashboard');
-    const features = dashboard?.querySelector('.fd-features') || p.querySelector('.freedom-features');
-    const ai = p.querySelector('.freedom-ai-card');
-    if (!features || !ai) return;
-    let box = p.querySelector('.freedom-fox-chat-box');
-    if (!box) {
-      box = document.createElement('section');
-      box.className = 'freedom-fox-chat-box';
-      box.setAttribute('aria-label', 'گفت‌وگو با روباه الارا');
-      box.innerHTML =
-        '<button class="freedom-fox-preview" type="button" data-fox-open aria-label="بازکردن گفت‌وگوی تمام‌صفحه با روباه الارا">' +
-        '<img src="' + FOX + '" alt="روباه الارا" width="92" height="92" loading="eager" decoding="async" fetchpriority="high">' +
-        '<span class="freedom-fox-preview-copy"><small>دوست هوشمند تو در آزادی</small>' +
-        '<strong>بیا با هم حرف بزنیم <span aria-hidden="true">♡</span></strong>' +
-        '<span class="freedom-fox-preview-message" data-fox-preview></span>' +
-        '</span><span class="freedom-fox-open-label">بازکردن چت <span aria-hidden="true">↗</span></span></button>';
-      features.insertAdjacentElement('afterend',box);
-    }
-    if (ai.parentNode !== box) box.append(ai);
-    card = ai;
-    updatePreview();
-  }
-
-  function show() {
-    if (overlay) return;
-    ensureCard();
-    if (!card?.isConnected) return;
-    opener = document.activeElement;
-    const layer = document.createElement('section');
-    layer.className = 'freedom-fox-overlay';
-    layer.setAttribute('role','dialog');
-    layer.setAttribute('aria-modal','true');
-    layer.setAttribute('aria-label','گفت‌وگو با روباه الارا');
-    layer.setAttribute('dir','rtl');
-    layer.innerHTML =
-      '<div class="freedom-fox-overlay-shell">' +
-      '<header class="freedom-fox-overlay-header">' +
-      '<button type="button" class="freedom-fox-back" data-fox-close aria-label="کوچک کردن چت و بازگشت به آزادی">→ بازگشت به آزادی</button>' +
-      '<div class="freedom-fox-companion">' +
-      '<img src="' + FOX + '" alt="روباه الارا" width="88" height="88" loading="eager" decoding="async">' +
-      '<span><small>ELARA FOX · AI</small><strong>من اینجام، باهات حرف می‌زنم</strong>' +
-      '<small>همراه هوشمندت برای درد دل، ایده‌ها و کارهای روزمره</small></span></div>' +
-      '</header><main class="freedom-fox-conversation"></main>' +
-      '<p class="freedom-fox-disclosure">الارا یک دستیار هوش مصنوعی است، نه انسان. گفت‌وگو از اتصال امن AI تنظیم‌شده در پنل ادمین استفاده می‌کند.</p>' +
-      '</div>';
-    placeholder = document.createComment('original Elara AI card');
-    card.parentNode.insertBefore(placeholder,card);
-    layer.querySelector('.freedom-fox-conversation').append(card);
-    overlay = layer;
-    document.body.append(layer);
-    document.documentElement.classList.add('freedom-fox-open');
-    document.body.classList.add('freedom-fox-open');
-    window.ElaraFreedomAI?.render?.();
-    layer.querySelector('[data-fox-close]')?.focus();
-  }
-
-  function restore() {
-    if (!overlay) return;
-    if (placeholder?.parentNode && card) placeholder.replaceWith(card);
-    else {
-      const box = panel()?.querySelector('.freedom-fox-chat-box');
-      if (box && card) box.append(card);
-    }
-    overlay.remove();
-    overlay = null;
-    placeholder = null;
-    document.documentElement.classList.remove('freedom-fox-open');
-    document.body.classList.remove('freedom-fox-open');
-    updatePreview();
-    if (opener?.isConnected) opener.focus();
-    opener = null;
-  }
-
-  function sync() {
-    if (syncing) return;
-    syncing = true;
-    try {
-      if (chatState()) show();
-      else if (overlay) restore();
-      if (!overlay && location.hash === '#freedom') ensureCard();
-    } finally { syncing = false; }
-  }
-
-  function open() {
-    if (overlay || location.hash !== '#freedom' || panel()?.querySelector('.freedom-subpage-shell')) return;
-    ensureCard();
-    if (!card?.isConnected) return;
-    const state = history.state || {};
-    history.pushState({
-      ...state, elaraTab:'freedom',elaraFreedomView:VIEW,
-      elaraDepth:(Number(state.elaraDepth)||0)+1
-    },'',location.pathname + location.search + '#freedom');
-    show();
-  }
-
-  function close() {
-    if (!overlay) return;
-    if (chatState()) history.back();
-    else restore();
-  }
-
-  function focusTrap(event) {
-    if (!overlay || event.key !== 'Tab') return;
-    const controls = [...overlay.querySelectorAll('button:not(:disabled),textarea:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]')]
-      .filter(el => el.getClientRects().length);
-    if (!controls.length) return;
-    const first = controls[0], last = controls[controls.length-1];
-    if (event.shiftKey && document.activeElement === first) {event.preventDefault();last.focus();}
-    else if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first.focus();}
-  }
-
-  function start() {
-    document.addEventListener('click',event => {
-      if (event.target.closest('[data-fox-open]')) {event.preventDefault();event.stopPropagation();open();}
-      else if (event.target.closest('[data-fox-close]')) {event.preventDefault();event.stopPropagation();close();}
-    },true);
-    document.addEventListener('keydown',event => {
-      if (overlay && event.key === 'Escape') {event.preventDefault();close();}
-      else focusTrap(event);
-    },true);
-    window.addEventListener('popstate',sync);
-    window.addEventListener('hashchange',sync);
-    window.addEventListener('elara:open',event => {
-      if (event.detail?.tab !== 'freedom') {if (overlay) restore();}
-      else sync();
-    });
-    for (const name of ['elara:freedom-rendered','elara:visual-ready','elara:account-ready','elara:logout'])
-      window.addEventListener(name,() => {if(!overlay)ensureCard();updatePreview();});
-    ensureCard();
-    sync();
-  }
-
-  window.ElaraFreedomChatPage = {open,close,get expanded(){return Boolean(overlay)}};
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',start,{once:true});
-  else start();
+  const prompt=target.closest('[data-ef-prompt]');
+  if(prompt){const text=overlay.querySelector('[data-f-ai-form] textarea');if(text){
+   text.value=prompt.dataset.efPrompt||'';text.focus();
+  }return}
+  if(target.closest('[data-ef-tools]'))overlay.querySelector('.ef-art-tools')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+ },true);
+ document.addEventListener('keydown',event=>{
+  if(!overlay)return;
+  if(event.key==='Escape'){
+   event.preventDefault();
+   if(focusMode)toggleFocus();else if(mode)chooser();else close();
+  }else focusTrap(event);
+ },true);
+ window.addEventListener('popstate',sync);window.addEventListener('hashchange',sync);
+ window.addEventListener('elara:open',event=>{if(event.detail?.tab!=='freedom'){if(overlay)restore()}else sync()});
+ window.addEventListener('fullscreenchange',()=>{if(overlay&&document.fullscreenElement!==overlay&&focusMode){focusMode=false;renderUI()}});
+ for(const n of ['elara:freedom-rendered','elara:visual-ready','elara:account-ready','elara:logout']){
+  window.addEventListener(n,()=>{if(!overlay)ensureCard();else updateRecent()});
+ }
+ window.addEventListener('elara:chat-updated',updateRecent);
+ ensureCard();sync();
+}
+window.ElaraFreedomChatPage={open,close,choose,get mode(){return mode||'fox'},get expanded(){return!!overlay},get fullScreen(){return focusMode},get nativeFullscreen(){return document.fullscreenElement===overlay}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
