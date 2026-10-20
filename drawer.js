@@ -9,7 +9,7 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home',accountGutters=null,homeView='avatar';
+  let root,panel,current='home',accountGutters=null,homeView='menu';
   function ensureProfileHubCSS(){
     if(document.getElementById('elara-profile-hub-reference-css'))return;
     const sheet=document.createElement('link');sheet.id='elara-profile-hub-reference-css';
@@ -116,8 +116,9 @@
     }
   }
   function updateHomeView(next=homeView){
-    homeView=next==='menu'?'menu':'avatar';
+    homeView=next==='avatar'?'avatar':'menu';
     if(!root||!panel)return;
+    const mobile=window.matchMedia('(max-width:700px)').matches;
     root.dataset.elaraView=homeView;
     const toggle=panel.querySelector('[data-elara-drawer-toggle]');
     if(toggle){
@@ -126,10 +127,10 @@
       toggle.title=homeView==='menu'?'نمایش کاراکتر':'باز کردن گزینه‌ها';
     }
     const menu=panel.querySelector('.drawer-menu');
-    if(menu){menu.toggleAttribute('inert',current==='home'&&homeView!=='menu');menu.setAttribute('aria-hidden',current==='home'&&homeView!=='menu'?'true':'false');}
+    if(menu){menu.toggleAttribute('inert',mobile&&current==='home'&&homeView!=='menu');menu.setAttribute('aria-hidden',mobile&&current==='home'&&homeView!=='menu'?'true':'false');}
     const stage=panel.querySelector('[data-drawer-section="home"]');
-    if(stage){stage.toggleAttribute('inert',current==='home'&&homeView==='menu');stage.setAttribute('aria-hidden',current==='home'&&homeView==='menu'?'true':'false');}
-    if(current==='home'&&homeView==='avatar')renderHub();
+    if(stage){stage.toggleAttribute('inert',mobile&&current==='home'&&homeView==='menu');stage.setAttribute('aria-hidden',mobile&&current==='home'&&homeView==='menu'?'true':'false');}
+    if(current==='home'&&(!mobile||homeView==='avatar'))renderHub();
   }
   function show(section='home'){
     if(section==='appearance')section='settings'; // Legacy appearance links now open Settings.
@@ -187,11 +188,11 @@
     if(!host||!avatarStage)return;
     avatarStage.classList.remove('is-wardrobe-stage');
     if(avatarStage.parentElement!==host)host.replaceChildren(avatarStage);
-    if(current==='home'&&homeView==='avatar'&&!root?.classList.contains('hidden'))window.dispatchEvent(new Event('elara:avatar-stage-ready'));
+    if(current==='home'&&(homeView==='avatar'||!window.matchMedia('(max-width:700px)').matches)&&!root?.classList.contains('hidden'))window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderHub(){
     const stage=ensureAvatarStage();
-    if(stage&&homeView==='avatar'&&!root?.classList.contains('hidden')&&stage.parentElement===panel?.querySelector('[data-drawer-section="home"]'))
+    if(stage&&(homeView==='avatar'||!window.matchMedia('(max-width:700px)').matches)&&!root?.classList.contains('hidden')&&stage.parentElement===panel?.querySelector('[data-drawer-section="home"]'))
       window.dispatchEvent(new Event('elara:avatar-stage-ready'));
   }
   function renderSettings(){
@@ -421,7 +422,7 @@ function renderSecurity(){
     const p=pref();document.body.dataset.elaraStyle=p.style||'default';document.body.classList.toggle('amoled',localStorage.getItem('elara_amoled')==='yes');
     const locale=p.language==='en'?'en':'fa';localStorage.setItem('elara_locale_v1',locale);window.ElaraI18n?.set?.(locale);
     renderProfile();updateCalendarLabels();syncQuickAppearance();
-    window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
+    window.addEventListener('resize',()=>{if(root&&!root.classList.contains('hidden')){placeMobileSection(current);updateHomeView();}},{passive:true});
     window.visualViewport?.addEventListener?.('resize',()=>{if(root&&!root.classList.contains('hidden'))placeMobileSection(current)},{passive:true});
   }
 
