@@ -10,7 +10,7 @@
       "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.min.js"
     }
   }</script>
-  <link rel="stylesheet" href="avatar-live-vrm.css?v=20261019-eli-motion-v2">
+  <link rel="stylesheet" href="avatar-live-vrm.css?v=20261020-eli-focus-v1">
 
   <script src="ai-gateway-config.js?v=20261019-gemini-worker-v2"></script>
   <meta charset="utf-8">
@@ -149,9 +149,9 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
     },true);
   })();
   </script>
-  <script defer src="drawer.js?v=20261019-eli-motion-v2"></script>
-  <script defer src="avatar-live-vrm.js?v=20261019-eli-motion-v2"></script>
-  <script defer src="avatar-3d.js?v=20261005-avatar-v2"></script>
+  <script defer src="drawer.js?v=20261020-eli-mobile-toggle-v1"></script>
+  <script defer src="avatar-live-vrm.js?v=20261020-eli-zoom-v1"></script>
+  <script defer src="avatar-3d.js?v=20261020-eli-mobile-v1"></script>
   <style id="elara-p0-friends-strip">
     @media (max-width:700px){
       #elara-social-page .social-tabs{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:flex-start!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important}
@@ -232,6 +232,8 @@ html[data-elara-booting] #elara-boot-screen{position:fixed;inset:0;z-index:21474
   <link rel="stylesheet" href="goals-dashboard-20261019.css?v=20261019-goals-r1">
   <script defer src="goals-dashboard-20261019.js?v=20261019-goals-r2"></script>
   <link rel="stylesheet" href="goals-tasks-neon-polish-20261019.css?v=20261019-only-goal-step-art-r1">
+  <!-- Scope the collapsible avatar/menu selector to mobile only, loaded last over mobile owner styles. -->
+  <link rel="stylesheet" href="avatar-experience-20261020.css?v=20261020-eli-mobile-v1">
 </head>
 <body class="dark cloud-ready cloud-offline" data-elara-shell-safe="true">
   <div id="elara-boot-screen" role="status" aria-label="در حال بارگذاری">
