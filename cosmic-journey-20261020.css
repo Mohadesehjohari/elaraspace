@@ -49,3 +49,8 @@
 #elara-cosmic-map .cosmic-empty[hidden]{display:none}
 @media(max-width:700px){#elara-cosmic-map .cosmic-top{align-items:flex-start}#elara-cosmic-map .cosmic-heading p{display:none}#elara-cosmic-map .cosmic-controls{gap:5px}#elara-cosmic-map .cosmic-control{font-size:11px;padding:8px 9px}#elara-cosmic-map .cosmic-viewport{inset:116px 0 77px}#elara-cosmic-map .cosmic-detail{width:100%;border-right:0}#elara-cosmic-map .cosmic-footer{font-size:10px;flex-wrap:wrap}#elara-cosmic-map .cosmic-orb{width:125px}#elara-cosmic-map .cosmic-orb-title{font-size:11px}}
 @media(prefers-reduced-motion:reduce){#elara-cosmic-map *,#elara-cosmic-map *:before,#elara-cosmic-map *:after{animation:none!important;transition:none!important}}
+
+/* The dashboard launch control lives outside the full-screen overlay. */
+#panel-goals .cosmic-dashboard-entry{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 19px;border:1px solid #f7d892;border-radius:14px;background:linear-gradient(115deg,#6351c4,#3b266d 63%,#aa7b3b);color:#fffbea;font-family:Estedad,Tahoma,sans-serif;font-size:13px;font-weight:800;line-height:1.5;box-shadow:0 6px 25px #896cd359,0 0 0 1px #ffffff15 inset;cursor:pointer;white-space:nowrap}
+#panel-goals .cosmic-dashboard-entry:hover,#panel-goals .cosmic-dashboard-entry:focus-visible{background:linear-gradient(115deg,#7662dd,#48368d 63%,#d09c46);box-shadow:0 8px 28px #927ad97b;outline:2px solid #e8cbff;outline-offset:2px}
+@media(max-width:700px){#panel-goals .cosmic-dashboard-entry{width:100%;margin-top:7px}}
