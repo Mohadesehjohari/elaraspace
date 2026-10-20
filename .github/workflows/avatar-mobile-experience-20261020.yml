@@ -1,0 +1,48 @@
+name: Eli Avatar Mobile + Desktop Preservation
+on:
+  pull_request:
+    paths:
+      - drawer.js
+      - avatar-live-vrm.js
+      - avatar-3d.js
+      - avatar-live-vrm.css
+      - avatar-experience-20261020.css
+      - index.html
+      - tests/eli-vrm-wardrobe-smoke.test.mjs
+      - tests/avatar-mobile-drawer-browser-20261020.mjs
+      - .github/workflows/avatar-mobile-experience-20261020.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  avatar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and integration regression
+        run: |
+          node --check drawer.js
+          node --check avatar-live-vrm.js
+          node --check avatar-3d.js
+          node --test tests/eli-vrm-wardrobe-smoke.test.mjs
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify phone avatar accordion and unchanged desktop settings
+        run: |
+          python3 -m http.server 4173 >/tmp/eli-avatar-mobile.log 2>&1 &
+          sleep 3
+          timeout 300s node tests/avatar-mobile-drawer-browser-20261020.mjs
+      - name: Upload visual evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eli-avatar-mobile-${{ github.sha }}
+          path: artifacts/avatar-mobile
+          retention-days: 14
+          if-no-files-found: warn
