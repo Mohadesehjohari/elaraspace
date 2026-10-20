@@ -55,7 +55,9 @@
     try { renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'}); }
     catch (e) { disposeMeshes(THREE,vrm.scene); throw e; }
     // 1x desktop monitors benefit from modest supersampling; cap GPU work on HiDPI screens.
-    renderer.setPixelRatio(Math.min(2,Math.max(1.5,window.devicePixelRatio||1)));
+    renderer.setPixelRatio(window.matchMedia('(max-width:700px)').matches
+      ? Math.min(1.5,window.devicePixelRatio||1)
+      : Math.min(2,Math.max(1.5,window.devicePixelRatio||1)));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.04;
@@ -119,7 +121,7 @@
       if(vrm.lookAt){vrm.lookAt.target=gazeTarget;vrm.lookAt.autoUpdate=true;}
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
       focus='full';zoom=1;
-      camera.position.set(0,height*.52,aspect<.8?5.35:4.6);
+      camera.position.set(0,height*.52,aspect<.8?4.85:4.6);
       camera.lookAt(0,height*.52,0);
     }
     attach(vrm);
@@ -258,7 +260,7 @@
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
-      const dest=(focus==='full'?(tall?5.35:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
+      const dest=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
       const targetHeight=height*focusHeights[focus],cameraFollow=1-Math.exp(-dt*5);
       camera.position.z+=(dest-camera.position.z)*cameraFollow;
       camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
