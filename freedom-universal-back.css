@@ -36,3 +36,56 @@ button.freedom-universal-back:focus-visible{outline:3px solid #ffe3ff!important;
 }
 /* The Fox fullscreen chat owns its own close action. */
 body.freedom-fox-open button.freedom-universal-back{display:none!important}
+
+
+/* 2026-10-20: Direct native back action inside every Freedom subpage.
+   Independent of deferred JavaScript and of the floating shortcut. */
+html body #main #panel-freedom .freedom-subpage-shell .freedom-back-toolbar{
+  position:sticky!important;
+  top:calc(84px + env(safe-area-inset-top))!important;
+  z-index:1800!important;
+  display:flex!important;
+  direction:rtl;
+  align-items:center;
+  justify-content:flex-start;
+  width:100%;
+  min-height:56px;
+  margin:0!important;
+  padding:4px 10px 7px!important;
+  background:linear-gradient(90deg,#09162eeb,#09162eaa,transparent);
+  pointer-events:none
+}
+html body #main #panel-freedom .freedom-subpage-shell .freedom-back-toolbar>button{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px!important;
+  min-width:152px;
+  min-height:46px;
+  width:auto!important;
+  max-width:100%;
+  white-space:nowrap;
+  border:1px solid #dcc3ff!important;
+  border-radius:14px!important;
+  background:#6142b5!important;
+  color:#fff!important;
+  box-shadow:0 5px 16px #030416aa!important;
+  font-weight:700!important;font-size:14px!important;line-height:1.5!important;
+  font-family:inherit;
+  opacity:1!important;
+  visibility:visible!important;
+  cursor:pointer;
+  pointer-events:auto
+}
+html body #main #panel-freedom .freedom-subpage-shell .freedom-back-toolbar>button:focus-visible{
+  outline:3px solid #ffe5ff!important;outline-offset:3px!important
+}
+html body #main #panel-freedom .freedom-subpage-shell{
+  scroll-margin-top:calc(106px + env(safe-area-inset-top))!important
+}
+@media(max-width:760px){
+  html body #main #panel-freedom .freedom-subpage-shell .freedom-back-toolbar{
+    top:calc(66px + env(safe-area-inset-top))!important;
+    padding:4px 6px 7px!important
+  }
+}
