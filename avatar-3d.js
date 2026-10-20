@@ -189,7 +189,7 @@
   const mobileViewer=()=>window.matchMedia('(max-width:700px)').matches&&
     !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
   async function mount(stage,{skipVRM=false}={}){
-    if(!stage||['yes','live','probing'].includes(stage.dataset.avatarMounted)||!canRender(stage))return false;
+    if(!stage||stage.closest('.elara-avatar-quick-modal[hidden]')||['yes','live','probing'].includes(stage.dataset.avatarMounted)||!canRender(stage))return false;
     if(current&&current.stage!==stage){current.dispose();current=null;}
     stage.dataset.avatarMounted='probing';
     // Real VRM first; no model uploaded yet means zero user-visible regression.
@@ -197,7 +197,7 @@
       try{if(await window.ElaraLiveVRM.tryMount(stage))return}
       catch(error){console.warn('Elara: using prototype fallback',error)}
     }
-    if(!stage.isConnected||(!desktop()&&!quickViewer(stage))){
+    if(!stage.isConnected||stage.closest('.elara-avatar-quick-modal[hidden]')||(!desktop()&&!quickViewer(stage))){
       stage.dataset.avatarMounted='';
       if(mobileViewer())status(stage,'این کاراکتر در این دستگاه بارگذاری نشد؛ دوباره تلاش کن.','error');
       return;
@@ -208,7 +208,7 @@
       console.error('Elara Avatar: Three.js failed to load',error);
       status(stage,'نمای سه‌بعدی در دسترس نیست.','error');stage.dataset.avatarMounted='error';return;
     }
-    if(!stage.isConnected||!canRender(stage)){stage.dataset.avatarMounted='';return false}
+    if(!stage.isConnected||stage.closest('.elara-avatar-quick-modal[hidden]')||!canRender(stage)){stage.dataset.avatarMounted='';return false}
     const viewport=stage.querySelector('[data-elara-avatar-viewport]');if(!viewport)return;
     let renderer;
     try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance',premultipliedAlpha:true})}
@@ -276,7 +276,7 @@
       return false;
     }
     function dispose(){if(disposed)return;disposed=true;ro.disconnect();window.removeEventListener('elara:profile-private-changed',privateChange);renderer.dispose();stage.dataset.avatarMounted='';if(current?.stage===stage)current=null;}
-    function active(){return stage.isConnected&&(desktop()||quickViewer(stage))&&stage.offsetParent!==null&&!document.hidden}
+    function active(){return stage.isConnected&&!stage.closest('.elara-avatar-quick-modal[hidden]')&&(desktop()||quickViewer(stage))&&stage.offsetParent!==null&&!document.hidden}
 
     function frame(now){
       if(disposed)return;requestAnimationFrame(frame);
