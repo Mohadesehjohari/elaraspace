@@ -1,0 +1,51 @@
+/* Cosmic journey / isolated full-screen goals overlay */
+#elara-cosmic-map{position:fixed;inset:0;z-index:2147480001;display:none;overflow:hidden;direction:rtl;color:#f5f1ff;font-family:Estedad,Tahoma,sans-serif;background:radial-gradient(ellipse at 45% 44%,#243276 0%,#111638 36%,#050713 79%);isolation:isolate}
+#elara-cosmic-map.is-open{display:block}
+#elara-cosmic-map *{box-sizing:border-box}
+#elara-cosmic-map .cosmic-field{position:absolute;inset:0;overflow:hidden;perspective:1100px;pointer-events:none}
+#elara-cosmic-map .cosmic-field:before,#elara-cosmic-map .cosmic-field:after{content:"";position:absolute;inset:-30%;background-image:radial-gradient(1px 1px at 9% 23%,#fff 99%,transparent),radial-gradient(2px 2px at 33% 59%,#e3c5ff 99%,transparent),radial-gradient(1px 1px at 62% 18%,#fff 99%,transparent),radial-gradient(2px 2px at 85% 72%,#96cfff 99%,transparent),radial-gradient(1px 1px at 49% 82%,#fff 99%,transparent);background-size:190px 180px,260px 230px,320px 290px,410px 340px,170px 210px;transform:rotate(-12deg) translateZ(-180px);animation:cosmic-drift 80s linear infinite}
+#elara-cosmic-map .cosmic-field:after{opacity:.46;filter:blur(1.5px);transform:rotate(20deg) scale(1.4);animation-duration:115s;animation-direction:reverse}
+#elara-cosmic-map .cosmic-nebula{position:absolute;width:76vw;height:76vw;max-width:950px;max-height:950px;border-radius:50%;left:15%;top:5%;background:conic-gradient(from 90deg,transparent,#673aa544,transparent,#3094cc33,transparent,#f0a7d12b,transparent);filter:blur(74px);transform:rotateX(64deg) rotateZ(-21deg);opacity:.8}
+@keyframes cosmic-drift{to{background-position:1100px -420px}}
+#elara-cosmic-map .cosmic-top{position:absolute;z-index:4;inset-inline:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:clamp(17px,3vw,36px);pointer-events:none}
+#elara-cosmic-map .cosmic-top>*{pointer-events:auto}
+#elara-cosmic-map .cosmic-heading small{display:block;font:700 11px/1.7 system-ui;letter-spacing:4px;color:#b2a5f3}
+#elara-cosmic-map .cosmic-heading h2{margin:3px 0;font-size:clamp(23px,3vw,42px);text-shadow:0 0 28px #8472d077}
+#elara-cosmic-map .cosmic-heading p{margin:0;color:#bdc2e2;font-size:12px}
+#elara-cosmic-map .cosmic-controls{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}
+#elara-cosmic-map button{font:inherit;cursor:pointer}
+#elara-cosmic-map .cosmic-control{padding:10px 15px;background:#111b3fc9;border:1px solid #9d9cde62;border-radius:15px;color:#f8f4ff;backdrop-filter:blur(15px)}
+#elara-cosmic-map .cosmic-control:hover,#elara-cosmic-map .cosmic-control:focus-visible{border-color:#f4d38b;box-shadow:0 0 15px #cbb6ff33}
+#elara-cosmic-map .cosmic-viewport{position:absolute;inset:17% 0 13%;overflow:auto;overscroll-behavior:contain;scrollbar-color:#a297d755 transparent}
+#elara-cosmic-map .cosmic-universe{position:relative;min-height:100%;min-width:820px;transition:transform .25s ease;transform-origin:center center}
+#elara-cosmic-map .cosmic-route-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#elara-cosmic-map .cosmic-route-svg path{stroke:#d3bafa77;stroke-width:2.3;stroke-dasharray:5 11;fill:none;filter:drop-shadow(0 0 6px #9676ff)}
+#elara-cosmic-map .cosmic-orb{position:absolute;z-index:2;transform:translate(-50%,-50%);display:flex;align-items:center;flex-direction:column;gap:8px;width:165px;max-width:165px;background:transparent;border:0;color:#fff;text-align:center}
+#elara-cosmic-map .cosmic-orb-core{position:relative;display:grid;place-items:center;width:clamp(50px,5vw,75px);height:clamp(50px,5vw,75px);border-radius:50%;background:radial-gradient(circle at 31% 24%,#fff,#dccbff 12%,#8879e0 35%,#44358f 64%,#211849);box-shadow:0 0 18px #bea6ffae,0 0 65px #7966d86b,inset -10px -13px 16px #120e3c;border:1px solid #d9c8ffb0;transform:perspective(280px) rotateX(12deg)}
+#elara-cosmic-map .cosmic-orb-core:before{content:"";position:absolute;width:135%;height:34%;border:2px solid #a8d3ff99;border-radius:50%;transform:rotate(-27deg);box-shadow:0 0 16px #9fbcff44}
+#elara-cosmic-map .cosmic-orb[data-state="done"] .cosmic-orb-core{background:radial-gradient(circle at 29% 25%,white,#c8fff1 13%,#55cfc1 43%,#136b80 75%);box-shadow:0 0 30px #64f3d891}
+#elara-cosmic-map .cosmic-orb[data-state="current"] .cosmic-orb-core{background:radial-gradient(circle at 27% 20%,#fff,#fff4c4 13%,#f6c45d 39%,#a26020 77%);box-shadow:0 0 27px #ffd36a,0 0 95px #edb4539c;animation:cosmic-pulse 3s ease-in-out infinite}
+#elara-cosmic-map .cosmic-orb[data-state="current"] .cosmic-orb-core:after{content:"✦";position:absolute;top:-21px;left:50%;transform:translateX(-50%);font-size:25px;color:#ffdb77;text-shadow:0 0 14px #ffd56d}
+#elara-cosmic-map .cosmic-orb-title{display:block;max-width:100%;overflow-wrap:anywhere;font-size:13px;font-weight:750;text-shadow:0 2px 9px #02040a,0 0 13px #0b1039}
+#elara-cosmic-map .cosmic-orb-meta{font-size:11px;color:#c9c9e7;text-shadow:0 2px 8px #050815}
+#elara-cosmic-map .cosmic-orb[data-state="current"] .cosmic-orb-meta{color:#ffe6a7}
+#elara-cosmic-map .cosmic-orb:hover .cosmic-orb-core,#elara-cosmic-map .cosmic-orb:focus-visible .cosmic-orb-core{scale:1.12}
+@keyframes cosmic-pulse{50%{box-shadow:0 0 42px #ffe7a4,0 0 105px #f0b74fb0}}
+#elara-cosmic-map .cosmic-footer{position:absolute;z-index:4;bottom:0;inset-inline:0;display:flex;justify-content:space-between;gap:15px;align-items:center;background:linear-gradient(transparent,#070b22f4 38%);padding:24px clamp(16px,3vw,38px) 16px;font-size:12px;color:#d2cdef}
+#elara-cosmic-map .cosmic-legend{display:flex;gap:15px;flex-wrap:wrap}
+#elara-cosmic-map .cosmic-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:5px;background:#a394ef;box-shadow:0 0 9px currentColor}
+#elara-cosmic-map .cosmic-legend .gold{background:#ffd36e}#elara-cosmic-map .cosmic-legend .mint{background:#6adac6}
+#elara-cosmic-map .cosmic-detail{position:absolute;z-index:6;inset-block:0;left:0;width:min(420px,100%);background:#0d1534f3;backdrop-filter:blur(22px);border-right:1px solid #b7a5fa55;box-shadow:15px 0 70px #05040d88;padding:27px 24px;overflow:auto}
+#elara-cosmic-map .cosmic-detail[hidden]{display:none}
+#elara-cosmic-map .cosmic-detail h3{font-size:25px;margin:20px 0 9px}
+#elara-cosmic-map .cosmic-detail p{color:#c9c8e5;line-height:1.85;font-size:13px;white-space:pre-wrap}
+#elara-cosmic-map .cosmic-detail button{color:white;border:1px solid #817fbc66;background:#202b59;border-radius:12px;padding:9px 13px}
+#elara-cosmic-map .cosmic-detail .cosmic-step{margin:11px 0;padding:12px;background:#1b2654aa;border-radius:14px;border:1px solid #7782c044;display:flex;align-items:center;gap:10px}
+#elara-cosmic-map .cosmic-step span{flex:1;overflow-wrap:anywhere}
+#elara-cosmic-map .cosmic-step.is-done span{text-decoration:line-through;opacity:.68}
+#elara-cosmic-map .cosmic-detail .cosmic-step button{font-size:12px}
+#elara-cosmic-map .cosmic-action-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+#elara-cosmic-map .cosmic-empty{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:min(470px,85%);padding:26px;text-align:center;background:#121b3cda;border:1px solid #bba8f266;border-radius:20px;line-height:2}
+#elara-cosmic-map .cosmic-empty[hidden]{display:none}
+@media(max-width:700px){#elara-cosmic-map .cosmic-top{align-items:flex-start}#elara-cosmic-map .cosmic-heading p{display:none}#elara-cosmic-map .cosmic-controls{gap:5px}#elara-cosmic-map .cosmic-control{font-size:11px;padding:8px 9px}#elara-cosmic-map .cosmic-viewport{inset:116px 0 77px}#elara-cosmic-map .cosmic-detail{width:100%;border-right:0}#elara-cosmic-map .cosmic-footer{font-size:10px;flex-wrap:wrap}#elara-cosmic-map .cosmic-orb{width:125px}#elara-cosmic-map .cosmic-orb-title{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#elara-cosmic-map *,#elara-cosmic-map *:before,#elara-cosmic-map *:after{animation:none!important;transition:none!important}}
