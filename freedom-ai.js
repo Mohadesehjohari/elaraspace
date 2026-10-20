@@ -89,6 +89,10 @@ async function submit(form){
     if(uid()!==expectedUid)return;
     const data=payload.data||{};
     write([...next,{role:'model',text:String(data.text||'').trim(),name:data.display_name||'Elara AI',at:Date.now()}]);
+    if(window.ElaraAIPlans?.isPlanning?.(message)){
+      const recent=[...next,{role:'model',text:String(data.text||''),at:Date.now()}];
+      void window.ElaraAIPlans.consider(message,recent);
+    }
     if(memory.enabled&&data.memory_saved===true&&typeof data.memory_summary==='string')memory.summary=data.memory_summary;
     if(memory.enabled&&data.memory_saved===false)memoryMessage='پاسخ آمد، اما ذخیره‌سازی حافظه ناموفق بود. دوباره تلاش کن.';
     render();
