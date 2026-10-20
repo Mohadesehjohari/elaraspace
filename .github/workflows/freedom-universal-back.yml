@@ -4,6 +4,10 @@ on:
     paths:
       - 'boot.js'
       - 'freedom-universal-back.js'
+      - 'freedom-enhancements.js'
+      - 'freedom-r30-pages.js'
+      - 'freedom-r31-remaining.js'
+      - 'index.html'
       - 'freedom-universal-back.css'
       - 'tests/freedom-universal-back-browser.mjs'
       - '.github/workflows/freedom-universal-back.yml'
@@ -29,12 +33,21 @@ jobs:
       - name: Syntax, files, bootstrap
         run: |
           node --check freedom-universal-back.js
+          node --check freedom-enhancements.js
+          node --check freedom-r30-pages.js
+          node --check freedom-r31-remaining.js
           node --check boot.js
           node --check tests/freedom-universal-back-browser.mjs
           node - <<'NODE'
           const fs=require('node:fs'),assert=require('node:assert/strict');
           const m=require('./deploy/production-manifest.json');
           const boot=fs.readFileSync('boot.js','utf8');
+          const html=fs.readFileSync('index.html','utf8');
+          assert(html.includes('freedom-universal-back.js?v=20261020-freedom-back-visible-r2'));
+          assert(html.includes('boot.js?v=20261020-freedom-back-visible-r2'));
+          for(const f of ['freedom-enhancements.js','freedom-r30-pages.js','freedom-r31-remaining.js']){
+            assert(fs.readFileSync(f,'utf8').includes('freedom-back-toolbar'),f+' missing native Back');
+          }
           for(const f of ['freedom-universal-back.js','freedom-universal-back.css']){
             assert(boot.includes("'"+f+"'"),f+' not bootstrapped');
             assert(m.required.includes(f)&&m.files.includes(f),f+' missing from cPanel deployment');
