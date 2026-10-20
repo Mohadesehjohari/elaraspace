@@ -18,8 +18,8 @@ globalThis.fetch=async (url,init)=>{
   if(!['user-alpha','user-beta'].includes(token))return new Response('{}',{status:401});
   return new Response(JSON.stringify({users:[{localId:token,emailVerified:true,email:token+'@example.org'}]}),{status:200});
 };
-async function call(user,method='GET',body){
-  const res=await worker.fetch(new Request('https://worker.example/ai/memory',{
+async function call(user,method='GET',body,persona='fox'){
+  const res=await worker.fetch(new Request('https://worker.example/ai/memory?persona='+persona,{
     method,headers:{Origin:'https://mohadesehjohari.github.io',Authorization:'Bearer '+user,...(body?{'Content-Type':'application/json'}:{})},
     ...(body?{body:JSON.stringify(body)}:{})
   }),env);
@@ -40,6 +40,22 @@ try{
   const raw=[...records.entries()].find(([k])=>k.startsWith('user-memory:v1:'));
   assert.ok(raw);
   assert.equal(raw[1].includes('My cat is Luna'),false,'Cloud KV must not store private notes in plaintext');
+  r=await call('user-alpha','GET',undefined,'character');
+  assert.equal(r.status,200);
+  assert.equal(r.body.data.enabled,false,'Character memory must be independently opt in');
+  r=await call('user-alpha','POST',{enabled:true,history:[{role:'user',text:'Character-only story',at:10}]},'character');
+  assert.equal(r.status,200);
+  assert.equal(r.body.data.history[0].text,'Character-only story');
+  r=await call('user-alpha','POST',{note:'Only in character memory',persona:'character'},'character');
+  assert.equal(r.status,200);
+  assert.equal(r.body.data.notes.length,1);
+  r=await call('user-alpha');
+  assert.equal(r.body.data.notes.length,1,'Fox retains its original independent memory');
+  assert.equal(r.body.data.notes[0].text,'My cat is Luna');
+  r=await call('user-alpha','DELETE',undefined,'character');
+  assert.equal(r.status,200);
+  r=await call('user-alpha');
+  assert.equal(r.body.data.notes.length,1,'Deleting character memory must NOT remove Fox memory');
   r=await call('user-beta');
   assert.equal(r.body.data.enabled,false,'Users must have separate private memory');
   assert.equal(r.body.data.notes.length,0,'User B must not read A notes');
