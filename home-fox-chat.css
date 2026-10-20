@@ -1,0 +1,39 @@
+/* Small Elara Fox popup on Home; works with the original live AI card. */
+.elara-home-fox-widget{position:fixed;right:24px;bottom:24px;z-index:110000;color:#faf5ff;direction:rtl;font-family:inherit}
+.elara-home-fox-widget[hidden],.elara-home-fox-popover[hidden]{display:none!important}
+.elara-home-fox-launch{height:77px;display:flex;align-items:center;gap:7px;border:1px solid #a98cff;border-radius:99px;padding:2px 12px 2px 3px;background:linear-gradient(125deg,#291c64,#112856);color:white;box-shadow:0 9px 32px #070e31a8;cursor:pointer;font:inherit}
+.elara-home-fox-launch img{width:68px;height:70px;object-fit:contain;filter:drop-shadow(0 0 12px #ad8cfb)}
+.elara-home-fox-launch-label{font-size:.8rem;font-weight:850}
+.elara-home-fox-popover{position:absolute;right:0;bottom:calc(100% + 12px);display:flex;flex-direction:column;width:min(392px,calc(100vw - 25px));height:min(580px,calc(100dvh - 138px));border:1px solid #a186f9;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#12163b,#071831);box-shadow:0 18px 52px #020e31d4}
+.elara-home-fox-top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:69px;padding:10px 12px;background:#231f57;border-bottom:1px solid #6e59a6}
+.elara-home-fox-heading{display:flex;align-items:center;gap:8px}
+.elara-home-fox-heading img{width:47px;height:47px;object-fit:contain}
+.elara-home-fox-heading span{display:grid;gap:2px}
+.elara-home-fox-heading strong{font-size:1rem;color:white}
+.elara-home-fox-heading small{font-size:.7rem;color:#d8d1f9}
+.elara-home-fox-heading i{font-style:normal;color:#c5adff}
+.elara-home-fox-head-actions{display:flex;gap:5px}
+.elara-home-fox-head-actions button{width:32px;height:32px;cursor:pointer;border:1px solid #7468a9;border-radius:9px;background:#171c47;color:white}
+.elara-home-fox-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.elara-home-fox-loading{margin:auto;color:#d8c9ff}
+.elara-home-fox-content .freedom-ai-card{width:100%;height:100%;flex:1;min-height:0;margin:0!important;padding:8px!important;border:0!important;background:transparent!important;box-shadow:none!important;display:flex!important;flex-direction:column;overflow:hidden}
+.elara-home-fox-content .freedom-ai-card>header{display:none!important}
+.elara-home-fox-content [data-f-ai-host]{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:7px}
+.elara-home-fox-content .freedom-ai-thread{flex:1;overflow-y:auto;min-height:75px;display:flex;flex-direction:column;gap:10px;padding:8px 5px}
+.elara-home-fox-content .freedom-ai-message{max-width:90%;flex:none;line-height:1.7;border-radius:15px;padding:9px 11px;border:1px solid #49648e;background:#11284c;color:white;overflow-wrap:anywhere;font-size:.82rem}
+.elara-home-fox-content .freedom-ai-message.user{align-self:flex-start;background:#34265d;border-color:#7156b9}
+.elara-home-fox-content .freedom-ai-message.model{align-self:flex-end}
+.elara-home-fox-content .freedom-ai-message p{color:white!important;margin:0!important;white-space:pre-wrap}
+.elara-home-fox-content .freedom-ai-message small{color:#d2befb;display:block;font-size:.69rem}
+.elara-home-fox-content .freedom-ai-empty{margin:auto;text-align:center}
+.elara-home-fox-content .freedom-ai-memory{display:none!important}
+.elara-home-fox-content [data-elara-plan]{max-height:23vh;overflow-y:auto;flex:none}
+.elara-home-fox-content .freedom-ai-form{flex:none;display:grid;gap:6px;background:#101d40;border:1px solid #4f4486;border-radius:13px;padding:7px}
+.elara-home-fox-content .freedom-ai-form textarea{resize:vertical;max-height:95px;min-height:50px;width:100%;padding:7px;background:#0a1632;color:white;border:1px solid #33446d;border-radius:8px;font:inherit}
+.elara-home-fox-content .freedom-ai-form>div{display:flex;gap:5px;flex-wrap:wrap}
+.elara-home-fox-content .freedom-ai-form button{font-size:.71rem;border-radius:8px;padding:6px 10px;background:#243361;border:1px solid #51488f;color:white;cursor:pointer}
+.elara-home-fox-content .freedom-ai-form [type="submit"]{background:#7550dc;border-color:#ac86ff}
+.elara-home-fox-content .freedom-ai-status{font-size:.7rem;margin:0;color:#c4ceff}
+.elara-home-fox-content .elara-ai-personalize{font-size:.68rem;line-height:1.5}
+.elara-home-fox-bottom{text-align:center;padding:8px 5px;font-size:.66rem;background:#11183b;color:#b9bfe4}
+@media(max-width:590px){.elara-home-fox-widget{right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}.elara-home-fox-launch{height:62px}.elara-home-fox-launch img{width:51px;height:54px}.elara-home-fox-popover{height:min(545px,calc(100dvh - 165px));width:min(390px,calc(100vw - 24px))}}
