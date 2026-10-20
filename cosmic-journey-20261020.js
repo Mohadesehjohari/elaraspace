@@ -83,6 +83,7 @@
   }
   function open(){overlay.classList.add('is-open');document.body.style.overflow='hidden';selected=null;detail.hidden=true;render();viewport.scrollLeft=Math.max(0,(universe.offsetWidth-viewport.clientWidth)/2);viewport.focus({preventScroll:true});}
   function close(){overlay.classList.remove('is-open');detail.hidden=true;selected=null;document.body.style.overflow='';}
+  window.ElaraCosmicJourney = {open,close,isOpen:()=>overlay.classList.contains('is-open')};
   const openButton=document.createElement('button');openButton.type='button';openButton.className='cosmic-control cosmic-dashboard-entry';openButton.textContent='✦ ادامه مسیر';openButton.setAttribute('aria-label','نمایش نقشه فضایی ادامه مسیر');
   const toolbar=panel.querySelector('.goal-dashboard-toolbar')||panel.querySelector('.section-heading');toolbar?.append(openButton);
   openButton.addEventListener('click',open);
