@@ -49,6 +49,9 @@ function render(){
 }
 async function memoryRequest(method='GET',body=null){
   const user=window.ElaraAccount?.user;if(!user)throw new Error('ابتدا وارد حساب شو.');
+  // On an old Worker, persona would be ignored and might write Character history
+  // into the existing Fox memory. Verify mode support before ANY mutation.
+  if(persona()==='character'&&method!=='GET')await memoryRequest('GET');
   const token=await user.getIdToken();
   const headers={'Accept':'application/json','Authorization':'Bearer '+token};
   if(body!==null)headers['Content-Type']='application/json';
@@ -57,6 +60,8 @@ async function memoryRequest(method='GET',body=null){
     {method,headers,cache:'no-store',body:body===null?undefined:JSON.stringify({...body,persona:currentPersona})});
   const data=await response.json().catch(()=>null);
   if(!response.ok||data?.ok!==true)throw new Error(data?.error||'اتصال حافظه برقرار نشد؛ کد جدید Worker را Deploy کن.');
+  if(persona()==='character'&&data.data?.persona!=='character')
+    throw new Error('برای حافظه مستقل کاراکتر، ابتدا کد جدید Cloudflare Worker را Deploy کن.');
   return data.data||{};
 }
 async function loadMemory(expectedUid,expectedPersona){
@@ -93,12 +98,15 @@ async function submit(form){
   const status=host()?.querySelector('[data-f-ai-status]');if(status)status.textContent='Elara در حال فکر کردن…';
   const expectedUid=user.uid;
   try{
+    if(expectedPersona==='character')await memoryRequest('GET');
     const token=await user.getIdToken(),history=before.slice(newChatCuts.get(key())||0).slice(-10).map(x=>({role:x.role,text:x.text}));
     const response=await fetch(aiEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'Accept':'application/json'},cache:'no-store',credentials:'same-origin',body:JSON.stringify({message,history,persona:expectedPersona})});
     const payload=await response.json().catch(()=>null);
     if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));
     if(uid()!==expectedUid||persona()!==expectedPersona)return;
     const data=payload.data||{};
+    if(expectedPersona==='character'&&data.persona!=='character')
+      throw new Error('برای گفتگو با کاراکتر باید نسخه جدید Cloudflare Worker را Deploy کنی.');
     write([...next,{role:'model',text:String(data.text||'').trim(),name:expectedPersona==='character'?'الارا · کاراکتر':'الارا فاکس',at:Date.now()}]);
     if(window.ElaraAIPlans?.isPlanning?.(message)){
       const recent=[...next,{role:'model',text:String(data.text||''),at:Date.now()}];
