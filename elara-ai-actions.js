@@ -61,7 +61,8 @@ const locate=(state,plan)=>{
 };
 const label=(kind,e)=>safe(kind==='task'||kind==='step'?e?.text:e?.title);
 function assertPlan(plan,state,before){
-  if(!plan||!Object.hasOwn(kinds,plan.kind)||!['create','update','delete','complete','list','clarify'].includes(plan.action))
+  if(!plan||!['create','update','delete','complete','list','clarify'].includes(plan.action)||
+    (plan.action!=='clarify'&&!Object.hasOwn(kinds,plan.kind)))
     throw Error('پیشنهاد نامعتبر دریافت شد.');
   const {parent,row}=locate(state,plan);
   if(plan.action==='create'){
