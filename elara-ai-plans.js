@@ -1,7 +1,7 @@
 /* Elara: conversational plan preview and atomic, user-confirmed apply. */
 (()=>{'use strict';
 const STORE='elara_space_v1',nameOf={task:'تسک',goal:'هدف',habit:'عادت',step:'ریزقدم',folder:'پوشه'};
-let pending=null,busy=false,notice='';
+let pending=null,busy=false,notice='',generation=0;
 const tidy=(v,n=180)=>String(v??'').trim().slice(0,n);
 const esc=v=>tidy(v,1600).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>window.ElaraAccount?.user?.uid||'';
@@ -228,7 +228,7 @@ async function propose(message,contextRows=[],force=false){
   if(!force&&!planningIntent(request))return false;
   if(!signed())return false;
   if(busy)return false;
-  const startUid=uid();
+  const startUid=uid(),requestGeneration=++generation;
   let state;
   try{state=context()}catch(e){if(force)status(e.message);return false}
   busy=true;
@@ -244,7 +244,7 @@ async function propose(message,contextRows=[],force=false){
     });
     const j=await r.json().catch(()=>null);
     if(!r.ok||j?.ok!==true)throw Error(j?.error||'تهیه پیش‌نویس ناموفق بود؛ کد جدید Worker را Deploy کن.');
-    if(uid()!==startUid)return false;
+    if(uid()!==startUid||generation!==requestGeneration)return false;
     const p=j.data?.proposal;
     if(!p||!Array.isArray(p.items))throw Error('پیشنهاد الارا معتبر نیست.');
     if(!p.items.length){if(force)status(p.question||'برای برنامه به جزئیات بیشتری نیاز دارم.');return false;}
@@ -263,11 +263,11 @@ document.addEventListener('click',event=>{
   }
   if(event.target.closest?.('[data-elara-plan-approve]')){void approve();return;}
 });
-window.addEventListener('elara:logout',()=>{pending=null;notice='';busy=false});
+window.addEventListener('elara:logout',()=>{generation++;pending=null;notice='';busy=false});
 window.ElaraAIPlans={
   mount,consider:(message,rows)=>propose(message,rows,false),
   propose:(message,rows=[])=>propose(message,rows,true),
-  invalidate:()=>{pending=null;notice='';},
+  invalidate:()=>{generation++;pending=null;notice='';},
   isPlanning:planningIntent
 };
 })();
