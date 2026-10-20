@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {existsSync,readFileSync} from 'node:fs';
+const root=new URL('../',import.meta.url);
+const read=path=>readFileSync(new URL(path,root),'utf8');
+const popup=read('home-fox-chat.js'),css=read('home-fox-chat.css'),ai=read('freedom-ai.js'),worker=read('cloudflare/elara-ai-worker.js'),boot=read('boot.js'),index=read('index.html');
+const manifest=JSON.parse(read('deploy/production-manifest.json'));
+assert.ok(existsSync(new URL('assets/ui/fox-loved.webp',root)));
+for(const str of ['elara-home-fox-widget','elara-home-fox-launch','elara-home-fox-popover','elara-home-fox-content','data-ehf-full','data-ehf-close','data-ehf-toggle'])
+ assert.ok(popup.includes(str),'Missing floating chat control: '+str);
+assert.match(popup,/findCard\(\)/,'Must use original Freedom AI card');
+assert.match(popup,/createComment\(/,'Must preserve original card position');
+assert.match(popup,/placeholder\.replaceWith\(card\)/,'Must restore original card');
+assert.ok(!popup.includes('fetch('),'Mini chat must never bypass existing secure Gemini gateway');
+assert.match(popup,/onHome\(\)/,'Only show on Home');
+assert.match(popup,/elara:open/,'Must respond to page navigation');
+assert.match(css,/position:fixed/,'Floating bottom corner placement');
+assert.match(css,/@media\(max-width:590px\)/,'Mobile popup layout');
+assert.match(ai,/\.elara-home-fox-popover \[data-f-ai-host\]/,'Original chat must locate mini portal');
+assert.match(ai,/data-f-ai-personalize/,'Consent must be visible in both chat layouts');
+assert.match(ai,/personalizeEnabled\(\)/,'No automatic sharing of private profile information');
+assert.match(ai,/first_message:firstMessage/,'First-message signal is required');
+assert.match(ai,/profile_context:profileContext/,'User-authorized profile context');
+assert.match(ai,/!row\.shared|!r\.shared/,'Exclude shared items');
+assert.match(worker,/cleanChatContext/,'Server must validate profile payload');
+assert.match(worker,/body\.allow_profile_context===true/,'Worker must honor explicit consent');
+assert.match(worker,/FIRST sent message/,'Special first-message greeting');
+assert.match(worker,/tentative observations/,'No definitive personality assessment');
+assert.ok(!/AIza[0-9A-Za-z_-]{25,}/.test(popup),'No provider secrets may appear in popup');
+assert.match(boot,/home-fox-chat\.js/);assert.match(boot,/home-fox-chat\.css/);
+for(const path of ['home-fox-chat.js','home-fox-chat.css']){assert.ok(manifest.files.includes(path));assert.ok(manifest.required.includes(path))}
+assert.match(index,/boot\.js/);
+console.log('PASS: Home Fox popup reuses signed-in chat, consent, warm first greeting, mobile view, and original card restoration');
