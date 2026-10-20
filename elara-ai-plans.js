@@ -1,7 +1,7 @@
 /* Elara: conversational plan preview and atomic, user-confirmed apply. */
 (()=>{'use strict';
 const STORE='elara_space_v1',nameOf={task:'تسک',goal:'هدف',habit:'عادت',step:'ریزقدم',folder:'پوشه'};
-let pending=null,busy=false;
+let pending=null,busy=false,notice='';
 const tidy=(v,n=180)=>String(v??'').trim().slice(0,n);
 const esc=v=>tidy(v,1600).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>window.ElaraAccount?.user?.uid||'';
@@ -52,7 +52,16 @@ function operationDescription(item,index){
 function mount(host){
   const existing=host?.querySelector('[data-elara-plan]');
   existing?.remove();
-  if(!pending||pending.uid!==uid()||!host)return;
+  if(!host)return;
+  if(!pending||pending.uid!==uid()){
+    if(notice){
+      const node=document.createElement('p');
+      node.dataset.elaraPlan='1';node.setAttribute('role','status');
+      node.textContent=notice;node.style.whiteSpace='pre-wrap';
+      host.append(node);
+    }
+    return;
+  }
   const section=document.createElement('section');
   section.dataset.elaraPlan='1';
   section.style.cssText='border:1px solid #a889f4;border-radius:14px;background:#15253f;margin:15px 0;padding:16px;line-height:1.9';
@@ -210,7 +219,7 @@ async function approve(){
     window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:ready.data}));
     window.dispatchEvent(new Event('elara:data-changed'));
     window.ElaraLinkedTasks?.syncAll?.();
-    pending=null;status('✓ تغییرات تأییدشده در سایت ثبت شد. منتظر نشان «✓ ذخیره شد» در Firebase بمان.');
+    pending=null;notice='✓ تغییرات تأییدشده در سایت ثبت شد. منتظر نشان «✓ ذخیره شد» در Firebase بمان.';status(notice);
   }catch(error){status(error?.message||'ثبت برنامه ناموفق بود.');}
   finally{busy=false;refresh()}
 }
@@ -241,6 +250,7 @@ async function propose(message,contextRows=[],force=false){
     if(!p.items.length){if(force)status(p.question||'برای برنامه به جزئیات بیشتری نیاز دارم.');return false;}
     // Validate everything once in a dry run BEFORE showing a confirmation button.
     checkedOperations(rawState().data,p.items,state.inventory);
+    notice='';
     pending={uid:startUid,signature:rawState().source,inventory:state.inventory,proposal:p};
     refresh();status('📋 الارا یک برنامه پیشنهادی آماده کرده؛ جزئیات رو بخون و تأیید یا رد کن.');
     return true;
@@ -249,14 +259,15 @@ async function propose(message,contextRows=[],force=false){
 }
 document.addEventListener('click',event=>{
   if(event.target.closest?.('[data-elara-plan-reject]')){
-    pending=null;refresh();status('پیشنهاد کنار گذاشته شد؛ هیچ تغییری ثبت نشد.');return;
+    pending=null;notice='پیشنهاد کنار گذاشته شد؛ هیچ تغییری ثبت نشد.';refresh();status(notice);return;
   }
   if(event.target.closest?.('[data-elara-plan-approve]')){void approve();return;}
 });
-window.addEventListener('elara:logout',()=>{pending=null;busy=false});
+window.addEventListener('elara:logout',()=>{pending=null;notice='';busy=false});
 window.ElaraAIPlans={
   mount,consider:(message,rows)=>propose(message,rows,false),
   propose:(message,rows=[])=>propose(message,rows,true),
+  invalidate:()=>{pending=null;notice='';},
   isPlanning:planningIntent
 };
 })();
