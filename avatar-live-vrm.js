@@ -69,13 +69,16 @@
 
     const scene=new THREE.Scene(), anchor=new THREE.Group(), camera=new THREE.PerspectiveCamera(30,1,.03,70);
     scene.add(anchor);scene.add(camera);
-    const gazeTarget=new THREE.Object3D();camera.add(gazeTarget);gazeTarget.position.set(0,0,-2.6);
+    // Control both eyes together, with tightly bounded offsets. Native VRM lookAt
+    // was producing crossed/off-axis eyes because its camera-bound target was too close.
     const mouse={x:0,y:0},smoothMouse={x:0,y:0};
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const trackPointer=(e)=>{
-      if(pointer!==null)return; // Dragging rotates the whole character instead.
-      mouse.x=clamp((e.clientX/(window.innerWidth||1)-.5)*2,-1,1);
-      mouse.y=clamp((.5-e.clientY/(window.innerHeight||1))*2,-1,1);
+      if(pointer!==null||e.pointerType!=='mouse')return;
+      const rect=stage.getBoundingClientRect();
+      if(!rect.width||!rect.height)return;
+      mouse.x=clamp((e.clientX-(rect.left+rect.width*.5))/(rect.width*.5),-.42,.42);
+      mouse.y=clamp(((rect.top+rect.height*.5)-e.clientY)/(rect.height*.5),-.38,.38);
     };
     const resetPointer=()=>{mouse.x=0;mouse.y=0;};
     window.addEventListener('pointermove',trackPointer,{passive:true});
@@ -92,7 +95,7 @@
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
     const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand',
-      ...['left','right'].flatMap(side=>['ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
+      ...['left','right'].flatMap(side=>['Eye','ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
     function captureBones() {
       for(const name of boneNames) {
         const node=vrm.humanoid?.getNormalizedBoneNode(name);
@@ -118,7 +121,7 @@
       vrm.scene.position.z-=mid.z*scale;
       height=1.9;
       captureBones();
-      if(vrm.lookAt){vrm.lookAt.target=gazeTarget;vrm.lookAt.autoUpdate=true;}
+      if(vrm.lookAt){vrm.lookAt.autoUpdate=false;vrm.lookAt.target=null;} // No automatic convergence / cross-eyed focus.
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
       focus='full';zoom=1;
       camera.position.set(0,height*.52,aspect<.8?4.85:4.6);
@@ -141,6 +144,7 @@
     function selectFocus(next) {
       if(!Object.hasOwn(focusHeights,next))next='full';
       focus=next;zoom=1;
+      mouse.x=mouse.y=0;smoothMouse.x=smoothMouse.y=0;
       if(next!=='full')targetYaw=0;
       focusReturn.hidden=next==='full';
       focusButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.avatarFocus===next)));
@@ -268,9 +272,22 @@
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
-      gazeTarget.position.set(smoothMouse.x*.7,smoothMouse.y*.4,-2.6);
-      poseBone('neck',-.045*smoothMouse.y*amp,.07*smoothMouse.x*amp,Math.sin(t*.47)*.004*amp);
-      poseBone('head',-.065*smoothMouse.y*amp+Math.sin(t*.42)*.009*amp,.105*smoothMouse.x*amp+Math.sin(t*.5)*.014*amp,Math.sin(t*.38)*.008*amp);
+      poseBone('neck',-.025*smoothMouse.y*amp,.042*smoothMouse.x*amp,Math.sin(t*.47)*.004*amp);
+      poseBone('head',-.04*smoothMouse.y*amp+Math.sin(t*.42)*.009*amp,.065*smoothMouse.x*amp+Math.sin(t*.5)*.014*amp,Math.sin(t*.38)*.008*amp);
+      // A shared micro-rotation avoids inward convergence. If eye bones are absent,
+      // use only very small expression weights for exported VRM gaze presets.
+      if(bones.leftEye&&bones.rightEye){
+        const eyeX=-.05*smoothMouse.y*amp, eyeY=.065*smoothMouse.x*amp;
+        poseBone('leftEye',eyeX,eyeY,0);
+        poseBone('rightEye',eyeX,eyeY,0);
+      }else{
+        const em=vrm.expressionManager, horizontal=smoothMouse.x*.13*amp, vertical=smoothMouse.y*.12*amp;
+        if(em){
+          for(const [key,value] of [['lookLeft',Math.max(0,-horizontal)],['lookRight',Math.max(0,horizontal)],
+            ['lookUp',Math.max(0,vertical)],['lookDown',Math.max(0,-vertical)]])
+            try{em.setValue(key,value)}catch{}
+        }
+      }
       const breath=Math.sin(t*1.5);
       poseBone('chest',breath*.016*amp,Math.sin(t*.37)*.008*amp,Math.sin(t*.51)*.005*amp);
       poseBone('spine',breath*.008*amp,0,Math.sin(t*.46)*.006*amp);
