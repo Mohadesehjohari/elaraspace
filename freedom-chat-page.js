@@ -212,7 +212,7 @@ function start(){
  },true);
  document.addEventListener('keydown',event=>{
   if(!overlay)return;
-  if(event.key==='Escape'){
+  if(event.key === 'Escape'){
    event.preventDefault();
    if(focusMode)toggleFocus();else if(mode)chooser();else close();
   }else focusTrap(event);
