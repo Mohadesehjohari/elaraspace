@@ -44,7 +44,7 @@ function mount(){
   const existing=root.querySelector('[data-elara-audio-host]');
   if(existing)continue;
   const wrap=document.createElement('div');
-  wrap.innerHTML=markup().replaceAll('elara-audio-', 'elara-audio-'+suffix+'-');
+  wrap.innerHTML=markup().replaceAll('id="elara-audio-', 'id="elara-audio-'+suffix+'-').replaceAll('for="elara-audio-', 'for="elara-audio-'+suffix+'-');
   const card=wrap.firstElementChild;
   const theme=root.querySelector('.elara-theme-settings-inline, .elara-theme-settings-card');
   if(theme)theme.after(card);else root.append(card);
