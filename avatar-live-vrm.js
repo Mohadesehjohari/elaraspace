@@ -4,9 +4,10 @@
   'use strict';
   const CONFIG = 'avatar/vrm-looks.json?v=20261020-eli-manifest-refresh-v2';
   const PREFIX = 'elara_live_look_v1_';
-  // Mobile loads the heavy model only on explicit avatar expansion.
-  const enabled = stage => !!stage?.closest('.elara-avatar-quick-modal:not([hidden])') || window.matchMedia('(min-width:701px)').matches ||
-    !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
+  // The quick modal must never continue mounting after it has been closed.
+  const enabled = stage => !stage?.closest('.elara-avatar-quick-modal[hidden]') && (
+    !!stage?.closest('.elara-avatar-quick-modal:not([hidden])') || window.matchMedia('(min-width:701px)').matches ||
+    !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)'));
   const ready = item => !!item && ['preview', 'ready'].includes(item.status) && typeof item.src === 'string' && item.src.startsWith('assets/avatar/') && /\.vrm(?:\?.*)?$/.test(item.src);
   const uid = () => window.ElaraProfileSystem?.currentUid?.() || null;
   const currentKind = () => (window.ElaraProfileSystem?.readPrivate?.()?.sex === 'male' ? 'male' : 'female');
