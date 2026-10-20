@@ -40,7 +40,7 @@ function render(){
   const user=window.ElaraAccount?.user,signed=!!user,rows=visibleRows(),identity=signed?user.uid+':'+persona():'';
   const needsMemoryLoad=!!(signed&&remote()&&memoryUid!==identity);
   if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?identity:'';memory={enabled:false,notes:[],history:[],summary:''};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;chatBusy=false;chatError='';}
-  h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
+  h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article data-f-ai-at="'+Number(r.at||0)+'" class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
     +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="هدف، عادت، ریزقدم و تسک را بعد از تأیید تو مدیریت می‌کند">اجرای دستور در سایت</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
   window.ElaraAIPlans?.mount?.(h);
@@ -174,6 +174,13 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=
 window.ElaraFreedomAI={
   render,
   recent:()=>read(),
+  showFromMessage:(at)=>{
+    newChatCuts.set(key(),0);
+    render();
+    const node=[...(host()?.querySelectorAll('[data-f-ai-at]')||[])].find(x=>Number(x.dataset.fAiAt)===at);
+    if(node){node.scrollIntoView?.({behavior:'smooth',block:'center'});node.classList.add('ef-history-active');}
+    return !!node;
+  },
   startNewChat:()=>{
     if(chatBusy||memoryBusy)return false;
     // Start a fresh visible thread without deleting old conversations or cloud memory.
