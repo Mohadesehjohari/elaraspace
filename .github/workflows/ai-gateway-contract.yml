@@ -17,6 +17,10 @@ on:
       - 'tests/admin-backup-offline.test.mjs'
       - 'elara-ai-task-actions.js'
       - 'elara-ai-actions.js'
+      - 'elara-ai-plans.js'
+      - 'tests/ai-conversation-plan.test.mjs'
+      - 'tests/ai-conversation-browser.test.mjs'
+      - 'freedom-chat-page.js'
       - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
       - 'boot.js'
@@ -44,6 +48,10 @@ on:
       - 'tests/admin-backup-offline.test.mjs'
       - 'elara-ai-task-actions.js'
       - 'elara-ai-actions.js'
+      - 'elara-ai-plans.js'
+      - 'tests/ai-conversation-plan.test.mjs'
+      - 'tests/ai-conversation-browser.test.mjs'
+      - 'freedom-chat-page.js'
       - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
       - 'boot.js'
@@ -73,6 +81,8 @@ jobs:
           node --check tools/admin-backup/backup.mjs
           node --check elara-ai-task-actions.js
           node --check elara-ai-actions.js
+          node --check elara-ai-plans.js
+          node --check freedom-chat-page.js
           node --check freedom-chat-page.js
       - name: Check AI gateway contracts
         run: |
@@ -85,6 +95,8 @@ jobs:
           node tests/ai-task-plan.test.mjs
           node tests/ai-site-actions.test.mjs
           node tests/ai-site-actions-browser.test.mjs
+          node tests/ai-conversation-plan.test.mjs
+          node tests/ai-conversation-browser.test.mjs
           node tests/private-state-ram.test.mjs
           node tests/cloud-migration.test.mjs
           node tests/admin-backup-offline.test.mjs
