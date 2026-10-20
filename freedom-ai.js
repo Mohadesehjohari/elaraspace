@@ -36,6 +36,7 @@ function render(){
   h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
     +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="هدف، عادت، ریزقدم و تسک را بعد از تأیید تو مدیریت می‌کند">اجرای دستور در سایت</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
+  window.ElaraAIPlans?.mount?.(h);
   const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;
   if(needsMemoryLoad)void loadMemory(user.uid);
 }
