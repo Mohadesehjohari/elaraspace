@@ -39,7 +39,7 @@ test('3D stage is lazy and wardrobe reuses a single model/canvas', () => {
   assert.ok(visual.includes("['character','کاراکتر سه‌بعدی'"));
   assert.ok(visual.includes("slot.append(stage)"),'Character tab reuses the profile stage');
   assert.ok(live.includes('renderWardrobeControls'),'Wardrobe options must be mounted in the wardrobe tab');
-  assert.ok(live.includes("window.ElaraWardrobeUI?.open?.('character')"));
+  assert.ok(!live.includes('data-live-action="wardrobe"'),'Wardrobe entry belongs in the existing drawer menu only');
 });
 test('VRM has native eye tracking, head follow, relaxed arms and offscreen throttle', () => {
   const live=read('avatar-live-vrm.js');
@@ -48,4 +48,24 @@ test('VRM has native eye tracking, head follow, relaxed arms and offscreen throt
   assert.ok(live.includes("poseBone('leftUpperArm'")&&live.includes("poseBone('rightUpperArm'"));
   assert.ok(live.includes("document.querySelector('.approved-wardrobe:not([hidden])')"),'Do not render behind wardrobe');
   assert.ok(live.includes("renderer.setPixelRatio(Math.min(2,Math.max(1.5"));
+});
+
+test('mobile accordion preserves the existing desktop menu', () => {
+  const drawer=read('drawer.js'),css=read('avatar-experience-20261020.css');
+  const html=read('index.html');
+  assert.ok(drawer.includes("homeView='menu'"),'Mobile defaults to existing menu');
+  assert.ok(drawer.includes('data-elara-drawer-toggle'),'Single arrow below profile header');
+  assert.ok(drawer.includes("if(current==='home'&&(!mobile||homeView==='avatar'))renderHub()"),'Desktop always renders its original profile layout');
+  assert.ok(css.includes('.elara-drawer-reveal{display:none!important}'),'Desktop arrow remains hidden');
+  assert.ok(css.includes('@media(max-width:700px){'),'Styles apply to phones only');
+  assert.ok(html.includes('avatar-experience-20261020.css'),'Final phone overrides present');
+});
+test('avatar supports focused click zoom, natural idle and on-demand phone VRM', () => {
+  const live=read('avatar-live-vrm.js'),loader=read('avatar-3d.js');
+  for (const feature of ["data-avatar-focus=\"face\"","data-avatar-focus=\"torso\"","data-avatar-focus=\"legs\"",
+    "data-live-focus-return hidden","raycaster.intersectObject(vrm.scene,true)","selectFocus('full')",
+    "const breath=Math.sin(t*1.5)","side+finger+'Proximal'"]) {
+    assert.ok(live.includes(feature),'Missing '+feature);
+  }
+  assert.ok(loader.includes('mobileViewer()')&&live.includes('data-elara-view="avatar"'),'Phone VRM loads on request');
 });
