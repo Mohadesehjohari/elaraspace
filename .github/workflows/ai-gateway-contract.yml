@@ -21,10 +21,10 @@ on:
       - 'tests/ai-conversation-plan.test.mjs'
       - 'tests/ai-conversation-browser.test.mjs'
       - 'freedom-chat-page.js'
-      - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
       - 'boot.js'
       - 'tests/freedom-fox-chat-contract.mjs'
+      - 'tests/dual-persona-chat-contract.mjs'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
       - 'tests/ai-rolling-memory.test.mjs'
@@ -52,10 +52,10 @@ on:
       - 'tests/ai-conversation-plan.test.mjs'
       - 'tests/ai-conversation-browser.test.mjs'
       - 'freedom-chat-page.js'
-      - 'freedom-chat-page.js'
       - 'freedom-chat-page.css'
       - 'boot.js'
       - 'tests/freedom-fox-chat-contract.mjs'
+      - 'tests/dual-persona-chat-contract.mjs'
       - 'tests/ai-gateway-contract.test.mjs'
       - 'tests/ai-cloud-memory.test.mjs'
       - 'tests/ai-rolling-memory.test.mjs'
@@ -83,11 +83,11 @@ jobs:
           node --check elara-ai-actions.js
           node --check elara-ai-plans.js
           node --check freedom-chat-page.js
-          node --check freedom-chat-page.js
       - name: Check AI gateway contracts
         run: |
           node tests/ai-gateway-contract.test.mjs
           node tests/freedom-fox-chat-contract.mjs
+          node tests/dual-persona-chat-contract.mjs
       - name: Test private cross-device memory
         run: |
           node tests/ai-cloud-memory.test.mjs
