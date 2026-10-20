@@ -7,6 +7,16 @@
   const panel = () => document.getElementById('panel-freedom');
   const VIEW = 'fox-chat';
   const FOX = 'assets/ui/fox-loved.webp';
+  // Show the companion immediately on Freedom instead of deferring this visible art.
+  const warmFox=()=>{
+    if(document.querySelector('link[data-elara-fox-preload]'))return;
+    const link=document.createElement('link');
+    link.rel='preload';link.as='image';link.href=FOX;link.fetchPriority='high';
+    link.dataset.elaraFoxPreload='1';document.head.appendChild(link);
+  };
+  if(location.hash.startsWith('#freedom'))warmFox();
+  window.addEventListener('elara:open',e=>{if(e?.detail?.tab==='freedom')warmFox()});
+
   let card = null;
   let placeholder = null;
   let overlay = null;
@@ -44,7 +54,7 @@
       box.setAttribute('aria-label', 'گفت‌وگو با روباه الارا');
       box.innerHTML =
         '<button class="freedom-fox-preview" type="button" data-fox-open aria-label="بازکردن گفت‌وگوی تمام‌صفحه با روباه الارا">' +
-        '<img src="' + FOX + '" alt="روباه الارا" width="92" height="92" loading="lazy">' +
+        '<img src="' + FOX + '" alt="روباه الارا" width="92" height="92" loading="eager" decoding="async" fetchpriority="high">' +
         '<span class="freedom-fox-preview-copy"><small>دوست هوشمند تو در آزادی</small>' +
         '<strong>بیا با هم حرف بزنیم <span aria-hidden="true">♡</span></strong>' +
         '<span class="freedom-fox-preview-message" data-fox-preview></span>' +
@@ -72,7 +82,7 @@
       '<header class="freedom-fox-overlay-header">' +
       '<button type="button" class="freedom-fox-back" data-fox-close aria-label="کوچک کردن چت و بازگشت به آزادی">→ بازگشت به آزادی</button>' +
       '<div class="freedom-fox-companion">' +
-      '<img src="' + FOX + '" alt="روباه الارا" width="88" height="88">' +
+      '<img src="' + FOX + '" alt="روباه الارا" width="88" height="88" loading="eager" decoding="async">' +
       '<span><small>ELARA FOX · AI</small><strong>من اینجام، باهات حرف می‌زنم</strong>' +
       '<small>همراه هوشمندت برای درد دل، ایده‌ها و کارهای روزمره</small></span></div>' +
       '</header><main class="freedom-fox-conversation"></main>' +
