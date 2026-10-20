@@ -35,7 +35,7 @@ const on=(kind)=>(name,cb)=>{(listeners[kind][name]??=[]).push(cb)};
 const win={AudioContext:Context,addEventListener:on('window'),dispatchEvent(){}};
 const doc={readyState:'loading',documentElement:{lang:'fa'},activeElement:null,addEventListener:on('document'),querySelectorAll(){return []},querySelector(){return null}};
 const prefs={getItem:key=>store.get(key)??null,setItem:(key,val)=>store.set(key,val)};
-const sandbox={window:win,document:doc,localStorage:prefs,console,CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts?.detail}},performance:{now:()=>1000},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,MutationObserver:class{observe(){}}};
+const sandbox={window:win,document:doc,localStorage:prefs,console,CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts?.detail}},performance:{now:(()=>{let t=1000;return()=>t+=400})()},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,MutationObserver:class{observe(){}}};
 vm.runInNewContext(source,sandbox,{filename:'elara-audio.js'});
 const engine=win.ElaraAudio;
 assert.ok(engine,'engine globally available');
