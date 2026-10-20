@@ -170,15 +170,22 @@ try{
    console.log('UI09_TASK_SCROLL_WHEEL_KEYBOARD_PASS '+width);
   }
   if(width===430||width===1440) {
-   const btn=h.page.locator('#ref-equipped-character-toggle');await btn.click();
-   assert.equal(await btn.getAttribute('aria-expanded'),'true','character panel not opened');
-   assert.equal(await h.page.locator('#ref-equipped-character-panel').isVisible(),true);
-   assert.ok((await h.page.locator('#ref-equipped-character-panel').innerText()).includes('انتخاب نکرده'),'missing wardrobe should render truthful empty state');
-   await h.page.keyboard.press('Escape');assert.equal(await btn.getAttribute('aria-expanded'),'false');
-   await h.page.evaluate(()=>{window.ElaraProfileSystem.writeWardrobe({avatarGroup:'female',avatarLevel:1});window.ElaraReferenceHome.render()});
-   await btn.click();assert.equal(await h.page.locator('#ref-equipped-character-panel .ref-character-preview img[data-avatar-image]').count(),1,'equipped profile asset not shown');
-   await h.page.locator('#ref-equipped-character-toggle').click();assert.equal(await btn.getAttribute('aria-expanded'),'false');
-   console.log('UI09_CHARACTER_PANEL_PASS '+width);
+   const btn=h.page.locator('#ref-equipped-character-toggle');
+   await btn.click();
+   const drawer=h.page.locator('.elara-private-drawer:not(.hidden)');
+   await drawer.waitFor({state:'visible',timeout:15000});
+   assert.equal(await drawer.locator('[data-drawer-section="home"]').isVisible(),true,'Header chevron must open full-size profile avatar');
+   await drawer.locator('[data-elara-avatar-stage]').waitFor({state:'visible',timeout:15000});
+   if(width===430){
+     assert.equal(await drawer.locator('.drawer-menu').isVisible(),false,'Mobile profile must default to full-body character');
+     await drawer.locator('[data-elara-drawer-toggle]').click();
+     assert.equal(await drawer.locator('.drawer-menu').isVisible(),true,'Only the under-banner arrow may reveal settings');
+   }else{
+     assert.equal(await drawer.locator('.drawer-menu').isVisible(),true,'PC settings menu must keep its layout');
+   }
+   await h.page.keyboard.press('Escape');
+   await drawer.waitFor({state:'hidden',timeout:7000});
+   console.log('UI09_CHARACTER_FULL_BODY_DRAWER_PASS '+width);
    // Disposable browser-only social fixture (never written to user data or Firestore).
    await h.page.evaluate(()=>{
     window.ElaraSocial.me={uid:'fixture_self',name:'نفر اول آزمایش',username:'fixture_self',xp:1700};
