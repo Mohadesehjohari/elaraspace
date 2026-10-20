@@ -129,7 +129,7 @@ function refreshHome(){if(window.ElaraReferenceHome)return;
  const social=$('elara-home-social');if(social&&!social.children.length){social.innerHTML='<p class="muted">با دوستانت مسیر را جذاب‌تر کن.</p><button type="button" class="quiet-button" data-elara-tab="social">دیدن دوستان</button>'}
 }
 function wardrobeWindow(){
- if(!document.getElementById('elara-wardrobe-reference-css')){const link=document.createElement('link');link.id='elara-wardrobe-reference-css';link.rel='stylesheet';link.href='wardrobe-reference.css?v=p3-20261011';document.head.append(link)}
+ if(!document.getElementById('elara-wardrobe-reference-css')){const link=document.createElement('link');link.id='elara-wardrobe-reference-css';link.rel='stylesheet';link.href='wardrobe-reference.css?v=20261020-avatar-gender-v1';document.head.append(link)}
  if(windowRoot)return;windowRoot=document.createElement('div');windowRoot.className='approved-wardrobe';windowRoot.hidden=true;
  windowRoot.innerHTML=`<button type="button" class="approved-wardrobe-scrim" data-close-wardrobe aria-label="بستن کمد"></button><section class="approved-wardrobe-window" role="dialog" aria-modal="true" aria-labelledby="wardrobe-title" tabindex="-1"><header><button class="quiet-button" type="button" data-back-wardrobe aria-label="بازگشت">←</button><div><h2 id="wardrobe-title"><img class="wardrobe-title-art" src="assets/ui/icon_wardrobe_hanger.webp" alt="" decoding="async"> کمد فضایی من</h2><p class="muted">انتخاب و تجهیز آواتار، بنر، قاب و آیتم‌های شخصی‌سازی. پیش‌نمایش، انتخاب را ذخیره نمی‌کند.</p></div><button class="quiet-button" type="button" data-close-wardrobe>×</button></header><div id="wardrobe-main"></div></section>`;document.body.append(windowRoot)
 }
@@ -150,7 +150,7 @@ function drawWardrobe(){
  const tabs=[['character','کاراکتر سه‌بعدی','user'],['avatar','آواتار','user'],['banner','بنر پروفایل','home'],['frame','فریم','ranking'],['badge','نشان','ranking'],['effect','افکت','spark']];
  if(wardrobeTab==='character'){
    const privateAppearance=system.readPrivate?.()||{};
-   const activeGender=['male','female'].includes(privateAppearance.avatarGender)?privateAppearance.avatarGender:(privateAppearance.sex==='male'?'male':'female');
+   const activeGender=['male','female'].includes(privateAppearance.avatarGender)?privateAppearance.avatarGender:(['male','female'].includes(privateAppearance.sex)?privateAppearance.sex:(system.readWardrobe?.()?.avatarGroup==='male'?'male':'female'));
    const genderPicker='<div class="elara-character-gender" role="group" aria-label="جنسیت ظاهری کاراکتر">'+
      '<button type="button" data-elara-avatar-gender="female" aria-pressed="'+(activeGender==='female')+'">زن</button>'+
      '<button type="button" data-elara-avatar-gender="male" aria-pressed="'+(activeGender==='male')+'">مرد</button>'+
@@ -235,7 +235,7 @@ function wire(){
     const profile=profileSystem();
     if(profile?.readPrivate&&profile?.writePrivate){
      const current=profile.readPrivate();
-     const active=['male','female'].includes(current.avatarGender)?current.avatarGender:(current.sex==='male'?'male':'female');
+     const active=['male','female'].includes(current.avatarGender)?current.avatarGender:(['male','female'].includes(current.sex)?current.sex:(profile.readWardrobe?.()?.avatarGroup==='male'?'male':'female'));
      if(active!==kind)profile.writePrivate({avatarGender:kind});
      windowRoot.querySelectorAll('[data-elara-avatar-gender]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.elaraAvatarGender===kind)));
     }
