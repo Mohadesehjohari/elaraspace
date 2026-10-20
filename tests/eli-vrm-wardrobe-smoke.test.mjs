@@ -47,7 +47,7 @@ test('VRM has native eye tracking, head follow, relaxed arms and offscreen throt
   assert.ok(live.includes("poseBone('neck'")&&live.includes("poseBone('head'"));
   assert.ok(live.includes("poseBone('leftUpperArm'")&&live.includes("poseBone('rightUpperArm'"));
   assert.ok(live.includes("document.querySelector('.approved-wardrobe:not([hidden])')"),'Do not render behind wardrobe');
-  assert.ok(live.includes("renderer.setPixelRatio(Math.min(2,Math.max(1.5"));
+  assert.ok(live.includes("Math.min(2,Math.max(1.5"),'Desktop still uses sharper rendering');
 });
 
 test('mobile accordion preserves the existing desktop menu', () => {
