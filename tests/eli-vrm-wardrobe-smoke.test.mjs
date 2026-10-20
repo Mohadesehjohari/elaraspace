@@ -77,3 +77,13 @@ test('profile header arrow uses full-body drawer instead of static popup', () =>
   assert.ok(!header.includes("popup.hidden=false;"),'Old static equipped-character popup must not open');
   assert.ok(drawer.includes("if(section==='home')homeView='avatar'"));
 });
+
+test('avatar catalogue is revalidated and fallback is clearly identified', () => {
+ const live=read('avatar-live-vrm.js'),prototype=read('avatar-3d.js');
+ assert.ok(live.includes("fetch(CONFIG,{cache:'no-cache'})"),'Manifest must not be frozen in a friend\'s browser cache');
+ assert.ok(live.includes("kind==='male'?'male-vrm-not-ready'"),'Unavailable male export is distinct from a broken female model');
+ assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
+ assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
+ const html=read('index.html');
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261020-cache-model-fix-v3'));
+});
