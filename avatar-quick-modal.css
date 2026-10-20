@@ -118,3 +118,34 @@ body.elara-quick-avatar-open{overflow:hidden!important}
 @media(prefers-reduced-motion:reduce){
   .elara-avatar-quick-backdrop{backdrop-filter:none}
 }
+
+/* Character-only quick view: the header arrow never opens profile settings.
+   Keep the full-body canvas and an accessible close control, nothing else. */
+.elara-avatar-quick-modal .elara-avatar-quick-header{
+  position:absolute!important;top:12px;right:12px;left:auto;
+  width:auto;height:auto;min-height:0;padding:0!important;
+  border:0!important;background:none!important;z-index:20;
+}
+.elara-avatar-quick-modal .elara-avatar-quick-header strong,
+.elara-avatar-quick-modal .elara-avatar-quick-header span,
+.elara-avatar-quick-modal .elara-avatar-badge,
+.elara-avatar-quick-modal .elara-avatar-help,
+.elara-avatar-quick-modal .elara-live-controls{
+  display:none!important;
+}
+.elara-avatar-quick-modal .elara-avatar-quick-close{
+  margin:0!important;width:40px;height:40px;min-width:40px;
+  border-radius:50%;background:#111b37bf;
+}
+.elara-avatar-quick-modal .elara-avatar-status:not([data-state="error"]){
+  display:none!important;
+}
+.elara-avatar-quick-modal .elara-avatar-quick-dialog{
+  height:min(94dvh,900px);max-height:calc(100dvh - 16px);
+}
+@media(max-width:700px){
+  .elara-avatar-quick-modal .elara-avatar-quick-dialog{
+    width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);
+  }
+  .elara-avatar-quick-modal .elara-avatar-quick-header{top:10px;right:10px}
+}
