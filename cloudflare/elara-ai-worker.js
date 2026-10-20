@@ -413,6 +413,7 @@ function cleanAgentPlan(raw,inventory){
   const time=agentFieldTime(action==='update'&&raw.clear_time!==true&&!proposedTime?target.time:proposedTime);
   const proposedPriority=clean(raw.priority,1);
   const priority=['1','2','3','4'].includes(proposedPriority)?proposedPriority:(target?.priority||'4');
+  if(kind==='habit'&&(date||time))fail('برای عادت‌ها در نسخه فعلی فقط عنوان و روزهای هفته قابل تنظیم است؛ تاریخ یا ساعت مشخص را از بخش عادت‌ها مدیریت کن.',422);
   const base={action,kind,title,date,time,priority};
   if(action==='update')base.id=target.id;
   if(kind==='goal'){
