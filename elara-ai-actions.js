@@ -26,7 +26,7 @@ function getState(){
 function inventoryOf(state){
   const inventory=[];
   const add=(kind,e,parentId='')=>{
-    if(!e||!safe(e.id,128)||!safe(kind==='task'?e.text:kind==='step'?e.text:e.title))return;
+    if(!e||!allowed(e)||!safe(e.id,128)||!safe(kind==='task'?e.text:kind==='step'?e.text:e.title))return;
     inventory.push({
       kind,id:safe(e.id,128),parent_id:safe(parentId,128),
       title:safe(kind==='task'||kind==='step'?e.text:e.title),
@@ -40,7 +40,7 @@ function inventoryOf(state){
   const goals=state.goals.slice(0,50);
   goals.forEach(g=>add('goal',g));
   state.habits.slice(0,50).forEach(h=>add('habit',h));
-  for(const g of goals)for(const step of (g.steps||[]).slice(0,55)){
+  for(const g of goals.filter(allowed))for(const step of (g.steps||[]).slice(0,55)){
     if(inventory.length>=235)break;
     add('step',{...step,shared:!allowed(g)},g.id);
   }
