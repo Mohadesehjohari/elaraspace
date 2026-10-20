@@ -13,7 +13,7 @@ function ensureContext(){
  const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error(t('مرورگر این دستگاه صدای محیطی را پشتیبانی نمی‌کند.','This browser does not support ambient audio.'));
  if(!ctx||ctx.state==='closed')ctx=new Audio();return ctx
 }
-function gainValue(){return Math.max(0,Math.min(1,Number(read().volume||0)/100))*0.16}
+function gainValue(){const s=window.ElaraAudio?.read?.();const factor=s?(s.enabled&&!s.mute.ambient?(s.master/100)*(s.volume.ambient/100):0):1;return Math.max(0,Math.min(1,Number(read().volume||0)/100))*0.16*factor}
 function noiseBuffer(c,seconds=4){
  const len=Math.max(1,Math.floor(c.sampleRate*seconds)),buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
  let last=0;for(let i=0;i<len;i++){const white=Math.random()*2-1;last=(last+0.025*white)/1.025;d[i]=last*3.2}return buf
@@ -94,6 +94,7 @@ window.addEventListener('elara:state-committed',()=>ensureMounted(25));
 window.addEventListener('elara:boot-watchdog',()=>ensureMounted(0));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing&&ctx?.state==='running')void ctx.suspend();else if(!document.hidden&&playing&&ctx?.state==='suspended')void ctx.resume()});
 const start=()=>{if(!mount())ensureMounted(100);if(!observer&&document.documentElement){observer=new MutationObserver(()=>{const card=document.querySelector('#panel-focus-pomodoro .focus-ref-ambience');if(card&&document.getElementById('focus-ambience')?.parentElement!==card)ensureMounted(0)});observer.observe(document.documentElement,{childList:true,subtree:true})}};
+window.addEventListener('elara:audio-settings-changed',syncVolume);
 window.ElaraFocusAmbience={read,start:startAudio,stop:stopAudio,mount,get playing(){return playing}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
