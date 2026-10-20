@@ -242,8 +242,7 @@ function characterQuickView(bar,account,profile){
   toggle.dataset.bound='1';
   toggle.addEventListener('click',event=>{
    event.preventDefault();event.stopPropagation();
-   window.ElaraPrivateDrawer?.showHomeAvatar?.();
-   toggle.setAttribute('aria-expanded','false');
+   window.ElaraAvatarQuickModal?.toggle?.(toggle);
   });
  }
 }

@@ -5,7 +5,7 @@
   const CONFIG = 'avatar/vrm-looks.json?v=20261020-eli-manifest-refresh-v2';
   const PREFIX = 'elara_live_look_v1_';
   // Mobile loads the heavy model only on explicit avatar expansion.
-  const enabled = () => window.matchMedia('(min-width:701px)').matches ||
+  const enabled = stage => !!stage?.closest('.elara-avatar-quick-modal:not([hidden])') || window.matchMedia('(min-width:701px)').matches ||
     !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)');
   const ready = item => !!item && ['preview', 'ready'].includes(item.status) && typeof item.src === 'string' && item.src.startsWith('assets/avatar/') && /\.vrm(?:\?.*)?$/.test(item.src);
   const uid = () => window.ElaraProfileSystem?.currentUid?.() || null;
@@ -49,7 +49,7 @@
       console.warn('Elara VRM: saved outfit unavailable, using base',error);
       initialLook=looks[0];vrm=await getVRM(initialLook.src);
     }
-    if (!stage.isConnected || !enabled()) { disposeMeshes(THREE,vrm.scene); return false; }
+    if (!stage.isConnected || !enabled(stage)) { disposeMeshes(THREE,vrm.scene); return false; }
 
     let renderer;
     try { renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'}); }
@@ -337,7 +337,7 @@
   }
 
   async function tryMount(stage) {
-    if(!stage||!enabled())return false;
+    if(!stage||!enabled(stage))return false;
     const kind=currentKind();
     let config;
     try {

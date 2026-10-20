@@ -172,20 +172,16 @@ try{
   if(width===430||width===1440) {
    const btn=h.page.locator('#ref-equipped-character-toggle');
    await btn.click();
-   const drawer=h.page.locator('.elara-private-drawer:not(.hidden)');
-   await drawer.waitFor({state:'visible',timeout:15000});
-   assert.equal(await drawer.locator('[data-drawer-section="home"]').isVisible(),true,'Header chevron must open full-size profile avatar');
-   await drawer.locator('[data-elara-avatar-stage]').waitFor({state:'visible',timeout:15000});
-   if(width===430){
-     assert.equal(await drawer.locator('.drawer-menu').isVisible(),false,'Mobile profile must default to full-body character');
-     await drawer.locator('[data-elara-drawer-toggle]').click();
-     assert.equal(await drawer.locator('.drawer-menu').isVisible(),true,'Only the under-banner arrow may reveal settings');
-   }else{
-     assert.equal(await drawer.locator('.drawer-menu').isVisible(),true,'PC settings menu must keep its layout');
-   }
+   const popup=h.page.locator('.elara-avatar-quick-modal:not([hidden])');
+   await popup.waitFor({state:'visible',timeout:15000});
+   assert.equal(await popup.locator('[role="dialog"]').isVisible(),true,'Header chevron opens standalone character dialog');
+   assert.equal(await popup.locator('[data-elara-avatar-stage]').isVisible(),true,'Full-size avatar stage must fill the popup');
+   assert.equal(await h.page.locator('.elara-private-drawer:not(.hidden)').count(),0,'Header chevron must not open the profile drawer');
+   const popBox=await popup.locator('.elara-avatar-quick-dialog').boundingBox();
+   assert.ok(popBox&&popBox.height>330,'Full-body dialog is too short');
    await h.page.keyboard.press('Escape');
-   await drawer.waitFor({state:'hidden',timeout:7000});
-   console.log('UI09_CHARACTER_FULL_BODY_DRAWER_PASS '+width);
+   await popup.waitFor({state:'hidden',timeout:7000});
+   console.log('UI09_CHARACTER_STANDALONE_MODAL_PASS '+width);
    // Disposable browser-only social fixture (never written to user data or Firestore).
    await h.page.evaluate(()=>{
     window.ElaraSocial.me={uid:'fixture_self',name:'نفر اول آزمایش',username:'fixture_self',xp:1700};
