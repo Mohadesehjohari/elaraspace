@@ -1,3 +1,6 @@
+/* Only phones get the collapsible profile menu. Desktop structure is intentionally unchanged. */
+.elara-drawer-reveal{display:none!important}
+@media(max-width:700px){
 /* Elara character-first drawer / mobile VRM layout — isolated to the Home drawer. */
 .elara-private-drawer[data-mobile-section="home"] > .elara-private-drawer-panel{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
@@ -10,7 +13,7 @@
 }
 .elara-private-drawer[data-mobile-section="home"] > .elara-private-drawer-panel > .elara-drawer-reveal{
   display:flex!important;grid-column:1!important;grid-row:2!important;
-  direction:rtl;justify-content:center;align-items:center;gap:9px;
+  direction:rtl;justify-content:flex-start;align-items:center;gap:9px;
   width:100%!important;min-height:38px!important;margin:0!important;
   border:0!important;border-block-end:1px solid #7e75c844!important;
   border-radius:0!important;background:linear-gradient(90deg,#162b4b66,#23245088,#162b4b66)!important;
@@ -104,3 +107,5 @@
  .elara-private-drawer[data-mobile-section="home"] .elara-avatar-zone-buttons button{font-size:10px;padding:6px 8px}
 }
 @media(prefers-reduced-motion:reduce){.elara-drawer-reveal-chevron{transition:none}}
+
+}
