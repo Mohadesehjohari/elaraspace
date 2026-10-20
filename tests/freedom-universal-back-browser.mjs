@@ -29,6 +29,10 @@ try {
     for (const kind of kinds) {
       await page.evaluate(x=>window.ElaraFreedomEnhancements.open(x),kind);
       await page.waitForSelector('#panel-freedom > .freedom-subpage-shell[data-freedom-view="'+kind+'"]',{timeout:12000});
+      const native = page.locator('#panel-freedom > .freedom-subpage-shell .freedom-back-toolbar > button');
+      await native.waitFor({state:'visible',timeout:7000});
+      assert.equal(await native.count(),1,width+' '+kind+' has an embedded Back control');
+      assert.match(await native.innerText(),/بازگشت به آزادی/);
       await action.waitFor({state:'visible',timeout:7000});
       const hit = await action.evaluate(btn=>{
         const box=btn.getBoundingClientRect(),cx=box.left+box.width/2,cy=box.top+box.height/2;
@@ -41,7 +45,11 @@ try {
       assert.ok(hit.viewport,width+' '+kind+' button in viewport '+JSON.stringify(hit));
       assert.ok(hit.clickable,width+' '+kind+' button is not covered by toolbar or banner '+JSON.stringify(hit));
       assert.ok(hit.hasText,width+' '+kind+' readable Back label');
-      await action.click({timeout:10000});
+      if (kind === 'reflection' || kind === 'experiences' || kind === 'notes') {
+        await native.click({timeout:10000});
+      } else {
+        await action.click({timeout:10000});
+      }
       await page.waitForFunction(()=>!document.querySelector('#panel-freedom > .freedom-subpage-shell'),null,{timeout:12000});
       await action.waitFor({state:'hidden',timeout:7000});
       assert.equal(await page.evaluate(()=>location.hash),'#freedom',kind+' returns to Freedom');
