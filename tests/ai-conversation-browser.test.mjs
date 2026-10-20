@@ -12,6 +12,8 @@ const fakeWindow={
   ElaraSchedule:{normalize(rule){return {...rule}}},
   ElaraLinkedTasks:{syncAll(){}},
   confirm(){confirmCalls++;return allowed},
+  // VM tests simulate browser lifecycle listeners without a real DOM.
+  addEventListener(){},
   dispatchEvent(e){if(e.type==='elara:data-changed')changed++}
 };
 const localStorage={
