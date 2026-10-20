@@ -1,6 +1,6 @@
 /* Freedom AI: signed-in user's private, opt-in cloud memory and local chat fallback. */
 (()=>{'use strict';
-const host=()=>document.querySelector('.freedom-fox-overlay [data-f-ai-host],#panel-freedom [data-f-ai-host]');
+const host=()=>document.querySelector('.elara-home-fox-popover [data-f-ai-host],.freedom-fox-overlay [data-f-ai-host],#panel-freedom [data-f-ai-host]');
 const uid=()=>window.ElaraAccount?.user?.uid||'guest';
 const persona=()=>window.ElaraFreedomChatPage?.mode==='character'?'character':'fox';
 const key=()=>persona()==='character'?'elara_character_ai_chat_v1_'+uid():'elara_freedom_ai_chat_v1_'+uid();
@@ -22,6 +22,28 @@ const write=rows=>{const recent=rows.slice(-60);
 const clearChat=()=>{if(ramOnly())sessionChats.delete(key());else localStorage.removeItem(key());
  newChatCuts.delete(key());window.dispatchEvent(new Event('elara:chat-updated'));};
 window.ElaraPrivateChatMemory={reset:()=>{sessionChats.clear();newChatCuts.clear()}};
+// The only local preference here is a boolean, NEVER profile content or Gemini secrets.
+const personalizationKey=()=> 'elara_ai_context_consent_v1_'+uid();
+const personalizeEnabled=()=>{try{return localStorage.getItem(personalizationKey())==='yes'}catch{return false}};
+function ownProfileContext(){
+ const u=window.ElaraAccount?.user,uid=u?.uid;
+ if(!uid)return {};
+ const account=window.ElaraAccount?.profile||{};
+ const social=window.ElaraSocial?.me?.uid===uid?window.ElaraSocial.me:{};
+ const name=String(account.name||social.name||u.displayName||account.username||social.username||'').trim().slice(0,60);
+ if(!personalizeEnabled()||!window.ElaraAccount?.loaded||!document.body.classList.contains('cloud-ready')||
+    document.body.classList.contains('cloud-offline'))return {name};
+ const bio=String(account.bio||social.bio||'').trim().slice(0,350);
+ let local={};try{local=JSON.parse(localStorage.getItem('elara_space_v1')||'{}')||{}}catch{}
+ const isMine=row=>row&&!row.shared&&!row.collabSpaceId&&!row.collabOwnerUid&&!row.sourceManaged&&
+    !(row.sourceGroup&&row.sourceGroup!=='personal');
+ const tasks=(Array.isArray(local.tasks)?local.tasks:[]).filter(x=>isMine(x)&&!x.completed)
+   .slice(0,6).map(x=>({title:String(x.text||'').slice(0,110),date:String(x.date||'').slice(0,10)}))
+   .filter(x=>x.title);
+ const goals=(Array.isArray(local.goals)?local.goals:[]).filter(isMine)
+   .slice(0,5).map(x=>({title:String(x.title||'').slice(0,110)})).filter(x=>x.title);
+ return {name,bio,tasks,goals};
+}
 const remote=()=>String(window.ELARA_AI_API_URL||'').trim().replace(/\/+$/,'');
 const aiEndpoint=()=>{const base=remote();if(!base&&location.hostname.endsWith('.github.io'))throw new Error('هوش مصنوعی هنوز به سرور امن متصل نشده است.');return base?base+'/ai':'ai.php'};
 let memory={enabled:false,notes:[],history:[],summary:''},memoryUid='',memoryMessage='',memoryBusy=false,chatBusy=false,chatError='';
@@ -38,11 +60,12 @@ function memoryControls(){
 function render(){
   const h=host();if(!h)return;
   const user=window.ElaraAccount?.user,signed=!!user,rows=visibleRows(),identity=signed?user.uid+':'+persona():'';
+  const personalize=signed&&personalizeEnabled();
   const needsMemoryLoad=!!(signed&&remote()&&memoryUid!==identity);
   if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?identity:'';memory={enabled:false,notes:[],history:[],summary:''};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;chatBusy=false;chatError='';}
   h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article data-f-ai-at="'+Number(r.at||0)+'" class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
     +memoryControls()
-    +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="هدف، عادت، ریزقدم و تسک را بعد از تأیید تو مدیریت می‌کند">اجرای دستور در سایت</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
+    +'<form class="freedom-ai-form" data-f-ai-form><label class="elara-ai-personalize" style="display:flex;align-items:center;gap:7px;color:#bcb8e5;padding:3px 4px;cursor:pointer"><input data-f-ai-personalize type="checkbox" aria-label="اجازه استفاده از بیو و هدف‌های شخصی برای پیشنهادهای بهتر" '+(personalize?'checked ':'')+(signed?'':'disabled')+'> با اجازه من، الارا از بیو و هدف‌های شخصی‌ام برای برنامه‌ریزی استفاده کنه</label><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="هدف، عادت، ریزقدم و تسک را بعد از تأیید تو مدیریت می‌کند">اجرای دستور در سایت</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
   window.ElaraAIPlans?.mount?.(h);
   const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;
   if(needsMemoryLoad)void loadMemory(user.uid,persona());
@@ -100,7 +123,11 @@ async function submit(form){
   try{
     if(expectedPersona==='character')await memoryRequest('GET');
     const token=await user.getIdToken(),history=before.slice(newChatCuts.get(key())||0).slice(-10).map(x=>({role:x.role,text:x.text}));
-    const response=await fetch(aiEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'Accept':'application/json'},cache:'no-store',credentials:'same-origin',body:JSON.stringify({message,history,persona:expectedPersona})});
+    const profileContext=ownProfileContext(),firstMessage=!before.some(x=>x.role==='user');
+    const response=await fetch(aiEndpoint(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'Accept':'application/json'},cache:'no-store',credentials:'same-origin',body:JSON.stringify({
+      message,history,persona:expectedPersona,first_message:firstMessage,
+      allow_profile_context:personalizeEnabled(),profile_context:profileContext
+    })});
     const payload=await response.json().catch(()=>null);
     if(!response.ok||payload?.ok!==true)throw new Error(payload?.error||('AI HTTP '+response.status));
     if(uid()!==expectedUid||persona()!==expectedPersona)return;
@@ -131,6 +158,18 @@ document.addEventListener('submit',e=>{
   }
 },true);
 document.addEventListener('change',e=>{
+  if(e.target.matches?.('[data-f-ai-personalize]')){
+    if(!window.ElaraAccount?.user){e.target.checked=false;return;}
+    if(e.target.checked){
+      if(!confirm('اجازه می‌دی الارا برای شخصی‌سازی پاسخ‌ها، نام نمایشی، بیو و چند هدف و تسک شخصی رو به Gemini بفرسته؟ داده‌های اشتراکی ارسال نمی‌شن.')){
+        e.target.checked=false;return;
+      }
+    }
+    try{if(e.target.checked)localStorage.setItem(personalizationKey(),'yes');
+      else localStorage.removeItem(personalizationKey());}catch{}
+    render();
+    return;
+  }
   if(!e.target.matches?.('[data-f-ai-memory-toggle]'))return;
   const checked=e.target.checked;
   if(checked){
