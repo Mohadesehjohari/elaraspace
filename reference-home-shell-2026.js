@@ -223,54 +223,28 @@ function streakView(){const root=$('ref-streak-card');if(!root)return;const n=st
 }
 /* Equipped character quick-view: only the user's real equipped wardrobe asset.
    No sample avatars, no Firestore writes, no duplicate profile controls. */
+/* The header chevron opens the user's actual full-body VRM, not a small static photo.
+   The compact popover was removed: Avatar lives inside the canonical profile drawer. */
 function characterQuickView(bar,account,profile){
  let toggle=document.getElementById('ref-equipped-character-toggle');
  if(!toggle){
-  toggle=document.createElement('button');toggle.type='button';
-  toggle.id='ref-equipped-character-toggle';toggle.className='ref-character-chevron';
-  toggle.setAttribute('aria-label','نمایش کاراکتر مجهز');toggle.setAttribute('aria-controls','ref-equipped-character-panel');
+  toggle=document.createElement('button');
+  toggle.type='button';toggle.id='ref-equipped-character-toggle';toggle.className='ref-character-chevron';
+  toggle.setAttribute('aria-label','نمایش کاراکتر سه‌بعدی تمام‌قد');
   toggle.setAttribute('aria-expanded','false');toggle.textContent='⌄';
   account.insertAdjacentElement('afterend',toggle);
  }
- let popup=document.getElementById('ref-equipped-character-panel');
- if(!popup){
-  popup=document.createElement('aside');popup.id='ref-equipped-character-panel';
-  popup.className='ref-equipped-character-panel';popup.setAttribute('role','dialog');
-  popup.setAttribute('aria-label','کاراکتر من');popup.setAttribute('aria-modal','false');
-  popup.hidden=true;document.body.append(popup)
- }
- const render=()=>{
-  const current=window.ElaraSocial?.me||window.ElaraAccount?.profile||{};
-  const v=window.ElaraProfileSystem?.viewModel?.(current,{self:true})||profile||{};
-  const equipped=!!v.avatarGroup&&!!v.avatarLevel&&!!v.avatarAssetSrc;
-  const art=equipped?window.ElaraProfileSystem?.avatarShell?.({...v,avatarSrc:v.avatarAssetSrc},{className:'ref-character-preview',frameClass:'ref-character-frame'})||'':'';
-  popup.innerHTML='<header><strong>کاراکتر مجهز من</strong><button type="button" data-ref-character-close aria-label="بستن">×</button></header>'+
-  (equipped?'<div class="ref-character-art">'+art+'</div><small>سطح '+fa(v.avatarLevel)+' · '+esc(v.name||'')+'</small>':
-  '<p class="ref-character-empty">هنوز کاراکتری در کمد پروفایلت انتخاب نکرده‌ای.</p>')+
-  '<button type="button" class="ref-character-go-profile" data-ref-character-profile>مشاهدهٔ پروفایل</button>';
- };
- const close=()=>{popup.hidden=true;toggle.setAttribute('aria-expanded','false')};
+ // Legacy popover must not intercept or obscure the new full-body viewer.
+ const oldPopup=document.getElementById('ref-equipped-character-panel');
+ if(oldPopup)oldPopup.remove();
+ toggle.removeAttribute('aria-controls');
  if(!toggle.dataset.bound){
   toggle.dataset.bound='1';
   toggle.addEventListener('click',event=>{
-   event.stopPropagation();if(!popup.hidden){close();return}render();
-   // Anchor to the entire *actual* account cluster, never the search control.
-   popup.hidden=false;
-   const rect=(toggle.closest('.ref-header-account-cluster')||toggle).getBoundingClientRect();
-   const w=popup.offsetWidth,h=popup.offsetHeight;
-   popup.style.left=Math.max(8,Math.min(innerWidth-w-8,rect.right-w))+'px';
-   popup.style.right='auto';
-   popup.style.top=Math.max(8,Math.min(innerHeight-h-8,rect.bottom+8))+'px';
-   toggle.setAttribute('aria-expanded','true')
+   event.preventDefault();event.stopPropagation();
+   window.ElaraPrivateDrawer?.showHomeAvatar?.();
+   toggle.setAttribute('aria-expanded','false');
   });
-  document.addEventListener('click',event=>{
-   if(popup.hidden)return;
-   if(event.target.closest('#ref-equipped-character-panel [data-ref-character-profile]')){close();window.ElaraOpen?.('profile');return}
-   if(event.target.closest('#ref-equipped-character-panel [data-ref-character-close]')){close();return}
-   if(!popup.contains(event.target)&&!toggle.contains(event.target))close()
-  });
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!popup.hidden){close();toggle.focus()}});
-  window.addEventListener('elara:open',close);
  }
 }
 function accountHeader(){const bar=document.querySelector('.topbar'),actions=bar?.querySelector('.topbar-actions'),leading=bar?.querySelector('.topbar-leading');if(!bar||!actions)return;bar.classList.add('ref-topbar');document.querySelectorAll('.elara-toolbar').forEach(x=>x.remove());if(leading&&!leading.querySelector('.ref-mobile-brand')){const brand=element('a','ref-mobile-brand','ref-mobile-brand');brand.href='#home';brand.setAttribute('aria-label','Elara Space');brand.innerHTML='<img class="elara-brand-wordmark" src="assets/ui/brand-elara-wordmark.webp" alt="Elara"><span class="sr-only">Elara Space</span>';leading.append(brand)}

@@ -41,9 +41,10 @@ test('3D stage is lazy and wardrobe reuses a single model/canvas', () => {
   assert.ok(live.includes('renderWardrobeControls'),'Wardrobe options must be mounted in the wardrobe tab');
   assert.ok(!live.includes('data-live-action="wardrobe"'),'Wardrobe entry belongs in the existing drawer menu only');
 });
-test('VRM has native eye tracking, head follow, relaxed arms and offscreen throttle', () => {
+test('VRM neutral eye alignment, bounded shared gaze, relaxed arms and offscreen throttle', () => {
   const live=read('avatar-live-vrm.js');
-  assert.ok(live.includes('vrm.lookAt.target=gazeTarget'),'Native VRM lookAt must track pointer');
+  assert.ok(live.includes('vrm.lookAt.autoUpdate=false'),'Camera-target auto convergence must stay disabled');
+  assert.ok(live.includes("poseBone('leftEye'")&&live.includes("poseBone('rightEye'"),'Eye bones should share the same bounded gaze');
   assert.ok(live.includes("poseBone('neck'")&&live.includes("poseBone('head'"));
   assert.ok(live.includes("poseBone('leftUpperArm'")&&live.includes("poseBone('rightUpperArm'"));
   assert.ok(live.includes("document.querySelector('.approved-wardrobe:not([hidden])')"),'Do not render behind wardrobe');
@@ -53,7 +54,7 @@ test('VRM has native eye tracking, head follow, relaxed arms and offscreen throt
 test('mobile accordion preserves the existing desktop menu', () => {
   const drawer=read('drawer.js'),css=read('avatar-experience-20261020.css');
   const html=read('index.html');
-  assert.ok(drawer.includes("homeView='menu'"),'Mobile defaults to existing menu');
+  assert.ok(drawer.includes("homeView='avatar'"),'Mobile defaults to full-body character');
   assert.ok(drawer.includes('data-elara-drawer-toggle'),'Single arrow below profile header');
   assert.ok(drawer.includes("if(current==='home'&&(!mobile||homeView==='avatar'))renderHub()"),'Desktop always renders its original profile layout');
   assert.ok(css.includes('.elara-drawer-reveal{display:none!important}'),'Desktop arrow remains hidden');
@@ -68,4 +69,11 @@ test('avatar supports focused click zoom, natural idle and on-demand phone VRM',
     assert.ok(live.includes(feature),'Missing '+feature);
   }
   assert.ok(loader.includes('mobileViewer()')&&live.includes('data-elara-view="avatar"'),'Phone VRM loads on request');
+});
+
+test('profile header arrow uses full-body drawer instead of static popup', () => {
+  const header=read('reference-home-shell-2026.js'),drawer=read('drawer.js');
+  assert.ok(header.includes('window.ElaraPrivateDrawer?.showHomeAvatar?.()'));
+  assert.ok(!header.includes("popup.hidden=false;"),'Old static equipped-character popup must not open');
+  assert.ok(drawer.includes("if(section==='home')homeView='avatar'"));
 });

@@ -9,7 +9,7 @@
   const write=data=>{localStorage.setItem(KEY,JSON.stringify(data));window.dispatchEvent(new CustomEvent('elara:hydrate',{detail:data}));window.dispatchEvent(new Event('elara:data-changed'))};
   const pref=()=>{try{return {mode:'dark',color:'violet',style:'default',language:'fa',...JSON.parse(localStorage.getItem(PREF)||'{}')}}catch{return {mode:'dark',color:'violet',style:'default',language:'fa'}}};
   const savePref=patch=>{const p={...pref(),...patch};localStorage.setItem(PREF,JSON.stringify(p));return p};
-  let root,panel,current='home',accountGutters=null,homeView='menu';
+  let root,panel,current='home',accountGutters=null,homeView='avatar';
   function ensureProfileHubCSS(){
     if(document.getElementById('elara-profile-hub-reference-css'))return;
     const sheet=document.createElement('link');sheet.id='elara-profile-hub-reference-css';
@@ -68,6 +68,7 @@
   }
   function open(section='home'){
     if(!root)return;
+    if(section==='home')homeView='avatar'; // Each new profile entry opens on the full-body character.
     root.dataset.mobileSection=section;window.ElaraOverlayStack?.next?.(root);
     const wasClosed=root.classList.contains('hidden')||root.hidden;
     if(wasClosed&&!history.state?.elaraDrawer)history.pushState({...history.state,elaraDrawer:true},'',location.href);
@@ -136,6 +137,7 @@
   }
   function show(section='home'){
     if(section==='appearance')section='settings'; // Legacy appearance links now open Settings.
+    if(section==='home'&&current!=='home')homeView='avatar';
     current=section;
     if(root)root.dataset.mobileSection=section;
     if(panel)panel.dataset.mobileSection=section;
@@ -527,7 +529,7 @@ function renderSecurity(){
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
   window.addEventListener('elara:account-ready',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount();if(current==='security')renderSecurity()});
-  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance,ensureAvatarStage,restoreAvatarStage,showHomeAvatar:()=>{show('home');updateHomeView('avatar');},showHomeMenu:()=>{show('home');updateHomeView('menu');}};
+  window.ElaraPrivateDrawer={open,close,renderProfile,renderAccount,renderAppearance,ensureAvatarStage,restoreAvatarStage,showHomeAvatar:()=>{homeView='avatar';open('home');window.ElaraLiveVRM?.current?.focus?.('full');},showHomeMenu:()=>{show('home');updateHomeView('menu');}};
   window.ElaraDrawerTest={pref,savePref,setMode,setStyle,setColor,renderAppearance,renderSettings};
   window.ElaraPrivatePanel=window.ElaraPrivateDrawer;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});else build();
