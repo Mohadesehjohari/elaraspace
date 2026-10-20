@@ -9,7 +9,7 @@
   let threePromise=null,current=null;
   const desktop=()=>window.matchMedia?.(DESKTOP)?.matches!==false;
   const profileSex=()=>window.ElaraProfileSystem?.readPrivate?.()?.sex||'';
-  const avatarBase=()=>{const p=window.ElaraProfileSystem?.readPrivate?.()||{};return ['male','female'].includes(p.avatarGender)?p.avatarGender:(profileSex()==='male'?'male':'female');};
+  const avatarBase=()=>{const system=window.ElaraProfileSystem,p=system?.readPrivate?.()||{};return ['male','female'].includes(p.avatarGender)?p.avatarGender:(['male','female'].includes(p.sex)?p.sex:(system?.readWardrobe?.()?.avatarGroup==='male'?'male':'female'));};
   const loadThree=()=>threePromise||(threePromise=import(THREE_PRIMARY).catch(()=>import(THREE_FALLBACK)));
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const ease=(a,b,t)=>a+(b-a)*t;
