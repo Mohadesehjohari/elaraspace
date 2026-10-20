@@ -117,7 +117,7 @@ function open(kind,fromHistory=false){
  if(!cfg[kind])return;
  const p=P();if(!p)return;active=kind;category='all';inspirationCategory=insCats[0];dreamCategory='همه';diaryTab='همه یادداشت‌ها';selectedDay='';editingIdea='';ideaImage='';monthOffset=0;
  p.querySelector('.freedom-subpage-shell')?.remove();p.classList.add('freedom-subpage-open');
- const shell=document.createElement('section');shell.className='freedom-subpage-shell r30-shell';shell.dataset.freedomView=kind;shell.dir='rtl';shell.innerHTML=header(kind)+'<div class="r30-content" data-r30-body></div>';p.append(shell);render();
+ const shell=document.createElement('section');shell.className='freedom-subpage-shell r30-shell';shell.dataset.freedomView=kind;shell.dir='rtl';shell.innerHTML='<div class="freedom-back-toolbar"><button type="button" data-r30-back aria-label="بازگشت به صفحه اصلی آزادی">→ بازگشت به آزادی</button></div>'+header(kind)+'<div class="r30-content" data-r30-body></div>';p.append(shell);render();
  if(!fromHistory)history.pushState({...history.state,elaraFreedomView:kind},'',location.href);
  shell.scrollIntoView({block:'start',behavior:'auto'});
 }
