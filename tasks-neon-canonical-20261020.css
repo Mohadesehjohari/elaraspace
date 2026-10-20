@@ -163,39 +163,39 @@ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tas
   display:none!important;
 }
 /* Checklist/subtask checkmarks: no WebP frames; same 26px purple glow. */
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check{
   position:relative!important;box-sizing:border-box!important;
   width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;
   padding:0!important;border:0!important;border-radius:50%!important;
   background:transparent!important;background-image:none!important;box-shadow:none!important;overflow:visible!important;
 }
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle img,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle img,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check img{display:none!important}
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle::before,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle::before,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check::before{
   content:""!important;display:block!important;position:absolute!important;inset:2px!important;
   border:2px solid #bb8aff!important;border-radius:50%!important;
   background:#132653!important;box-shadow:0 0 9px rgba(176,96,255,.68)!important;
 }
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle::after,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle::after,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check::after{
   content:""!important;display:block!important;position:absolute!important;
   left:9px!important;top:5px!important;width:8px!important;height:13px!important;
   border:solid #fff!important;border-width:0 3px 3px 0!important;border-radius:1px!important;
   transform:rotate(45deg) scale(.35)!important;opacity:0!important;background:none!important;
 }
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle[aria-pressed="true"]::before,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle[aria-pressed="true"]::before,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check[aria-pressed="true"]::before{
   border-color:#edccff!important;background:linear-gradient(135deg,#6e40f5,#bc55fc)!important;
   box-shadow:0 0 12px rgba(184,89,255,.9),0 0 22px rgba(162,86,255,.55)!important;
 }
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-toggle[aria-pressed="true"]::after,
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-toggle[aria-pressed="true"]::after,
 html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-preview-check[aria-pressed="true"]::after{
   transform:rotate(45deg) scale(1)!important;opacity:1!important;
 }
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-row{direction:ltr!important}
-html body #panel-tasks#panel-tasks#panel-tasks .task-checklist-fields{direction:rtl!important}
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-row{direction:ltr!important}
+html body .task-checklist-editor.task-checklist-editor.task-checklist-editor .task-checklist-fields{direction:rtl!important}
 /* Reports shortcut is ON the main Tasks hero; never in the toolbar. */
 html body #panel-tasks#panel-tasks #astra-task-hero{position:relative!important}
 html body #panel-tasks#panel-tasks #astra-task-hero .task-banner-report-label{
@@ -243,4 +243,21 @@ html body #panel-tasks#panel-tasks #astra-task-hero .task-banner-report-label{
 @media(prefers-reduced-motion:reduce){
   html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row{transition:none!important}
   html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row > .check-button::after{transition:none!important}
+}
+
+/* Optional description gets its own CENTER line, never displacing the title. */
+html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row > .astra-task-inline-description{
+ grid-area:auto!important;grid-column:3 / span 2!important;grid-row:2!important;
+ align-self:start!important;justify-self:start!important;
+ box-sizing:border-box!important;display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;margin:-1px 0 5px!important;padding:0 4px!important;
+ direction:rtl!important;text-align:left!important;color:#bad4ff!important;
+ font-size:11px!important;line-height:1.4!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ background:none!important;border:0!important;box-shadow:none!important;
+}
+@media(max-width:767px){
+ html body #panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks#panel-tasks #task-list .astra-task-row > .astra-task-inline-description{
+  grid-column:2 / span 2!important;grid-row:3!important;font-size:10px!important;
+ }
 }
