@@ -212,6 +212,8 @@ for(const n of ['elara:freedom-rendered','elara:account-ready','elara:logout'])w
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(render,0),{once:true}):setTimeout(render,0);
 window.ElaraFreedomAI={
   render,
+  profileContext:()=>ownProfileContext(),
+  mayPersonalize:()=>personalizeEnabled(),
   recent:()=>read(),
   showFromMessage:(at)=>{
     newChatCuts.set(key(),0);
