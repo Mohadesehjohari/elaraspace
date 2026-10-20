@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {safeValue,encrypt,decrypt} from '../tools/admin-backup/backup.mjs';
+import {inspectBackup} from '../tools/admin-backup/verify.mjs';
 
 const sample={
   version:1,
@@ -32,3 +33,26 @@ assert.ok(source.includes("encrypted:true"));
 assert.ok(!/\b(?:setDoc|addDoc|deleteDoc|updateDoc|createUser|deleteUser|updateUser|importUsers)\s*\(/.test(source),
   'Backup script must never mutate a remote Firebase resource');
 console.log('PASS: offline Firebase backup serialization, encryption, authentication, recursive discovery and read-only contract');
+
+
+const fixture={
+  format:'elara-firebase-snapshot',version:1,projectId:'elara-ab1aa',
+  exportedAt:'2026-10-20T00:00:00.000Z',
+  counts:{firestoreDocuments:2,authUsers:2},
+  firestoreDocuments:[
+    {path:'private/test-a/app/main',data:{tasks:[]}},
+    {path:'public/sample',data:{hello:'world'}}
+  ],
+  firebaseAuthenticationUsers:[{uid:'test-a'},{uid:'test-b'}]
+};
+const encrypted=encrypt(Buffer.from(JSON.stringify(fixture),'utf8'),passphrase);
+const stats=inspectBackup(encrypted,passphrase);
+assert.equal(stats.encryptedVerified,true);
+assert.equal(stats.authUsers,2);
+assert.equal(stats.firestoreDocuments,2);
+assert.equal(stats.accountDataDocuments,1);
+assert.equal(stats.matchedRegisteredAccounts,1);
+assert.throws(()=>inspectBackup(encrypted,'wrong password'),/authenticate|bad decrypt|Unsupported state|unable to authenticate|Invalid/i);
+const badFixture={...fixture,counts:{firestoreDocuments:8,authUsers:2}};
+assert.throws(()=>inspectBackup(encrypt(Buffer.from(JSON.stringify(badFixture)),passphrase),passphrase),/mismatch/);
+console.log('PASS: encrypted backup verifier verifies account totals and never discloses private user records');
