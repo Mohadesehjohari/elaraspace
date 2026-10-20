@@ -214,4 +214,4 @@ if(process.argv[1]&&path.resolve(process.argv[1])===thisFile){
     process.exitCode=1;
   });
 }
-export {safeValue,encrypt,decrypt};
+export {safeValue,encrypt,decrypt,secret};
