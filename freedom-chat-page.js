@@ -133,7 +133,7 @@ function updateRecent(){
  if(!overlay||!mode)return;
  const box=overlay.querySelector('[data-ef-recent]');if(!box)return;
  const rows=recent();
- box.innerHTML=rows.length?rows.map(row=>'<div class="ef-recent-item" title="'+esc(row.text)+'"><span>✦</span><span>'+esc(row.text.slice(0,65))+'</span></div>').join(''):'<p class="ef-recent-empty">اینجا گفتگوهای تازه‌ات دیده می‌شن.</p>';
+ box.innerHTML=rows.length?rows.map(row=>'<button type="button" class="ef-recent-item" data-ef-recent-at="'+Number(row.at||0)+'" title="نمایش پیام قدیمی: '+esc(row.text.slice(0,130))+'"><span>✦</span><span>'+esc(row.text.slice(0,65))+'</span></button>').join(''):'<p class="ef-recent-empty">اینجا گفتگوهای تازه‌ات دیده می‌شن.</p>';
 }
 function restore(){
  if(!overlay)return;
@@ -199,6 +199,8 @@ function start(){
    else overlay.querySelector('[data-f-ai-host]')?.scrollIntoView({behavior:'smooth'});
    return;
   }
+  const historyItem=target.closest('[data-ef-recent-at]');
+  if(historyItem){window.ElaraFreedomAI?.showFromMessage?.(Number(historyItem.dataset.efRecentAt));return}
   if(target.closest('[data-ef-new]')){
    if(window.ElaraFreedomAI?.startNewChat?.()){
     window.ElaraAIPlans?.invalidate?.();window.ElaraFreedomAI.render();updateRecent();
