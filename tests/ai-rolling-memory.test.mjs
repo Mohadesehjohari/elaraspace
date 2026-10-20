@@ -78,6 +78,17 @@ try{
   assert.equal(result.status,200);
   result=await call('/ai/memory','alpha');
   assert.equal(result.body.data.enabled,false,'Deletion disables persistent memory');
+  result=await call('/ai/memory?persona=character','alpha');
+  assert.equal(result.status,200);
+  assert.equal(result.body.data.persona,'character');
+  assert.equal(result.body.data.enabled,false,'Character memory is independent from Fox');
+  result=await call('/ai','alpha','POST',{message:'Can you help me dream up a story?',persona:'character'});
+  assert.equal(result.status,200);
+  assert.equal(result.body.data.persona,'character','Persona must be echoed by the gateway');
+  assert.match(lastChatSystem,/You are Elara Character/,'Character mode must use a distinct provider system instruction');
+  result=await call('/ai','alpha','POST',{message:'Hi Fox',persona:'fox'});
+  assert.equal(result.status,200);
+  assert.match(lastChatSystem,/You are Elara Fox/,'Fox should retain its familiar provider persona');
   assert.ok(chats>=3);
   console.log('PASS: rolling summary, encrypted account isolation, next-chat recall, selective erasure, complete deletion');
 }finally{globalThis.fetch=realFetch;}
