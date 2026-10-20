@@ -1,6 +1,6 @@
-/* Header avatar quick view: a standalone full-body VRM dialog.
-   Does NOT open the settings/profile drawer or duplicate the wardrobe.
-   Loads an actual VRM only when shown and disposes WebGL on close. */
+/* Header chevron: independent character-only full-body dialog on every screen.
+   Never opens profile settings or the wardrobe. Prefer real VRM; use the project's
+   procedural 3D avatar until the selected VRM asset has been uploaded. */
 (() => {
   'use strict';
   let root=null,stage=null,trigger=null,lastFocus=null,requestId=0;
@@ -18,14 +18,12 @@
     root.innerHTML=
       '<button type="button" class="elara-avatar-quick-backdrop" data-avatar-quick-close aria-label="بستن نمایش کاراکتر"></button>'+
       '<section class="elara-avatar-quick-dialog" role="dialog" aria-modal="true" aria-label="نمایش سه‌بعدی کاراکتر">'+
-        '<header class="elara-avatar-quick-header" dir="rtl"><strong>کاراکتر من</strong><span>نمای تمام‌قد سه‌بعدی</span>'+
+        '<header class="elara-avatar-quick-header" dir="rtl">'+
           '<button class="elara-avatar-quick-close" type="button" data-avatar-quick-close aria-label="بستن کاراکتر">×</button>'+
         '</header>'+
         '<div class="elara-avatar-stage" data-elara-avatar-stage>'+
           '<div class="elara-avatar-viewport" data-elara-avatar-viewport></div>'+
-          '<span class="elara-avatar-badge">3D AVATAR</span>'+
-          '<span class="elara-avatar-status" data-elara-avatar-status role="status">در حال آماده‌سازی کاراکتر…</span>'+
-          '<div class="elara-avatar-help" aria-hidden="true"><i></i>لمس: زوم · درگ: چرخش</div>'+
+          '<span class="elara-avatar-status" data-elara-avatar-status role="status"></span>'+
         '</div>'+
       '</section>';
     document.body.append(root);
@@ -40,12 +38,10 @@
     root.hidden=true;root.setAttribute('aria-hidden','true');
     document.body.classList.remove('elara-quick-avatar-open');
     if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose();
-    // The quick dialog is VRM-only: do not touch the prototype in the profile drawer.
+    window.ElaraProceduralPreview?.dispose?.(stage);
     stage.replaceChildren();
     stage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div>'+
-      '<span class="elara-avatar-badge">3D AVATAR</span>'+
-      '<span class="elara-avatar-status" data-elara-avatar-status role="status"></span>'+
-      '<div class="elara-avatar-help" aria-hidden="true"><i></i>لمس: زوم · درگ: چرخش</div>';
+      '<span class="elara-avatar-status" data-elara-avatar-status role="status"></span>';
     if(trigger?.isConnected)trigger.setAttribute('aria-expanded','false');
     lastFocus?.focus?.({preventScroll:true});
     trigger=null;lastFocus=null;
@@ -67,29 +63,41 @@
     await new Promise(resolve=>requestAnimationFrame(resolve));
     if(mine!==requestId||!visible())return;
     try {
-      if(!window.ElaraLiveVRM?.tryMount){
-        message('موتور نمایش سه‌بعدی آماده نیست. صفحه را تازه کن.','error');return;
-      }
-      const mounted=await window.ElaraLiveVRM.tryMount(stage);
+      const mounted=await window.ElaraLiveVRM?.tryMount?.(stage);
       if(mine!==requestId||!visible())return;
-      if(!mounted){
-        const reason=stage.dataset.avatarFallbackReason;
-        const text=reason==='male-vrm-not-ready'?'مدل مردانه هنوز روی سایت بارگذاری نشده است.':
-          reason==='base-vrm-not-ready'?'برای این حساب هنوز فایل سه‌بعدی منتشر نشده است.':
-          reason==='catalog-unavailable'?'فهرست مدل‌ها دریافت نشد؛ اتصال اینترنت را بررسی کن.':
-          'فایل کاراکتر بارگذاری نشد؛ یک بار دیگر امتحان کن.';
-        message(text,'error');
-      }else{
+      if(mounted){
         window.ElaraLiveVRM.current?.focus?.('full');
+      }else{
+        // Keep the popup useful even before the user's exported VRM reaches GitHub.
+        const fallback=await window.ElaraProceduralPreview?.mount?.(stage);
+        if(mine!==requestId||!visible()){
+          window.ElaraProceduralPreview?.dispose?.(stage);return;
+        }
+        if(!fallback)message('نمایش سه‌بعدی در دسترس نیست. لطفاً دوباره امتحان کن.','error');
+        else message('');
       }
     }catch(error){
       console.warn('Elara standalone VRM dialog:',error);
-      if(mine===requestId&&visible())message('نمایش سه‌بعدی ناموفق بود؛ دوباره تلاش کن.','error');
+      if(mine===requestId&&visible()){
+        try{
+          const fallback=await window.ElaraProceduralPreview?.mount?.(stage);
+          if(mine!==requestId||!visible()){window.ElaraProceduralPreview?.dispose?.(stage);return;}
+          if(fallback)message('');else message('نمایش سه‌بعدی ناموفق بود؛ دوباره تلاش کن.','error');
+        }catch{message('نمایش سه‌بعدی ناموفق بود؛ دوباره تلاش کن.','error');}
+      }
     }
   }
   function toggle(button){
     if(visible())close();else void open(button);
   }
+  // Capture only the small chevron. The adjacent account button keeps its
+  // existing desktop settings and mobile drawer click handlers untouched.
+  document.addEventListener('click',event=>{
+    const arrow=event.target?.closest?.('#ref-equipped-character-toggle');
+    if(!arrow)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    toggle(arrow);
+  },true);
   document.addEventListener('keydown',event=>{
     if(!visible())return;
     if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();close();return;}
