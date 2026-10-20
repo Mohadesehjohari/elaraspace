@@ -302,7 +302,12 @@
     "freedom-universal-back.css",
     "freedom-chat-page.js",
     "freedom-chat-page.css",
-    "assets/ui/fox-loved.webp"
+    "assets/ui/fox-loved.webp",
+    "goals-dashboard-20261019.css",
+    "goals-dashboard-20261019.js",
+    "goals-tasks-neon-polish-20261019.css",
+    "cosmic-journey-20261020.css",
+    "cosmic-journey-20261020.js"
   ],
   "files": [
     ".htaccess",
@@ -727,6 +732,11 @@
     "freedom-universal-back.css",
     "freedom-chat-page.js",
     "freedom-chat-page.css",
-    "assets/ui/fox-loved.webp"
+    "assets/ui/fox-loved.webp",
+    "goals-dashboard-20261019.css",
+    "goals-dashboard-20261019.js",
+    "goals-tasks-neon-polish-20261019.css",
+    "cosmic-journey-20261020.css",
+    "cosmic-journey-20261020.js"
   ]
 }
