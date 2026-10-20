@@ -5,10 +5,12 @@ import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import { Script } from 'node:vm';
 const read = path => readFileSync(new URL('../'+path, import.meta.url),'utf8');
-test('catalog contains no falsely published Eli VRM', () => {
+test('catalog registers female and male VRM paths with an explicit fallback', () => {
   const x=JSON.parse(read('avatar/vrm-looks.json'));
   assert.equal(x.bases.female.status,'preview');
   assert.equal(x.bases.female.src,'assets/avatar/bases/eli-female-v1.vrm');
+  assert.equal(x.bases.male.src,'assets/avatar/bases/eli-male-v1.vrm');
+  assert.equal(x.bases.male.status,'preview');
   assert.equal(x.parts.top.length,0);
 });
 test('browser modules have valid JavaScript syntax', () => {
@@ -76,7 +78,8 @@ test('header arrow is a standalone full-body VRM dialog; account button still ow
   assert.ok(header.includes('window.ElaraAvatarQuickModal?.toggle?.(toggle)'));
   assert.ok(!header.includes("window.ElaraPrivateDrawer?.showHomeAvatar?.()"));
   assert.ok(quick.includes('root.dataset.elaraAvatarQuickModal')&&quick.includes('aria-modal="true"'));
-  assert.ok(quick.includes('window.ElaraLiveVRM.tryMount(stage)'));
+  assert.ok(quick.includes('window.ElaraLiveVRM?.tryMount?.(stage)'));
+  assert.ok(quick.includes('window.ElaraProceduralPreview?.mount?.(stage)'),'Quick view must fall back until male VRM is uploaded');
   assert.ok(quick.includes('if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose()'));
   assert.ok(live.includes("enabled(stage)")&&live.includes("stage?.closest('.elara-avatar-quick-modal:not([hidden])')"));
   assert.ok(html.includes('avatar-quick-modal.js?v=')&&html.includes('avatar-quick-modal.css?v='));
@@ -90,5 +93,14 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261020-modal-gate-v4'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261020-avatar-gender-v1'));
+});
+
+test('wardrobe gender choice works for male and female and does not overwrite profile sex', () => {
+ const profile=read('approved-profile-system.js'), visual=read('approved-visual.js'),live=read('avatar-live-vrm.js'),prototype=read('avatar-3d.js'),css=read('wardrobe-reference.css');
+ assert.ok(profile.includes("avatarGender:['female','male'].includes(raw.avatarGender)"),'Avatar appearance needs a per-account stored override');
+ assert.ok(visual.includes('data-elara-avatar-gender="female"')&&visual.includes('data-elara-avatar-gender="male"'),'Both choices must exist');
+ assert.ok(visual.includes('writePrivate({avatarGender:kind})'),'Character wardrobe must persist only avatarGender');
+ assert.ok(live.includes('p.avatarGender')&&prototype.includes('p.avatarGender'),'Real and fallback viewers must use the same chosen appearance');
+ assert.ok(css.includes('.elara-character-gender button[aria-pressed="true"]'),'Active choice must be visibly highlighted');
 });
