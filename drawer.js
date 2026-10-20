@@ -125,6 +125,8 @@
       toggle.setAttribute('aria-expanded',String(homeView==='menu'));
       toggle.setAttribute('aria-label',homeView==='menu'?'بستن منو و نمایش کاراکتر تمام‌قد':'نمایش گزینه‌های پروفایل و تنظیمات');
       toggle.title=homeView==='menu'?'نمایش کاراکتر':'باز کردن گزینه‌ها';
+      const caption=toggle.querySelector('.elara-drawer-reveal-caption');
+      if(caption)caption.textContent=homeView==='menu'?'نمایش کاراکتر تمام‌قد':'گزینه‌های پروفایل';
     }
     const menu=panel.querySelector('.drawer-menu');
     if(menu){menu.toggleAttribute('inert',mobile&&current==='home'&&homeView!=='menu');menu.setAttribute('aria-hidden',mobile&&current==='home'&&homeView!=='menu'?'true':'false');}
