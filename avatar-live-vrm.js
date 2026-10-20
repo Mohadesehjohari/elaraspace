@@ -2,7 +2,7 @@
    Does not read .vroid, does not touch existing 2D wardrobe or shop entitlements. */
 (() => {
   'use strict';
-  const CONFIG = 'avatar/vrm-looks.json?v=20261020-eli-manifest-refresh-v2';
+  const CONFIG = 'avatar/vrm-looks.json?v=20261020-male-vrm-character-gender-v1';
   const PREFIX = 'elara_live_look_v1_';
   // The quick modal must never continue mounting after it has been closed.
   const enabled = stage => !stage?.closest('.elara-avatar-quick-modal[hidden]') && (
@@ -10,7 +10,7 @@
     !!document.querySelector('.elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"]:not(.hidden)'));
   const ready = item => !!item && ['preview', 'ready'].includes(item.status) && typeof item.src === 'string' && item.src.startsWith('assets/avatar/') && /\.vrm(?:\?.*)?$/.test(item.src);
   const uid = () => window.ElaraProfileSystem?.currentUid?.() || null;
-  const currentKind = () => (window.ElaraProfileSystem?.readPrivate?.()?.sex === 'male' ? 'male' : 'female');
+  const currentKind = () => {const p=window.ElaraProfileSystem?.readPrivate?.()||{};return ['male','female'].includes(p.avatarGender)?p.avatarGender:(p.sex==='male'?'male':'female');};
   const status = (stage, message, kind = '') => { const el = stage.querySelector('[data-elara-avatar-status]'); if (el) { el.textContent=message; el.dataset.state=kind; } };
   const saved = kind => { try { if (!uid()) return ''; return JSON.parse(localStorage.getItem(PREFIX+uid()) || '{}')[kind] || ''; } catch { return ''; } };
   const save = (kind, id) => { try { if (!uid()) return; const key=PREFIX+uid(); const state=JSON.parse(localStorage.getItem(key)||'{}'); state[kind]=id; localStorage.setItem(key,JSON.stringify(state)); } catch (e) { console.warn('Elara VRM: could not save wardrobe choice',e); } };
