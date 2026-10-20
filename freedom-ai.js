@@ -127,7 +127,8 @@ document.addEventListener('click',e=>{
     e.preventDefault();
     const f=host()?.querySelector('[data-f-ai-form]'),message=String(f?.elements.message?.value||'').trim();
     if(!window.ElaraAIActions?.run){const el=host()?.querySelector('[data-f-ai-status]');if(el)el.textContent='دستیار مدیریت سایت هنوز بارگذاری نشده؛ صفحه را تازه کن.';return}
-    void window.ElaraAIActions.run(message);
+    if(window.ElaraAIPlans?.isPlanning?.(message))void window.ElaraAIPlans.propose(message,read());
+    else void window.ElaraAIActions.run(message);
     return;
   }
   if(e.target.closest?.('[data-f-ai-clear-summary]')){
