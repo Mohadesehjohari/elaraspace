@@ -20,9 +20,11 @@
   let zoom = 1;
   let selected = null;
   let hydrated = null;
+  let preferHydrated = false;
   const escaped = value => String(value ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   const isoToday = () => { const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); };
   function getGoals() {
+    if (preferHydrated && Array.isArray(hydrated?.goals)) return hydrated.goals;
     try {const data=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');if(Array.isArray(data.goals))return data.goals;}
     catch (_) {}
     return Array.isArray(hydrated?.goals)?hydrated.goals:[];
@@ -99,8 +101,8 @@
     }
   });
   window.addEventListener('keydown',event=>{if(event.key==='Escape'&&overlay.classList.contains('is-open')){if(!detail.hidden){detail.hidden=true;selected=null;}else close();}});
-  for(const name of ['elara:hydrate','elara:state-committed','elara:linked-state'])window.addEventListener(name,event=>{if(Array.isArray(event.detail?.goals))hydrated=event.detail;requestAnimationFrame(render);});
-  window.addEventListener('elara:data-changed',()=>requestAnimationFrame(render));
+  for(const name of ['elara:hydrate','elara:state-committed','elara:linked-state'])window.addEventListener(name,event=>{if(Array.isArray(event.detail?.goals)){hydrated=event.detail;preferHydrated=true;}requestAnimationFrame(render);});
+  window.addEventListener('elara:data-changed',()=>{preferHydrated=false;requestAnimationFrame(render);});
   new MutationObserver(()=>{if(overlay.classList.contains('is-open'))requestAnimationFrame(render);}).observe(goalList,{childList:true});
   window.addEventListener('resize',()=>{if(overlay.classList.contains('is-open'))render();});
 })();
