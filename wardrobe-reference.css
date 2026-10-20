@@ -56,3 +56,26 @@
  .approved-wardrobe .wardrobe-p3-catalog{order:1}
 }
 @media(max-width:350px){.approved-wardrobe .wardrobe-p3-tabs button{min-width:83px}.approved-wardrobe .wardrobe-p3-tile-info{flex-direction:column;align-items:flex-start}.approved-wardrobe .wardrobe-p3-footer{display:grid}.approved-wardrobe .wardrobe-p3-equip{width:100%}}
+
+/* Explicit avatar-body selection (independent of personal profile information). */
+.approved-wardrobe .elara-character-gender{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+ margin:0 0 15px;padding:5px;border-radius:14px;
+ background:#06132d;border:1px solid #526bad80;direction:rtl;
+}
+.approved-wardrobe .elara-character-gender button{
+ min-height:43px;padding:8px 12px;border-radius:10px;
+ border:1px solid transparent;background:#152448;color:#cedef9;
+ font:750 13px/1.5 Vazirmatn,Tahoma,sans-serif;cursor:pointer;
+}
+.approved-wardrobe .elara-character-gender button[aria-pressed="true"]{
+ background:linear-gradient(105deg,#3a277a,#6642a7);
+ color:#fff;border-color:#d3a9ff;box-shadow:0 0 14px #7444ce6b;
+}
+.approved-wardrobe .elara-character-gender button:focus-visible{
+ outline:2px solid #78ecff;outline-offset:3px;
+}
+@media(max-width:700px){
+ .approved-wardrobe .elara-character-gender{gap:6px;margin-bottom:12px}
+ .approved-wardrobe .elara-character-gender button{min-height:46px}
+}
