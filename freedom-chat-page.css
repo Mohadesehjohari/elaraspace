@@ -1,132 +1,363 @@
-/* Fox companion in the canonical Freedom dashboard, using the existing AI form. */
+/* ELARA CHAT · Fox & Character · full-viewport redesign, based on two owner references.
+ * Isolated to the chat overlay and its Freedom launch card. No changes to core site.
+ */
 #panel-freedom .freedom-fox-chat-box{
-  display:block;box-sizing:border-box;margin:16px 0 20px;min-width:0;
-  border:1px solid #9e7ee1;border-radius:23px;overflow:hidden;
-  background:linear-gradient(108deg,#21174a 0%,#132b54 64%,#152145 100%);
-  box-shadow:0 12px 30px #05081950,0 0 26px #a271ea27;color:#f7f3ff
+ margin:18px 0 24px;min-width:0;border:1px solid #7d67d8;border-radius:24px;
+ background:linear-gradient(110deg,#0c1c3a 0%,#231550 52%,#102b54 100%);
+ box-shadow:0 14px 38px #010a2270,0 0 27px #8f6dff25;overflow:hidden;color:#f8f3ff
 }
-#panel-freedom .freedom-fox-preview{
-  display:flex;align-items:center;gap:20px;width:100%;min-height:164px;
-  padding:18px 26px;background:transparent;border:0;text-align:right;
-  cursor:pointer;font:inherit;color:inherit;box-sizing:border-box;direction:rtl
+#panel-freedom .freedom-fox-chat-box .freedom-ai-card{display:none!important}
+#panel-freedom .ef-entry{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ padding:19px clamp(16px,4vw,36px);direction:rtl;position:relative;overflow:hidden
 }
-#panel-freedom .freedom-fox-preview>img{
-  width:112px;height:112px;object-fit:contain;flex:none;
-  filter:drop-shadow(0 8px 20px #d88cff50);
-  transition:transform .18s ease
+#panel-freedom .ef-entry:before{
+ content:"";position:absolute;inset:0;opacity:.24;pointer-events:none;
+ background:url('assets/ui/Celestial Mirror Lake at Night.webp') center/cover
 }
-#panel-freedom .freedom-fox-preview:hover>img{transform:translateY(-4px) rotate(-3deg)}
-#panel-freedom .freedom-fox-preview-copy{display:grid;gap:6px;flex:1;min-width:0}
-#panel-freedom .freedom-fox-preview-copy>small{font-weight:700;color:#e7c3ff}
-#panel-freedom .freedom-fox-preview-copy>strong{font-size:clamp(1.2rem,2.5vw,1.65rem);line-height:1.5}
-#panel-freedom .freedom-fox-preview-message{color:#d8d5ed;line-height:1.8;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
-#panel-freedom .freedom-fox-open-label{
-  display:inline-flex;align-items:center;gap:10px;padding:12px 17px;
-  border-radius:14px;border:1px solid #b9a1f2;background:#7652ce;
-  font-weight:700;white-space:nowrap;flex:none
+#panel-freedom .ef-entry-text,#panel-freedom .ef-entry-pics{position:relative;z-index:1}
+#panel-freedom .ef-entry-text{display:grid;justify-items:start;gap:8px;flex:1}
+#panel-freedom .ef-overline{font:700 .72rem/1.4 inherit;letter-spacing:2px;color:#ccbafa}
+#panel-freedom .ef-entry h3{font-size:clamp(1.2rem,2.4vw,1.65rem);margin:0;color:#fff}
+#panel-freedom .ef-entry p{margin:0;color:#d0d2ef}
+#panel-freedom .ef-entry-open{
+ border:1px solid #b2a1ff;color:#fff;background:linear-gradient(120deg,#8556ed,#5438c9);
+ font:inherit;font-weight:800;cursor:pointer;border-radius:14px;padding:12px 20px;margin-top:5px;
+ box-shadow:0 4px 23px #8655ff44
 }
-#panel-freedom .freedom-fox-preview:focus-visible{outline:3px solid #e2c8ff;outline-offset:-5px}
-#panel-freedom .freedom-fox-chat-box>.freedom-ai-card{display:none!important}
+#panel-freedom .ef-entry-pics{display:flex;align-items:center;flex:none;padding-inline:16px}
+#panel-freedom .ef-entry-pics img{
+ width:min(15vw,126px);height:125px;object-fit:contain;filter:drop-shadow(0 5px 14px #b19aff70)
+}
+#panel-freedom .ef-entry-pics img:first-child{border-radius:18px;object-fit:cover;object-position:top;border:1px solid #7e69c080;margin-inline-end:-8px}
+#panel-freedom .ef-entry-pics img:last-child{position:relative;transform:rotate(5deg)}
 html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
-.freedom-fox-overlay{
-  position:fixed;inset:0;z-index:2147483000;overflow:hidden;box-sizing:border-box;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background:radial-gradient(circle at 17% 0%,#35225b 0%,#08162c 54%,#050d1d 100%);
-  color:#f4f0ff;font-family:inherit;direction:rtl;
-  animation:fox-chat-appear .23s ease-out both
+.freedom-fox-overlay.ef-dual-chat{
+ --ef-border:#354879;--ef-purple:#8657ef;--ef-purplelight:#c49bff;
+ color:#f4f5ff;font-family:inherit;direction:rtl;position:fixed;inset:0;
+ width:100vw;min-height:100dvh;height:100dvh;z-index:2147483000;
+ overflow:hidden;box-sizing:border-box;padding:0!important;
+ background:radial-gradient(ellipse at 67% -15%,#192966 0%,transparent 48%),
+ radial-gradient(circle at 0% 84%,#281655 0%,transparent 41%),#060f28;
+ animation:ef-enter .25s ease both
 }
-@keyframes fox-chat-appear{from{opacity:.4;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
-.freedom-fox-overlay,.freedom-fox-overlay *{box-sizing:border-box}
-.freedom-fox-overlay-shell{
-  max-width:1160px;height:100%;min-height:0;margin:auto;
-  display:flex;flex-direction:column;gap:12px;padding:12px 16px 8px
+@keyframes ef-enter{from{opacity:.7}to{opacity:1}}
+.ef-dual-chat,.ef-dual-chat *{box-sizing:border-box}
+.ef-dual-chat button,.ef-dual-chat textarea,.ef-dual-chat input{font:inherit}
+.ef-dual-chat button{cursor:pointer}
+.ef-dual-chat :is(button,textarea,input,select):focus-visible{outline:3px solid #c9a4ff;outline-offset:3px}
+.ef-dual-chat .ef-shell{
+ height:100%;width:100%;max-width:none;margin:0;display:flex;flex-direction:column;
+ background:radial-gradient(ellipse at top left,#24215750 0%,transparent 58%),#060f28
 }
-.freedom-fox-overlay-header{
-  display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;
-  border:1px solid #60538f;border-radius:22px;padding:12px 20px;
-  background:linear-gradient(110deg,#281c54,#102848);flex:none
+.ef-dual-chat .ef-header{
+ flex:none;min-height:76px;display:flex;align-items:center;gap:26px;justify-content:space-between;
+ border-bottom:1px solid #263b79b8;background:#07122cbd;
+ padding:10px clamp(15px,2.5vw,42px);box-shadow:0 3px 22px #0109215c
 }
-.freedom-fox-companion{display:flex;align-items:center;gap:15px;min-width:0;flex:1}
-.freedom-fox-companion>img{width:82px;height:82px;object-fit:contain;filter:drop-shadow(0 5px 13px #b998fc90)}
-.freedom-fox-companion span{display:grid;gap:4px}
-.freedom-fox-companion strong{font-size:clamp(1.14rem,2.6vw,1.45rem);color:#fff}
-.freedom-fox-companion small{color:#ccc4ed;line-height:1.6}
-.freedom-fox-back{
-  order:2;padding:10px 16px;border-radius:13px;border:1px solid #a899da;
-  color:#fff;background:#503e80;cursor:pointer;font:inherit;white-space:nowrap
+.ef-dual-chat .ef-brand{display:flex;align-items:center;gap:12px;min-width:200px}
+.ef-dual-chat .ef-brand img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 12px #a87aff8c)}
+.ef-dual-chat .ef-brand span{display:grid;gap:2px}
+.ef-dual-chat .ef-brand b{font-size:1.34rem;font-weight:900;letter-spacing:1.7px}
+.ef-dual-chat .ef-brand b em{font-style:normal;color:#b7a2ff}
+.ef-dual-chat .ef-brand small{color:#aebce6;font-size:.77rem}
+.ef-dual-chat .ef-global-nav{display:flex;align-items:center;justify-content:center;gap:10px;flex:1}
+.ef-dual-chat .ef-global-nav button,.ef-dual-chat .ef-header-close{
+ border:1px solid transparent;color:#d9def7;background:transparent;
+ border-radius:12px;padding:11px 16px;white-space:nowrap;font-weight:750
 }
-.freedom-fox-overlay :is(button,input,textarea):focus-visible{outline:3px solid #d5b5fc;outline-offset:2px}
-.freedom-fox-conversation{
-  flex:1;min-height:0;width:100%;padding:0;margin:0;
-  overflow-y:auto;overflow-x:hidden
+.ef-dual-chat .ef-global-nav button:hover,.ef-dual-chat .ef-global-nav button[aria-pressed="true"],
+.ef-dual-chat .ef-header-close:hover{border-color:#8573dc;background:#212052}
+.ef-dual-chat .ef-header-close{
+ border-color:#5262a1;background:#182548;flex:none;font-size:.89rem
 }
-.freedom-fox-overlay .freedom-ai-card{
-  display:flex!important;flex-direction:column;width:100%;min-height:100%;
-  padding:20px;gap:12px;border:1px solid #4d4679;border-radius:19px;
-  background:linear-gradient(180deg,#0d1b34,#08172d)
+.ef-dual-chat .ef-chooser[hidden],.ef-dual-chat .ef-workspace[hidden]{display:none!important}
+.ef-dual-chat .ef-chooser{
+ flex:1;min-height:0;overflow-y:auto;display:flex;align-items:center;justify-content:center;
+ flex-direction:column;gap:15px;text-align:center;padding:24px 20px 30px;
+ background:radial-gradient(circle at 50% 40%,#4d368347,transparent 45%),
+ url('assets/ui/Celestial Mirror Lake at Night.webp') center/cover
 }
-.freedom-fox-overlay .freedom-ai-card>header{display:none}
-.freedom-fox-overlay .freedom-ai-card [data-f-ai-host]{display:flex;flex-direction:column;gap:12px;flex:1}
-.freedom-fox-overlay .freedom-ai-thread{
-  flex:1;min-height:160px;display:grid;align-content:start;gap:14px;
-  overflow-y:auto;scrollbar-width:thin
+.ef-dual-chat .ef-spark{color:#d8c0ff;letter-spacing:2.5px;font-size:.76rem;font-weight:850}
+.ef-dual-chat .ef-chooser h1{
+ color:#fff;margin:0;font-size:clamp(1.65rem,3vw,2.75rem);
+ text-shadow:0 3px 24px #0b0b2c;font-weight:900
 }
-.freedom-fox-overlay .freedom-ai-message{
-  max-width:min(86%,770px);display:block;padding:12px 15px;border-radius:17px;
-  background:#1c2450;border:1px solid #6156a0;position:relative;
-  overflow-wrap:anywhere;line-height:1.8
+.ef-dual-chat .ef-chooser>p{margin:0;color:#d1d5f1;font-size:1.04rem;line-height:1.8}
+.ef-dual-chat .ef-choose-grid{
+ width:min(100%,970px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:22px;margin:18px auto 4px;direction:rtl
 }
-.freedom-fox-overlay .freedom-ai-message.user{justify-self:start;background:#32235b;border-color:#7957c1}
-.freedom-fox-overlay .freedom-ai-message.model{justify-self:end;margin-inline-start:58px;background:#102b49;border-color:#4e719a}
-.freedom-fox-overlay .freedom-ai-message.model:before{
-  content:'';position:absolute;top:5px;inset-inline-end:calc(100% + 7px);
-  width:46px;height:46px;border-radius:50%;
-  background:#32265a url('assets/ui/fox-loved.webp') center/contain no-repeat;
-  border:1px solid #a793ef
+.ef-dual-chat .ef-choice{
+ min-width:0;overflow:hidden;position:relative;display:grid;grid-template-rows:minmax(195px,35vh) auto;
+ text-align:right;padding:0;background:linear-gradient(160deg,#101d45,#211441);
+ border:1px solid #7065b8;border-radius:22px;color:white;
+ box-shadow:0 14px 38px #0107179c,0 0 28px #7865d525;transition:transform .2s,border-color .2s,box-shadow .2s
 }
-.freedom-fox-overlay .freedom-ai-message small{display:block;color:#d0c6ee;margin-bottom:3px;font-size:.82rem;font-weight:700}
-.freedom-fox-overlay .freedom-ai-message p{margin:0!important;color:#f7f5ff!important;white-space:pre-wrap;line-height:1.85}
-.freedom-fox-overlay .freedom-ai-empty{margin:auto;display:grid;text-align:center;gap:8px;color:#bccce7;padding:16px}
-.freedom-fox-overlay .freedom-ai-empty strong{color:#f4ddff;font-size:1.25rem}
-.freedom-fox-overlay .freedom-ai-form{display:grid;gap:9px;padding-top:6px}
-.freedom-fox-overlay .freedom-ai-form textarea{
-  display:block;width:100%;min-height:76px;max-height:180px;resize:vertical;
-  padding:12px 14px;background:#071528;color:#f9f6ff;
-  border:1px solid #745ca6;border-radius:14px;font:inherit
+.ef-dual-chat .ef-choice:hover{transform:translateY(-5px);border-color:#d6afff;box-shadow:0 20px 46px #020715b8,0 0 35px #9475f755}
+.ef-dual-chat .ef-choice-art{
+ position:relative;display:grid;place-items:center;overflow:hidden;
+ background:linear-gradient(165deg,#2b326f,#0d133d);
 }
-.freedom-fox-overlay .freedom-ai-form>div{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-.freedom-fox-overlay .freedom-ai-form button{min-height:41px;font:inherit}
-.freedom-fox-overlay .freedom-ai-status{min-height:1.4em;margin:0;color:#dbcdf0;line-height:1.7}
-.freedom-fox-overlay .freedom-ai-memory{
-  flex:none;max-height:33vh;overflow-y:auto;scrollbar-width:thin
+.ef-dual-chat .ef-choice-art:before{
+ content:"";position:absolute;inset:0;background:url('assets/ui/banner_moon_lake.webp') center/cover;
+ opacity:.7;filter:saturate(1.3)
 }
-.freedom-fox-disclosure{
-  margin:0;font-size:.75rem;line-height:1.6;color:#bcc7e7;
-  text-align:center;flex:none
+.ef-dual-chat .ef-choice-fox .ef-choice-art:before{background-image:url('assets/ui/banner_city_of_stars.webp');opacity:.68}
+.ef-dual-chat .ef-choice-art>img{
+ position:relative;z-index:1;max-width:88%;max-height:100%;width:auto;height:auto;object-fit:contain;
+ filter:drop-shadow(0 0 20px #7c50d6a3)
 }
-@media(max-width:700px){
- #panel-freedom .freedom-fox-preview{gap:12px;padding:12px;min-height:136px;flex-wrap:wrap}
- #panel-freedom .freedom-fox-preview>img{width:82px;height:82px}
- #panel-freedom .freedom-fox-preview-copy{flex-basis:calc(100% - 94px)}
- #panel-freedom .freedom-fox-open-label{width:100%;justify-content:center}
- .freedom-fox-overlay-shell{padding:6px;gap:8px}
- .freedom-fox-overlay-header{padding:10px 12px;gap:8px;flex-wrap:nowrap}
- .freedom-fox-companion{gap:6px}
- .freedom-fox-companion>img{width:58px;height:58px}
- .freedom-fox-companion strong{font-size:.99rem;line-height:1.5}
- .freedom-fox-companion small{font-size:.7rem}
- .freedom-fox-back{font-size:.76rem;padding:8px;white-space:normal;max-width:97px;order:2}
- .freedom-fox-overlay .freedom-ai-card{padding:10px 8px}
- .freedom-fox-overlay .freedom-ai-message{max-width:88%}
- .freedom-fox-overlay .freedom-ai-message.model{margin-inline-start:43px}
- .freedom-fox-overlay .freedom-ai-message.model:before{width:32px;height:32px}
- .freedom-fox-overlay .freedom-ai-thread{gap:10px}
- .freedom-fox-disclosure{font-size:.67rem}
+.ef-dual-chat .ef-choice-character .ef-choice-art>img{
+ width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center 27%;
+ mask-image:linear-gradient(to bottom,black 83%,transparent)
+}
+.ef-dual-chat .ef-choice-fox .ef-choice-art>img{max-width:65%;max-height:96%}
+.ef-dual-chat .ef-choice-glow{
+ position:absolute;bottom:-40%;left:10%;right:10%;height:60%;border-radius:50%;
+ background:#9c6eff3b;filter:blur(38px);pointer-events:none
+}
+.ef-dual-chat .ef-choice-copy{display:grid;gap:9px;padding:19px 22px 24px}
+.ef-dual-chat .ef-choice-copy>small{color:#c49ffb;font-size:.75rem;font-weight:900;letter-spacing:1.5px}
+.ef-dual-chat .ef-choice-copy>strong{font-size:clamp(1.15rem,1.7vw,1.5rem);font-weight:900}
+.ef-dual-chat .ef-choice-copy>span{color:#c6cce8;font-size:.87rem;line-height:1.7}
+.ef-dual-chat .ef-choice-copy>b{
+ padding:11px 16px;border-radius:11px;justify-self:stretch;text-align:center;
+ background:linear-gradient(110deg,#8d65f1,#5439c7);margin-top:8px
+}
+.ef-dual-chat .ef-choose-note{font-size:.76rem;color:#b7c2ed}
+.ef-dual-chat .ef-workspace{
+ display:grid;grid-template-columns:minmax(225px,260px) minmax(0,1fr) minmax(265px,315px);
+ direction:ltr;flex:1;min-height:0;gap:13px;padding:12px clamp(9px,1vw,17px) 7px
+}
+.ef-dual-chat .ef-sidebar,.ef-dual-chat .ef-main,.ef-dual-chat .ef-art-column{
+ min-height:0;min-width:0;direction:rtl;border:1px solid var(--ef-border);border-radius:19px;
+ background:linear-gradient(175deg,#0c1b3a,#07152b);overflow:hidden
+}
+.ef-dual-chat .ef-sidebar{display:flex;flex-direction:column;gap:9px;padding:18px 13px 13px}
+.ef-dual-chat .ef-new-chat{
+ background:linear-gradient(120deg,#8d5cf5,#543bd6);color:white;border:1px solid #c6a8ff;
+ border-radius:13px;min-height:49px;font-weight:850;box-shadow:0 0 16px #966bff60;margin-bottom:12px
+}
+.ef-dual-chat .ef-sidebar-link{
+ background:transparent;color:#d4d5f8;border:1px solid transparent;padding:12px;
+ text-align:right;border-radius:11px;min-height:44px;font-weight:700
+}
+.ef-dual-chat .ef-sidebar-link:hover,.ef-dual-chat .ef-sidebar-link.is-active{
+ background:linear-gradient(110deg,#242457,#131f45);border-color:#6556b7;color:#fff
+}
+.ef-dual-chat .ef-sidebar h4{margin:13px 8px 4px;font-size:.79rem;color:#aeb7de}
+.ef-dual-chat .ef-recent{flex:1;overflow-y:auto;min-height:60px;scrollbar-width:thin;display:grid;align-content:start;gap:8px}
+.ef-dual-chat .ef-recent-item{
+ display:flex;align-items:flex-start;gap:9px;background:#12214a;border:1px solid #283b6c;
+ border-radius:11px;padding:11px 9px;line-height:1.7;font-size:.8rem;color:#dfdef5
+}
+.ef-dual-chat .ef-recent-item>span:last-child{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.ef-dual-chat .ef-recent-item>span:first-child{color:#b29afb}
+.ef-dual-chat .ef-recent-empty{color:#879acb;text-align:center;font-size:.77rem;padding:15px 6px}
+.ef-dual-chat .ef-sidebar-footer{
+ display:flex;align-items:center;gap:8px;border-top:1px solid #293760;
+ color:#a5b4d9;padding:13px 5px 2px;font-size:.75rem
+}
+.ef-dual-chat .ef-live-pulse,.ef-dual-chat .ef-online-dot{width:8px;height:8px;border-radius:50%;background:#3addbd;box-shadow:0 0 12px #4feccc}
+.ef-dual-chat .ef-main{display:flex;flex-direction:column;gap:0;background:linear-gradient(180deg,#0c193a,#070f26)}
+.ef-dual-chat .ef-welcome{
+ flex:none;display:grid;gap:7px;padding:19px 23px 13px;position:relative;
+ background:linear-gradient(100deg,#071b3ad9,#1e164f99),url('assets/ui/banner_city_of_stars.webp') center/cover;
+ border-bottom:1px solid #48508e
+}
+.ef-dual-chat .ef-welcome-overline{color:#c5a6ff;font-size:.68rem;font-weight:850;letter-spacing:1.7px}
+.ef-dual-chat .ef-welcome h2{color:#fff;margin:0;font-weight:900;font-size:clamp(1.05rem,1.6vw,1.45rem)}
+.ef-dual-chat .ef-welcome p{margin:0;color:#c1cbea;font-size:.81rem}
+.ef-dual-chat .ef-shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.ef-dual-chat .ef-shortcuts button{
+ border:1px solid #52649b;background:#122349d9;color:#e1defe;border-radius:10px;
+ padding:8px 12px;font-size:.75rem
+}
+.ef-dual-chat .ef-shortcuts button:hover,.ef-dual-chat .ef-art-tools button:hover{background:#30316d;border-color:#af93ff}
+.ef-dual-chat .ef-conversation{min-height:0;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.ef-dual-chat .freedom-ai-card{
+ display:flex!important;min-height:0;flex:1;width:100%;margin:0;padding:12px clamp(10px,2vw,24px);
+ border:0;border-radius:0;background:transparent;box-shadow:none;overflow:hidden;flex-direction:column
+}
+.ef-dual-chat .freedom-ai-card>header{display:none!important}
+.ef-dual-chat .freedom-ai-card [data-f-ai-host]{display:flex;flex-direction:column;gap:8px;min-height:0;flex:1;overflow:hidden}
+.ef-dual-chat .freedom-ai-thread{
+ display:flex;flex-direction:column;gap:15px;overflow-y:auto;min-height:130px;
+ flex:1;scrollbar-color:#5366aa transparent;scrollbar-width:thin;padding:9px 5px 12px
+}
+.ef-dual-chat .freedom-ai-message{
+ position:relative;display:block;flex:none;border:1px solid #415385;
+ background:#102347;border-radius:19px;max-width:min(84%,730px);
+ padding:13px 16px;line-height:1.8;overflow-wrap:anywhere;color:#faf8ff;
+ box-shadow:0 6px 20px #02091640
+}
+.ef-dual-chat .freedom-ai-message.user{
+ align-self:flex-start;margin-inline-start:0;background:linear-gradient(125deg,#342363,#241f59);
+ border-color:#725cbd
+}
+.ef-dual-chat .freedom-ai-message.model{align-self:flex-end;margin-inline-end:38px;border-color:#355e91}
+.ef-dual-chat .freedom-ai-message.model:before{
+ content:"";position:absolute;top:0;inset-inline-end:calc(100% + 8px);
+ width:35px;height:35px;border:1px solid #7566ba;border-radius:50%;
+ background:#2a2152 url('assets/ui/fox-loved.webp') center/contain no-repeat
+}
+.ef-dual-chat[data-persona="character"] .freedom-ai-message.model:before{
+ background-image:url('assets/avatars/level-05-f-square.png');background-size:cover
+}
+.ef-dual-chat .freedom-ai-message small{display:block;color:#d6cafa;margin-bottom:5px;font-size:.75rem}
+.ef-dual-chat .freedom-ai-message p{color:#f9f8ff!important;margin:0!important;white-space:pre-wrap;line-height:1.9}
+.ef-dual-chat .freedom-ai-empty{margin:auto;text-align:center;display:grid;gap:8px;color:#b9c9e8}
+.ef-dual-chat .freedom-ai-empty strong{color:white}
+.ef-dual-chat .freedom-ai-form{
+ flex:none;border:1px solid #665baa;background:#091931;border-radius:16px;
+ padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 0 14px #5e3faa24
+}
+.ef-dual-chat .freedom-ai-form textarea{
+ width:100%;min-height:58px;max-height:125px;padding:11px 12px;
+ resize:vertical;border:0;background:transparent;color:#fff;border-radius:10px;line-height:1.75;
+ outline:none;font:inherit
+}
+.ef-dual-chat .freedom-ai-form textarea::placeholder{color:#8f9cc8}
+.ef-dual-chat .freedom-ai-form>div{display:flex;gap:7px;justify-content:flex-start;flex-wrap:wrap}
+.ef-dual-chat .freedom-ai-form button{
+ min-height:38px;padding:7px 12px;border-radius:10px;font-size:.79rem
+}
+.ef-dual-chat .freedom-ai-form [type="submit"]{
+ background:linear-gradient(110deg,#a470ff,#6146d9);color:#fff;border:1px solid #b69cff;
+ font-weight:900;order:-1;box-shadow:0 4px 14px #815afa60
+}
+.ef-dual-chat .freedom-ai-status{font-size:.77rem;color:#c6c7ed;flex:none;min-height:1.2em;margin:2px 0;line-height:1.6}
+.ef-dual-chat .freedom-ai-memory{
+ flex:none;max-height:min(24vh,200px);overflow-y:auto;
+ border-radius:12px!important;background:#0d2140!important;scrollbar-width:thin;margin:0!important;
+ padding:9px!important;line-height:1.5
+}
+.ef-dual-chat .freedom-ai-memory details{max-height:140px;overflow:auto}
+.ef-dual-chat [data-elara-plan]{
+ max-height:28vh;overflow-y:auto;flex:none;scrollbar-width:thin
+}
+.ef-dual-chat .ef-art-column{display:flex;flex-direction:column;gap:10px;padding:10px;background:linear-gradient(180deg,#0d1a3c,#101237)}
+.ef-dual-chat .ef-art-frame{
+ position:relative;flex:1;min-height:180px;overflow:hidden;border:1px solid #5956a8;
+ border-radius:16px;background:linear-gradient(130deg,#1522639e,#221c54cc),
+ url('assets/ui/banner_moon_lake.webp') center/cover
+}
+.ef-dual-chat .ef-art-frame:before{
+ content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 75%,#6d41f07a,transparent 65%)
+}
+.ef-dual-chat .ef-art-frame>img{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+ filter:drop-shadow(0 4px 25px #ba8cff75);z-index:1
+}
+.ef-dual-chat[data-persona="character"] .ef-art-frame>img{
+ object-fit:cover;object-position:center 16%;filter:none
+}
+.ef-dual-chat .ef-art-shimmer{
+ position:absolute;inset:0;pointer-events:none;z-index:2;
+ background:linear-gradient(135deg,transparent 54%,#b09efa16 70%,transparent 85%)
+}
+.ef-dual-chat .ef-art-speech{
+ position:absolute;z-index:3;top:13px;right:13px;max-width:68%;
+ border:1px solid #a58fea;background:#0d1b3cda;backdrop-filter:blur(8px);
+ padding:10px 12px;border-radius:18px;color:#fff;font-size:.78rem;line-height:1.65
+}
+.ef-dual-chat .ef-art-profile{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #404d8b;
+ border-radius:14px;background:linear-gradient(105deg,#19214b,#0e2044);padding:12px 14px
+}
+.ef-dual-chat .ef-art-profile>div{display:grid;gap:3px}
+.ef-dual-chat .ef-art-profile strong{font-size:1.04rem}
+.ef-dual-chat .ef-art-profile small{color:#6cddb9;font-size:.74rem}
+.ef-dual-chat .ef-art-profile p{margin:0;color:#b9b9df;font-size:.72rem}
+.ef-dual-chat .ef-profile-star{color:#c1a1ff;font-size:2rem}
+.ef-dual-chat .ef-art-tools{border:1px solid #3f5185;border-radius:14px;padding:12px;background:#0d1d3d}
+.ef-dual-chat .ef-art-tools>b{font-size:.85rem}
+.ef-dual-chat .ef-tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ef-dual-chat .ef-tool-grid button{color:#dfe4ff;background:#15264b;border:1px solid #405691;border-radius:11px;padding:10px 6px;font-size:.7rem;min-height:52px}
+.ef-dual-chat .ef-art-footer{color:#a9abd3;text-align:center;font-size:.68rem}
+.ef-dual-chat .ef-disclosure{
+ flex:none;text-align:center;color:#8199c5;background:#060e24;
+ border-top:1px solid #1a2d55;padding:5px 10px;font-size:.67rem
+}
+.ef-dual-chat[data-persona="character"]{--ef-purple:#c464e8;--ef-purplelight:#ffbef8}
+.ef-dual-chat[data-persona="character"] .ef-welcome{
+ background:linear-gradient(95deg,#100d2dcc,#3d175e99),url('assets/ui/banner_moon_lake.webp') center/cover
+}
+.ef-dual-chat[data-persona="character"] .ef-art-frame{
+ background:linear-gradient(155deg,#231753,#26123b),url('assets/ui/banner_dream_tree.webp') center/cover
+}
+.ef-dual-chat[data-persona="character"] .ef-art-profile{background:linear-gradient(105deg,#281545,#15214f)}
+.ef-dual-chat.ef-immersive .ef-workspace{grid-template-columns:1fr!important}
+.ef-dual-chat.ef-immersive :is(.ef-sidebar,.ef-art-column){display:none!important}
+.ef-dual-chat.ef-immersive .ef-welcome{padding-block:12px}
+.ef-dual-chat.ef-immersive .freedom-ai-message{max-width:min(75%,1000px)}
+@media(max-width:1120px){
+ .ef-dual-chat .ef-workspace{grid-template-columns:215px minmax(0,1fr) 255px;gap:9px}
+ .ef-dual-chat .ef-art-tools{padding:9px}
+ .ef-dual-chat .ef-tool-grid{gap:6px}
+}
+@media(max-width:920px){
+ .ef-dual-chat .ef-workspace{grid-template-columns:210px minmax(0,1fr);gap:9px}
+ .ef-dual-chat .ef-art-column{display:none}
+ .ef-dual-chat .ef-header{gap:10px;padding:9px 13px}
+ .ef-dual-chat .ef-brand{min-width:150px}
+ .ef-dual-chat .ef-global-nav{justify-content:flex-start}
+}
+@media(max-width:680px){
+ #panel-freedom .ef-entry{padding:16px;gap:6px}
+ #panel-freedom .ef-entry-pics{padding:0}
+ #panel-freedom .ef-entry-pics img{width:68px;height:80px}
+ #panel-freedom .ef-entry h3{font-size:1.05rem}
+ #panel-freedom .ef-entry p{font-size:.75rem}
+ .ef-dual-chat .ef-header{min-height:58px;padding:6px 9px;gap:5px}
+ .ef-dual-chat .ef-brand{gap:6px;min-width:0}
+ .ef-dual-chat .ef-brand img{width:34px;height:34px}
+ .ef-dual-chat .ef-brand b{font-size:.95rem}
+ .ef-dual-chat .ef-brand small{display:none}
+ .ef-dual-chat .ef-global-nav{gap:3px}
+ .ef-dual-chat .ef-global-nav button,.ef-dual-chat .ef-header-close{
+   padding:8px 6px;font-size:.69rem;white-space:normal;text-align:center
+ }
+ .ef-dual-chat .ef-global-nav [data-ef-memory]{display:none}
+ .ef-dual-chat .ef-chooser{padding:16px 11px;gap:8px;justify-content:flex-start}
+ .ef-dual-chat .ef-chooser h1{font-size:1.36rem}
+ .ef-dual-chat .ef-chooser>p{font-size:.78rem}
+ .ef-dual-chat .ef-choose-grid{grid-template-columns:1fr;gap:11px;margin:8px auto}
+ .ef-dual-chat .ef-choice{grid-template-columns:42% 1fr;grid-template-rows:minmax(160px,1fr);min-height:160px}
+ .ef-dual-chat .ef-choice-art{min-height:160px}
+ .ef-dual-chat .ef-choice-copy{padding:12px;align-content:center;gap:6px}
+ .ef-dual-chat .ef-choice-copy>strong{font-size:1.04rem}
+ .ef-dual-chat .ef-choice-copy>span{font-size:.72rem;line-height:1.5}
+ .ef-dual-chat .ef-choice-copy>b{padding:8px;font-size:.77rem;margin-top:2px}
+ .ef-dual-chat .ef-workspace{display:flex;gap:0;padding:4px;flex-direction:column}
+ .ef-dual-chat .ef-sidebar,.ef-dual-chat .ef-art-column{display:none!important}
+ .ef-dual-chat .ef-main{flex:1;min-height:0;border-radius:13px}
+ .ef-dual-chat .ef-welcome{padding:12px}
+ .ef-dual-chat .ef-welcome h2{font-size:1.02rem}
+ .ef-dual-chat .ef-welcome p{font-size:.75rem}
+ .ef-dual-chat .ef-shortcuts{gap:5px}
+ .ef-dual-chat .ef-shortcuts button{padding:6px 7px;font-size:.68rem}
+ .ef-dual-chat .freedom-ai-card{padding:8px}
+ .ef-dual-chat .freedom-ai-message{max-width:89%;padding:11px 12px;font-size:.84rem}
+ .ef-dual-chat .freedom-ai-message.model{margin-inline-end:30px}
+ .ef-dual-chat .freedom-ai-message.model:before{width:27px;height:27px}
+ .ef-dual-chat .freedom-ai-memory{max-height:18vh}
+ .ef-dual-chat .freedom-ai-form{padding:6px}
+ .ef-dual-chat .freedom-ai-form textarea{min-height:55px}
+ .ef-dual-chat .freedom-ai-form button{padding:6px 9px;font-size:.72rem}
+ .ef-dual-chat .ef-disclosure{font-size:.6rem}
+}
+@media(max-height:650px) and (min-width:681px){
+ .ef-dual-chat .ef-workspace{padding-top:6px}
+ .ef-dual-chat .ef-header{min-height:59px}
+ .ef-dual-chat .ef-art-tools{display:none}
+ .ef-dual-chat .ef-welcome{padding-block:10px}
+ .ef-dual-chat .freedom-ai-memory{max-height:14vh}
 }
 @media(prefers-reduced-motion:reduce){
- .freedom-fox-overlay{animation:none}
- #panel-freedom .freedom-fox-preview>img{transition:none}
+ .freedom-fox-overlay.ef-dual-chat{animation:none}
+ .ef-dual-chat .ef-choice{transition:none}
 }
-
-/* Existing Freedom subpage back controls must clear the sticky global toolbar. */
+/* Keep existing Freedom subpage back controls above the sticky toolbar. */
 #panel-freedom .r30-shell,#panel-freedom .r31-shell{scroll-margin-top:calc(90px + env(safe-area-inset-top))}
