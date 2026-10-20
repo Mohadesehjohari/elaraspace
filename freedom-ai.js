@@ -76,6 +76,7 @@ async function saveMemoryAction(method,body,success){
 async function submit(form){
   const user=window.ElaraAccount?.user;if(!user||chatBusy)return;
   const message=String(form.elements.message.value||'').trim();if(!message)return;
+  window.ElaraAIPlans?.invalidate?.();
   chatBusy=true;chatError='';
   const before=read(),next=[...before,{role:'user',text:message,at:Date.now()}];
   write(next);render();
