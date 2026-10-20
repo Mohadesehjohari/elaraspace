@@ -525,17 +525,19 @@ function cleanMultiPlan(raw,inventory,folders){
   const entries=Array.isArray(raw.items)?raw.items:[];
   if(entries.length>12)fail('هر پیشنهاد حداکثر ۱۲ تغییر دارد.',422);
   const items=[],seenTargets=new Set(),namedFolders=new Set(folders);
+  // Register proposed folders first, regardless of their ordering in model JSON.
+  for(const entry of entries){
+    if(entry?.kind!=='folder')continue;
+    if(entry.action!=='create')fail('در این مرحله فقط ساخت پوشه مجاز است.',422);
+    const name=clean(entry.title,60);
+    if(!name)fail('نام پوشه خالی است.',422);
+    if(!namedFolders.has(name)){namedFolders.add(name);items.push({kind:'folder',action:'create',title:name});}
+  }
   for(const entry of entries){
     if(!entry||typeof entry!=='object')fail('یک مرحله برنامه نامعتبر است.',422);
     const kind=clean(entry.kind,15),action=clean(entry.action,16);
     if(!multiKinds.has(kind)||!multiActions.has(action))fail('نوع عملیات برنامه پشتیبانی نمی‌شود.',422);
-    if(kind==='folder'){
-      if(action!=='create')fail('فعلاً فقط ساخت پوشه در این دستیار مجاز است.',422);
-      const name=clean(entry.title,60);
-      if(!name)fail('نام پوشه خالی است.',422);
-      if(namedFolders.has(name))continue;
-      namedFolders.add(name);items.push({kind,action,title:name});continue;
-    }
+    if(kind==='folder')continue;
     let target=null,parent=null;
     if(action!=='create'){
       const id=clean(entry.id,128);
