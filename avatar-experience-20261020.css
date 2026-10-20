@@ -45,11 +45,33 @@
   overscroll-behavior:contain!important;visibility:visible!important;
 }
 .elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"] .elara-avatar-stage{
-  display:block!important;width:100%!important;height:100%!important;min-height:0!important;
-  border-radius:16px!important;touch-action:none;
+  display:block!important;position:relative!important;width:100%!important;height:100%!important;min-height:0!important;
+  overflow:hidden!important;isolation:isolate;cursor:grab;user-select:none;
+  border:1px solid #766daf54!important;border-radius:16px!important;touch-action:none;
+  background:radial-gradient(ellipse at 50% 84%,#343c7959,transparent 57%),linear-gradient(180deg,#071329,#081327)!important;
 }
 .elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"] .elara-avatar-viewport{
-  position:absolute!important;inset:0!important;min-height:0!important
+  position:absolute!important;inset:0!important;min-height:0!important;z-index:2!important
+}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-canvas{
+  display:block!important;width:100%!important;height:100%!important;touch-action:none;outline:0
+}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-stage.is-dragging{cursor:grabbing}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-badge,
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-status{
+  position:absolute!important;top:9px!important;z-index:4!important;
+  border-radius:999px;padding:5px 8px;background:#0a1930bd;color:#d8dbff;
+  border:1px solid #8e87bf44;pointer-events:none;
+  font:750 10px/1.2 Vazirmatn,Tahoma,sans-serif
+}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-badge{left:10px!important}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-status{
+  right:10px!important;max-width:50%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.elara-private-drawer[data-mobile-section="home"] .elara-avatar-help{
+  position:absolute!important;z-index:4;left:50%!important;transform:translateX(-50%);
+  display:flex;align-items:center;gap:6px;border-radius:999px;background:#0a1830cf;
+  padding:5px 8px;color:#ccd6ef;white-space:nowrap;pointer-events:none
 }
 .elara-private-drawer[data-mobile-section="home"][data-elara-view="avatar"] .elara-avatar-help{
   bottom:7px!important;max-width:80%;font-size:10px!important
