@@ -273,6 +273,8 @@
         const newVRM=await getVRM(item.src);
         if(disposed) {disposeMeshes(THREE,newVRM.scene);return;}
         const previous=vrm;attach(newVRM);disposeMeshes(THREE,previous.scene);
+        motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';
+        void applyClip('idle',motionRequest);
         look=item;save(kind,item.id);renderWardrobe();status(stage,'مدل سه‌بعدی آماده است','ready');
       }catch(error) {
         console.error('Elara VRM outfit failed',error);
@@ -414,11 +416,19 @@
       const p=(t-blinkStart)/blinkDuration;
       const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
-      // Gentle, closed-mouth smile: happy=0.65 opens some VRoid mouths unnaturally.
-      const smiling=['smile','wave'].includes(motion)||dancing;
-      try{vrm.expressionManager?.setValue('happy',smiling?.12:0);}catch{}
-      try{vrm.expressionManager?.setValue('relaxed',smiling?.28:.06);}catch{}
       mixer?.update(dt);
+      // Layer the greeting on top of the idle VRMA; never write it before mixer.update.
+      if(usingVRMA&&motion==='wave'){
+        poseBone('rightUpperArm',-.22,0,.50+.13*Math.sin(t*5));
+        poseBone('rightLowerArm',-.25,0,.52);
+      }
+      // Respect animation-authored facial tracks. Small closed-mouth expressions
+      // are layered only for explicit smile/wave, not exaggerated happy=0.65.
+      const smiling=['smile','wave'].includes(motion);
+      if(smiling||!usingVRMA){
+        try{vrm.expressionManager?.setValue('happy',smiling?.12:0);}catch{}
+        try{vrm.expressionManager?.setValue('relaxed',smiling?.28:.06);}catch{}
+      }
       vrm.update(dt); // VRM lookAt, expressions and spring bones
       renderer.render(scene,camera);
     }
