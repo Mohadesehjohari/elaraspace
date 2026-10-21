@@ -149,3 +149,77 @@ body.elara-quick-avatar-open{overflow:hidden!important}
   }
   .elara-avatar-quick-modal .elara-avatar-quick-header{top:10px;right:10px}
 }
+
+/* 2026-10-21: The profile chevron is a compact anchored CHARACTER popover.
+   Only the explicit button inside the profile opens a fullscreen viewer. */
+.elara-avatar-quick-modal[data-mode="popover"]{
+  position:fixed!important;inset:0!important;display:block!important;
+  padding:0!important;background:transparent!important;pointer-events:none!important;
+}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-quick-backdrop{
+  display:none!important;
+}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-quick-dialog{
+  position:fixed!important;inset:auto!important;
+  top:var(--elara-popover-top,80px)!important;
+  left:var(--elara-popover-left,8px)!important;
+  width:min(280px,calc(100vw - 16px))!important;
+  height:min(430px,calc(100dvh - 24px))!important;
+  min-height:0!important;max-height:calc(100dvh - 16px)!important;
+  padding:0!important;margin:0!important;
+  border-radius:19px!important;pointer-events:auto!important;
+  box-shadow:0 15px 45px #000a,0 0 20px #694ec52e!important;
+}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-quick-header{
+  top:7px!important;right:7px!important;
+}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-quick-close{
+  width:34px!important;height:34px!important;min-width:34px!important;
+  font-size:21px!important;
+}
+.elara-avatar-quick-modal[data-mode="fullscreen"]{
+  position:fixed!important;inset:0!important;display:flex!important;
+  justify-content:center!important;align-items:center!important;
+  padding:0!important;pointer-events:auto!important;
+}
+.elara-avatar-quick-modal[data-mode="fullscreen"] .elara-avatar-quick-backdrop{
+  display:block!important;backdrop-filter:blur(7px)!important;
+}
+.elara-avatar-quick-modal[data-mode="fullscreen"] .elara-avatar-quick-dialog{
+  position:relative!important;inset:auto!important;
+  width:calc(100vw - 20px)!important;height:calc(100dvh - 20px)!important;
+  max-width:1040px!important;max-height:calc(100dvh - 20px)!important;
+  border-radius:20px!important;
+}
+.elara-avatar-quick-modal[data-mode="fullscreen"] .elara-avatar-quick-header{
+  top:12px!important;right:12px!important;
+}
+/* This control lives IN the existing profile character viewer, not on the chevron. */
+.elara-avatar-stage [data-elara-avatar-fullscreen]{
+  position:absolute!important;bottom:12px!important;left:12px!important;z-index:15!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:40px!important;padding:8px 12px!important;
+  border-radius:11px!important;border:1px solid #b1a1f7a6!important;
+  background:#141f45ec!important;color:#fff!important;
+  font:750 12px/1.35 Vazirmatn,Tahoma,sans-serif!important;
+  cursor:pointer!important;touch-action:manipulation!important;
+}
+.elara-avatar-stage [data-elara-avatar-fullscreen]:focus-visible{
+  outline:2px solid #83e9ff!important;outline-offset:3px!important;
+}
+@media(max-width:700px){
+  .elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-quick-dialog{
+    width:min(240px,calc(100vw - 16px))!important;
+    height:min(365px,calc(100dvh - 24px))!important;
+    border-radius:15px!important;
+  }
+  .elara-avatar-quick-modal[data-mode="fullscreen"] .elara-avatar-quick-dialog{
+    width:100vw!important;height:100dvh!important;
+    max-width:none!important;max-height:100dvh!important;
+    border:0!important;border-radius:0!important;
+  }
+  .elara-private-drawer[data-mobile-section="home"] .elara-avatar-stage [data-elara-avatar-fullscreen]{
+    bottom:12px!important;left:12px!important;z-index:15!important;
+    min-height:42px!important;
+  }
+}
