@@ -8,6 +8,12 @@ const focus=fs.readFileSync(new URL('../focus-ambience.js',import.meta.url),'utf
 assert.match(index,/src="elara-audio\.js\?v=/);
 assert.match(index,/href="elara-audio\.css\?v=/);
 assert.match(focus,/elara:audio-settings-changed/);
+const manifest=JSON.parse(fs.readFileSync(new URL('../deploy/production-manifest.json',import.meta.url),'utf8'));
+for(const file of ['elara-audio.js','elara-audio.css']) {
+ assert.ok(manifest.files.includes(file),'production file list missing '+file);
+ assert.ok(manifest.required.includes(file),'production required list missing '+file);
+}
+assert.ok(source.includes('ui:[360,.055,.021]'),'gentle UI click waveform configuration missing');
 assert.doesNotMatch(source,/ElevenLabs|voiceId|speechSynthesis|TextToSpeech/);
 
 let starts=0;
@@ -43,6 +49,7 @@ assert.equal(engine.read().master,75);
 assert.equal(engine.read().enabled,true);
 engine.cue('ui');
 assert.ok(starts>0,'UI click sound generated');
+assert.equal(engine.read().volume.ui,28,'soft UI click default must be quiet');
 const before=starts;
 engine.set({enabled:false});engine.cue('complete');
 assert.equal(starts,before,'master mute blocks sounds');
