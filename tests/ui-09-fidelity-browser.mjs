@@ -38,7 +38,7 @@ async function run(base,route,width,count=21,kind='after'){
    metricsChildren:sel('#ref-wellness-card .ref-wellness-cell').map(e=>({cell:rect(e),strong:rect(e.querySelector('strong')),lastUnit:rect(e.querySelector('small:last-child'))})),
    goals:sel('#elara-home-goals .ref-goal-row').map(x=>x.textContent.trim()),wellnessParts:{main:rect(q('#ref-wellness-card .ref-health-main')),ring:rect(q('#ref-wellness-card .ref-health-ring')),copy:rect(q('#ref-wellness-card .ref-health-copy')),metrics:sel('#ref-wellness-card .ref-wellness-cell').map(rect)},taskCount:sel('#elara-home-tasks .ref-task-row').length,scrollables,hostScroll:host?{c:host.clientHeight,s:host.scrollHeight,overflow:getComputedStyle(host).overflowY}:null,listScroll:list?{c:list.clientHeight,s:list.scrollHeight,overflow:getComputedStyle(list).overflowY,tabindex:list.tabIndex}:null,headings:sel('#panel-home .ref-home-grid .ref-card header h2').map(rect),chevron:!!q('#ref-equipped-character-toggle')};
   }
-  return {...generic,toolbar:rect(q('#astra-task-toolbar')),rows:sel('#task-list>.astra-task-row').map(x=>({source:x.className,rect:rect(x),bg:getComputedStyle(x).backgroundImage,accent:getComputedStyle(x).getPropertyValue('--task-accent').trim(),label:x.querySelector('.item-title')?.textContent||'',strike:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).textDecorationLine:''})),archived:sel('.task-archive-row').length};
+  return {...generic,toolbar:rect(q('#astra-task-toolbar')),rows:sel('#task-list>.astra-task-row').map(x=>({source:x.className,rect:rect(x),bg:getComputedStyle(x).backgroundImage,accent:getComputedStyle(x).getPropertyValue('--task-neon').trim(),label:x.querySelector('.item-title')?.textContent||'',strike:x.querySelector('.item-title')?getComputedStyle(x.querySelector('.item-title')).textDecorationLine:''})),archived:sel('.task-archive-row').length};
  },route);
  if(kind==='after'||kind==='before')await page.screenshot({path:'browser-artifacts/ui09-'+kind+'-'+route+'-'+width+'-'+count+'.png',fullPage:width>=701});
  console.log('UI09_DIAGNOSTIC '+JSON.stringify({kind,route,width,expected:count,observed:m.taskCount,host:m.hostScroll,list:m.listScroll,cards:m.cards,quick:m.quick,bottom:m.bottom,rows:m.rows?.length,styles:m.cardStyles}));
@@ -94,13 +94,13 @@ async function run(base,route,width,count=21,kind='after'){
   assert.ok(m.rows.some(x=>x.source.includes('source-language')),'language source absent');
   assert.ok(m.rows.some(x=>x.source.includes('source-exercise')),'exercise source absent');
   assert.ok(m.rows.some(x=>x.source.includes('source-habit')),'habit source absent');
-  assert.ok(m.rows.every(x=>x.bg.includes('url(')),'mountain art lost in source gradient');
+  assert.ok(m.rows.every(x=>x.bg==='none'),'Task row background must be image-free after owner-approved neon redesign');
   const source=cls=>m.rows.find(x=>x.source.includes('source-'+cls));
   const neutral=m.rows.find(x=>!/(source-habit|source-language|source-exercise|source-goal|source-book|source-focus)/.test(x.source));
   assert.ok(neutral,'neutral task row absent');
-  const tint=x=>x.bg.split('url(')[0];
+  const tint=x=>x.accent;
   for(const group of ['habit','language','exercise']){
-   assert.notEqual(tint(source(group)),tint(neutral),'Task mountain gradient identical for sourceGroup '+group+' at '+width);
+   assert.notEqual(tint(source(group)),tint(neutral),'Source-specific neon color is not distinct for '+group+' at '+width);
   }
   assert.ok(m.rows.every(x=>!x.strike.includes('line-through')),'Task title struck through');
  }
