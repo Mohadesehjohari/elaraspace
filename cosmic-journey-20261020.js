@@ -10,7 +10,7 @@
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'نقشه فضایی مسیر اهداف');
-  overlay.innerHTML = '<div class="cosmic-field"><div class="cosmic-nebula"></div></div><header class="cosmic-top"><div class="cosmic-heading"><small>ELARA • YOUR UNIVERSE</small><h2>کهکشان مسیر من ✨</h2><p>هر ستاره، یک قدم به رؤیاهات نزدیک‌تر</p></div><div class="cosmic-controls"><button type="button" class="cosmic-control cosmic-build-button" data-cosmic-action="build-route">✨ ساخت مسیر</button><button type="button" class="cosmic-control" data-cosmic-action="sound-toggle" aria-pressed="true">🔊 صدا</button><label class="cosmic-volume-label">بلندی صدا <input type="range" data-cosmic-volume min="0" max="100" step="1" value="18" aria-label="بلندی صدای کهکشان"></label><button type="button" class="cosmic-control" data-cosmic-action="zoom-out" aria-label="کوچک‌نمایی">−</button><button type="button" class="cosmic-control" data-cosmic-action="zoom-in" aria-label="بزرگ‌نمایی">＋</button><button type="button" class="cosmic-control" data-cosmic-action="back">✕ بستن</button></div></header><div class="cosmic-onboarding" hidden><strong>✦ سفرت رو بساز</strong><p>با الارا درباره هدف‌هات صحبت کن تا قدم‌به‌قدم مسیرت رو بچینید.</p><button type="button" data-cosmic-action="build-route">✨ ساخت مسیر با الارا</button><button type="button" data-cosmic-action="dismiss-intro" aria-label="بستن راهنما">✕</button></div><div class="cosmic-viewport" tabindex="0" aria-label="نقشه قابل پیمایش ستاره‌ها"><div class="cosmic-universe"><svg class="cosmic-route-svg" preserveAspectRatio="none" aria-hidden="true"></svg><div class="cosmic-stars"></div></div></div><div class="cosmic-empty" hidden>هنوز ستاره‌ای در کهکشانت نیست. از «هدف‌های من» یک هدف بساز و قدم‌هایش را اضافه کن.<br><button class="cosmic-control" data-cosmic-action="back">بازگشت به هدف‌ها</button></div><footer class="cosmic-footer"><div class="cosmic-legend"><span><i class="mint"></i>انجام‌شده</span><span><i class="gold"></i>اینجای مسیر هستی</span><span><i></i>پیش رو</span></div><span data-cosmic-progress></span></footer><aside class="cosmic-detail" hidden aria-label="جزئیات ستاره"><button type="button" data-cosmic-action="close-detail">← بازگشت به کهکشان</button><h3 data-cosmic-title></h3><p data-cosmic-description></p><div data-cosmic-steps></div><div class="cosmic-action-row" data-cosmic-actions></div></aside>';
+  overlay.innerHTML = '<div class="cosmic-field"><div class="cosmic-nebula"></div></div><header class="cosmic-top"><div class="cosmic-heading"><small>ELARA • YOUR UNIVERSE</small><h2>کهکشان مسیر من ✨</h2><p>هر ستاره، یک قدم به رؤیاهات نزدیک‌تر</p></div><div class="cosmic-controls"><button type="button" class="cosmic-control cosmic-build-button" data-cosmic-action="build-route">✨ ساخت مسیر</button><button type="button" class="cosmic-control" data-cosmic-action="sound-toggle" aria-pressed="true">🔊 صدا</button><label class="cosmic-volume-label">بلندی صدا <input type="range" data-cosmic-volume min="0" max="100" step="1" value="18" aria-label="بلندی صدای کهکشان"></label><button type="button" class="cosmic-control" data-cosmic-action="zoom-out" aria-label="کوچک‌نمایی">−</button><button type="button" class="cosmic-control" data-cosmic-action="zoom-in" aria-label="بزرگ‌نمایی">＋</button><button type="button" class="cosmic-control" data-cosmic-action="back">✕ بستن</button></div></header><div class="cosmic-onboarding" hidden><strong>✦ سفرت رو بساز</strong><p>با الارا درباره هدف‌هات صحبت کن تا قدم‌به‌قدم مسیرت رو بچینید.</p><button type="button" data-cosmic-action="build-route">✨ ساخت مسیر با الارا</button><button type="button" data-cosmic-action="dismiss-intro" aria-label="بستن راهنما">✕</button></div><div class="cosmic-viewport" tabindex="0" aria-label="نقشه ستاره‌ها؛ درگ یا کلیدهای جهت برای حرکت و غلتک برای زوم"><div class="cosmic-universe"><svg class="cosmic-route-svg" preserveAspectRatio="none" aria-hidden="true"></svg><div class="cosmic-stars"></div></div></div><div class="cosmic-empty" hidden>هنوز ستاره‌ای در کهکشانت نیست. از «هدف‌های من» یک هدف بساز و قدم‌هایش را اضافه کن.<br><button class="cosmic-control" data-cosmic-action="back">بازگشت به هدف‌ها</button></div><footer class="cosmic-footer"><div class="cosmic-legend"><span><i class="mint"></i>انجام‌شده</span><span><i class="gold"></i>اینجای مسیر هستی</span><span><i></i>پیش رو</span></div><span data-cosmic-progress></span></footer><aside class="cosmic-detail" hidden aria-label="جزئیات ستاره"><button type="button" data-cosmic-action="close-detail">← بازگشت به کهکشان</button><h3 data-cosmic-title></h3><p data-cosmic-description></p><div data-cosmic-steps></div><div class="cosmic-action-row" data-cosmic-actions></div></aside>';
   document.body.append(overlay);
   const viewport = overlay.querySelector('.cosmic-viewport');
   const universe = overlay.querySelector('.cosmic-universe');
@@ -75,7 +75,8 @@
   function onCosmicClose(){stopSound();intro.hidden=true;}
   function updateVolume(next){
     soundVolume=Math.max(0,Math.min(100,Number(next)||0));safeSet(VOLUME_KEY,soundVolume);
-    if(soundVolume>0&&!soundContext&&overlay.classList.contains('is-open')&&soundEnabled)startSound();
+    if(soundVolume===0)stopSound();
+    else if(!soundContext&&overlay.classList.contains('is-open')&&soundEnabled)startSound();
     syncSoundControls();
   }
   function toggleSound(){
@@ -229,6 +230,14 @@
     const rect=viewport.getBoundingClientRect();
     zoomAt(zoom*Math.exp(-event.deltaY*.0011),event.clientX-rect.left,event.clientY-rect.top);
   },{passive:false});
+  viewport.addEventListener('keydown',event=>{
+    if(event.target!==viewport||event.altKey||event.ctrlKey||event.metaKey)return;
+    const move={ArrowLeft:[48,0],ArrowRight:[-48,0],ArrowUp:[0,48],ArrowDown:[0,-48]};
+    if(move[event.key]){event.preventDefault();cameraX+=move[event.key][0];cameraY+=move[event.key][1];applyCamera();}
+    else if(event.key==='+'||event.key==='='){event.preventDefault();zoomAt(zoom*1.2);}
+    else if(event.key==='-'){event.preventDefault();zoomAt(zoom/1.2);}
+    else if(event.key==='Home'){event.preventDefault();cameraReady=false;render();}
+  });
   viewport.addEventListener('pointerdown',event=>{
     if(event.button!==0||event.target.closest('button,a,input,[role="button"]'))return;
     dragging={id:event.pointerId,x:event.clientX,y:event.clientY,originX:cameraX,originY:cameraY};
