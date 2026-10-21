@@ -65,19 +65,22 @@ for(const w of [390,1440]){
 for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
- // A genuine first-visit milestone can display an accessible award dialog above
- // the header. Verify that it is dismissible before testing the underlying
- // header hit target; a modal is supposed to intercept pointer events.
- const reward=page.locator('.elara-fox-overlay:visible');
- if(await reward.count()){
-  const dismiss=reward.locator('.elara-fox-close');
-  assert.ok(await dismiss.count(),'Award overlay must include an accessible close button');
-  await dismiss.click();
-  await reward.waitFor({state:'hidden'});
- }
  const dash=page.locator('#well01-dashboard');
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.waitForTimeout(110);
+ // Seeded activity can legitimately show *several* achievement popups in a queue.
+ // Each dialog is modal, so it must intercept the header while open. Exercise
+ // the visible close button on each reward, then test the unobstructed search.
+ const reward=page.locator('.elara-fox-overlay:visible');
+ for(let closed=0;closed<8;closed++){
+  if(!await reward.count())break;
+  const close=reward.locator('.elara-fox-close').first();
+  assert.ok(await close.isVisible(),'Award overlay must include a visible close button');
+  await close.click();
+  await page.waitForTimeout(100);
+ }
+ assert.equal(await reward.count(),0,'No achievement dialog should remain after user dismisses the reward queue');
+
  if([390,412,1440].includes(width)){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
