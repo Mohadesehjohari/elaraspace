@@ -19,7 +19,7 @@ test('legacy synthetic renderer is entirely absent from the deployed website',()
   assert.ok(!html.includes('avatar-3d.js'),'Never load the synthetic character at boot');
   assert.ok(!quick.includes('ElaraProceduralPreview'),'No procedural quick view');
   assert.ok(!gallery.includes('ElaraProceduralPreview'),'Gallery must control real VRMs only');
-  assert.ok(boot.includes('avatar-3d.css'),'Retain shared stage layout styles without the synthetic renderer');
+  assert.ok(boot.includes('avatar-real-stage.css'),'Retain shared stage layout styles without the synthetic renderer');
 });
 test('live VRM and viewer scripts are syntax-safe',()=>{
   for(const name of ['avatar-live-vrm.js','avatar-quick-modal.js','avatar-motion-controls.js']){
