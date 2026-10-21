@@ -27,7 +27,7 @@ async function run(base,route,width,count=21,kind='after'){
   const q=s=>document.querySelector(s),sel=s=>[...document.querySelectorAll(s)];
   const top=q('.workspace>.topbar.ref-topbar'),hero=q(route==='home'?'#panel-home .owner-home-hero':'#panel-tasks .astra-task-hero');
   const headline=hero?.querySelector('.hero-copy h1,.elara-generated-hero h1');
-  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',headline:headline?{rect:rect(headline),fontSize:getComputedStyle(headline).fontSize,lineHeight:getComputedStyle(headline).lineHeight}:null,header:rect(top),mobileBrand:rect(q('.topbar .ref-mobile-brand')),mobileSearch:rect(q('.topbar #ref-header-search'))};
+  const generic={width:innerWidth,scale:visualViewport?.scale,zoom:getComputedStyle(document.body).zoom,dpr:devicePixelRatio,scrollWidth:document.documentElement.scrollWidth,topbarBg:top?getComputedStyle(top).backgroundImage:'',hero:rect(hero),heroBg:hero?getComputedStyle(hero).backgroundImage:'',headline:headline?{rect:rect(headline),fontSize:getComputedStyle(headline).fontSize,lineHeight:getComputedStyle(headline).lineHeight}:null,header:rect(top),mobileBrand:rect(q('.topbar .ref-mobile-brand')),mobileSearch:rect(q('.topbar #ref-header-search')),mobileSearchTrigger:rect(q('.topbar #ref-header-search-trigger'))};
   if(route==='home'){
    const cards=['#ref-streak-card','.owner-home-tasks','#ref-wellness-card','.owner-home-goals'].map(s=>({s,r:rect(q('#panel-home '+s))}));
    const host=q('#elara-home-tasks'),list=host?.querySelector('.ref-task-list');
@@ -112,8 +112,20 @@ async function run(base,route,width,count=21,kind='after'){
   }else{
    assert.ok(m.header&&m.hero&&m.hero.y>=m.header.bottom-2,'Home hero overlaps header: '+JSON.stringify({route,width,header:m.header,hero:m.hero}));
    assert.ok(m.mobileBrand?.w>=35,'Home mobile brand absent: '+width);
-   assert.ok(m.mobileSearch?.w>100,'Home mobile search absent: '+width);
-   assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Home mobile search extends over hero: '+width);
+   if(width<=359){
+     // Extremely narrow phones show a keyboard-accessible search trigger,
+     // opening the real input only on demand rather than stealing header room.
+     assert.ok(m.mobileSearchTrigger?.w>=30,'320px Home search trigger absent: '+width);
+     assert.ok(m.mobileSearchTrigger.bottom<=m.hero.y+1,'320px Home search trigger overlaps hero: '+width);
+     await page.locator('#ref-header-search-trigger').click();
+     assert.ok(await page.locator('#ref-header-search').isVisible(),
+       'Search trigger must actually reveal the real search input at '+width);
+     assert.ok(await page.locator('#ref-search-input').isVisible(),'Opened search input is inaccessible');
+     await page.locator('#ref-header-search-trigger').click();
+   }else{
+     assert.ok(m.mobileSearch?.w>100,'Home mobile search absent: '+width);
+     assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Home mobile search extends over hero: '+width);
+   }
   }
  }
  if(kind==='after'&&route==='home'&&width>=1001){
