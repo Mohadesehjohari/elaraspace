@@ -1,0 +1,25 @@
+/* Cosmic journey interaction contract; run: node tests/cosmic-journey-contract.test.mjs */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const js=read('cosmic-journey-20261020.js'),css=read('cosmic-journey-20261020.css'),html=read('index.html');
+assert.doesNotThrow(()=>new Function(js),'Cosmic JavaScript syntax');
+assert.match(html,/cosmic-journey-20261020\.js\?v=20261021-journey-v3/,'Fresh JS loaded');
+assert.match(html,/cosmic-journey-20261020\.css\?v=20261021-journey-v3/,'Fresh CSS loaded');
+assert.match(js,/pointerdown[\s\S]*setPointerCapture[\s\S]*pointermove/,'Pointer drag pan');
+assert.match(js,/addEventListener\('wheel'[\s\S]*passive:false/,'Prevent wheel scrolling');
+assert.match(js,/Math\.exp\(-event\.deltaY\*\.0011\)/,'Wheel zoom');
+assert.match(js,/zoomAt\(next,x=viewport\.clientWidth\/2/,'Cursor-anchor zoom');
+assert.match(js,/cosmic-progress-dot/,'Golden point on route');
+assert.match(js,/const curve=\(a,b,t\)/,'Bezier markers');
+for(let i=0;i<7;i++)assert.ok(css.includes('data-planet="'+i+'"'),'Planet style '+i);
+assert.match(css,/cosmic-viewport\{overflow:hidden!important/,'No scrollbars');
+assert.match(css,/toggle-step"\]\{width:50px/,'Larger completion tap target');
+assert.match(js,/cosmic-onboarding/,'First-visit AI entry');
+assert.match(js,/ElaraFreedomChatPage/,'Existing Elara AI chat');
+assert.match(js,/confirm\('برای کمک به ساخت مسیر/,'Ask before sharing existing goal and task titles');
+assert.match(js,/form\.requestSubmit\(\)/,'Submit builder intent via canonical AI form');
+assert.match(js,/AudioContext/,'Generated audio');
+assert.match(js,/data-cosmic-settings-volume/,'Volume in settings');
+assert.match(js,/closing\.close\(\)/,'Audio lifecycle');
+console.log('COSMIC_JOURNEY_CONTRACT_PASS');
