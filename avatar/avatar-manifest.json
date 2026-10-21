@@ -5,14 +5,14 @@
   "artDirection": "2026-10-05-approved-turnaround",
   "bases": {
     "female-v1": {
-      "status": "modeling",
-      "src": "assets/avatar/bases/elara-female-v1.vrm",
-      "fallback": "prototype"
+      "status": "preview",
+      "src": "assets/avatar/bases/eli-female-v1.vrm",
+      "fallback": null
     },
     "male-v1": {
-      "status": "modeling",
-      "src": "assets/avatar/bases/elara-male-v1.vrm",
-      "fallback": "prototype"
+      "status": "ready",
+      "src": "assets/avatar/bases/eli-male-v1.vrm",
+      "fallback": null
     }
   },
   "animations": {
@@ -20,5 +20,5 @@
     "idle-soft": "assets/avatar/animations/idle-soft.glb",
     "dance-01": "assets/avatar/animations/dance-01.glb"
   },
-  "notes": "Do not set productionReady=true until production model exports and runtime quality checks have passed."
+  "notes": "Both exported VRMs have been committed. No procedural fallback exists. Keep productionReady=false until mobile/desktop rendering, licenses, animation, and rig tests have passed."
 }
