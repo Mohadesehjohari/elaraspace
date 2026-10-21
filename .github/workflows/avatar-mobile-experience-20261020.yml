@@ -4,7 +4,9 @@ on:
     paths:
       - drawer.js
       - avatar-live-vrm.js
-      - avatar-3d.js
+      - avatar-motion-controls.js
+      - avatar/vrm-looks.json
+      - assets/avatar/bases/eli-male-v1.vrm
       - avatar-quick-modal.js
       - avatar-quick-modal.css
       - reference-home-shell-2026.js
@@ -31,7 +33,7 @@ jobs:
         run: |
           node --check drawer.js
           node --check avatar-live-vrm.js
-          node --check avatar-3d.js
+          node --check avatar-motion-controls.js
           node --check avatar-quick-modal.js
           node --test tests/eli-vrm-wardrobe-smoke.test.mjs
       - name: Install Playwright Chromium
