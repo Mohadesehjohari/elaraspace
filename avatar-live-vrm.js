@@ -99,6 +99,34 @@
     let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full', motion='idle', motionStarted=0, motionUntil=0;
     const focusHeights={full:.52,face:.865,torso:.63,legs:.30};
     const focusDistance={full:4.6,face:1.25,torso:2.3,legs:2.6};
+    // Dance root motion can leave a static camera frame. Sample animated joint
+    // bounds at 10 Hz; move the camera smoothly without altering the real dance.
+    const danceFrame={distance:7.6,centerX:0,centerY:1.05,lastSample:-1};
+    const danceJoints=['head','leftHand','rightHand','leftLowerArm','rightLowerArm',
+      'hips','leftFoot','rightFoot','leftLowerLeg','rightLowerLeg'];
+    const dancePoint=new THREE.Vector3();
+    function sampleDanceFrame(time){
+      if(time-danceFrame.lastSample<.10)return;
+      danceFrame.lastSample=time;
+      anchor.updateMatrixWorld(true);
+      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,count=0;
+      for(const name of danceJoints){
+        const joint=bones[name]?.node;if(!joint)continue;
+        joint.getWorldPosition(dancePoint);
+        anchor.worldToLocal(dancePoint);
+        minX=Math.min(minX,dancePoint.x);maxX=Math.max(maxX,dancePoint.x);
+        minY=Math.min(minY,dancePoint.y);maxY=Math.max(maxY,dancePoint.y);count++;
+      }
+      if(count<3)return;
+      const bodyHeight=Math.max(2.2,maxY-minY+.56);
+      const bodyWidth=Math.max(1.65,maxX-minX+.7);
+      const angle=camera.fov*Math.PI/360;
+      const vertical=bodyHeight/(2*Math.tan(angle)*.75);
+      const horizontal=bodyWidth/(2*Math.tan(angle)*Math.max(.45,camera.aspect)*.77);
+      danceFrame.distance=clamp(Math.max(6.6,vertical,horizontal),6.6,15);
+      danceFrame.centerY=clamp((minY+maxY)/2+.12,.58,3.7);
+      danceFrame.centerX=clamp((minX+maxX)/2,-1.1,1.1);
+    }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
@@ -114,7 +142,7 @@
       const b=bones[name]; if (!b) return;
       Euler.set(x,y,z,'XYZ');q.setFromEuler(Euler);b.node.quaternion.copy(b.quat).multiply(q);
     }
-    const motionOptions=['idle','smile','wave','dance1','dance2','dance3'];
+    const motionOptions=['idle','smile','softSmile','wave','dance1','dance2','dance3'];
     let mixer=null,activeClip=null,usingVRMA=false,motionRequest=0;
     const loadedVRMA=new Map(),armRestZ={left:-.85,right:.85};
     function restoreBoneDefaults(){
@@ -367,11 +395,17 @@
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
-      const dest=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
-      const targetHeight=height*focusHeights[focus],cameraFollow=1-Math.exp(-dt*5);
+      const dancingNow=usingVRMA&&motion.startsWith('dance');
+      if(dancingNow)sampleDanceFrame(t);
+      const normalDistance=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
+      const dest=dancingNow&&focus==='full'?Math.max(normalDistance,danceFrame.distance*zoom):normalDistance;
+      const targetHeight=dancingNow&&focus==='full'?danceFrame.centerY:height*focusHeights[focus];
+      const targetX=dancingNow&&focus==='full'?danceFrame.centerX:0;
+      const cameraFollow=1-Math.exp(-dt*(dancingNow?3.1:4.5));
       camera.position.z+=(dest-camera.position.z)*cameraFollow;
       camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
-      camera.lookAt(0,targetHeight,0);
+      camera.position.x+=(targetX-camera.position.x)*cameraFollow;
+      camera.lookAt(camera.position.x,targetHeight,0);
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
