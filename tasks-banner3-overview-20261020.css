@@ -138,3 +138,13 @@ html body #panel-tasks#panel-tasks #elara-task-overview .task-overview-ring stro
   html body #panel-tasks#panel-tasks #elara-task-overview .task-overview-icon{display:none!important}
   html body #panel-tasks#panel-tasks #elara-task-overview .task-overview-ring{width:41px!important;height:41px!important;flex-basis:41px!important}
 }
+
+/* Mobile Tasks must show the same approved tasks_banner3 as desktop. The older
+   mobile panorama owners repeat IDs and were overriding the original rule. */
+@media(max-width:700px){
+ html body #main #panel-tasks#panel-tasks#panel-tasks#panel-tasks #astra-task-hero#astra-task-hero,
+ html body.dark #main #panel-tasks#panel-tasks#panel-tasks#panel-tasks #astra-task-hero#astra-task-hero.elara-global-hero {
+  background-image:linear-gradient(90deg,rgba(3,10,30,.26),rgba(4,12,36,.04) 50%,rgba(2,9,27,.37)),url("assets/ui/tasks_banner3.webp")!important;
+  background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;
+ }
+}

@@ -35,7 +35,7 @@ try{
   assert.ok(info.hero.y<16,'Tasks hero must be at the top of the mobile page '+width+' '+JSON.stringify(info));
   assert.ok(info.backgroundSize.includes('100% 152%'),'full mobile panoramic art must be visible without black letterbox strips '+width+' '+JSON.stringify(info));
   assert.equal(info.dayCount,7,'seven streak days missing');
-  assert.ok(info.background.includes('task-header-banner-bg.webp'),'illustrated Tasks banner must be loaded '+width+' '+JSON.stringify(info));
+  assert.ok(info.background.includes('tasks_banner3.webp'),'illustrated Tasks banner must be loaded '+width+' '+JSON.stringify(info));
   assert.ok(info.streakBackground.includes('daily-streak-background.webp'),'streak card background is missing '+width+' '+JSON.stringify(info));
   assert.ok(info.summary.w<=info.hero.w*.71&&info.summary.h<=115,'streak card covers too much of banner '+width+' '+JSON.stringify(info));
   assert.ok(info.summary.x>=info.hero.x+info.hero.w*.27,'streak must stay in the right corner and reveal most artwork '+width+' '+JSON.stringify(info));
@@ -43,7 +43,7 @@ try{
   assert.ok(info.streakOpacity>.9,'streak opacity should not be collapsed');
   assert.ok(info.summary.bottom<=info.hero.bottom+2&&info.summary.y>=info.hero.y-2,'streak content extends outside card '+JSON.stringify(info));
   assert.ok(info.documentWidth<=width+2,'horizontal page overflow '+JSON.stringify(info));
-  for(const image of ['assets/ui/task-header-banner-bg.webp','assets/ui/daily-streak-background.webp']){
+  for(const image of ['assets/ui/tasks_banner3.webp','assets/ui/daily-streak-background.webp']){
    const response=await page.request.get(url+'/'+image);
    assert.ok(response.ok(),'illustration returned HTTP '+response.status()+': '+image);
    assert.match(response.headers()['content-type']||'',/image\//,'wrong image response content type: '+image);

@@ -125,7 +125,7 @@ html body #panel-tasks .task-status-group article button{
 
 /* Keep the original task hero art visible behind the new category navigation. */
 html body #panel-tasks#panel-tasks #astra-task-hero{
-  background-image:linear-gradient(90deg,rgba(2,11,27,.42),rgba(2,11,27,.05)),url('assets/ui/task-header-banner-bg.webp')!important;
+  background-image:linear-gradient(90deg,rgba(2,11,27,.42),rgba(2,11,27,.05)),url('assets/ui/tasks_banner3.webp')!important;
   background-position:center 48%!important;background-size:cover!important;background-repeat:no-repeat!important;
 }
 /* Permit the explicit choice strip to expand an otherwise compact Home row. */
