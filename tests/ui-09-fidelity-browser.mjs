@@ -123,8 +123,14 @@ async function run(base,route,width,count=21,kind='after'){
      assert.ok(await page.locator('#ref-search-input').isVisible(),'Opened search input is inaccessible');
      await page.locator('#ref-header-search-trigger').click();
    }else{
-     assert.ok(m.mobileSearch?.w>100,'Home mobile search absent: '+width);
-     assert.ok(m.mobileSearch?.bottom<=m.hero.y+1,'Home mobile search extends over hero: '+width);
+     // Home uses a compact search trigger at every mobile width.
+     assert.ok(m.mobileSearchTrigger?.w>=30,'Home mobile search trigger absent: '+width);
+     assert.ok(m.mobileSearchTrigger.bottom<=m.hero.y+1,'Home search trigger overlaps hero: '+width);
+     await page.locator('#ref-header-search-trigger').click();
+     assert.ok(await page.locator('#ref-header-search').isVisible(),
+       'Search trigger must open the actual input at '+width);
+     assert.ok(await page.locator('#ref-search-input').isVisible(),'Search input inaccessible at '+width);
+     await page.locator('#ref-header-search-trigger').click();
    }
   }
  }
