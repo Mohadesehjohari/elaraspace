@@ -360,6 +360,10 @@
         (document.querySelector('.approved-wardrobe:not([hidden])')&&!stage.closest('.approved-wardrobe')&&!stage.closest('.elara-avatar-quick-modal')))return;
       elapsed+=dt;
       const amp=reduced?.12:1, t=elapsed;
+      if(motionUntil&&t>=motionUntil){
+        setAction('idle');
+        window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));
+      }
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
@@ -387,10 +391,6 @@
             ['lookUp',Math.max(0,vertical)],['lookDown',Math.max(0,-vertical)]])
             try{em.setValue(key,value)}catch{}
         }
-      }
-      if(motionUntil&&t>=motionUntil){
-        setAction('idle');
-        window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));
       }
       const dancing=motion.startsWith('dance')&&!reduced;
       const dancingT=t-motionStarted;
