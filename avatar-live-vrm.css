@@ -83,3 +83,19 @@
    outline:2px solid #67d7ff;outline-offset:3px
  }
 }
+
+/* Real-VRM-only empty state. The missing male asset is never replaced by
+   an experimental stick figure or a misleading default body. */
+.elara-avatar-stage[data-avatar-mounted="unavailable"] [data-elara-avatar-status]{
+  position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;max-width:calc(100% - 34px)!important;
+  width:min(360px,calc(100% - 34px))!important;white-space:normal!important;
+  overflow:visible!important;text-overflow:clip!important;text-align:center!important;
+  font:700 13px/1.9 Vazirmatn,Tahoma,sans-serif!important;
+  padding:16px!important;color:#e6dfff!important;
+  background:#101b3ce8!important;border:1px solid #a892eb6e!important;
+  border-radius:16px!important;pointer-events:none!important;z-index:12!important;
+}
+.elara-avatar-stage[data-avatar-mounted="unavailable"] .elara-motion-gallery{
+  display:none!important;
+}
