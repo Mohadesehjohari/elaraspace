@@ -83,3 +83,25 @@ test('real recorded dance URLs do not fall back to nonexistent placeholder paths
   assert.ok(!live.includes('state-alchemists/zrb-face'));
   assert.ok(live.includes('measureArmRest')&&live.includes('restoreBoneDefaults'));
 });
+
+test('dance auto-framing stays within the stage and recovers from previous face zoom',()=>{
+ const live=read('avatar-live-vrm.js'),html=read('index.html');
+ assert.ok(live.includes('function sampleDanceFrame(time)'),'Record moving VRM joints');
+ assert.ok(live.includes("motion.startsWith('dance')"),'Only dance requires an enlarged camera fit');
+ assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
+ assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
+ assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-autoframe-softsmile-r1'));
+});
+test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
+ const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
+ const css=read('avatar-motion-controls.css'),html=read('index.html');
+ assert.ok(live.includes("'softSmile'")&&gallery.includes("id:'softSmile'"),'Soft smile should be its own choice');
+ assert.ok(gallery.includes("label:'لبخند ملیح'"),'Cute face must be separately selectable');
+ assert.ok(live.includes('rightHand\',.10,-1.04'),'Wave wrist should rotate the palm towards viewer');
+ assert.ok(live.includes("normalSmile?.075:cuteSmile?.025"),'Avoid an exaggerated happy mouth');
+ assert.ok(gallery.includes('stroke="white"')&&gallery.includes('fill="white"'),'Original emote icons need white silhouette');
+ assert.ok(gallery.includes('#7135d4'),'Use the unified purple theme');
+ assert.ok(css.includes('linear-gradient(165deg,#6932c7,#8a4af2)'));
+ assert.ok(html.includes('avatar-motion-controls.css?v=20261022-purple-emotes-r1'));
+});
