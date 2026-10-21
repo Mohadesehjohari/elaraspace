@@ -30,10 +30,11 @@
   function availableModel(stage){
     const live=window.ElaraLiveVRM?.current;
     if(live?.stage===stage&&live?.setAction)return name=>live.setAction(name);
-    return name=>window.ElaraProceduralPreview?.play?.(stage,name)===true;
+    return ()=>false;
   }
   function gallery(stage){
-    if(!stage?.isConnected||stage.querySelector('[data-elara-motion-gallery]'))return;
+    if(!stage?.isConnected||stage.querySelector('[data-elara-motion-gallery]')||
+       window.ElaraLiveVRM?.current?.stage!==stage)return;
     const quick=stage.closest('.elara-avatar-quick-modal');
     if(quick&&quick.dataset.mode!=='fullscreen')return;
     const wrap=document.createElement('aside');
@@ -75,7 +76,12 @@
     wrap.append(info);
     stage.append(wrap);
   }
-  function sync(){document.querySelectorAll('[data-elara-avatar-stage]').forEach(gallery);}
+  function sync(){
+    document.querySelectorAll('[data-elara-avatar-stage]').forEach(stage=>{
+      if(window.ElaraLiveVRM?.current?.stage===stage)gallery(stage);
+      else stage.querySelector('[data-elara-motion-gallery]')?.remove();
+    });
+  }
   window.addEventListener('elara:avatar-stage-ready',sync);
   window.addEventListener('elara:live-avatar-mounted',sync);
   window.addEventListener('elara:procedural-avatar-mounted',sync);
