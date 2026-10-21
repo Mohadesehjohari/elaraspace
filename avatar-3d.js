@@ -73,6 +73,8 @@
     tube(THREE,head,m.brow,[[.055,.254,.347],[.15,.272,.350],[.255,.245,.342]],isMale?.010:.008,14,5,'brow-right');
     tube(THREE,head,m.nose,[[.005,.045,.356],[.018,-.035,.364],[0,-.105,.365]],.006,12,5,'nose-line');
     refs.mouth=tube(THREE,head,m.mouth,[[-.082,-.205,.352],[0,-.219,.360],[.082,-.205,.352]],.008,14,5,'mouth');
+    refs.smile=tube(THREE,head,m.mouth,[[-.09,-.195,.351],[0,-.243,.363],[.09,-.195,.351]],.008,18,6,'smile');
+    refs.smile.visible=false;
   }
   function hairRibbon(THREE,parent,mat,o){
     const shape=new THREE.Shape();
@@ -314,7 +316,7 @@
         arm.rotation.z=(s*.045+Math.sin(t*.78+s)*.013+(dancing?s*style:wave?.65+.17*Math.sin(t*5):0))*idleAmp;
         arm.rotation.x=(dancing?Math.sin(mt*beat+s)*.18:wave?-.62:Math.sin(t*.62+s)*.008)*idleAmp;
       });
-      if(refs.mouth)refs.mouth.scale.y=(motion==='smile'||motion==='wave'||dancing)?1.8:1;
+      if(refs.smile){refs.smile.visible=motion==='smile'||motion==='wave'||dancing;refs.mouth.visible=!refs.smile.visible;}
       const blink=(t%4.7)>4.52&&((t%4.7)<4.66);refs.eyes.forEach(e=>{e.scale.y=blink?.16:1});
 
       const spin=clamp(velocity*4.5,-.23,.23);
