@@ -484,9 +484,9 @@
     try {
       return await mount(stage,config,kind,base);
     } catch(err) {
-      console.warn('Elara VRM: preview failed; displaying diagnostic prototype',err);
+      console.warn('Elara VRM: real model load failed; no synthetic model will be used',err);
       stage.dataset.avatarFallbackReason='vrm-download-or-render-failed';
-      status(stage,'مدل جدید بارگذاری نشد؛ نسخهٔ آزمایشی نمایش داده می‌شود','error');
+      status(stage,kind==='male'?'فایل مدل مردانه در سایت موجود نیست.':'بارگذاری مدل واقعی انجام نشد.','error');
       return false;
     }
   }
