@@ -333,6 +333,7 @@
     requestAnimationFrame(frame);
 
     current={stage,play,setAction:play,dispose,rebuild};
+    window.dispatchEvent(new Event('elara:procedural-avatar-mounted'));
     window.ElaraAvatar3D={play,dance:()=>play('dance1'),rebuild,get base(){return avatar?.userData?.kind||avatarBase()},version:'procedural-character-motion-v3'};
     return true;
   }
@@ -340,7 +341,8 @@
   // Explicit, isolated fallback for the arrow popup when a real VRM is not uploaded yet.
   window.ElaraProceduralPreview={
     mount:stage=>mount(stage,{skipVRM:true}),
-    dispose:stage=>{if(current?.stage===stage)current.dispose();}
+    dispose:stage=>{if(current?.stage===stage)current.dispose();},
+    play:(stage,name)=>current?.stage===stage?current.play(name):false
   };
   function discover(){if(!desktop()&&!mobileViewer())return;const stage=document.querySelector('.elara-private-drawer [data-elara-avatar-stage]')||document.querySelector('[data-elara-avatar-stage]');if(stage)mount(stage)}
   window.addEventListener('elara:avatar-stage-ready',discover);
