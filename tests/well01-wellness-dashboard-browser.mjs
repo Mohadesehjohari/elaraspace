@@ -65,6 +65,17 @@ for(const w of [390,1440]){
 for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
+ // Seeding a completed workout can legitimately trigger a full-screen achievement dialog.
+ // A modal is SUPPOSED to intercept clicks until dismissed. Verify its real close control,
+ // then test the header's own click target (rather than masking overlays with CSS).
+ const rewardModal=page.locator('.elara-fox-overlay[data-elara-reward-modal]');
+ if(await rewardModal.isVisible().catch(()=>false)){
+  const close=rewardModal.locator('.elara-fox-close');
+  assert.ok(await close.isVisible(),'achievement modal needs an accessible close control');
+  await close.click();
+  await rewardModal.waitFor({state:'detached',timeout:6000});
+ }
+
  const dash=page.locator('#well01-dashboard');
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.waitForTimeout(110);
