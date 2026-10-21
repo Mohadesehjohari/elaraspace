@@ -182,7 +182,7 @@
       avatarStage.className='elara-avatar-stage';
       avatarStage.dataset.elaraAvatarStage='';
       avatarStage.setAttribute('aria-label','آواتار سه‌بعدی');
-      avatarStage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال بارگذاری آواتار…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>لمس: زوم · درگ: چرخش · اسکرول: زوم</span></div>';
+      avatarStage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div><span class="elara-avatar-badge">3D AVATAR</span><span class="elara-avatar-status" data-elara-avatar-status>در حال بارگذاری آواتار…</span><div class="elara-avatar-help" aria-hidden="true"><i></i><span>لمس: زوم · درگ: چرخش · اسکرول: زوم</span></div><button type="button" data-elara-avatar-fullscreen aria-haspopup="dialog" aria-label="نمایش تمام‌صفحه کاراکتر">⛶ تمام‌صفحه</button>';
       host.append(avatarStage);
     }
     return avatarStage;
