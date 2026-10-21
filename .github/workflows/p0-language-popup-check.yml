@@ -19,7 +19,7 @@ jobs:
           node --check approved-navigation-extension.js
           node --check notifications.js
           node --check drawer.js
-          node --check avatar-3d.js
+          node --check avatar-live-vrm.js
           node --check tests/avatar-3d-browser.mjs
           node --check dialog.js
           node --check phase2.js
