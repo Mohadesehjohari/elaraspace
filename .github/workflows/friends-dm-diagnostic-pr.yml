@@ -1,0 +1,26 @@
+name: Friends DM Diagnostics
+on:
+  pull_request:
+    paths:
+      - 'tests/friends-dm-ui-browser.mjs'
+      - 'social-messaging-ui.js'
+      - '.github/workflows/friends-dm-diagnostic-pr.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check tests/friends-dm-ui-browser.mjs && node --check social-messaging-ui.js
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/elara-dm-http.log 2>&1 &
+          sleep 3
+          node tests/friends-dm-ui-browser.mjs
