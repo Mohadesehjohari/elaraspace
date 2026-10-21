@@ -48,6 +48,8 @@ function claim(key){
 }
 function chime(kind){
  if(!prefs().sound)return;
+ // Respect the site's global and rewards channel mute/volume instead of a direct speaker output.
+ if(window.ElaraAudio){window.ElaraAudio.cue(kind==='level'?'level':'rewards');return}
  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
  try{const c=new C(),notes=kind==='level'?[523.25,659.25,783.99,1046.5]:[659.25,830.61,987.77];
   notes.forEach((hz,i)=>{const at=c.currentTime+i*.095,o=c.createOscillator(),g=c.createGain();

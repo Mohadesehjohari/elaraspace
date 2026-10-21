@@ -5,3 +5,39 @@
 .elara-audio-row label{font-size:.78rem;line-height:1.65}.elara-audio-row input{width:100%;accent-color:var(--accent,#9a8cff);min-width:0}.elara-audio-row output{font-size:.73rem;text-align:center;font-variant-numeric:tabular-nums}
 .elara-audio-settings button{cursor:pointer}.elara-audio-mute{min-width:39px;padding:7px 3px!important}.elara-audio-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding-top:15px}.elara-audio-actions label{display:flex;align-items:center;gap:7px;font-size:.78rem}.elara-audio-actions select{max-width:150px;background:var(--surface,#14253a);color:var(--text,#fff);border:1px solid var(--border,#485574);padding:8px;border-radius:9px;font:inherit}.elara-audio-settings :focus-visible{outline:2px solid var(--accent,#b4aaff);outline-offset:3px}
 @media(max-width:620px){.elara-audio-row{grid-template-columns:minmax(0,1fr) 48px 42px;gap:7px}.elara-audio-row label{grid-column:1/-1}.elara-audio-row input{grid-column:1}.elara-audio-row output{grid-column:2}.elara-audio-row button{grid-column:3}.elara-audio-actions button{flex:1 1 130px}}
+
+/* Consolidated sound mixer — scoped to the existing Elara surfaces. */
+.elara-audio-settings{scroll-margin-top:25px}
+.elara-audio-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:8px}
+.elara-audio-head>div{flex:1 1 235px}
+.elara-audio-head .muted{margin:3px 0 0}
+.elara-audio-head .elara-audio-master-btn{font-weight:800;border:1px solid var(--border,#53617d);border-radius:11px;min-height:38px;padding:8px 12px}
+.elara-audio-settings .elara-audio-group-label{margin:20px 0 2px;color:var(--muted,#b4c2d8);font-size:.8rem;font-weight:850}
+.elara-audio-settings .elara-audio-row{
+ display:grid;grid-template-columns:minmax(142px,1.1fr) minmax(100px,1.4fr) 44px 44px auto;
+ column-gap:9px;row-gap:5px;align-items:center;padding:11px 0;
+}
+.elara-audio-row-label{min-width:0;display:flex;flex-direction:column;gap:3px}
+.elara-audio-row-label label{font-size:.79rem;line-height:1.5;font-weight:750}
+.elara-audio-row-label small{color:var(--muted,#b4c2d8);font-size:.68rem;line-height:1.55}
+.elara-audio-row output{min-width:40px}
+.elara-audio-row .elara-audio-preview{font-size:.7rem;min-height:31px;padding:5px 8px;white-space:nowrap;border-radius:9px}
+.elara-audio-row input[type="range"]{touch-action:pan-y;cursor:pointer;min-height:25px}
+.elara-audio-note{border-top:1px solid var(--border,#45556a);margin:12px 0 0;padding-top:12px;font-size:.74rem;line-height:1.9;color:var(--muted,#b9c4dd)}
+.elara-audio-settings .elara-audio-actions{justify-content:flex-start;align-items:center}
+.elara-audio-settings .elara-audio-actions button{min-height:36px}
+#drawer-settings-area .elara-audio-settings{margin:10px 0 18px}
+@media(max-width:850px){
+ .elara-audio-settings .elara-audio-row{grid-template-columns:minmax(0,1fr) 48px 42px auto}
+ .elara-audio-settings .elara-audio-row-label{grid-column:1/-1}
+ .elara-audio-settings .elara-audio-row input{grid-column:1}
+ .elara-audio-settings .elara-audio-row output{grid-column:2}
+ .elara-audio-settings .elara-audio-row .elara-audio-mute{grid-column:3}
+ .elara-audio-settings .elara-audio-row .elara-audio-preview{grid-column:4}
+}
+@media(max-width:410px){
+ .elara-audio-settings .elara-audio-row{grid-template-columns:minmax(0,1fr) 42px 36px auto;column-gap:4px}
+ .elara-audio-settings .elara-audio-row .elara-audio-preview{padding:5px;font-size:.66rem}
+ .elara-audio-settings .elara-audio-row-label label{font-size:.75rem}
+ .elara-audio-settings{padding:10px}
+}

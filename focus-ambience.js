@@ -13,7 +13,7 @@ function ensureContext(){
  const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error(t('مرورگر این دستگاه صدای محیطی را پشتیبانی نمی‌کند.','This browser does not support ambient audio.'));
  if(!ctx||ctx.state==='closed')ctx=new Audio();return ctx
 }
-function gainValue(){const s=window.ElaraAudio?.read?.();const factor=s?(s.enabled&&!s.mute.ambient?(s.master/100)*(s.volume.ambient/100):0):1;return Math.max(0,Math.min(1,Number(read().volume||0)/100))*0.16*factor}
+function gainValue(){const engine=window.ElaraAudio;const factor=engine?.volumeFor?.('focus')??1;return Math.max(0,Math.min(1,Number(read().volume||0)/100))*0.16*factor}
 function noiseBuffer(c,seconds=4){
  const len=Math.max(1,Math.floor(c.sampleRate*seconds)),buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
  let last=0;for(let i=0;i<len;i++){const white=Math.random()*2-1;last=(last+0.025*white)/1.025;d[i]=last*3.2}return buf
