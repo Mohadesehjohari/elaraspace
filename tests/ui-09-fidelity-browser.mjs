@@ -32,7 +32,7 @@ async function run(base,route,width,count=21,kind='after'){
    const cards=['#ref-streak-card','.owner-home-tasks','#ref-wellness-card','.owner-home-goals'].map(s=>({s,r:rect(q('#panel-home '+s))}));
    const host=q('#elara-home-tasks'),list=host?.querySelector('.ref-task-list');
    const scrollables=sel('#panel-home .owner-home-tasks *').filter(x=>{const st=getComputedStyle(x);return /(auto|scroll)/.test(st.overflowY)}).map(x=>({id:x.id,cls:x.className,scrollH:x.scrollHeight,clientH:x.clientHeight}));
-   return {...generic,cards,cardStyles:cards.map(x=>{const el=q('#panel-home '+x.s),st=getComputedStyle(el);return {className:el.className,height:st.height,minHeight:st.minHeight,maxHeight:st.maxHeight,padding:st.padding,boxSizing:st.boxSizing,display:st.display,overflow:st.overflow,gridTemplateRows:st.gridTemplateRows,children:[...el.children].slice(0,5).map(ch=>({cls:ch.className,r:rect(ch)}))}}),grid:rect(q('#panel-home .ref-home-grid')),gridStyle:{marginBottom:getComputedStyle(q('#panel-home .ref-home-grid')).marginBottom,rowGap:getComputedStyle(q('#panel-home .ref-home-grid')).rowGap,gridTemplateRows:getComputedStyle(q('#panel-home .ref-home-grid')).gridTemplateRows},quickStyle:{marginTop:getComputedStyle(q('#ref-quick-access')).marginTop,marginBottom:getComputedStyle(q('#ref-quick-access')).marginBottom},quick:rect(q('#ref-quick-access')),quickRail:{client:q('.ref-quick-access-grid')?.clientWidth,scroll:q('.ref-quick-access-grid')?.scrollWidth,cards:sel('#ref-quick-access .ref-quick-card').map(rect)},bottom:rect(q('#ref-bottom-grid')),quickCount:sel('#ref-quick-access .ref-quick-card').length,
+   return {...generic,cards,cardStyles:cards.map(x=>{const el=q('#panel-home '+x.s),st=getComputedStyle(el);return {className:el.className,height:st.height,minHeight:st.minHeight,maxHeight:st.maxHeight,padding:st.padding,boxSizing:st.boxSizing,display:st.display,overflow:st.overflow,gridTemplateRows:st.gridTemplateRows,children:[...el.children].slice(0,5).map(ch=>({cls:ch.className,r:rect(ch)}))}}),grid:rect(q('#panel-home .ref-home-grid')),habits:rect(q('#panel-home > .ref-habits')),gridStyle:{marginBottom:getComputedStyle(q('#panel-home .ref-home-grid')).marginBottom,rowGap:getComputedStyle(q('#panel-home .ref-home-grid')).rowGap,gridTemplateRows:getComputedStyle(q('#panel-home .ref-home-grid')).gridTemplateRows},quickStyle:{marginTop:getComputedStyle(q('#ref-quick-access')).marginTop,marginBottom:getComputedStyle(q('#ref-quick-access')).marginBottom},quick:rect(q('#ref-quick-access')),quickRail:{client:q('.ref-quick-access-grid')?.clientWidth,scroll:q('.ref-quick-access-grid')?.scrollWidth,cards:sel('#ref-quick-access .ref-quick-card').map(rect)},bottom:rect(q('#ref-bottom-grid')),quickCount:sel('#ref-quick-access .ref-quick-card').length,
    accountGeometry:{cluster:rect(q('.ref-header-account-cluster')),avatar:rect(q('.ref-header-account-cluster .ref-account-avatar')),chevron:rect(q('#ref-equipped-character-toggle')),account:rect(q('#ref-header-account'))},
    mobileNav:sel('.bottom-nav [data-elara-nav-kind]').map(e=>({route:e.dataset.elaraTab,r:rect(e)})),
    metricsChildren:sel('#ref-wellness-card .ref-wellness-cell').map(e=>({cell:rect(e),strong:rect(e.querySelector('strong')),lastUnit:rect(e.querySelector('small:last-child'))})),
@@ -75,7 +75,13 @@ async function run(base,route,width,count=21,kind='after'){
    assert.ok(m.quick.h<=155,'Quick Access internal wrapper still too tall: '+JSON.stringify(m.quick));
    assert.ok(m.bottom.y<=770,'Entire final Home row has not moved up: '+JSON.stringify({grid:m.grid,quick:m.quick,bottom:m.bottom}));
   }
-  if(width>=360&&width<=389)assert.ok(m.quick.y<=890,'Readable narrow hybrid still has distant shortcuts '+width+': '+m.quick.y);
+  if(width>=360&&width<=389){
+   // Habits is its own full-width card between the matrix and shortcuts.
+   // Check actual spacing instead of a stale absolute pixel cap.
+   assert.ok(m.habits?.h>=150,'Narrow Home habits card was lost: '+width);
+   assert.ok(m.quick.y>=m.habits.bottom-3&&m.quick.y-m.habits.bottom<=35,
+     'Shortcuts must follow the real Habits card without empty dead space: '+width+' '+JSON.stringify({habits:m.habits,quick:m.quick}));
+  }
   if(width>=390&&width<=700)assert.ok(m.quick.y<=775,'Wide mobile shortcuts remain too far down '+width+': '+m.quick.y);
   if(width<=320)assert.ok(m.quick.y<=1065,'320px fallback still giant before Quick Access: '+m.quick.y);
   if(width<=700){
