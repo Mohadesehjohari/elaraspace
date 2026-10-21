@@ -14,7 +14,7 @@ test('catalog registers female and male VRM paths with an explicit fallback', ()
   assert.equal(x.parts.top.length,0);
 });
 test('browser modules have valid JavaScript syntax', () => {
-  for(const name of ['avatar-live-vrm.js','avatar-3d.js','avatar-quick-modal.js']) {
+  for(const name of ['avatar-live-vrm.js','avatar-3d.js','avatar-quick-modal.js','avatar-motion-controls.js']) {
     assert.doesNotThrow(()=>new Script(read(name), {filename:name}));
   }
 });
@@ -77,7 +77,7 @@ test('header arrow is a standalone full-body VRM dialog; account button still ow
   const header=read('reference-home-shell-2026.js'),quick=read('avatar-quick-modal.js'),live=read('avatar-live-vrm.js'),html=read('index.html');
   assert.ok(header.includes('window.ElaraAvatarQuickModal?.toggle?.(toggle)'));
   assert.ok(!header.includes("window.ElaraPrivateDrawer?.showHomeAvatar?.()"));
-  assert.ok(quick.includes('root.dataset.elaraAvatarQuickModal')&&quick.includes('aria-modal="true"'));
+  assert.ok(quick.includes('root.dataset.elaraAvatarQuickModal')&&quick.includes('aria-modal="false"'));
   assert.ok(quick.includes('window.ElaraLiveVRM?.tryMount?.(stage)'));
   assert.ok(quick.includes('window.ElaraProceduralPreview?.mount?.(stage)'),'Quick view must fall back until male VRM is uploaded');
   assert.ok(quick.includes('if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose()'));
@@ -93,7 +93,9 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261020-avatar-gender-v1'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261021-relaxed-dance-v1'));
+ assert.ok(html.includes('avatar-motion-controls.js?v=20261021-illustrated-dance-v1'));
+ assert.ok(html.includes('avatar-motion-controls.css?v=20261021-illustrated-dance-v1'));
 });
 
 test('wardrobe gender choice works for male and female and does not overwrite profile sex', () => {
@@ -103,4 +105,16 @@ test('wardrobe gender choice works for male and female and does not overwrite pr
  assert.ok(visual.includes('writePrivate({avatarGender:kind})'),'Character wardrobe must persist only avatarGender');
  assert.ok(live.includes('p.avatarGender')&&prototype.includes('p.avatarGender'),'Real and fallback viewers must use the same chosen appearance');
  assert.ok(css.includes('.elara-character-gender button[aria-pressed="true"]'),'Active choice must be visibly highlighted');
+});
+
+test('avatar pose gallery offers illustrated options for both renderers without cluttering arrow', () => {
+  const live=read('avatar-live-vrm.js'),proto=read('avatar-3d.js'),gallery=read('avatar-motion-controls.js'),css=read('avatar-motion-controls.css');
+  for(const action of ['idle','smile','wave','dance1','dance2','dance3']){
+    assert.ok(gallery.includes("id:'"+action+"'"),'Missing pose '+action);
+  }
+  assert.ok(gallery.includes('data:image/svg+xml'),'Dance selection must have image previews');
+  assert.ok(live.includes('setAction')&&proto.includes('setAction:play'),'Both renderers must animate chosen poses');
+  assert.ok(live.includes("setValue('happy'"),'VRM dance and smile must animate facial expression');
+  assert.ok(proto.includes("'relaxed-finger-'"),'Fallback hands should have distinct fingers');
+  assert.ok(css.includes('[data-mode="popover"] .elara-motion-gallery{display:none!important}'),'Small arrow popover must remain clean');
 });
