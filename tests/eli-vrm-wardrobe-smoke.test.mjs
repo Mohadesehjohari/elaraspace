@@ -93,7 +93,7 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261021-relaxed-dance-v1'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-real-vrma-soft-expression-v1'));
  assert.ok(html.includes('avatar-motion-controls.js?v=20261021-illustrated-dance-v1'));
  assert.ok(html.includes('avatar-motion-controls.css?v=20261021-illustrated-dance-v1'));
 });
@@ -117,4 +117,16 @@ test('avatar pose gallery offers illustrated options for both renderers without 
   assert.ok(live.includes("setValue('happy'"),'VRM dance and smile must animate facial expression');
   assert.ok(proto.includes("'relaxed-finger-'"),'Fallback hands should have distinct fingers');
   assert.ok(css.includes('[data-mode="popover"] .elara-motion-gallery{display:none!important}'),'Small arrow popover must remain clean');
+});
+
+test('official VRMA retargeter runs authentic clips without procedural override, and falls back cleanly', () => {
+ const live=read('avatar-live-vrm.js'),html=read('index.html');
+ assert.ok(html.includes('@pixiv/three-vrm-animation'));
+ assert.ok(live.includes('VRMAnimationLoaderPlugin'));
+ assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
+ assert.ok(live.includes('if(!usingVRMA)'), 'Never overwrite a playing motion with manual arm poses');
+ assert.ok(live.includes('mixer?.update(dt)'));
+ assert.ok(live.includes('motionRequest'),'Asynchronous clip loads need stale request guarding');
+ assert.ok(live.includes("setValue('happy',smiling?.12:0)"),'Avoid wide open-mouth artificial smile');
+ assert.ok(live.includes("setValue('relaxed',smiling?.28:.06)"),'Favor subtle relaxed expression');
 });
