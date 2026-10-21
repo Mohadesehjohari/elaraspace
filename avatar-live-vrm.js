@@ -89,7 +89,7 @@
     key.position.set(2,4,5); scene.add(key);
     const rim=new THREE.DirectionalLight(0x857aff,1.15);
     rim.position.set(-3,3,-4); scene.add(rim);
-    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full';
+    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full', motion='idle', motionStarted=0, motionUntil=0;
     const focusHeights={full:.52,face:.865,torso:.63,legs:.30};
     const focusDistance={full:4.6,face:1.25,torso:2.3,legs:2.6};
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -106,6 +106,14 @@
     function poseBone(name, x=0, y=0, z=0) {
       const b=bones[name]; if (!b) return;
       Euler.set(x,y,z,'XYZ');q.setFromEuler(Euler);b.node.quaternion.copy(b.quat).multiply(q);
+    }
+    const motionOptions=['idle','smile','wave','dance1','dance2','dance3'];
+    function setAction(name='idle'){
+      if(!motionOptions.includes(name))name='idle';
+      motion=name;motionStarted=performance.now()/1000;
+      motionUntil=name.startsWith('dance')?motionStarted+8:0;
+      stage.dataset.avatarMotion=motion;
+      return true;
     }
     function attach(next) {
       anchor.clear();
@@ -289,34 +297,51 @@
             try{em.setValue(key,value)}catch{}
         }
       }
+      if(motionUntil&&t>=motionUntil){motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));}
+      const dancing=motion.startsWith('dance')&&!reduced;
+      const dancingT=t-motionStarted;
+      const sway=Math.sin(dancingT*(motion==='dance2'?6:4.2));
+      const lift=dancing?1:0;
       const breath=Math.sin(t*1.5);
       poseBone('chest',breath*.016*amp,Math.sin(t*.37)*.008*amp,Math.sin(t*.51)*.005*amp);
       poseBone('spine',breath*.008*amp,0,Math.sin(t*.46)*.006*amp);
-      // VRM normalized A/rest pose: arms nearly vertical with slightly flexed elbows.
-      poseBone('leftShoulder',0,0,-.025);
-      poseBone('rightShoulder',0,0,.025);
-      poseBone('leftUpperArm',-.06,0,-1.34+Math.sin(t*.7)*.012*amp);
-      poseBone('rightUpperArm',-.06,0,1.34-Math.sin(t*.7+.3)*.012*amp);
-      poseBone('leftLowerArm',-.12,0,-.08);
-      poseBone('rightLowerArm',-.12,0,.08);
-      poseBone('leftHand',.025*amp,0,-.09+Math.sin(t*.39)*.01*amp);
-      poseBone('rightHand',.025*amp,0,.09-Math.sin(t*.39+.7)*.01*amp);
+      // VRM normalized rest arms begin in A/T pose: rotate downward but keep
+      // relaxed elbows and palms, never lock fingers into a rigid cylinder.
+      let leftArm=-1.27,rightArm=1.27,leftElbow=-.16,rightElbow=.16;
+      if(motion==='wave'){
+        rightArm=.12+Math.sin(t*3.5)*.1;rightElbow=-.72;
+      }else if(dancing){
+        if(motion==='dance1'){leftArm=-.65-.22*sway;rightArm=.72+.22*sway;}
+        if(motion==='dance2'){leftArm=-.40-.3*Math.sin(dancingT*5);rightArm=1.05-.30*Math.cos(dancingT*5);}
+        if(motion==='dance3'){leftArm=-.20-.22*sway;rightArm=.20-.22*sway;}
+        leftElbow=-.32;rightElbow=.32;
+      }
+      poseBone('leftShoulder',0,0,-.055);
+      poseBone('rightShoulder',0,0,.055);
+      poseBone('leftUpperArm',-.075,0,leftArm+Math.sin(t*.7)*.012*amp);
+      poseBone('rightUpperArm',-.075,0,rightArm-Math.sin(t*.7+.3)*.012*amp);
+      poseBone('leftLowerArm',-.18,0,leftElbow);
+      poseBone('rightLowerArm',-.18,0,rightElbow);
+      poseBone('leftHand',.055*amp,0,-.065+Math.sin(t*.39)*.013*amp);
+      poseBone('rightHand',.055*amp,0,.065-Math.sin(t*.39+.7)*.013*amp);
       // Resting finger flexion with tiny independent movement. Avoid T-pose hands.
       for(const side of ['left','right']){
         const sign=side==='left'?1:-1;
         for(const [finger,index] of [['Index',0],['Middle',1],['Ring',2],['Little',3]]){
-          const relax=.095+index*.019+Math.sin(t*.56+index*.57+(sign>0?0:1))*.009*amp;
+          const relax=.18+index*.026+Math.sin(t*.56+index*.57+(sign>0?0:1))*.012*amp;
           poseBone(side+finger+'Proximal',0,0,sign*relax);
-          poseBone(side+finger+'Intermediate',0,0,sign*(.07+index*.008));
+          poseBone(side+finger+'Intermediate',0,0,sign*(.13+index*.015));
         }
-        poseBone(side+'ThumbProximal',0,0,sign*.035);
+        poseBone(side+'ThumbProximal',0,0,sign*.11);
       }
       const hips=bones.hips;
-      if(hips){hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.55)*.003*amp;}
+      if(hips){hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.55)*.003*amp + (dancing?Math.abs(sway)*.013*amp:0);hips.node.position.x+=dancing?.032*sway*amp:0;}
       if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
       const p=(t-blinkStart)/blinkDuration;
       const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
+      // Smile accompanies positive poses while leaving normal blinking intact.
+      try{vrm.expressionManager?.setValue('happy',(['smile','wave'].includes(motion)||dancing)?.65:0);}catch{}
       vrm.update(dt); // VRM lookAt, expressions and spring bones
       renderer.render(scene,camera);
     }
@@ -332,7 +357,7 @@
       stage.dataset.avatarMounted='';
       if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
     }
-    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,get look(){return look.id;},get kind(){return kind;}};
+    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,setAction,get action(){return motion;},get look(){return look.id;},get kind(){return kind;}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
