@@ -101,7 +101,7 @@ try{
       assert.ok(Math.max(...fidelity.main.map(x=>x.y))-Math.min(...fidelity.main.map(x=>x.y))<4,'Four Home cards not in same row at '+width);
     }
   }else{
-    assert.ok(fidelity.heroBackground.includes('tasks_banner3.webp'),'Approved tasks_banner3 panoramic artwork missing');
+    assert.ok(fidelity.heroBackground.includes(width<=700?'task-header-banner-bg.webp':'tasks_banner3.webp'),'Approved viewport-specific Tasks panorama is missing: '+width+' '+fidelity.heroBackground);
     assert.ok(width<=700
       ? fidelity.heroTop>=fidelity.headerBottom-3&&fidelity.heroTop<=fidelity.headerBottom+8
       : fidelity.heroTop>=-3&&fidelity.heroTop<=6,
