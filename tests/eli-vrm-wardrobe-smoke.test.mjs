@@ -93,7 +93,7 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-real-vrma-soft-expression-v2'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-verified-dances-rig-v3'));
  assert.ok(html.includes('avatar-motion-controls.js?v=20261021-illustrated-dance-v1'));
  assert.ok(html.includes('avatar-motion-controls.css?v=20261021-illustrated-dance-v1'));
 });
@@ -129,4 +129,18 @@ test('official VRMA retargeter runs authentic clips without procedural override,
  assert.ok(live.includes('motionRequest'),'Asynchronous clip loads need stale request guarding');
  assert.ok(live.includes("setValue('happy',smiling?.12:0)"),'Avoid wide open-mouth artificial smile');
  assert.ok(live.includes("setValue('relaxed',smiling?.28:.06)"),'Favor subtle relaxed expression');
+});
+
+test('dance source and selection are honest and normalized hand pose uses rig geometry',()=>{
+ const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js'),html=read('index.html');
+ for(const name of ['dance_1.vrma','dance_2.vrma','dance_dab.vrma'])assert.ok(live.includes(name),'A real verified VRMA source missing: '+name);
+ assert.ok(!live.includes('state-alchemists/zrb-face'),'Invalid placeholder raw URLs must not return');
+ assert.ok(!live.includes('Idle.vrma'),'Idle should not depend on an unavailable remote file');
+ assert.ok(live.includes('measureArmRest()') && live.includes("getWorldPosition"),'Arm angle must be rig-relative');
+ assert.ok(live.includes('Keep the sculpted VRM hand'),'Do not distort natural fingers');
+ assert.ok(live.includes('restoreBoneDefaults()'),'On leaving animation all tracked joint rotations must be restored');
+ assert.ok(live.includes("if(motionUntil&&t>=motionUntil)"),'Check dance length even during VRMA playback');
+ assert.ok(gallery.includes("await availableModel(stage)(item.id)"),'Buttons must wait for the real clip result');
+ assert.ok(gallery.includes('فایل رقص بارگذاری نشد')||gallery.includes('این رقص دریافت نشد'),'Motion errors must be visible');
+ assert.ok(html.includes('avatar-motion-controls.js?v=20261022-loading-failure-v3'));
 });
