@@ -1,0 +1,60 @@
+/* Elara Space / Home-only neon pixel galaxy & restrained glass.
+   This stylesheet intentionally modifies NO other route, page geometry, or user data.
+   Preserve the original hero illustration and artwork on streak, wellness, goals and quick links. */
+@supports selector(body:has(#panel-home:not(.hidden))) {
+  html body.dark:has(#panel-home.ref-home:not(.hidden)) {
+    background-color:#03071b!important;
+    background-image:
+      linear-gradient(180deg,rgba(2,5,23,.16),rgba(3,8,30,.34)),
+      url("assets/ui/elara-home-pixel-galaxy.webp")!important;
+    background-repeat:no-repeat,repeat!important;
+    background-position:center center,center top!important;
+    background-size:cover,1000px auto!important;
+    background-attachment:fixed,fixed!important;
+  }
+  html body.dark:has(#panel-home.ref-home:not(.hidden)) :is(.workspace,#main,#panel-home.ref-home) {
+    background-color:transparent!important;
+  }
+  html body.dark:has(#panel-home.ref-home:not(.hidden)) .shell>.sidebar {
+    background:linear-gradient(180deg,rgba(3,12,35,.90),rgba(4,10,31,.84))!important;
+    -webkit-backdrop-filter:blur(15px) saturate(115%);
+    backdrop-filter:blur(15px) saturate(115%);
+    border-color:rgba(88,123,201,.35)!important;
+  }
+  html body.dark:has(#panel-home.ref-home:not(.hidden)) .workspace .topbar.ref-topbar {
+    background:linear-gradient(90deg,rgba(3,11,32,.82),rgba(5,13,40,.74))!important;
+    -webkit-backdrop-filter:blur(13px) saturate(120%)!important;
+    backdrop-filter:blur(13px) saturate(120%)!important;
+  }
+}
+/* Transparent glass belongs ONLY to Home cards; the original inner artwork survives. */
+html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > :is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals),
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-habits,.ref-achievements),
+html body.dark #panel-home.ref-home.owner-art-home #ref-quick-access .ref-quick-card {
+  border-color:rgba(132,145,244,.50)!important;
+  box-shadow:inset 0 1px 0 rgba(224,233,255,.10),0 9px 25px rgba(0,3,22,.31),0 0 15px rgba(98,72,211,.14)!important;
+  -webkit-backdrop-filter:blur(11px) saturate(125%)!important;
+  backdrop-filter:blur(11px) saturate(125%)!important;
+}
+/* These cards contain data, not a full-bleed landscape: let stars softly shine through. */
+html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > .ref-tasks,
+html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-habits,.ref-achievements) {
+  background:linear-gradient(145deg,rgba(5,18,46,.83),rgba(10,17,50,.73))!important;
+}
+/* Keep overlay surfaces readable while exposing a touch of the galaxy. */
+html body.dark #panel-home.ref-home.owner-art-home :is(.ref-tasks,.ref-habits,.ref-achievements) :is(.ref-task-row,.ref-habit-row,.ref-goal-row) {
+  background-color:rgba(5,13,39,.16)!important;
+}
+@media(max-width:700px) {
+  @supports selector(body:has(#panel-home:not(.hidden))) {
+    html body.dark:has(#panel-home.ref-home:not(.hidden)){
+      background-size:cover,800px auto!important;
+      background-attachment:scroll,scroll!important;
+    }
+  }
+  html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > :is(.ref-streak-card,.ref-tasks,.ref-wellness-card,.ref-goals),
+  html body.dark #panel-home.ref-home.owner-art-home #ref-bottom-grid > :is(.ref-ranks,.ref-habits,.ref-achievements) {
+    -webkit-backdrop-filter:blur(7px) saturate(115%)!important;
+    backdrop-filter:blur(7px) saturate(115%)!important;
+  }
+}
