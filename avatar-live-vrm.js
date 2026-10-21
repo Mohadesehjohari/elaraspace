@@ -4,6 +4,15 @@
   'use strict';
   const CONFIG = 'avatar/vrm-looks.json?v=20261020-male-vrm-character-gender-v1';
   const PREFIX = 'elara_live_look_v1_';
+  // CC0 motion sources from state-alchemists/zrb-face (author's keyframed dance clips).
+  // Fetched lazily over HTTPS; neither motion nor model is re-uploaded to GitHub.
+  // A failed remote load is handled without forcing an unsafe/broken skeleton pose.
+  const MOTION_SOURCES={
+    idle:'https://raw.githubusercontent.com/state-alchemists/zrb-face/main/zrb_face/anim/idle/Idle.vrma',
+    dance1:'https://raw.githubusercontent.com/state-alchemists/zrb-face/main/zrb_face/anim/dance/Bounce.vrma',
+    dance2:'https://raw.githubusercontent.com/state-alchemists/zrb-face/main/zrb_face/anim/dance/Sway.vrma',
+    dance3:'https://raw.githubusercontent.com/state-alchemists/zrb-face/main/zrb_face/anim/dance/StepTouch.vrma'
+  };
   // The quick modal must never continue mounting after it has been closed.
   const enabled = stage => !stage?.closest('.elara-avatar-quick-modal[hidden]') && (
     !!stage?.closest('.elara-avatar-quick-modal:not([hidden])') || window.matchMedia('(min-width:701px)').matches ||
@@ -108,11 +117,62 @@
       Euler.set(x,y,z,'XYZ');q.setFromEuler(Euler);b.node.quaternion.copy(b.quat).multiply(q);
     }
     const motionOptions=['idle','smile','wave','dance1','dance2','dance3'];
+    let mixer=null,activeClip=null,usingVRMA=false,motionRequest=0;
+    const loadedVRMA=new Map();
+    async function applyClip(name,token){
+      const src=MOTION_SOURCES[name];if(!src)return false;
+      try{
+        let promise=loadedVRMA.get(src);
+        if(!promise){
+          promise=(async()=>{
+            const {VRMAnimationLoaderPlugin,createVRMAnimationClip}=await import('@pixiv/three-vrm-animation');
+            const reader=new GLTFLoader();
+            reader.register(parser=>new VRMAnimationLoaderPlugin(parser));
+            const gltf=await reader.loadAsync(src);
+            const anim=gltf.userData.vrmAnimations?.[0];
+            if(!anim)throw Error('VRMA humanoid clip missing');
+            return {anim,createVRMAnimationClip};
+          })();
+          loadedVRMA.set(src,promise);
+        }
+        const {anim,createVRMAnimationClip}=await promise;
+        if(disposed||token!==motionRequest||!stage.isConnected)return false;
+        const clip=createVRMAnimationClip(anim,vrm);
+        if(!clip?.tracks?.length)throw Error('VRMA has no tracks');
+        if(!mixer)mixer=new THREE.AnimationMixer(vrm.scene);
+        const previous=activeClip;
+        const next=mixer.clipAction(clip);
+        next.reset().setLoop(name==='idle'?THREE.LoopRepeat:THREE.LoopOnce,Infinity);
+        next.clampWhenFinished=name!=='idle';
+        next.fadeIn(.35).play();
+        previous?.fadeOut(.35);
+        activeClip=next;usingVRMA=true;
+        if(name.startsWith('dance'))motionUntil=elapsed+Math.min(18,clip.duration);
+        return true;
+      }catch(error){
+        loadedVRMA.delete(src);
+        console.warn('Elara VRMA source unavailable:',name,error);
+        if(token===motionRequest){
+          // Never disguise a failed external download as an actual mocap dance.
+          if(name.startsWith('dance')){
+            motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';
+            window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));
+          }
+        }
+        return false;
+      }
+    }
     function setAction(name='idle'){
-      if(!motionOptions.includes(name))name='idle';
+      if(!motionOptions.includes(name))return false;
       motion=name;motionStarted=elapsed;
-      motionUntil=name.startsWith('dance')?motionStarted+8:0;
+      motionUntil=name.startsWith('dance')?elapsed+8:0;
       stage.dataset.avatarMotion=motion;
+      const token=++motionRequest;
+      if(MOTION_SOURCES[name])void applyClip(name,token);
+      else if(name==='smile'||name==='wave'){
+        // The idle clip may continue while face/hand gestures are layered.
+        if(!activeClip)usingVRMA=false;
+      }
       return true;
     }
     function attach(next) {
@@ -130,6 +190,8 @@
       vrm.scene.position.z-=mid.z*scale;
       height=1.9;
       captureBones();
+      mixer?.stopAllAction();mixer=new THREE.AnimationMixer(vrm.scene);
+      activeClip=null;usingVRMA=false;motionRequest++;
       if(vrm.lookAt){vrm.lookAt.autoUpdate=false;vrm.lookAt.target=null;} // No automatic convergence / cross-eyed focus.
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
       focus='full';zoom=1;
@@ -259,6 +321,8 @@
     const ro=new ResizeObserver(resize);ro.observe(viewport);resize();
 
     let raf=0, elapsed=0, nextBlink=3.4, blinkStart=-1, blinkDuration=.16;
+    // Prefer the ready-made VRMA idle instead of keeping VRoid models in T-pose.
+    void applyClip('idle',motionRequest);
     const changeKind=()=>{dispose();stage.dataset.avatarMounted='';window.dispatchEvent(new Event('elara:avatar-stage-ready'));};
     window.addEventListener('elara:profile-private-changed',changeKind);
     function frame(now){
@@ -281,6 +345,7 @@
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
+      if(!usingVRMA){
       poseBone('neck',-.025*smoothMouse.y*amp,.042*smoothMouse.x*amp,Math.sin(t*.47)*.004*amp);
       poseBone('head',-.04*smoothMouse.y*amp+Math.sin(t*.42)*.009*amp,.065*smoothMouse.x*amp+Math.sin(t*.5)*.014*amp,Math.sin(t*.38)*.008*amp);
       // A shared micro-rotation avoids inward convergence. If eye bones are absent,
@@ -297,7 +362,11 @@
             try{em.setValue(key,value)}catch{}
         }
       }
-      if(motionUntil&&t>=motionUntil){motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));}
+      if(motionUntil&&t>=motionUntil){
+        motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';
+        void applyClip('idle',++motionRequest);
+        window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));
+      }
       const dancing=motion.startsWith('dance')&&!reduced;
       const dancingT=t-motionStarted;
       const sway=Math.sin(dancingT*(motion==='dance2'?6:4.2));
@@ -336,12 +405,20 @@
       }
       const hips=bones.hips;
       if(hips){hips.node.position.copy(hips.pos);hips.node.position.y+=Math.sin(t*1.55)*.003*amp + (dancing?Math.abs(sway)*.013*amp:0);hips.node.position.x+=dancing?.032*sway*amp:0;}
+      }else if(motion==='wave'){
+        // Let the prepared idle clip control the body; only lift one arm to greet.
+        poseBone('rightUpperArm',-.22,0,.50+.13*Math.sin(t*5));
+        poseBone('rightLowerArm',-.25,0,.52);
+      }
       if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
       const p=(t-blinkStart)/blinkDuration;
       const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
-      // Smile accompanies positive poses while leaving normal blinking intact.
-      try{vrm.expressionManager?.setValue('happy',(['smile','wave'].includes(motion)||dancing)?.65:0);}catch{}
+      // Gentle, closed-mouth smile: happy=0.65 opens some VRoid mouths unnaturally.
+      const smiling=['smile','wave'].includes(motion)||dancing;
+      try{vrm.expressionManager?.setValue('happy',smiling?.12:0);}catch{}
+      try{vrm.expressionManager?.setValue('relaxed',smiling?.28:.06);}catch{}
+      mixer?.update(dt);
       vrm.update(dt); // VRM lookAt, expressions and spring bones
       renderer.render(scene,camera);
     }
@@ -353,6 +430,7 @@
       if(disposed)return;disposed=true;cancelAnimationFrame(raf);ro.disconnect();
       window.removeEventListener('elara:profile-private-changed',changeKind);
       window.removeEventListener('pointermove',trackPointer);window.removeEventListener('blur',resetPointer);
+      mixer?.stopAllAction();mixer=null;activeClip=null;
       panel.remove();interfaceNode.remove();renderer.dispose();canvas.remove();disposeMeshes(THREE,vrm.scene);
       stage.dataset.avatarMounted='';
       if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
