@@ -59,6 +59,10 @@
     if(trigger?.isConnected)trigger.setAttribute('aria-expanded','false');
     lastFocus?.focus?.({preventScroll:true});
     trigger=null;lastFocus=null;
+    // Restore the existing profile viewer after closing a separately rendered
+    // fullscreen stage. Do not open the profile or wardrobe automatically.
+    const profileStage=document.querySelector('.elara-private-drawer:not(.hidden) [data-elara-avatar-stage], .approved-wardrobe:not([hidden]) [data-elara-avatar-stage]');
+    if(profileStage)requestAnimationFrame(()=>window.dispatchEvent(new Event('elara:avatar-stage-ready')));
   }
   async function open(button,mode='popover'){
     const full=mode==='fullscreen';
