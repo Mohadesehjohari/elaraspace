@@ -376,7 +376,7 @@
       poseBone('spine',breath*.008*amp,0,Math.sin(t*.46)*.006*amp);
       // VRM normalized rest arms begin in A/T pose: rotate downward but keep
       // relaxed elbows and palms, never lock fingers into a rigid cylinder.
-      let leftArm=-1.27,rightArm=1.27,leftElbow=-.16,rightElbow=.16;
+      let leftArm=-1.52,rightArm=1.52,leftElbow=-.18,rightElbow=.18;
       if(motion==='wave'){
         rightArm=.12+Math.sin(t*3.5)*.1;rightElbow=-.72;
       }else if(dancing){
@@ -391,15 +391,15 @@
       poseBone('rightUpperArm',-.075,0,rightArm-Math.sin(t*.7+.3)*.012*amp);
       poseBone('leftLowerArm',-.18,0,leftElbow);
       poseBone('rightLowerArm',-.18,0,rightElbow);
-      poseBone('leftHand',.055*amp,0,-.065+Math.sin(t*.39)*.013*amp);
-      poseBone('rightHand',.055*amp,0,.065-Math.sin(t*.39+.7)*.013*amp);
+      poseBone('leftHand',.03*amp,0,-.035+Math.sin(t*.39)*.007*amp);
+      poseBone('rightHand',.03*amp,0,.035-Math.sin(t*.39+.7)*.007*amp);
       // Resting finger flexion with tiny independent movement. Avoid T-pose hands.
       for(const side of ['left','right']){
         const sign=side==='left'?1:-1;
         for(const [finger,index] of [['Index',0],['Middle',1],['Ring',2],['Little',3]]){
-          const relax=.18+index*.026+Math.sin(t*.56+index*.57+(sign>0?0:1))*.012*amp;
+          const relax=.13+index*.022+Math.sin(t*.56+index*.57+(sign>0?0:1))*.007*amp;
           poseBone(side+finger+'Proximal',0,0,sign*relax);
-          poseBone(side+finger+'Intermediate',0,0,sign*(.13+index*.015));
+          poseBone(side+finger+'Intermediate',0,0,sign*(.1+index*.01));
         }
         poseBone(side+'ThumbProximal',0,0,sign*.11);
       }
