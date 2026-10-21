@@ -24,6 +24,18 @@ assert.match(page,/ef-persona-buttons/,'Fox and private character mode buttons m
 assert.match(ai,/elara-ai-privacy-settings/,'Memory and personalization belong in Settings');
 assert.match(ai,/data-f-ai-settings-persona/,'Both persona memories must be individually manageable');
 assert.match(ai,/data-f-ai-personalize/,'Explicit profile consent must stay opt-in');
+assert.match(page,/data-ef-settings-toggle/,'Settings entry must be available in the left chat sidebar and mobile header');
+assert.match(page,/data-ef-settings-mount/,'Settings controls need an actual mount in the left sidebar');
+assert.match(page,/data-ef-settings-close/,'Sidebar settings must have a close/back action');
+assert.match(page,/settingsOpen/,'Settings drawer state must be tracked');
+assert.doesNotMatch(page,/ef-art-column/,'Remove the decorative right column to widen the reading area');
+assert.match(ai,/function renderSettings\(/,'Memory and consent must be separately renderable without resetting a draft message');
+assert.match(ai,/chatMount\.append\(card\)/,'Move the same privacy controls into chat without duplicating them');
+assert.match(ai,/choose\(settingsPersona,\{keepSettings:true\}\)/,'Memory persona picker must sync the active chat persona, not modify another memory');
+assert.match(css,/grid-template-columns:clamp\(255px,21vw,318px\) minmax\(0,1fr\)!important/,'Conversation must have the remaining desktop width');
+assert.match(css,/margin:auto auto 0!important/,'Composer must stay near the bottom');
+assert.match(css,/ef-settings-open \.ef-sidebar/,'Settings sidebar must be usable on mobile');
+
 assert.match(page,/data-ef-prompt/,'Functional quick suggestions required');
 assert.match(page,/startNewChat/,'Non-destructive conversation reset required');
 assert.ok(!page.includes('fetch('),'Character UI must use existing secure gateway, no shadow endpoint');
