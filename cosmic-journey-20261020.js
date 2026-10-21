@@ -136,7 +136,7 @@
   const settingsPanel=document.getElementById('panel-settings');
   if(settingsPanel){
     const box=document.createElement('section');box.className='surface settings-card cosmic-settings-card';
-    box.innerHTML='<h2>🌌 صدای کهکشان</h2><p class="muted">صدای فضایی آرام فقط در صفحه «ادامه مسیر» پخش می‌شود.</p><div class="cosmic-settings-row"><button type="button" class="quiet-button" data-cosmic-settings-toggle aria-pressed="true">🔊 صدا</button><label>بلندی صدا <input type="range" min="0" max="100" step="1" data-cosmic-settings-volume aria-label="بلندی صدای فضایی"></label></div>';
+    box.innerHTML='<h2>🌌 صدای کهکشان</h2><p class="muted">صدای فضایی آرام فقط در صفحه «نقشه کهکشانی» پخش می‌شود.</p><div class="cosmic-settings-row"><button type="button" class="quiet-button" data-cosmic-settings-toggle aria-pressed="true">🔊 صدا</button><label>بلندی صدا <input type="range" min="0" max="100" step="1" data-cosmic-settings-volume aria-label="بلندی صدای فضایی"></label></div>';
     settingsPanel.append(box);
     const button=box.querySelector('[data-cosmic-settings-toggle]');
     soundButtons.push(button);
@@ -265,7 +265,7 @@
     onCosmicClose();
   }
   window.ElaraCosmicJourney = {open,close,isOpen:()=>overlay.classList.contains('is-open')};
-  const openButton=document.createElement('button');openButton.type='button';openButton.className='cosmic-control cosmic-dashboard-entry';openButton.textContent='✦ ادامه مسیر';openButton.setAttribute('aria-label','نمایش نقشه فضایی ادامه مسیر');
+  const openButton=document.createElement('button');openButton.type='button';openButton.className='cosmic-control cosmic-dashboard-entry';openButton.textContent='✨ نقشه کهکشانی';openButton.setAttribute('aria-label','نمایش نقشه کهکشانی اهداف');
   const toolbar=panel.querySelector('.goal-dashboard-toolbar')||panel.querySelector('.section-heading');toolbar?.append(openButton);
   openButton.addEventListener('click',open);
   overlay.addEventListener('click',event=>{
