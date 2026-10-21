@@ -26,7 +26,7 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-row').count(),1,width+': recent DM row missing');
- const card=page.locator('.social-dm-friend');
+ const card=page.locator('.dm-friend-list .social-dm-friend');
  // Conversations are loaded asynchronously; the accepted-friends panel may paint one turn later.
  // Wait for the real card before asserting its exact count, instead of racing the render.
  await card.first().waitFor({state:'attached',timeout:10000}).catch(()=>{});
