@@ -69,12 +69,15 @@ for(const width of widths){
  // the header. Verify that it is dismissible before testing the underlying
  // header hit target; a modal is supposed to intercept pointer events.
  const reward=page.locator('.elara-fox-overlay:visible');
- if(await reward.count()){
+ // A milestone may queue multiple earned rewards. Close each one via its
+ // actual accessible UI so background controls are tested after the queue.
+ for(let n=0;n<5&&await reward.count();n++){
   const dismiss=reward.locator('.elara-fox-close');
   assert.ok(await dismiss.count(),'Award overlay must include an accessible close button');
   await dismiss.click();
-  await reward.waitFor({state:'hidden'});
+  await page.waitForTimeout(80);
  }
+ assert.equal(await reward.count(),0,'Earned reward dialogs must be dismissible before accessing search');
  const dash=page.locator('#well01-dashboard');
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.waitForTimeout(110);
