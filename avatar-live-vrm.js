@@ -110,7 +110,7 @@
     const motionOptions=['idle','smile','wave','dance1','dance2','dance3'];
     function setAction(name='idle'){
       if(!motionOptions.includes(name))name='idle';
-      motion=name;motionStarted=performance.now()/1000;
+      motion=name;motionStarted=elapsed;
       motionUntil=name.startsWith('dance')?motionStarted+8:0;
       stage.dataset.avatarMotion=motion;
       return true;
