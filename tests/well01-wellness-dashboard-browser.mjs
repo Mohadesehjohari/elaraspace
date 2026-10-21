@@ -262,6 +262,12 @@ for(const width of widths){
     await page.waitForTimeout(80);
    }
    assert.equal(await earned.count(),0,'Workout milestone dialog must be dismissible');
+   // Milestone notifications can be queued asynchronously after the save event.
+   // Clear pending rewards through the same public close API, *after* testing
+   // the real close button above, so this unrelated modal cannot steal input.
+   await page.evaluate(()=>window.ElaraFoxRewards?.close?.(true));
+   await page.waitForTimeout(250);
+   await page.evaluate(()=>window.ElaraFoxRewards?.close?.(true));
    await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
    await modal.waitFor();
    await modal.locator('[name="note"]').fill('لغو بدون ذخیره');
