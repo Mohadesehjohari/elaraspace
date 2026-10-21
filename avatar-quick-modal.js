@@ -51,6 +51,7 @@
     document.body.classList.remove('elara-quick-avatar-open');
     root.removeAttribute('data-mode');
     if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose();
+    stage.removeAttribute('data-avatar-mounted');
     stage.replaceChildren();
     stage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div>'+
       '<span class="elara-avatar-status" data-elara-avatar-status role="status"></span>';
@@ -92,6 +93,7 @@
         window.ElaraLiveVRM.current?.focus?.('full');
         message('');
       }else{
+        stage.dataset.avatarMounted='unavailable';
         // Keep the viewer empty until a REAL male/female VRM is present.
         const reason=stage.dataset.avatarFallbackReason;
         message(reason==='male-vrm-not-ready'||reason==='vrm-download-or-render-failed'
@@ -101,7 +103,10 @@
       }
     }catch(error){
       console.warn('Elara real-VRM-only dialog:',error);
-      if(mine===requestId&&visible())message('بارگذاری مدل واقعی ناموفق بود.','error');
+      if(mine===requestId&&visible()){
+        stage.dataset.avatarMounted='unavailable';
+        message('بارگذاری مدل واقعی ناموفق بود.','error');
+      }
     }
   }
   function toggle(button){
