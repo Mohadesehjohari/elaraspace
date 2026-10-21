@@ -93,7 +93,7 @@ test('avatar catalogue is revalidated and fallback is clearly identified', () =>
  assert.ok(live.includes("vrm-download-or-render-failed"),'Live model download/render errors are labeled');
  assert.ok(prototype.includes('fallbackMessage'),'Prototype cannot masquerade as the new VRM');
  const html=read('index.html');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-real-vrma-soft-expression-v1'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-real-vrma-soft-expression-v2'));
  assert.ok(html.includes('avatar-motion-controls.js?v=20261021-illustrated-dance-v1'));
  assert.ok(html.includes('avatar-motion-controls.css?v=20261021-illustrated-dance-v1'));
 });
