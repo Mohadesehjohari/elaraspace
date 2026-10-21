@@ -127,9 +127,9 @@ function renderUI(){
  const art=overlay.querySelector('[data-ef-art]');if(art){art.src=FOX;art.alt='روباه الارا'}
  updateRecent();
 }
-function choose(value){
+function choose(value,{keepSettings=false}={}){
  if(!overlay||!['fox','character'].includes(value))return;
- mode=value;focusMode=false;settingsOpen=false;
+ mode=value;focusMode=false;settingsOpen=keepSettings&&settingsOpen;
  renderUI();
  window.ElaraFreedomAI?.render?.();
  updateRecent();
@@ -173,6 +173,7 @@ function close(){
 function toggleSettings(force){
  if(!overlay||!mode)return;
  settingsOpen=typeof force==='boolean'?force:!settingsOpen;
+ if(settingsOpen&&focusMode){focusMode=false;if(document.fullscreenElement===overlay)void document.exitFullscreen?.().catch(()=>{});}
  renderUI();
  window.ElaraFreedomAI?.renderSettings?.();
  if(settingsOpen)overlay.querySelector('.ef-settings-back')?.focus();
