@@ -5,8 +5,13 @@ on:
       - 'elara-audio.js'
       - 'elara-audio.css'
       - 'focus-ambience.js'
+      - 'freedom-r27-music.js'
+      - 'freedom-dashboard-r2026.js'
+      - 'mission-celebration.js'
+      - 'elara-fox-prize.js'
       - 'index.html'
       - 'tests/elara-audio-engine.test.mjs'
+      - 'tests/elara-audio-settings-browser.mjs'
       - '.github/workflows/elara-audio-regression.yml'
   workflow_dispatch:
 permissions:
@@ -22,3 +27,18 @@ jobs:
       - run: node --check elara-audio.js
       - run: node --check focus-ambience.js
       - run: node tests/elara-audio-engine.test.mjs
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Verify actual sliders and media volume at 390 and 1440
+        run: |
+          python3 -m http.server 4173 >/tmp/elara-audio-browser.log 2>&1 &
+          sleep 3
+          node tests/elara-audio-settings-browser.mjs
