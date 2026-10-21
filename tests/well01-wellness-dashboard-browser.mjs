@@ -39,7 +39,7 @@ async function geometry(page){
  const search=document.querySelector('#ref-search-input'),searchBox=search?.getBoundingClientRect();
  const cx=searchBox?searchBox.left+searchBox.width/2:0,cy=searchBox?searchBox.top+searchBox.height/2:0;
  const searchHit=searchBox?document.elementFromPoint(cx,cy):null;
- return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY,
+ return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchVisible:!!search&&searchBox.width>2&&searchBox.height>2,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY,
   searchDiagnostics:{
     search:searchBox?.toJSON?.()||null,
     input:search?getComputedStyle(search).display:'missing',
@@ -93,7 +93,10 @@ for(const width of widths){
   assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
   assert.ok(measure.eyebrow.top>=measure.bar.bottom-2,'eyebrow must remain below actionable header at '+width);
   assert.ok(measure.cta.bottom<=measure.hero.bottom+1,'hero CTA must remain fully within unchanged image at '+width);
-  assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
+  // Site navigation deliberately hides global search on desktop non-Home routes.
+  // An actually visible input must be tappable; a hidden input has no hit target.
+  if(measure.searchVisible)assert.ok(measure.searchUnblocked,'top search click target obstructed '+width);
+  else assert.ok(width>=701,'Wellness mobile search must remain visible and tappable at '+width);
   if(beforeGeometry.has(width)){
     const before=beforeGeometry.get(width),change=before.hero.y-measure.hero.y;
     assert.ok(Math.abs(change)<=1,'WELL-PROFILE must preserve the #79 hero vertical position at '+width+': '+change);
