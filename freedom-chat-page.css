@@ -364,3 +364,263 @@ html.freedom-fox-open,body.freedom-fox-open{overflow:hidden!important}
 }
 /* Keep existing Freedom subpage back controls above the sticky toolbar. */
 #panel-freedom .r30-shell,#panel-freedom .r31-shell{scroll-margin-top:calc(90px + env(safe-area-inset-top))}
+
+
+/* Elara neon conversation refinement – visual only, no changes to account storage. */
+#panel-freedom .ef-entry-pics img:first-child{
+ border:0;object-fit:contain;object-position:center;margin-inline-end:0;border-radius:0
+}
+.ef-dual-chat .ef-chooser{
+ background:radial-gradient(ellipse at 50% 40%,#7638be45,transparent 55%),
+ radial-gradient(ellipse at 13% 20%,#3a81ee37,transparent 38%),#080d27;
+ gap:13px
+}
+.ef-dual-chat .ef-chooser>p{font-size:clamp(.83rem,1.2vw,1rem);max-width:640px}
+.ef-dual-chat .ef-single-fox{
+ position:relative;width:clamp(155px,26vh,235px);aspect-ratio:1;
+ display:grid;place-items:center;isolation:isolate;margin:7px auto
+}
+.ef-dual-chat .ef-single-fox:before{
+ content:"";position:absolute;inset:10%;border-radius:50%;z-index:-1;
+ background:radial-gradient(circle,#a65cff80,#594adf22 60%,transparent 73%);
+ filter:blur(21px)
+}
+.ef-dual-chat .ef-single-fox>img{
+ width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 27px #ad71ffb8)
+}
+.ef-dual-chat .ef-persona-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:min(100%,670px)}
+.ef-dual-chat .ef-persona-button{
+ display:grid;justify-items:center;gap:5px;min-height:85px;padding:13px 15px;
+ color:#fdfaff;border:1px solid #9878ec;border-radius:18px;text-align:center;
+ background:linear-gradient(135deg,#30317bcc,#121f52ed);
+ box-shadow:inset 0 1px 0 #e3bcff4f,0 8px 25px #030b2b8a,0 0 19px #ab5bfc30;
+ transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease
+}
+.ef-dual-chat .ef-persona-button strong{font-size:clamp(.91rem,1.4vw,1.1rem);font-weight:900}
+.ef-dual-chat .ef-persona-button small{color:#cddafa;font-size:.76rem;line-height:1.65}
+.ef-dual-chat .ef-persona-button:hover{transform:translateY(-3px);border-color:#f5baff;box-shadow:0 0 30px #b169fa72}
+.ef-dual-chat .ef-header{
+ background:linear-gradient(96deg,#0b1940f2,#130d35f5);border-bottom-color:#7d62bd73;
+ box-shadow:0 8px 26px #01061c99,0 1px 0 #b18eff2e
+}
+.ef-dual-chat .ef-workspace{grid-template-columns:minmax(185px,225px) minmax(0,1fr) minmax(230px,265px);gap:10px}
+.ef-dual-chat .ef-main{
+ background:radial-gradient(ellipse at 60% 0%,#321d7148,transparent 49%),
+ linear-gradient(175deg,#091b3d,#090e24 80%)
+}
+.ef-dual-chat .ef-conversation{min-height:0}
+.ef-dual-chat .freedom-ai-card{max-width:930px;margin-inline:auto;padding:12px clamp(10px,1.7vw,20px)}
+.ef-dual-chat .freedom-ai-thread{
+ gap:17px;padding:20px 8px 18px;scrollbar-color:#a584e3 transparent;
+ scroll-padding-bottom:35px
+}
+.ef-dual-chat .freedom-ai-message{
+ max-width:min(85%,700px);font-size:clamp(.91rem,1vw,1.02rem);
+ line-height:1.95;padding:14px 17px;border-radius:19px;
+ box-shadow:0 9px 27px #02051b94,inset 0 1px 0 #ffffff15;
+ letter-spacing:.02px
+}
+.ef-dual-chat .freedom-ai-message p{line-height:2!important;color:#fefcff!important;white-space:pre-wrap;word-break:break-word}
+.ef-dual-chat .freedom-ai-message.user{
+ background:linear-gradient(135deg,#362574,#251b56);border-color:#9f80ee
+}
+.ef-dual-chat .freedom-ai-message.model{
+ background:linear-gradient(135deg,#122c59,#0c2044);border-color:#6c8ed3
+}
+.ef-dual-chat[data-persona="character"] .freedom-ai-message.model:before{
+ background:#292154 url('assets/ui/fox-loved.webp') center/contain no-repeat
+}
+.ef-dual-chat .freedom-ai-form{
+ max-width:900px;width:100%;margin-inline:auto;padding:9px 12px;
+ border-radius:21px;border:1px solid #8265e4;
+ background:linear-gradient(145deg,#101a3b,#0c1431);
+ box-shadow:0 0 0 1px #8265e42e,0 0 25px #a25cff43,inset 0 1px 0 #a48de543
+}
+.ef-dual-chat .freedom-ai-form textarea{
+ width:100%;min-height:44px;max-height:105px;resize:vertical;
+ padding:7px 10px;line-height:1.75;color:#fff;font-size:.97rem
+}
+.ef-dual-chat .freedom-ai-form>div{padding-top:4px;border-top:1px solid #8064c244;align-items:center}
+.ef-dual-chat .freedom-ai-form button{border-radius:12px;min-height:35px}
+.ef-dual-chat .freedom-ai-status{padding-inline:8px;min-height:0}
+.ef-dual-chat .ef-art-frame{
+ background:linear-gradient(155deg,#28216a,#0a1940)!important;
+ border-color:#9475ff;box-shadow:inset 0 0 38px #9b68ff53,0 0 22px #7555dd32
+}
+.ef-dual-chat[data-persona="character"] .ef-art-frame>img{
+ object-fit:contain;object-position:center;filter:drop-shadow(0 4px 24px #b47cffa3)
+}
+.ef-dual-chat .ef-art-profile,.ef-dual-chat .ef-art-tools{
+ border-color:#7760bf;background:linear-gradient(120deg,#151f4e,#201748);
+ box-shadow:inset 0 1px 0 #b6b0ff20
+}
+#elara-ai-privacy-settings{border:1px solid #776ac1;border-radius:17px;background:linear-gradient(130deg,#111e41,#16123a);color:#f1f0ff}
+#elara-ai-privacy-settings h2{color:#fff}
+#elara-ai-privacy-settings h3{margin:17px 0 8px;font-size:1rem}
+#elara-ai-privacy-settings .elara-ai-consent{display:flex;align-items:center;gap:10px;line-height:1.9;padding:12px;background:#0d2043;border:1px solid #5c6ba4;border-radius:13px;cursor:pointer}
+#elara-ai-privacy-settings .elara-ai-settings-personas{display:flex;flex-wrap:wrap;gap:9px}
+#elara-ai-privacy-settings .elara-ai-settings-personas button{
+ border:1px solid #7065b7;border-radius:12px;padding:10px 16px;
+ background:#12244b;color:#e3e4ff;font:inherit;cursor:pointer
+}
+#elara-ai-privacy-settings .elara-ai-settings-personas button[aria-pressed="true"]{border-color:#c69eff;background:#403078;color:#fff}
+#elara-ai-privacy-settings .freedom-ai-memory{max-height:none!important;overflow:visible;border:1px solid #5265a3;border-radius:14px;padding:14px!important}
+#elara-ai-privacy-settings .elara-ai-memory-warning{margin-top:10px;color:#ffd7bb!important;line-height:1.9}
+@media(max-width:1120px) and (min-width:921px){
+ .ef-dual-chat .ef-workspace{grid-template-columns:190px minmax(0,1fr) 232px}
+}
+@media(max-width:920px){
+ .ef-dual-chat .ef-workspace{grid-template-columns:minmax(180px,215px) minmax(0,1fr)}
+}
+@media(max-width:680px){
+ .ef-dual-chat .ef-chooser{justify-content:center;padding:15px 12px;gap:10px}
+ .ef-dual-chat .ef-chooser h1{font-size:1.25rem}
+ .ef-dual-chat .ef-single-fox{width:clamp(120px,24vh,185px);margin:0 auto}
+ .ef-dual-chat .ef-persona-buttons{grid-template-columns:1fr;gap:8px}
+ .ef-dual-chat .ef-persona-button{min-height:65px;padding:8px 11px}
+ .ef-dual-chat .freedom-ai-card{padding:6px 8px}
+ .ef-dual-chat .freedom-ai-thread{gap:11px;padding:11px 3px}
+ .ef-dual-chat .freedom-ai-message{max-width:88%;padding:11px 12px;font-size:.92rem}
+ .ef-dual-chat .freedom-ai-form{padding:7px 9px;border-radius:16px}
+ .ef-dual-chat .freedom-ai-form textarea{min-height:42px;max-height:110px;font-size:.92rem}
+}
+@media(prefers-reduced-motion:reduce){.ef-dual-chat .ef-persona-button{transition:none}}
+
+/* ELARA AI: wide conversation plus left privacy drawer (2026-10-21).
+   Keeps the working AI message host mounted; layout changes are presentation only. */
+.ef-dual-chat .ef-workspace{
+ display:grid!important;
+ grid-template-columns:clamp(255px,21vw,318px) minmax(0,1fr)!important;
+ direction:ltr;gap:0;padding:0;min-height:0;flex:1;position:relative
+}
+.ef-dual-chat .ef-sidebar{
+ direction:rtl;display:flex!important;flex-direction:column;gap:10px;
+ background:linear-gradient(160deg,#0c1434,#101a3c 52%,#0b1030);
+ border:0;border-inline-end:1px solid #6956ad7d;border-radius:0;
+ min-width:0;min-height:0;padding:16px 13px 13px;overflow:hidden;
+ box-shadow:inset -10px 0 28px #7454d51c
+}
+.ef-dual-chat .ef-sidebar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ef-dual-chat .ef-sidebar-toolbar strong{font-size:.9rem;color:#e9ddff}
+.ef-dual-chat .ef-sidebar-toolbar button,.ef-dual-chat .ef-settings-back{
+ border:1px solid #7767c7;border-radius:12px;color:#f4efff;
+ background:linear-gradient(130deg,#313269,#1d2757);
+ padding:9px 11px;min-height:41px;font-weight:850;
+ box-shadow:0 0 14px #9269e633
+}
+.ef-dual-chat .ef-sidebar-toolbar button[aria-expanded="true"]{
+ background:#49358a;border-color:#c5a5ff
+}
+.ef-dual-chat .ef-sidebar-chat{
+ min-height:0;flex:1;display:flex;flex-direction:column;gap:9px;
+ overflow-y:auto;scrollbar-width:thin;scrollbar-color:#7c62bf transparent
+}
+.ef-dual-chat .ef-sidebar-chat .ef-recent{flex:1;min-height:75px}
+.ef-dual-chat .ef-sidebar-chat .ef-art-tools{
+ display:block!important;padding:10px;background:#0d1d3d;border-radius:14px
+}
+.ef-dual-chat .ef-sidebar-chat .ef-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ef-dual-chat .ef-sidebar-chat .ef-tool-grid button{min-height:42px;font-size:.73rem}
+.ef-dual-chat .ef-sidebar-footer{margin-top:auto}
+.ef-dual-chat .ef-sidebar-settings{
+ min-width:0;min-height:0;flex:1;display:flex;flex-direction:column;
+ gap:10px;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;scrollbar-color:#856be1 transparent;padding:2px 2px 18px
+}
+.ef-dual-chat :is(.ef-sidebar-chat,.ef-sidebar-settings)[hidden],
+.ef-dual-chat .ef-sidebar-scrim[hidden]{display:none!important}
+.ef-dual-chat .ef-settings-back{position:sticky;top:0;z-index:2;flex:none;text-align:center}
+.ef-dual-chat .ef-sidebar-scrim{display:none}
+.ef-dual-chat .ef-main{
+ display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;
+ border:0;border-radius:0;background:radial-gradient(ellipse at 42% -12%,#5836b541,transparent 42%),#070e25
+}
+.ef-dual-chat .ef-conversation{
+ display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;overflow:hidden
+}
+.ef-dual-chat .freedom-ai-card{
+ display:flex!important;flex-direction:column;flex:1;min-height:0;
+ max-width:none;width:100%;margin:0;padding:0 clamp(12px,2.1vw,42px) 8px
+}
+.ef-dual-chat .freedom-ai-card [data-f-ai-host]{
+ flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:0
+}
+.ef-dual-chat .freedom-ai-thread{
+ flex:1;min-height:0;overflow-y:auto;min-width:0;max-width:1000px;
+ width:100%;margin-inline:auto;padding:28px clamp(8px,2vw,24px) 18px;
+ scrollbar-color:#8d6ccd transparent;gap:17px
+}
+.ef-dual-chat .freedom-ai-message{
+ max-width:min(87%,780px);font-size:clamp(.95rem,1.03vw,1.07rem);
+ border-radius:19px;line-height:2
+}
+.ef-dual-chat .freedom-ai-form{
+ flex:none;margin:auto auto 0!important;max-width:1000px;width:100%;
+ padding:8px 13px 9px;border-radius:19px;
+ border:1px solid #9e81f4;
+ box-shadow:0 0 30px #9a5cff45,inset 0 1px 0 #edd9ff31
+}
+.ef-dual-chat .freedom-ai-form textarea{
+ min-height:43px;max-height:125px;padding:7px 8px;
+ resize:vertical;font-size:1rem;line-height:1.75
+}
+.ef-dual-chat .freedom-ai-form>div{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding-top:5px}
+.ef-dual-chat .freedom-ai-status{
+ flex:none;width:100%;max-width:1000px;margin:0 auto;
+ padding:2px 10px;min-height:0;line-height:1.45
+}
+.ef-dual-chat .ef-disclosure{padding:3px 7px calc(4px + env(safe-area-inset-bottom,0px))}
+.ef-dual-chat .ef-mobile-settings{display:none}
+.ef-dual-chat.ef-immersive .ef-workspace{grid-template-columns:1fr!important}
+.ef-dual-chat.ef-immersive .ef-sidebar{display:none!important}
+.ef-dual-chat #elara-ai-privacy-settings{
+ width:100%;margin:0;min-width:0;padding:5px!important;
+ border:0;background:transparent;box-shadow:none
+}
+.ef-dual-chat #elara-ai-privacy-settings h2{font-size:1.05rem;line-height:1.6}
+.ef-dual-chat #elara-ai-privacy-settings h3{font-size:.93rem}
+.ef-dual-chat #elara-ai-privacy-settings .muted{font-size:.77rem;line-height:1.75}
+.ef-dual-chat #elara-ai-privacy-settings .elara-ai-consent{
+ padding:10px;align-items:start;font-size:.82rem;line-height:1.75
+}
+.ef-dual-chat #elara-ai-privacy-settings .elara-ai-settings-personas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.ef-dual-chat #elara-ai-privacy-settings .elara-ai-settings-personas button{padding:9px 5px;font-size:.8rem}
+.ef-dual-chat #elara-ai-privacy-settings .freedom-ai-memory{
+ max-height:none!important;overflow:visible!important;
+ border:1px solid #5b6aa6;border-radius:13px;padding:9px!important;
+ margin:8px 0!important;min-width:0
+}
+.ef-dual-chat #elara-ai-privacy-settings .freedom-ai-memory :is(input,button){max-width:100%}
+.ef-dual-chat #elara-ai-privacy-settings .freedom-ai-memory [data-f-ai-note-form]{display:grid!important;grid-template-columns:minmax(0,1fr)}
+@media(max-width:920px) and (min-width:681px){
+ .ef-dual-chat .ef-workspace{grid-template-columns:260px minmax(0,1fr)!important}
+ .ef-dual-chat .ef-sidebar{padding:12px 9px}
+}
+@media(max-width:680px){
+ .ef-dual-chat .ef-workspace{
+  display:flex!important;flex-direction:column;gap:0;padding:0;min-height:0
+ }
+ .ef-dual-chat .ef-main{min-height:0;flex:1;width:100%;border:0;border-radius:0}
+ .ef-dual-chat .ef-sidebar{display:none!important}
+ .ef-dual-chat.ef-settings-open .ef-sidebar{
+  position:absolute;left:0;top:0;bottom:0;z-index:6;
+  width:min(91vw,370px);max-width:100%;
+  display:flex!important;box-shadow:12px 0 40px #000a24b8
+ }
+ .ef-dual-chat.ef-settings-open .ef-sidebar-scrim{
+  display:block;position:absolute;inset:0;z-index:5;
+  border:0;background:#05091ebd;backdrop-filter:blur(3px)
+ }
+ .ef-dual-chat .ef-mobile-settings{display:inline-flex;align-items:center}
+ .ef-dual-chat .ef-header{min-height:57px;gap:5px}
+ .ef-dual-chat .ef-brand{min-width:0}
+ .ef-dual-chat .ef-global-nav{justify-content:center}
+ .ef-dual-chat .ef-header-close{max-width:92px}
+ .ef-dual-chat .freedom-ai-card{padding:0 8px 5px}
+ .ef-dual-chat .freedom-ai-thread{padding:14px 8px 14px;gap:13px}
+ .ef-dual-chat .freedom-ai-message{max-width:88%;font-size:.92rem;line-height:1.9;padding:11px 13px}
+ .ef-dual-chat .freedom-ai-form{margin-top:auto!important;padding:7px 9px 8px;border-radius:16px}
+ .ef-dual-chat .freedom-ai-form textarea{min-height:40px;max-height:115px;font-size:.94rem}
+ .ef-dual-chat .ef-disclosure{font-size:.59rem;line-height:1.4}
+}
+@media(prefers-reduced-motion:reduce){.ef-dual-chat .ef-sidebar,.ef-dual-chat .ef-settings-back{transition:none}}
