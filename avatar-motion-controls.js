@@ -41,6 +41,7 @@
     wrap.dataset.elaraMotionGallery='';
     wrap.setAttribute('aria-label','حرکت‌ها و حالت چهره کاراکتر');
     wrap.setAttribute('dir','rtl');
+    const info=document.createElement('p');info.className='elara-motion-notice';info.setAttribute('role','status');info.setAttribute('aria-live','polite');
     for(const item of actions){
       const b=document.createElement('button');b.type='button';
       b.dataset.avatarMotionOption=item.id;
@@ -49,18 +50,40 @@
       const img=document.createElement('img');img.src=picture(item);img.alt='';img.loading='lazy';
       const text=document.createElement('span');text.textContent=item.label;
       b.append(img,text);
-      b.addEventListener('click',()=>{
-        if(!availableModel(stage)(item.id))return;
-        wrap.querySelectorAll('[data-avatar-motion-option]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+      b.addEventListener('click',async()=>{
+        // Keep the current choice until the actual VRMA is ready. Previously the
+        // interface claimed success even when the source returned 404, then reset.
+        if(wrap.dataset.busy==='true')return;
+        const previous=wrap.querySelector('[aria-pressed="true"]');
+        wrap.dataset.busy='true';
+        b.dataset.loading='true';
+        info.textContent=item.id.startsWith('dance')?'در حال دریافت حرکت واقعی…':'';
+        let played=false;
+        try{played=(await availableModel(stage)(item.id))===true;}catch(error){console.warn('Avatar motion failed',error);}
+        if(!stage.isConnected)return;
+        wrap.dataset.busy='false';delete b.dataset.loading;
+        if(played){
+          wrap.querySelectorAll('[data-avatar-motion-option]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+          info.textContent='';
+        }else{
+          wrap.querySelectorAll('[data-avatar-motion-option]').forEach(x=>x.setAttribute('aria-pressed',String(x===previous)));
+          info.textContent='این رقص دریافت نشد. اتصال را بررسی کن یا حرکت دیگری انتخاب کن.';
+        }
       });
       wrap.append(b);
     }
+    wrap.append(info);
     stage.append(wrap);
   }
   function sync(){document.querySelectorAll('[data-elara-avatar-stage]').forEach(gallery);}
   window.addEventListener('elara:avatar-stage-ready',sync);
   window.addEventListener('elara:live-avatar-mounted',sync);
   window.addEventListener('elara:procedural-avatar-mounted',sync);
+  window.addEventListener('elara:avatar-motion-error',event=>{
+    const stage=event.detail?.stage;
+    const notice=stage?.querySelector('.elara-motion-notice');
+    if(notice)notice.textContent='فایل رقص بارگذاری نشد؛ ژست عادی حفظ شد.';
+  });
   window.addEventListener('elara:avatar-motion-ended',event=>{
     const stage=event.detail?.stage;
     stage?.querySelectorAll('[data-avatar-motion-option]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.avatarMotionOption==='idle')));
