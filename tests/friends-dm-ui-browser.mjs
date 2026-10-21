@@ -26,7 +26,12 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-row').count(),1,width+': recent DM row missing');
- assert.equal(await page.locator('.social-dm-friend').count(),1,width+': friend start-chat card missing');
+ // A conversation row can appear before the async friend list completes.
+ // New Message also renders the same friend in a separate chooser. Verify the
+ // actual accepted-friends sidebar rather than counting both copies globally.
+ const friendCard=page.locator('.dm-friend-list .social-dm-friend');
+ await friendCard.first().waitFor({state:'attached',timeout:10000});
+ assert.equal(await friendCard.count(),1,width+': accepted friend start-chat card missing');
  await page.locator('.social-dm-row').click();
  await page.waitForSelector('.social-chat-head');
  const search=page.locator('[data-dm-search]');
