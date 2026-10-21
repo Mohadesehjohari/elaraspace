@@ -36,7 +36,8 @@ try{
   assert.ok(box&&box.width>=200&&box.width<=300&&box.height>=300&&box.height<=450,'Chevron popup must be compact '+JSON.stringify(box));
   const arrowBox=await arrow.boundingBox();
   assert.ok(arrowBox&&box.y>=arrowBox.y+arrowBox.height-2,'Popover must open directly under header chevron');
-  assert.ok(Math.abs(box.x+box.width-arrowBox.x-arrowBox.width)<=15,'Popover must align to the right edge of the chevron');
+  const expectedLeft=Math.max(8,Math.min(width-box.width-8,arrowBox.x+arrowBox.width-box.width));
+  assert.ok(Math.abs(box.x-expectedLeft)<=3,'Popover must align to the chevron without leaving the viewport');
   assert.equal(await arrow.getAttribute('aria-expanded'),'true');
   await page.keyboard.press('Escape');
   await popup.waitFor({state:'hidden',timeout:7000});
