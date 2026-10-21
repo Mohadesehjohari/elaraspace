@@ -72,7 +72,7 @@
     tube(THREE,head,m.brow,[[-.255,.245,.342],[-.15,.272,.350],[-.055,.254,.347]],isMale?.010:.008,14,5,'brow-left');
     tube(THREE,head,m.brow,[[.055,.254,.347],[.15,.272,.350],[.255,.245,.342]],isMale?.010:.008,14,5,'brow-right');
     tube(THREE,head,m.nose,[[.005,.045,.356],[.018,-.035,.364],[0,-.105,.365]],.006,12,5,'nose-line');
-    tube(THREE,head,m.mouth,[[-.082,-.205,.352],[0,-.219,.360],[.082,-.205,.352]],.008,14,5,'mouth');
+    refs.mouth=tube(THREE,head,m.mouth,[[-.082,-.205,.352],[0,-.219,.360],[.082,-.205,.352]],.008,14,5,'mouth');
   }
   function hairRibbon(THREE,parent,mat,o){
     const shape=new THREE.Shape();
@@ -175,7 +175,14 @@
       ellipsoid(THREE,arm,sphere,m.suit,[s*.012,-1.08,0],[.083,.092,.077],'elbow');
       cylinder(THREE,arm,m.suit,isMale?.073:.065,isMale?.052:.047,.99,[s*.018,-1.60,.006],[0,0,s*.010],28,'forearm');
       ellipsoid(THREE,arm,sphere,m.suit,[s*.022,-2.12,.075],[isMale?.073:.067,.155,.082],'hand');
-      cylinder(THREE,arm,m.suit,.047,.025,.25,[s*.022,-2.29,.09],[0,0,s*.010],14,'fingers');
+      // Distinct softly tapered digits rather than a rigid single finger tube.
+      for(let f=0;f<4;f++){
+        const offset=(f-1.5)*.032;
+        const length=.15+(f===1||f===2?.032:0);
+        cylinder(THREE,arm,m.skin,.017,.013,length,[s*.022+offset,-2.257-length*.33,.114],[.085,0,.06*offset],10,'relaxed-finger-'+f);
+        ellipsoid(THREE,arm,sphere,m.skin,[s*.022+offset,-2.257-length*.8,.124],[.014,.017,.015],'finger-tip');
+      }
+      cylinder(THREE,arm,m.skin,.021,.016,.13,[s*.08,-2.18,.18],[.14,0,s*.50],12,'relaxed-thumb');
     }
 
     createHair(THREE,root,m,isMale,refs);
@@ -234,7 +241,7 @@
     const floorShadow=addMesh(THREE,scene,new THREE.CircleGeometry(1.25,64),new THREE.ShadowMaterial({opacity:.18}),[0,.02,0],[1,1,1],[-Math.PI/2,0,0],'floor-shadow');floorShadow.receiveShadow=true;
 
     let avatar=createAvatar(THREE,avatarBase());scene.add(avatar);
-    let refs=avatar.userData.refs,targetYaw=.04,yaw=.04,velocity=0,lastX=0,pointerId=null,dancingUntil=0,disposed=false,lastTime=performance.now(),lastUserAction=performance.now();
+    let refs=avatar.userData.refs,targetYaw=.04,yaw=.04,velocity=0,lastX=0,pointerId=null,dancingUntil=0,motion='idle',motionStart=0,disposed=false,lastTime=performance.now(),lastUserAction=performance.now();
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
     const resize=()=>{const r=viewport.getBoundingClientRect();if(r.width<2||r.height<2)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()};
@@ -271,9 +278,14 @@
     const privateChange=()=>{rebuild();if(!quick)status(stage,fallbackMessage(),stage.dataset.avatarFallbackReason?'error':'');};
     window.addEventListener('elara:profile-private-changed',privateChange);
 
-    function play(name='dance'){
-      if(name==='dance'){dancingUntil=performance.now()+7200;lastUserAction=performance.now();return true}
-      return false;
+    function play(name='dance1'){
+      if(name==='dance')name='dance1';
+      if(!['idle','smile','wave','dance1','dance2','dance3'].includes(name))return false;
+      motion=name;motionStart=performance.now()/1000;
+      dancingUntil=name.startsWith('dance')?performance.now()+8000:0;
+      stage.dataset.avatarMotion=motion;
+      lastUserAction=performance.now();
+      return true;
     }
     function dispose(){if(disposed)return;disposed=true;ro.disconnect();window.removeEventListener('elara:profile-private-changed',privateChange);renderer.dispose();stage.dataset.avatarMounted='';if(current?.stage===stage)current=null;}
     function active(){return stage.isConnected&&!stage.closest('.elara-avatar-quick-modal[hidden]')&&(desktop()||quickViewer(stage))&&stage.offsetParent!==null&&!document.hidden}
@@ -282,17 +294,27 @@
       if(disposed)return;requestAnimationFrame(frame);
       if(!stage.isConnected){dispose();return}
       const dt=Math.min(.04,Math.max(.001,(now-lastTime)/1000));lastTime=now;if(!active())return;
-      const t=now/1000,dancing=now<dancingUntil,idleAmp=reduced?.22:1;
+      if(motion.startsWith('dance')&&now>=dancingUntil){motion='idle';dancingUntil=0;stage.dataset.avatarMotion='idle';window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));}
+      const t=now/1000,dancing=now<dancingUntil&&!reduced,idleAmp=reduced?.22:1;
+      const mt=t-motionStart,beat=motion==='dance2'?5.8:4.1,step=Math.sin(mt*beat);
       if(pointerId===null){targetYaw+=velocity;velocity*=Math.pow(.87,dt*60);if(Math.abs(velocity)<.00002)velocity=0}
       yaw=ease(yaw,targetYaw,1-Math.pow(.001,dt));avatar.rotation.y=yaw;
       camera.position.z=ease(camera.position.z,cameraZ,1-Math.pow(.02,dt));camera.lookAt(0,3.05,0);
 
-      refs.root.position.y=(Math.sin(t*1.15)*.010+(dancing?Math.abs(Math.sin(t*5.8))*.045:0))*idleAmp;
-      refs.torso.rotation.z=(Math.sin(t*.72)*.005+(dancing?Math.sin(t*4.0)*.055:0))*idleAmp;
-      refs.torso.rotation.y=(Math.sin(t*.48)*.009+(dancing?Math.sin(t*2.4)*.09:0))*idleAmp;
+      refs.root.position.y=(Math.sin(t*1.15)*.010+(dancing?Math.abs(step)*.043:0))*idleAmp;
+      refs.root.position.x=dancing?step*.046*idleAmp:0;
+      refs.torso.rotation.z=(Math.sin(t*.72)*.005+(dancing?step*(motion==='dance3'?.10:.055):0))*idleAmp;
+      refs.torso.rotation.y=(Math.sin(t*.48)*.009+(dancing?Math.sin(mt*(motion==='dance2'?3.6:2.4))*.09:0))*idleAmp;
       refs.head.rotation.y=(Math.sin(t*.55)*.038+(dancing?Math.sin(t*3.1)*.12:0))*idleAmp;
       refs.head.rotation.z=Math.sin(t*.42)*.010*idleAmp;
-      refs.arms.forEach((arm,i)=>{const s=i===0?-1:1;arm.rotation.z=(Math.sin(t*.78+s)*.011+(dancing?s*(.24+.15*Math.sin(t*3.4)):0))*idleAmp;arm.rotation.x=(dancing?Math.sin(t*3.4+s)*.18:Math.sin(t*.62+s)*.006)*idleAmp});
+      refs.arms.forEach((arm,i)=>{
+        const s=i===0?-1:1;
+        const wave=motion==='wave'&&i===1;
+        const style=dancing?(motion==='dance1'?.24+.2*step:motion==='dance2'?.44*Math.cos(mt*5+s):.56+.10*step):0;
+        arm.rotation.z=(s*.045+Math.sin(t*.78+s)*.013+(dancing?s*style:wave?.65+.17*Math.sin(t*5):0))*idleAmp;
+        arm.rotation.x=(dancing?Math.sin(mt*beat+s)*.18:wave?-.62:Math.sin(t*.62+s)*.008)*idleAmp;
+      });
+      if(refs.mouth)refs.mouth.scale.y=(motion==='smile'||motion==='wave'||dancing)?1.8:1;
       const blink=(t%4.7)>4.52&&((t%4.7)<4.66);refs.eyes.forEach(e=>{e.scale.y=blink?.16:1});
 
       const spin=clamp(velocity*4.5,-.23,.23);
@@ -310,8 +332,8 @@
     }
     requestAnimationFrame(frame);
 
-    current={stage,play,dispose,rebuild};
-    window.ElaraAvatar3D={play,dance:()=>play('dance'),rebuild,get base(){return avatar?.userData?.kind||avatarBase()},version:'procedural-desktop-v2'};
+    current={stage,play,setAction:play,dispose,rebuild};
+    window.ElaraAvatar3D={play,dance:()=>play('dance1'),rebuild,get base(){return avatar?.userData?.kind||avatarBase()},version:'procedural-character-motion-v3'};
     return true;
   }
 
