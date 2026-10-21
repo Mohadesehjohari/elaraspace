@@ -468,6 +468,7 @@
   async function tryMount(stage) {
     if(!stage||!enabled(stage))return false;
     const kind=currentKind();
+    stage.dataset.avatarKind=kind;
     let config;
     try {
       // Always revalidate the tiny catalogue; a stale cached copy can mark an uploaded VRM as unavailable.
