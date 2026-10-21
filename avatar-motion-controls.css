@@ -32,3 +32,16 @@
   [data-elara-avatar-stage] .elara-motion-gallery button{min-height:71px;padding:3px 4px 5px;font-size:9px}
   [data-elara-avatar-stage] .elara-motion-gallery img{width:52px!important;height:48px!important}
 }
+
+/* Motion load feedback is shown in the same narrow gallery, not over the avatar. */
+[data-elara-avatar-stage] .elara-motion-gallery .elara-motion-notice{
+  font:700 10px/1.55 Vazirmatn,Tahoma,sans-serif!important;
+  color:#ffe9b2;background:#121e38e9;border-radius:9px;
+  margin:0;padding:0;max-height:0;overflow:hidden;
+}
+[data-elara-avatar-stage] .elara-motion-gallery .elara-motion-notice:not(:empty){
+  padding:7px 5px;max-height:100px;border:1px solid #f2c17c66;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button[data-loading="true"]{
+  border-color:#f9d17e!important;opacity:.75;cursor:progress!important;
+}
