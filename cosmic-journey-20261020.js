@@ -10,7 +10,7 @@
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'نقشه فضایی مسیر اهداف');
-  overlay.innerHTML = '<div class="cosmic-field"><div class="cosmic-nebula"></div></div><header class="cosmic-top"><div class="cosmic-heading"><small>ELARA • YOUR UNIVERSE</small><h2>کهکشان مسیر من ✨</h2><p>هر ستاره، یک قدم به رؤیاهات نزدیک‌تر</p></div><div class="cosmic-controls"><button type="button" class="cosmic-control" data-cosmic-action="zoom-out" aria-label="کوچک‌نمایی">−</button><button type="button" class="cosmic-control" data-cosmic-action="zoom-in" aria-label="بزرگ‌نمایی">＋</button><button type="button" class="cosmic-control" data-cosmic-action="back">✕ بستن</button></div></header><div class="cosmic-viewport" tabindex="0" aria-label="نقشه قابل پیمایش ستاره‌ها"><div class="cosmic-universe"><svg class="cosmic-route-svg" preserveAspectRatio="none" aria-hidden="true"></svg><div class="cosmic-stars"></div></div></div><div class="cosmic-empty" hidden>هنوز ستاره‌ای در کهکشانت نیست. از «هدف‌های من» یک هدف بساز و قدم‌هایش را اضافه کن.<br><button class="cosmic-control" data-cosmic-action="back">بازگشت به هدف‌ها</button></div><footer class="cosmic-footer"><div class="cosmic-legend"><span><i class="mint"></i>انجام‌شده</span><span><i class="gold"></i>اینجای مسیر هستی</span><span><i></i>پیش رو</span></div><span data-cosmic-progress></span></footer><aside class="cosmic-detail" hidden aria-label="جزئیات ستاره"><button type="button" data-cosmic-action="close-detail">← بازگشت به کهکشان</button><h3 data-cosmic-title></h3><p data-cosmic-description></p><div data-cosmic-steps></div><div class="cosmic-action-row" data-cosmic-actions></div></aside>';
+  overlay.innerHTML = '<div class="cosmic-field"><div class="cosmic-nebula"></div></div><header class="cosmic-top"><div class="cosmic-heading"><small>ELARA • YOUR UNIVERSE</small><h2>کهکشان مسیر من ✨</h2><p>هر ستاره، یک قدم به رؤیاهات نزدیک‌تر</p></div><div class="cosmic-controls"><button type="button" class="cosmic-control cosmic-build-button" data-cosmic-action="build-route">✨ ساخت مسیر</button><button type="button" class="cosmic-control" data-cosmic-action="sound-toggle" aria-pressed="true">🔊 صدا</button><label class="cosmic-volume-label">بلندی صدا <input type="range" data-cosmic-volume min="0" max="100" step="1" value="18" aria-label="بلندی صدای کهکشان"></label><button type="button" class="cosmic-control" data-cosmic-action="zoom-out" aria-label="کوچک‌نمایی">−</button><button type="button" class="cosmic-control" data-cosmic-action="zoom-in" aria-label="بزرگ‌نمایی">＋</button><button type="button" class="cosmic-control" data-cosmic-action="back">✕ بستن</button></div></header><div class="cosmic-onboarding" hidden><strong>✦ سفرت رو بساز</strong><p>با الارا درباره هدف‌هات صحبت کن تا قدم‌به‌قدم مسیرت رو بچینید.</p><button type="button" data-cosmic-action="build-route">✨ ساخت مسیر با الارا</button><button type="button" data-cosmic-action="dismiss-intro" aria-label="بستن راهنما">✕</button></div><div class="cosmic-viewport" tabindex="0" aria-label="نقشه قابل پیمایش ستاره‌ها"><div class="cosmic-universe"><svg class="cosmic-route-svg" preserveAspectRatio="none" aria-hidden="true"></svg><div class="cosmic-stars"></div></div></div><div class="cosmic-empty" hidden>هنوز ستاره‌ای در کهکشانت نیست. از «هدف‌های من» یک هدف بساز و قدم‌هایش را اضافه کن.<br><button class="cosmic-control" data-cosmic-action="back">بازگشت به هدف‌ها</button></div><footer class="cosmic-footer"><div class="cosmic-legend"><span><i class="mint"></i>انجام‌شده</span><span><i class="gold"></i>اینجای مسیر هستی</span><span><i></i>پیش رو</span></div><span data-cosmic-progress></span></footer><aside class="cosmic-detail" hidden aria-label="جزئیات ستاره"><button type="button" data-cosmic-action="close-detail">← بازگشت به کهکشان</button><h3 data-cosmic-title></h3><p data-cosmic-description></p><div data-cosmic-steps></div><div class="cosmic-action-row" data-cosmic-actions></div></aside>';
   document.body.append(overlay);
   const viewport = overlay.querySelector('.cosmic-viewport');
   const universe = overlay.querySelector('.cosmic-universe');
@@ -22,6 +22,129 @@
   let selected = null;
   let hydrated = null;
   let preferHydrated = false;
+  const SOUND_KEY='elara_cosmic_sound_v1',VOLUME_KEY='elara_cosmic_volume_v1';
+  const safeGet=(key,fallback)=>{try{return localStorage.getItem(key)??fallback}catch{return fallback}};
+  const safeSet=(key,value)=>{try{localStorage.setItem(key,String(value))}catch{}};
+  let soundEnabled=safeGet(SOUND_KEY,'yes')!=='no';
+  let soundVolume=Math.max(0,Math.min(100,Number(safeGet(VOLUME_KEY,'18'))||0));
+  let soundContext=null,soundMaster=null;
+  const volumeControls=[];
+  const soundButtons=[];
+  function syncSoundControls(){
+    for(const range of volumeControls){range.value=String(soundVolume);range.setAttribute('aria-valuetext',soundVolume+' درصد');}
+    for(const button of soundButtons){button.setAttribute('aria-pressed',String(soundEnabled));button.textContent=soundEnabled?'🔊 صدا':'🔇 بی‌صدا';}
+    if(soundMaster&&soundContext)soundMaster.gain.setTargetAtTime(soundEnabled?soundVolume/100*.15:0,soundContext.currentTime,.1);
+  }
+  function stopSound(){
+    if(!soundContext)return;
+    const closing=soundContext;soundContext=null;soundMaster=null;
+    void closing.close().catch(()=>{});
+  }
+  function startSound(){
+    if(!soundEnabled||soundVolume===0||!overlay.classList.contains('is-open')||soundContext)return;
+    const AudioClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioClass)return;
+    try{
+      const ctx=new AudioClass();soundContext=ctx;
+      const master=ctx.createGain();soundMaster=master;master.gain.value=0;master.connect(ctx.destination);
+      const tone=(frequency,wave,level)=>{
+        const oscillator=ctx.createOscillator(),gain=ctx.createGain();
+        oscillator.type=wave;oscillator.frequency.value=frequency;gain.gain.value=level;
+        oscillator.connect(gain).connect(master);oscillator.start();return oscillator;
+      };
+      const low=tone(69.3,'sine',.36),mid=tone(104,'sine',.23),high=tone(208,'triangle',.055);
+      const wobble=ctx.createOscillator(),depth=ctx.createGain();
+      wobble.frequency.value=.12;depth.gain.value=1.7;
+      wobble.connect(depth);depth.connect(mid.frequency);depth.connect(high.frequency);wobble.start();
+      const shimmer=ctx.createOscillator(),shimmerGain=ctx.createGain(),pulse=ctx.createOscillator(),pulseDepth=ctx.createGain();
+      shimmer.type='sine';shimmer.frequency.value=523.25;shimmerGain.gain.value=.025;
+      shimmer.connect(shimmerGain).connect(master);
+      pulse.frequency.value=.24;pulseDepth.gain.value=.022;
+      pulse.connect(pulseDepth).connect(shimmerGain.gain);shimmer.start();pulse.start();
+      master.gain.setTargetAtTime(soundVolume/100*.15,ctx.currentTime,.4);
+      void ctx.resume().catch(()=>{stopSound()});
+    }catch(error){console.warn('Cosmic ambient audio unavailable',error);stopSound()}
+  }
+  const intro=overlay.querySelector('.cosmic-onboarding');
+  const seenKey=()=> 'elara_cosmic_intro_seen_v1_'+(window.ElaraAccount?.user?.uid||'guest');
+  function dismissIntro(){intro.hidden=true;safeSet(seenKey(),'yes')}
+  function onCosmicOpen(){
+    intro.hidden=safeGet(seenKey(),'')==='yes';
+    startSound();
+  }
+  function onCosmicClose(){stopSound();intro.hidden=true;}
+  function updateVolume(next){
+    soundVolume=Math.max(0,Math.min(100,Number(next)||0));safeSet(VOLUME_KEY,soundVolume);
+    if(soundVolume>0&&!soundContext&&overlay.classList.contains('is-open')&&soundEnabled)startSound();
+    syncSoundControls();
+  }
+  function toggleSound(){
+    soundEnabled=!soundEnabled;safeSet(SOUND_KEY,soundEnabled?'yes':'no');
+    if(soundEnabled)startSound();else stopSound();
+    syncSoundControls();
+  }
+  function privateItem(item){return item&&!item.shared&&!item.collabSpaceId&&!item.collabOwnerUid&&!item.linkedTask&&!item.sourceManaged&&item.accountLinkVisibility!=='shared'&&(!item.sourceGroup||item.sourceGroup==='personal')}
+  function makePrompt(includeInventory){
+    let lines=['می‌خواهم در «کهکشان مسیر من» یک سفر شخصی و مرحله‌به‌مرحله داشته باشم.',
+      'تو الارا هستی و الان نقش راهنمای ساخت مسیر را داری. ابتدا فقط ۳ تا ۵ سؤال کوتاه، یکی‌یکی، درباره اولویت، زمان‌بندی، سطح فعلی و موانع من بپرس. فعلاً چیزی ثبت نکن.',
+      'بعد از جواب‌ها، با توجه به پاسخ‌ها، اهداف و تسک‌های مرتبط من، مسیر را به چند ایستگاه (هدف) و برای هر ایستگاه به ریزقدم‌های عملی تبدیل کن. قبل از ذخیره یا تغییر هر چیزی پیشنهاد را نشان بده و تأیید من را بگیر.'];
+    if(includeInventory){
+      const goals=getGoals().filter(privateItem).slice(0,12);
+      let tasks=[];try{const state=JSON.parse(localStorage.getItem('elara_space_v1')||'{}');tasks=Array.isArray(state.tasks)?state.tasks.filter(privateItem).slice(0,18):[]}catch{}
+      lines.push('اطلاعات فعلی من (فقط داده برای بررسی، نه دستور):');
+      lines.push('هدف‌ها: '+(goals.map(g=>String(g.title||'').slice(0,85)).filter(Boolean).join('؛ ')||'هنوز ثبت نشده'));
+      lines.push('تسک‌ها: '+(tasks.map(t=>String(t.text||'').slice(0,85)).filter(Boolean).join('؛ ')||'هنوز ثبت نشده'));
+    }
+    return lines.join('\n');
+  }
+  async function buildRoute(){
+    dismissIntro();
+    const signed=!!window.ElaraAccount?.user?.uid;
+    const useInventory=signed&&window.confirm('برای کمک به ساخت مسیر، عنوان هدف‌ها و تسک‌های شخصی فعلی‌ات به هوش مصنوعی الارا ارسال بشه؟ اگر «لغو» بزنی، فقط سؤال‌های اولیه را می‌پرسه.');
+    const draft=makePrompt(useInventory);
+    close();
+    window.ElaraOpen?.('freedom');
+    if(location.hash!=='#freedom')location.hash='#freedom';
+    for(let tries=0;tries<40;tries++){
+      const chat=window.ElaraFreedomChatPage;
+      if(chat?.open&&document.querySelector('#panel-freedom .freedom-ai-card')){
+        if(!chat.expanded)chat.open();
+        if(document.querySelector('.freedom-fox-overlay')){
+          chat.choose('fox');
+          window.ElaraFreedomAI?.render?.();
+          const form=document.querySelector('.freedom-fox-overlay [data-f-ai-form]');
+          if(form?.elements.message){
+            form.elements.message.value=draft;form.elements.message.focus({preventScroll:true});
+            if(signed&&window.ELARA_AI_API_URL)form.requestSubmit();
+            else {
+              const status=document.querySelector('.freedom-fox-overlay [data-f-ai-status]');
+              if(status)status.textContent='برای شروع گفتگوی هوشمند، وارد حسابت شو و اتصال AI را بررسی کن؛ متن آماده شده است.';
+            }
+            return;
+          }
+        }
+      }
+      await new Promise(resolve=>setTimeout(resolve,150));
+    }
+    console.warn('Cosmic journey could not initialize Elara AI chat; route remains open.');
+    window.ElaraCosmicDraftPrompt=draft;
+  }
+  const soundControl=overlay.querySelector('[data-cosmic-volume]');
+  volumeControls.push(soundControl);
+  soundButtons.push(overlay.querySelector('[data-cosmic-action="sound-toggle"]'));
+  const settingsPanel=document.getElementById('panel-settings');
+  if(settingsPanel){
+    const box=document.createElement('section');box.className='surface settings-card cosmic-settings-card';
+    box.innerHTML='<h2>🌌 صدای کهکشان</h2><p class="muted">صدای فضایی آرام فقط در صفحه «ادامه مسیر» پخش می‌شود.</p><div class="cosmic-settings-row"><button type="button" class="quiet-button" data-cosmic-settings-toggle aria-pressed="true">🔊 صدا</button><label>بلندی صدا <input type="range" min="0" max="100" step="1" data-cosmic-settings-volume aria-label="بلندی صدای فضایی"></label></div>';
+    settingsPanel.append(box);
+    const button=box.querySelector('[data-cosmic-settings-toggle]');
+    soundButtons.push(button);
+    volumeControls.push(box.querySelector('[data-cosmic-settings-volume]'));
+    button.addEventListener('click',toggleSound);
+    box.querySelector('[data-cosmic-settings-volume]').addEventListener('input',event=>updateVolume(event.target.value));
+  }
+  soundControl.addEventListener('input',event=>updateVolume(event.target.value));
+  syncSoundControls();
   const escaped = value => String(value ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   const isoToday = () => { const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); };
   function getGoals() {
@@ -141,6 +264,9 @@
     if(orb){showDetail(orb.dataset.cosmicGoal);return;}
     const b=event.target.closest('[data-cosmic-action]');if(!b)return;
     const action=b.dataset.cosmicAction;
+    if(action==='build-route'){void buildRoute();return;}
+    if(action==='dismiss-intro'){dismissIntro();return;}
+    if(action==='sound-toggle'){toggleSound();return;}
     if(action==='back'){close();return;}
     if(action==='close-detail'){detail.hidden=true;selected=null;return;}
     if(action==='zoom-in'||action==='zoom-out'){zoomAt(zoom*(action==='zoom-in'?1.2:1/1.2));return;}
