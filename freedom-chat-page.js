@@ -6,13 +6,12 @@
 'use strict';
 const VIEW='fox-chat';
 const FOX='assets/ui/fox-loved.webp';
-const CHARACTER='assets/avatars/level-05-f-square.png';
 const NIGHT='assets/ui/Celestial Mirror Lake at Night.webp';
 const panel=()=>document.getElementById('panel-freedom');
 const route=()=>location.hash==='#freedom'&&history.state?.elaraFreedomView===VIEW;
 let card=null,overlay=null,placeholder=null,opener=null,mode='',focusMode=false,syncing=false;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-const persona=m=>m==='character'?{name:'الارا · کاراکتر',nameEn:'ELARA CHARACTER',desc:'همراه خیال‌انگیز برای حرف‌زدن، ایده‌ها و برنامه‌ها',img:CHARACTER}:
+const persona=m=>m==='character'?{name:'الارا · کاراکتر شخصی',nameEn:'ELARA CHARACTER',desc:'گفتگو با حالت کاراکتر اختصاصی تو؛ حافظه هر فرد جداست.',img:FOX}:
  {name:'الارا فاکس',nameEn:'ELARA FOX',desc:'روباه مهربون و باهوشت برای گفتگو و برنامه‌ریزی',img:FOX};
 const signed=()=>!!window.ElaraAccount?.user?.uid;
 function warm(){
@@ -40,7 +39,7 @@ function ensureCard(){
     '<h3>امروز با کدوم همراهت حرف می‌زنی؟</h3>'+
     '<p>دو شخصیت، دو دنیای متفاوت؛ گفتگو، خاطره‌ها و برنامه‌هات کنار تو هستند.</p>'+
     '<button type="button" class="ef-entry-open" data-fox-open>ورود به دنیای چت <span aria-hidden="true">↗</span></button></div>'+
-    '<div class="ef-entry-pics" aria-hidden="true"><img src="'+CHARACTER+'" alt="" width="130" height="140" loading="lazy" decoding="async"><img src="'+FOX+'" alt="" width="130" height="140" loading="eager" fetchpriority="high"></div></div>';
+    '<div class="ef-entry-pics" aria-hidden="true"><img src="'+FOX+'" alt="" width="130" height="140" loading="eager" fetchpriority="high"></div></div>';
   features.insertAdjacentElement('afterend',box);
  }
  if(ai.parentNode!==box)box.append(ai);
@@ -49,28 +48,25 @@ function ensureCard(){
 function markup(){
  return '<div class="ef-shell" dir="rtl">'+
   '<header class="ef-header"><div class="ef-brand"><img src="'+FOX+'" alt="" width="53" height="53"><span><b>ELARA <em>AI</em></b><small>دنیای گفتگوهای تو ✦</small></span></div>'+
-   '<div class="ef-global-nav"><button type="button" data-ef-chooser>انتخاب شخصیت</button><button type="button" data-ef-memory>حافظه من</button><button type="button" data-ef-focus>⛶ <span>تمام‌صفحه</span></button></div>'+
+   '<div class="ef-global-nav"><button type="button" data-ef-chooser>انتخاب شخصیت</button><button type="button" data-ef-focus>⛶ <span>تمام‌صفحه</span></button></div>'+
    '<button type="button" class="ef-header-close" data-fox-close aria-label="بازگشت به آزادی">← بازگشت به آزادی</button></header>'+
   '<section class="ef-chooser" data-ef-chooser-view aria-label="انتخاب همراه گفتگو">'+
-   '<span class="ef-spark">✦ YOUR OWN LITTLE UNIVERSE ✦</span>'+
-   '<h1>امروز دلت می‌خواد با کی حرف بزنی؟</h1>'+
-   '<p>یکی از همراه‌هات رو انتخاب کن. هر دو به گفتگوی هوشمند الارا و ابزارهای سایت دسترسی دارن.</p>'+
-   '<div class="ef-choose-grid">'+
-    '<button type="button" class="ef-choice ef-choice-character" data-ef-persona="character"><div class="ef-choice-art"><img src="'+CHARACTER+'" alt="تصویر کاراکتر الارا" decoding="async"><span class="ef-choice-glow"></span></div><span class="ef-choice-copy"><small>ELARA · CHARACTER</small><strong>صحبت با کاراکتر</strong><span>برای قصه، درس، خلاقیت و برنامه‌ریزی در کنار یک همراه خیال‌انگیز</span><b>شروع گفتگو ↗</b></span></button>'+
-    '<button type="button" class="ef-choice ef-choice-fox" data-ef-persona="fox"><div class="ef-choice-art"><img src="'+FOX+'" alt="تصویر روباه الارا" decoding="async" fetchpriority="high"><span class="ef-choice-glow"></span></div><span class="ef-choice-copy"><small>ELARA · FOX</small><strong>صحبت با الارا فاکس</strong><span>برای حرف‌های روزمره، هدف‌ها و همراهی دوست‌داشتنی روباهت</span><b>شروع گفتگو ↗</b></span></button>'+
-   '</div><span class="ef-choose-note">گفتگوها خصوصی‌اند؛ ذخیره ابری حافظه فقط با انتخاب خودت فعال می‌شود.</span></section>'+
+   '<span class="ef-spark">✦ ELARA · YOUR COMPANION ✦</span>'+
+   '<h1>امروز با کدوم همراهت حرف می‌زنی؟</h1>'+
+   '<p>یک همراه تصویری، دو حالت گفتگو؛ بدون نمایش عکس پیش‌فرض به جای کاراکتر شخصی تو.</p>'+
+   '<div class="ef-single-fox"><img src="'+FOX+'" alt="روباه الارا" width="235" height="235" fetchpriority="high" decoding="async"></div>'+
+   '<div class="ef-persona-buttons" role="group" aria-label="انتخاب حالت گفتگو">'+
+    '<button type="button" class="ef-persona-button" data-ef-persona="fox"><strong>🦊 الارا فاکس</strong><small>روباه مهربونت برای گفتگو و برنامه‌ریزی</small></button>'+
+    '<button type="button" class="ef-persona-button" data-ef-persona="character"><strong>✦ کاراکتر شخصی من</strong><small>همراه اختصاصی خودت؛ بدون آواتار پیش‌فرض دیگران</small></button>'+
+   '</div><span class="ef-choose-note">تنظیمات حافظه و اجازه شخصی‌سازی در بخش تنظیمات سایت قرار دارد.</span></section>'+
   '<section class="ef-workspace" data-ef-workspace hidden>'+
    '<aside class="ef-sidebar"><button type="button" class="ef-new-chat" data-ef-new>＋ گفتگوی جدید</button>'+
      '<button type="button" class="ef-sidebar-link is-active" data-ef-chooser>✧ تغییر شخصیت</button>'+
-     '<button type="button" class="ef-sidebar-link" data-ef-memory>▤ حافظه شخصی</button>'+
+
      '<button type="button" class="ef-sidebar-link" data-ef-tools>✦ ابزارهای الارا</button>'+
      '<h4>پیام‌های اخیر</h4><div data-ef-recent class="ef-recent"></div>'+
      '<div class="ef-sidebar-footer"><span class="ef-live-pulse"></span><span>الارا آماده گفتگوه</span></div></aside>'+
-   '<main class="ef-main"><div class="ef-welcome"><span class="ef-welcome-overline">✦ ELARA AI COMPANION</span><h2 data-ef-heading>به دنیای الارا خوش اومدی</h2><p data-ef-subhead>می‌تونیم با هم حرف بزنیم، درس بخونیم و برنامه بچینیم.</p>'+
-    '<div class="ef-shortcuts"><button type="button" data-ef-prompt="برای این هفته برام برنامه‌ریزی کن">▦ برنامه‌ریزی روزانه</button>'+
-    '<button type="button" data-ef-prompt="برای یادگیری زبان بهم کمک کن">◎ تمرین زبان</button>'+
-    '<button type="button" data-ef-prompt="با هم برای هدف‌هام برنامه بچینیم">✧ ایده‌پردازی</button></div></div>'+
-    '<div class="ef-conversation"></div>'+
+   '<main class="ef-main"><div class="ef-conversation"></div>'+
    '</main>'+
    '<aside class="ef-art-column"><div class="ef-art-frame"><img data-ef-art src="'+FOX+'" alt="همراه الارا"><div class="ef-art-shimmer"></div><span class="ef-art-speech" data-ef-speech>من اینجام! هر چی توی ذهنت هست بپرس ♡</span></div>'+
     '<div class="ef-art-profile"><div><span class="ef-online-dot"></span><small>ONLINE · AI</small><strong data-ef-name>الارا فاکس</strong><p data-ef-description>همراه هوشمند تو</p></div><span class="ef-profile-star">✦</span></div>'+
@@ -110,7 +106,7 @@ function renderUI(){
  const button=overlay.querySelector('[data-ef-focus]');
  if(button){button.hidden=choosing;button.querySelector('span').textContent=focusMode?'نمایش پنل‌ها':'تمام‌صفحه';button.setAttribute('aria-pressed',String(focusMode));}
  overlay.querySelectorAll('[data-ef-chooser]').forEach(b=>b.hidden=choosing);
- overlay.querySelectorAll('[data-ef-memory]').forEach(b=>b.hidden=choosing);
+
  if(choosing)return;
  const p=persona(mode);
  const set=(q,v)=>{const el=overlay.querySelector(q);if(el)el.textContent=v};
@@ -118,7 +114,7 @@ function renderUI(){
  set('[data-ef-subhead]',p.desc);
  set('[data-ef-name]',p.name);set('[data-ef-description]',p.desc);
  set('[data-ef-speech]',mode==='character'?'من اینجام... از خیال‌هات تا برنامه‌های فردا باهاتم 💜':'سلام دوست من! بیا برای ایده‌هامون نقشه بکشیم ✨');
- const art=overlay.querySelector('[data-ef-art]');if(art){art.src=p.img;art.alt=p.name}
+ const art=overlay.querySelector('[data-ef-art]');if(art){art.src=FOX;art.alt='روباه الارا'}
  updateRecent();
 }
 function choose(value){
@@ -193,12 +189,6 @@ function start(){
   const p=target.closest('[data-ef-persona]');if(p){event.preventDefault();choose(p.dataset.efPersona);return}
   if(target.closest('[data-ef-chooser]')){chooser();return}
   if(target.closest('[data-ef-focus]')){toggleFocus();return}
-  if(target.closest('[data-ef-memory]')){
-   const m=overlay.querySelector('.freedom-ai-memory');
-   if(m){m.querySelector('details')?.setAttribute('open','');m.scrollIntoView({behavior:'smooth',block:'nearest'})}
-   else overlay.querySelector('[data-f-ai-host]')?.scrollIntoView({behavior:'smooth'});
-   return;
-  }
   const historyItem=target.closest('[data-ef-recent-at]');
   if(historyItem){window.ElaraFreedomAI?.showFromMessage?.(Number(historyItem.dataset.efRecentAt));return}
   if(target.closest('[data-ef-new]')){
