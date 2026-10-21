@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "policy": "Activates when model file exists; missing file falls back to the previous avatar.",
+  "policy": "Only real uploaded VRM models are displayed. A missing or broken model shows an error; no procedural avatar fallback.",
   "bases": {
     "female": {
       "id": "eli-female-v1",
@@ -11,7 +11,7 @@
     "male": {
       "id": "eli-male-v1",
       "label": "Elara · Male v1",
-      "status": "preview",
+      "status": "ready",
       "src": "assets/avatar/bases/eli-male-v1.vrm"
     }
   },
@@ -37,5 +37,5 @@
     "shoes": [],
     "hair": []
   },
-  "note": "The female VRM is hosted. The male VRM file must be placed at assets/avatar/bases/eli-male-v1.vrm; until then the existing procedural male is shown. User-selected avatar gender is independent of profile sex."
+  "note": "The real female and male VRM base files are both committed to assets/avatar/bases/. Avatar gender is selected independently of profile sex. Whole-outfit and garment-slot additions remain planned; browser visual quality validation is separate from asset presence."
 }
