@@ -490,5 +490,45 @@
       return false;
     }
   }
-  window.ElaraLiveVRM={tryMount,current:null,version:'vrm-wardrobe-preview-v1'};
+  window.ElaraLiveVRM={tryMount,current:null,version:'vrm-only-production-v2'};
+  // The retired procedural renderer used to discover/profile-mount the real
+  // VRM. Keep that responsibility here so its removal does not break the
+  // female model or the male model after the real asset is uploaded.
+  const pending=new WeakMap();
+  function discover(){
+    const stage=[...document.querySelectorAll('[data-elara-avatar-stage]')]
+      .find(node=>!node.closest('.elara-avatar-quick-modal')&&node.isConnected&&node.offsetParent!==null);
+    if(!stage||!enabled(stage)||window.ElaraLiveVRM.current?.stage===stage||
+      pending.has(stage)||stage.dataset.avatarMounted==='unavailable')return;
+    const job=(async()=>{
+      try{
+        const ok=await tryMount(stage);
+        if(!ok&&stage.isConnected){
+          stage.dataset.avatarMounted='unavailable';
+          const kind=currentKind(),el=stage.querySelector('[data-elara-avatar-status]');
+          if(el&&!el.textContent.trim()){
+            status(stage,kind==='male'?'مدل واقعی مرد هنوز در سایت وجود ندارد.':'مدل واقعی در دسترس نیست.','error');
+          }
+        }
+      }catch(error){
+        stage.dataset.avatarMounted='unavailable';
+        status(stage,'بارگذاری مدل واقعی انجام نشد.','error');
+        console.warn('Elara VRM-only stage load failed',error);
+      }finally{pending.delete(stage);}
+    })();
+    pending.set(stage,job);
+  }
+  window.addEventListener('elara:avatar-stage-ready',discover);
+  window.addEventListener('elara:profile-private-changed',()=>{
+    for(const stage of document.querySelectorAll('[data-elara-avatar-stage]')){
+      if(!stage.closest('.elara-avatar-quick-modal')&&stage.dataset.avatarMounted==='unavailable')
+        stage.dataset.avatarMounted='';
+    }
+    // A real mounted VRM already handles gender changes and disposes itself.
+    queueMicrotask(discover);
+  });
+  window.addEventListener('resize',discover,{passive:true});
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded',discover,{once:true});
+  else queueMicrotask(discover);
 })();
