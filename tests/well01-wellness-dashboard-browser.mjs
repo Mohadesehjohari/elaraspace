@@ -54,6 +54,8 @@ async function geometry(page){
 for(const w of [390,1440]){
  if(baseline){
   const before=await open(w,baseline);
+  // Dashboard modules load after their parent route: wait for actual baseline art.
+  await before.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
   await before.evaluate(()=>window.scrollTo(0,0));
   const beforeRect=await geometry(before);
   beforeGeometry.set(w,beforeRect);
