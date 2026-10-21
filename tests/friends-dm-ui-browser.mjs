@@ -26,7 +26,16 @@ async function run(width,height){
  await page.locator('[data-social-route="social"][data-social-view="chats"]').click();
  await page.waitForSelector('.social-dm-section');
  assert.equal(await page.locator('.social-dm-row').count(),1,width+': recent DM row missing');
- assert.equal(await page.locator('.social-dm-friend').count(),1,width+': friend start-chat card missing');
+ const friendCards=await page.locator('.social-dm-friend').count();
+ if(friendCards!==1)console.log('DM_FRIEND_DIAGNOSTIC '+JSON.stringify(await page.evaluate(()=>({
+  friends:window.ElaraSocial?.friends?.map(p=>({uid:p.uid,name:p.name}))||[],
+  me:window.ElaraSocial?.me?.uid,
+  dmReady:!!window.ElaraSocial?.dm,
+  startChatText:document.querySelector('.dm-friend-list')?.textContent?.slice(0,600),
+  friendListHTML:document.querySelector('.dm-friend-list')?.innerHTML?.slice(0,1100),
+  account:window.ElaraAccount?.user?.uid
+ }))));
+ assert.equal(friendCards,1,width+': friend start-chat card missing');
  await page.locator('.social-dm-row').click();
  await page.waitForSelector('.social-chat-head');
  const search=page.locator('[data-dm-search]');
