@@ -451,7 +451,10 @@
       poseBone('leftLowerArm',-.18,0,leftElbow);
       poseBone('rightLowerArm',-.18,0,rightElbow);
       poseBone('leftHand',.03*amp,0,-.035+Math.sin(t*.39)*.007*amp);
-      poseBone('rightHand',.03*amp,0,.035-Math.sin(t*.39+.7)*.007*amp);
+      // Show the palm (rather than the hand's thin side) during greeting.
+      // Preserve authored finger angles and gently turn the wrist only.
+      if(motion==='wave')poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
+      else poseBone('rightHand',.03*amp,0,.035-Math.sin(t*.39+.7)*.007*amp);
       // Keep the sculpted VRM hand and finger resting rotations. Artificial per-frame
       // finger curling distorted this model; authored relaxed fingers look better.
       const hips=bones.hips;
@@ -460,6 +463,7 @@
         // Local greeting is additive to the neutral arm pose.
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
         poseBone('rightLowerArm',-.22,0,.38);
+        poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
       }
       if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
       const p=(t-blinkStart)/blinkDuration;
@@ -470,13 +474,21 @@
       if(usingVRMA&&motion==='wave'){
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
         poseBone('rightLowerArm',-.22,0,.38);
+        poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
       }
       // Respect animation-authored facial tracks. Small closed-mouth expressions
       // are layered only for explicit smile/wave, not exaggerated happy=0.65.
-      const smiling=['smile','wave'].includes(motion);
-      if(smiling||!usingVRMA){
-        try{vrm.expressionManager?.setValue('happy',smiling?.12:0);}catch{}
-        try{vrm.expressionManager?.setValue('relaxed',smiling?.28:.06);}catch{}
+      const normalSmile=motion==='smile', cuteSmile=motion==='softSmile', greeting=motion==='wave';
+      if(normalSmile||cuteSmile||greeting||!usingVRMA){
+        const em=vrm.expressionManager;
+        // Softer closed-mouth expressions, without the overly open VRoid grin.
+        try{em?.setValue('happy',normalSmile?.075:cuteSmile?.025:greeting?.045:0);}catch{}
+        try{em?.setValue('relaxed',normalSmile?.23:cuteSmile?.19:greeting?.12:.045);}catch{}
+        if(normalSmile||cuteSmile||greeting){
+          for(const shape of ['aa','ih','ou','ee','oh']){
+            try{em?.setValue(shape,0);}catch{}
+          }
+        }
       }
       vrm.update(dt); // VRM lookAt, expressions and spring bones
       renderer.render(scene,camera);
