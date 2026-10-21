@@ -1,5 +1,5 @@
-/* Chrome acceptance: the header caret owns a VRM-only popup on both breakpoints.
-   Stub the large VRM download; the interface itself is tested with real browser CSS. */
+/* Header chevron is a small anchored, nonmodal full-body character viewer.
+   The existing profile provides a distinct fullscreen character action. */
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const origin=process.env.ELARA_TEST_URL||'http://127.0.0.1:4173';
@@ -26,11 +26,17 @@ try{
   await arrow.click();
   const popup=page.locator('.elara-avatar-quick-modal');
   await popup.waitFor({state:'visible',timeout:10000});
-  assert.equal(await popup.locator('[role="dialog"][aria-modal="true"]').isVisible(),true);
+  assert.equal(await popup.getAttribute('data-mode'),'popover');
+  assert.equal(await popup.locator('[role="dialog"][aria-modal="false"]').isVisible(),true);
+  assert.equal(await popup.locator('.elara-avatar-quick-backdrop').isVisible(),false,'Small popover must not dim/block the page');
+  assert.equal(await page.locator('body.elara-quick-avatar-open').count(),0,'Small popover must not lock body scroll');
   assert.equal(await popup.locator('[data-elara-avatar-stage]').isVisible(),true);
   assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0,'Profile/settings drawer MUST stay closed');
   const box=await popup.locator('.elara-avatar-quick-dialog').boundingBox();
-  assert.ok(box&&box.width>310&&box.height>425,'Standalone full-body popup too small '+JSON.stringify(box));
+  assert.ok(box&&box.width>=200&&box.width<=300&&box.height>=300&&box.height<=450,'Chevron popup must be compact '+JSON.stringify(box));
+  const arrowBox=await arrow.boundingBox();
+  assert.ok(arrowBox&&box.y>=arrowBox.y+arrowBox.height-2,'Popover must open directly under header chevron');
+  assert.ok(Math.abs(box.x+box.width-arrowBox.x-arrowBox.width)<=15,'Popover must align to the right edge of the chevron');
   assert.equal(await arrow.getAttribute('aria-expanded'),'true');
   await page.keyboard.press('Escape');
   await popup.waitFor({state:'hidden',timeout:7000});
@@ -40,7 +46,22 @@ try{
   await popup.locator('.elara-avatar-quick-close').click();
   await popup.waitFor({state:'hidden',timeout:7000});
   assert.equal(await page.locator('.elara-private-drawer:not(.hidden)').count(),0,'Closing character must not open profile');
-  console.log('ELARA_AVATAR_STANDALONE_MODAL_PASS '+width);
+  // Profile view stays independent and exposes the only fullscreen action.
+  await page.evaluate(()=>window.ElaraPrivateDrawer.open('home'));
+  const drawer=page.locator('.elara-private-drawer:not(.hidden)');
+  await drawer.waitFor({state:'visible'});
+  const expand=drawer.locator('[data-elara-avatar-fullscreen]');
+  await expand.waitFor({state:'visible'});
+  await expand.click();
+  await popup.waitFor({state:'visible'});
+  assert.equal(await popup.getAttribute('data-mode'),'fullscreen');
+  assert.equal(await popup.locator('[role="dialog"][aria-modal="true"]').isVisible(),true);
+  const fullBox=await popup.locator('.elara-avatar-quick-dialog').boundingBox();
+  assert.ok(fullBox&&fullBox.width>=width*.75&&fullBox.height>=700,'Profile button should open the large character viewer');
+  await page.keyboard.press('Escape');
+  await popup.waitFor({state:'hidden'});
+  assert.equal(await drawer.isVisible(),true,'Profile must remain open after closing fullscreen character');
+  console.log('ELARA_AVATAR_COMPACT_CHEVRON_AND_PROFILE_FULLSCREEN_PASS '+width);
   await page.close();
  }
 }finally{await browser.close();}
