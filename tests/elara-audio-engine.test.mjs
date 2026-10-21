@@ -13,7 +13,7 @@ for(const file of ['elara-audio.js','elara-audio.css']) {
  assert.ok(manifest.files.includes(file),'production file list missing '+file);
  assert.ok(manifest.required.includes(file),'production required list missing '+file);
 }
-assert.match(source,/ui:\\[360,\\.055,\\.021\\]/,'gentle UI click waveform configuration missing');
+assert.ok(source.includes('ui:[360,.055,.021]'),'gentle UI click waveform configuration missing');
 assert.doesNotMatch(source,/ElevenLabs|voiceId|speechSynthesis|TextToSpeech/);
 
 let starts=0;
