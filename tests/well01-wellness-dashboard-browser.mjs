@@ -65,6 +65,9 @@ for(const w of [390,1440]){
 for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
+ const dash=page.locator('#well01-dashboard');
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.waitForTimeout(110);
  // Seeding a completed workout can legitimately trigger a full-screen achievement dialog.
  // A modal is SUPPOSED to intercept clicks until dismissed. Verify its real close control,
  // then test the header's own click target (rather than masking overlays with CSS).
@@ -76,9 +79,7 @@ for(const width of widths){
   await rewardModal.waitFor({state:'detached',timeout:6000});
  }
 
- const dash=page.locator('#well01-dashboard');
- await page.evaluate(()=>window.scrollTo(0,0));
- await page.waitForTimeout(110);
+
  if([390,412,1440].includes(width)){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
