@@ -8,7 +8,7 @@ try{
   const context=await browser.newContext({viewport:{width,height:900}});
   const page=await context.newPage();
   await page.goto(url+'/?audio-mixer-test='+width+'#home',{waitUntil:'domcontentloaded',timeout:45000});
-  await page.waitForFunction(()=>!!window.ElaraAudio,{timeout:30000});
+  await page.waitForFunction(()=>!!window.ElaraAudio && !document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:30000});
   await page.waitForSelector('#panel-settings [data-elara-audio-host]',{state:'attached',timeout:30000});
   // Only expose the canonical Settings tab without requiring a personal account
   // in this local acceptance test. Do not change product code or sound logic.
