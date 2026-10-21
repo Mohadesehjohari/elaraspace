@@ -690,3 +690,39 @@
     margin-top:10px!important;
   }
 }
+
+
+/* Narrow 320–359px is intentionally ONE column: do not squeeze the task
+   list into a 140px-wide side panel. At 360px+ retain the owner's two-column
+   hybrid layout. The task list still scrolls inside its own compact card. */
+@media (max-width:359px){
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid {
+   display:grid!important;direction:ltr!important;
+   grid-template-columns:minmax(0,1fr)!important;
+   grid-template-areas:"streak" "tasks" "wellness" "goals"!important;
+   grid-template-rows:106px 190px 132px 150px!important;
+   grid-auto-rows:auto!important;
+   gap:8px!important;
+   height:auto!important;min-height:0!important;max-height:none!important;
+   align-items:stretch!important;overflow:visible!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > #ref-streak-card {
+   grid-area:streak!important;height:106px!important;min-height:0!important;max-height:106px!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > .owner-home-tasks {
+   grid-area:tasks!important;height:190px!important;min-height:0!important;max-height:190px!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > #ref-wellness-card {
+   grid-area:wellness!important;height:132px!important;min-height:0!important;max-height:132px!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid > .owner-home-goals {
+   grid-area:goals!important;height:150px!important;min-height:0!important;max-height:150px!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks,
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks>.ref-task-list {
+   min-width:0!important;min-height:0!important;overflow-x:hidden!important;
+ }
+ html body #panel-home.ref-home.owner-art-home .owner-home-tasks #elara-home-tasks>.ref-task-list {
+   overflow-y:auto!important;
+ }
+}
