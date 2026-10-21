@@ -39,7 +39,16 @@ async function geometry(page){
  const search=document.querySelector('#ref-search-input'),searchBox=search?.getBoundingClientRect();
  const cx=searchBox?searchBox.left+searchBox.width/2:0,cy=searchBox?searchBox.top+searchBox.height/2:0;
  const searchHit=searchBox?document.elementFromPoint(cx,cy):null;
- return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY};
+ return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY,
+  searchDiagnostics:{
+    search:searchBox?.toJSON?.()||null,
+    input:getComputedStyle(search).display,
+    hit:searchHit?{tag:searchHit.tagName,id:searchHit.id,cls:String(searchHit.className||'').slice(0,90)}:null,
+    hitStack:searchBox?document.elementsFromPoint(cx,cy).slice(0,6).map(el=>({tag:el.tagName,id:el.id,cls:String(el.className||'').slice(0,70)})):[],
+    topbarZ:getComputedStyle(document.querySelector('.workspace>.topbar')).zIndex,
+    searchContainer:getComputedStyle(document.getElementById('ref-header-search')).pointerEvents
+  }
+ };
  });
 }
 for(const w of [390,1440]){
@@ -63,7 +72,7 @@ for(const width of widths){
   const g=await page.evaluate(()=>{const hero=document.querySelector('#well01-dashboard .well01-hero'),bar=document.querySelector('.topbar'),panels=[...document.querySelectorAll('#well01-dashboard .well01-shortcut')].map(x=>x.getBoundingClientRect());return {hero:hero.getBoundingClientRect().toJSON(),header:bar?.getBoundingClientRect().toJSON(),shortcuts:panels.map(p=>({top:p.top,width:p.width,left:p.left}))}});
   console.log('WELL01_SHELL_'+width,JSON.stringify({heroTop:g.hero.top,heroHeight:g.hero.height,barBottom:g.header?.bottom,shortcuts:g.shortcuts}));
   const measure=await geometry(page);
-  console.log('WELL_HERO_TOP_AFTER_'+width,JSON.stringify({heroY:measure.hero.y,heroH:measure.hero.height,heroW:measure.hero.width,shortcutsY:measure.shortcut.y,cardsY:measure.features.y,headerY:measure.bar.y,headerBottom:measure.bar.bottom,appY:measure.app.y,copyY:measure.copy.y,ctaY:measure.cta.y,searchUnblocked:measure.searchUnblocked}));
+  console.log('WELL_HERO_TOP_AFTER_'+width,JSON.stringify({heroY:measure.hero.y,heroH:measure.hero.height,heroW:measure.hero.width,shortcutsY:measure.shortcut.y,cardsY:measure.features.y,headerY:measure.bar.y,headerBottom:measure.bar.bottom,appY:measure.app.y,copyY:measure.copy.y,ctaY:measure.cta.y,searchUnblocked:measure.searchUnblocked,searchDiagnostics:measure.searchUnblocked?undefined:measure.searchDiagnostics}));
   assert.ok(measure.hero.top<measure.bar.bottom-20,'header should float over hero image at '+width);
   assert.ok(measure.copy.top>=measure.bar.bottom-2,'hero heading must remain readable under header at '+width);
   assert.ok(measure.cta.top>=measure.bar.bottom-2,'hero CTA must not hide below header at '+width);
