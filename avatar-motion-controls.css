@@ -1,0 +1,34 @@
+/* Compact, illustrated pose thumbnails; only inside full profile/avatar stages. */
+[data-elara-avatar-stage] .elara-motion-gallery{
+  position:absolute!important;z-index:16!important;right:10px!important;top:53px!important;
+  width:88px;max-height:calc(100% - 116px);overflow:auto;overscroll-behavior:contain;
+  display:flex!important;flex-direction:column;gap:7px;
+  scrollbar-width:thin;pointer-events:auto;touch-action:pan-y;direction:rtl;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button{
+  cursor:pointer;flex:0 0 auto;min-height:83px;display:flex;flex-direction:column;gap:3px;
+  align-items:center;justify-content:center;width:100%;padding:4px 5px 6px;
+  border:1px solid #9a8be283;border-radius:12px;
+  background:#101b3be8;color:#f7edff;box-shadow:0 5px 14px #0008;
+  font:700 10px/1.3 Vazirmatn,Tahoma,sans-serif;
+}
+[data-elara-avatar-stage] .elara-motion-gallery img{
+  display:block!important;object-fit:contain!important;border-radius:9px;
+  width:60px!important;height:58px!important;max-width:100%!important;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button[aria-pressed="true"]{
+  background:#40316dec;border-color:#7ee3f4;box-shadow:0 0 10px #8f72ec66;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button:focus-visible{
+  outline:2px solid #88edff;outline-offset:2px;
+}
+/* Never clutter the small arrow's character-only popover. */
+.elara-avatar-quick-modal[data-mode="popover"] .elara-motion-gallery{display:none!important}
+@media(max-width:700px){
+  [data-elara-avatar-stage] .elara-motion-gallery{
+    top:65px!important;right:7px!important;width:74px;gap:5px;
+    max-height:calc(100% - 127px);
+  }
+  [data-elara-avatar-stage] .elara-motion-gallery button{min-height:71px;padding:3px 4px 5px;font-size:9px}
+  [data-elara-avatar-stage] .elara-motion-gallery img{width:52px!important;height:48px!important}
+}
