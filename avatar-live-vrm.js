@@ -124,7 +124,8 @@
       const vertical=bodyHeight/(2*Math.tan(angle)*.75);
       const horizontal=bodyWidth/(2*Math.tan(angle)*Math.max(.45,camera.aspect)*.77);
       danceFrame.distance=clamp(Math.max(6.6,vertical,horizontal),6.6,15);
-      danceFrame.centerY=clamp((minY+maxY)/2+.12,.58,3.7);
+      // A lowered camera target lifts a crouching/translated dancer in frame.
+      danceFrame.centerY=clamp((minY+maxY)/2-.08,-2.4,4.5);
       danceFrame.centerX=clamp((minX+maxX)/2,-1.1,1.1);
     }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -193,6 +194,9 @@
         const clip=createVRMAnimationClip(anim,vrm);
         if(!clip?.tracks?.length||!Number.isFinite(clip.duration)||clip.duration<=0)throw Error('Invalid VRMA clip');
         stopClip();
+        // An emote should begin in the full-body view even if the user
+        // previously zoomed into the face, torso or shoes.
+        selectFocus('full');
         if(!mixer)mixer=new THREE.AnimationMixer(vrm.scene);
         const next=mixer.clipAction(clip);
         next.reset().setLoop(THREE.LoopOnce,1);
