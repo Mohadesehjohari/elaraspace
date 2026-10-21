@@ -259,7 +259,7 @@
       const dt=Math.max(.001,Math.min(.05,(now-lastTime)/1000));lastTime=now;
       if(!stage.isConnected) {dispose();return;}
       if(stage.offsetParent===null||document.hidden||
-        (document.querySelector('.approved-wardrobe:not([hidden])')&&!stage.closest('.approved-wardrobe')))return;
+        (document.querySelector('.approved-wardrobe:not([hidden])')&&!stage.closest('.approved-wardrobe')&&!stage.closest('.elara-avatar-quick-modal')))return;
       elapsed+=dt;
       const amp=reduced?.12:1, t=elapsed;
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
