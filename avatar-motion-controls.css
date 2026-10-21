@@ -45,3 +45,31 @@
 [data-elara-avatar-stage] .elara-motion-gallery button[data-loading="true"]{
   border-color:#f9d17e!important;opacity:.75;cursor:progress!important;
 }
+
+/* Unified game-emote aesthetic: purple tiles, crisp white motion silhouettes. */
+[data-elara-avatar-stage] .elara-motion-gallery button{
+  border:1px solid #b38cff!important;
+  background:linear-gradient(165deg,#2b155c,#56259f)!important;
+  color:#fff!important;
+  box-shadow:0 6px 18px #07061e88, inset 0 1px #d7b5ff22!important;
+  border-radius:13px!important;
+  transition:border-color .15s,box-shadow .15s,transform .15s;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button img{
+  background:linear-gradient(155deg,#4522a6,#9c57ed)!important;
+  border-radius:10px!important;
+  box-shadow:inset 0 0 0 1px #ffffff2e!important;
+}
+[data-elara-avatar-stage] .elara-motion-gallery button[aria-pressed="true"]{
+  border:2px solid #f5e9ff!important;
+  background:linear-gradient(165deg,#6932c7,#8a4af2)!important;
+  box-shadow:0 0 16px #9c5effad,inset 0 1px #ffffff44!important;
+}
+@media(hover:hover){
+ [data-elara-avatar-stage] .elara-motion-gallery button:hover{
+   transform:translateY(-1px);border-color:#f1e4ff!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ [data-elara-avatar-stage] .elara-motion-gallery button{transition:none!important}
+}
