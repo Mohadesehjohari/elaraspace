@@ -1,15 +1,13 @@
-# Avatar motion source and usage
+# Elara avatar motion sources
 
-Elara uses `@pixiv/three-vrm-animation@3.5.5` (MIT) to retarget humanoid VRM Animation (`.vrma`) clips to each currently selected 3D VRM model. The player uses Three.js AnimationMixer; it does not override VRMA bone tracks with handmade trigonometric arm movements during playback.
+The three dance buttons load real VRM Animation (`.vrma`) clips from the public [ruslanmv/3D-Avatar-Chatbot](https://github.com/ruslanmv/3D-Avatar-Chatbot) repository, pinned at revision `2aa957f4dba43dc363a3d387b60df55b95bd2a91`:
 
-The configured **optional** external motion sources are maintained by [state-alchemists/zrb-face](https://github.com/state-alchemists/zrb-face):
-- `idle/Idle.vrma` — standing idle
-- `dance/Bounce.vrma` — dance 1
-- `dance/Sway.vrma` — dance 2
-- `dance/StepTouch.vrma` — dance 3
+- Dance rhythm: [dance_1.vrma](https://github.com/ruslanmv/3D-Avatar-Chatbot/blob/master/addons/vrma-dance/dance_1.vrma) (22.1 s)
+- Dance pop: [dance_2.vrma](https://github.com/ruslanmv/3D-Avatar-Chatbot/blob/master/addons/vrma-dance/dance_2.vrma) (20.4 s)
+- Dance energy: [dance_dab.vrma](https://github.com/ruslanmv/3D-Avatar-Chatbot/blob/master/addons/vrma-dance/dance_dab.vrma) (7.7 s)
 
-The zrb-face project describes its own generated/keyframed dances as **CC0**, while some other motions in its package may be third-party. Elara intentionally refers only to the above author-generated CC0 motions and does not redistribute the source files in this repository. Review source attribution and rights when swapping or adding clips. The current remote file URLs are configured in `avatar-live-vrm.js` and are subject to the source repository's availability and cross-origin access.
+All three files were verified to exist via the GitHub tree API, with nonzero file sizes. Their [source README](https://github.com/ruslanmv/3D-Avatar-Chatbot/blob/master/addons/vrma-dance/README.md) describes them as conversions from the repository's own BVH assets via the official bvh2vrma tool; it also warns that the *other*, Mixamo-derived clips aren't production-ready. The source repository's root LICENSE is Apache-2.0. Keep attribution and verify per-asset terms if replacing these recordings.
 
-**Important:** These external URLs have not yet been confirmed live in the user's deployed browser. If a URL fails to load or parse, the player logs a warning, does not claim a professional dance is playing, and gracefully returns to the standard character view. Do not label third-party animation files as CC0 without first verifying their individual license.
+The importer is the official `@pixiv/three-vrm-animation` loader and retargeter. Three.js `AnimationMixer` drives the original joint keys and expression tracks rather than handmade `Math.sin`-only arm swings. Local idle uses the target's normalized VRM bones and author-designed finger rest pose: no third-party idle is loaded, and an unreachable dance returns a visible error instead of silently changing back to idle.
 
-The official implementation guidance is in [pixiv three-vrm loader example](https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-animation/examples/loader-plugin.html); the VRMA specification is at [vrm.dev/en/vrma](https://vrm.dev/en/vrma/).
+**Deployment caveat:** The remote GitHub raw URLs and browser cross-origin delivery have not yet been verified against the user's running site. The acceptance tests exercise the local loading/failure state, but a live 3D visual review is still required for each model and motion.
