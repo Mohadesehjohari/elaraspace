@@ -60,38 +60,46 @@ function memoryControls(){
     +'</section>';
 }
 function ensurePrivacyCard(){
-  const panel=document.getElementById('panel-settings');if(!panel)return null;
+  const panel=document.getElementById('panel-settings');
+  const chatMount=document.querySelector('.freedom-fox-overlay[data-persona="fox"] [data-ef-settings-mount],.freedom-fox-overlay[data-persona="character"] [data-ef-settings-mount]');
+  if(!panel&&!chatMount)return null;
   let card=document.getElementById('elara-ai-privacy-settings');
   if(!card){
     card=document.createElement('section');
     card.id='elara-ai-privacy-settings';card.className='surface settings-card elara-ai-settings-card';
+  }
+  if(chatMount&&card.parentElement!==chatMount)chatMount.append(card);
+  else if(!chatMount&&panel&&card.parentElement!==panel){
     const theme=panel.querySelector('#elara-theme-settings-card');
     if(theme)theme.before(card);else panel.append(card);
   }
   return card;
 }
+function renderSettings(){
+  const user=window.ElaraAccount?.user,signed=!!user,personalize=signed&&personalizeEnabled();
+  const chatOpen=window.ElaraFreedomChatPage?.expanded===true;
+  if(chatOpen)settingsPersona=persona();
+  const settings=ensurePrivacyCard();if(!settings)return;
+  const cloudAvailable=!!(signed&&remote());
+  settings.innerHTML='<h2>تنظیمات و حافظه الارا</h2>'+
+    '<p class="muted">انتخاب‌ها فقط برای حساب تو ذخیره می‌شوند. حافظه الارا فاکس و کاراکتر جداست و جایگزین بکاپ Firebase نیست.</p>'+
+    '<label class="elara-ai-personalize elara-ai-consent"><input data-f-ai-personalize type="checkbox" aria-label="اجازه استفاده از بیو و هدف‌های شخصی" '+(personalize?'checked ':'')+(signed?'':'disabled')+'> اجازه استفاده از بیو، هدف‌ها و تسک‌های شخصی برای پاسخ بهتر</label>'+
+    '<p class="muted">اجازه اختیاری است و در هر ورود دوباره درخواست نمی‌شود. می‌توانی همین‌جا آن را تغییر بدهی.</p>'+
+    '<h3>حافظه شخصی گفتگو</h3>'+
+    '<div class="elara-ai-settings-personas" role="group" aria-label="حافظه هر شخصیت">'+
+    '<button type="button" data-f-ai-settings-persona="fox" aria-pressed="'+(settingsPersona==='fox')+'">🦊 فاکس</button>'+
+    '<button type="button" data-f-ai-settings-persona="character" aria-pressed="'+(settingsPersona==='character')+'">✦ کاراکتر</button></div>'+
+    (cloudAvailable?memoryControls():'<p class="muted">برای دیدن حافظه ابری باید وارد حساب خودت شده باشی و اتصال AI فعال باشد.</p>')+
+    '<p class="muted elara-ai-memory-warning">خاموش‌کردن یا حذف حافظه ابری، داده‌های همان شخصیت را از Cloudflare حذف می‌کند. قبل از تأیید بکاپ، این گزینه‌ها را استفاده نکن.</p>';
+}
 function render(){
   const h=host();
   const user=window.ElaraAccount?.user,signed=!!user,rows=visibleRows(),identity=signed?user.uid+':'+persona():'';
-  const personalize=signed&&personalizeEnabled();
   const needsMemoryLoad=!!(signed&&remote()&&memoryUid!==identity);
   if(!signed&&memoryUid||needsMemoryLoad){memoryUid=needsMemoryLoad?identity:'';memory={enabled:false,notes:[],history:[],summary:''};memoryMessage=needsMemoryLoad?'در حال بارگذاری حافظه شخصی…':'';memoryBusy=false;chatBusy=false;chatError='';}
   if(h)h.innerHTML='<div class="freedom-ai-thread">'+(rows.length?rows.map(r=>'<article data-f-ai-at="'+Number(r.at||0)+'" class="freedom-ai-message '+(r.role==='model'?'model':'user')+'"><small>'+esc(r.role==='model'?(r.name||'Elara AI'):'تو')+'</small><p dir="auto">'+esc(r.text)+'</p></article>').join(''):'<div class="freedom-ai-empty"><strong>Elara AI</strong><span>ایده‌ات را بنویس؛ پاسخ فقط وقتی ارسال می‌شود که خودت دکمهٔ ارسال را بزنی.</span></div>')+'</div>'
         +'<form class="freedom-ai-form" data-f-ai-form><textarea name="message" rows="2" maxlength="8000" placeholder="'+(signed?'با Elara حرف بزن…':'برای استفاده از AI وارد حساب شو')+'" '+(signed&&!chatBusy?'':'disabled')+'></textarea><div><button type="button" class="quiet-button" data-f-ai-clear '+(rows.length?'':'disabled')+'>پاک‌کردن گفتگو</button><button type="button" class="quiet-button" data-f-ai-task-plan '+(signed&&!chatBusy?'':'disabled')+' title="هدف، عادت، ریزقدم و تسک را بعد از تأیید تو مدیریت می‌کند">اجرای دستور در سایت</button><button type="submit" class="freedom-neon-button" '+(signed&&!chatBusy?'':'disabled')+'>ارسال پیام</button></div></form><p class="freedom-ai-status" data-f-ai-status>'+esc(chatError)+'</p>';
-  const settings=ensurePrivacyCard();
-  if(settings){
-    const cloudAvailable=!!(signed&&remote());
-    settings.innerHTML='<h2>حافظه و حریم خصوصی هوش مصنوعی الارا</h2>'+
-      '<p class="muted">این تنظیمات برای حساب فعلی است. حافظه الارا فاکس و کاراکتر جدا و در Cloudflare رمزگذاری می‌شود؛ این حافظه جایگزین بکاپ Firebase نیست.</p>'+
-      '<label class="elara-ai-personalize elara-ai-consent"><input data-f-ai-personalize type="checkbox" aria-label="اجازه استفاده از بیو و هدف‌های شخصی برای پیشنهادهای بهتر" '+(personalize?'checked ':'')+(signed?'':'disabled')+'> استفاده اختیاری از بیو و هدف‌ها برای پیشنهادهای شخصی‌تر</label>'+
-      '<p class="muted">اطلاعات پروفایل فقط با اجازه برای شخصی‌سازی فرستاده می‌شوند؛ اجازه پس از هر ورود دوباره درخواست نمی‌شود.</p>'+
-      '<h3>حافظه شخصی گفتگو</h3>'+
-      '<div class="elara-ai-settings-personas" role="group" aria-label="حافظه هر شخصیت">'+
-      '<button type="button" data-f-ai-settings-persona="fox" aria-pressed="'+(settingsPersona==='fox')+'">🦊 الارا فاکس</button>'+
-      '<button type="button" data-f-ai-settings-persona="character" aria-pressed="'+(settingsPersona==='character')+'">✦ کاراکتر شخصی</button></div>'+
-      (cloudAvailable?memoryControls():'<p class="muted">برای مشاهده حافظه ابری ابتدا وارد حساب خودت شو و اتصال AI را بررسی کن.</p>')+
-      '<p class="muted elara-ai-memory-warning">هشدار: خاموش‌کردن حافظه، داده‌های آن شخصیت را از Cloudflare حذف می‌کند. پیش از تأیید بکاپ از این گزینه استفاده نکن.</p>';
-  }
+  renderSettings();
   if(h){window.ElaraAIPlans?.mount?.(h);
     const thread=h.querySelector('.freedom-ai-thread');if(thread)thread.scrollTop=thread.scrollHeight;}
   if(needsMemoryLoad)void loadMemory(user.uid,persona());
@@ -209,7 +217,12 @@ document.addEventListener('change',e=>{
 document.addEventListener('click',e=>{
   const modeButton=e.target.closest?.('[data-f-ai-settings-persona]');
   if(modeButton&&['fox','character'].includes(modeButton.dataset.fAiSettingsPersona)){
-    e.preventDefault();settingsPersona=modeButton.dataset.fAiSettingsPersona;render();return;
+    e.preventDefault();
+    settingsPersona=modeButton.dataset.fAiSettingsPersona;
+    // Keep the active chat and its own Cloudflare namespace in sync with the settings view.
+    if(window.ElaraFreedomChatPage?.expanded===true)window.ElaraFreedomChatPage.choose(settingsPersona,{keepSettings:true});
+    else render();
+    return;
   }
   if(e.target.closest?.('[data-f-ai-task-plan]')){
     e.preventDefault();
@@ -241,7 +254,7 @@ document.addEventListener('click',e=>{
 for(const n of ['elara:freedom-rendered','elara:account-ready','elara:logout','elara:open'])window.addEventListener(n,()=>setTimeout(render,0));
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>setTimeout(render,0),{once:true}):setTimeout(render,0);
 window.ElaraFreedomAI={
-  render,
+  render,renderSettings,
   profileContext:()=>ownProfileContext(),
   mayPersonalize:()=>personalizeEnabled(),
   recent:()=>read(),
