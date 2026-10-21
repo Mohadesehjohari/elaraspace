@@ -93,7 +93,7 @@ try{
     assert.equal(fidelity.doubleSummary,false,'Extra Home summaries forbidden');
     assert.equal(fidelity.gear,false,'Settings gear forbidden');
     assert.equal(fidelity.main.length,4,'Exactly four primary cards');
-    assert.ok(fidelity.homeBackgrounds.every(x=>x.includes('assets/ui/')),'Some Home uploaded artwork missing');
+    assert.ok(fidelity.homeBackgrounds.every((bg,i)=>i===1 ? !!bg && bg!=='none' : bg.includes('assets/ui/')),'Home artwork missing on illustrated cards or the Tasks card lost its painted background');
     assert.ok(fidelity.img.hero>0&&fidelity.img.flame>0,'Home hero/flame did not decode');
     if(width>=1001){
       assert.ok(fidelity.heroTop>=-3&&fidelity.heroTop<=6,'Desktop Home artwork must continue under transparent header at '+width);
@@ -101,7 +101,7 @@ try{
       assert.ok(Math.max(...fidelity.main.map(x=>x.y))-Math.min(...fidelity.main.map(x=>x.y))<4,'Four Home cards not in same row at '+width);
     }
   }else{
-    assert.ok(fidelity.heroBackground.includes('task-header-banner-bg.webp'),'Tasks panoramic owner art missing');
+    assert.ok(fidelity.heroBackground.includes('tasks_banner3.webp'),'Approved tasks_banner3 panoramic artwork missing');
     assert.ok(width<=700
       ? fidelity.heroTop>=fidelity.headerBottom-3&&fidelity.heroTop<=fidelity.headerBottom+8
       : fidelity.heroTop>=-3&&fidelity.heroTop<=6,
@@ -109,7 +109,7 @@ try{
     assert.ok(fidelity.rows>=5,'Tasks fixture missing canonical items');
     assert.equal(fidelity.toolbarActions,true,'Add Task button absent');
     assert.equal(fidelity.richRows,true,'source-specific real tasks lost');
-    assert.ok(fidelity.rowSamples.some(x=>x.background.includes('task-mountain-bg.webp')),'Task mountain art not used');
+    assert.ok(fidelity.rowSamples.every(x=>x.background==='none'),'Task rows must use clean blue backgrounds, without legacy mountain artwork');
     assert.ok(fidelity.rowSamples.every(x=>typeof x.status==='string'),'Task status can be visually hidden in compact mode');
     assert.ok(fidelity.rowSamples.every(x=>x.titleFont>=12),'Task title accessibility regression');
     assert.equal(fidelity.navTasks,true,'Tasks navigation not active');
