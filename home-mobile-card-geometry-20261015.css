@@ -726,3 +726,36 @@
    overflow-y:auto!important;
  }
 }
+
+/* UI09: readable 360–389px hybrid. 320px retains its single-column stack,
+   while >=390px keeps the approved compact two-column dashboard. */
+@media (min-width:360px) and (max-width:389px){
+ html body.dark #panel-home.ref-home.owner-art-home .elara-dashboard-grid.ref-home-grid{
+  display:grid!important;direction:ltr!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:"streak tasks" "wellness wellness" "goals goals"!important;
+  grid-template-rows:181px 222px 200px!important;
+  grid-auto-rows:max-content!important;
+  gap:8px!important;
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > #ref-streak-card{
+  grid-area:streak!important;grid-column:1!important;grid-row:1!important;
+  height:181px!important;min-height:181px!important;max-height:181px!important;
+  padding:8px 7px!important;
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > .owner-home-tasks{
+  grid-area:tasks!important;grid-column:2!important;grid-row:1!important;
+  height:181px!important;min-height:181px!important;max-height:181px!important;
+  padding:8px!important;
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > #ref-wellness-card{
+  grid-area:wellness!important;grid-column:1/-1!important;grid-row:2!important;
+  width:100%!important;height:222px!important;min-height:222px!important;max-height:222px!important;
+  padding:8px!important;
+ }
+ html body.dark #panel-home.ref-home.owner-art-home .ref-home-grid > .owner-home-goals{
+  grid-area:goals!important;grid-column:1/-1!important;grid-row:3!important;
+  width:100%!important;height:200px!important;min-height:200px!important;max-height:200px!important;
+  padding:8px!important;
+ }
+}
