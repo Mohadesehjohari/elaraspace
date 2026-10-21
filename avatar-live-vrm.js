@@ -153,6 +153,9 @@
         loadedVRMA.delete(src);
         console.warn('Elara VRMA source unavailable:',name,error);
         if(token===motionRequest){
+          if(name==='idle'){
+            activeClip?.fadeOut(.25);activeClip=null;usingVRMA=false;
+          }
           // Never disguise a failed external download as an actual mocap dance.
           if(name.startsWith('dance')){
             motion='idle';motionUntil=0;stage.dataset.avatarMotion='idle';
