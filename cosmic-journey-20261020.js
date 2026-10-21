@@ -18,6 +18,7 @@
   const stars = overlay.querySelector('.cosmic-stars');
   const detail = overlay.querySelector('.cosmic-detail');
   let zoom = 1;
+  let cameraX = 0, cameraY = 0, cameraReady = false, dragging = null;
   let selected = null;
   let hydrated = null;
   let preferHydrated = false;
@@ -74,15 +75,63 @@
     const w=Math.max(900,viewport.clientWidth,items.length*185+240);
     const h=Math.max(570,viewport.clientHeight,Math.ceil(items.length/5)*330+230);
     universe.style.width=w+'px';universe.style.height=h+'px';
-    universe.style.transform='scale('+zoom+')';
+    if(!cameraReady){cameraReady=true;cameraX=(viewport.clientWidth-w*zoom)/2;cameraY=(viewport.clientHeight-h*zoom)/2;}
+    applyCamera();
     const positions=items.map((_,i)=>{const col=i%5,row=Math.floor(i/5);return {x:120+col*(w-240)/4,y:105+row*330+(col%2?125:0)};});
-    stars.innerHTML=items.map((item,i)=>{const p=positions[i],state=item.done?'done':item.current?'current':'next',stepsDone=item.steps.filter(isDone).length;return '<button type="button" class="cosmic-orb" data-cosmic-goal="'+escaped(item.goal.id)+'" data-state="'+state+'" style="left:'+p.x+'px;top:'+p.y+'px" aria-label="'+escaped(item.goal.title)+'، '+format.format(stepsDone)+' از '+format.format(item.steps.length)+' قدم"><span class="cosmic-orb-core" aria-hidden="true"></span><span class="cosmic-orb-title">'+escaped(item.goal.title||'هدف جدید')+'</span><span class="cosmic-orb-meta">'+(item.current?'✦ اینجای مسیر هستی':item.done?'✓ طی‌شده':format.format(stepsDone)+' / '+format.format(item.steps.length)+' قدم')+'</span></button>';}).join('');
+    stars.innerHTML=items.map((item,i)=>{const p=positions[i],state=item.done?'done':item.current?'current':'next',stepsDone=item.steps.filter(isDone).length;return '<button type="button" class="cosmic-orb" data-planet="'+(i%7)+'" data-cosmic-goal="'+escaped(item.goal.id)+'" data-state="'+state+'" style="left:'+p.x+'px;top:'+p.y+'px" aria-label="'+escaped(item.goal.title)+'، '+format.format(stepsDone)+' از '+format.format(item.steps.length)+' قدم"><span class="cosmic-orb-core" aria-hidden="true"></span><span class="cosmic-orb-title">'+escaped(item.goal.title||'هدف جدید')+'</span><span class="cosmic-orb-meta">'+(item.current?'✦ اینجای مسیر هستی':item.done?'✓ طی‌شده':format.format(stepsDone)+' / '+format.format(item.steps.length)+' قدم')+'</span></button>';}).join('');
     svg.setAttribute('viewBox','0 0 '+w+' '+h);
-    svg.innerHTML=positions.slice(1).map((p,i)=>{const a=positions[i],mid=(a.x+p.x)/2;return '<path d="M '+a.x+' '+a.y+' C '+mid+' '+(a.y-90)+' '+mid+' '+(p.y+90)+' '+p.x+' '+p.y+'"/>';}).join('');
+    const curve=(a,b,t)=>{const mid=(a.x+b.x)/2,u=1-t;return {x:u*u*u*a.x+3*u*u*t*mid+3*u*t*t*mid+t*t*t*b.x,y:u*u*u*a.y+3*u*u*t*(a.y-90)+3*u*t*t*(b.y+90)+t*t*t*b.y};};
+    const paths=positions.slice(1).map((p,i)=>{const a=positions[i],mid=(a.x+p.x)/2;return '<path d="M '+a.x+' '+a.y+' C '+mid+' '+(a.y-90)+' '+mid+' '+(p.y+90)+' '+p.x+' '+p.y+'"/>';}).join('');
+    const waypoints=positions.slice(1).map((p,i)=>[.18,.38,.62,.82].map(t=>{const q=curve(positions[i],p,t);return '<circle class="cosmic-waypoint" cx="'+q.x+'" cy="'+q.y+'" r="3.4"/>';}).join('')).join('');
+    let currentIndex=items.findIndex(x=>x.current);
+    if(currentIndex<0&&items.length)currentIndex=items.length-1;
+    let tracker='';
+    if(positions.length>1){const segment=Math.max(0,Math.min(positions.length-2,currentIndex-1)),active=items[Math.max(0,currentIndex)],fraction=(active?.steps.filter(isDone).length||0)/Math.max(1,active?.steps.length||1),t=currentIndex===0?.18+.38*fraction:.18+.65*fraction,q=curve(positions[segment],positions[segment+1],t);tracker='<circle class="cosmic-progress-halo" cx="'+q.x+'" cy="'+q.y+'" r="17"/><circle class="cosmic-progress-dot" cx="'+q.x+'" cy="'+q.y+'" r="8"/><text class="cosmic-progress-label" x="'+q.x+'" y="'+(q.y-28)+'" text-anchor="middle">اینجای مسیر</text>';}
+    svg.innerHTML=paths+waypoints+tracker;
     if(selected&&!detail.hidden)showDetail(selected);
   }
-  function open(){overlay.classList.add('is-open');document.body.style.overflow='hidden';selected=null;detail.hidden=true;render();viewport.scrollLeft=Math.max(0,(universe.offsetWidth-viewport.clientWidth)/2);viewport.focus({preventScroll:true});}
-  function close(){overlay.classList.remove('is-open');detail.hidden=true;selected=null;document.body.style.overflow='';}
+  function applyCamera(){
+    const w=universe.offsetWidth*zoom,h=universe.offsetHeight*zoom;
+    const clamp=(v,content,view)=>content<=view?(view-content)/2:Math.max(view-content-110,Math.min(110,v));
+    cameraX=clamp(cameraX,w,viewport.clientWidth);cameraY=clamp(cameraY,h,viewport.clientHeight);
+    universe.style.transform='translate3d('+cameraX+'px,'+cameraY+'px,0) scale('+zoom+')';
+  }
+  function zoomAt(next,x=viewport.clientWidth/2,y=viewport.clientHeight/2){
+    next=Math.max(.6,Math.min(2.3,next));if(next===zoom)return;
+    const ratio=next/zoom;cameraX=x-(x-cameraX)*ratio;cameraY=y-(y-cameraY)*ratio;zoom=next;applyCamera();
+  }
+  viewport.addEventListener('wheel',event=>{
+    if(!overlay.classList.contains('is-open'))return;
+    event.preventDefault();
+    const rect=viewport.getBoundingClientRect();
+    zoomAt(zoom*Math.exp(-event.deltaY*.0011),event.clientX-rect.left,event.clientY-rect.top);
+  },{passive:false});
+  viewport.addEventListener('pointerdown',event=>{
+    if(event.button!==0||event.target.closest('button,a,input,[role="button"]'))return;
+    dragging={id:event.pointerId,x:event.clientX,y:event.clientY,originX:cameraX,originY:cameraY};
+    viewport.classList.add('is-dragging');viewport.setPointerCapture(event.pointerId);
+  });
+  viewport.addEventListener('pointermove',event=>{
+    if(!dragging||dragging.id!==event.pointerId)return;
+    cameraX=dragging.originX+event.clientX-dragging.x;
+    cameraY=dragging.originY+event.clientY-dragging.y;applyCamera();
+  });
+  const stopDrag=event=>{
+    if(!dragging||dragging.id!==event.pointerId)return;dragging=null;
+    viewport.classList.remove('is-dragging');
+    if(viewport.hasPointerCapture(event.pointerId))viewport.releasePointerCapture(event.pointerId);
+  };
+  viewport.addEventListener('pointerup',stopDrag);
+  viewport.addEventListener('pointercancel',stopDrag);
+  function open(){
+    overlay.classList.add('is-open');document.body.style.overflow='hidden';selected=null;detail.hidden=true;
+    cameraReady=false;render();viewport.focus({preventScroll:true});
+    onCosmicOpen();
+  }
+  function close(){
+    overlay.classList.remove('is-open');detail.hidden=true;selected=null;document.body.style.overflow='';
+    onCosmicClose();
+  }
   window.ElaraCosmicJourney = {open,close,isOpen:()=>overlay.classList.contains('is-open')};
   const openButton=document.createElement('button');openButton.type='button';openButton.className='cosmic-control cosmic-dashboard-entry';openButton.textContent='✦ ادامه مسیر';openButton.setAttribute('aria-label','نمایش نقشه فضایی ادامه مسیر');
   const toolbar=panel.querySelector('.goal-dashboard-toolbar')||panel.querySelector('.section-heading');toolbar?.append(openButton);
@@ -94,7 +143,7 @@
     const action=b.dataset.cosmicAction;
     if(action==='back'){close();return;}
     if(action==='close-detail'){detail.hidden=true;selected=null;return;}
-    if(action==='zoom-in'||action==='zoom-out'){zoom=Math.max(.7,Math.min(1.4,zoom+(action==='zoom-in'?.15:-.15)));render();return;}
+    if(action==='zoom-in'||action==='zoom-out'){zoomAt(zoom*(action==='zoom-in'?1.2:1/1.2));return;}
     if(['edit-goal','add-step','edit-step','toggle-step'].includes(action)){
       if(!emitCanonical(b.dataset.goal,action,b.dataset.step)){close();return;}
       if(action!=='toggle-step'){close();return;}
@@ -105,5 +154,5 @@
   for(const name of ['elara:hydrate','elara:state-committed','elara:linked-state'])window.addEventListener(name,event=>{if(Array.isArray(event.detail?.goals)){hydrated=event.detail;preferHydrated=true;}requestAnimationFrame(render);});
   window.addEventListener('elara:data-changed',()=>{preferHydrated=false;requestAnimationFrame(render);});
   new MutationObserver(()=>{if(overlay.classList.contains('is-open'))requestAnimationFrame(render);}).observe(goalList,{childList:true});
-  window.addEventListener('resize',()=>{if(overlay.classList.contains('is-open'))render();});
+  window.addEventListener('resize',()=>{if(overlay.classList.contains('is-open')){cameraReady=false;render();}});
 })();
