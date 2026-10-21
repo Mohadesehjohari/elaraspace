@@ -96,7 +96,7 @@
         stage.dataset.avatarMounted='unavailable';
         // Keep the viewer empty until a REAL male/female VRM is present.
         const reason=stage.dataset.avatarFallbackReason;
-        message(reason==='male-vrm-not-ready'||reason==='vrm-download-or-render-failed'
+        message(stage.dataset.avatarKind==='male'||reason==='male-vrm-not-ready'
           ?'مدل واقعی مرد هنوز روی سایت بارگذاری نشده است.'
           :reason==='base-vrm-not-ready'?'فایل مدل واقعی موجود نیست.'
           :'مدل واقعی دریافت نشد. بارگذاری فایل را بررسی کنید.','error');
