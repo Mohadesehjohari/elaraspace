@@ -1,6 +1,5 @@
-/* Header chevron: independent character-only full-body dialog on every screen.
-   Never opens profile settings or the wardrobe. Prefer real VRM; use the project's
-   procedural 3D avatar until the selected VRM asset has been uploaded. */
+/* Header chevron: independent real-VRM-only full-body viewer.
+   No procedural avatar is ever mounted, even if a model file is missing. */
 (() => {
   'use strict';
   let root=null,stage=null,trigger=null,lastFocus=null,requestId=0;
@@ -52,7 +51,6 @@
     document.body.classList.remove('elara-quick-avatar-open');
     root.removeAttribute('data-mode');
     if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current.dispose();
-    window.ElaraProceduralPreview?.dispose?.(stage);
     stage.replaceChildren();
     stage.innerHTML='<div class="elara-avatar-viewport" data-elara-avatar-viewport></div>'+
       '<span class="elara-avatar-status" data-elara-avatar-status role="status"></span>';
@@ -92,24 +90,18 @@
       if(mine!==requestId||!visible())return;
       if(mounted){
         window.ElaraLiveVRM.current?.focus?.('full');
+        message('');
       }else{
-        // Keep the popup useful even before the user's exported VRM reaches GitHub.
-        const fallback=await window.ElaraProceduralPreview?.mount?.(stage);
-        if(mine!==requestId||!visible()){
-          window.ElaraProceduralPreview?.dispose?.(stage);return;
-        }
-        if(!fallback)message('نمایش سه‌بعدی در دسترس نیست. لطفاً دوباره امتحان کن.','error');
-        else message('');
+        // Keep the viewer empty until a REAL male/female VRM is present.
+        const reason=stage.dataset.avatarFallbackReason;
+        message(reason==='male-vrm-not-ready'||reason==='vrm-download-or-render-failed'
+          ?'مدل واقعی مرد هنوز روی سایت بارگذاری نشده است.'
+          :reason==='base-vrm-not-ready'?'فایل مدل واقعی موجود نیست.'
+          :'مدل واقعی دریافت نشد. بارگذاری فایل را بررسی کنید.','error');
       }
     }catch(error){
-      console.warn('Elara standalone VRM dialog:',error);
-      if(mine===requestId&&visible()){
-        try{
-          const fallback=await window.ElaraProceduralPreview?.mount?.(stage);
-          if(mine!==requestId||!visible()){window.ElaraProceduralPreview?.dispose?.(stage);return;}
-          if(fallback)message('');else message('نمایش سه‌بعدی ناموفق بود؛ دوباره تلاش کن.','error');
-        }catch{message('نمایش سه‌بعدی ناموفق بود؛ دوباره تلاش کن.','error');}
-      }
+      console.warn('Elara real-VRM-only dialog:',error);
+      if(mine===requestId&&visible())message('بارگذاری مدل واقعی ناموفق بود.','error');
     }
   }
   function toggle(button){
