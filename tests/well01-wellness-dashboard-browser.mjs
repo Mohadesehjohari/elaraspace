@@ -254,6 +254,14 @@ for(const width of widths){
    assert.equal(rows.length,2,'one and only one workout created');
    assert.equal(rows[1].note,'آرام و بدون فشار');
    assert.equal(await page.evaluate(()=>history.state?.elaraWorkoutModal||null),null,'closing removes transient modal history state');
+   // A successful workout can earn a real milestone popup. Acknowledge the
+   // modal before checking the next independent workout-form interaction.
+   const earned=page.locator('.elara-fox-overlay:visible');
+   for(let n=0;n<5&&await earned.count();n++){
+    await earned.locator('.elara-fox-close').click();
+    await page.waitForTimeout(80);
+   }
+   assert.equal(await earned.count(),0,'Workout milestone dialog must be dismissible');
    await dash.locator('.well01-metric-exercise [data-wellness-add="workout"]').click();
    await modal.waitFor();
    await modal.locator('[name="note"]').fill('لغو بدون ذخیره');
