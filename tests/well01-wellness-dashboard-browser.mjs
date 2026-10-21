@@ -65,6 +65,16 @@ for(const w of [390,1440]){
 for(const width of widths){
  const page=await open(width,base);
  await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
+ // A genuine first-visit milestone can display an accessible award dialog above
+ // the header. Verify that it is dismissible before testing the underlying
+ // header hit target; a modal is supposed to intercept pointer events.
+ const reward=page.locator('.elara-fox-overlay:visible');
+ if(await reward.count()){
+  const dismiss=reward.locator('.elara-fox-close');
+  assert.ok(await dismiss.count(),'Award overlay must include an accessible close button');
+  await dismiss.click();
+  await reward.waitFor({state:'hidden'});
+ }
  const dash=page.locator('#well01-dashboard');
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.waitForTimeout(110);
