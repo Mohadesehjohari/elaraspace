@@ -19,6 +19,7 @@ async function open(width,url,seed=true,touch=false){
  await page.waitForFunction(()=>window.ElaraOpen&&window.ElaraFeatureHubs&&!document.documentElement.hasAttribute('data-elara-booting'),{timeout:35000});
  await page.evaluate(()=>window.ElaraOpen('exercise'));
  await page.waitForSelector('#panel-exercise:not(.hidden)',{timeout:30000});
+ await page.waitForSelector('#panel-exercise:not(.hidden) #well01-dashboard .well01-hero',{timeout:30000});
  if(seed)await page.evaluate(({date})=>{
   window.ElaraAccount=window.ElaraAccount||{};window.ElaraAccount.user={...(window.ElaraAccount.user||{}),uid:'well01-qa'};
   if(window.ElaraSocial?.me)window.ElaraSocial.me.uid='well01-qa';
