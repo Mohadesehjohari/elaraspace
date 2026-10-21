@@ -1,0 +1,88 @@
+/* Elara Space — HOME ONLY: user-selected neon pixel galaxy + subtle glass cards.
+   This stylesheet is deliberately loaded last. Other tabs retain their original theme.
+   Never adjust the canonical dashboard's grid sizing, layout or card artwork. */
+
+@supports selector(body:has(#panel-home:not(.hidden))) {
+  /* Keep the wallpaper behind (not inside) every Home card. */
+  html body:has(#panel-home:not(.hidden)) {
+    background-color:#03071e!important;
+    background-image:linear-gradient(180deg,rgba(2,5,22,.10),rgba(3,6,24,.28)),url("assets/ui/home-neon-pixel-galaxy-20261022.webp")!important;
+    background-position:center center,center center!important;
+    background-size:cover,cover!important;
+    background-repeat:no-repeat,no-repeat!important;
+    background-attachment:fixed,fixed!important;
+  }
+  html body:has(#panel-home:not(.hidden)) :is(.shell,.workspace,#main,#panel-home) {
+    background-color:transparent!important;
+  }
+  html body:has(#panel-home:not(.hidden)) :is(.shell,.workspace,#main,#panel-home) {
+    background-image:none!important;
+  }
+  /* Opaque shell chrome previously hid the starfield completely. */
+  html body.dark:has(#panel-home:not(.hidden)) .shell > .sidebar {
+    background:rgba(4,13,37,.83)!important;
+    -webkit-backdrop-filter:blur(14px) saturate(125%)!important;
+    backdrop-filter:blur(14px) saturate(125%)!important;
+    border-color:rgba(115,143,245,.28)!important;
+  }
+  html body.dark:has(#panel-home:not(.hidden)) .workspace .topbar {
+    background:linear-gradient(90deg,rgba(5,17,43,.82),rgba(4,12,35,.78))!important;
+    -webkit-backdrop-filter:blur(12px)!important;
+    backdrop-filter:blur(12px)!important;
+    border-color:rgba(104,133,238,.22)!important;
+  }
+}
+
+/* The actual hero/banner and painted cards keep their original illustrations. */
+html body.dark #panel-home.ref-home.owner-art-home :is(
+  .ref-home-grid > .ref-card,
+  .ref-home-grid > .ref-streak-card,
+  #ref-bottom-grid > .ref-card,
+  #ref-bottom-grid > .ref-habits,
+  .ref-quick-card,
+  .ref-quick-link,
+  .ref-theme-strip
+) {
+  border-color:rgba(123,147,249,.42)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(118%)!important;
+  backdrop-filter:blur(12px) saturate(118%)!important;
+  box-shadow:inset 0 1px 0 rgba(220,231,255,.12),0 9px 28px rgba(1,6,25,.24),0 0 12px rgba(105,91,255,.09)!important;
+}
+
+/* Plain data cards: a restrained translucent navy tint keeps text legible while
+   the new galactic wallpaper shows through. Artwork cards are intentionally excluded. */
+html body.dark #panel-home.ref-home.owner-art-home :is(
+  .ref-home-grid > .ref-tasks,
+  #ref-bottom-grid > .ref-habits,
+  #ref-bottom-grid > .ref-achievements
+) {
+  background:linear-gradient(150deg,rgba(13,30,68,.84),rgba(6,17,42,.76))!important;
+  color:#f3f6ff!important;
+}
+
+/* Home quick launch tiles retain their built-in art; subtly glassy framing only. */
+html body.dark #panel-home.ref-home.owner-art-home :is(
+  .ref-home-grid > .ref-goals,
+  .ref-home-grid > .ref-wellness-card,
+  .ref-home-grid > .ref-streak-card,
+  #ref-bottom-grid > .ref-ranks,
+  .ref-quick-card
+) {
+  border-color:rgba(154,135,255,.38)!important;
+}
+
+/* Reduced GPU impact for smaller devices, without changing any mobile geometry. */
+@media (max-width:700px) {
+  html body.dark #panel-home.ref-home.owner-art-home :is(
+    .ref-home-grid > .ref-card,
+    .ref-home-grid > .ref-streak-card,
+    #ref-bottom-grid > .ref-card,
+    .ref-quick-card
+  ) {
+    -webkit-backdrop-filter:blur(6px)!important;
+    backdrop-filter:blur(6px)!important;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  html body:has(#panel-home:not(.hidden)) {background-attachment:scroll,scroll!important}
+}
