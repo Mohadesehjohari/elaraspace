@@ -6,7 +6,7 @@ The user shared `eli.vroid` (VRoid Studio 2.14 project, ~6 MB). This file contai
 
 ## Implemented on branch only
 
-- Desktop profile prefers real VRM over the existing procedural placeholder if an export has been published and enabled.
+- Desktop and mobile profiles use real VRM exports exclusively; no procedural placeholder can appear.
 - Three.js + `@pixiv/three-vrm` runtime, 360° horizontal drag and zoom.
 - Idle pose adjustment (arms lowered a little), breathing/head micro-motion, blink, and `vrm.update(dt)` for spring bones exported with the model.
 - Accessible in-profile **3D wardrobe** with selectable **whole-look VRMs** and per-account per-browser look selection.
@@ -44,6 +44,6 @@ The editable manifest `avatar/vrm-looks.json` registers full looks. Each full lo
 
 ## Validation
 
-JavaScript syntax compiled successfully for both `avatar-live-vrm.js` and modified `avatar-3d.js`; the JSON catalog and import map parse. **Actual VRM visual/render QA cannot run until a real exported .vrm exists**. Hair physics requires VRoid's bounce/spring settings exported into the VRM; pure scripts do not create detailed physics from the original proprietary `.vroid` project.
+The `avatar-3d.js` prototype was removed; JavaScript syntax for `avatar-live-vrm.js` is checked separately. the JSON catalog and import map parse. **Actual VRM visual/render QA cannot run until a real exported .vrm exists**. Hair physics requires VRoid's bounce/spring settings exported into the VRM; pure scripts do not create detailed physics from the original proprietary `.vroid` project.
 
 The real VRM path is pre-armed as `preview`, but only loads once the owner uploads the binary to `assets/avatar/bases/eli-female-v1.vrm`. Do not tell users the VRM is live prior to that upload.
