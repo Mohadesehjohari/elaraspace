@@ -42,11 +42,11 @@ async function geometry(page){
  return {hero:box,bar,copy,cta,eyebrow,shortcut,features,app,panel,searchUnblocked:!!search&&(searchHit===search||search.contains(searchHit)),scrollY:scrollY,
   searchDiagnostics:{
     search:searchBox?.toJSON?.()||null,
-    input:getComputedStyle(search).display,
+    input:search?getComputedStyle(search).display:'missing',
     hit:searchHit?{tag:searchHit.tagName,id:searchHit.id,cls:String(searchHit.className||'').slice(0,90)}:null,
     hitStack:searchBox?document.elementsFromPoint(cx,cy).slice(0,6).map(el=>({tag:el.tagName,id:el.id,cls:String(el.className||'').slice(0,70)})):[],
-    topbarZ:getComputedStyle(document.querySelector('.workspace>.topbar')).zIndex,
-    searchContainer:getComputedStyle(document.getElementById('ref-header-search')).pointerEvents
+    topbarZ:document.querySelector('.workspace>.topbar')?getComputedStyle(document.querySelector('.workspace>.topbar')).zIndex:'missing',
+    searchContainer:document.getElementById('ref-header-search')?getComputedStyle(document.getElementById('ref-header-search')).pointerEvents:'missing'
   }
  };
  });
