@@ -224,7 +224,7 @@
     viewport.replaceChildren(renderer.domElement);
 
     const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(29,1,.1,50);
-    const quick=quickViewer(stage),initialZ=quick?14.1:11.0;
+    const quick=!!stage.closest('.elara-avatar-quick-modal[data-mode="popover"]'),initialZ=quick?14.1:11.0;
     camera.position.set(0,3.05,initialZ);camera.lookAt(0,3.05,0);let cameraZ=initialZ;
     scene.add(new THREE.HemisphereLight(0xdce5ff,0x29354a,2.4));
     const key=new THREE.DirectionalLight(0xffe9e0,4.0);key.position.set(3.4,7.2,5.4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
