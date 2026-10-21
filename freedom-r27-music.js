@@ -57,7 +57,7 @@ function ensureProfileAudio(){
 }
 function songInfo(song){
  if(!song)return '<p class="r27-music-placeholder"><strong>♫</strong><span>'+tx('برای شروع، یک آهنگ جستجو یا آپلود کن.','Search for a song or upload your own audio.')+'</span></p>';
- return '<article class="r27-music-row"><img src="'+esc(song.artwork||SRC)+'" alt=""><div><strong dir="auto">'+esc(song.title||'آهنگ من')+'</strong><small dir="auto">'+esc(song.artist||'')+'</small><small>'+esc(song.localAudioKey?tx('فایل خصوصی این مرورگر','Private to this browser'):'Apple Preview')+'</small></div><button type="button" class="quiet-button" data-r27-remove>'+tx('برداشتن','Remove')+'</button><audio controls preload="none"></audio></article>';
+ return '<article class="r27-music-row"><img src="'+esc(song.artwork||SRC)+'" alt=""><div><strong dir="auto">'+esc(song.title||'آهنگ من')+'</strong><small dir="auto">'+esc(song.artist||'')+'</small><small>'+esc(song.localAudioKey?tx('فایل خصوصی این مرورگر','Private to this browser'):'Apple Preview')+'</small></div><button type="button" class="quiet-button" data-r27-remove>'+tx('برداشتن','Remove')+'</button><audio controls preload="none" data-elara-audio-channel="profile"></audio></article>';
 }
 async function openMusic(){
  const original=window.ElaraFreedomMediaDiary;
@@ -81,7 +81,7 @@ async function openMusic(){
   else if(pending.previewUrl)audio.src=pending.previewUrl;
  };
  const list=()=>{
-  results.innerHTML=rows.length?rows.map((song,i)=>'<article class="r27-music-row"><img src="'+esc(song.artwork||SRC)+'" alt=""><div><strong dir="auto">'+esc(song.title)+'</strong><small dir="auto">'+esc(song.artist)+'</small><small>Apple Preview</small></div><button type="button" data-r27-set="'+i+'">'+tx('انتخاب +','Choose +')+'</button><audio controls preload="none" src="'+esc(song.previewUrl)+'"></audio></article>').join(''):'<p class="r27-music-placeholder">'+tx('نتیجه‌ای دارای پیش‌نمایش پیدا نشد.','No preview results found.')+'</p>';
+  results.innerHTML=rows.length?rows.map((song,i)=>'<article class="r27-music-row"><img src="'+esc(song.artwork||SRC)+'" alt=""><div><strong dir="auto">'+esc(song.title)+'</strong><small dir="auto">'+esc(song.artist)+'</small><small>Apple Preview</small></div><button type="button" data-r27-set="'+i+'">'+tx('انتخاب +','Choose +')+'</button><audio controls preload="none" data-elara-audio-channel="profile" src="'+esc(song.previewUrl)+'"></audio></article>').join(''):'<p class="r27-music-placeholder">'+tx('نتیجه‌ای دارای پیش‌نمایش پیدا نشد.','No preview results found.')+'</p>';
  };
  box.querySelector('[data-r27-search]').addEventListener('submit',async e=>{
   e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;status.textContent=tx('در حال جستجوی Apple Preview…','Searching Apple Preview…');
