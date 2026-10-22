@@ -1,0 +1,82 @@
+name: Sync public Firestore SEO and optionally deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_to_pages:
+        description: 'Publish the entire assembled site to GitHub Pages (main branch only)'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: elara-public-seo-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure deployment is from main only
+        env:
+          PUBLISH: ${{ inputs.publish_to_pages }}
+        run: |
+          if [ "$PUBLISH" = "true" ] && [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::Live GitHub Pages deployment is restricted to main"
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify SEO generation and public snapshot rules
+        run: |
+          python -m unittest discover -s tests -p 'test_seo*.py' -v
+          node tests/test-seo-dashboard.mjs
+          node --input-type=module --check < admin/seo-manager.js
+      - name: Read published public content only
+        env:
+          FIREBASE_WEB_API_KEY: ${{ vars.ELARA_FIREBASE_WEB_API_KEY }}
+          ELARA_SEO_BASE_URL: ${{ vars.ELARA_SEO_BASE_URL }}
+        run: |
+          if [ -z "$FIREBASE_WEB_API_KEY" ] || [ -z "$ELARA_SEO_BASE_URL" ]; then
+            echo "::error::Configure ELARA_FIREBASE_WEB_API_KEY and ELARA_SEO_BASE_URL repository variables"
+            exit 1
+          fi
+          python tools/sync_public_seo.py \
+            --out seo-live/public-content.json \
+            --base-url "$ELARA_SEO_BASE_URL" \
+            --require-content
+      - name: Build static HTML, canonical metadata, sitemap and robots
+        run: |
+          python tools/build_seo.py --input seo-live/public-content.json --out seo-dist
+          python tools/assemble_pages_site.py --root . --seo seo-dist --out pages-dist
+      - name: Upload assembled site for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: elara-pages-site-review
+          path: pages-dist/
+          if-no-files-found: error
+      - name: Upload GitHub Pages deployment artifact
+        if: ${{ github.ref == 'refs/heads/main' && inputs.publish_to_pages }}
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages-dist/
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.publish_to_pages }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy_pages.outputs.page_url }}
+    steps:
+      - name: Deploy entire Elara Pages bundle
+        id: deploy_pages
+        uses: actions/deploy-pages@v4
