@@ -22,6 +22,8 @@ on:
       - 'tests/collab-invite-regression.test.mjs'
       - 'tests/collab-five-kind-contract.test.mjs'
       - 'tests/social-realtime-notification-contract.test.mjs'
+      - 'tests/social-core-reliability.test.mjs'
+      - 'firestore.indexes.json'
       - 'tests/presence-contract.test.mjs'
       - 'tests/challenge-core-contract.test.mjs'
       - 'tests/firestore-rules-emulator.mjs'
@@ -64,6 +66,7 @@ jobs:
           node --check tests/collab-invite-regression.test.mjs
           node --check tests/collab-five-kind-contract.test.mjs
           node --check tests/social-realtime-notification-contract.test.mjs
+          node --check tests/social-core-reliability.test.mjs
           node --check tests/presence-contract.test.mjs
           node --check tests/challenge-core-contract.test.mjs
       - name: Identity collaboration and friend lifecycle contracts
@@ -73,6 +76,7 @@ jobs:
           node tests/collab-invite-regression.test.mjs
           node tests/collab-five-kind-contract.test.mjs
           node tests/social-realtime-notification-contract.test.mjs
+          node tests/social-core-reliability.test.mjs
           node tests/presence-contract.test.mjs
           node tests/challenge-core-contract.test.mjs
           npm install --prefix tests --no-package-lock
