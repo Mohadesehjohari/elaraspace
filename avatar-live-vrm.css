@@ -102,7 +102,7 @@
 
 /* Tiny real-byte progress ring; an ETA is displayed only when the response has a known total. */
 [data-elara-avatar-stage] .elara-avatar-download{
-  position:absolute;z-index:17;left:12px;top:12px;display:flex;align-items:center;gap:7px;
+  position:absolute;z-index:17;right:96px;left:auto;top:12px;display:flex;align-items:center;gap:7px;
   max-width:calc(100% - 115px);padding:6px 9px;border:1px solid #ffffff5c;border-radius:999px;
   background:#111a34e8;color:#fff;box-shadow:0 3px 16px #0007;pointer-events:none;
   font:700 10px/1.35 Vazirmatn,Tahoma,sans-serif;direction:rtl;
