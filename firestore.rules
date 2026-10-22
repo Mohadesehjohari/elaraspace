@@ -192,7 +192,7 @@ service cloud.firestore {
     match /blogArticles/{articleId} {
       allow get, list: if isAdmin() || resource.data.status == 'published';
       allow create: if isPublisher()
-        && request.resource.data.keys().hasOnly(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.keys().hasOnly(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy','seoSlug','seoTitle','seoDescription','seoKeyword','seoNoindex'])
         && request.resource.data.keys().hasAll(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy'])
         && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
         && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
@@ -200,14 +200,16 @@ service cloud.firestore {
         && request.resource.data.category in ['planning','focus','habits','reading','wellbeing','productivity']
         && request.resource.data.locale in ['fa','en']
         && request.resource.data.status in ['draft','published']
-        && request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000
+
+        && (!request.resource.data.keys().hasAny(['seoSlug']) ||
+          (request.resource.data.seoSlug is string && request.resource.data.seoSlug.matches('^[a-z0-9][a-z0-9-]{1,79}
         && request.resource.data.readMinutes is int && request.resource.data.readMinutes >= 1 && request.resource.data.readMinutes <= 60
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
       allow update: if isPublisher()
-        && request.resource.data.keys().hasOnly(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.keys().hasOnly(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy','seoSlug','seoTitle','seoDescription','seoKeyword','seoNoindex'])
         && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
         && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
         && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 12000
@@ -223,15 +225,73 @@ service cloud.firestore {
       allow delete: if isPublisher();
     }
 
+)))
+        && (!request.resource.data.keys().hasAny(['seoTitle']) ||
+          (request.resource.data.seoTitle is string && request.resource.data.seoTitle.size() <= 160))
+        && (!request.resource.data.keys().hasAny(['seoDescription']) ||
+          (request.resource.data.seoDescription is string && request.resource.data.seoDescription.size() <= 300))
+        && (!request.resource.data.keys().hasAny(['seoKeyword']) ||
+          (request.resource.data.seoKeyword is string && request.resource.data.seoKeyword.size() <= 120))
+        && (!request.resource.data.keys().hasAny(['seoNoindex']) || request.resource.data.seoNoindex is bool)
+        && request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000
+        && request.resource.data.readMinutes is int && request.resource.data.readMinutes >= 1 && request.resource.data.readMinutes <= 60
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isPublisher()
+        && request.resource.data.keys().hasOnly(['title','excerpt','body','category','locale','status','coverUrl','readMinutes','createdAt','updatedAt','createdBy','updatedBy','seoSlug','seoTitle','seoDescription','seoKeyword','seoNoindex'])
+        && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
+        && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
+        && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 12000
+        && request.resource.data.category in ['planning','focus','habits','reading','wellbeing','productivity']
+        && request.resource.data.locale in ['fa','en']
+        && request.resource.data.status in ['draft','published']
+
+        && (!request.resource.data.keys().hasAny(['seoSlug']) ||
+          (request.resource.data.seoSlug is string && request.resource.data.seoSlug.matches('^[a-z0-9][a-z0-9-]{1,79}
+        && request.resource.data.readMinutes is int && request.resource.data.readMinutes >= 1 && request.resource.data.readMinutes <= 60
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isPublisher();
+    }
+
+)))
+        && (!request.resource.data.keys().hasAny(['seoTitle']) ||
+          (request.resource.data.seoTitle is string && request.resource.data.seoTitle.size() <= 160))
+        && (!request.resource.data.keys().hasAny(['seoDescription']) ||
+          (request.resource.data.seoDescription is string && request.resource.data.seoDescription.size() <= 300))
+        && (!request.resource.data.keys().hasAny(['seoKeyword']) ||
+          (request.resource.data.seoKeyword is string && request.resource.data.seoKeyword.size() <= 120))
+        && (!request.resource.data.keys().hasAny(['seoNoindex']) || request.resource.data.seoNoindex is bool)
+        && request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 1000
+        && request.resource.data.readMinutes is int && request.resource.data.readMinutes >= 1 && request.resource.data.readMinutes <= 60
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isPublisher();
+    }
+
     match /sitePages/{pageId} {
       allow get, list: if isAdmin() || resource.data.status == 'published';
       allow create: if isPublisher()
         && pageId.matches('^[a-z0-9][a-z0-9-]{1,79}$')
-        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy','seoTitle','seoDescription','seoKeyword','seoNoindex'])
         && request.resource.data.keys().hasAll(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
         && request.resource.data.slug == pageId
         && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
         && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
+
+        && (!request.resource.data.keys().hasAny(['seoTitle']) ||
+          (request.resource.data.seoTitle is string && request.resource.data.seoTitle.size() <= 160))
+        && (!request.resource.data.keys().hasAny(['seoDescription']) ||
+          (request.resource.data.seoDescription is string && request.resource.data.seoDescription.size() <= 300))
+        && (!request.resource.data.keys().hasAny(['seoKeyword']) ||
+          (request.resource.data.seoKeyword is string && request.resource.data.seoKeyword.size() <= 120))
+        && (!request.resource.data.keys().hasAny(['seoNoindex']) || request.resource.data.seoNoindex is bool)
         && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 16000
         && request.resource.data.locale in ['fa','en']
         && request.resource.data.status in ['draft','published']
@@ -240,10 +300,18 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
       allow update: if isPublisher()
-        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy'])
+        && request.resource.data.keys().hasOnly(['slug','title','excerpt','body','locale','status','createdAt','updatedAt','createdBy','updatedBy','seoTitle','seoDescription','seoKeyword','seoNoindex'])
         && request.resource.data.slug == pageId
         && request.resource.data.title is string && request.resource.data.title.size() >= 2 && request.resource.data.title.size() <= 160
         && request.resource.data.excerpt is string && request.resource.data.excerpt.size() >= 2 && request.resource.data.excerpt.size() <= 500
+
+        && (!request.resource.data.keys().hasAny(['seoTitle']) ||
+          (request.resource.data.seoTitle is string && request.resource.data.seoTitle.size() <= 160))
+        && (!request.resource.data.keys().hasAny(['seoDescription']) ||
+          (request.resource.data.seoDescription is string && request.resource.data.seoDescription.size() <= 300))
+        && (!request.resource.data.keys().hasAny(['seoKeyword']) ||
+          (request.resource.data.seoKeyword is string && request.resource.data.seoKeyword.size() <= 120))
+        && (!request.resource.data.keys().hasAny(['seoNoindex']) || request.resource.data.seoNoindex is bool)
         && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 16000
         && request.resource.data.locale in ['fa','en']
         && request.resource.data.status in ['draft','published']
