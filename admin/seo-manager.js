@@ -62,7 +62,7 @@ export function refreshSeoStudio(data){
 }
 function iso(v){try{return v?.toDate?.().toISOString()||null}catch{return null}}
 function publicRow(r,k){
-  const x={slug:slug(r,k),locale:locale(r),title:String(r.title||''),excerpt:String(r.excerpt||''),body:String(r.body||''),seoTitle:title(r),seoDescription:descr(r),seoKeyword:String(r.seoKeyword||''),updatedAt:iso(r.updatedAt),createdAt:iso(r.createdAt)};
+  const x={status:'published',seoNoindex:false,slug:slug(r,k),locale:locale(r),title:String(r.title||''),excerpt:String(r.excerpt||''),body:String(r.body||''),seoTitle:title(r),seoDescription:descr(r),seoKeyword:String(r.seoKeyword||''),updatedAt:iso(r.updatedAt),createdAt:iso(r.createdAt)};
   if(k==='blog'){x.category=String(r.category||'productivity');x.coverUrl=/^https:\/\/\S+$/i.test(r.coverUrl||'')?String(r.coverUrl):''}
   return x;
 }
