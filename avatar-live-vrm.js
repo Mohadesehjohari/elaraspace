@@ -99,34 +99,45 @@
     let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full', motion='idle', motionStarted=0, motionUntil=0;
     const focusHeights={full:.52,face:.865,torso:.63,legs:.30};
     const focusDistance={full:4.6,face:1.25,torso:2.3,legs:2.6};
-    // Dance root motion can leave a static camera frame. Sample animated joint
-    // bounds at 10 Hz; move the camera smoothly without altering the real dance.
-    const danceFrame={distance:7.6,centerX:0,centerY:1.05,lastSample:-1};
-    const danceJoints=['head','leftHand','rightHand','leftLowerArm','rightLowerArm',
-      'hips','leftFoot','rightFoot','leftLowerLeg','rightLowerLeg'];
+    // Safely frame the real animated VRMA silhouette at every rendered pose.
+    const danceFrame={distance:7.6,centerX:0,centerY:1.05,bounds:null};
+    const danceJoints=['head','neck','chest','hips','leftShoulder','rightShoulder',
+      'leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand',
+      'leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot'];
     const dancePoint=new THREE.Vector3();
+    function minimumDanceCameraZ(bounds,cameraX,cameraY,aspect,fov){
+      const tangent=Math.tan(fov*Math.PI/360);
+      const halfWidth=Math.max(Math.abs(bounds.minX-cameraX),Math.abs(bounds.maxX-cameraX));
+      const halfHeight=Math.max(Math.abs(bounds.minY-cameraY),Math.abs(bounds.maxY-cameraY));
+      // The nearest hand/foot depth matters for perspective, particularly on phones.
+      return bounds.maxZ+Math.max(
+        halfHeight/(tangent*.78),
+        halfWidth/(tangent*Math.max(.25,aspect)*.78)
+      );
+    }
     function sampleDanceFrame(time){
-      if(time-danceFrame.lastSample<.10)return;
-      danceFrame.lastSample=time;
+      // No 10 Hz throttling: a fast jump could occur entirely between samples.
       anchor.updateMatrixWorld(true);
-      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,count=0;
+      const cos=Math.cos(yaw),sin=Math.sin(yaw);
+      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,maxZ=-Infinity,count=0;
       for(const name of danceJoints){
         const joint=bones[name]?.node;if(!joint)continue;
         joint.getWorldPosition(dancePoint);
         anchor.worldToLocal(dancePoint);
-        minX=Math.min(minX,dancePoint.x);maxX=Math.max(maxX,dancePoint.x);
-        minY=Math.min(minY,dancePoint.y);maxY=Math.max(maxY,dancePoint.y);count++;
+        const worldX=cos*dancePoint.x+sin*dancePoint.z;
+        const worldZ=-sin*dancePoint.x+cos*dancePoint.z;
+        minX=Math.min(minX,worldX);maxX=Math.max(maxX,worldX);
+        minY=Math.min(minY,dancePoint.y);maxY=Math.max(maxY,dancePoint.y);
+        maxZ=Math.max(maxZ,worldZ);count++;
       }
       if(count<3)return;
-      const bodyHeight=Math.max(2.2,maxY-minY+.56);
-      const bodyWidth=Math.max(1.65,maxX-minX+.7);
-      const angle=camera.fov*Math.PI/360;
-      const vertical=bodyHeight/(2*Math.tan(angle)*.75);
-      const horizontal=bodyWidth/(2*Math.tan(angle)*Math.max(.45,camera.aspect)*.77);
-      danceFrame.distance=clamp(Math.max(6.6,vertical,horizontal),6.6,15);
-      // A lowered camera target lifts a crouching/translated dancer in frame.
-      danceFrame.centerY=clamp((minY+maxY)/2-.08,-2.4,4.5);
-      danceFrame.centerX=clamp((minX+maxX)/2,-1.1,1.1);
+      // Joints lie inside the silhouette: reserve space for hair, hands and shoes.
+      const bounds={minX:minX-.36,maxX:maxX+.36,minY:minY-.34,maxY:maxY+.34,maxZ:maxZ+.42};
+      danceFrame.bounds=bounds;
+      danceFrame.centerX=(bounds.minX+bounds.maxX)/2;
+      danceFrame.centerY=(bounds.minY+bounds.maxY)/2-.08;
+      danceFrame.distance=Math.max(6.6,minimumDanceCameraZ(
+        bounds,danceFrame.centerX,danceFrame.centerY,camera.aspect,camera.fov));
     }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
@@ -170,7 +181,7 @@
     }
     function stopClip(){
       activeClip?.stop();mixer?.stopAllAction();
-      activeClip=null;usingVRMA=false;
+      activeClip=null;usingVRMA=false;danceFrame.bounds=null;
       restoreBoneDefaults();
     }
     async function applyClip(name,token){
@@ -197,6 +208,7 @@
         // An emote should begin in the full-body view even if the user
         // previously zoomed into the face, torso or shoes.
         selectFocus('full');
+        danceFrame.bounds=null;
         if(!mixer)mixer=new THREE.AnimationMixer(vrm.scene);
         const next=mixer.clipAction(clip);
         next.reset().setLoop(THREE.LoopOnce,1);
@@ -398,18 +410,8 @@
       }
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
-      const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
       const dancingNow=usingVRMA&&motion.startsWith('dance');
-      if(dancingNow)sampleDanceFrame(t);
-      const normalDistance=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
-      const dest=dancingNow&&focus==='full'?Math.max(normalDistance,danceFrame.distance*zoom):normalDistance;
-      const targetHeight=dancingNow&&focus==='full'?danceFrame.centerY:height*focusHeights[focus];
-      const targetX=dancingNow&&focus==='full'?danceFrame.centerX:0;
-      const cameraFollow=1-Math.exp(-dt*(dancingNow?3.1:4.5));
-      camera.position.z+=(dest-camera.position.z)*cameraFollow;
-      camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
-      camera.position.x+=(targetX-camera.position.x)*cameraFollow;
-      camera.lookAt(camera.position.x,targetHeight,0);
+      if(dancingNow&&focus!=='full')selectFocus('full');
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
@@ -495,6 +497,25 @@
         }
       }
       vrm.update(dt); // VRM lookAt, expressions and spring bones
+      // Fit AFTER the current pose, accounting for yaw and world-space depth.
+      if(dancingNow)sampleDanceFrame(t);
+      const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
+      const normalDistance=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
+      const fitted=dancingNow&&focus==='full'&&danceFrame.bounds;
+      const dest=fitted?Math.max(normalDistance,danceFrame.distance*Math.max(1,zoom)):normalDistance;
+      const targetHeight=fitted?danceFrame.centerY:height*focusHeights[focus];
+      const targetX=fitted?danceFrame.centerX:0;
+      const cameraFollow=1-Math.exp(-dt*(fitted?9:4.5));
+      camera.position.z+=(dest-camera.position.z)*cameraFollow;
+      camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
+      camera.position.x+=(targetX-camera.position.x)*cameraFollow;
+      if(fitted){
+        // Smoothly move the camera, but expand the view immediately for a jump.
+        camera.position.z=Math.max(camera.position.z,minimumDanceCameraZ(
+          danceFrame.bounds,camera.position.x,camera.position.y,camera.aspect,camera.fov));
+      }
+      // Level dance projection matches the screen-space safety calculation.
+      camera.lookAt(camera.position.x,fitted?camera.position.y:targetHeight,0);
       renderer.render(scene,camera);
     }
     raf=requestAnimationFrame(frame);
