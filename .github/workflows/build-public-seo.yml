@@ -1,0 +1,36 @@
+name: Build public SEO pages (review artifact)
+
+on:
+  pull_request:
+    paths:
+      - "admin/**"
+      - "firestore.rules"
+      - "seo/**"
+      - "tools/build_seo.py"
+      - "tests/test_seo_builder.py"
+      - ".github/workflows/build-public-seo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run SEO builder tests
+        run: python -m unittest discover -s tests -p 'test_seo_builder.py' -v
+      - name: Generate static public pages
+        run: python tools/build_seo.py --input seo/public-content.json --out seo-dist
+      - name: Upload review-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: elara-seo-static-pages
+          path: seo-dist/
+          if-no-files-found: error
