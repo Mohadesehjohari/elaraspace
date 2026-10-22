@@ -22,7 +22,7 @@ async function run(width,height){
  await page.goto(base+'/?focus-stage13='+Date.now()+'#focus-ambience',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.ElaraFocusAmbience&&document.querySelector('#panel-focus-ambience:not(.hidden) #focus-ambience')&&!document.documentElement.hasAttribute('data-elara-booting'),null,{timeout:20000});
  await page.locator('#focus-ambience').waitFor({state:'visible',timeout:10000});
- assert.equal(await page.locator('[data-ambience-mode]').count(),4,width+': ambience modes missing');
+ assert.equal(await page.locator('[data-ambience-mode]').count(),6,width+': six natural focus choices missing');
  await page.locator('[data-ambience-mode="forest"]').click();
  await page.locator('[data-ambience-volume]').fill('55');
  let cfg=await page.evaluate(()=>JSON.parse(localStorage.getItem('elara_focus_ambience_v1')));
