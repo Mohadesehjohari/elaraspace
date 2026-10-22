@@ -124,7 +124,9 @@ async function diagnoseSocialConnection(){
   try{const result=await job();lines.push(label+': ✓ '+result);return true}
   catch(error){lines.push(label+': ✕ '+String(error?.code||error?.identityCode||error?.name||'error').slice(0,65));return false}
  };
- const person=await getDoc(doc(db,'profiles',current.uid)).catch(error=>({exists:()=>{throw error}}));
+ let person;
+ try{person=await getDoc(doc(db,'profiles',current.uid))}
+ catch(error){lines.push('پروفایل شخصی: ✕ '+String(error?.code||error?.name||'error'));return lines.join('\n')}
  if(!person.exists()){lines.push('پروفایل شخصی: پیدا نشد');return lines.join('\n')}
  lines.push('پروفایل شخصی: ✓ موجود است');
  await test('شناسه نام کاربری',async()=>{await assertProfileUsernameClaim(current.uid,person.data());return 'معتبر'});
