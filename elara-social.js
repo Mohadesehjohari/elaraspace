@@ -114,6 +114,42 @@ async function refresh(){
 }
 window.ElaraSocial.refresh=refresh;
 
+// Read-only per-account Firebase connection diagnosis. Return statuses/counts
+// only; never include account IDs, emails, profile text or other users' data.
+async function diagnoseSocialConnection(){
+ const current=auth.currentUser,lines=[];
+ if(!current)return 'ورود Firebase: انجام نشده است.';
+ lines.push('Firebase Auth: '+(current.emailVerified?'تأییدشده':'ایمیل هنوز تأیید نشده'));
+ const test=async(label,job)=>{
+  try{const result=await job();lines.push(label+': ✓ '+result);return true}
+  catch(error){lines.push(label+': ✕ '+String(error?.code||error?.identityCode||error?.name||'error').slice(0,65));return false}
+ };
+ const person=await getDoc(doc(db,'profiles',current.uid)).catch(error=>({exists:()=>{throw error}}));
+ if(!person.exists()){lines.push('پروفایل شخصی: پیدا نشد');return lines.join('\n')}
+ lines.push('پروفایل شخصی: ✓ موجود است');
+ await test('شناسه نام کاربری',async()=>{await assertProfileUsernameClaim(current.uid,person.data());return 'معتبر'});
+ await test('درخواست‌های دریافتی',async()=>{
+  const rows=await getDocs(query(collection(db,'friendRequests'),where('to','==',current.uid)));return rows.size+' درخواست';
+ });
+ await test('درخواست‌های ارسالی',async()=>{
+  const rows=await getDocs(query(collection(db,'friendRequests'),where('from','==',current.uid)));return rows.size+' درخواست';
+ });
+ await test('گفتگوهای خصوصی',async()=>{
+  const rows=await getDocs(query(collection(db,'conversations'),where('members','array-contains',current.uid)));return rows.size+' گفتگو';
+ });
+ await test('عضویت گروه‌ها',async()=>{
+  const rows=await getDocs(query(collectionGroup(db,'groupMembers'),where('uid','==',current.uid)));return rows.size+' عضویت';
+ });
+ const friend=state.friends.find(p=>p.uid&&p.uid!==current.uid);
+ if(friend)await test('فعالیت دوستان',async()=>{
+  const rows=await getDocs(query(collection(db,'activities'),where('uid','==',friend.uid),where('visibility','in',['friends','public'])));
+  return rows.size+' فعالیت مجاز (از یک دوست)';
+ });
+ else lines.push('فعالیت دوستان: هنوز دوست تأییدشده‌ای در این نشست بارگذاری نشده');
+ return lines.join('\n');
+}
+window.ElaraSocial.diagnose=diagnoseSocialConnection;
+
 function stopFriendRequestRealtime(){
  for(const off of friendRealtime.unsubs)try{off?.()}catch{}
  friendRealtime={uid:'',unsubs:[],incoming:new Map(),outgoing:new Map(),seenIncoming:new Set(),ready:new Set()}
