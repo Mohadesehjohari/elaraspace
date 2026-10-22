@@ -140,6 +140,99 @@ async function loadCsv(event){
     el('seo-gsc-summary').replaceChildren();el('seo-gsc-results').replaceChildren();
   }finally{event.target.value=''}
 }
+
+// Google Identity Services: short-lived, read-only token; strictly memory-only.
+let googleAccessToken=null,googleExpiry=0,googleBusy=false;
+const GOOGLE_SCOPE='https://www.googleapis.com/auth/webmasters.readonly';
+function authStatus(message){el('seo-gsc-live-status').textContent=message}
+function setGscButtons(){
+  el('seo-gsc-reload').disabled=!googleAccessToken||Date.now()>=googleExpiry;
+  el('seo-gsc-disconnect').disabled=!googleAccessToken;
+}
+export function resetGscAccess(){
+  const previous=googleAccessToken;googleAccessToken=null;googleExpiry=0;setGscButtons();
+  if(previous&&globalThis.google?.accounts?.oauth2?.revoke){
+    globalThis.google.accounts.oauth2.revoke(previous,()=>{});
+  }
+}
+export function gscQueryUrl(property){
+  const site=String(property||'').trim();
+  if(!(site.startsWith('https://')||/^sc-domain:[a-z0-9.-]+$/i.test(site)))throw Error('Property باید آدرس HTTPS یا sc-domain: معتبر باشد.');
+  if(site.startsWith('https://')){
+    const url=new URL(site);
+    if(url.username||url.password||url.search||url.hash)throw Error('Property بدون رمز/query/hash وارد شود.');
+  }
+  return 'https://www.googleapis.com/webmasters/v3/sites/'+encodeURIComponent(site)+'/searchAnalytics/query';
+}
+function gscParams(){
+  const property=el('seo-gsc-property').value.trim();
+  const from=el('seo-gsc-from').value,to=el('seo-gsc-to').value;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!/^\d{4}-\d{2}-\d{2}$/.test(to)||from>to)throw Error('بازه تاریخ معتبر نیست.');
+  const dimension=el('seo-gsc-dimension').value;
+  if(!['query','page'].includes(dimension))throw Error('گروه‌بندی نامعتبر است.');
+  return {url:gscQueryUrl(property),body:{startDate:from,endDate:to,dimensions:[dimension],rowLimit:250,startRow:0},dimension};
+}
+export function normalizeGscRows(payload){
+  if(!payload||!Array.isArray(payload.rows))return [];
+  return payload.rows.slice(0,250).filter(r=>r&&Array.isArray(r.keys)&&Number.isFinite(r.clicks)&&Number.isFinite(r.impressions)&&Number.isFinite(r.position)).map(r=>({
+    name:String(r.keys[0]||'').slice(0,500),clicks:r.clicks,impressions:r.impressions,position:r.position
+  }));
+}
+async function loadLiveGsc(){
+  if(googleBusy)return;
+  googleBusy=true;el('seo-gsc-connect').disabled=true;el('seo-gsc-reload').disabled=true;
+  try{
+    if(!googleAccessToken||Date.now()>=googleExpiry)throw Error('نشست گوگل منقضی شده؛ دوباره از دکمه اتصال استفاده کن.');
+    const {url,body,dimension}=gscParams();
+    authStatus('در حال خواندن '+(dimension==='query'?'کلمات کلیدی':'صفحات')+' از Google Search Console…');
+    const response=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+googleAccessToken,'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+    if(!response.ok){
+      if(response.status===401){googleAccessToken=null;googleExpiry=0;setGscButtons()}
+      throw Error('خواندن گزارش گوگل ناموفق بود (HTTP '+response.status+'). مالکیت Property، OAuth origin و مجوز API را بررسی کن.');
+    }
+    const data=await response.json(),results=normalizeGscRows(data);
+    if(results.length){showCsv(results,'Google Search Console · '+dimension);authStatus('گزارش زنده: '+results.length+' ردیف از تاریخ '+body.startDate+' تا '+body.endDate+'؛ API ممکن است فقط ردیف‌های برتر را ارائه کند.')}
+    else{el('seo-gsc-summary').replaceChildren();el('seo-gsc-results').replaceChildren();authStatus('گوگل برای این فیلتر و بازه داده‌ای برنگرداند.');}
+  }catch(error){authStatus(error.message||'اتصال به گوگل ناموفق بود.')}
+  finally{googleBusy=false;el('seo-gsc-connect').disabled=false;setGscButtons()}
+}
+function connectLiveGsc(){
+  if(googleBusy)return;
+  try{
+    const clientId=el('seo-gsc-client-id').value.trim();
+    if(!/^[0-9]+-[a-z0-9-]+\.apps\.googleusercontent\.com$/i.test(clientId))throw Error('OAuth Web Client ID معتبر وارد کن.');
+    gscParams();
+    if(!globalThis.google?.accounts?.oauth2?.initTokenClient)throw Error('کتابخانه رسمی Google Identity Services بارگذاری نشده؛ اتصال شبکه و مسدودکننده‌ها را بررسی کن.');
+    // requestAccessToken must be called synchronously from the button gesture to allow popup.
+    const client=globalThis.google.accounts.oauth2.initTokenClient({
+      client_id:clientId,scope:GOOGLE_SCOPE,
+      callback:async response=>{
+        if(response.error||!response.access_token){authStatus('مجوز گوگل صادر نشد: '+String(response.error||'لغو اتصال'));return;}
+        if(!globalThis.google.accounts.oauth2.hasGrantedAllScopes(response,GOOGLE_SCOPE)){
+          authStatus('مجوز خواندن Search Console داده نشد.');return;
+        }
+        googleAccessToken=response.access_token;
+        googleExpiry=Date.now()+Math.max(30,Number(response.expires_in||3500)-90)*1000;
+        setGscButtons();await loadLiveGsc();
+      },
+      error_callback:error=>authStatus('پنجره Google بسته یا مسدود شد: '+String(error?.type||'نامشخص'))
+    });
+    client.requestAccessToken({prompt:'consent'});
+  }catch(error){authStatus(error.message||'اتصال ناموفق بود')}
+}
+function initGscControls(){
+  const to=new Date();to.setUTCDate(to.getUTCDate()-3);
+  const from=new Date(to);from.setUTCDate(from.getUTCDate()-27);
+  el('seo-gsc-from').value=from.toISOString().slice(0,10);
+  el('seo-gsc-to').value=to.toISOString().slice(0,10);
+  el('seo-gsc-property').value=new URL('../',location.href).href;
+  el('seo-gsc-connect').addEventListener('click',connectLiveGsc);
+  el('seo-gsc-reload').addEventListener('click',loadLiveGsc);
+  el('seo-gsc-disconnect').addEventListener('click',()=>{
+    resetGscAccess();authStatus('دسترسی گوگل قطع شد و توکن از حافظه حذف گردید.');
+  });
+}
+
 export function setupSeoStudio(config){
   actions=config;
   const input=el('seo-base-url');
@@ -147,4 +240,5 @@ export function setupSeoStudio(config){
   el('seo-refresh').addEventListener('click',()=>actions.reload());
   el('seo-export').addEventListener('click',exportJson);
   el('seo-gsc-file').addEventListener('change',loadCsv);
+  initGscControls();
 }
