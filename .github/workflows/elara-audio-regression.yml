@@ -3,6 +3,12 @@ on:
   pull_request:
     paths:
       - 'elara-audio.js'
+      - 'app.js'
+      - 'goals-dashboard-20261019.js'
+      - 'focus-inline-ambience-04.css'
+      - 'tests/goals-dashboard-browser.mjs'
+      - 'tests/focus-inline-ambience-04-browser.mjs'
+      - 'docs/AUDIO-SOURCES.md'
       - 'elara-audio.css'
       - 'focus-ambience.js'
       - 'freedom-r27-music.js'
@@ -42,3 +48,4 @@ jobs:
           python3 -m http.server 4173 >/tmp/elara-audio-browser.log 2>&1 &
           sleep 3
           node tests/elara-audio-settings-browser.mjs
+          node tests/goals-dashboard-browser.mjs
