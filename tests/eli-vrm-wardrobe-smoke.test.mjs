@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-v8'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -177,7 +177,7 @@ test('face is not forced back to full view mid-dance; vertical orbit and reset c
   assert.ok(live.includes("focusHeight=focusTargetPoint.y+.015"));
   assert.ok(live.includes("data-live-action=\"reset\""));
   assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
-  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-v8'));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
 });
 test('per-account real GLB cache survives page script reload without redownloading',async()=>{
   const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
@@ -254,6 +254,7 @@ test('browser QA checks the six actual VRMA/gender pairs beyond successful load'
   assert.ok(qa.includes("['dance2','dance3']"));
   assert.ok(qa.includes("['dance1','dance2','dance3']"));
   assert.ok(qa.includes('diagnostic.headFacingError<=.24'));
+  assert.ok(qa.includes('diagnostic.renderedHeadFacingError<=.30'));
   assert.ok(qa.includes("male-'+action+'-face.png"));
   assert.ok(qa.includes("female-'+action+'-face.png"));
 });
