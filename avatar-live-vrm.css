@@ -99,3 +99,51 @@
 .elara-avatar-stage[data-avatar-mounted="unavailable"] .elara-motion-gallery{
   display:none!important;
 }
+
+/* Tiny real-byte progress ring; an ETA is displayed only when the response has a known total. */
+[data-elara-avatar-stage] .elara-avatar-download{
+  position:absolute;z-index:17;left:12px;top:12px;display:flex;align-items:center;gap:7px;
+  max-width:calc(100% - 115px);padding:6px 9px;border:1px solid #ffffff5c;border-radius:999px;
+  background:#111a34e8;color:#fff;box-shadow:0 3px 16px #0007;pointer-events:none;
+  font:700 10px/1.35 Vazirmatn,Tahoma,sans-serif;direction:rtl;
+}
+[data-elara-avatar-stage] .elara-avatar-download-ring,
+[data-elara-avatar-stage] .elara-motion-download i{
+  position:relative;display:inline-block;flex:0 0 17px;width:17px;height:17px;
+  border-radius:50%;background:conic-gradient(#fff var(--elara-download-angle,0deg),#ffffff29 0);
+}
+[data-elara-avatar-stage] .elara-avatar-download-ring:after,
+[data-elara-avatar-stage] .elara-motion-download i:after{
+  content:'';position:absolute;inset:3px;border-radius:50%;background:#121a34;
+}
+[data-elara-avatar-stage] .elara-avatar-download.is-indeterminate .elara-avatar-download-ring,
+[data-elara-avatar-stage] .elara-motion-download i.is-indeterminate{
+  background:conic-gradient(transparent 0deg,#fff 140deg,transparent 200deg);
+  animation:elara-avatar-download-spin .85s linear infinite;
+}
+@keyframes elara-avatar-download-spin{to{transform:rotate(360deg)}}
+[data-elara-avatar-stage] .elara-avatar-download-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:701px){
+  [data-elara-avatar-stage] .elara-avatar-side-shortcuts{
+    position:absolute;left:10px;top:calc(50% - 62px);display:flex;flex-direction:column;gap:7px;
+    z-index:9;pointer-events:auto;direction:rtl;
+  }
+  [data-elara-avatar-stage] .elara-avatar-side-shortcuts button{
+    min-width:72px;min-height:33px;padding:6px 9px;border-radius:10px;
+    border:1px solid #9c88e899;background:#171c43ee;color:#f8f3ff;
+    font:750 11px/1.2 Vazirmatn,Tahoma,sans-serif;cursor:pointer;
+  }
+  [data-elara-avatar-stage] .elara-avatar-side-shortcuts button:hover,
+  [data-elara-avatar-stage] .elara-avatar-side-shortcuts button:focus-visible{
+    border-color:white;background:#352266;outline-offset:2px;
+  }
+}
+@media(max-width:700px){
+  [data-elara-avatar-stage] .elara-avatar-side-shortcuts{display:none!important}
+}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-download-label{display:none!important}
+.elara-avatar-quick-modal[data-mode="popover"] .elara-avatar-download{padding:6px!important}
+@media(prefers-reduced-motion:reduce){
+  [data-elara-avatar-stage] .elara-avatar-download.is-indeterminate .elara-avatar-download-ring,
+  [data-elara-avatar-stage] .elara-motion-download i.is-indeterminate{animation-duration:2s}
+}
