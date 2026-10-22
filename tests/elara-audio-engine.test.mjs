@@ -21,7 +21,10 @@ for(const file of ['elara-audio.js','elara-audio.css']) {
  assert.ok(manifest.files.includes(file),'production file list missing '+file);
  assert.ok(manifest.required.includes(file),'production required list missing '+file);
 }
-assert.ok(source.includes('ui:[360,.055,.021]'),'gentle UI click waveform configuration missing');
+assert.match(source,/function strike\(/,'soft musical sound engine must exist');
+assert.match(source,/const melodies=\{/,'varied note patterns should replace repetitive beeps');
+assert.match(source,/fieldClips=\{/,'real natural recordings should replace synthetic-only ambience');
+assert.match(source,/data-elara-audio-tabs/,'visible settings tabs required');
 assert.doesNotMatch(source,/ElevenLabs|voiceId|speechSynthesis|TextToSpeech/);
 
 let starts=0;
@@ -56,14 +59,18 @@ const engine=win.ElaraAudio;
 assert.ok(engine,'engine globally available');
 assert.equal(engine.read().master,75);
 assert.equal(engine.read().enabled,true);
-assert.equal(engine.read().volume.focus,55);
+assert.equal(engine.read().volume.focus,42);
 assert.equal(engine.read().volume.profile,65);
 for(const channel of ['music','ambient','focus','profile','ui','rewards','timer'])assert.ok(Object.hasOwn(engine.read().volume,channel));
 assert.match(source,/data-elara-audio-host/);
 assert.match(source,/\['#panel-settings','page'\],\['#drawer-settings-area','drawer'\]/);
 engine.cue('ui');
 assert.ok(starts>0,'UI click sound generated');
-assert.equal(engine.read().volume.ui,28,'soft UI click default must be quiet');
+const goalStart=starts;engine.cue('goal');
+assert.ok(starts>goalStart,'goal completion needs immediate distinct musical cue');
+const missionStart=starts;engine.cue('rewards');
+assert.ok(starts>missionStart,'mission completion must play a satisfying multi-note melody');
+assert.equal(engine.read().volume.ui,18,'quiet UI click default must be unobtrusive');
 const before=starts;
 engine.set({enabled:false});engine.cue('complete');
 assert.equal(starts,before,'master mute blocks sounds');
