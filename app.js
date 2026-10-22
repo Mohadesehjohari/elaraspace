@@ -311,6 +311,7 @@
       const doneNow=goalStepDone(step,day);
       if(!wasDone&&doneNow)window.ElaraAudio?.cue?.('goal');
       else if(wasDone&&!doneNow)window.ElaraAudio?.cue?.('undo');
+      else window.ElaraAudio?.cue?.('goal'); // Daily targets still deserve instant feedback.
       save();renderGoals();window.ElaraLinkedTasks?.syncAll?.();return
     }
     if(action==='delete-step'&&step&&await window.ElaraDialog.confirm('این ریزقدم حذف شود؟',{title:'حذف ریزقدم',confirmText:'حذف',danger:true})){goal.steps=goal.steps.filter(s=>s.id!==step.id);save();renderGoals();window.ElaraLinkedTasks?.sync?.()}
