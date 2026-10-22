@@ -652,7 +652,9 @@
       stage.dataset.avatarMounted='';
       if(window.ElaraLiveVRM?.current?.stage===stage)window.ElaraLiveVRM.current=null;
     }
-    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,setAction,get action(){return motion;},get look(){return look.id;},get kind(){return kind;}};
+    window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,setAction,
+      get action(){return motion;},get look(){return look.id;},get kind(){return kind;},
+      get view(){return {focus,yaw,pitch,panY,zoom,distance:cameraOrbitDistance};}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
