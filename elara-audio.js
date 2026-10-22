@@ -6,7 +6,7 @@ const channels={music:32,ambient:40,focus:42,profile:65,ui:18,rewards:48,timer:4
 const scenes={rain:['باران طبیعی','Real rain'],forest:['صبح جنگل','Forest morning'],ocean:['امواج دریا','Ocean waves'],fire:['شومینه واقعی','Real fireplace'],wind:['نسیم جنگل','Forest breeze'],library:['کتابخانه آرام · باران پشت پنجره','Quiet library · window rain']};
 // Public-domain field recordings from Wikimedia Commons (credits in docs/AUDIO-SOURCES.md).
 const FIELD_ROOT='https://commons.wikimedia.org/wiki/Special:Redirect/file/';
-const fieldClips={rain:'Rain.ogg',forest:'Birdsong_morning_01.ogg',ocean:'Waves.ogg',fire:'Dry_grass_burning_in_open_fireplace.ogg',wind:'20090610_0_ambience.ogg',library:'Rain.ogg'};
+const fieldClips={rain:'Rain.ogg',forest:'Birdsong_mild_sunny_day.ogg',ocean:'Waves.ogg',fire:'Dry_grass_burning_in_open_fireplace.ogg',wind:'20090610_0_ambience.ogg',library:'Rain.ogg'};
 const tr=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const limit=v=>Math.max(0,Math.min(100,Number(v)||0));
 const defaults={enabled:true,master:75,volume:{...channels},mute:{},scene:'rain',ambiencePlaying:false,musicPlaying:false};
@@ -179,7 +179,7 @@ function markup(){
   '<button type="button" class="quiet-button" data-audio-ambient-play></button>'+
   '<button type="button" class="quiet-button" data-audio-music-play></button>'+
   '<button type="button" class="quiet-button" data-audio-reset>'+tr('بازنشانی تنظیمات صدا','Reset sound settings')+'</button></div>'+
-  '<p class="elara-audio-note">'+tr('صدای کاراکتر سه‌بعدی هنوز متصل نشده است؛ پس از فعال‌شدن سرویس گفتار برای آن تنظیم جداگانه می‌گذاریم. صداهای محیطی و موسیقی به کلیک پخش نیاز دارند.','The 3D character voice is not connected yet and will get its own control when TTS is available. Music and ambience start on a user gesture.')+'</p>'+
+  '<p class="elara-audio-note">'+tr('صدای کاراکتر سه‌بعدی هنوز متصل نشده است؛ پس از فعال‌شدن سرویس گفتار برای آن تنظیم جداگانه می‌گذاریم. صداهای محیطی و موسیقی به کلیک پخش نیاز دارند.','The 3D character voice is not connected yet and will get its own control when TTS is available. Music and ambience start on a user gesture.')+' <a href="https://github.com/Mohadesehjohari/elaraspace/blob/main/docs/AUDIO-SOURCES.md" target="_blank" rel="noopener noreferrer">'+tr('منابع صداهای طبیعی','Natural recording credits')+'</a></p>'+
  '</section>'
 }
 const soundViews={page:'general',drawer:'general'};
