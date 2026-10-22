@@ -128,8 +128,24 @@ async function playAmbient(scene){
  if(state.ambiencePlaying)sceneNoise();
 }
 function stopMusic(){clearInterval(loopTimer);loopTimer=null;stopNodes(musicNodes);state.musicPlaying=false;persist();render()}
-const chords=[[174.61,220,261.63],[196,246.94,293.66],[164.81,220,261.63],[146.83,196,246.94]];let chordStep=0;
-function musicChord(){if(!ctx||!state.musicPlaying)return;stopNodes(musicNodes);const notes=chords[chordStep++%chords.length];for(const f of notes)musicNodes.push(...tone(bus.music,f,.022));}
+const chords=[
+ [174.61,220,261.63],[146.83,196,246.94],[164.81,207.65,261.63],[196,246.94,293.66],
+ [174.61,261.63,329.63],[130.81,196,261.63],[164.81,220,293.66],[146.83,220,277.18]
+];let chordStep=0;
+function musicChord(){
+ if(!ctx||!state.musicPlaying)return;
+ const old=musicNodes;musicNodes=[];
+ // Crossfade rather than stopping oscillators abruptly; longer progression
+ // with gentle harmonic variety doesn't sound like a repetitive electronic beep.
+ for(let i=1;i<old.length;i+=2)old[i]?.gain?.setTargetAtTime(.0001,ctx.currentTime,.42);
+ if(old.length)setTimeout(()=>stopNodes(old),1800);
+ const notes=chords[chordStep++%chords.length];
+ for(const f of notes){
+  const pair=tone(bus.music,f,.0001);
+  pair[1].gain.setTargetAtTime(.018+Math.random()*.005,ctx.currentTime,.55);
+  musicNodes.push(...pair);
+ }
+}
 async function playMusic(){const c=context();await c.resume();state.musicPlaying=true;musicChord();clearInterval(loopTimer);loopTimer=setInterval(musicChord,8000);persist();render()}
 function stopAll(){stopAmbient();stopMusic()}
 function render(){
