@@ -73,3 +73,17 @@
 @media(prefers-reduced-motion:reduce){
  [data-elara-avatar-stage] .elara-motion-gallery button{transition:none!important}
 }
+
+/* Small white filling ring immediately next to the downloading dance card. */
+[data-elara-avatar-stage] .elara-motion-gallery button[data-loading="true"]{position:relative}
+[data-elara-avatar-stage] .elara-motion-download{
+  display:flex;align-items:center;justify-content:center;gap:3px;max-width:100%;
+  color:white;direction:rtl;font:700 9px/1.2 Vazirmatn,Tahoma,sans-serif;
+}
+[data-elara-avatar-stage] .elara-motion-download i{
+  flex-basis:12px;width:12px;height:12px;background:conic-gradient(#fff var(--elara-download-angle,0deg),#ffffff45 0)
+}
+[data-elara-avatar-stage] .elara-motion-download i:after{inset:2.5px;background:#5c2fa4}
+[data-elara-avatar-stage] .elara-motion-download small{
+  font:inherit;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
