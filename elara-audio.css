@@ -41,3 +41,34 @@
  .elara-audio-settings .elara-audio-row-label label{font-size:.75rem}
  .elara-audio-settings{padding:10px}
 }
+
+
+/* Sound settings are a real, discoverable tab, not an unlabeled card below themes. */
+#panel-settings [data-elara-audio-hidden],
+#drawer-settings-area [data-elara-audio-hidden]{display:none!important}
+#panel-settings>.elara-audio-tabs,
+#drawer-settings-area>.elara-audio-tabs{
+ display:flex;align-items:center;gap:8px;padding:5px;margin:14px 0 18px;
+ width:min(100%,470px);border:1px solid var(--border,#465772);
+ border-radius:14px;background:var(--surface2,#12243e);
+ box-sizing:border-box;direction:rtl
+}
+.elara-audio-tabs [data-elara-audio-tab]{
+ flex:1;min-width:0;min-height:44px;padding:8px 12px;border:0;border-radius:10px;
+ color:var(--text,#f4f1ff);background:transparent;cursor:pointer;
+ font:700 clamp(.8rem,2vw,.95rem)/1.55 inherit;
+ transition:background .15s ease,box-shadow .15s ease
+}
+.elara-audio-tabs [aria-selected="true"]{
+ background:color-mix(in srgb,var(--accent,#976df7) 22%,var(--surface,#152544));
+ color:var(--text,#fff);box-shadow:inset 0 0 0 1px var(--accent,#997cff)
+}
+.elara-audio-tabs [data-elara-audio-tab]:focus-visible{outline:2px solid var(--accent,#997cff);outline-offset:2px}
+.elara-audio-settings .elara-audio-samples{display:flex;gap:8px;flex-wrap:wrap;padding-top:12px}
+.elara-audio-settings .elara-audio-samples button{min-height:36px;font-size:.76rem}
+#panel-goals #goal-list>.goal-item,
+#panel-goals #goal-list .goal-step-item{
+ animation:none!important;transition:none!important;
+}
+@media(max-width:700px){.elara-audio-tabs [data-elara-audio-tab]{min-height:46px}}
+@media(prefers-reduced-motion:reduce){.elara-audio-tabs [data-elara-audio-tab]{transition:none}}
