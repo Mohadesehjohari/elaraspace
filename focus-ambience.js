@@ -3,7 +3,7 @@ const KEY='elara_focus_ambience_v1';
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
 let ctx=null,master=null,nodes=[],chirpTimer=null,fieldFocus=null,playing=false;
 const CLIP_ROOT='https://commons.wikimedia.org/wiki/Special:Redirect/file/';
-const focusClips={rain:'Rain.ogg',forest:'Birdsong_morning_01.ogg',ocean:'Waves.ogg',library:'Rain.ogg'};
+const focusClips={rain:'Rain.ogg',forest:'Birdsong_mild_sunny_day.ogg',ocean:'Waves.ogg',library:'Rain.ogg'};
 function read(){try{return{mode:'quiet',volume:28,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return{mode:'quiet',volume:28}}}
 function write(patch){const next={...read(),...patch};localStorage.setItem(KEY,JSON.stringify(next));return next}
 function stopAudio(){
