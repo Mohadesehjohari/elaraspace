@@ -19,6 +19,42 @@
   const uid = () => window.ElaraProfileSystem?.currentUid?.() || null;
   const currentKind = () => {const system=window.ElaraProfileSystem,p=system?.readPrivate?.()||{};return ['male','female'].includes(p.avatarGender)?p.avatarGender:(['male','female'].includes(p.sex)?p.sex:(system?.readWardrobe?.()?.avatarGroup==='male'?'male':'female'));};
   const status = (stage, message, kind = '') => { const el = stage.querySelector('[data-elara-avatar-status]'); if (el) { el.textContent=message; el.dataset.state=kind; } };
+  // Shared real-byte progress for model downloads and recorded VRMA files.
+  // When a server omits Content-Length we show an indeterminate ring, never a fake percentage/ETA.
+  function showDownload(stage,key,label,loaded=0,total=0,started=performance.now()){
+    if(!stage?.isConnected)return;
+    let root=stage.querySelector('[data-elara-avatar-download]');
+    if(!root){
+      root=document.createElement('div');
+      root.className='elara-avatar-download';
+      root.dataset.elaraAvatarDownload='';
+      root.setAttribute('role','status');
+      root.innerHTML='<span class="elara-avatar-download-ring" aria-hidden="true"></span><span class="elara-avatar-download-label"></span>';
+      stage.append(root);
+    }
+    root.dataset.owner=key;
+    const size=Number(total)||0,bytes=Number(loaded)||0;
+    const known=size>0&&Number.isFinite(size)&&Number.isFinite(bytes);
+    const ratio=known?Math.max(0,Math.min(1,bytes/size)):null;
+    const percent=known?Math.floor(ratio*100):null;
+    const elapsed=Math.max(0,(performance.now()-started)/1000);
+    const remaining=known&&ratio>.08&&ratio<1&&elapsed>=1
+      ?Math.ceil(elapsed*(size-bytes)/Math.max(bytes,1)):null;
+    const eta=remaining!==null&&remaining<3600?Math.max(1,remaining):null;
+    const caption=known?(percent+'٪'+(eta!==null?' · حدود '+eta+' ثانیه':'')):'در حال دریافت…';
+    const ring=root.querySelector('.elara-avatar-download-ring');
+    root.classList.toggle('is-indeterminate',!known);
+    ring.style.setProperty('--elara-download-angle',(known?ratio*360:0)+'deg');
+    root.querySelector('.elara-avatar-download-label').textContent=label+' '+caption;
+    root.setAttribute('aria-label',label+' '+caption);
+    window.dispatchEvent(new CustomEvent('elara:avatar-download-progress',{
+      detail:{stage,key,label,loaded:bytes,total:size,percent,eta}
+    }));
+  }
+  function clearDownload(stage,key){
+    const root=stage?.querySelector('[data-elara-avatar-download]');
+    if(root?.dataset.owner===key)root.remove();
+  }
   const saved = kind => { try { if (!uid()) return ''; return JSON.parse(localStorage.getItem(PREFIX+uid()) || '{}')[kind] || ''; } catch { return ''; } };
   const save = (kind, id) => { try { if (!uid()) return; const key=PREFIX+uid(); const state=JSON.parse(localStorage.getItem(key)||'{}'); state[kind]=id; localStorage.setItem(key,JSON.stringify(state)); } catch (e) { console.warn('Elara VRM: could not save wardrobe choice',e); } };
   const importRuntime = () => Promise.all([
@@ -43,7 +79,13 @@
     const findLook = id => looks.find(x => x.id===id && ready(x));
     let initialLook = findLook(saved(kind)) || looks[0];
     const getVRM = async (src) => {
-      const gltf = await loader.loadAsync(src);
+      const started=performance.now(),downloadKey='model:'+kind;
+      showDownload(stage,downloadKey,kind==='male'?'مدل مرد':'مدل زن',0,0,started);
+      let gltf;
+      try{
+        gltf=await loader.loadAsync(src,event=>showDownload(stage,downloadKey,
+          kind==='male'?'مدل مرد':'مدل زن',event.loaded,event.total,started));
+      }finally{clearDownload(stage,downloadKey);}
       const vrm = gltf.userData.vrm;
       if (!vrm) { disposeMeshes(THREE,gltf.scene); throw new Error('File does not contain a VRM humanoid'); }
       if (vrm.meta?.metaVersion === '0' && VRMUtils.rotateVRM0) VRMUtils.rotateVRM0(vrm);
@@ -142,6 +184,17 @@
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
+    // The male base has different head/neck proportions from the VRMA source.
+    // Restrict unsafe head flips while leaving the real body dance intact.
+    function stabilizeMaleDanceHead(){
+      if(kind!=='male'||!usingVRMA||!motion.startsWith('dance'))return;
+      for(const [name,limit] of [['neck',.20],['head',.34]]){
+        const bone=bones[name];if(!bone)continue;
+        const angle=bone.quat.angleTo(bone.node.quaternion);
+        if(angle>limit)bone.node.quaternion.slerpQuaternions(
+          bone.quat,bone.node.quaternion,limit/angle);
+      }
+    }
     const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand','leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot',
       ...['left','right'].flatMap(side=>['Eye','ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
     function captureBones() {
@@ -186,6 +239,8 @@
     }
     async function applyClip(name,token){
       const src=MOTION_SOURCES[name];if(!src)return false;
+      const downloadKey='dance:'+token,started=performance.now();
+      showDownload(stage,downloadKey,'در حال دریافت رقص',0,0,started);
       try{
         let promise=loadedVRMA.get(src);
         if(!promise){
@@ -193,7 +248,10 @@
             const {VRMAnimationLoaderPlugin,createVRMAnimationClip}=await import('@pixiv/three-vrm-animation');
             const reader=new GLTFLoader();
             reader.register(parser=>new VRMAnimationLoaderPlugin(parser));
-            const gltf=await reader.loadAsync(src);
+            const gltf=await reader.loadAsync(src,event=>{
+              if(token===motionRequest)showDownload(stage,downloadKey,'در حال دریافت رقص',
+                event.loaded,event.total,started);
+            });
             const anim=gltf.userData.vrmAnimations?.[0];
             if(!anim||!anim.humanoidTracks?.rotation?.size)throw Error('VRMA contains no humanoid rotation tracks');
             return {anim,createVRMAnimationClip};
@@ -228,7 +286,7 @@
           window.dispatchEvent(new CustomEvent('elara:avatar-motion-error',{detail:{stage,name}}));
         }
         return false;
-      }
+      }finally{clearDownload(stage,downloadKey);}
     }
     function setAction(name='idle'){
       if(!motionOptions.includes(name))return false;
@@ -272,6 +330,7 @@
     interfaceNode.className='elara-live-controls';
     interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
       '<nav class="elara-avatar-zone-buttons" aria-label="زوم کاراکتر"><button type="button" data-avatar-focus="face" aria-pressed="false">صورت</button><button type="button" data-avatar-focus="torso" aria-pressed="false">تنه</button><button type="button" data-avatar-focus="legs" aria-pressed="false">پاها</button></nav>'+
+      '<nav class="elara-avatar-side-shortcuts" aria-label="تنظیمات سریع کاراکتر"><button type="button" data-avatar-open-character-settings>تنظیمات</button><button type="button" data-avatar-toggle-gender aria-label="تغییر مدل بین زن و مرد">زن/مرد</button></nav>'+
       '<button type="button" data-live-focus-return hidden>← بازگشت به تمام‌قد</button>'+
       '<div class="elara-live-panel" data-live-panel hidden role="region" aria-label="کمد سه‌بعدی">'+
       '<header><strong>کمد Elara</strong><button type="button" data-live-action="close" aria-label="بستن کمد">×</button></header>'+
@@ -352,6 +411,14 @@
 
     interfaceNode.addEventListener('click',event=>{
       const b=event.target.closest('button');if(!b)return;
+      if(b.hasAttribute('data-avatar-open-character-settings')){
+        window.ElaraWardrobeUI?.open?.('character');return;
+      }
+      if(b.hasAttribute('data-avatar-toggle-gender')){
+        const profile=window.ElaraProfileSystem;
+        if(profile?.writePrivate)profile.writePrivate({avatarGender:kind==='male'?'female':'male'});
+        return;
+      }
       if(b.dataset.avatarFocus){selectFocus(b.dataset.avatarFocus);}
       else if(b.hasAttribute('data-live-focus-return'))selectFocus('full');
       else if(b.dataset.liveAction==='front'){targetYaw=0;mouse.x=0;mouse.y=0;}
@@ -476,6 +543,7 @@
       const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
       mixer?.update(dt);
+      stabilizeMaleDanceHead();
       // Layer the greeting on top of the idle VRMA; never write it before mixer.update.
       if(usingVRMA&&motion==='wave'){
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
