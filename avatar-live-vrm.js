@@ -62,6 +62,19 @@
     import('three/addons/loaders/GLTFLoader.js'),
     import('@pixiv/three-vrm')
   ]);
+  async function loadGltfAsset(loader,src,stage,key,label,started){
+    const progress=(loaded,total)=>showDownload(stage,key,label,loaded,total,started);
+    if(!window.ElaraAvatarAssetCache?.load){
+      return loader.loadAsync(src,event=>progress(event.loaded,event.total));
+    }
+    const result=await window.ElaraAvatarAssetCache.load(src,{
+      accountId:uid()||'guest',onProgress:progress
+    });
+    // GLTFLoader.parseAsync keeps the exact original humanoid and facial materials;
+    // the only difference is the bytes came from local browser storage.
+    const baseURL=new URL('.',new URL(src,document.baseURI)).href;
+    return loader.parseAsync(result.buffer,baseURL);
+  }
   function disposeMeshes(THREE, obj) {
     if (!obj) return;
     const materials = new Set(), geometries = new Set();
@@ -83,8 +96,8 @@
       showDownload(stage,downloadKey,kind==='male'?'مدل مرد':'مدل زن',0,0,started);
       let gltf;
       try{
-        gltf=await loader.loadAsync(src,event=>showDownload(stage,downloadKey,
-          kind==='male'?'مدل مرد':'مدل زن',event.loaded,event.total,started));
+        gltf=await loadGltfAsset(loader,src,stage,downloadKey,
+          kind==='male'?'مدل مرد':'مدل زن',started);
       }finally{clearDownload(stage,downloadKey);}
       const vrm = gltf.userData.vrm;
       if (!vrm) { disposeMeshes(THREE,gltf.scene); throw new Error('File does not contain a VRM humanoid'); }
@@ -138,9 +151,12 @@
     key.position.set(2,4,5); scene.add(key);
     const rim=new THREE.DirectionalLight(0x857aff,1.15);
     rim.position.set(-3,3,-4); scene.add(rim);
-    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1, pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0, lastTime=performance.now(), focus='full', motion='idle', motionStarted=0, motionUntil=0;
+    let height=1.7, look=initialLook, disposed=false, replacing=false, yaw=0, targetYaw=0, zoom=1,
+      pitch=0,targetPitch=0,panY=0,cameraOrbitDistance=4.6,cameraLookY=.98,cameraLookX=0,
+      pointer=null, lastX=0, lastY=0, downX=0, downY=0, downAt=0,
+      lastTime=performance.now(), focus='full', motion='idle', motionStarted=0, motionUntil=0;
     const focusHeights={full:.52,face:.865,torso:.63,legs:.30};
-    const focusDistance={full:4.6,face:1.25,torso:2.3,legs:2.6};
+    const focusDistance={full:4.6,face:1.7,torso:2.3,legs:2.6};
     // Safely frame the real animated VRMA silhouette at every rendered pose.
     const danceFrame={distance:7.6,centerX:0,centerY:1.05,bounds:null};
     const danceJoints=['head','neck','chest','hips','leftShoulder','rightShoulder',
@@ -157,11 +173,29 @@
         halfWidth/(tangent*Math.max(.25,aspect)*.78)
       );
     }
+    function minimumDanceOrbitDistance(bounds,cameraX,cameraY,aspect,fov,pitch){
+      const tangent=Math.tan(fov*Math.PI/360)*.78;
+      const sp=Math.sin(pitch),cp=Math.cos(pitch);
+      let required=0;
+      for(const x of [bounds.minX,bounds.maxX]){
+        for(const y of [bounds.minY,bounds.maxY]){
+          for(const z of [bounds.minZ,bounds.maxZ]){
+            const up=(y-cameraY)*cp-z*sp;
+            const forward=(y-cameraY)*sp+z*cp;
+            required=Math.max(required,forward+Math.max(
+              Math.abs(x-cameraX)/(tangent*Math.max(.25,aspect)),
+              Math.abs(up)/tangent
+            ));
+          }
+        }
+      }
+      return Math.max(6.6,required);
+    }
     function sampleDanceFrame(time){
       // No 10 Hz throttling: a fast jump could occur entirely between samples.
       anchor.updateMatrixWorld(true);
       const cos=Math.cos(yaw),sin=Math.sin(yaw);
-      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,maxZ=-Infinity,count=0;
+      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,minZ=Infinity,maxZ=-Infinity,count=0;
       for(const name of danceJoints){
         const joint=bones[name]?.node;if(!joint)continue;
         joint.getWorldPosition(dancePoint);
@@ -170,11 +204,11 @@
         const worldZ=-sin*dancePoint.x+cos*dancePoint.z;
         minX=Math.min(minX,worldX);maxX=Math.max(maxX,worldX);
         minY=Math.min(minY,dancePoint.y);maxY=Math.max(maxY,dancePoint.y);
-        maxZ=Math.max(maxZ,worldZ);count++;
+        minZ=Math.min(minZ,worldZ);maxZ=Math.max(maxZ,worldZ);count++;
       }
       if(count<3)return;
       // Joints lie inside the silhouette: reserve space for hair, hands and shoes.
-      const bounds={minX:minX-.36,maxX:maxX+.36,minY:minY-.34,maxY:maxY+.34,maxZ:maxZ+.42};
+      const bounds={minX:minX-.36,maxX:maxX+.36,minY:minY-.34,maxY:maxY+.34,minZ:minZ-.42,maxZ:maxZ+.42};
       danceFrame.bounds=bounds;
       danceFrame.centerX=(bounds.minX+bounds.maxX)/2;
       danceFrame.centerY=(bounds.minY+bounds.maxY)/2-.08;
@@ -184,10 +218,10 @@
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
-    // The male base has different head/neck proportions from the VRMA source.
-    // Restrict unsafe head flips while leaving the real body dance intact.
-    function stabilizeMaleDanceHead(){
-      if(kind!=='male'||!usingVRMA||!motion.startsWith('dance'))return;
+    // Recorded VRMA head rotation may exceed the safe range on BOTH real VRMs.
+    // Preserve original meshes, facial textures and whole-body dance tracks.
+    function stabilizeDanceHead(){
+      if(!usingVRMA||!motion.startsWith('dance'))return;
       for(const [name,limit] of [['neck',.20],['head',.34]]){
         const bone=bones[name];if(!bone)continue;
         const angle=bone.quat.angleTo(bone.node.quaternion);
@@ -248,10 +282,8 @@
             const {VRMAnimationLoaderPlugin,createVRMAnimationClip}=await import('@pixiv/three-vrm-animation');
             const reader=new GLTFLoader();
             reader.register(parser=>new VRMAnimationLoaderPlugin(parser));
-            const gltf=await reader.loadAsync(src,event=>{
-              if(token===motionRequest)showDownload(stage,downloadKey,'در حال دریافت رقص',
-                event.loaded,event.total,started);
-            });
+            const gltf=await loadGltfAsset(reader,src,stage,downloadKey,
+              'در حال دریافت رقص',started);
             const anim=gltf.userData.vrmAnimations?.[0];
             if(!anim||!anim.humanoidTracks?.rotation?.size)throw Error('VRMA contains no humanoid rotation tracks');
             return {anim,createVRMAnimationClip};
@@ -320,15 +352,16 @@
       measureArmRest();
       if(vrm.lookAt){vrm.lookAt.autoUpdate=false;vrm.lookAt.target=null;} // No automatic convergence / cross-eyed focus.
       const aspect=viewport.clientWidth/Math.max(viewport.clientHeight,1);
-      focus='full';zoom=1;
-      camera.position.set(0,height*.52,aspect<.8?4.85:4.6);
-      camera.lookAt(0,height*.52,0);
+      focus='full';zoom=1;pitch=targetPitch=panY=0;
+      cameraLookX=0;cameraLookY=height*.52;cameraOrbitDistance=aspect<.8?4.85:4.6;
+      camera.position.set(0,cameraLookY,cameraOrbitDistance);
+      camera.lookAt(0,cameraLookY,0);
     }
     attach(vrm);
 
     const interfaceNode=document.createElement('div');
     interfaceNode.className='elara-live-controls';
-    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="front">نمای روبه‌رو</button></div>'+
+    interfaceNode.innerHTML = '<div class="elara-live-actions"><button type="button" data-live-action="front">نمای روبه‌رو</button><button type="button" data-live-action="reset">بازگشت به حالت اولیه</button></div>'+
       '<nav class="elara-avatar-zone-buttons" aria-label="زوم کاراکتر"><button type="button" data-avatar-focus="face" aria-pressed="false">صورت</button><button type="button" data-avatar-focus="torso" aria-pressed="false">تنه</button><button type="button" data-avatar-focus="legs" aria-pressed="false">پاها</button></nav>'+
       '<nav class="elara-avatar-side-shortcuts" aria-label="تنظیمات سریع کاراکتر"><button type="button" data-avatar-open-character-settings>تنظیمات</button><button type="button" data-avatar-toggle-gender aria-label="تغییر مدل بین زن و مرد">زن/مرد</button></nav>'+
       '<button type="button" data-live-focus-return hidden>← بازگشت به تمام‌قد</button>'+
@@ -341,11 +374,20 @@
     const focusButtons=[...interfaceNode.querySelectorAll('[data-avatar-focus]')];
     function selectFocus(next) {
       if(!Object.hasOwn(focusHeights,next))next='full';
-      focus=next;zoom=1;
+      focus=next;zoom=1;panY=0;targetPitch=0;
       mouse.x=mouse.y=0;smoothMouse.x=smoothMouse.y=0;
       if(next!=='full')targetYaw=0;
       focusReturn.hidden=next==='full';
       focusButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.avatarFocus===next)));
+    }
+    function resetView(){
+      setAction('idle');
+      selectFocus('full');
+      yaw=targetYaw=0;pitch=targetPitch=0;panY=0;zoom=1;
+      cameraLookX=0;cameraLookY=height*.52;
+      cameraOrbitDistance=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8?4.85:4.6;
+      mouse.x=mouse.y=0;smoothMouse.x=smoothMouse.y=0;
+      window.dispatchEvent(new CustomEvent('elara:avatar-motion-ended',{detail:{stage}}));
     }
     const panel=interfaceNode.querySelector('[data-live-panel]');
     const tabButtons=interfaceNode.querySelectorAll('[data-live-tab]');
@@ -421,7 +463,8 @@
       }
       if(b.dataset.avatarFocus){selectFocus(b.dataset.avatarFocus);}
       else if(b.hasAttribute('data-live-focus-return'))selectFocus('full');
-      else if(b.dataset.liveAction==='front'){targetYaw=0;mouse.x=0;mouse.y=0;}
+      else if(b.dataset.liveAction==='reset')resetView();
+      else if(b.dataset.liveAction==='front'){targetYaw=0;targetPitch=0;panY=0;mouse.x=0;mouse.y=0;}
     });
     const raycaster=new THREE.Raycaster(),rayPoint=new THREE.Vector2();
     function focusAt(e) {
@@ -439,7 +482,15 @@
       pointer=e.pointerId;lastX=downX=e.clientX;lastY=downY=e.clientY;downAt=performance.now();
       renderer.domElement.setPointerCapture?.(e.pointerId);stage.classList.add('is-dragging');e.preventDefault();
     }
-    function move(e){if(pointer!==e.pointerId)return;targetYaw+=(e.clientX-lastX)*.008;lastX=e.clientX;lastY=e.clientY;e.preventDefault();}
+    function move(e){
+      if(pointer!==e.pointerId)return;
+      const dx=e.clientX-lastX,dy=e.clientY-lastY;
+      targetYaw+=dx*.008;
+      targetPitch=clamp(targetPitch+dy*.004,-1.05,1.05);
+      // While viewing face/torso/legs, vertical dragging also travels down/up the body.
+      if(focus!=='full')panY=clamp(panY-dy*.003,-1.15,1.15);
+      lastX=e.clientX;lastY=e.clientY;e.preventDefault();
+    }
     function up(e){
       if(pointer!==e.pointerId)return;
       const click=Math.hypot(e.clientX-downX,e.clientY-downY)<7&&performance.now()-downAt<550;
@@ -478,7 +529,7 @@
       yaw+=(targetYaw-yaw)*Math.min(1,dt*8);
       anchor.rotation.y=yaw;
       const dancingNow=usingVRMA&&motion.startsWith('dance');
-      if(dancingNow&&focus!=='full')selectFocus('full');
+      // User-picked face/torso/legs view stays selected during recorded dances.
       const follow=1-Math.exp(-dt*5);
       smoothMouse.x+=(mouse.x-smoothMouse.x)*follow;
       smoothMouse.y+=(mouse.y-smoothMouse.y)*follow;
@@ -543,7 +594,7 @@
       const blink=p>=0&&p<=1?Math.sin(Math.PI*p):0;
       try{vrm.expressionManager?.setValue('blink',blink*amp);}catch{}
       mixer?.update(dt);
-      stabilizeMaleDanceHead();
+      stabilizeDanceHead();
       // Layer the greeting on top of the idle VRMA; never write it before mixer.update.
       if(usingVRMA&&motion==='wave'){
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
@@ -565,25 +616,27 @@
         }
       }
       vrm.update(dt); // VRM lookAt, expressions and spring bones
-      // Fit AFTER the current pose, accounting for yaw and world-space depth.
+      // Follow the actual animated pose, also when the user orbits vertically.
       if(dancingNow)sampleDanceFrame(t);
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
       const normalDistance=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
       const fitted=dancingNow&&focus==='full'&&danceFrame.bounds;
-      const dest=fitted?Math.max(normalDistance,danceFrame.distance*Math.max(1,zoom)):normalDistance;
-      const targetHeight=fitted?danceFrame.centerY:height*focusHeights[focus];
+      const targetHeight=(fitted?danceFrame.centerY:height*focusHeights[focus])+panY;
       const targetX=fitted?danceFrame.centerX:0;
       const cameraFollow=1-Math.exp(-dt*(fitted?9:4.5));
-      camera.position.z+=(dest-camera.position.z)*cameraFollow;
-      camera.position.y+=(targetHeight-camera.position.y)*cameraFollow;
-      camera.position.x+=(targetX-camera.position.x)*cameraFollow;
-      if(fitted){
-        // Smoothly move the camera, but expand the view immediately for a jump.
-        camera.position.z=Math.max(camera.position.z,minimumDanceCameraZ(
-          danceFrame.bounds,camera.position.x,camera.position.y,camera.aspect,camera.fov));
-      }
-      // Level dance projection matches the screen-space safety calculation.
-      camera.lookAt(camera.position.x,fitted?camera.position.y:targetHeight,0);
+      cameraLookY+=(targetHeight-cameraLookY)*cameraFollow;
+      cameraLookX+=(targetX-cameraLookX)*cameraFollow;
+      pitch+=(targetPitch-pitch)*Math.min(1,dt*9);
+      const required=fitted?minimumDanceOrbitDistance(
+        danceFrame.bounds,cameraLookX,cameraLookY,camera.aspect,camera.fov,pitch):0;
+      const dest=fitted?Math.max(normalDistance,required):normalDistance;
+      cameraOrbitDistance+=(dest-cameraOrbitDistance)*cameraFollow;
+      if(fitted)cameraOrbitDistance=Math.max(cameraOrbitDistance,required);
+      // Actual orbit around the selected vertical body position (not a face roll).
+      camera.position.set(cameraLookX,
+        cameraLookY+Math.sin(pitch)*cameraOrbitDistance,
+        Math.cos(pitch)*cameraOrbitDistance);
+      camera.lookAt(cameraLookX,cameraLookY,0);
       renderer.render(scene,camera);
     }
     raf=requestAnimationFrame(frame);
