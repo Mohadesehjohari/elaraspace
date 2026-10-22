@@ -119,6 +119,25 @@ class AssemblePublicSiteTests(unittest.TestCase):
         self.assertFalse((self.out / "admin/deploy.php").exists())
         self.assertFalse((self.out / "deploy/production-manifest.json").exists())
 
+    def test_cpanel_dotfile_does_not_block_github_pages(self):
+        # Real production manifest explicitly includes .htaccess; Pages must skip it.
+        manifest_path = self.root / "deploy/production-manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["files"].insert(0, ".htaccess")
+        manifest_path.write_text(json.dumps(manifest))
+        (self.root / ".htaccess").write_text("RewriteEngine On")
+        pages.assemble(self.root, self.seo, self.out)
+        self.assertFalse((self.out / ".htaccess").exists())
+        self.assertTrue((self.out / "index.html").exists())
+
+    def test_unexpected_dotfile_is_rejected(self):
+        manifest_path = self.root / "deploy/production-manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["files"].append(".env")
+        manifest_path.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(ValueError, "unsafe"):
+            pages.assemble(self.root, self.seo, self.out)
+
     def test_rejects_symlinks_and_missing_markers(self):
         self.assertRaisesRegex(ValueError, "unsafe", pages.safe_path, "../.env")
         (self.seo / ".elara-seo-output").unlink()
