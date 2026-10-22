@@ -1,0 +1,29 @@
+/* SEO Studio stays inside the existing Elara Admin visual system. */
+.seo-edit-fields{border:1px solid rgba(155,171,205,.28);border-radius:14px;padding:15px;display:grid;gap:12px;margin:14px 0}
+.seo-edit-fields legend{font-weight:800;padding:0 8px}
+.seo-edit-fields label{display:grid;gap:7px}
+.seo-edit-fields .toggle-inline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seo-edit-fields .toggle-inline input{width:auto;min-width:unset}
+.seo-tool-card{display:grid;gap:13px;margin-bottom:14px}
+.seo-tool-card>label{display:grid;gap:8px}
+.seo-tool-card input[type=file]{max-width:100%;white-space:normal}
+.seo-audit-list{display:grid;gap:10px}
+.seo-audit-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid rgba(150,170,200,.2);border-radius:12px;flex-wrap:wrap}
+.seo-audit-row>div{display:grid;gap:4px;min-width:0;flex:1}
+.seo-audit-row small{color:var(--muted,#a9b8d4);overflow-wrap:anywhere}
+.seo-audit-row .actions{display:flex;gap:7px;flex-wrap:wrap}
+.seo-audit-warnings{font-size:12px;line-height:1.7;color:#f7c990}
+.seo-audit-ok{font-size:12px;color:#91e7c0}
+.seo-preview{margin-top:14px;padding:17px;border:1px solid rgba(135,157,192,.26);border-radius:12px;background:#0b1423;display:grid;gap:5px;max-width:740px}
+.seo-preview.hidden{display:none}
+.seo-preview-url{font:12px/1.7 system-ui,sans-serif;color:#9fceb5;overflow-wrap:anywhere;text-align:left}
+.seo-preview-title{font:600 18px/1.7 Tahoma,Arial,sans-serif;color:#9cbcff}
+.seo-preview-description{font:13px/1.85 Tahoma,Arial,sans-serif;color:#c1cce0}
+.seo-gsc-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+.seo-gsc-metric{padding:14px;border-radius:12px;border:1px solid rgba(140,160,192,.24)}
+.seo-gsc-metric strong{display:block;font-size:18px;margin:5px 0}
+.seo-gsc-results{overflow:auto;max-height:470px}
+.seo-gsc-results table{width:100%;border-collapse:collapse;min-width:480px;text-align:right}
+.seo-gsc-results th,.seo-gsc-results td{border-bottom:1px solid rgba(143,163,191,.2);padding:10px 8px;font-size:13px}
+.seo-gsc-results td:first-child{overflow-wrap:anywhere;max-width:400px}
+@media(max-width:650px){.seo-audit-row{align-items:stretch}.seo-audit-row>.actions{width:100%}}
