@@ -1,3 +1,4 @@
+import {setupSeoStudio,refreshSeoStudio} from './seo-manager.js';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,getCountFromServer,addDoc,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -221,6 +222,7 @@ async function loadContentStudio(){
       pages:pages.docs.map(d=>({id:d.id,...d.data()}))
     };
     renderContentStudio();
+    refreshSeoStudio(contentState);
   }catch(error){
     console.error('Elara admin content:',error);
     if($('blog-content-status-message'))$('blog-content-status-message').textContent='خواندن محتوا ناموفق بود. Rules جدید باید روی Firebase منتشر شود.';
@@ -238,10 +240,21 @@ function resetPageForm(){
 function editContent(kind,id){
   if(kind==='blog'){
     const row=contentState.articles.find(x=>x.id===id);if(!row)return;
-    $('blog-content-id').value=row.id;$('blog-content-title').value=row.title||'';$('blog-content-excerpt').value=row.excerpt||'';$('blog-content-body').value=row.body||'';$('blog-content-category').value=row.category||'planning';$('blog-content-locale').value=row.locale||'fa';$('blog-content-status').value=row.status||'draft';$('blog-content-minutes').value=Number(row.readMinutes||5);$('blog-content-cover').value=row.coverUrl||'';$('blog-content-title').focus();return;
+    $('blog-content-id').value=row.id;$('blog-content-title').value=row.title||'';$('blog-content-excerpt').value=row.excerpt||'';$('blog-content-body').value=row.body||'';$('blog-content-category').value=row.category||'planning';$('blog-content-locale').value=row.locale||'fa';$('blog-content-status').value=row.status||'draft';$('blog-content-minutes').value=Number(row.readMinutes||5);$('blog-content-cover').value=row.coverUrl||'';
+    $('blog-seo-slug').value=row.seoSlug||(/^[a-z0-9][a-z0-9-]{1,79}$/.test(row.id)?row.id:'');
+    $('blog-seo-title').value=row.seoTitle||'';
+    $('blog-seo-description').value=row.seoDescription||'';
+    $('blog-seo-keyword').value=row.seoKeyword||'';
+    $('blog-seo-noindex').checked=row.seoNoindex===true;
+    $('blog-content-title').focus();return;
   }
   const row=contentState.pages.find(x=>x.id===id);if(!row)return;
-  $('site-page-id').value=row.id;$('site-page-slug').value=row.slug||row.id;$('site-page-slug').readOnly=true;$('site-page-title').value=row.title||'';$('site-page-excerpt').value=row.excerpt||'';$('site-page-body').value=row.body||'';$('site-page-locale').value=row.locale||'fa';$('site-page-status').value=row.status||'draft';$('site-page-title').focus();
+  $('site-page-id').value=row.id;$('site-page-slug').value=row.slug||row.id;$('site-page-slug').readOnly=true;$('site-page-title').value=row.title||'';$('site-page-excerpt').value=row.excerpt||'';$('site-page-body').value=row.body||'';$('site-page-locale').value=row.locale||'fa';$('site-page-status').value=row.status||'draft';
+  $('page-seo-title').value=row.seoTitle||'';
+  $('page-seo-description').value=row.seoDescription||'';
+  $('page-seo-keyword').value=row.seoKeyword||'';
+  $('page-seo-noindex').checked=row.seoNoindex===true;
+  $('site-page-title').focus();
 }
 async function saveBlogContent(event){
   event.preventDefault();if(!canPublishContent())return toast('این نقش اجازهٔ انتشار محتوا ندارد.');
@@ -249,14 +262,18 @@ async function saveBlogContent(event){
   if(!title||!excerpt||!body)return toast('عنوان، خلاصه و متن مقاله لازم است.');
   const id=existingId||((slugify(title)||'article')+'-'+Date.now().toString(36));
   const existing=contentState.articles.find(x=>x.id===id);
-  const payload={title,excerpt,body,category:$('blog-content-category').value,locale:$('blog-content-locale').value,status:$('blog-content-status').value,coverUrl:$('blog-content-cover').value.trim().slice(0,1000),readMinutes:Math.max(1,Math.min(60,Math.round(Number($('blog-content-minutes').value)||5))),updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+  const seoSlug=$('blog-seo-slug').value.trim().toLowerCase()||existing?.seoSlug||id;
+  if(!/^[a-z0-9][a-z0-9-]{1,79}$/.test(seoSlug))return toast('Slug سئو باید ۲ تا ۸۰ نویسه انگلیسی/عدد/خط تیره باشد.');
+  const locale=$('blog-content-locale').value;
+  if(contentState.articles.some(x=>x.id!==id && x.status==='published' && (x.locale||'fa')===locale && (x.seoSlug||x.id)===seoSlug))return toast('این Slug برای یک مقاله منتشرشده تکراری است.');
+  const payload={seoSlug,seoTitle:$('blog-seo-title').value.trim().slice(0,160),seoDescription:$('blog-seo-description').value.trim().slice(0,300),seoKeyword:$('blog-seo-keyword').value.trim().slice(0,120),seoNoindex:$('blog-seo-noindex').checked,title,excerpt,body,category:$('blog-content-category').value,locale:$('blog-content-locale').value,status:$('blog-content-status').value,coverUrl:$('blog-content-cover').value.trim().slice(0,1000),readMinutes:Math.max(1,Math.min(60,Math.round(Number($('blog-content-minutes').value)||5))),updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
   if(!existing){payload.createdAt=serverTimestamp();payload.createdBy=currentUser.uid}
   button.disabled=true;
   try{
     await setDoc(doc(db,'blogArticles',id),payload,{merge:true});
     await auditContent(existing?'blog_article_update':'blog_article_create','blogArticles/'+id,{status:payload.status,locale:payload.locale,category:payload.category});
     $('blog-content-status-message').textContent=payload.status==='published'?'✓ مقاله منتشر شد و Blog سایت آن را می‌خواند.':'✓ Draft ذخیره شد.';
-    await loadContentStudio();$('blog-content-id').value=id;toast('مقاله ذخیره شد.');
+    await loadContentStudio();$('blog-content-id').value=id;$('blog-seo-slug').value=seoSlug;toast('مقاله ذخیره شد.');
   }catch(error){console.error(error);$('blog-content-status-message').textContent=error.message||'ذخیره مقاله ناموفق بود.'}
   finally{button.disabled=false}
 }
@@ -265,7 +282,7 @@ async function saveSitePage(event){
   const button=event.target.querySelector('[type=submit]'),existingId=$('site-page-id').value.trim(),rawSlug=$('site-page-slug').value.trim(),slug=existingId||slugify(rawSlug),title=$('site-page-title').value.trim().slice(0,160),excerpt=$('site-page-excerpt').value.trim().slice(0,500),body=$('site-page-body').value.trim().slice(0,16000);
   if(!slug||slug.length<2||!title||!excerpt||!body)return toast('Slug معتبر، عنوان، خلاصه و متن صفحه لازم است.');
   const existing=contentState.pages.find(x=>x.id===slug);
-  const payload={slug,title,excerpt,body,locale:$('site-page-locale').value,status:$('site-page-status').value,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
+  const payload={seoTitle:$('page-seo-title').value.trim().slice(0,160),seoDescription:$('page-seo-description').value.trim().slice(0,300),seoKeyword:$('page-seo-keyword').value.trim().slice(0,120),seoNoindex:$('page-seo-noindex').checked,slug,title,excerpt,body,locale:$('site-page-locale').value,status:$('site-page-status').value,updatedAt:serverTimestamp(),updatedBy:currentUser.uid};
   if(!existing){payload.createdAt=serverTimestamp();payload.createdBy=currentUser.uid}
   button.disabled=true;
   try{
@@ -306,6 +323,12 @@ $('gate-signout').addEventListener('click',()=>signOut(auth));
 $('admin-signout').addEventListener('click',()=>signOut(auth));
 $('refresh-overview').addEventListener('click',()=>refreshOverview());
 $('content-refresh')?.addEventListener('click',()=>loadContentStudio());
+setupSeoStudio({
+  getData:()=>contentState,
+  canExport:()=>canPublishContent(),
+  reload:()=>loadContentStudio(),
+  edit:(kind,id)=>{document.querySelector('[data-panel="content"]')?.click();editContent(kind,id);}
+});
 $('blog-content-form')?.addEventListener('submit',saveBlogContent);
 $('site-page-form')?.addEventListener('submit',saveSitePage);
 $('blog-content-reset')?.addEventListener('click',resetBlogForm);
@@ -330,7 +353,7 @@ document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListene
   $('panel-'+button.dataset.panel).classList.remove('hidden');
   if(button.dataset.panel==='deployment')void loadDeploymentStatus();
   if(button.dataset.panel==='ai')void loadAiStatus();
-  if(button.dataset.panel==='content')void loadContentStudio();
+  if(button.dataset.panel==='content'||button.dataset.panel==='seo')void loadContentStudio();
 }));
 
 onAuthStateChanged(auth,async user=>{
