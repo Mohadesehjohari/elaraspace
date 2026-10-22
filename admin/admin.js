@@ -1,4 +1,4 @@
-import {setupSeoStudio,refreshSeoStudio} from './seo-manager.js';
+import {setupSeoStudio,refreshSeoStudio,resetGscAccess} from './seo-manager.js';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,getCountFromServer,addDoc,getDocs,deleteDoc} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -357,6 +357,7 @@ document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListene
 }));
 
 onAuthStateChanged(auth,async user=>{
+  resetGscAccess();
   currentUser=user;currentAdmin=null;
   if(!user){gate('برای ورود به پنل مدیریت از حساب مدیر استفاده کن.',{login:true});return}
   gate('در حال بررسی نقش مدیر…');
