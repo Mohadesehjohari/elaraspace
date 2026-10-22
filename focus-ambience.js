@@ -1,11 +1,14 @@
 (()=>{'use strict';
 const KEY='elara_focus_ambience_v1';
 const t=(fa,en)=>window.ElaraI18n?.t?.(fa,en)||(document.documentElement.lang==='en'?en:fa);
-let ctx=null,master=null,nodes=[],chirpTimer=null,playing=false;
+let ctx=null,master=null,nodes=[],chirpTimer=null,fieldFocus=null,playing=false;
+const CLIP_ROOT='https://commons.wikimedia.org/wiki/Special:Redirect/file/';
+const focusClips={rain:'Rain.ogg',forest:'Birdsong_morning_01.ogg',ocean:'Waves.ogg',library:'Rain.ogg'};
 function read(){try{return{mode:'quiet',volume:28,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return{mode:'quiet',volume:28}}}
 function write(patch){const next={...read(),...patch};localStorage.setItem(KEY,JSON.stringify(next));return next}
 function stopAudio(){
  clearInterval(chirpTimer);chirpTimer=null;
+ if(fieldFocus){fieldFocus.onerror=null;fieldFocus.pause();fieldFocus.removeAttribute('src');fieldFocus=null}
  for(const n of nodes){try{n.stop?.()}catch{}try{n.disconnect?.()}catch{}}
  nodes=[];try{master?.disconnect?.()}catch{}master=null;playing=false;syncState()
 }
@@ -32,20 +35,42 @@ function chirp(c){
 }
 async function startAudio(){
  const cfg=read();if(cfg.mode==='quiet'){stopAudio();return}
- const c=ensureContext();if(c.state==='suspended')await c.resume();stopAudio();master=c.createGain();master.gain.value=gainValue();master.connect(c.destination);
- if(cfg.mode==='rain'){addNoise(c,{low:7200,high:500,level:.95});addNoise(c,{low:2600,high:80,level:.35})}
- else if(cfg.mode==='forest'){addNoise(c,{low:1800,high:70,level:.28});chirp(c);chirpTimer=setInterval(()=>chirp(c),2800)}
- else if(cfg.mode==='tone'){addTone(c,174.61,.18,'sine');addTone(c,261.63,.11,'sine');addTone(c,349.23,.06,'triangle')}
- playing=true;syncState()
+ stopAudio();
+ const source=focusClips[cfg.mode];
+ if(source&&typeof Audio!=='undefined'){
+  const clip=new Audio(CLIP_ROOT+encodeURIComponent(source));
+  clip.preload='auto';clip.loop=true;clip.dataset.elaraAudioChannel='focus';
+  fieldFocus=clip;playing=true;syncVolume();syncState();
+  try{
+   await clip.play();
+   if(fieldFocus!==clip){clip.pause();return}
+   return;
+  }catch(error){
+   if(fieldFocus===clip){clip.onerror=null;clip.pause();fieldFocus=null}
+   console.warn('Natural focus recording unavailable; using soft built-in ambience',error?.message||error);
+  }
+ }
+ // Offline fallback only: lower, softer noise for real-world scenes, never
+ // high pitched artificial chirps or a single unchanging library hiss.
+ const c=ensureContext();if(c.state==='suspended')await c.resume();
+ if(!playing)playing=true;
+ master=c.createGain();master.gain.value=gainValue();master.connect(c.destination);
+ if(cfg.mode==='rain'||cfg.mode==='library'){addNoise(c,{low:1800,high:100,level:cfg.mode==='library'?.18:.3});}
+ else if(cfg.mode==='forest'){addNoise(c,{low:750,high:50,level:.16});}
+ else if(cfg.mode==='ocean'){addNoise(c,{low:950,high:70,level:.22});}
+ else if(cfg.mode==='tone'){
+  addTone(c,174.61,.11);addTone(c,261.63,.072);addTone(c,349.23,.028);
+ }
+ playing=true;syncState();
 }
-function syncVolume(){if(master)master.gain.value=gainValue()}
+function syncVolume(){if(master)master.gain.value=gainValue();if(fieldFocus){fieldFocus.dataset.elaraAudioGain=String(Math.min(1,Math.max(0,read().volume/100)*.8));window.ElaraAudio?.applyMedia?.(fieldFocus)}}
 function syncState(){
  const root=document.getElementById('focus-ambience');if(!root)return;const cfg=read();
  root.dataset.mode=cfg.mode;root.dataset.playing=String(playing);
  root.querySelectorAll('[data-ambience-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ambienceMode===cfg.mode)));
  const play=root.querySelector('[data-ambience-play]');if(play){play.setAttribute('aria-pressed',String(playing));play.textContent=playing?t('توقف صدا','Stop sound'):t('پخش صدا','Play sound')}
  const vol=root.querySelector('[data-ambience-volume]');if(vol&&document.activeElement!==vol)vol.value=String(cfg.volume);
- const label=root.querySelector('[data-ambience-now]');if(label){const names={quiet:t('ساکت','Quiet'),rain:t('باران','Rain'),forest:t('جنگل','Forest'),tone:t('Focus Tone','Focus Tone')};label.textContent=names[cfg.mode]||names.quiet}
+ const label=root.querySelector('[data-ambience-now]');if(label){const names={quiet:t('ساکت','Quiet'),rain:t('باران طبیعی','Real rain'),forest:t('صدای پرندگان جنگل','Forest birds'),ocean:t('امواج دریا','Ocean waves'),library:t('کتابخانه و باران','Library rain'),tone:t('آکورد آرام تمرکز','Calm focus chords')};label.textContent=names[cfg.mode]||names.quiet}
 }
 function markup(){
  const cfg=read();
@@ -53,7 +78,9 @@ function markup(){
   <div class="focus-ambience-modes" role="group" aria-label="${t('انتخاب صدای محیطی','Choose ambience')}">
    <button type="button" data-ambience-mode="quiet"><span class="focus-inline-icon">◌</span><span>${t('سکوت','Silence')}</span></button>
    <button type="button" data-ambience-mode="rain"><span class="focus-inline-icon">☂</span><span>${t('باران','Rain')}</span></button>
-   <button type="button" data-ambience-mode="forest"><span class="focus-inline-icon">♧</span><span>${t('صدای جنگل','Forest sounds')}</span></button>
+   <button type="button" data-ambience-mode="forest"><span class="focus-inline-icon">♧</span><span>${t('پرندگان جنگل','Forest birds')}</span></button>
+   <button type="button" data-ambience-mode="ocean"><span class="focus-inline-icon">≈</span><span>${t('امواج واقعی','Real waves')}</span></button>
+   <button type="button" data-ambience-mode="library"><span class="focus-inline-icon">☾</span><span>${t('کتابخانه و باران','Library rain')}</span></button>
    <button type="button" data-ambience-mode="tone"><span class="focus-inline-icon">♫</span><span>${t('موسیقی تمرکز','Focus tone')}</span></button>
   </div>
   <div class="focus-ambience-controls">
@@ -61,7 +88,7 @@ function markup(){
    <label>${t('بلندی صدا','Volume')} <input data-ambience-volume type="range" min="0" max="100" step="1" value="${cfg.volume}"></label>
    <span>${t('در حال انتخاب:','Selected:')} <strong data-ambience-now></strong></span>
   </div>
-  <p class="focus-ambience-note">${t('صدا پس از کلیک شما شروع می‌شود.','Audio begins after your click.')}</p>
+  <p class="focus-ambience-note">${t('ضبط طبیعی صدا پس از کلیک پخش می‌شود؛ بدون صدای تیز و مصنوعی.','Natural recordings start after your click; no sharp synthetic effects.')}</p>
  </section>`
 }
 function mount(){
@@ -74,7 +101,7 @@ function mount(){
  syncState();return true
 }
 document.addEventListener('click',e=>{
- const mode=e.target.closest('[data-ambience-mode]');if(mode){const cfg=write({mode:mode.dataset.ambienceMode});if(playing){void startAudio()}else syncState();return}
+ const mode=e.target.closest('[data-ambience-mode]');if(mode){const cfg=write({mode:mode.dataset.ambienceMode});if(playing){void startAudio().catch(console.warn)}else syncState();return}
  const play=e.target.closest('[data-ambience-play]');if(play){if(playing)stopAudio();else void startAudio().catch(err=>{const note=document.querySelector('.focus-ambience-note');if(note)note.textContent=err.message});return}
 });
 document.addEventListener('input',e=>{if(!e.target.matches('[data-ambience-volume]'))return;write({volume:Number(e.target.value)});syncVolume();syncState()});
