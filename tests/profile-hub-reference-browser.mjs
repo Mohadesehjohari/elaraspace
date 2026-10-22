@@ -17,11 +17,29 @@ for(const width of sizes){
  await page.evaluate(()=>{
   const user={uid:'hub-visual-user',name:'کاربر آزمایش',username:'profile_qa',bio:'متن واقعی همین fixture',xp:260,profilePublic:true};
   Object.defineProperty(window.ElaraAccount,'user',{configurable:true,get:()=>({uid:user.uid,photoURL:''}),set:()=>{}});
-  window.ElaraSocial={me:user,friends:[],saveProfileValues:async values=>({warnings:[],profile:{...user,...values}})};
+  // Exactly how a real Firebase profile arrives: data() has no UID property.
+  Object.defineProperty(window.ElaraAccount,'profile',{configurable:true,get:()=>({...user,uid:undefined})});
+  Object.defineProperty(window.ElaraAccount,'loaded',{configurable:true,get:()=>true});
+  window.ElaraSocial={me:null,friends:[],saveProfileValues:async values=>({warnings:[],profile:{...user,...values}})};
  });
  const originalNav=await page.evaluate(()=>document.querySelector('.bottom-nav')?.innerHTML||'');
  await page.evaluate(()=>window.ElaraPrivateDrawer.open('account'));
  await page.locator('.elara-profile-hub .elara-profile-composition').waitFor({state:'visible',timeout:12000});
+ assert.equal(await page.locator('.elara-profile-composition[data-profile-uid="hub-visual-user"]').count(),1,
+   'Cloud profile without embedded UID should render before Social has loaded');
+ assert.equal((await page.locator('.elara-profile-hub').innerText()).includes('در حال بارگذاری اطلاعات حساب'),false,
+   'Verified Firebase profile must not be stuck in a loading state');
+ await page.evaluate(()=>{
+   // A stale prior-account Social record must never appear in the signed-in person's drawer.
+   window.ElaraSocial.me={uid:'other-user',name:'حساب دیگری',username:'other_name'};
+   window.dispatchEvent(new Event('elara:social-updated'));
+ });
+ assert.equal(await page.locator('.elara-profile-composition[data-profile-uid="hub-visual-user"]').count(),1,
+   'Stale Social identity must not override the authenticated profile');
+ await page.evaluate(()=>{
+   window.ElaraSocial.me={uid:'hub-visual-user',name:'کاربر آزمایش',username:'profile_qa',bio:'متن واقعی همین fixture',xp:260,profilePublic:true};
+   window.dispatchEvent(new Event('elara:social-updated'));
+ });
  await page.locator('#elara-profile-hub-reference-css').waitFor({state:'attached',timeout:12000}).catch(()=>{});
  await page.waitForFunction(()=>!!document.getElementById('elara-profile-hub-reference-css')?.sheet,{timeout:12000});
  const metrics=await page.evaluate(()=>{
