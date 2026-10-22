@@ -16,6 +16,7 @@ function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{};w
 function context(){if(!ctx||ctx.state==='closed'){const A=window.AudioContext||window.webkitAudioContext;if(!A)throw Error('Web Audio unavailable');ctx=new A();const master=ctx.createGain();master.connect(ctx.destination);bus.master=master;for(const key of Object.keys(channels)){const gain=ctx.createGain();gain.connect(master);bus[key]=gain}sync()}return ctx}
 function volumeFor(key){if(!Object.prototype.hasOwnProperty.call(channels,key))return 0;return state.enabled&&!state.mute[key]?limit(state.master)/100*limit(state.volume[key])/100:0}
 function syncMedia(){
+ if(fieldAudio)applyMedia(fieldAudio);
  // Profile-song players are native HTML audio, NOT part of this WebAudio graph.
  // Apply the same master + profile sliders whenever their elements appear or play.
  document.querySelectorAll('audio').forEach(media=>applyMedia(media));
@@ -96,7 +97,7 @@ else if(state.scene==='ocean'){ambientNodes.push(...layer(out,{low:65,high:1900,
 else if(state.scene==='forest'){ambientNodes.push(...layer(out,{low:120,high:1600,level:.06}));sceneTimer=setInterval(()=>{if(state.ambiencePlaying)pingBird()},2400)}
 else if(state.scene==='fire'){ambientNodes.push(...layer(out,{low:90,high:2100,level:.13}));sceneTimer=setInterval(()=>{if(state.ambiencePlaying)crackle()},730)}
 else if(state.scene==='wind'){ambientNodes.push(...layer(out,{low:40,high:650,level:.12}))}
-else{ambientNodes.push(...layer(out,{low:180,high:850,level:.032}))}}
+else{ambientNodes.push(...layer(out,{low:65,high:620,level:.012}))}}
 function transient(freq,duration,amp){if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(amp,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(bus.ambient);o.start(t);o.stop(t+duration+.01);o.onended=()=>{o.disconnect();g.disconnect()}}
 function pingBird(){if(Math.random()>.75){transient(1000+Math.random()*480,.14,.035);setTimeout(()=>{if(state.ambiencePlaying)transient(1280,.12,.025)},110)}}
 function crackle(){if(Math.random()>.45)transient(90+Math.random()*170,.025,.06)}
