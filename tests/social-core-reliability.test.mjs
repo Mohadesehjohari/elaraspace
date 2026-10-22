@@ -34,7 +34,7 @@ for(const [name,start,end] of [
   ['group','async function sendGroup(','async function inviteGroup(']
 ]){
  const body=social.slice(social.indexOf(start),social.indexOf(end));
- assert.match(body,/const batch=writeBatch\(db\)/,name+' must use atomic writes');
+ assert.match(body,/\bbatch=writeBatch\(db\)/,name+' must use atomic writes');
  assert.match(body,/batch\.set\(messageRef,\{sender:uid,text,createdAt:stamp\}\)/,
   name+' must write its message inside the batch');
  assert.match(body,/batch\.update\(/,name+' must update preview in the same batch');
