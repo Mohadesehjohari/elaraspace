@@ -241,6 +241,42 @@
       const b=bones[name]; if (!b) return;
       Euler.set(x,y,z,'XYZ');q.setFromEuler(Euler);b.node.quaternion.copy(b.quat).multiply(q);
     }
+    // Twist the real VRM wrist toward the viewer, using the hand's own knuckle
+    // plane (index/little/middle) instead of a fixed guessed wrist angle.
+    const palmAcross=new THREE.Vector3(),palmFinger=new THREE.Vector3(),
+      palmNormal=new THREE.Vector3(),palmViewer=new THREE.Vector3(),
+      palmAxis=new THREE.Vector3(),palmWrist=new THREE.Vector3(),
+      palmElbow=new THREE.Vector3(),palmIndex=new THREE.Vector3(),
+      palmLittle=new THREE.Vector3(),palmMiddle=new THREE.Vector3(),
+      palmParentQ=new THREE.Quaternion(),palmWorldQ=new THREE.Quaternion(),
+      palmTwistQ=new THREE.Quaternion(),palmCross=new THREE.Vector3();
+    function aimGreetingPalm(){
+      if(motion!=='wave')return;
+      const hand=bones.rightHand?.node,elbow=bones.rightLowerArm?.node;
+      const index=bones.rightIndexProximal?.node,little=bones.rightLittleProximal?.node;
+      const middle=bones.rightMiddleProximal?.node;
+      if(!hand||!elbow||!index||!little||!middle)return;
+      hand.updateWorldMatrix(true,true);
+      hand.getWorldPosition(palmWrist);elbow.getWorldPosition(palmElbow);
+      index.getWorldPosition(palmIndex);little.getWorldPosition(palmLittle);
+      middle.getWorldPosition(palmMiddle);
+      palmAxis.subVectors(palmWrist,palmElbow).normalize();
+      palmAcross.subVectors(palmIndex,palmLittle);
+      palmFinger.subVectors(palmMiddle,palmWrist);
+      palmNormal.crossVectors(palmAcross,palmFinger);
+      palmViewer.copy(camera.position).sub(palmWrist);
+      if(palmNormal.lengthSq()<1e-8||palmViewer.lengthSq()<1e-8||palmAxis.lengthSq()<1e-8)return;
+      palmNormal.addScaledVector(palmAxis,-palmNormal.dot(palmAxis)).normalize();
+      palmViewer.addScaledVector(palmAxis,-palmViewer.dot(palmAxis)).normalize();
+      if(palmNormal.lengthSq()<1e-6||palmViewer.lengthSq()<1e-6)return;
+      const signedAngle=Math.atan2(palmAxis.dot(palmCross.crossVectors(palmNormal,palmViewer)),
+        palmNormal.dot(palmViewer));
+      const twist=clamp(signedAngle,-1.5,1.5);
+      hand.getWorldQuaternion(palmWorldQ);
+      hand.parent.getWorldQuaternion(palmParentQ);
+      palmTwistQ.setFromAxisAngle(palmAxis,twist).multiply(palmWorldQ);
+      hand.quaternion.copy(palmParentQ.invert().multiply(palmTwistQ));
+    }
     const motionOptions=['idle','smile','softSmile','wave','dance1','dance2','dance3'];
     let mixer=null,activeClip=null,usingVRMA=false,motionRequest=0;
     const loadedVRMA=new Map(),armRestZ={left:-.85,right:.85};
@@ -601,6 +637,7 @@
         poseBone('rightLowerArm',-.22,0,.38);
         poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
       }
+      aimGreetingPalm();
       // Respect animation-authored facial tracks. Small closed-mouth expressions
       // are layered only for explicit smile/wave, not exaggerated happy=0.65.
       const normalSmile=motion==='smile', cuteSmile=motion==='softSmile', greeting=motion==='wave';
