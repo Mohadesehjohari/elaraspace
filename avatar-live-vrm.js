@@ -218,16 +218,46 @@
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bones = {};
     const Euler=new THREE.Euler(), q=new THREE.Quaternion();
-    // Recorded VRMA head rotation may exceed the safe range on BOTH real VRMs.
-    // Preserve original meshes, facial textures and whole-body dance tracks.
+    // A VRMA can turn the whole upper body while leaving the head's LOCAL
+    // rotation nearly unchanged. Clamping head/neck locally therefore did NOT
+    // prevent the red back of the hair from facing the camera. Keep the head
+    // within a small WORLD-space angle of its original forward-facing direction,
+    // relative to the viewer-controlled avatar root. Recorded body animation,
+    // the actual VRM mesh/face and user orbit are otherwise untouched.
+    const neutralHeadRelative=new THREE.Quaternion(),
+      headAnchorQ=new THREE.Quaternion(),headWorldQ=new THREE.Quaternion(),
+      headWantedQ=new THREE.Quaternion(),headParentQ=new THREE.Quaternion(),
+      safeHeadWorldQ=new THREE.Quaternion();
+    function rememberNeutralHead(){
+      const node=bones.head?.node;
+      if(!node)return;
+      anchor.getWorldQuaternion(headAnchorQ);
+      node.getWorldQuaternion(neutralHeadRelative);
+      neutralHeadRelative.premultiply(headAnchorQ.invert());
+    }
     function stabilizeDanceHead(){
       if(!usingVRMA||!motion.startsWith('dance'))return;
-      for(const [name,limit] of [['neck',.20],['head',.34]]){
-        const bone=bones[name];if(!bone)continue;
-        const angle=bone.quat.angleTo(bone.node.quaternion);
-        if(angle>limit)bone.node.quaternion.slerpQuaternions(
-          bone.quat,bone.node.quaternion,limit/angle);
-      }
+      const node=bones.head?.node;
+      if(!node?.parent)return;
+      anchor.getWorldQuaternion(headAnchorQ);
+      headWantedQ.copy(headAnchorQ).multiply(neutralHeadRelative);
+      node.getWorldQuaternion(headWorldQ);
+      const deviation=headWantedQ.angleTo(headWorldQ);
+      // Preserve subtle motion (12 degrees), but never a 180-degree back-facing head.
+      const maxTilt=.21;
+      if(deviation<=maxTilt)return;
+      safeHeadWorldQ.copy(headWantedQ).slerp(headWorldQ,maxTilt/deviation);
+      node.parent.getWorldQuaternion(headParentQ);
+      node.quaternion.copy(headParentQ.invert().multiply(safeHeadWorldQ));
+      node.updateWorldMatrix(false,true);
+    }
+    function headFacingError(){
+      const node=bones.head?.node;
+      if(!node)return null;
+      anchor.getWorldQuaternion(headAnchorQ);
+      headWantedQ.copy(headAnchorQ).multiply(neutralHeadRelative);
+      node.getWorldQuaternion(headWorldQ);
+      return headWantedQ.angleTo(headWorldQ);
     }
     const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand','leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot',
       ...['left','right'].flatMap(side=>['Eye','ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
@@ -383,6 +413,7 @@
       vrm.scene.position.z-=mid.z*scale;
       height=1.9;
       captureBones();
+      rememberNeutralHead();
       mixer?.stopAllAction();mixer=new THREE.AnimationMixer(vrm.scene);
       activeClip=null;usingVRMA=false;motionRequest++;
       measureArmRest();
@@ -698,7 +729,8 @@
     }
     window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,setAction,
       get action(){return motion;},get look(){return look.id;},get kind(){return kind;},
-      get view(){return {focus,yaw,pitch,panY,zoom,distance:cameraOrbitDistance};}};
+      get view(){return {focus,yaw,pitch,panY,zoom,distance:cameraOrbitDistance};},
+      get diagnostics(){return {motion,headFacingError:headFacingError()};}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
