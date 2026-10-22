@@ -284,7 +284,7 @@
         '<button type="button" data-profile-avatar-gallery>'+icon('user')+'<span>گالری پروفایل<small>تصاویر و آواتارها</small></span></button>'+
         '<button type="button" data-approved-wardrobe>'+icon('wardrobe')+'<span>کمد<small>آواتار، قاب و بنر</small></span></button>'+
       '</div>'+
-      '<p class="elara-profile-hub-storage">ظاهر شخصی‌سازی‌شدهٔ این حساب فعلاً روی همین مرورگر ذخیره می‌شود؛ تصاویر ابری هنوز فعال نیستند.</p>'+
+      '<p class="elara-profile-hub-storage">نام، بیو و آواتار، قاب و بنرهای آماده پس از ذخیرهٔ پروفایل در Firebase به‌روزرسانی می‌شوند؛ عکس‌های آپلودشده از دستگاه هنوز فقط محلی‌اند.</p>'+
     '</div>';
   }
   function privacyRow(title,sub,control,status=''){
