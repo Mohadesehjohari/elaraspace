@@ -110,7 +110,7 @@ export function parseGscCsv(text){
   const number=x=>{const v=Number(String(x||'').replace(/[,%\s]/g,''));return Number.isFinite(v)?v:0};
   return rows.slice(0,5000).map(r=>({name:String(r[n>=0?n:0]||'').trim().slice(0,500),clicks:number(r[c]),impressions:number(r[i]),position:number(r[p])})).filter(r=>r.name&&r.clicks>=0&&r.impressions>=0);
 }
-function showCsv(rows,filename){
+function showCsv(rows,filename,source='csv'){
   const summary=el('seo-gsc-summary'),result=el('seo-gsc-results');summary.replaceChildren();result.replaceChildren();
   const clicks=rows.reduce((a,x)=>a+x.clicks,0),impressions=rows.reduce((a,x)=>a+x.impressions,0);
   const average=impressions?rows.reduce((a,x)=>a+x.position*x.impressions,0)/impressions:null,format=x=>Number(x).toLocaleString('fa-IR');
@@ -127,7 +127,7 @@ function showCsv(rows,filename){
     body.append(tr);
   }
   table.append(body);result.append(table);
-  el('seo-gsc-message').textContent=filename+': '+rows.length+' ردیف خوانده شد. این اعداد فقط مربوط به همین فایل‌اند؛ چیزی آپلود نشده.';
+  if(source==='csv')el('seo-gsc-message').textContent=filename+': '+rows.length+' ردیف از فایل محلی خوانده شد؛ چیزی آپلود نشده.';
 }
 async function loadCsv(event){
   const file=event.target.files?.[0];if(!file)return;
@@ -191,7 +191,7 @@ async function loadLiveGsc(){
       throw Error('خواندن گزارش گوگل ناموفق بود (HTTP '+response.status+'). مالکیت Property، OAuth origin و مجوز API را بررسی کن.');
     }
     const data=await response.json(),results=normalizeGscRows(data);
-    if(results.length){showCsv(results,'Google Search Console · '+dimension);authStatus('گزارش زنده: '+results.length+' ردیف از تاریخ '+body.startDate+' تا '+body.endDate+'؛ API ممکن است فقط ردیف‌های برتر را ارائه کند.')}
+    if(results.length){showCsv(results,'Google Search Console · '+dimension,'api');authStatus('گزارش زنده: '+results.length+' ردیف از تاریخ '+body.startDate+' تا '+body.endDate+'؛ API ممکن است فقط ردیف‌های برتر را ارائه کند.')}
     else{el('seo-gsc-summary').replaceChildren();el('seo-gsc-results').replaceChildren();authStatus('گوگل برای این فیلتر و بازه داده‌ای برنگرداند.');}
   }catch(error){authStatus(error.message||'اتصال به گوگل ناموفق بود.')}
   finally{googleBusy=false;el('seo-gsc-connect').disabled=false;setGscButtons()}
