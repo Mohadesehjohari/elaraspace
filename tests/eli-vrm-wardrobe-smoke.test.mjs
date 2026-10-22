@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v5'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v6'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -171,9 +171,11 @@ test('face is not forced back to full view mid-dance; vertical orbit and reset c
   assert.ok(live.includes("targetPitch=clamp(targetPitch+dy*.004,-1.05,1.05)"));
   assert.ok(live.includes("if(focus!=='full')panY=clamp("));
   assert.ok(live.includes("minimumDanceOrbitDistance("));
+  assert.ok(live.includes("if(focus==='face'&&bones.head?.node)"));
+  assert.ok(live.includes("focusHeight=focusTargetPoint.y+.015"));
   assert.ok(live.includes("data-live-action=\"reset\""));
   assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
-  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v5'));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v6'));
 });
 test('per-account real GLB cache survives page script reload without redownloading',async()=>{
   const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
