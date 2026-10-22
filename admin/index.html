@@ -201,6 +201,25 @@
               </div>
             </article>
             <article class="card seo-tool-card">
+              <h3>اتصال مستقیم به Google Search Console</h3>
+              <p class="muted">با حساب گوگلی که به Search Console سایت دسترسی دارد وارد شو. مجوز فقط خواندن آمار است؛ توکن فقط در حافظه همین صفحه نگهداری می‌شود و در Firebase، GitHub یا مرورگر ذخیره نمی‌شود.</p>
+              <div class="seo-gsc-connection">
+                <label>Google OAuth Web Client ID
+                  <input id="seo-gsc-client-id" dir="ltr" autocomplete="off" placeholder="123456789-xxxx.apps.googleusercontent.com">
+                </label>
+                <label>آدرس دقیق Property در Search Console
+                  <input id="seo-gsc-property" dir="ltr" placeholder="https://example.com/ یا sc-domain:example.com">
+                </label>
+                <label>از تاریخ<input id="seo-gsc-from" type="date"></label>
+                <label>تا تاریخ<input id="seo-gsc-to" type="date"></label>
+                <label>گروه‌بندی
+                  <select id="seo-gsc-dimension"><option value="query">کلمات کلیدی</option><option value="page">صفحات</option></select>
+                </label>
+              </div>
+              <div class="actions"><button id="seo-gsc-connect" type="button" class="primary">اتصال به گوگل و دریافت آمار</button><button id="seo-gsc-reload" class="secondary" type="button" disabled>به‌روزرسانی گزارش</button><button id="seo-gsc-disconnect" class="secondary" type="button" disabled>قطع دسترسی</button></div>
+              <p id="seo-gsc-live-status" class="muted" role="status">برای اتصال، OAuth Client ID مخصوص دامنه این پنل و Property واقعی لازم است.</p>
+            </article>
+            <article class="card seo-tool-card">
               <h3>گزارش واقعی Search Console از CSV</h3>
               <p class="muted">از تب Performance در سرچ کنسول، گزارش Queries یا Pages را به CSV خروجی بگیر و اینجا انتخاب کن. فایل فقط در مرورگر خوانده می‌شود؛ به Firebase یا سرور دیگری آپلود نمی‌شود. داده‌ها صرفاً مربوط به همین خروجی هستند و لزوماً آمار کل سایت نیستند.</p>
               <label>انتخاب فایل CSV
@@ -308,6 +327,7 @@
   </main>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script type="module" src="admin.js"></script>
 </body>
 </html>
