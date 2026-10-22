@@ -72,7 +72,7 @@ function cue(type='ui'){
   const f=type==='warning'?277.18:349.23;
   strike('timer',f,time,.17,.045);strike('timer',f*.75,time+.19,.15,.032);return;
  }
- const opts=melodies[type]||melodies.complete;
+ const opts=melodies[type==='mission'?'rewards':type]||melodies.complete;
  const notes=opts[chimeIndex++%opts.length];
  const rich=type==='rewards'||type==='mission'||type==='level';
  const gap=rich?.155:type==='goal'?.088:.115;
@@ -173,6 +173,7 @@ function markup(){
   ['music','ambient','focus','profile'].map(key=>slider(key)).join('')+
   '<div class="elara-audio-group-label">'+tr('تعاملات و اعلان‌ها','Interactions and notifications')+'</div>'+
   ['ui','rewards','timer'].map(key=>slider(key)).join('')+
+  '<div class="elara-audio-samples"><button type="button" class="quiet-button" data-audio-preview="goal">'+tr('✨ آزمایش تیک هدف','✨ Goal check preview')+'</button><button type="button" class="quiet-button" data-audio-preview="rewards">'+tr('✦ آزمایش صدای مأموریت','✦ Mission reward preview')+'</button></div>'+
   '<div class="elara-audio-actions"><label>'+tr('انتخاب فضای محیطی','Ambient sound')+' <select data-audio-scene>'+Object.entries(scenes).map(([key,label])=>'<option value="'+key+'">'+tr(...label)+'</option>').join('')+'</select></label>'+
   '<button type="button" class="quiet-button" data-audio-ambient-play></button>'+
   '<button type="button" class="quiet-button" data-audio-music-play></button>'+
@@ -180,17 +181,46 @@ function markup(){
   '<p class="elara-audio-note">'+tr('صدای کاراکتر سه‌بعدی هنوز متصل نشده است؛ پس از فعال‌شدن سرویس گفتار برای آن تنظیم جداگانه می‌گذاریم. صداهای محیطی و موسیقی به کلیک پخش نیاز دارند.','The 3D character voice is not connected yet and will get its own control when TTS is available. Music and ambience start on a user gesture.')+'</p>'+
  '</section>'
 }
+const soundViews={page:'general',drawer:'general'};
+function applySoundView(root,suffix){
+ const tabs=root.querySelector(':scope > [data-elara-audio-tabs]');
+ const mixer=root.querySelector(':scope > [data-elara-audio-host]');
+ if(!tabs||!mixer)return;
+ const audio=soundViews[suffix]==='audio';
+ for(const child of [...root.children]){
+  if(child===tabs)continue;
+  if(child===mixer){child.toggleAttribute('data-elara-audio-hidden',!audio);continue}
+  if(child.matches('.section-heading,.drawer-section-heading')||child===root.firstElementChild&&child!==mixer)continue;
+  child.toggleAttribute('data-elara-audio-hidden',audio);
+ }
+ for(const btn of tabs.querySelectorAll('[data-elara-audio-tab]')){
+  const selected=btn.dataset.elaraAudioTab===(audio?'audio':'general');
+  btn.setAttribute('aria-selected',String(selected));btn.tabIndex=selected?0:-1;
+ }
+}
 function mount(){
  for(const [selector,suffix] of [['#panel-settings','page'],['#drawer-settings-area','drawer']]){
   const root=document.querySelector(selector);
   if(!root||!root.children.length)continue;
-  const existing=root.querySelector('[data-elara-audio-host]');
-  if(existing)continue;
-  const wrap=document.createElement('div');
-  wrap.innerHTML=markup().replaceAll('id="elara-audio-', 'id="elara-audio-'+suffix+'-').replaceAll('for="elara-audio-', 'for="elara-audio-'+suffix+'-');
-  const card=wrap.firstElementChild;
-  const theme=root.querySelector('.elara-theme-settings-inline, .elara-theme-settings-card');
-  if(theme)theme.after(card);else root.append(card);
+  let card=root.querySelector(':scope > [data-elara-audio-host]');
+  if(!card){
+   const wrap=document.createElement('div');
+   wrap.innerHTML=markup().replaceAll('id="elara-audio-', 'id="elara-audio-'+suffix+'-').replaceAll('for="elara-audio-', 'for="elara-audio-'+suffix+'-');
+   card=wrap.firstElementChild;
+   const theme=root.querySelector('.elara-theme-settings-inline, .elara-theme-settings-card');
+   if(theme)theme.after(card);else root.append(card);
+  }
+  let tabs=root.querySelector(':scope > [data-elara-audio-tabs]');
+  if(!tabs){
+   tabs=document.createElement('nav');
+   tabs.className='elara-audio-tabs';tabs.dataset.elaraAudioTabs=suffix;
+   tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label',tr('تب‌های تنظیمات','Settings tabs'));
+   tabs.innerHTML='<button type="button" role="tab" data-elara-audio-tab="general">'+tr('⚙ تنظیمات عمومی','⚙ General settings')+'</button>'+
+    '<button type="button" role="tab" data-elara-audio-tab="audio">'+tr('🔊 صداها','🔊 Sounds')+'</button>';
+   const first=root.querySelector(':scope > .section-heading')||root.firstElementChild;
+   if(first)first.after(tabs);else root.prepend(tabs);
+  }
+  applySoundView(root,suffix);
  }
  render();
 }
@@ -198,11 +228,20 @@ let drawerObserver=null;
 function watchDrawer(){
  const drawer=document.querySelector('#drawer-settings-area');
  if(drawer&&!drawerObserver){
-  drawerObserver=new MutationObserver(()=>{if(drawer.children.length&&!drawer.querySelector('[data-elara-audio-host]'))mount()});
+  drawerObserver=new MutationObserver(()=>{
+   if(drawer.children.length&&(!drawer.querySelector(':scope > [data-elara-audio-host]')||!drawer.querySelector(':scope > [data-elara-audio-tabs]')))mount()
+  });
   drawerObserver.observe(drawer,{childList:true});
  }
  mount();
 }
+document.addEventListener('click',e=>{
+ const tab=e.target.closest('[data-elara-audio-tab]');
+ if(!tab)return;
+ const nav=tab.closest('[data-elara-audio-tabs]');if(!nav)return;
+ soundViews[nav.dataset.elaraAudioTabs]=tab.dataset.elaraAudioTab==='audio'?'audio':'general';
+ const root=nav.parentElement;if(root)applySoundView(root,nav.dataset.elaraAudioTabs);
+});
 document.addEventListener('input',e=>{const el=e.target.closest('[data-audio-volume]');if(!el)return;const k=el.dataset.audioVolume,v=limit(el.value);set(k==='master'?{master:v}:{volume:{[k]:v}})});
 document.addEventListener('play',e=>{applyMedia(e.target)},true);
 document.addEventListener('loadedmetadata',e=>{applyMedia(e.target)},true);
@@ -217,7 +256,7 @@ else if(el.matches('[data-audio-preview]')){const key=el.dataset.audioPreview;cu
 document.addEventListener('click',e=>{if(e.target.closest('[data-elara-audio-host]'))return;if(e.target.closest('#timer-start,#timer-reset,[data-focus-timer-start],[data-focus-timer-stop]')){cue('timer');return}const button=e.target.closest('button,.quiet-button,.primary-button,[role="button"]');if(!button||button.disabled||button.getAttribute('aria-disabled')==='true'||button.closest('[data-elara-no-sfx],.freedom-fox-overlay'))return;if(button.matches('[data-action="toggle-step"],[data-action="toggle-goal-daily"]'))return;cue('ui')},true);
 window.addEventListener('elara:open',e=>{mount();const tab=String(e.detail?.tab||'');if(tab==='settings')mount()});
 window.addEventListener('elara:data-changed',()=>{if(document.querySelector('#drawer-settings-area,#panel-settings'))mount()});
-window.addEventListener('elara:locale-changed',()=>{document.querySelectorAll('[data-elara-audio-host]').forEach(n=>n.remove());mount()});
+window.addEventListener('elara:locale-changed',()=>{document.querySelectorAll('[data-elara-audio-host],[data-elara-audio-tabs]').forEach(n=>n.remove());mount()});
 document.addEventListener('click',e=>{if(e.target.closest('[data-audio-master],[data-audio-mute],[data-audio-reset]'))return;const btn=e.target.closest('[data-elara-complete-task], [data-habit-check], [data-mission-claim], [data-book-add]');if(btn){const type=btn.matches('[data-mission-claim]')?'rewards':btn.matches('[data-habit-check]')?'habit':btn.matches('[data-book-add]')?'book':'complete';cue(type)}});
 window.addEventListener('elara:mission-claimed',()=>cue('rewards'));
 window.addEventListener('elara:domain-milestone',e=>{const type=e.detail?.type;if(type==='book')cue('book');else if(type==='task'||type==='goal'||type==='habit')cue('complete')});
