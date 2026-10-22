@@ -27,7 +27,7 @@ try {
      fullscreen:document.body.classList.contains('elara-focus-fullscreen')};
   });
   assert.equal(d.inside,true,'audio needs to live in Pomodoro card');
-  assert.equal(d.modes,4,'four working sound buttons');
+  assert.equal(d.modes,6,'six distinct sound choices should appear in Focus room');
   assert.equal(d.garden,0,'old garden UI must be removed');
   assert.equal(d.legacyLinks,0,'no obsolete view-all link');
   assert.equal(d.hiddenLegacy,'none','obsolete panel should not show');
