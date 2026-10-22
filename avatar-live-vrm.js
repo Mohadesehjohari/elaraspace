@@ -621,6 +621,8 @@
       return false;
     }
     delete stage.dataset.avatarFallbackReason;
+    // The import map and VRM runtime may still be downloading before the GLTF loader starts.
+    showDownload(stage,'model:'+kind,kind==='male'?'مدل مرد':'مدل زن');
     try {
       return await mount(stage,config,kind,base);
     } catch(err) {
@@ -628,7 +630,7 @@
       stage.dataset.avatarFallbackReason='vrm-download-or-render-failed';
       status(stage,kind==='male'?'فایل مدل مردانه در سایت موجود نیست.':'بارگذاری مدل واقعی انجام نشد.','error');
       return false;
-    }
+    } finally {clearDownload(stage,'model:'+kind);}
   }
   window.ElaraLiveVRM={tryMount,current:null,version:'vrm-only-production-v2'};
   // The retired procedural renderer used to discover/profile-mount the real
