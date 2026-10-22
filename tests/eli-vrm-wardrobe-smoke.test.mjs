@@ -144,7 +144,7 @@ test('download rings use real totals or honest indeterminate state, with cache b
   assert.ok(gallery.includes('elara:avatar-download-progress')&&gallery.includes('elara-motion-download'));
   assert.ok(css.includes('conic-gradient(#fff')&&icons.includes('.elara-motion-download i'));
   assert.ok(html.includes('avatar-motion-controls.js?v=20261022-dance-progress-v2'));
-  assert.ok(html.includes('avatar-live-vrm.css?v=20261022-transfer-gender-head-v3'));
+  assert.ok(html.includes('avatar-live-vrm.css?v=20261022-transfer-gender-head-v4'));
 });
 test('desktop-only shortcuts reuse character wardrobe and independent gender setting',()=>{
   const live=read('avatar-live-vrm.js'),css=read('avatar-live-vrm.css'),modal=read('avatar-quick-modal.css');
