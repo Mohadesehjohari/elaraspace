@@ -1,0 +1,40 @@
+name: Eli Real VRM Face and Dance Browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - avatar-live-vrm.js
+      - avatar-vrm-asset-cache.js
+      - avatar-motion-controls.js
+      - index.html
+      - tests/eli-real-vrm-browser.mjs
+      - .github/workflows/eli-real-vrm-browser.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-vrm-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Render uploaded female and male models, orbit, reset and recorded dance
+        run: |
+          python3 -m http.server 4173 >/tmp/eli-real-vrm.log 2>&1 &
+          sleep 3
+          timeout 350s node tests/eli-real-vrm-browser.mjs
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eli-real-vrm-browser-${{ github.sha }}
+          path: artifacts/eli-real-vrm/
+          retention-days: 14
+          if-no-files-found: warn

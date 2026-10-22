@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-transfer-gender-head-v3'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -115,7 +115,7 @@ test('animated full-body perspective envelope covers yaw, jumps and narrow width
   assert.ok(live.includes('if(dancingNow)sampleDanceFrame(t);'),'Measure the current animated pose');
   assert.ok(live.includes('const worldX=cos*dancePoint.x+sin*dancePoint.z'),'Yaw must affect horizontal framing');
   assert.ok(live.includes('const worldZ=-sin*dancePoint.x+cos*dancePoint.z'),'Nearest depth must affect framing');
-  assert.ok(live.includes('camera.position.z=Math.max(camera.position.z,minimumDanceCameraZ('),'Immediate safety zoom-out');
+  assert.ok(live.includes('cameraOrbitDistance=Math.max(cameraOrbitDistance,required)'),'Immediate safety zoom-out');
   const cases=[
     {minX:-1.1,maxX:1.1,minY:-.3,maxY:2.1,maxZ:.4},
     {minX:1.2,maxX:3.5,minY:-1.3,maxY:1.3,maxZ:1.1},
@@ -138,7 +138,7 @@ test('download rings use real totals or honest indeterminate state, with cache b
   const js=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
   const html=read('index.html'),css=read('avatar-live-vrm.css'),icons=read('avatar-motion-controls.css');
   assert.ok(js.includes('function showDownload(stage,key,label,loaded=0,total=0'));
-  assert.ok(js.includes('event.loaded,event.total,started'),'Byte progress is supplied by glTF loaders');
+  assert.ok(js.includes('onProgress:progress')&&read('avatar-vrm-asset-cache.js').includes('onProgress(received,total)'),'Byte progress is supplied by stream reader');
   assert.ok(js.includes('const eta=remaining!==null&&remaining<3600'),'ETA is only estimated when bytes known');
   assert.ok(js.includes('if(!stage?.isConnected)return;'));
   assert.ok(gallery.includes('elara:avatar-download-progress')&&gallery.includes('elara-motion-download'));
@@ -156,11 +156,105 @@ test('desktop-only shortcuts reuse character wardrobe and independent gender set
   assert.ok(css.includes('@media(max-width:700px)')&&css.includes('display:none!important'));
   assert.ok(modal.includes('.elara-live-controls{'));
 });
-test('male head and neck guard prevents upside-down dance poses, retaining real VRMA body',()=>{
+test('both VRM dances keep the head WORLD direction forward, not just local head rotation',()=>{
   const live=read('avatar-live-vrm.js');
-  assert.ok(live.includes("if(kind!=='male'||!usingVRMA||!motion.startsWith('dance'))return"));
-  assert.ok(live.includes("['neck',.20],['head',.34]"));
-  assert.ok(live.includes('bone.node.quaternion.slerpQuaternions('));
-  assert.ok(live.includes('mixer?.update(dt);\n      stabilizeMaleDanceHead();'));
+  assert.ok(live.includes("if(!usingVRMA||!motion.startsWith('dance'))return"));
+  assert.ok(live.includes('function rememberNeutralHead()'));
+  assert.ok(live.includes('headWantedQ.copy(headAnchorQ).multiply(neutralHeadRelative)'));
+  assert.ok(live.includes('safeHeadWorldQ.copy(headWantedQ).slerp(headWorldQ,maxTilt/deviation)'));
+  assert.ok(live.includes('node.quaternion.copy(headParentQ.invert().multiply(safeHeadWorldQ))'));
+  assert.ok(live.includes('mixer?.update(dt);\n      stabilizeDanceHead();'));
   assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
+});
+
+test('face is not forced back to full view mid-dance; vertical orbit and reset controls exist',()=>{
+  const live=read('avatar-live-vrm.js'),html=read('index.html');
+  assert.ok(!live.includes("if(dancingNow&&focus!=='full')selectFocus('full')"));
+  assert.ok(live.includes("targetPitch=clamp(targetPitch+dy*.004,-1.05,1.05)"));
+  assert.ok(live.includes("if(focus!=='full')panY=clamp("));
+  assert.ok(live.includes("minimumDanceOrbitDistance("));
+  assert.ok(live.includes("if(focus==='face'&&bones.head?.node)"));
+  assert.ok(live.includes("focusHeight=focusTargetPoint.y+.015"));
+  assert.ok(live.includes("data-live-action=\"reset\""));
+  assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
+});
+test('per-account real GLB cache survives page script reload without redownloading',async()=>{
+  const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
+  assert.ok(html.includes('avatar-vrm-asset-cache.js?v=20261022-account-cache-v1'));
+  assert.ok(html.indexOf('avatar-vrm-asset-cache.js?v=')<html.indexOf('avatar-live-vrm.js?v='));
+  const stores=new Map(), bytes=new ArrayBuffer(24);
+  new DataView(bytes).setUint32(0,0x46546c67,true);
+  let fetchCount=0;
+  const ctx=()=>{
+    const window={};
+    const caches={
+      async open(name){
+        if(!stores.has(name))stores.set(name,new Map());
+        const store=stores.get(name);
+        return {
+          async match(url){return store.has(url)?new Response(store.get(url).slice(0)):undefined;},
+          async put(url,response){store.set(url,await response.arrayBuffer());},
+          async delete(url){return store.delete(url);}
+        };
+      }
+    };
+    const fetch=async()=>{fetchCount++;return new Response(bytes.slice(0),{headers:{'Content-Length':'24'}});};
+    new Script(cacheScript).runInNewContext({window,caches,fetch,Response,
+      ArrayBuffer,DataView,Uint8Array,console});
+    return window.ElaraAvatarAssetCache;
+  };
+  const one=ctx(),seen=[];
+  const first=await one.load('https://example.test/eli.vrm',{accountId:'user-a',onProgress:(a,b)=>seen.push([a,b])});
+  assert.equal(first.cached,false);
+  assert.equal(fetchCount,1);
+  assert.deepEqual(seen.at(-1),[24,24]);
+  const repeated=await one.load('https://example.test/eli.vrm',{accountId:'user-a'});
+  assert.equal(repeated.cached,true);assert.equal(fetchCount,1);
+  const newPage=ctx();
+  const persisted=await newPage.load('https://example.test/eli.vrm',{accountId:'user-a'});
+  assert.equal(persisted.cached,true);assert.equal(fetchCount,1);
+  await newPage.load('https://example.test/eli.vrm',{accountId:'user-b'});
+  assert.equal(fetchCount,2,'Different accounts use isolated local asset caches');
+});
+test('dance orbit safety fit covers rotated heights and depths at phone widths',()=>{
+  const live=read('avatar-live-vrm.js');
+  const match=live.match(/    function minimumDanceOrbitDistance\(bounds,cameraX,cameraY,aspect,fov,pitch\)\{[\s\S]*?\n    \}/);
+  assert.ok(match);
+  const orbit=new Function(match[0]+';return minimumDanceOrbitDistance;')();
+  const bounds={minX:-1.1,maxX:1.2,minY:-.5,maxY:2.9,minZ:-.8,maxZ:.9};
+  for(const aspect of [.4,.6,1.5])for(const pitch of [-.9,0,.9]){
+    const dist=orbit(bounds,0,1.0,aspect,30,pitch);
+    const s=Math.sin(pitch),c=Math.cos(pitch),t=Math.tan(15*Math.PI/180)*.78;
+    assert.ok(Number.isFinite(dist)&&dist>=6.6);
+    for(const x of [bounds.minX,bounds.maxX])
+      for(const y of [bounds.minY,bounds.maxY])
+        for(const z of [bounds.minZ,bounds.maxZ]){
+          const depth=dist-(y-1)*s-z*c;
+          assert.ok(depth>0);
+          assert.ok(Math.abs(x)<=depth*t*aspect+1e-8,'Horizontal fit');
+          assert.ok(Math.abs((y-1)*c-z*s)<=depth*t+1e-8,'Vertical fit');
+        }
+  }
+});
+
+test('real greeting hand plane is aimed at viewer from finger and forearm joints',()=>{
+  const live=read('avatar-live-vrm.js');
+  assert.ok(live.includes('function aimGreetingPalm()'));
+  assert.ok(live.includes('palmNormal.crossVectors(palmAcross,palmFinger)'));
+  assert.ok(live.includes('palmViewer.copy(camera.position).sub(palmWrist)'));
+  assert.ok(live.includes('palmAxis.dot(palmCross.crossVectors(palmNormal,palmViewer))'));
+  assert.ok(live.includes('hand.quaternion.copy(palmParentQ.invert().multiply(palmTwistQ))'));
+  assert.ok(live.includes('      aimGreetingPalm();'));
+  assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
+});
+
+test('browser QA checks the six actual VRMA/gender pairs beyond successful load',()=>{
+  const qa=read('tests/eli-real-vrm-browser.mjs');
+  assert.ok(qa.includes("['dance2','dance3']"));
+  assert.ok(qa.includes("['dance1','dance2','dance3']"));
+  assert.ok(qa.includes('diagnostic.headFacingError<=.24'));
+  assert.ok(qa.includes('diagnostic.renderedHeadFacingError<=.30'));
+  assert.ok(qa.includes("male-'+action+'-face.png"));
+  assert.ok(qa.includes("female-'+action+'-face.png"));
 });

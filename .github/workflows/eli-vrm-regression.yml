@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - avatar-live-vrm.js
+      - avatar-vrm-asset-cache.js
       - avatar-motion-controls.js
       - avatar-motion-controls.css
       - avatar-quick-modal.js
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - avatar-live-vrm.js
+      - avatar-vrm-asset-cache.js
       - avatar-motion-controls.js
       - avatar-motion-controls.css
       - avatar-quick-modal.js
@@ -33,6 +35,7 @@ jobs:
           node-version: '22'
       - name: Check VRM JavaScript and avatar contract
         run: |
+          node --check avatar-vrm-asset-cache.js
           node --check avatar-live-vrm.js
           node --check avatar-motion-controls.js
           node --check avatar-quick-modal.js
