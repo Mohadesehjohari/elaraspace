@@ -115,7 +115,7 @@ test('animated full-body perspective envelope covers yaw, jumps and narrow width
   assert.ok(live.includes('if(dancingNow)sampleDanceFrame(t);'),'Measure the current animated pose');
   assert.ok(live.includes('const worldX=cos*dancePoint.x+sin*dancePoint.z'),'Yaw must affect horizontal framing');
   assert.ok(live.includes('const worldZ=-sin*dancePoint.x+cos*dancePoint.z'),'Nearest depth must affect framing');
-  assert.ok(live.includes('camera.position.z=Math.max(camera.position.z,minimumDanceCameraZ('),'Immediate safety zoom-out');
+  assert.ok(live.includes('cameraOrbitDistance=Math.max(cameraOrbitDistance,required)'),'Immediate safety zoom-out');
   const cases=[
     {minX:-1.1,maxX:1.1,minY:-.3,maxY:2.1,maxZ:.4},
     {minX:1.2,maxX:3.5,minY:-1.3,maxY:1.3,maxZ:1.1},
@@ -138,7 +138,7 @@ test('download rings use real totals or honest indeterminate state, with cache b
   const js=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
   const html=read('index.html'),css=read('avatar-live-vrm.css'),icons=read('avatar-motion-controls.css');
   assert.ok(js.includes('function showDownload(stage,key,label,loaded=0,total=0'));
-  assert.ok(js.includes('event.loaded,event.total,started'),'Byte progress is supplied by glTF loaders');
+  assert.ok(js.includes('onProgress:progress')&&read('avatar-vrm-asset-cache.js').includes('onProgress(received,total)'),'Byte progress is supplied by stream reader');
   assert.ok(js.includes('const eta=remaining!==null&&remaining<3600'),'ETA is only estimated when bytes known');
   assert.ok(js.includes('if(!stage?.isConnected)return;'));
   assert.ok(gallery.includes('elara:avatar-download-progress')&&gallery.includes('elara-motion-download'));
