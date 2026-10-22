@@ -1,15 +1,16 @@
 /* ELARA AI • Cosmic Glass Chat • 2026-10-22
    Presentation-only overrides, scoped to the Freedom AI overlay.
-   Source art: user-provided Violet Nebula Space Vista, optimized as AVIF.
+   Source: existing full-resolution Elara gallery artwork (temporary crisp fallback).
+   The previous 5 KB AVIF was too compressed for a fullscreen surface.
    No changes to transport, privacy, memory, or site actions. */
 .freedom-fox-overlay.ef-dual-chat {
   --ef-border:rgba(174,158,255,.44);
   --ef-purple:#9160ff;
   --ef-purplelight:#e0baff;
   background-color:#040b27!important;
-  background-image:linear-gradient(180deg,rgba(3,8,30,.28),rgba(4,6,26,.10) 45%,rgba(2,4,20,.36)),url('assets/ui/elara-chat-nebula-20261022.avif')!important;
+  background-image:linear-gradient(180deg,rgba(2,5,26,.35),rgba(4,6,27,.54) 45%,rgba(2,3,20,.46)),url('assets/ui/theme_galaxy_purple.webp')!important;
   background-position:center,center!important;
-  background-size:cover,cover!important;
+  background-size:cover,contain!important;
   background-repeat:no-repeat!important;
   color:#faf8ff;
 }
