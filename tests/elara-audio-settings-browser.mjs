@@ -20,7 +20,13 @@ try{
    tab?.classList.remove('hidden');
    if(tab)tab.hidden=false;
   });
+  const nav=page.locator('#panel-settings [data-elara-audio-tabs]');
+  assert.equal(await nav.count(),1,'separate Sounds tab must exist');
+  assert.equal(await nav.locator('[data-elara-audio-tab="audio"]').count(),1,'Sounds tab missing');
+  await nav.locator('[data-elara-audio-tab="audio"]').click();
   const root=page.locator('#panel-settings [data-elara-audio-host]');
+  assert.ok(await root.isVisible(),'Sound mixer must be visible when Sounds tab is selected');
+  assert.equal(await nav.locator('[data-elara-audio-tab="audio"]').getAttribute('aria-selected'),'true');
   const rows=await root.locator('input[data-audio-volume]').count();
   assert.equal(rows,8,'master plus seven working sound channels at '+width);
   for(const key of ['master','music','ambient','focus','profile','ui','rewards','timer']){
