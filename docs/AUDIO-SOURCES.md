@@ -5,7 +5,7 @@ All natural recording links below point to files hosted by **Wikimedia Commons**
 | Scene | Recording | Creator/source | License | Source page |
 |---|---|---|---|---|
 | Rain | Rain.ogg | ジダネ | Public domain | https://commons.wikimedia.org/wiki/File:Rain.ogg |
-| Forest morning | Birdsong morning 01.ogg | Martin Thurnherr | Confirm licensing before future distribution; currently externally linked, not rehosted | https://commons.wikimedia.org/wiki/File:Birdsong_morning_01.ogg |
+| Forest morning | Birdsong mild sunny day.ogg | stephan / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:Birdsong_mild_sunny_day.ogg |
 | Ocean waves | Waves.ogg | Dsw4 | Public domain | https://commons.wikimedia.org/wiki/File:Waves.ogg |
 | Fireplace | Dry grass burning in open fireplace.ogg | ezwa / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:Dry_grass_burning_in_open_fireplace.ogg |
 | Forest breeze | 20090610 0 ambience.ogg | nille / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:20090610_0_ambience.ogg |
