@@ -275,8 +275,26 @@
       raw.getWorldQuaternion(headWorldQ);
       return headWantedQ.angleTo(headWorldQ);
     }
+    function stabilizeRenderedDanceHead(){
+      // VRM.update() copies normalized transforms to the *rendered* raw skeleton.
+      // Stabilizing only the normalized head before update can leave a
+      // back-facing mesh for some poses. Guard the final rendered orientation.
+      if(!usingVRMA||!motion.startsWith('dance'))return;
+      const raw=vrm.humanoid?.getRawBoneNode?.('head');
+      if(!raw?.parent)return;
+      anchor.getWorldQuaternion(headAnchorQ);
+      headWantedQ.copy(headAnchorQ).multiply(neutralRawHeadRelative);
+      raw.getWorldQuaternion(headWorldQ);
+      const deviation=headWantedQ.angleTo(headWorldQ);
+      const maxTilt=.21;
+      if(deviation<=maxTilt)return;
+      safeHeadWorldQ.copy(headWantedQ).slerp(headWorldQ,maxTilt/deviation);
+      raw.parent.getWorldQuaternion(headParentQ);
+      raw.quaternion.copy(headParentQ.invert().multiply(safeHeadWorldQ));
+      raw.updateWorldMatrix(false,true);
+    }
     const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand','leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot',
-      ...['left','right'].flatMap(side=>['Eye','ThumbMetacarpal','ThumbProximal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
+      ...['left','right'].flatMap(side=>['Eye','ThumbMetacarpal','ThumbProximal','ThumbDistal','IndexProximal','IndexIntermediate','MiddleProximal','MiddleIntermediate','RingProximal','RingIntermediate','LittleProximal','LittleIntermediate'].map(finger=>side+finger))];
     function captureBones() {
       for(const name of boneNames) {
         const node=vrm.humanoid?.getNormalizedBoneNode(name);
@@ -295,7 +313,13 @@
       palmElbow=new THREE.Vector3(),palmIndex=new THREE.Vector3(),
       palmLittle=new THREE.Vector3(),palmMiddle=new THREE.Vector3(),
       palmParentQ=new THREE.Quaternion(),palmWorldQ=new THREE.Quaternion(),
-      palmTwistQ=new THREE.Quaternion(),palmCross=new THREE.Vector3();
+      palmTwistQ=new THREE.Quaternion(),palmCross=new THREE.Vector3(),
+      palmLiftTarget=new THREE.Vector3(),palmLiftQ=new THREE.Quaternion(),
+      palmUp=new THREE.Vector3(0,1,0),thumbStart=new THREE.Vector3(),
+      thumbMiddle=new THREE.Vector3(),thumbEnd=new THREE.Vector3(),
+      thumbOut=new THREE.Vector3(),thumbNext=new THREE.Vector3(),
+      thumbCorrection=new THREE.Quaternion(),thumbLocalQ=new THREE.Quaternion(),
+      thumbParentWorldQ=new THREE.Quaternion(),waveDebug={wristRise:null,thumbBend:null};
     function aimGreetingPalm(){
       if(motion!=='wave')return;
       const hand=bones.rightHand?.node,elbow=bones.rightLowerArm?.node;
@@ -322,6 +346,57 @@
       hand.parent.getWorldQuaternion(palmParentQ);
       palmTwistQ.setFromAxisAngle(palmAxis,twist).multiply(palmWorldQ);
       hand.quaternion.copy(palmParentQ.invert().multiply(palmTwistQ));
+      // Lift the knuckles slightly above the wrist in world Y. A forearm
+      // twist alone exposes the palm but can leave the fingers drooping.
+      hand.updateWorldMatrix(true,true);
+      middle.getWorldPosition(palmMiddle);
+      hand.getWorldPosition(palmWrist);
+      palmFinger.subVectors(palmMiddle,palmWrist).normalize();
+      if(palmFinger.lengthSq()>1e-8&&palmFinger.y<.16){
+        palmLiftTarget.copy(palmFinger).addScaledVector(palmUp,.43).normalize();
+        const requested=palmFinger.angleTo(palmLiftTarget);
+        if(requested>1e-6){
+          const angle=Math.min(.24,requested);
+          palmLiftQ.setFromUnitVectors(palmFinger,palmLiftTarget);
+          palmLiftQ.slerp(new THREE.Quaternion(),1-angle/requested);
+          hand.getWorldQuaternion(palmWorldQ);
+          hand.parent.getWorldQuaternion(palmParentQ);
+          palmWorldQ.premultiply(palmLiftQ);
+          hand.quaternion.copy(palmParentQ.invert().multiply(palmWorldQ));
+          hand.updateWorldMatrix(true,true);
+        }
+      }
+      middle.getWorldPosition(palmMiddle);
+      hand.getWorldPosition(palmWrist);
+      waveDebug.wristRise=palmMiddle.y-palmWrist.y;
+      // Gently unbend the thumb while keeping its natural sideways spread.
+      // Reset only during greeting; never touch dancing fingers or clothes.
+      const thumbRoot=bones.rightThumbMetacarpal?.node,
+        thumb=bones.rightThumbProximal?.node,tip=bones.rightThumbDistal?.node;
+      if(thumbRoot&&thumb&&tip){
+        thumb.updateWorldMatrix(true,true);
+        thumbRoot.getWorldPosition(thumbStart);
+        thumb.getWorldPosition(thumbMiddle);
+        tip.getWorldPosition(thumbEnd);
+        thumbOut.subVectors(thumbMiddle,thumbStart).normalize();
+        thumbNext.subVectors(thumbEnd,thumbMiddle).normalize();
+        if(thumbOut.lengthSq()>1e-8&&thumbNext.lengthSq()>1e-8){
+          const bent=thumbOut.angleTo(thumbNext);
+          if(bent>.16){
+            thumbCorrection.setFromUnitVectors(thumbNext,thumbOut);
+            // A small correction avoids a rigid or inside-out thumb.
+            thumbCorrection.slerp(new THREE.Quaternion(),1-Math.min(.24,bent-.16)/Math.max(bent,1e-5));
+            thumb.getWorldQuaternion(thumbLocalQ);
+            thumb.parent.getWorldQuaternion(thumbParentWorldQ);
+            thumbLocalQ.premultiply(thumbCorrection);
+            thumb.quaternion.copy(thumbParentWorldQ.invert().multiply(thumbLocalQ));
+            thumb.updateWorldMatrix(false,true);
+            tip.getWorldPosition(thumbEnd);
+            thumbNext.subVectors(thumbEnd,thumbMiddle).normalize();
+          }
+          waveDebug.thumbBend=thumbOut.angleTo(thumbNext);
+        }
+      }
     }
     const motionOptions=['idle','smile','softSmile','wave','dance1','dance2','dance3'];
     let mixer=null,activeClip=null,usingVRMA=false,motionRequest=0;
@@ -660,7 +735,7 @@
       poseBone('leftHand',.03*amp,0,-.035+Math.sin(t*.39)*.007*amp);
       // Show the palm (rather than the hand's thin side) during greeting.
       // Preserve authored finger angles and gently turn the wrist only.
-      if(motion==='wave')poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
+      if(motion==='wave')poseBone('rightHand',.10,-1.04,-.055+Math.sin(t*4.5)*.05);
       else poseBone('rightHand',.03*amp,0,.035-Math.sin(t*.39+.7)*.007*amp);
       // Keep the sculpted VRM hand and finger resting rotations. Artificial per-frame
       // finger curling distorted this model; authored relaxed fingers look better.
@@ -670,7 +745,7 @@
         // Local greeting is additive to the neutral arm pose.
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
         poseBone('rightLowerArm',-.22,0,.38);
-        poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
+        poseBone('rightHand',.10,-1.04,-.055+Math.sin(t*4.5)*.05);
       }
       if(t>=nextBlink){blinkStart=t;blinkDuration=.13+Math.random()*.07;nextBlink=t+2.7+Math.random()*3.6;}
       const p=(t-blinkStart)/blinkDuration;
@@ -682,7 +757,7 @@
       if(usingVRMA&&motion==='wave'){
         poseBone('rightUpperArm',-.17,0,armRestZ.right-.65+.10*Math.sin(t*5));
         poseBone('rightLowerArm',-.22,0,.38);
-        poseBone('rightHand',.10,-1.04,.08+Math.sin(t*4.5)*.13);
+        poseBone('rightHand',.10,-1.04,-.055+Math.sin(t*4.5)*.05);
       }
       aimGreetingPalm();
       // Respect animation-authored facial tracks. Small closed-mouth expressions
@@ -700,6 +775,7 @@
         }
       }
       vrm.update(dt); // VRM lookAt, expressions and spring bones
+      stabilizeRenderedDanceHead();
       // Follow the actual animated pose, also when the user orbits vertically.
       if(dancingNow)sampleDanceFrame(t);
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
@@ -747,7 +823,8 @@
       get action(){return motion;},get look(){return look.id;},get kind(){return kind;},
       get view(){return {focus,yaw,pitch,panY,zoom,distance:cameraOrbitDistance};},
       get diagnostics(){return {motion,headFacingError:headFacingError(),
-        renderedHeadFacingError:renderedHeadFacingError()};}};
+        renderedHeadFacingError:renderedHeadFacingError(),
+        wave:motion==='wave'?{...waveDebug}:null};}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
