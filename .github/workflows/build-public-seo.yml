@@ -7,7 +7,13 @@ on:
       - "firestore.rules"
       - "seo/**"
       - "tools/build_seo.py"
+      - "tools/sync_public_seo.py"
+      - "tools/assemble_pages_site.py"
+      - "deploy/production-manifest.json"
       - "tests/test_seo_builder.py"
+      - "tests/test_seo_sync.py"
+      - "tests/test-seo-dashboard.mjs"
+      - ".github/workflows/publish-public-seo-pages.yml"
       - ".github/workflows/build-public-seo.yml"
   workflow_dispatch:
 
@@ -25,7 +31,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Run SEO builder tests
-        run: python -m unittest discover -s tests -p 'test_seo_builder.py' -v
+        run: python -m unittest discover -s tests -p 'test_seo*.py' -v
       - name: Check JavaScript module syntax
         run: |
           node --input-type=module --check < admin/admin.js
@@ -34,9 +40,11 @@ jobs:
         run: node tests/test-seo-dashboard.mjs
       - name: Generate static public pages
         run: python tools/build_seo.py --input seo/public-content.json --out seo-dist
+      - name: Build full site artifact safely from production manifest
+        run: python tools/assemble_pages_site.py --root . --seo seo-dist --out pages-dist
       - name: Upload review-only artifact
         uses: actions/upload-artifact@v4
         with:
           name: elara-seo-static-pages
-          path: seo-dist/
+          path: pages-dist/
           if-no-files-found: error
