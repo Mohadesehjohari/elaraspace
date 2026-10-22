@@ -225,6 +225,7 @@
     // relative to the viewer-controlled avatar root. Recorded body animation,
     // the actual VRM mesh/face and user orbit are otherwise untouched.
     const neutralHeadRelative=new THREE.Quaternion(),
+      neutralRawHeadRelative=new THREE.Quaternion(),
       headAnchorQ=new THREE.Quaternion(),headWorldQ=new THREE.Quaternion(),
       headWantedQ=new THREE.Quaternion(),headParentQ=new THREE.Quaternion(),
       safeHeadWorldQ=new THREE.Quaternion();
@@ -234,6 +235,12 @@
       anchor.getWorldQuaternion(headAnchorQ);
       node.getWorldQuaternion(neutralHeadRelative);
       neutralHeadRelative.premultiply(headAnchorQ.invert());
+      const raw=vrm.humanoid?.getRawBoneNode?.('head');
+      if(raw){
+        anchor.getWorldQuaternion(headAnchorQ);
+        raw.getWorldQuaternion(neutralRawHeadRelative);
+        neutralRawHeadRelative.premultiply(headAnchorQ.invert());
+      }
     }
     function stabilizeDanceHead(){
       if(!usingVRMA||!motion.startsWith('dance'))return;
@@ -257,6 +264,15 @@
       anchor.getWorldQuaternion(headAnchorQ);
       headWantedQ.copy(headAnchorQ).multiply(neutralHeadRelative);
       node.getWorldQuaternion(headWorldQ);
+      return headWantedQ.angleTo(headWorldQ);
+    }
+    function renderedHeadFacingError(){
+      // Raw head drives the visible face mesh, unlike the normalized animation rig.
+      const raw=vrm.humanoid?.getRawBoneNode?.('head');
+      if(!raw)return null;
+      anchor.getWorldQuaternion(headAnchorQ);
+      headWantedQ.copy(headAnchorQ).multiply(neutralRawHeadRelative);
+      raw.getWorldQuaternion(headWorldQ);
       return headWantedQ.angleTo(headWorldQ);
     }
     const boneNames = ['head','neck','chest','spine','hips','leftShoulder','rightShoulder','leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand','leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot',
@@ -730,7 +746,8 @@
     window.ElaraLiveVRM.current={stage,dispose,renderWardrobeControls,focus:selectFocus,setAction,
       get action(){return motion;},get look(){return look.id;},get kind(){return kind;},
       get view(){return {focus,yaw,pitch,panY,zoom,distance:cameraOrbitDistance};},
-      get diagnostics(){return {motion,headFacingError:headFacingError()};}};
+      get diagnostics(){return {motion,headFacingError:headFacingError(),
+        renderedHeadFacingError:renderedHeadFacingError()};}};
     window.dispatchEvent(new Event('elara:live-avatar-mounted'));
     return true;
   }
