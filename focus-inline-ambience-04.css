@@ -111,3 +111,14 @@ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro .focus-ref-ambience-link
 @media(max-width:420px){
  #panel-focus .feature-hub-launchers[data-hub-kind="focus"]{grid-template-columns:1fr;}
 }
+
+
+/* Six real ambience options: two even rows without clipping on desktop. */
+body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{
+ grid-template-columns:repeat(3,minmax(0,1fr))
+}
+@media(max-width:700px){
+ body:not(.elara-focus-fullscreen) #panel-focus-pomodoro #focus-ambience .focus-ambience-modes{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+}
