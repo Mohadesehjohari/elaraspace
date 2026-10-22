@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-wave-lift-head-v10'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -177,7 +177,7 @@ test('face is not forced back to full view mid-dance; vertical orbit and reset c
   assert.ok(live.includes("focusHeight=focusTargetPoint.y+.015"));
   assert.ok(live.includes("data-live-action=\"reset\""));
   assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
-  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-visual-v9'));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-wave-lift-head-v10'));
 });
 test('per-account real GLB cache survives page script reload without redownloading',async()=>{
   const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
@@ -257,4 +257,26 @@ test('browser QA checks the six actual VRMA/gender pairs beyond successful load'
   assert.ok(qa.includes('diagnostic.renderedHeadFacingError<=.30'));
   assert.ok(qa.includes("male-'+action+'-face.png"));
   assert.ok(qa.includes("female-'+action+'-face.png"));
+});
+
+test('greeting wrist lifts slightly and thumb stays gently extended on real VRM bones',()=>{
+  const live=read('avatar-live-vrm.js');
+  assert.ok(live.includes("['Eye','ThumbMetacarpal','ThumbProximal','ThumbDistal'"));
+  assert.ok(live.includes("palmFinger.y<.16"),'Correct downward fingers, not just wrist twist');
+  assert.ok(live.includes("palmLiftTarget.copy(palmFinger).addScaledVector(palmUp,.43)"));
+  assert.ok(live.includes("const thumbRoot=bones.rightThumbMetacarpal?.node"));
+  assert.ok(live.includes("const bent=thumbOut.angleTo(thumbNext)"));
+  assert.ok(live.includes("waveDebug.thumbBend=thumbOut.angleTo(thumbNext)"));
+  assert.ok(live.includes("poseBone('rightHand',.10,-1.04,-.055+Math.sin(t*4.5)*.05)"));
+});
+test('final visible raw head bone is corrected after VRM.update every dance frame',()=>{
+  const live=read('avatar-live-vrm.js'),qa=read('tests/eli-real-vrm-browser.mjs');
+  assert.ok(live.includes('function stabilizeRenderedDanceHead()'));
+  assert.ok(live.includes("getRawBoneNode?.('head')"));
+  assert.ok(live.includes('vrm.update(dt); // VRM lookAt, expressions and spring bones\n      stabilizeRenderedDanceHead();'));
+  assert.ok(qa.includes('ELI_DANCE_FRAME_SAMPLES'));
+  assert.ok(qa.includes("await assertSustainedFace('male-dance1')"));
+  assert.ok(qa.includes("await assertSustainedFace('female-'+action)"));
+  assert.ok(qa.includes("await checkWave('male')"));
+  assert.ok(qa.includes("await checkWave('female')"));
 });
