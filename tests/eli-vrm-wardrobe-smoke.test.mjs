@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-camera-safefit-r2'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-transfer-gender-head-v3'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -104,7 +104,7 @@ test('two separate mild smiles, visible greeting palm and purple white emote ico
  assert.ok(gallery.includes('stroke="white"')&&gallery.includes('fill="white"'),'Original emote icons need white silhouette');
  assert.ok(gallery.includes('#7135d4'),'Use the unified purple theme');
  assert.ok(css.includes('linear-gradient(165deg,#6932c7,#8a4af2)'));
- assert.ok(html.includes('avatar-motion-controls.css?v=20261022-purple-emotes-r1'));
+ assert.ok(html.includes('avatar-motion-controls.css?v=20261022-dance-progress-v2'));
 });
 
 test('animated full-body perspective envelope covers yaw, jumps and narrow widths',()=>{
@@ -132,4 +132,35 @@ test('animated full-body perspective envelope covers yaw, jumps and narrow width
       assert.ok(dy<=depth*tangent*.781,'Head and shoes stay in frame');
     }
   }
+});
+
+test('download rings use real totals or honest indeterminate state, with cache bust',()=>{
+  const js=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
+  const html=read('index.html'),css=read('avatar-live-vrm.css'),icons=read('avatar-motion-controls.css');
+  assert.ok(js.includes('function showDownload(stage,key,label,loaded=0,total=0'));
+  assert.ok(js.includes('event.loaded,event.total,started'),'Byte progress is supplied by glTF loaders');
+  assert.ok(js.includes('const eta=remaining!==null&&remaining<3600'),'ETA is only estimated when bytes known');
+  assert.ok(js.includes('if(!stage?.isConnected)return;'));
+  assert.ok(gallery.includes('elara:avatar-download-progress')&&gallery.includes('elara-motion-download'));
+  assert.ok(css.includes('conic-gradient(#fff')&&icons.includes('.elara-motion-download i'));
+  assert.ok(html.includes('avatar-motion-controls.js?v=20261022-dance-progress-v2'));
+  assert.ok(html.includes('avatar-live-vrm.css?v=20261022-transfer-gender-head-v3'));
+});
+test('desktop-only shortcuts reuse character wardrobe and independent gender setting',()=>{
+  const live=read('avatar-live-vrm.js'),css=read('avatar-live-vrm.css'),modal=read('avatar-quick-modal.css');
+  assert.ok(live.includes('data-avatar-open-character-settings'));
+  assert.ok(live.includes("window.ElaraWardrobeUI?.open?.('character')"));
+  assert.ok(live.includes('data-avatar-toggle-gender'));
+  assert.ok(live.includes("writePrivate({avatarGender:kind==='male'?'female':'male'})"));
+  assert.ok(css.includes('@media(min-width:701px)')&&css.includes('.elara-avatar-side-shortcuts'));
+  assert.ok(css.includes('@media(max-width:700px)')&&css.includes('display:none!important'));
+  assert.ok(modal.includes('.elara-live-controls{'));
+});
+test('male head and neck guard prevents upside-down dance poses, retaining real VRMA body',()=>{
+  const live=read('avatar-live-vrm.js');
+  assert.ok(live.includes("if(kind!=='male'||!usingVRMA||!motion.startsWith('dance'))return"));
+  assert.ok(live.includes("['neck',.20],['head',.34]"));
+  assert.ok(live.includes('bone.node.quaternion.slerpQuaternions('));
+  assert.ok(live.includes('mixer?.update(dt);\n      stabilizeMaleDanceHead();'));
+  assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
 });
