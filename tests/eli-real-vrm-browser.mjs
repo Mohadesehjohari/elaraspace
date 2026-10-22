@@ -63,9 +63,46 @@ try{
   assert.equal(await stage.locator('[data-avatar-focus="face"]').getAttribute('aria-pressed'),'true',
     'Face focus must persist while the real VRMA is playing');
   await page.screenshot({path:'artifacts/eli-real-vrm/male-dance-face.png'});
+  // Old QA returned success while this screenshot contained only the RED BACK
+  // of the head. Assert true normalized WORLD head orientation, then also
+  // capture every real dance for independent human visual review.
+  const assertForward=async(label)=>{
+    const diagnostic=await page.evaluate(()=>window.ElaraLiveVRM?.current?.diagnostics);
+    console.log('ELI_HEAD_FACING',label,JSON.stringify(diagnostic));
+    assert.ok(diagnostic&&Number.isFinite(diagnostic.headFacingError)&&
+      diagnostic.headFacingError<=.24,
+      label+' head must remain facing forward, not show the red hair back: '+JSON.stringify(diagnostic));
+  };
+  await assertForward('male-dance1-face');
+  for(const action of ['dance2','dance3']){
+    await stage.locator('[data-live-action="reset"]').click();
+    assert.equal(await page.evaluate(name=>window.ElaraLiveVRM.current.setAction(name),action),true);
+    await page.waitForTimeout(900);
+    await assertForward('male-'+action);
+    await page.screenshot({path:'artifacts/eli-real-vrm/male-'+action+'.png'});
+    await stage.locator('[data-avatar-focus="face"]').click();
+    await page.waitForTimeout(500);
+    await assertForward('male-'+action+'-face');
+    await page.screenshot({path:'artifacts/eli-real-vrm/male-'+action+'-face.png'});
+  }
+  await stage.locator('[data-live-action="reset"]').click();
+  await stage.locator('[data-avatar-toggle-gender]').click();
+  await page.waitForFunction(()=>window.ElaraLiveVRM?.current?.kind==='female'&&
+    window.ElaraLiveVRM?.current?.stage?.dataset.avatarMounted==='live',{timeout:100000});
+  for(const action of ['dance1','dance2','dance3']){
+    assert.equal(await page.evaluate(name=>window.ElaraLiveVRM.current.setAction(name),action),true);
+    await page.waitForTimeout(1000);
+    await assertForward('female-'+action);
+    await page.screenshot({path:'artifacts/eli-real-vrm/female-'+action+'.png'});
+    await stage.locator('[data-avatar-focus="face"]').click();
+    await page.waitForTimeout(550);
+    await assertForward('female-'+action+'-face');
+    await page.screenshot({path:'artifacts/eli-real-vrm/female-'+action+'-face.png'});
+    await stage.locator('[data-live-action="reset"]').click();
+  }
   await stage.locator('[data-live-action="reset"]').click();
   assert.equal(await page.evaluate(()=>window.ElaraLiveVRM.current.action),'idle');
-  console.log('ELI_REAL_VRM_FACE_ORBIT_RESET_AND_RECORDED_DANCE_PASS');
+  console.log('ELI_ALL_SIX_REAL_VRMA_FORWARD_FACES_ORBIT_AND_RESET_PASS');
   if(errors.length)console.warn('Page errors:',errors.slice(0,8));
   await context.close();
 }finally{await browser.close();}
