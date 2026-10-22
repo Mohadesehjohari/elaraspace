@@ -9,6 +9,7 @@
   <title>Elara Admin</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo.svg">
   <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="seo.css">
 </head>
 <body>
   <main class="admin-shell">
@@ -41,7 +42,7 @@
       <header class="topbar">
         <div class="brand">
           <img src="../assets/logo.svg" alt="" class="logo small">
-          <div><strong>Elara Admin</strong><small>Admin Core · v0.2</small></div>
+          <div><strong>Elara Admin</strong><small>Admin Core · v0.3</small></div>
         </div>
         <div class="admin-user">
           <span id="admin-role" class="role-badge">—</span>
@@ -55,6 +56,7 @@
           <button class="nav active" data-panel="overview">نمای کلی</button>
           <button class="nav" data-panel="system">سیستم</button>
           <button class="nav" data-panel="content">محتوا</button>
+          <button class="nav" data-panel="seo">سئو و سرچ گوگل</button>
           <button class="nav" data-panel="ai">هوش مصنوعی</button>
           <button class="nav" data-panel="deployment">انتشار</button>
         </aside>
@@ -115,6 +117,14 @@
                     <label>زمان مطالعه<input id="blog-content-minutes" type="number" min="1" max="60" value="5"></label>
                   </div>
                   <label>Cover URL اختیاری<input id="blog-content-cover" maxlength="1000" dir="ltr" placeholder="https://..."></label>
+                  <fieldset class="seo-edit-fields">
+                    <legend>تنظیمات SEO این مقاله</legend>
+                    <label>Slug اختصاصی (حروف انگلیسی و خط تیره)<input id="blog-seo-slug" dir="ltr" maxlength="80" pattern="[a-z0-9][a-z0-9-]{1,79}" placeholder="pomodoro-guide"></label>
+                    <label>SEO Title<input id="blog-seo-title" maxlength="160" placeholder="در صورت خالی بودن، عنوان مقاله استفاده می‌شود"></label>
+                    <label>Meta Description<textarea id="blog-seo-description" maxlength="300" rows="2" placeholder="در صورت خالی بودن، خلاصه مقاله استفاده می‌شود"></textarea></label>
+                    <label>کلمه کلیدی هدف (برای برنامه‌ریزی محتوا)<input id="blog-seo-keyword" maxlength="120" placeholder="مثلاً مدیریت زمان"></label>
+                    <label class="toggle-inline"><input id="blog-seo-noindex" type="checkbox"> این مقاله در خروجی عمومی SEO منتشر نشود</label>
+                  </fieldset>
                   <div class="actions content-actions"><button class="primary" type="submit">ذخیره مقاله</button><button id="blog-content-reset" class="secondary" type="button">مقاله جدید</button></div>
                 </form>
                 <p id="blog-content-status-message" class="muted" role="status"></p>
@@ -132,6 +142,13 @@
                     <label>زبان<select id="site-page-locale"><option value="fa">فارسی</option><option value="en">English</option></select></label>
                     <label>وضعیت<select id="site-page-status"><option value="draft">Draft</option><option value="published">Published</option></select></label>
                   </div>
+                  <fieldset class="seo-edit-fields">
+                    <legend>تنظیمات SEO این صفحه</legend>
+                    <label>SEO Title<input id="page-seo-title" maxlength="160" placeholder="در صورت خالی بودن، عنوان صفحه استفاده می‌شود"></label>
+                    <label>Meta Description<textarea id="page-seo-description" maxlength="300" rows="2" placeholder="در صورت خالی بودن، خلاصه صفحه استفاده می‌شود"></textarea></label>
+                    <label>کلمه کلیدی هدف<input id="page-seo-keyword" maxlength="120" placeholder="عبارت اصلی مرتبط با صفحه"></label>
+                    <label class="toggle-inline"><input id="page-seo-noindex" type="checkbox"> این صفحه در خروجی عمومی SEO منتشر نشود</label>
+                  </fieldset>
                   <div class="actions content-actions"><button class="primary" type="submit">ذخیره صفحه</button><button id="site-page-reset" class="secondary" type="button">صفحه جدید</button></div>
                 </form>
                 <p id="site-page-status-message" class="muted" role="status"></p>
@@ -146,6 +163,75 @@
             <article class="card content-next-card">
               <h3>ابزارهای بعدی Content Studio</h3>
               <p class="muted">مدیریت Level، Mission، Medal، Title، Avatar، Frame، Banner، Theme، Audio، Shop Catalog، Moderation Queue و Notification Campaign بدون مخلوط‌شدن با Publisher به همین بخش اضافه می‌شود.</p>
+            </article>
+          </div>
+
+
+          <div id="panel-seo" class="panel hidden">
+            <div class="heading">
+              <div><p class="kicker">ELARA SEARCH STUDIO</p><h2>مدیریت سئو و عملکرد گوگل</h2></div>
+              <button id="seo-refresh" class="secondary" type="button">بررسی محتوا</button>
+            </div>
+            <p class="muted">این بخش کیفیت متادیتای محتوای ثبت‌شده را بررسی می‌کند؛ هیچ امتیازی تضمین‌کننده رتبه در گوگل نیست. داده رتبه فقط از فایل واقعی Search Console دریافت می‌شود.</p>
+            <div class="stats seo-stats">
+              <article class="card stat"><span>محتوای منتشرشده</span><strong id="seo-published-count">—</strong><small>مقاله و صفحه</small></article>
+              <article class="card stat"><span>آماده خروجی SEO</span><strong id="seo-ready-count">—</strong><small>منتشرشده و بدون noindex</small></article>
+              <article class="card stat"><span>محتوای نیازمند بررسی</span><strong id="seo-issues-count">—</strong><small>راهنماهای ویرایشی و URL</small></article>
+            </div>
+            <article class="card seo-tool-card">
+              <h3>آدرس اصلی سایت و خروجی صفحات عمومی</h3>
+              <label>Base URL سایت (شامل مسیر نصب؛ با https)
+                <input id="seo-base-url" type="url" dir="ltr" placeholder="https://example.com/">
+              </label>
+              <p class="muted">خروجی JSON فقط مقاله‌ها و صفحات منتشرشده و مجاز برای ایندکس را دارد؛ پیش‌نویس‌ها، شناسه کاربران و تنظیمات خصوصی در فایل قرار نمی‌گیرند. این فایل را در مخزن به <code>seo/public-content.json</code> منتقل و سازنده صفحات HTML را اجرا کن.</p>
+              <div class="actions">
+                <button id="seo-export" class="primary" type="button">دریافت JSON انتشار سئو</button>
+                <a class="secondary link-button" href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console ↗</a>
+              </div>
+              <p id="seo-export-status" class="muted" role="status"></p>
+            </article>
+            <article class="card seo-tool-card">
+              <h3>بررسی سئوی محتوای فعلی</h3>
+              <div id="seo-audit-list" class="seo-audit-list"><p class="muted">برای نمایش بررسی، داده‌ها را بارگذاری کن.</p></div>
+              <div id="seo-preview" class="seo-preview hidden">
+                <span class="muted">پیش‌نمایش تقریبی نتیجه جست‌وجو</span>
+                <div id="seo-preview-url" class="seo-preview-url" dir="ltr"></div>
+                <div id="seo-preview-title" class="seo-preview-title"></div>
+                <div id="seo-preview-description" class="seo-preview-description"></div>
+              </div>
+            </article>
+            <article class="card seo-tool-card">
+              <h3>اتصال مستقیم به Google Search Console</h3>
+              <p class="muted">با حساب گوگلی که به Search Console سایت دسترسی دارد وارد شو. مجوز فقط خواندن آمار است؛ توکن فقط در حافظه همین صفحه نگهداری می‌شود و در Firebase، GitHub یا مرورگر ذخیره نمی‌شود.</p>
+              <div class="seo-gsc-connection">
+                <label>Google OAuth Web Client ID
+                  <input id="seo-gsc-client-id" dir="ltr" autocomplete="off" placeholder="123456789-xxxx.apps.googleusercontent.com">
+                </label>
+                <label>آدرس دقیق Property در Search Console
+                  <input id="seo-gsc-property" dir="ltr" placeholder="https://example.com/ یا sc-domain:example.com">
+                </label>
+                <label>از تاریخ<input id="seo-gsc-from" type="date"></label>
+                <label>تا تاریخ<input id="seo-gsc-to" type="date"></label>
+                <label>گروه‌بندی
+                  <select id="seo-gsc-dimension"><option value="query">کلمات کلیدی</option><option value="page">صفحات</option></select>
+                </label>
+              </div>
+              <div class="actions"><button id="seo-gsc-connect" type="button" class="primary">اتصال به گوگل و دریافت آمار</button><button id="seo-gsc-reload" class="secondary" type="button" disabled>به‌روزرسانی گزارش</button><button id="seo-gsc-disconnect" class="secondary" type="button" disabled>قطع دسترسی</button></div>
+              <p id="seo-gsc-live-status" class="muted" role="status">برای اتصال، OAuth Client ID مخصوص دامنه این پنل و Property واقعی لازم است.</p>
+            </article>
+            <article class="card seo-tool-card">
+              <h3>گزارش واقعی Search Console از CSV</h3>
+              <p class="muted">از تب Performance در سرچ کنسول، گزارش Queries یا Pages را به CSV خروجی بگیر و اینجا انتخاب کن. فایل فقط در مرورگر خوانده می‌شود؛ به Firebase یا سرور دیگری آپلود نمی‌شود. داده‌ها صرفاً مربوط به همین خروجی هستند و لزوماً آمار کل سایت نیستند.</p>
+              <label>انتخاب فایل CSV
+                <input id="seo-gsc-file" type="file" accept=".csv,text/csv">
+              </label>
+              <p id="seo-gsc-message" class="muted" role="status">هنوز فایلی وارد نشده است؛ آمار فرضی نمایش داده نمی‌شود.</p>
+              <div id="seo-gsc-summary" class="seo-gsc-summary"></div>
+              <div id="seo-gsc-results" class="seo-gsc-results"></div>
+            </article>
+            <article class="card seo-tool-card">
+              <h3>چک‌لیست انتشار</h3>
+              <p class="muted">بعد از تولید صفحات باید خروجی HTML، <code>sitemap.xml</code> و <code>robots.txt</code> را روی هاست نهایی منتشر کنی، مالکیت دامنه را در Search Console تأیید و نقشه سایت را ثبت کنی. ذخیره محتوا در Firebase به‌تنهایی برای ساخت URL مستقل و ایندکس شدن کافی نیست.</p>
             </article>
           </div>
 
@@ -241,6 +327,7 @@
   </main>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script type="module" src="admin.js"></script>
 </body>
 </html>

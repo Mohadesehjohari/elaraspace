@@ -311,7 +311,9 @@
     "goals-dashboard-20261019.js",
     "goals-tasks-neon-polish-20261019.css",
     "cosmic-journey-20261020.css",
-    "cosmic-journey-20261020.js"
+    "cosmic-journey-20261020.js",
+    "admin/seo.css",
+    "admin/seo-manager.js"
   ],
   "files": [
     ".htaccess",
@@ -745,6 +747,8 @@
     "goals-dashboard-20261019.js",
     "goals-tasks-neon-polish-20261019.css",
     "cosmic-journey-20261020.css",
-    "cosmic-journey-20261020.js"
+    "cosmic-journey-20261020.js",
+    "admin/seo.css",
+    "admin/seo-manager.js"
   ]
 }
