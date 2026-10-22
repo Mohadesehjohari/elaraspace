@@ -18,7 +18,17 @@
   }
 
   function ensureData(d){for(const k of ['tasks','taskLists','folders','tags','missionRewardClaims'])if(!Array.isArray(d[k]))d[k]=[];return d}
-  function profile(){return window.ElaraSocial?.me||window.ElaraAccount?.profile||{}}
+  // Firebase Authentication owns the UID. A canonical Firestore profile document
+  // intentionally has no UID field, and Social can load much later than Account.
+  // Never display another account's cached Social identity during an auth switch.
+  function profile(){
+    const account=window.ElaraAccount,uid=account?.user?.uid;
+    if(!uid)return {};
+    const social=window.ElaraSocial?.me;
+    if(social?.uid===uid)return social;
+    const own=account?.profile;
+    return account?.loaded&&own&&typeof own==='object'?{...own,uid}:{};
+  }
   const privacyUid=()=>window.ElaraAccount?.user?.uid||window.ElaraSocial?.me?.uid||null;
   const privacyKey=()=>`elara_privacy_local_v1_${privacyUid()||'guest'}`;
   const SHARE_KEYS=['task','habit','goal','mission','reading','language','exercise','focus','streak','ranking'];
@@ -241,7 +251,15 @@
     }else host.removeAttribute('style');
     const system=window.ElaraProfileSystem,person=profile(),uid=system?.currentUid?.(),view=profileView();
     if(!uid||!person?.uid||String(person.uid)!==String(uid)||!view){
-      host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+'<p class="elara-profile-hub-empty" role="status">در حال بارگذاری اطلاعات حساب…</p>';
+      const account=window.ElaraAccount,authenticated=!!account?.user?.uid;
+      const socialError=window.__elaraSocialLoadError;
+      const text=!authenticated?'برای مشاهده پروفایل، ابتدا وارد حساب خودت شو.':
+        account?.loaded?'اطلاعات پروفایل هنوز در دسترس نیست. اتصال حساب را بررسی کن.':
+        'دریافت اطلاعات حساب از Firebase هنوز کامل نشده است. وضعیت اتصال را بررسی کن.';
+      host.innerHTML=sectionHead('پروفایل من','اطلاعات پروفایل خودت')+
+        '<div class="elara-profile-hub-empty" role="status"><p>'+esc(text)+'</p>'+
+        (socialError?'<p>بخش اجتماعی نیز بارگذاری نشد؛ می‌توانی بدون تغییر اطلاعات دوباره تلاش کنی.</p>':'')+
+        (authenticated?'<button type="button" class="quiet-button" data-drawer-profile-retry>بررسی دوباره اتصال</button>':'')+'</div>';
       return
     }
     if(root)root.style.setProperty('--elara-profile-hub-banner','url("'+String(view.bannerSrc||'').replace(/"/g,'%22')+'")');
@@ -266,7 +284,7 @@
         '<button type="button" data-profile-avatar-gallery>'+icon('user')+'<span>گالری پروفایل<small>تصاویر و آواتارها</small></span></button>'+
         '<button type="button" data-approved-wardrobe>'+icon('wardrobe')+'<span>کمد<small>آواتار، قاب و بنر</small></span></button>'+
       '</div>'+
-      '<p class="elara-profile-hub-storage">ظاهر شخصی‌سازی‌شدهٔ این حساب فعلاً روی همین مرورگر ذخیره می‌شود؛ تصاویر ابری هنوز فعال نیستند.</p>'+
+      '<p class="elara-profile-hub-storage">نام، بیو و آواتار، قاب و بنرهای آماده پس از ذخیرهٔ پروفایل در Firebase به‌روزرسانی می‌شوند؛ عکس‌های آپلودشده از دستگاه هنوز فقط محلی‌اند.</p>'+
     '</div>';
   }
   function privacyRow(title,sub,control,status=''){
@@ -525,6 +543,27 @@ function renderSecurity(){
   });
 
   window.addEventListener('elara:social-updated',()=>{renderProfile();if(current==='account')renderAccount();if(current==='privacy')renderPrivacy();if(current==='blocked')renderBlocked()});
+  window.addEventListener('elara:social-failed',()=>{if(current==='account')renderAccount()});
+  window.addEventListener('elara:account-gate-ready',()=>{if(current==='account')renderAccount()});
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('[data-drawer-profile-retry]');
+    if(!button||!root?.contains(button))return;
+    button.disabled=true;
+    void (async()=>{
+      try{
+        if(window.ElaraAccount?.loaded){
+          await window.ElaraLoadSocial?.({retry:true});
+          await window.ElaraSocial?.refresh?.();
+        }else{
+          // Retrying a broken auth handshake must not manufacture an account
+          // or overwrite private Firestore/localStorage payloads.
+          const layer=document.getElementById('cloud-layer');
+          if(layer)layer.hidden=false;
+        }
+      }catch(error){console.warn('Profile retry could not load Social:',error);}
+      finally{if(current==='account')renderAccount()}
+    })();
+  });
   window.addEventListener('elara:profile-saved',()=>{renderProfile();if(current==='home')renderHub();if(current==='account')renderAccount()});
   window.addEventListener('elara:wardrobe-changed',()=>{renderProfile();if(current==='account')renderAccount()});
   window.addEventListener('elara:data-changed',()=>{if(root&&!root.classList.contains('hidden')){renderProfile();if(current==='account')renderAccount();if(current==='folders')renderFolders();if(current==='notifications')renderNotifications()}});
