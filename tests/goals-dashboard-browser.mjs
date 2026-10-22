@@ -20,6 +20,9 @@ try{
   assert.equal((await page.locator('[data-goal-stat="steps"]').textContent()).trim(),'۱ / ۳');
   assert.equal((await page.locator('[data-goal-stat="percent"]').textContent()).trim(),'۳۳٪');
   assert.equal(await page.locator('#goal-list [data-action="edit-goal"]').count(),2);
+  const startingSteps=await page.locator('#goal-list [data-entity-id="g1"] .goal-step-item').evaluateAll(items=>items.map(el=>el.dataset.goalStepId));
+  assert.deepEqual(startingSteps,['s2','s1'],'unfinished goal steps must precede completed ones without transition');
+  await page.evaluate(()=>{window.__goalSounds=[];const original=ElaraAudio.cue;ElaraAudio.cue=function(type){window.__goalSounds.push(type);return original(type)}});
   assert.equal(await page.locator('#goal-list [data-entity-drag="goal"]').count(),2);
   // Every goal must start collapsed. User clicks alone should expand/collapse it.
   assert.equal(await page.locator('#goal-list>.goal-item.goal-card-open').count(),0);
@@ -34,6 +37,9 @@ try{
   assert.notEqual(glow,'none','Collapsed goal card must have persistent neon glow');
   await page.locator('#goal-list [data-action="toggle-step"][data-id="s2"]').click();
   await page.waitForFunction(()=>document.querySelector('[data-goal-stat="percent"]')?.textContent?.trim()==='۶۷٪');
+  assert.ok((await page.evaluate(()=>window.__goalSounds)).includes('goal'),'ticking a goal step must trigger an immediate dedicated sound');
+  const order=await page.locator('#goal-list>.goal-item').evaluateAll(items=>items.map(el=>el.dataset.entityId));
+  assert.deepEqual(order,['g2','g1'],'completed goal must move to bottom immediately');
   await page.locator('[data-goal-filter="horizon"]').selectOption('short');
   const visible=()=>page.locator('#goal-list>.goal-item').evaluateAll(a=>a.filter(x=>getComputedStyle(x).display!=='none').length);
   assert.equal(await visible(),1);
