@@ -12,6 +12,7 @@ test('actual female VRM committed; male upload destination and selection are con
   assert.equal(c.bases.male.src,'assets/avatar/bases/eli-male-v1.vrm');
   assert.ok(['ready','preview'].includes(c.bases.male.status));
   assert.ok(exists('assets/avatar/bases/eli-female-v1.vrm'));
+  assert.ok(exists('assets/avatar/bases/eli-male-v1.vrm'));
 });
 test('legacy synthetic renderer is entirely absent from the deployed website',()=>{
   const html=read('index.html'),boot=read('boot.js'),quick=read('avatar-quick-modal.js'),gallery=read('avatar-motion-controls.js');
@@ -91,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-autoframe-softsmile-r1'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-camera-safefit-r2'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -104,4 +105,31 @@ test('two separate mild smiles, visible greeting palm and purple white emote ico
  assert.ok(gallery.includes('#7135d4'),'Use the unified purple theme');
  assert.ok(css.includes('linear-gradient(165deg,#6932c7,#8a4af2)'));
  assert.ok(html.includes('avatar-motion-controls.css?v=20261022-purple-emotes-r1'));
+});
+
+test('animated full-body perspective envelope covers yaw, jumps and narrow widths',()=>{
+  const live=read('avatar-live-vrm.js');
+  const match=live.match(/    function minimumDanceCameraZ\(bounds,cameraX,cameraY,aspect,fov\)\{[\s\S]*?\n    \}/);
+  assert.ok(match,'Pure camera safety calculation exists');
+  const fit=new Function(match[0]+';return minimumDanceCameraZ;')();
+  assert.ok(live.includes('if(dancingNow)sampleDanceFrame(t);'),'Measure the current animated pose');
+  assert.ok(live.includes('const worldX=cos*dancePoint.x+sin*dancePoint.z'),'Yaw must affect horizontal framing');
+  assert.ok(live.includes('const worldZ=-sin*dancePoint.x+cos*dancePoint.z'),'Nearest depth must affect framing');
+  assert.ok(live.includes('camera.position.z=Math.max(camera.position.z,minimumDanceCameraZ('),'Immediate safety zoom-out');
+  const cases=[
+    {minX:-1.1,maxX:1.1,minY:-.3,maxY:2.1,maxZ:.4},
+    {minX:1.2,maxX:3.5,minY:-1.3,maxY:1.3,maxZ:1.1},
+    {minX:-2.8,maxX:-.3,minY:1.4,maxY:4.4,maxZ:.8}
+  ];
+  const tangent=Math.tan(30*Math.PI/360);
+  for(const bounds of cases)for(const aspect of [.4,.56,1,1.8]){
+    for(const [x,y] of [[0,.95],[(bounds.minX+bounds.maxX)/2,(bounds.minY+bounds.maxY)/2]]){
+      const z=fit(bounds,x,y,aspect,30),depth=z-bounds.maxZ;
+      const dx=Math.max(Math.abs(bounds.minX-x),Math.abs(bounds.maxX-x));
+      const dy=Math.max(Math.abs(bounds.minY-y),Math.abs(bounds.maxY-y));
+      assert.ok(Number.isFinite(z)&&depth>0);
+      assert.ok(dx<=depth*tangent*aspect*.781,'Hands stay in frame');
+      assert.ok(dy<=depth*tangent*.781,'Head and shoes stay in frame');
+    }
+  }
 });
