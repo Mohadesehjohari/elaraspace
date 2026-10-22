@@ -24,4 +24,11 @@ assert.equal(snapshot.articles[0].seoNoindex,false);
 assert.ok(!JSON.stringify(snapshot).includes('draft-1'));
 const duplicates={...example,articles:[example.articles[0],{...example.articles[0],id:'doc-2'}]};
 assert.throws(()=>mod.buildSeoSnapshot(duplicates,'https://example.org/'),/تکراری/);
+assert.equal(mod.gscQueryUrl('sc-domain:example.org'),
+  'https://www.googleapis.com/webmasters/v3/sites/sc-domain%3Aexample.org/searchAnalytics/query');
+assert.throws(()=>mod.gscQueryUrl('http://unsafe.example/'),/Property/);
+const apiRows=mod.normalizeGscRows({rows:[{keys:['pomodoro'],clicks:21,impressions:110,ctr:.19,position:6.3}]});
+assert.equal(apiRows.length,1);
+assert.equal(apiRows[0].position,6.3);
+assert.deepEqual(mod.normalizeGscRows({rows:[]}),[]);
 console.log('SEO Studio export and CSV parsing checks passed');
