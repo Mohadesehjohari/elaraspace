@@ -9,7 +9,7 @@ All natural recording links below point to files hosted by **Wikimedia Commons**
 | Ocean waves | Waves.ogg | Dsw4 | Public domain | https://commons.wikimedia.org/wiki/File:Waves.ogg |
 | Fireplace | Dry grass burning in open fireplace.ogg | ezwa / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:Dry_grass_burning_in_open_fireplace.ogg |
 | Forest breeze | 20090610 0 ambience.ogg | nille / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:20090610_0_ambience.ogg |
-| Quiet library, rain at the window | Rain.ogg | ジダネ | Public domain | https://commons.wikimedia.org/wiki/File:Rain.ogg |
+| Quiet library, real rain hitting a window | Rain against the window.ogg | cori / PDSounds | Public domain | https://commons.wikimedia.org/wiki/File:Rain_against_the_window.ogg |
 
 **Important:** The *library* scene is intentionally a calm rain-at-the-window environment, not synthesized white noise or a noisy public library recording. Profile music and browser-generated interface/melodic reward cues are controlled separately. For the public-domain recordings, credit is included here as a courtesy.
 
