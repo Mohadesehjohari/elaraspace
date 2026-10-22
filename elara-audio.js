@@ -6,7 +6,7 @@ const channels={music:32,ambient:40,focus:42,profile:65,ui:18,rewards:48,timer:4
 const scenes={rain:['باران طبیعی','Real rain'],forest:['صبح جنگل','Forest morning'],ocean:['امواج دریا','Ocean waves'],fire:['شومینه واقعی','Real fireplace'],wind:['نسیم جنگل','Forest breeze'],library:['کتابخانه آرام · باران پشت پنجره','Quiet library · window rain']};
 // Public-domain field recordings from Wikimedia Commons (credits in docs/AUDIO-SOURCES.md).
 const FIELD_ROOT='https://commons.wikimedia.org/wiki/Special:Redirect/file/';
-const fieldClips={rain:'Rain.ogg',forest:'Birdsong_mild_sunny_day.ogg',ocean:'Waves.ogg',fire:'Dry_grass_burning_in_open_fireplace.ogg',wind:'20090610_0_ambience.ogg',library:'Rain.ogg'};
+const fieldClips={rain:'Rain.ogg',forest:'Birdsong_mild_sunny_day.ogg',ocean:'Waves.ogg',fire:'Dry_grass_burning_in_open_fireplace.ogg',wind:'20090610_0_ambience.ogg',library:'Rain_against_the_window.ogg'};
 const tr=(fa,en)=>document.documentElement.lang==='en'?en:fa;
 const limit=v=>Math.max(0,Math.min(100,Number(v)||0));
 const defaults={enabled:true,master:75,volume:{...channels},mute:{},scene:'rain',ambiencePlaying:false,musicPlaying:false};
@@ -112,7 +112,7 @@ async function playAmbient(scene){
   try{
    const clip=new Audio(FIELD_ROOT+encodeURIComponent(filename));
    clip.loop=true;clip.preload='auto';clip.dataset.elaraAudioChannel='ambient';
-   clip.dataset.elaraAudioGain=chosen==='fire'?'0.24':chosen==='library'?'0.27':'0.34';
+   clip.dataset.elaraAudioGain=chosen==='fire'?'0.24':chosen==='library'?'0.18':'0.34';
    clip.onerror=()=>{if(fieldAudio===clip){silenceField();sceneNoise()}};
    fieldAudio=clip;applyMedia(clip);
    await clip.play();
