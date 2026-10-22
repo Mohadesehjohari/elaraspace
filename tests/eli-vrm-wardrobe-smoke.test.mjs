@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-wave-v7'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-v8'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -156,11 +156,13 @@ test('desktop-only shortcuts reuse character wardrobe and independent gender set
   assert.ok(css.includes('@media(max-width:700px)')&&css.includes('display:none!important'));
   assert.ok(modal.includes('.elara-live-controls{'));
 });
-test('both real models stabilize head and neck during recorded dances',()=>{
+test('both VRM dances keep the head WORLD direction forward, not just local head rotation',()=>{
   const live=read('avatar-live-vrm.js');
   assert.ok(live.includes("if(!usingVRMA||!motion.startsWith('dance'))return"));
-  assert.ok(live.includes("['neck',.20],['head',.34]"));
-  assert.ok(live.includes('bone.node.quaternion.slerpQuaternions('));
+  assert.ok(live.includes('function rememberNeutralHead()'));
+  assert.ok(live.includes('headWantedQ.copy(headAnchorQ).multiply(neutralHeadRelative)'));
+  assert.ok(live.includes('safeHeadWorldQ.copy(headWantedQ).slerp(headWorldQ,maxTilt/deviation)'));
+  assert.ok(live.includes('node.quaternion.copy(headParentQ.invert().multiply(safeHeadWorldQ))'));
   assert.ok(live.includes('mixer?.update(dt);\n      stabilizeDanceHead();'));
   assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
 });
@@ -175,7 +177,7 @@ test('face is not forced back to full view mid-dance; vertical orbit and reset c
   assert.ok(live.includes("focusHeight=focusTargetPoint.y+.015"));
   assert.ok(live.includes("data-live-action=\"reset\""));
   assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
-  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-wave-v7'));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-dance-head-world-v8'));
 });
 test('per-account real GLB cache survives page script reload without redownloading',async()=>{
   const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
@@ -245,4 +247,13 @@ test('real greeting hand plane is aimed at viewer from finger and forearm joints
   assert.ok(live.includes('hand.quaternion.copy(palmParentQ.invert().multiply(palmTwistQ))'));
   assert.ok(live.includes('      aimGreetingPalm();'));
   assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
+});
+
+test('browser QA checks the six actual VRMA/gender pairs beyond successful load',()=>{
+  const qa=read('tests/eli-real-vrm-browser.mjs');
+  assert.ok(qa.includes("['dance2','dance3']"));
+  assert.ok(qa.includes("['dance1','dance2','dance3']"));
+  assert.ok(qa.includes('diagnostic.headFacingError<=.24'));
+  assert.ok(qa.includes("male-'+action+'-face.png"));
+  assert.ok(qa.includes("female-'+action+'-face.png"));
 });
