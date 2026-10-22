@@ -1,0 +1,39 @@
+name: Eli Real VRM and Dance Geometry Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - avatar-live-vrm.js
+      - avatar-motion-controls.js
+      - avatar-motion-controls.css
+      - avatar-quick-modal.js
+      - index.html
+      - tests/eli-vrm-wardrobe-smoke.test.mjs
+      - .github/workflows/eli-vrm-regression.yml
+  pull_request:
+    paths:
+      - avatar-live-vrm.js
+      - avatar-motion-controls.js
+      - avatar-motion-controls.css
+      - avatar-quick-modal.js
+      - index.html
+      - tests/eli-vrm-wardrobe-smoke.test.mjs
+      - .github/workflows/eli-vrm-regression.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  vrm-static-and-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check VRM JavaScript and avatar contract
+        run: |
+          node --check avatar-live-vrm.js
+          node --check avatar-motion-controls.js
+          node --check avatar-quick-modal.js
+          node --test tests/eli-vrm-wardrobe-smoke.test.mjs
