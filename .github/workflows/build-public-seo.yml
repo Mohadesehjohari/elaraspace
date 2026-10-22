@@ -26,6 +26,12 @@ jobs:
           python-version: "3.11"
       - name: Run SEO builder tests
         run: python -m unittest discover -s tests -p 'test_seo_builder.py' -v
+      - name: Check JavaScript module syntax
+        run: |
+          node --input-type=module --check < admin/admin.js
+          node --input-type=module --check < admin/seo-manager.js
+      - name: Test SEO Studio export and CSV parser
+        run: node tests/test-seo-dashboard.mjs
       - name: Generate static public pages
         run: python tools/build_seo.py --input seo/public-content.json --out seo-dist
       - name: Upload review-only artifact
