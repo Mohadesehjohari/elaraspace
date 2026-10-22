@@ -92,7 +92,7 @@ test('dance auto-framing stays within the stage and recovers from previous face 
  assert.ok(live.includes("anchor.worldToLocal(dancePoint)"),'Frame offsets must be in avatar space');
  assert.ok(live.includes('danceFrame.centerY'),'Camera should follow translated dance height');
  assert.ok(live.includes("selectFocus('full')"),'New dance must restore full-body view');
- assert.ok(html.includes('avatar-live-vrm.js?v=20261022-transfer-gender-head-v3'));
+ assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v5'));
 });
 test('two separate mild smiles, visible greeting palm and purple white emote icons',()=>{
  const live=read('avatar-live-vrm.js'),gallery=read('avatar-motion-controls.js');
@@ -156,11 +156,80 @@ test('desktop-only shortcuts reuse character wardrobe and independent gender set
   assert.ok(css.includes('@media(max-width:700px)')&&css.includes('display:none!important'));
   assert.ok(modal.includes('.elara-live-controls{'));
 });
-test('male head and neck guard prevents upside-down dance poses, retaining real VRMA body',()=>{
+test('both real models stabilize head and neck during recorded dances',()=>{
   const live=read('avatar-live-vrm.js');
-  assert.ok(live.includes("if(kind!=='male'||!usingVRMA||!motion.startsWith('dance'))return"));
+  assert.ok(live.includes("if(!usingVRMA||!motion.startsWith('dance'))return"));
   assert.ok(live.includes("['neck',.20],['head',.34]"));
   assert.ok(live.includes('bone.node.quaternion.slerpQuaternions('));
-  assert.ok(live.includes('mixer?.update(dt);\n      stabilizeMaleDanceHead();'));
+  assert.ok(live.includes('mixer?.update(dt);\n      stabilizeDanceHead();'));
   assert.ok(live.includes('createVRMAnimationClip(anim,vrm)'));
+});
+
+test('face is not forced back to full view mid-dance; vertical orbit and reset controls exist',()=>{
+  const live=read('avatar-live-vrm.js'),html=read('index.html');
+  assert.ok(!live.includes("if(dancingNow&&focus!=='full')selectFocus('full')"));
+  assert.ok(live.includes("targetPitch=clamp(targetPitch+dy*.004,-1.05,1.05)"));
+  assert.ok(live.includes("if(focus!=='full')panY=clamp("));
+  assert.ok(live.includes("minimumDanceOrbitDistance("));
+  assert.ok(live.includes("data-live-action=\"reset\""));
+  assert.ok(live.includes("setAction('idle');\n      selectFocus('full');"));
+  assert.ok(html.includes('avatar-live-vrm.js?v=20261022-face-orbit-cache-v5'));
+});
+test('per-account real GLB cache survives page script reload without redownloading',async()=>{
+  const cacheScript=read('avatar-vrm-asset-cache.js'),html=read('index.html');
+  assert.ok(html.includes('avatar-vrm-asset-cache.js?v=20261022-account-cache-v1'));
+  assert.ok(html.indexOf('avatar-vrm-asset-cache.js?v=')<html.indexOf('avatar-live-vrm.js?v='));
+  const stores=new Map(), bytes=new ArrayBuffer(24);
+  new DataView(bytes).setUint32(0,0x46546c67,true);
+  let fetchCount=0;
+  const ctx=()=>{
+    const window={};
+    const caches={
+      async open(name){
+        if(!stores.has(name))stores.set(name,new Map());
+        const store=stores.get(name);
+        return {
+          async match(url){return store.has(url)?new Response(store.get(url).slice(0)):undefined;},
+          async put(url,response){store.set(url,await response.arrayBuffer());},
+          async delete(url){return store.delete(url);}
+        };
+      }
+    };
+    const fetch=async()=>{fetchCount++;return new Response(bytes.slice(0),{headers:{'Content-Length':'24'}});};
+    new Script(cacheScript).runInNewContext({window,caches,fetch,Response,
+      ArrayBuffer,DataView,Uint8Array,console});
+    return window.ElaraAvatarAssetCache;
+  };
+  const one=ctx(),seen=[];
+  const first=await one.load('https://example.test/eli.vrm',{accountId:'user-a',onProgress:(a,b)=>seen.push([a,b])});
+  assert.equal(first.cached,false);
+  assert.equal(fetchCount,1);
+  assert.deepEqual(seen.at(-1),[24,24]);
+  const repeated=await one.load('https://example.test/eli.vrm',{accountId:'user-a'});
+  assert.equal(repeated.cached,true);assert.equal(fetchCount,1);
+  const newPage=ctx();
+  const persisted=await newPage.load('https://example.test/eli.vrm',{accountId:'user-a'});
+  assert.equal(persisted.cached,true);assert.equal(fetchCount,1);
+  await newPage.load('https://example.test/eli.vrm',{accountId:'user-b'});
+  assert.equal(fetchCount,2,'Different accounts use isolated local asset caches');
+});
+test('dance orbit safety fit covers rotated heights and depths at phone widths',()=>{
+  const live=read('avatar-live-vrm.js');
+  const match=live.match(/    function minimumDanceOrbitDistance\(bounds,cameraX,cameraY,aspect,fov,pitch\)\{[\s\S]*?\n    \}/);
+  assert.ok(match);
+  const orbit=new Function(match[0]+';return minimumDanceOrbitDistance;')();
+  const bounds={minX:-1.1,maxX:1.2,minY:-.5,maxY:2.9,minZ:-.8,maxZ:.9};
+  for(const aspect of [.4,.6,1.5])for(const pitch of [-.9,0,.9]){
+    const dist=orbit(bounds,0,1.0,aspect,30,pitch);
+    const s=Math.sin(pitch),c=Math.cos(pitch),t=Math.tan(15*Math.PI/180)*.78;
+    assert.ok(Number.isFinite(dist)&&dist>=6.6);
+    for(const x of [bounds.minX,bounds.maxX])
+      for(const y of [bounds.minY,bounds.maxY])
+        for(const z of [bounds.minZ,bounds.maxZ]){
+          const depth=dist-(y-1)*s-z*c;
+          assert.ok(depth>0);
+          assert.ok(Math.abs(x)<=depth*t*aspect+1e-8,'Horizontal fit');
+          assert.ok(Math.abs((y-1)*c-z*s)<=depth*t+1e-8,'Vertical fit');
+        }
+  }
 });
