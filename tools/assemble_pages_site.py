@@ -61,6 +61,9 @@ def assemble(root, generated, out):
     copied = 0
     seen = set()
     for rel in paths:
+        # Apache control file is needed only on cPanel. Never ship it to Pages.
+        if rel == ".htaccess":
+            continue
         if not safe_path(rel):
             continue
         if rel in seen:
