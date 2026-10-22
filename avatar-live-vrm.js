@@ -162,7 +162,7 @@
     const danceJoints=['head','neck','chest','hips','leftShoulder','rightShoulder',
       'leftUpperArm','rightUpperArm','leftLowerArm','rightLowerArm','leftHand','rightHand',
       'leftUpperLeg','rightUpperLeg','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot'];
-    const dancePoint=new THREE.Vector3();
+    const dancePoint=new THREE.Vector3(),focusTargetPoint=new THREE.Vector3();
     function minimumDanceCameraZ(bounds,cameraX,cameraY,aspect,fov){
       const tangent=Math.tan(fov*Math.PI/360);
       const halfWidth=Math.max(Math.abs(bounds.minX-cameraX),Math.abs(bounds.maxX-cameraX));
@@ -621,8 +621,15 @@
       const tall=viewport.clientWidth/Math.max(1,viewport.clientHeight)<.8;
       const normalDistance=(focus==='full'?(tall?4.85:4.6):focusDistance[focus]*(tall?1.12:1))*zoom;
       const fitted=dancingNow&&focus==='full'&&danceFrame.bounds;
-      const targetHeight=(fitted?danceFrame.centerY:height*focusHeights[focus])+panY;
-      const targetX=fitted?danceFrame.centerX:0;
+      let focusHeight=height*focusHeights[focus],focusX=0;
+      if(focus==='face'&&bones.head?.node){
+        // Follow the actual animated head, not the static standing-height guess.
+        bones.head.node.getWorldPosition(focusTargetPoint);
+        focusHeight=focusTargetPoint.y+.015;
+        focusX=focusTargetPoint.x;
+      }
+      const targetHeight=(fitted?danceFrame.centerY:focusHeight)+panY;
+      const targetX=fitted?danceFrame.centerX:focusX;
       const cameraFollow=1-Math.exp(-dt*(fitted?9:4.5));
       cameraLookY+=(targetHeight-cameraLookY)*cameraFollow;
       cameraLookX+=(targetX-cameraLookX)*cameraFollow;
