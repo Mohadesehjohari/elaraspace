@@ -60,11 +60,19 @@
         const previous=wrap.querySelector('[aria-pressed="true"]');
         wrap.dataset.busy='true';
         b.dataset.loading='true';
+        if(item.id.startsWith('dance')){
+          const download=document.createElement('span');
+          download.className='elara-motion-download';
+          download.innerHTML='<i aria-hidden="true"></i><small>در حال دریافت…</small>';
+          download.setAttribute('role','status');
+          b.append(download);
+        }
         info.textContent=item.id.startsWith('dance')?'در حال دریافت حرکت واقعی…':'';
         let played=false;
         try{played=(await availableModel(stage)(item.id))===true;}catch(error){console.warn('Avatar motion failed',error);}
         if(!stage.isConnected)return;
         wrap.dataset.busy='false';delete b.dataset.loading;
+        b.querySelector('.elara-motion-download')?.remove();
         if(played){
           wrap.querySelectorAll('[data-avatar-motion-option]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
           info.textContent='';
@@ -86,6 +94,17 @@
   }
   window.addEventListener('elara:avatar-stage-ready',sync);
   window.addEventListener('elara:live-avatar-mounted',sync);
+  window.addEventListener('elara:avatar-download-progress',event=>{
+    const {stage,percent,eta,key}=event.detail||{};
+    if(!key?.startsWith('dance:'))return;
+    const active=stage?.querySelector('.elara-motion-gallery button[data-loading="true"]');
+    const display=active?.querySelector('.elara-motion-download small');
+    const ring=active?.querySelector('.elara-motion-download i');
+    if(!display||!ring)return;
+    display.textContent=percent===null?'در حال دریافت…':percent+'٪'+(eta!==null?' · '+eta+'ث':'');
+    ring.style.setProperty('--elara-download-angle',((percent||0)*3.6)+'deg');
+    ring.classList.toggle('is-indeterminate',percent===null);
+  });
   window.addEventListener('elara:avatar-motion-error',event=>{
     const stage=event.detail?.stage;
     const notice=stage?.querySelector('.elara-motion-notice');
