@@ -13,7 +13,7 @@ SAFE_EXTENSIONS = {
     ".html", ".js", ".css", ".svg", ".png", ".webp", ".jpg", ".jpeg",
     ".gif", ".ico", ".woff", ".woff2", ".ttf", ".otf", ".mp3", ".wav",
     ".ogg", ".mp4", ".webm", ".glb", ".gltf", ".vrm", ".bin", ".fbx",
-    ".avif", ".json", ".wasm", ".vtt", ".txt"
+    ".avif", ".json", ".wasm", ".vtt", ".txt", ".xml"
 }
 MARKER = ".elara-pages-bundle"
 
