@@ -10,8 +10,8 @@
   background-color:#040b27!important;
   background-image:linear-gradient(180deg,rgba(2,5,26,.35),rgba(4,6,27,.54) 45%,rgba(2,3,20,.46)),url('assets/ui/theme_galaxy_purple.webp')!important;
   background-position:center,center!important;
-  background-size:cover,contain!important;
-  background-repeat:no-repeat!important;
+  background-size:cover,cover!important;
+  background-repeat:no-repeat,no-repeat!important;
   color:#faf8ff;
 }
 .ef-dual-chat .ef-shell{
