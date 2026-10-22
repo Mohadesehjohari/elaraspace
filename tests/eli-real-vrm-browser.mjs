@@ -71,7 +71,10 @@ try{
     console.log('ELI_HEAD_FACING',label,JSON.stringify(diagnostic));
     assert.ok(diagnostic&&Number.isFinite(diagnostic.headFacingError)&&
       diagnostic.headFacingError<=.24,
-      label+' head must remain facing forward, not show the red hair back: '+JSON.stringify(diagnostic));
+      label+' normalized head must remain front-facing: '+JSON.stringify(diagnostic));
+    assert.ok(Number.isFinite(diagnostic.renderedHeadFacingError)&&
+      diagnostic.renderedHeadFacingError<=.30,
+      label+' visible face mesh/raw head must point forward: '+JSON.stringify(diagnostic));
   };
   await assertForward('male-dance1-face');
   for(const action of ['dance2','dance3']){
